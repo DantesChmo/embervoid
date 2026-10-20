@@ -1,5 +1,6 @@
 package com.embervoid;
 
+import com.embervoid.config.EmbervoidConfig;
 import com.embervoid.registry.ModBlocks;
 import com.embervoid.registry.ModEntities;
 import com.embervoid.registry.ModItemGroups;
@@ -21,6 +22,8 @@ public class Embervoid implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		EmbervoidConfig.load();
+
 		// Order matters: blocks before items (BlockItems), items before item groups.
 		ModSounds.register();
 		ModBlocks.register();
