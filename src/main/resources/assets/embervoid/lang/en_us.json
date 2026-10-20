@@ -5,6 +5,10 @@
 	"embervoid.ability.cost": "%s stamina, %ss cooldown",
 	"embervoid.ability.no_stamina": "Too exhausted",
 	"embervoid.ability.knockback_sweep": "Knockback Sweep",
+	"item.embervoid.healing_flask": "Healing Flask",
+	"embervoid.flask.charges": "Charges: %s/%s",
+	"embervoid.flask.heal": "Restores %s ❤",
+	"embervoid.flask.sprinting": "Can't drink while running",
 	"itemGroup.embervoid.main": "Embervoid",
 	"modmenu.descriptionTranslation.embervoid": "The world is fading. A dark fantasy adventure: dungeons, bosses and cursed gear."
 }

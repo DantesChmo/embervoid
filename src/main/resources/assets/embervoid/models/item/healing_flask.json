@@ -1,0 +1,9 @@
+{
+	"parent": "minecraft:item/generated",
+	"textures": {
+		"layer0": "embervoid:item/healing_flask"
+	},
+	"overrides": [
+		{ "predicate": { "embervoid:empty": 1 }, "model": "embervoid:item/healing_flask_empty" }
+	]
+}

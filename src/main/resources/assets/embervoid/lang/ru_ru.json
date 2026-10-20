@@ -5,6 +5,10 @@
 	"embervoid.ability.cost": "%s выносливости, перезарядка %s с",
 	"embervoid.ability.no_stamina": "Нет сил",
 	"embervoid.ability.knockback_sweep": "Отбрасывающий взмах",
+	"item.embervoid.healing_flask": "Лечебная фляга",
+	"embervoid.flask.charges": "Заряды: %s/%s",
+	"embervoid.flask.heal": "Восстанавливает %s ❤",
+	"embervoid.flask.sprinting": "Нельзя пить на бегу",
 	"itemGroup.embervoid.main": "Embervoid",
 	"modmenu.descriptionTranslation.embervoid": "Мир угасает. Тёмное фэнтези-приключение: данжи, боссы и проклятое снаряжение."
 }
