@@ -1,0 +1,30 @@
+{
+	"schemaVersion": 1,
+	"id": "embervoid",
+	"version": "${version}",
+	"name": "Embervoid",
+	"description": "The world is fading. A dark fantasy adventure: dungeons, bosses and cursed gear.",
+	"authors": ["dantes_chmo"],
+	"contact": {},
+	"license": "All-Rights-Reserved",
+	"icon": "assets/embervoid/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": ["com.embervoid.Embervoid"],
+		"client": ["com.embervoid.client.EmbervoidClient"],
+		"fabric-datagen": ["com.embervoid.client.EmbervoidDataGenerator"]
+	},
+	"mixins": [
+		"embervoid.mixins.json",
+		{
+			"config": "embervoid.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.15.0",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	}
+}
