@@ -1,4 +1,10 @@
 {
+	"item.embervoid.debug_sweep": "Debug Sweep Blade",
+	"item.embervoid.debug_sweep.dev": "Development item",
+	"embervoid.ability.tooltip": "Right-click: %s",
+	"embervoid.ability.cost": "%s stamina, %ss cooldown",
+	"embervoid.ability.no_stamina": "Too exhausted",
+	"embervoid.ability.knockback_sweep": "Knockback Sweep",
 	"itemGroup.embervoid.main": "Embervoid",
 	"modmenu.descriptionTranslation.embervoid": "The world is fading. A dark fantasy adventure: dungeons, bosses and cursed gear."
 }
