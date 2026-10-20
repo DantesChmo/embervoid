@@ -9,6 +9,7 @@
 	"embervoid.flask.charges": "Заряды: %s/%s",
 	"embervoid.flask.heal": "Восстанавливает %s ❤",
 	"embervoid.flask.sprinting": "Нельзя пить на бегу",
+	"embervoid.flask.refilled": "Вы отдохнули. Фляги снова полны",
 	"itemGroup.embervoid.main": "Embervoid",
 	"modmenu.descriptionTranslation.embervoid": "Мир угасает. Тёмное фэнтези-приключение: данжи, боссы и проклятое снаряжение."
 }

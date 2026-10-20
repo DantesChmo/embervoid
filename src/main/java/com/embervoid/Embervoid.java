@@ -2,6 +2,7 @@ package com.embervoid;
 
 import com.embervoid.command.ModCommands;
 import com.embervoid.config.EmbervoidConfig;
+import com.embervoid.player.FlaskRefill;
 import com.embervoid.player.PlayerDataManager;
 import com.embervoid.player.StaminaManager;
 import com.embervoid.registry.DebugItems;
@@ -38,6 +39,7 @@ public class Embervoid implements ModInitializer {
 		ModStructures.register();
 		PlayerDataManager.register();
 		StaminaManager.register();
+		FlaskRefill.register();
 		ModCommands.register();
 
 		LOGGER.info("Embervoid: the embers stir...");

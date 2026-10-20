@@ -38,6 +38,9 @@ public final class PlayerData {
 	/** Ticks until stamina starts regenerating. Server-only, not saved or synced. */
 	public int staminaRegenDelay;
 
+	/** Time of day when the player lay down at night, or -1. Server-only, not saved or synced. */
+	public long sleepStartTime = -1;
+
 	public PlayerData(float stamina, int flaskChargeUpgrades, int flaskHealUpgrades, @Nullable UUID remnantId) {
 		this.stamina = stamina;
 		this.flaskChargeUpgrades = flaskChargeUpgrades;
