@@ -23,7 +23,7 @@ jobs:
       - name: Build
         run: ./gradlew build --stacktrace
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: embervoid-${{ github.sha }}
           path: build/libs/*.jar
