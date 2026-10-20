@@ -35,6 +35,9 @@ public final class PlayerData {
 	@Nullable
 	public UUID remnantId;
 
+	/** Ticks until stamina starts regenerating. Server-only, not saved or synced. */
+	public int staminaRegenDelay;
+
 	public PlayerData(float stamina, int flaskChargeUpgrades, int flaskHealUpgrades, @Nullable UUID remnantId) {
 		this.stamina = stamina;
 		this.flaskChargeUpgrades = flaskChargeUpgrades;

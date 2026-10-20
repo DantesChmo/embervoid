@@ -2,6 +2,8 @@ package com.embervoid.command;
 
 import com.embervoid.player.PlayerData;
 import com.embervoid.player.PlayerDataManager;
+import com.embervoid.player.StaminaManager;
+import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -33,6 +35,36 @@ public final class ModCommands {
 													PlayerDataManager.sync(player);
 													context.getSource().sendFeedback(
 															() -> Text.literal("[server] " + data), false);
+													return 1;
+												}))))
+						.then(literal("stamina")
+								// /embervoid stamina: show current/max.
+								.executes(context -> {
+									ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
+									context.getSource().sendFeedback(() -> Text.literal(
+											"Stamina: " + StaminaManager.get(player) + "/" + StaminaManager.getMax()), false);
+									return 1;
+								})
+								// /embervoid stamina spend <amount>: spend like an action would (not in creative).
+								.then(literal("spend")
+										.then(argument("amount", FloatArgumentType.floatArg(0))
+												.executes(context -> {
+													ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
+													boolean spent = StaminaManager.tryConsume(player,
+															FloatArgumentType.getFloat(context, "amount"));
+													context.getSource().sendFeedback(() -> Text.literal(
+															(spent ? "Spent, stamina: " : "Out of stamina: ")
+																	+ StaminaManager.get(player) + "/" + StaminaManager.getMax()), false);
+													return spent ? 1 : 0;
+												})))
+								// /embervoid stamina set <value>
+								.then(literal("set")
+										.then(argument("value", FloatArgumentType.floatArg(0))
+												.executes(context -> {
+													ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
+													StaminaManager.set(player, FloatArgumentType.getFloat(context, "value"));
+													context.getSource().sendFeedback(() -> Text.literal(
+															"Stamina: " + StaminaManager.get(player) + "/" + StaminaManager.getMax()), false);
 													return 1;
 												}))))));
 	}

@@ -3,6 +3,7 @@ package com.embervoid;
 import com.embervoid.command.ModCommands;
 import com.embervoid.config.EmbervoidConfig;
 import com.embervoid.player.PlayerDataManager;
+import com.embervoid.player.StaminaManager;
 import com.embervoid.registry.ModBlocks;
 import com.embervoid.registry.ModEntities;
 import com.embervoid.registry.ModItemGroups;
@@ -34,6 +35,7 @@ public class Embervoid implements ModInitializer {
 		ModItemGroups.register();
 		ModStructures.register();
 		PlayerDataManager.register();
+		StaminaManager.register();
 		ModCommands.register();
 
 		LOGGER.info("Embervoid: the embers stir...");

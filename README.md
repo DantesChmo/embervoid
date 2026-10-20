@@ -34,4 +34,7 @@ The mod reads `config/embervoid.json` (created with defaults on first launch). M
 ## Debug commands
 - `/embervoid data` (operator) — show your Embervoid player data as stored on the server.
 - `/embervoid data flaskChargeUpgrades <n>` (operator) — set a test value and sync it to the client.
+- `/embervoid stamina` (operator) — show your stamina.
+- `/embervoid stamina spend <amount>` (operator) — spend stamina as an action would (survival/adventure only).
+- `/embervoid stamina set <value>` (operator) — set your stamina.
 - `/embervoid_client data` — show the player data as your client sees it.

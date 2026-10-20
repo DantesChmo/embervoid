@@ -12,6 +12,7 @@ public class EmbervoidClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		// Entity renderers, HUD (boss bar), keybinds.
+		ClientStamina.register();
 
 		ClientPlayNetworking.registerGlobalReceiver(PlayerDataManager.SYNC_PACKET, (client, handler, buf, responseSender) -> {
 			PlayerData data = PlayerData.read(buf);
@@ -27,7 +28,8 @@ public class EmbervoidClient implements ClientModInitializer {
 				ClientCommandManager.literal("embervoid_client")
 						.then(ClientCommandManager.literal("data").executes(context -> {
 							context.getSource().sendFeedback(
-									Text.literal("[client] " + PlayerDataManager.get(context.getSource().getPlayer())));
+									Text.literal("[client] " + PlayerDataManager.get(context.getSource().getPlayer())
+											+ ", maxStamina=" + ClientStamina.max()));
 							return 1;
 						}))));
 	}
