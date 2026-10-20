@@ -30,3 +30,8 @@ The mod reads `config/embervoid.json` (created with defaults on first launch). M
 | `flask.drinkTicks` | 32 | 1–200 | Ticks one sip takes |
 | `structures.<ruins\|crypt\|fortress>.spacing` | 24 / 40 / 64 | 2–4096 | Average distance between structures, in chunks |
 | `structures.<ruins\|crypt\|fortress>.separation` | 8 / 16 / 24 | 0–4095 | Minimum distance, in chunks (less than `spacing`) |
+
+## Debug commands
+- `/embervoid data` (operator) — show your Embervoid player data as stored on the server.
+- `/embervoid data flaskChargeUpgrades <n>` (operator) — set a test value and sync it to the client.
+- `/embervoid_client data` — show the player data as your client sees it.
