@@ -15,6 +15,14 @@ repositories {
 		name = 'TerraformersMC'
 		url = 'https://maven.terraformersmc.com/releases/'
 	}
+	maven {
+		name = 'GeckoLib'
+		url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+		content {
+			includeGroupByRegex('software\\.bernie.*')
+			includeGroup('com.eliotlash.mclib')
+		}
+	}
 }
 
 loom {
@@ -45,6 +53,8 @@ dependencies {
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	// Required at runtime by players too (animated mobs and bosses).
+	modImplementation "software.bernie.geckolib:geckolib-fabric-${project.minecraft_version}:${project.geckolib_version}"
 
 	// Dev-only: mod list in runClient. Not bundled, not required by players.
 	modLocalRuntime "com.terraformersmc:modmenu:${project.modmenu_version}"

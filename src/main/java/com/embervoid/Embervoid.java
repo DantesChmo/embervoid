@@ -3,6 +3,7 @@ package com.embervoid;
 import com.embervoid.command.ModCommands;
 import com.embervoid.config.ConfigSync;
 import com.embervoid.config.EmbervoidConfig;
+import com.embervoid.entity.mob.MobEntities;
 import com.embervoid.player.FlaskRefill;
 import com.embervoid.player.PlayerDataManager;
 import com.embervoid.player.RemnantDeathHandler;
@@ -38,6 +39,7 @@ public class Embervoid implements ModInitializer {
 		ModItems.register();
 		DebugItems.register();
 		ModEntities.register();
+		MobEntities.register();
 		ModItemGroups.register();
 		ModStructures.register();
 		ConfigSync.register();
