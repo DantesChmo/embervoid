@@ -14,6 +14,7 @@ import com.embervoid.registry.ModItemGroups;
 import com.embervoid.registry.ModItems;
 import com.embervoid.registry.ModSounds;
 import com.embervoid.registry.ModStructures;
+import com.embervoid.stats.StatEffects;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
@@ -44,6 +45,7 @@ public class Embervoid implements ModInitializer {
 		StaminaManager.register();
 		FlaskRefill.register();
 		RemnantDeathHandler.register();
+		StatEffects.register();
 		ModCommands.register();
 
 		LOGGER.info("Embervoid: the embers stir...");
