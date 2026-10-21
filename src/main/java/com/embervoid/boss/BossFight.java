@@ -5,6 +5,9 @@ import com.embervoid.mob.MobLevels;
 import com.embervoid.progress.ProgressManager;
 import com.embervoid.realm.RealmDefinition;
 import com.embervoid.realm.Realms;
+import com.embervoid.realm.worldgen.RealmFeatures;
+import com.embervoid.registry.ModBlocks;
+import com.embervoid.sanctum.SanctumBlocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.boss.BossBar;
@@ -224,6 +227,7 @@ public class BossFight {
 		}
 		RealmDefinition realm = Realms.byWorld(world.getRegistryKey());
 		boolean finalBoss = realm != null && realm.finalBoss().equals(spec.bossId());
+		boolean shrine = ensureShrine();
 		for (UUID uuid : fighters) {
 			ServerPlayerEntity player = world.getServer().getPlayerManager().getPlayer(uuid);
 			if (player == null || player.getServerWorld() != world || !player.isAlive() || !isInside(player.getPos(), 2)) {
@@ -233,7 +237,9 @@ public class BossFight {
 				// Personal loot: straight into this player's inventory, nobody else can pick it up.
 				player.getInventory().offerOrDrop(EmberHeartItem.of(spec.bossId()));
 				player.sendMessage(Text.translatable("embervoid.boss.first_kill", bossName()), false);
-				player.sendMessage(Text.translatable("embervoid.shrine.kindled"), true);
+				if (shrine) {
+					player.sendMessage(Text.translatable("embervoid.shrine.kindled"), true);
+				}
 			} else {
 				player.sendMessage(Text.translatable("embervoid.boss.victory", bossName()), true);
 			}
@@ -242,6 +248,27 @@ public class BossFight {
 			}
 		}
 		end();
+	}
+
+	/**
+	 * Every arena leaves an Ember Shrine (milestone 7). Worldgen places it; if it is missing (another structure or
+	 * terrain overwrote it, a player removed it in creative), it is put back now. Returns false if the arena's
+	 * structure is not found, so no shrine can be promised.
+	 */
+	private boolean ensureShrine() {
+		RealmFeatures.Placed feature = RealmFeatures.at(world, center);
+		if (feature == null) {
+			return false;
+		}
+		BlockPos shrine = feature.piece().shrinePos();
+		if (!world.getBlockState(shrine).isOf(SanctumBlocks.EMBER_SHRINE)) {
+			if (world.getBlockState(shrine.down()).getCollisionShape(world, shrine.down()).isEmpty()) {
+				world.setBlockState(shrine.down(), ModBlocks.POLISHED_ASH_STONE.getDefaultState());
+			}
+			world.setBlockState(shrine, SanctumBlocks.EMBER_SHRINE.getDefaultState());
+			Embervoid.LOGGER.warn("Arena shrine of {} was missing at {}; placed it", spec.bossId(), shrine.toShortString());
+		}
+		return true;
 	}
 
 	private static void completeRealm(ServerPlayerEntity player, RealmDefinition realm) {
