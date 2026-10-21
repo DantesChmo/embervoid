@@ -55,7 +55,7 @@ Lore lives in item descriptions and the environment.
 | Topic | Design | Status |
 |---|---|---|
 | Spawning | Overworld structure, any land biome. Spacing ~48 chunks, separation ~16 (rarer than villages: roughly one per 750 blocks). Tunable through the `structure_set` datapack file | Proposed |
-| Layout | **Outer halls**: surface ruin + descent, guarded (Hollows, traps, loot). **Core**: hostile-spawn-free room with the Maiden, the obelisk ring, an Ember Shrine | Decided |
+| Layout | **Outer halls**: surface ruin + descent, guarded (Hollows, traps, loot). **Core**: hostile-spawn-free room with the Maiden, the obelisk ring, an Ember Shrine. Size: jigsaw depth 4 and a light guard (a fresh player must be able to fight through it); the descent is a closed shaft that never opens into caves | Decided |
 | Finding it | Pure exploration, plus a rare **Sanctum Map** (explorer-map style) injected into vanilla chest loot (villages, ruined portals, shipwrecks) | Proposed |
 | Attunement | The first time a player reaches a core, they are *attuned*. From then on **any** Sanctum works for them; progress is per player, not per structure | Proposed |
 | Return point | Leaving a realm returns you to the Sanctum you entered from | Proposed |
@@ -352,9 +352,9 @@ Loot per realm:
 | Mechanic | Design | Status |
 |---|---|---|
 | Stamina | Spent **only** by right-click special attacks. Vanilla hits, sprinting and blocking stay free. Max and regen from END | Decided |
-| Healing Flask | Charges (start 3), heal over time, cannot drink while sprinting. Refilled by resting at an Ember Shrine, sleeping through the night in a bed, and on respawn after death. Charges live in player data (built per §10.6). A lost flask is crafted again from a glass bottle + a diamond + coal or charcoal (shapeless); a second flask adds no charges | Decided |
+| Healing Flask | Charges (start 3), heal over time, cannot drink while sprinting. Refilled by resting at an Ember Shrine, sleeping through the night in a bed, and on respawn after death. The flask is never dropped or put into the Ash Remnant: it stays in the inventory on death, full after respawn. Charges live in player data (built per §10.6). A lost flask is crafted again from a glass bottle + a diamond + coal or charcoal (shapeless); a second flask adds no charges | Decided |
 | Flask Shards | Permanent +1 charge or +healing per sip, capped | Decided |
-| Ash Remnant | On death XP and all items go into a remnant at a safe spot (the last position on solid ground). Modes `off` / `xp` / `xp_and_items`. With XP as the leveling currency this is our bloodstain. What dying again before reaching it does is **Open** (§10.7) | Decided (second death Open) |
+| Ash Remnant | On death XP and all items except the Healing Flask go into a remnant at a safe spot (the last position on solid ground). Modes `off` / `xp` / `xp_and_items`. With XP as the leveling currency this is our bloodstain. What dying again before reaching it does is **Open** (§10.7) | Decided (second death Open) |
 | Full-set bonuses | Armor sets grant a bonus when all 4 pieces are worn | Decided |
 
 ---
