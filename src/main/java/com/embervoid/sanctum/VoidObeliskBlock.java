@@ -2,6 +2,7 @@ package com.embervoid.sanctum;
 
 import com.embervoid.progress.PlayerProgress;
 import com.embervoid.progress.ProgressManager;
+import com.embervoid.realm.api.RealmTeleports;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
@@ -91,10 +92,9 @@ public class VoidObeliskBlock extends BlockWithEntity {
 			player.sendMessage(Text.translatable("embervoid.obelisk.dark").formatted(Formatting.DARK_GRAY), true);
 		} else {
 			// With a rested shrine in that realm the player goes back to it; sneaking picks the landing instead.
-			boolean toLastShrine = !player.isSneaking() && RealmBridge.hasRestedShrine(serverPlayer, realm);
-			if (!RealmBridge.enterRealm(serverPlayer, realm, toLastShrine)) {
-				player.sendMessage(Text.translatable("embervoid.obelisk.forming").formatted(Formatting.GOLD), true);
-			}
+			// enterRealm tells the player if the realm cannot be entered yet.
+			boolean toLastShrine = !player.isSneaking() && RealmTeleports.hasRestedShrine(serverPlayer, realm);
+			RealmTeleports.enterRealm(serverPlayer, realm, toLastShrine);
 		}
 		return ActionResult.SUCCESS;
 	}
