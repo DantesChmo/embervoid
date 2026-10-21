@@ -1,0 +1,43 @@
+{
+	"parent": "minecraft:block/block",
+	"textures": {
+		"particle": "embervoid:block/ember_shrine_side",
+		"side": "embervoid:block/ember_shrine_side",
+		"top": "embervoid:block/ember_shrine_top",
+		"stone": "embervoid:block/polished_ash_stone",
+		"bricks": "embervoid:block/ash_bricks"
+	},
+	"elements": [
+		{
+			"from": [1, 0, 1], "to": [15, 4, 15],
+			"faces": {
+				"down":  { "texture": "#stone", "cullface": "down" },
+				"up":    { "texture": "#stone" },
+				"north": { "uv": [1, 12, 15, 16], "texture": "#bricks" },
+				"south": { "uv": [1, 12, 15, 16], "texture": "#bricks" },
+				"west":  { "uv": [1, 12, 15, 16], "texture": "#bricks" },
+				"east":  { "uv": [1, 12, 15, 16], "texture": "#bricks" }
+			}
+		},
+		{
+			"from": [3, 4, 3], "to": [13, 12, 13],
+			"faces": {
+				"north": { "uv": [3, 4, 13, 12], "texture": "#side" },
+				"south": { "uv": [3, 4, 13, 12], "texture": "#side" },
+				"west":  { "uv": [3, 4, 13, 12], "texture": "#side" },
+				"east":  { "uv": [3, 4, 13, 12], "texture": "#side" }
+			}
+		},
+		{
+			"from": [2, 12, 2], "to": [14, 14, 14],
+			"faces": {
+				"down":  { "texture": "#stone" },
+				"up":    { "uv": [2, 2, 14, 14], "texture": "#top" },
+				"north": { "uv": [2, 0, 14, 2], "texture": "#side" },
+				"south": { "uv": [2, 0, 14, 2], "texture": "#side" },
+				"west":  { "uv": [2, 0, 14, 2], "texture": "#side" },
+				"east":  { "uv": [2, 0, 14, 2], "texture": "#side" }
+			}
+		}
+	]
+}

@@ -20,31 +20,35 @@ Packages owned: `com.embervoid.realm` (dimensions, worldgen, teleports, gate, lo
 | Landing | Return obelisk, Ember Shrine (stand-in), Sealed Gate. Protected (unbreakable blocks + no building inside arenas/landing) |
 | Player realm data | Own attachment `realm_player` (persistent, copied on death): Sanctum return point, last rested shrine per realm |
 | Respawn | `AFTER_RESPAWN`: died in a realm → teleport to that realm's last rested shrine (or landing). Overworld spawn point untouched; beds in realms do not set spawn |
-| Progress | Interface `RealmProgress`; until sanctum's `progress` API is on `main` a transient in-memory stub (no saved copy of that data) |
+| Progress | Sanctum's `ProgressManager` (on `main`); Realm 1's id is `ProgressManager.REALM_1` |
 | Shrine | `ShrineHooks` events (`ALLOW_REST`, `RESTED`) for sanctum's Ember Shrine. Stand-in until it lands: soul campfire in realm dimensions |
-| Mob levels | `RealmMobLevels` assigns zone bands on entity load; writes through a stub bridge until the mobs level API is on `main` |
+| Mob levels | `RealmMobLevels` picks the zone band's level on entity load; `setLevel`/`hasLevel` are stubs until the mobs level API is on `main` |
 | Boss framework | `boss`: `ArenaBoss` interface + `BossFight` (boss bar with level, cylinder fog wall, participants, reset on leave/death, phases, credit, Ember Heart), `ArenaManager` (summon rule from arena structures), `Telegraph`, boss music S2C packet, arena shrine dormant per §10.8 |
 | Test boss | `TestBossEntity` (zombie model), two phases, telegraphed slam |
 
 ## Tasks
 
-- [ ] R1 Plan (this file)
-- [ ] R2 `RealmLayout` pure math (zone by warped angle, falloff, arena position) + tests
-- [ ] R3 Realm dimension: biome source, falloff density function, dimension/type/noise JSON, placeholder biomes (3 zones, landing, abyss), void push-back
-- [ ] R4 Final-zone dimension
-- [ ] R5 `realm_feature` structure + `RealmFeaturePlacement`: landing and 3 zone arenas + final arena; protection
-- [ ] R6 Realm blocks (return obelisk, Sealed Gate), teleports, realm player data, respawn, shrine hooks + stand-in
-- [ ] R7 Sealed Gate logic, Ember Lodestar, zone level bands, `/embervoid realm` debug commands
-- [ ] R8 Boss framework (bar, fog wall, reset, phases, summon rule, credit, Ember Heart, telegraphs, music, arena shrine)
-- [ ] R9 Test boss
-- [ ] R10 Swap stubs for `progress` / mob level API when merged; check request; merge request
+- [x] R1 Plan (this file)
+- [x] R2 `RealmLayout` pure math + tests (8 JUnit tests)
+- [x] R3 Realm dimension: biome source, falloff density function, dimension/type/noise JSON, placeholder biomes, void push-back
+- [x] R4 Final-zone dimension
+- [x] R5 `realm_feature` structure + placement: landing, 3 zone arenas, final arena; protection
+- [x] R6 Realm blocks, teleports, realm player data, respawn, shrine hooks + stand-in
+- [x] R7 Sealed Gate, Ember Lodestar, zone level bands (decided; applying waits on the mobs API), debug commands
+- [x] R8 Boss framework
+- [x] R9 Test boss
+- [x] R10a Progress stub replaced by `ProgressManager`
+- [ ] R10b Apply level bands and boss levels through the mobs level API once it is on `main`
+- [ ] R10c In-game check (requested), fixes, final merge request
 
 ## Contracts used / offered
 
-- Uses (stubbed until merged): sanctum `progress` API; mobs level API; sanctum Ember Shrine block.
+- Uses: sanctum `progress` API. Stubbed until merged: mobs level API; sanctum Ember Shrine block (soul campfire stand-in).
 - Offers: `realm.api.RealmTeleports.enterRealm(player, realmId, toLastShrine)` for the Sanctum's Void Obelisk;
   `realm.api.ShrineHooks` events for the Ember Shrine.
 
 ## Status / notes
 
-- JUnit is not in `build.gradle` yet (asked the coordinator).
+- Debug: `/embervoid realm enter <realm> [toShrine] | leave | where | arenas | data`, `/embervoid boss fights`.
+- The realm radius is in both the dimension JSON and `Realms` (void push-back); keep them equal.
+- Arena shrines are an unlit soul campfire for everyone; a per-player lit look needs the real shrine block.

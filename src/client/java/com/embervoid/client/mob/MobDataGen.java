@@ -1,8 +1,10 @@
 package com.embervoid.client.mob;
 
 import com.embervoid.entity.mob.MobEntities;
+import com.embervoid.mob.MobLevels;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.SimpleFabricLootTableProvider;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
@@ -17,14 +19,33 @@ import net.minecraft.loot.function.LootingEnchantLootFunction;
 import net.minecraft.loot.function.SetCountLootFunction;
 import net.minecraft.loot.provider.number.ConstantLootNumberProvider;
 import net.minecraft.loot.provider.number.UniformLootNumberProvider;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
-/** Datagen for the overworld mobs: entity loot tables. Spawn egg item models are hand-written resources. */
+/**
+ * Datagen for the mobs track: entity loot tables and entity type tags. Spawn egg item models are hand-written
+ * resources.
+ */
 public final class MobDataGen {
 	public static void addProviders(FabricDataGenerator.Pack pack) {
 		pack.addProvider(Loot::new);
+		pack.addProvider(EntityTags::new);
+	}
+
+	/** Vanilla bosses keep vanilla stats (DESIGN §5.4). */
+	private static class EntityTags extends FabricTagProvider.EntityTypeTagProvider {
+		EntityTags(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registries) {
+			super(output, registries);
+		}
+
+		@Override
+		protected void configure(RegistryWrapper.WrapperLookup registries) {
+			getOrCreateTagBuilder(MobLevels.UNLEVELED)
+					.add(EntityType.ENDER_DRAGON, EntityType.WITHER, EntityType.WARDEN, EntityType.ELDER_GUARDIAN);
+		}
 	}
 
 	private static class Loot extends SimpleFabricLootTableProvider {

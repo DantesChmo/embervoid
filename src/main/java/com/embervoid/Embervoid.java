@@ -4,11 +4,11 @@ import com.embervoid.command.ModCommands;
 import com.embervoid.config.ConfigSync;
 import com.embervoid.config.EmbervoidConfig;
 import com.embervoid.entity.mob.MobEntities;
+import com.embervoid.mob.MobLevels;
 import com.embervoid.player.FlaskRefill;
 import com.embervoid.player.PlayerDataManager;
 import com.embervoid.player.RemnantDeathHandler;
 import com.embervoid.player.StaminaManager;
-import com.embervoid.progress.ProgressManager;
 import com.embervoid.realm.RealmInit;
 import com.embervoid.registry.DebugItems;
 import com.embervoid.registry.ModBlocks;
@@ -17,6 +17,7 @@ import com.embervoid.registry.ModItemGroups;
 import com.embervoid.registry.ModItems;
 import com.embervoid.registry.ModSounds;
 import com.embervoid.registry.ModStructures;
+import com.embervoid.sanctum.Sanctum;
 import com.embervoid.stats.StatEffects;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.util.Identifier;
@@ -42,6 +43,7 @@ public class Embervoid implements ModInitializer {
 		DebugItems.register();
 		ModEntities.register();
 		MobEntities.register();
+		MobLevels.register();
 		ModItemGroups.register();
 		ModStructures.register();
 		ConfigSync.register();
@@ -51,8 +53,9 @@ public class Embervoid implements ModInitializer {
 		RemnantDeathHandler.register();
 		StatEffects.register();
 		ModCommands.register();
-		ProgressManager.register();
 		RealmInit.register();
+		// Also registers the progress API.
+		Sanctum.register();
 
 		LOGGER.info("Embervoid: the embers stir...");
 	}
