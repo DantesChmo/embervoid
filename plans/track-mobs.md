@@ -6,7 +6,7 @@ level display). Branch `claude/track-mobs-*`.
 | # | Task | Status |
 |---|---|---|
 | M1 | GeckoLib 4.8.4 as a required dependency + Ash Ghoul (model pipeline) | done |
-| M2 | Bestiary details for Hollow and Ember Wisp (below), sent as a QUESTION | sent, awaiting answer |
+| M2 | Bestiary details for Hollow and Ember Wisp (below), sent as a QUESTION | decided (DESIGN §3.2), Hollow base attack 0 |
 | M3 | Hollow | done |
 | M4 | Ember Wisp | done |
 | M5 | Mob levels (3.5) + level API | todo |
@@ -39,9 +39,9 @@ level-1 base values; levels scale HP, damage and XP (§5.4).
 ### Hollow (base level 15)
 
 - **Role:** armed undead swordsman. Slow, hard-hitting, telegraphed, blocks. A "mini-knight" fight; rich XP.
-- **Stats:** 30 HP, armor 6, knockback resistance 0.6, speed 0.2 (zombie 0.23), follow range 24, base attack 2
-  plus the weapon (iron sword 70 % → 7 total, stone sword 30 % → 6). Weapon drops like vanilla gear (8.5 %).
-  At level 15 on Normal an iron-sword hit is ~15 before armor, ~10 through full iron.
+- **Stats:** 30 HP, armor 6, knockback resistance 0.6, speed 0.2 (zombie 0.23), follow range 24, base attack 0:
+  all damage comes from the weapon (iron sword 70 % → 5, stone sword 30 % → 4; decided). Weapon drops like
+  vanilla gear (8.5 %). Balance target for later: ~6 HP per hit through full iron on Normal.
 - **Attack:** wind-up of 8 ticks (overhead swing animation) before the hit lands, so it can be dodged by
   stepping out of reach; one attack per 40 ticks (zombie 20).
 - **Guard:** when the target is within 5 blocks and the attack is on cooldown, it may raise its guard for 30–60
