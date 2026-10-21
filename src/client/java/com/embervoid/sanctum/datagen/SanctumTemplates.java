@@ -5,6 +5,7 @@ import com.embervoid.entity.mob.MobEntities;
 import com.embervoid.progress.ProgressManager;
 import com.embervoid.sanctum.SanctumBlocks;
 import com.embervoid.sanctum.SanctumEntities;
+import com.embervoid.sanctum.SanctumGuards;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.LanternBlock;
@@ -20,6 +21,7 @@ import net.minecraft.nbt.NbtString;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -50,9 +52,8 @@ final class SanctumTemplates {
 	private static final Identifier CORE_IN = Embervoid.id("sanctum_core_in");
 
 	static final Identifier OUTER_HALL_LOOT = Embervoid.id("chests/sanctum_outer_hall");
-	/** Entity tag on the outer-hall guards. */
-	static final String GUARD_TAG = "embervoid.sanctum_guard";
 	private static final String HOLLOW = Registries.ENTITY_TYPE.getId(MobEntities.HOLLOW).toString();
+	private static final String SKELETON = "minecraft:skeleton";
 
 	private static final BlockState AIR = Blocks.AIR.getDefaultState();
 	private static final BlockState BRICKS = ASH_BRICKS.getDefaultState();
@@ -218,9 +219,8 @@ final class SanctumTemplates {
 		t.set(4, 5, 6, HANGING_LANTERN).set(4, 5, 16, HANGING_LANTERN);
 		t.chest(2, 1, 2, Direction.EAST, OUTER_HALL_LOOT);
 		t.chest(6, 1, 19, Direction.WEST, OUTER_HALL_LOOT);
-		t.entity(3, 1, 8, guard(HOLLOW));
-		t.entity(5, 1, 13, guard(HOLLOW));
-		t.entity(4, 1, 18, guard("minecraft:skeleton"));
+		t.entity(4, 1, 12, guard(HOLLOW, null));
+		t.entity(4, 1, 18, guard(SKELETON, null));
 		return t;
 	}
 
@@ -280,11 +280,11 @@ final class SanctumTemplates {
 		t.door(2, 1, 0, Direction.NORTH, HALL_IN, null, null);
 		t.door(2, 1, 12, Direction.SOUTH, HALL_OUT, POOL_HALLS, HALL_IN);
 		t.set(1, 3, 6, HANGING_LANTERN);
-		t.entity(2, 1, 7, guard(HOLLOW));
+		t.entity(2, 1, 7, guard(HOLLOW, SanctumGuards.ROLL_HALL));
 		return t;
 	}
 
-	/** Crossroads chamber, 13x7x13, three exits, two chests, three guards. */
+	/** Crossroads chamber, 13x7x13, three exits, two chests, a Hollow spot and an archer spot. */
 	private static TemplateBuilder hallChamber() {
 		TemplateBuilder t = new TemplateBuilder(13, 7, 13);
 		t.room(POLISHED, BRICKS, BRICKS);
@@ -302,13 +302,12 @@ final class SanctumTemplates {
 		for (int[] p : new int[][]{{3, 3}, {9, 9}, {3, 9}, {9, 3}}) {
 			t.set(p[0], 5, p[1], HANGING_LANTERN);
 		}
-		t.entity(3, 1, 4, guard(HOLLOW));
-		t.entity(9, 1, 4, guard(HOLLOW));
-		t.entity(9, 1, 9, guard("minecraft:skeleton"));
+		t.entity(3, 1, 4, guard(HOLLOW, SanctumGuards.ROLL_HALL));
+		t.entity(9, 1, 9, guard(SKELETON, SanctumGuards.ROLL_ARCHER));
 		return t;
 	}
 
-	/** Dead-end crypt, 9x6x9: coffins along the walls, a chest at the back, one guard. */
+	/** Dead-end crypt, 9x6x9: coffins along the walls, a chest at the back, a Hollow spot. */
 	private static TemplateBuilder hallCrypt() {
 		TemplateBuilder t = new TemplateBuilder(9, 6, 9);
 		t.room(COBBLED, BRICKS, BRICKS);
@@ -321,7 +320,7 @@ final class SanctumTemplates {
 		t.door(4, 1, 0, Direction.NORTH, HALL_IN, null, null);
 		t.chest(4, 1, 7, Direction.NORTH, OUTER_HALL_LOOT);
 		t.set(4, 4, 4, HANGING_LANTERN);
-		t.entity(4, 1, 5, guard("minecraft:skeleton"));
+		t.entity(4, 1, 5, guard(HOLLOW, SanctumGuards.ROLL_HALL));
 		return t;
 	}
 
@@ -342,13 +341,19 @@ final class SanctumTemplates {
 		}
 	}
 
-	/** An outer-hall guard that never despawns. Template mobs are initialized, so they get their usual gear. */
-	private static NbtCompound guard(String entityId) {
+	/**
+	 * An outer-hall guard that never despawns. Template mobs are initialized, so they get their usual gear.
+	 * {@code rollTag} makes the spot optional (see {@link SanctumGuards}); null = always there.
+	 */
+	private static NbtCompound guard(String entityId, @Nullable String rollTag) {
 		NbtCompound nbt = new NbtCompound();
 		nbt.putString("id", entityId);
 		nbt.putBoolean("PersistenceRequired", true);
 		NbtList tags = new NbtList();
-		tags.add(NbtString.of(GUARD_TAG));
+		tags.add(NbtString.of(SanctumGuards.GUARD));
+		if (rollTag != null) {
+			tags.add(NbtString.of(rollTag));
+		}
 		nbt.put("Tags", tags);
 		return nbt;
 	}
