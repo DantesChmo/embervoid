@@ -52,3 +52,6 @@ Packages owned: `com.embervoid.realm` (dimensions, worldgen, teleports, gate, lo
 - Debug: `/embervoid realm enter <realm> [toShrine] | leave | where | arenas | data`, `/embervoid boss fights`.
 - The realm radius is in both the dimension JSON and `Realms` (void push-back); keep them equal.
 - Arena shrines look lit for everyone; dormancy is only the refusal to rest. A per-player look needs client-side progress.
+- Balance (QA #8): the test boss at Lv 18 hit for 37 melee / 23 slam with 404 HP. Its base values (200 HP, 8 attack,
+  10 slam) are level-1 numbers that `MobLevels` then scales; real bosses need base values chosen with that scaling.
+- Every arena leaves an Ember Shrine: worldgen places it, and the kill re-places it if it is missing (logged).

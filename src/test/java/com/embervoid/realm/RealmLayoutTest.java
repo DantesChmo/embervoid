@@ -92,4 +92,15 @@ class RealmLayoutTest {
 			}
 		}
 	}
+
+	@Test
+	void standingCandidatesNeverIncludeTheShrineAndStartBesideIt() {
+		var candidates = RealmLayout.standingCandidates(10, 64, -5, 3);
+		assertTrue(candidates.stream().noneMatch(c -> c[0] == 10 && c[2] == -5));
+		int[] first = candidates.get(0);
+		assertEquals(1, Math.abs(first[0] - 10) + Math.abs(first[2] + 5)); // a side neighbour, not a corner
+		assertEquals(64, first[1]);
+		// 3 rings of 8, 16 and 24 cells, each at 3 heights.
+		assertEquals((8 + 16 + 24) * 3, candidates.size());
+	}
 }

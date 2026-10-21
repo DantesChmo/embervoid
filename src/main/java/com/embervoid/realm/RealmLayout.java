@@ -1,5 +1,8 @@
 package com.embervoid.realm;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -92,6 +95,32 @@ public final class RealmLayout {
 		double angle = sectorCenter(sectorCount, sector, startAngle) + (random.nextDouble() * 2 - 1) * halfSpan;
 		double distance = minDistance + random.nextDouble() * Math.max(0, maxDistance - minDistance);
 		return new int[]{(int) Math.floor(Math.cos(angle) * distance), (int) Math.floor(Math.sin(angle) * distance)};
+	}
+
+	/**
+	 * Spots to try for a player standing next to a block at x, y, z, nearest first: rings of radius 1 to
+	 * {@code maxRadius} (square rings, sides before corners), each at the block's level, then one up, then one down.
+	 * The block itself is never included.
+	 */
+	public static List<int[]> standingCandidates(int x, int y, int z, int maxRadius) {
+		List<int[]> result = new ArrayList<>();
+		for (int r = 1; r <= maxRadius; r++) {
+			List<int[]> ring = new ArrayList<>();
+			for (int dx = -r; dx <= r; dx++) {
+				for (int dz = -r; dz <= r; dz++) {
+					if (Math.max(Math.abs(dx), Math.abs(dz)) == r) {
+						ring.add(new int[]{dx, dz});
+					}
+				}
+			}
+			ring.sort(Comparator.comparingInt(d -> d[0] * d[0] + d[1] * d[1]));
+			for (int dy : new int[]{0, 1, -1}) {
+				for (int[] d : ring) {
+					result.add(new int[]{x + d[0], y + dy, z + d[1]});
+				}
+			}
+		}
+		return result;
 	}
 
 	private RealmLayout() {}
