@@ -3,7 +3,11 @@
 [ROADMAP.md](ROADMAP.md) broken into tasks. Each task is sized for one working session, ends in a buildable,
 testable state, and lists what it depends on. Task IDs are `<milestone>.<n>`.
 
-Status: `todo` · `in progress` · `done` · `blocked` (waiting on an Open question in [DESIGN.md](DESIGN.md) §10)
+Status: `todo` · `in progress` · `done` (built, on `main`, checked in game) · `done – not verified in game` · `blocked`
+(waiting on an Open question in [DESIGN.md](DESIGN.md) §10)
+
+In-game checks run in single player through the coordinator's QA queue (`.claude/qa-queue.md`, not in git);
+"QA #n" below refers to its entries.
 
 Rules that apply to every task:
 - Every user-facing string goes into both `en_us.json` and `ru_ru.json`.
@@ -16,23 +20,23 @@ Rules that apply to every task:
 
 ## Milestone 1 — Building blocks
 
-Being done in its own session (`embervoid-blocks`). Tracked in ROADMAP.md, not split here.
+Done (392fd7b). Tracked in ROADMAP.md, not split here.
 
 ## Milestone 2 — Core player mechanics
 
 | ID  | Task | Depends on | Status |
 |-----|------|------------|--------|
-| 2.1 | **Config system** | — | in progress |
-| 2.2 | **Persistent player data + sync** | — | todo |
-| 2.3 | **XP points utility** | — | todo |
-| 2.4 | **Stamina: server logic** | 2.1, 2.2 | todo |
-| 2.5 | **Stamina: HUD bar** | 2.4 | todo |
-| 2.6 | **Special-attack framework + debug weapon** | 2.4, 2.5, special-attack contract | todo |
-| 2.7 | **Healing Flask item** | 2.1, 2.2, DESIGN §10.6 | todo |
-| 2.8 | **Flask refill on sleep** | 2.7 | todo |
-| 2.9 | **Ash Remnant: entity and storage** | 2.1, 2.2, 2.3 | todo |
-| 2.10 | **Ash Remnant: death flow** | 2.9, DESIGN §10.7 | todo |
-| 2.11 | **Milestone 2 check on a dedicated server** | 2.1–2.10 | todo |
+| 2.1 | **Config system** | — | done (QA #2) |
+| 2.2 | **Persistent player data + sync** | — | done (QA #2, #5) |
+| 2.3 | **XP points utility** | — | done (QA #2, #5) |
+| 2.4 | **Stamina: server logic** | 2.1, 2.2 | done (QA #5: END → stamina max) |
+| 2.5 | **Stamina: HUD bar** | 2.4 | done – not verified in game (not in the QA log) |
+| 2.6 | **Special-attack framework + debug weapon** | 2.4, 2.5, special-attack contract | done – not verified in game (not in the QA log) |
+| 2.7 | **Healing Flask item** | 2.1, 2.2, DESIGN §10.6 | done (QA #2, #2d) |
+| 2.8 | **Flask refill on sleep** | 2.7 | done (QA #2) |
+| 2.9 | **Ash Remnant: entity and storage** | 2.1, 2.2, 2.3 | done (QA #2) |
+| 2.10 | **Ash Remnant: death flow** | 2.9, DESIGN §10.7 | done (QA #2, #2b–2d) |
+| 2.11 | **Milestone 2 check on a dedicated server** | 2.1–2.10 | done in single player; dedicated server not run |
 
 - **2.1 Config system.** `com.embervoid.config.EmbervoidConfig`: a hand-rolled JSON file read with Gson (bundled with Minecraft), with no config library. Defaults are written on first launch; missing keys are filled in, and invalid values are logged and replaced with defaults. Two files, because a client and a dedicated server each have their own:
   - `config/embervoid.json` — **gameplay** values, read by the server (the integrated server in single player). Sections and keys for the planned systems:
@@ -72,14 +76,14 @@ Design: [DESIGN.md](DESIGN.md) §3.1 and §5.
 
 | ID  | Task | Depends on | Status |
 |-----|------|------------|--------|
-| 3.1 | **Stat storage** | 2.2 | todo |
-| 3.2 | **Stat effects** | 3.1, 2.4, DESIGN §10.10 | todo |
-| 3.3 | **Weapon scaling placeholder** | 3.2 | todo |
-| 3.4 | **Leveling + debug commands** | 3.1, 2.1, 2.3 | todo |
-| 3.5 | **Mob levels** | 2.1, DESIGN §10.9 | todo |
-| 3.6 | **Difficulty factors** | 3.5 | todo |
-| 3.7 | **Level display** | 3.5 | todo |
-| 3.8 | **Milestone 3 check on a dedicated server** | 3.1–3.7 | todo |
+| 3.1 | **Stat storage** | 2.2 | done (QA #5) |
+| 3.2 | **Stat effects** | 3.1, 2.4, DESIGN §10.10 | done (QA #5) |
+| 3.3 | **Weapon scaling placeholder** | 3.2 | done (QA #5) |
+| 3.4 | **Leveling + debug commands** | 3.1, 2.1, 2.3 | done (QA #5) |
+| 3.5 | **Mob levels** | 2.1, DESIGN §10.9 | done (QA #6, #8b) |
+| 3.6 | **Difficulty factors** | 3.5 | done (QA #6) |
+| 3.7 | **Level display** | 3.5 | done (QA #6) |
+| 3.8 | **Milestone 3 check on a dedicated server** | 3.1–3.7 | done in single player; dedicated server not run |
 
 - **3.1 Stat storage.** 7 stats in player data, all start at 10, character level derived from their sum, copied on death, synced.
   *Done when:* `/embervoid setstat` changes survive relog and death, and the client sees them.
@@ -98,6 +102,33 @@ Design: [DESIGN.md](DESIGN.md) §3.1 and §5.
   *Done when:* levels show in single player and on a server, and the toggle hides them.
 - **3.8 Milestone 3 check.** Run through the milestone's "done when" on `runServer` with a client, and fix what breaks.
 
-## Milestones 4 and later
+## Milestones 4–7
 
-Split into tasks when the previous milestone is done. Checklists in [ROADMAP.md](ROADMAP.md) are the starting point.
+Split into tasks in the track plans, which keep each task's choices and notes. All merged into `main`.
+
+| Milestone | Tasks | Status |
+|---|---|---|
+| 4 — Overworld threats | [plans/track-mobs.md](plans/track-mobs.md) M1–M4 | done (QA #1–#1c, #3–#3d); Hollow wind-up/dodge and guard sounds not verified in game |
+| 5 — Ember Sanctum | [plans/track-sanctum.md](plans/track-sanctum.md) S1–S9 | done (QA #7–#7e); casing-gap fix (f34a96a) not verified in game, QA #7f queued |
+| 6 — Realm framework | [plans/track-realms.md](plans/track-realms.md) R1–R7, R10 | done (QA #8–#8c); 2–3 players on one server not verified in game |
+| 7 — Boss framework | [plans/track-realms.md](plans/track-realms.md) R8–R9 | done (QA #8); a second player's personal Ember Heart, the fog wall pushing back an outsider, sounds and boss music not verified in game |
+
+## Milestones 8 and later
+
+Split into tasks when the Realm 1 content doc and the weapons doc (DESIGN §8) exist. Checklists in
+[ROADMAP.md](ROADMAP.md) are the starting point.
+
+## Open follow-ups
+
+- **In-game checks not run yet:** QA #7f (Sanctum casing gaps, next batch); QA #8 step 9 (second and third
+  player: personal Ember Heart, fog wall pushing back an outsider, independent progress); Hollow wind-up timing
+  and dodge, guard block/break sounds; stamina HUD bar and debug weapon (2.5, 2.6); sounds and boss music.
+- **Dedicated server:** 2.11 and 3.8 ran in single player only; the dedicated-server run is the 0.2.0 release
+  task in ROADMAP.md.
+- **Design:** DESIGN §10.1, §10.7, §10.8, §10.9 and the KIN/RES part of §10.10 are built as recommended and wait
+  for the user's confirmation; §10.2–10.5 and the Sanctum weapons (§10.10) are open.
+- **Art pass:** every mob and the Maiden use generated placeholder models and textures.
+- **Balance:** real bosses need base values picked with level scaling in mind (the test boss at Lv 18 hit for
+  37 melee with 404 HP, QA #8); the 0.2.0 balance pass.
+- **Known limitation:** a dormant arena shrine looks lit to everyone; only resting is refused (a per-player look
+  needs client-side progress).
