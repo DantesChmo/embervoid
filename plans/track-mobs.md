@@ -9,15 +9,15 @@ level display). Branch `claude/track-mobs-*`.
 | M2 | Bestiary details for Hollow and Ember Wisp (below), sent as a QUESTION | decided (DESIGN §3.2), Hollow base attack 0 |
 | M3 | Hollow | done |
 | M4 | Ember Wisp | done |
-| M5 | Mob levels (3.5) + level API | todo |
-| M6 | Difficulty factors (3.6) | todo |
-| M7 | Level display (3.7) | todo |
+| M5 | Mob levels (3.5) + level API | done |
+| M6 | Difficulty factors (3.6) | done |
+| M7 | Level display (3.7) | done |
 
 ## Layout
 
 - `entity/mob` — entity classes, `MobEntities` (types, attributes, spawn eggs, spawn rules and biome spawns).
 - `client/mob` — GeckoLib renderers (`MobRenderers`), datagen for entity loot tables (`MobDataGen`).
-- `mob` — levels, difficulty factors, level sync.
+- `mob` — levels, difficulty factors, level sync, `mobs` config section, `/embervoid moblevel`.
 - Assets: `geo/entity`, `animations/entity`, `textures/entity` (`<name>.png` + `<name>_glowmask.png`).
   All are placeholders written by `tools/mob_placeholders.py`; **they need an art pass** (Blockbench).
 
@@ -64,3 +64,28 @@ level-1 base values; levels scale HP, damage and XP (§5.4).
   10 blocks; it will not dive at a player standing in light ≥ 7.
 - **Spawns:** overworld below y=0 in darkness (block light 0), weight 15, groups of 1–2, not in the deep dark.
 - **XP:** 6. **Loot:** 0–1 glowstone dust (+Looting), 5 % blaze powder on a player kill.
+
+## Mob levels (PLAN 3.5–3.7)
+
+- **Who:** every `Monster` (vanilla or modded) not in the `embervoid:unleveled` entity type tag (Ender Dragon,
+  Wither, Warden, Elder Guardian). Assigned once on `ENTITY_LOAD` when the entity has no level yet; stored in a
+  persistent attachment (`embervoid:mob_level`), so it survives restarts and chunk reloads.
+- **Default rules** (§5.4 with §10.9): base by type (`mobs.levels.baseLevels`, else `defaultBaseLevel` 4)
+  + dimension bonus (Nether 5, End 8) + in the overworld only: +1 per 1000 blocks from world spawn (max +5) and
+  +3 below y=0.
+- **Effects:** max health through a fixed-UUID `MULTIPLY_BASE` modifier (fraction of health kept, so fresh mobs
+  spawn full); damage scaled in `LivingEntity.damage` by the source's attacker (melee, projectile owner, creeper,
+  witch potions); XP through `dropXp`.
+- **Difficulty (3.6):** difficulty-scaled damage to players uses `mobs.difficulty` (Easy 1.0 / Normal 1.25 /
+  Hard 1.75) at the start of `PlayerEntity.damage`; vanilla's branch is switched off on the server.
+- **Display (3.7):** S2C `embervoid:mob_level` on `START_TRACKING` and on change; the client draws "Name Lv. N"
+  above the leveled mob under the crosshair (24 blocks) or appends it to an existing name tag. Client toggle
+  `hud.showMobLevel` in `embervoid-client.json`.
+- **API** (`com.embervoid.mob.MobLevels`): `getLevel(entity)` (both sides), `setLevel(living, level)` (server,
+  any living entity, rescales HP, resyncs), `registerProvider((mob, world) -> OptionalInt)` to decide levels at
+  spawn (first non-empty wins, else the default rules), `defaultLevel(mob, world)`, `canHaveLevel(entity)`.
+- **Config limitation:** `baseLevels` / `dimensionBonus` read only the keys present in the defaults (the section
+  reader cannot list a JSON object's keys). New keys need either a default entry or a `keys()` method on
+  `SectionReader` (player-core).
+- **Debug:** `/embervoid moblevel <targets>` shows level, default level here and HP; `/embervoid moblevel
+  <targets> <level>` overrides.
