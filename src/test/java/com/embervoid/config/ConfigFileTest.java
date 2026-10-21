@@ -107,6 +107,22 @@ class ConfigFileTest {
 	}
 
 	@Test
+	void mobLevelsAcceptAddedEntitiesAndDimensions() {
+		ConfigFile file = new ConfigFile("test.json");
+		file.register(com.embervoid.mob.MobConfig.SECTION);
+		com.embervoid.mob.MobConfig.Levels levels = file.parse(JsonParser.parseString("{\"mobs\": {\"levels\": {"
+				+ "\"defaultBaseLevel\": 6,"
+				+ "\"baseLevels\": {\"othermod:beast\": 12, \"othermod:broken\": \"x\"},"
+				+ "\"dimensionBonus\": {\"othermod:deep\": 7}}}}").getAsJsonObject())
+				.get(com.embervoid.mob.MobConfig.SECTION).levels();
+		assertEquals(12, levels.baseLevels().get("othermod:beast"));
+		assertEquals(6, levels.baseLevels().get("othermod:broken"));
+		assertEquals(7, levels.dimensionBonus().get("othermod:deep"));
+		// The built-in entries are still there.
+		assertTrue(levels.baseLevels().keySet().containsAll(com.embervoid.mob.MobConfig.DEFAULT.levels().baseLevels().keySet()));
+	}
+
+	@Test
 	void duplicateNamesAreRejected() {
 		ConfigFile file = new ConfigFile("test.json");
 		file.register(section("a"));

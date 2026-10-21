@@ -12,7 +12,8 @@ import java.util.Map;
  * The {@code mobs} config section: mob levels (DESIGN §5.4, §10.9) and difficulty factors (§3.1).
  *
  * <p>Lives in {@code config/embervoid.json} (synced to clients like the rest of the file). {@code baseLevels} and
- * {@code dimensionBonus} read the keys listed in the defaults; any other hostile uses {@code defaultBaseLevel}.
+ * {@code dimensionBonus} read the keys listed in the defaults plus any the user adds (other mods' entity ids,
+ * other dimensions); any hostile not listed uses {@code defaultBaseLevel}.
  *
  * @param levels     how mob levels are assigned and what they scale
  * @param difficulty damage factors that replace vanilla's Easy/Normal/Hard scaling for mob damage to players
@@ -69,14 +70,16 @@ public record MobConfig(Levels levels, Difficulty difficulty) {
 	private static MobConfig read(SectionReader in) {
 		Levels def = DEFAULT.levels;
 		SectionReader levels = in.section("levels");
+		boolean enabled = levels.readBoolean("enabled", def.enabled);
+		int defaultBaseLevel = levels.readInt("defaultBaseLevel", def.defaultBaseLevel, MobLevelRules.MIN_LEVEL, MobLevelRules.MAX_LEVEL);
 		Levels read = new Levels(
-				levels.readBoolean("enabled", def.enabled),
-				levels.readInt("defaultBaseLevel", def.defaultBaseLevel, MobLevelRules.MIN_LEVEL, MobLevelRules.MAX_LEVEL),
-				readLevels(levels.section("baseLevels"), def.baseLevels, MobLevelRules.MIN_LEVEL),
+				enabled,
+				defaultBaseLevel,
+				readLevels(levels.section("baseLevels"), def.baseLevels, defaultBaseLevel, MobLevelRules.MIN_LEVEL),
 				levels.readInt("blocksPerLevel", def.blocksPerLevel, 0, 1_000_000),
 				levels.readInt("maxDistanceBonus", def.maxDistanceBonus, 0, MobLevelRules.MAX_LEVEL),
 				levels.readInt("belowZeroBonus", def.belowZeroBonus, 0, MobLevelRules.MAX_LEVEL),
-				readLevels(levels.section("dimensionBonus"), def.dimensionBonus, 0),
+				readLevels(levels.section("dimensionBonus"), def.dimensionBonus, 0, 0),
 				levels.readFloat("healthPerLevel", def.healthPerLevel, 0, 10),
 				levels.readFloat("damagePerLevel", def.damagePerLevel, 0, 10),
 				levels.readFloat("experiencePerLevel", def.experiencePerLevel, 0, 10));
@@ -88,11 +91,19 @@ public record MobConfig(Levels levels, Difficulty difficulty) {
 				difficulty.readFloat("hard", d.hard, 0, 100)));
 	}
 
-	/** Reads one int per key of {@code defaults}, keeping their order in the file. */
-	private static Map<String, Integer> readLevels(SectionReader in, Map<String, Integer> defaults, int min) {
+	/**
+	 * Reads one int per key: every key of {@code defaults} (filled in if missing) plus any key the user added, e.g.
+	 * another mod's entity id or dimension. An invalid value of an added key falls back to {@code fallback}.
+	 */
+	private static Map<String, Integer> readLevels(SectionReader in, Map<String, Integer> defaults, int fallback, int min) {
 		Map<String, Integer> result = new LinkedHashMap<>();
 		defaults.keySet().stream().sorted().forEach(key ->
 				result.put(key, in.readInt(key, defaults.get(key), min, MobLevelRules.MAX_LEVEL)));
+		for (String key : in.keys()) {
+			if (!result.containsKey(key)) {
+				result.put(key, in.readInt(key, fallback, min, MobLevelRules.MAX_LEVEL));
+			}
+		}
 		return Map.copyOf(result);
 	}
 
