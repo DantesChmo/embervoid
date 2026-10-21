@@ -67,5 +67,11 @@
 	"embervoid.levelup.success": "Level up!",
 	"embervoid.levelup.stat_cap": "This stat cannot go higher",
 	"embervoid.levelup.level_cap": "You have reached the highest level",
-	"embervoid.levelup.not_enough_xp": "Not enough experience"
+	"embervoid.levelup.not_enough_xp": "Not enough experience",
+	"entity.embervoid.ash_ghoul": "Ash Ghoul",
+	"item.embervoid.ash_ghoul_spawn_egg": "Ash Ghoul Spawn Egg",
+	"entity.embervoid.hollow": "Hollow",
+	"item.embervoid.hollow_spawn_egg": "Hollow Spawn Egg",
+	"entity.embervoid.ember_wisp": "Ember Wisp",
+	"item.embervoid.ember_wisp_spawn_egg": "Ember Wisp Spawn Egg"
 }

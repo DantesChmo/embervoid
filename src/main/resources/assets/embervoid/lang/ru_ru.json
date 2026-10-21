@@ -67,5 +67,11 @@
 	"embervoid.levelup.success": "Уровень повышен!",
 	"embervoid.levelup.stat_cap": "Эту характеристику нельзя поднять выше",
 	"embervoid.levelup.level_cap": "Достигнут наивысший уровень",
-	"embervoid.levelup.not_enough_xp": "Недостаточно опыта"
+	"embervoid.levelup.not_enough_xp": "Недостаточно опыта",
+	"entity.embervoid.ash_ghoul": "Пепельный упырь",
+	"item.embervoid.ash_ghoul_spawn_egg": "Яйцо призыва пепельного упыря",
+	"entity.embervoid.hollow": "Полый",
+	"item.embervoid.hollow_spawn_egg": "Яйцо призыва полого",
+	"entity.embervoid.ember_wisp": "Тлеющий огонёк",
+	"item.embervoid.ember_wisp_spawn_egg": "Яйцо призыва тлеющего огонька"
 }

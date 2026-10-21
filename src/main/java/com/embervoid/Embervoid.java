@@ -3,10 +3,12 @@ package com.embervoid;
 import com.embervoid.command.ModCommands;
 import com.embervoid.config.ConfigSync;
 import com.embervoid.config.EmbervoidConfig;
+import com.embervoid.entity.mob.MobEntities;
 import com.embervoid.player.FlaskRefill;
 import com.embervoid.player.PlayerDataManager;
 import com.embervoid.player.RemnantDeathHandler;
 import com.embervoid.player.StaminaManager;
+import com.embervoid.progress.ProgressManager;
 import com.embervoid.registry.DebugItems;
 import com.embervoid.registry.ModBlocks;
 import com.embervoid.registry.ModEntities;
@@ -38,6 +40,7 @@ public class Embervoid implements ModInitializer {
 		ModItems.register();
 		DebugItems.register();
 		ModEntities.register();
+		MobEntities.register();
 		ModItemGroups.register();
 		ModStructures.register();
 		ConfigSync.register();
@@ -47,6 +50,7 @@ public class Embervoid implements ModInitializer {
 		RemnantDeathHandler.register();
 		StatEffects.register();
 		ModCommands.register();
+		ProgressManager.register();
 
 		LOGGER.info("Embervoid: the embers stir...");
 	}
