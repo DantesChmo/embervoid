@@ -29,6 +29,8 @@ Built early by the owning track and sent for merge as soon as they compile, so t
 | GeckoLib dependency | mobs | sanctum (Maiden), realms (bosses later) | Dependency in the build + one working model pipeline |
 | Mob level API | mobs | realms (zone level bands) | Set or override an entity's level |
 | Hollow entity | mobs | sanctum (outer-hall guards) | Until merged, the Sanctum uses a vanilla placeholder |
+| `realm.api.ShrineHooks` | realms | sanctum (Ember Shrine block) | Fabric events `ALLOW_REST(player, world, pos) -> boolean` (dormant arena shrines, DESIGN §10.8) and `RESTED(player, world, pos)` (realm respawn point). The shrine calls `ALLOW_REST` before resting and `RESTED` after |
+| `realm.api.RealmTeleports` | realms | sanctum (Void Obelisk) | `enterRealm(player, realmId, toLastShrine)` remembers the Sanctum the player came from; `hasRestedShrine(player, realmId)` for the "landing or last shrine" choice |
 
 A track that needs a contract before it lands writes against a small local stub and replaces it after the
 merge. It does not edit the owner's packages.
