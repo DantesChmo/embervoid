@@ -14,7 +14,8 @@ All numbers below are **starting values for balancing**. Gameplay numbers live i
 placement (structure spacing, dimensions) lives in datapack JSON, which other datapacks can override.
 
 Status markers: **Decided** — agreed, build it. **Proposed** — recommended default, can still change.
-**Open** — needs a decision before the milestone that depends on it.
+**Proposed — built as recommended** — an Open question whose recommended answer is in the code; it stands until
+the user decides otherwise. **Open** — needs a decision before the milestone that depends on it.
 
 ---
 
@@ -55,7 +56,7 @@ Lore lives in item descriptions and the environment.
 | Topic | Design | Status |
 |---|---|---|
 | Spawning | Overworld structure, any land biome. Spacing ~48 chunks, separation ~16 (rarer than villages: roughly one per 750 blocks). Tunable through the `structure_set` datapack file | Proposed |
-| Layout | **Outer halls**: surface ruin + descent, guarded (Hollows, traps, loot). **Core**: hostile-spawn-free room with the Maiden, the obelisk ring, an Ember Shrine. Size: jigsaw depth 4 and a light guard (a fresh player must be able to fight through it); the descent is a closed shaft that never opens into caves | Decided |
+| Layout | **Outer halls**: surface ruin + descent, guarded (Hollows, traps, loot). **Core**: hostile-spawn-free room with the Maiden, the obelisk ring, an Ember Shrine. Size: jigsaw depth 4 and a light guard (a fresh player must be able to fight through it); the descent is a closed shaft cased in rock that never opens into caves | Decided |
 | Finding it | Pure exploration, plus a rare **Sanctum Map** (explorer-map style) injected into vanilla chest loot (villages, ruined portals, shipwrecks) | Proposed |
 | Attunement | The first time a player reaches a core, they are *attuned*. From then on **any** Sanctum works for them; progress is per player, not per structure | Proposed |
 | Return point | Leaving a realm returns you to the Sanctum you entered from | Proposed |
@@ -96,7 +97,7 @@ Purpose: make the overworld dangerous enough that the player *wants* to find the
 |---|---|---|---|
 | **Ash Ghoul** | Surface at night, any biome; underground | Fast, weak, packs of 3–5. Bursts into a blinding ash cloud on death | Decided (was planned) |
 | **Hollow** | Surface at night (rare), Sanctum outer halls | Armed undead swordsman/spearman. Slow, hard-hitting, blocks. Drops lots of XP | Decided |
-| **Ember Wisp** | Caves below y=0 | Small flyer, sets blocks and the player on fire, flees light | Decided |
+| **Ember Wisp** | Caves below y=0, under cover only | Small flyer, sets blocks and the player on fire, flees light | Decided |
 
 The Hollow Sentinel and Crypt Moth from the old plan move into Realm 1.
 
@@ -163,18 +164,19 @@ The Hollow Sentinel and Crypt Moth from the old plan move into Realm 1.
 | Size | Bounded: ~1200 blocks radius, ending in an abyss. Realms are places, not infinite worlds | Proposed |
 | Final zone lock | The final zone is a **separate dimension** reached through the Sealed Gate. That makes the lock hard: no ender pearls, elytra or tunneling around it | Proposed |
 | Key structures | Each zone has one guaranteed boss arena (custom structure placement, position derived from the seed within the zone's sector) plus random minor structures | Proposed |
-| Building | Realms are survival-normal: mine, build, place beds. Boss arenas, gates, shrines and obelisks are unbreakable | **Open** |
+| Building | Realms are survival-normal: mine, build, place beds (beds do not set the respawn point there). Boss arenas, gates, shrines and obelisks are unbreakable, and nothing can be built inside an arena or the landing | Proposed — built as recommended (§10.1) |
 | Navigation | A realm-bound item (working name *Ember Lodestar*) points to the nearest boss the player has not beaten | Proposed |
 
 ### 4.2 Ember Shrines, death and respawn
 Demon's Souls gives an archstone shard after each boss. We do the same:
 
-- Each zone boss leaves an **Ember Shrine** in its arena. The landing has one from the start. How an arena
-  shrine behaves for players who have not beaten that boss is **Open** (§10.8).
+- Each zone boss leaves an **Ember Shrine** in its arena. The landing has one from the start. An arena shrine
+  stands outside the fog wall and is dormant (cannot be rested at) for players who have not beaten that boss
+  (**Proposed — built as recommended**, §10.8).
 - Resting at a shrine: refills flasks, sets the **realm respawn point**, allows teleport to the Sanctum.
 - Dying **in a realm**: respawn at the last shrine rested at in that dimension of the realm (the open zones and
   the final zone count separately); with no rested shrine there, at that dimension's landing. Your overworld bed spawn is not
-  touched.
+  touched. (**Decided**)
 - Dying **in the overworld**: vanilla respawn.
 - The **Ash Remnant** (§7) applies everywhere: your XP — your currency — waits where you died.
 - This reverses the old "no bonfire" decision. Shrines exist only in realms and the Sanctum; the overworld
@@ -243,7 +245,9 @@ STR/DEX/KIN damage bonuses are **not** a `generic.attack_damage` modifier: that 
 item and does not touch arrows. They are applied when damage is dealt, by the weapon (or the bow a projectile
 came from).
 
-Which stats actually do something in 0.2.0, before weapons and ember damage exist, is **Open** (§10.10).
+What stats do in 0.2.0, before weapons and ember damage exist (§10.10): FOR → luck + an extra mob-drop chance
+(**Decided**); KIN → flask healing, RES → armor toughness + fire damage reduction (**Proposed — built as
+recommended**). Sanctum weapons with a special attack, so END matters, are still **Open**.
 
 How weapons scale with STR/DEX/KIN and what requirements look like is part of the weapons design (§8).
 Until then vanilla weapons use: swords DEX, axes STR, bows DEX, tridents STR+DEX.
@@ -293,17 +297,18 @@ when damage is dealt, by the attacker or the projectile's owner.
 | Ember Wisp | 8 |
 | Enderman | 12 |
 | Hollow | 15 |
-| Any other hostile (vanilla or modded) | 4 — **Open** (§10.9) |
-| Ender Dragon, Wither, Warden, Elder Guardian | no level, vanilla stats |
+| Any other hostile (vanilla or modded) | 4 — Proposed — built as recommended (§10.9) |
+| Ender Dragon, Wither, Warden, Elder Guardian | no level, vanilla stats — Proposed — built as recommended (§10.9) |
 
 | Bonus | Value | Status |
 |---|---|---|
 | Distance from world spawn | +1 per 1000 blocks, max +5 | Proposed |
 | Below y=0 | +3 | Proposed |
-| Nether | +10 | **Open** (§10.9) |
-| End | +20 | **Open** (§10.9) |
+| Nether | +5 | Proposed — built as recommended (§10.9) |
+| End | +8 | Proposed — built as recommended (§10.9) |
 
-With these bonuses an End enderman is level 32, above the Realm 1 boss — see §10.9.
+With these bonuses an End enderman is level 20, the top of the overworld band (was +10 / +20, which put it at
+32, above the Realm 1 boss — see §10.9).
 
 **Realm levels** are set per zone. Realm 1: zones 15–25 (each zone its own band), final zone 25–30, realm
 boss 30. Zone bosses sit at the top of their zone's band.
@@ -354,7 +359,7 @@ Loot per realm:
 | Stamina | Spent **only** by right-click special attacks. Vanilla hits, sprinting and blocking stay free. Max and regen from END | Decided |
 | Healing Flask | Charges (start 3), heal over time, cannot drink while sprinting. Refilled by resting at an Ember Shrine, sleeping through the night in a bed, and on respawn after death. The flask is never dropped or put into the Ash Remnant: it stays in the inventory on death, full after respawn. Charges live in player data (built per §10.6). A lost flask is crafted again from a glass bottle + a diamond + coal or charcoal (shapeless); a second flask adds no charges | Decided |
 | Flask Shards | Permanent +1 charge or +healing per sip, capped | Decided |
-| Ash Remnant | On death XP and all items except the Healing Flask go into a remnant at a safe spot (the last position on solid ground). Modes `off` / `xp` / `xp_and_items`. With XP as the leveling currency this is our bloodstain. What dying again before reaching it does is **Open** (§10.7) | Decided (second death Open) |
+| Ash Remnant | On death XP and all items except the Healing Flask go into a remnant at a safe spot (the last position on solid ground). Modes `off` / `xp` / `xp_and_items`. With XP as the leveling currency this is our bloodstain. Dying again before reaching it burns the old remnant's XP; its items stay in it until picked up (config `remnant.secondDeath` = `burn_xp` default / `burn_all`, §10.7) | Decided (second death: Proposed — built as recommended) |
 | Full-set bonuses | Armor sets grant a bonus when all 4 pieces are worn | Decided |
 
 ---
@@ -365,9 +370,9 @@ These are big enough to get their own documents. Each is needed before the miles
 
 | Topic | Covers | Needed by |
 |---|---|---|
-| **Weapons** | Weapon classes, STR/DEX/KIN scaling and requirements, special attacks, how vanilla weapons fit in, upgrades | **Special-attack contract** (trigger, cost, cooldown, tooltip, limits): before the special-attack framework (PLAN 2.6). The rest: Realm 1 loot |
+| **Weapons** | Weapon classes, STR/DEX/KIN scaling and requirements, special attacks, how vanilla weapons fit in, upgrades | **Special-attack contract** (trigger, cost, cooldown, tooltip, limits): done (§8.1). The rest: Realm 1 loot |
 | **Realm 1 content** | Per-zone mobs, structures, the 4 bosses (moves and phases), loot tables | Realm 1 |
-| **Bestiary (overworld)** | Hollow and Ember Wisp in detail, behaviors | Overworld threats |
+| **Bestiary (overworld)** | Hollow and Ember Wisp in detail, behaviors | Overworld threats — done (§3.2) |
 | **Realms 2–4** | Each realm's zones, mobs, bosses, material | Each realm |
 
 ### 8.1 Special-attack contract (Decided)
@@ -413,6 +418,8 @@ Each question names the milestone that cannot start without an answer.
 1. Building and mining inside realms: fully allowed (Twilight Forest / Divine RPG style) or restricted
    (Demon's Souls style)? Recommendation: allowed, except arenas, gates, shrines and obelisks.
    *Needed by:* milestone 6 (block protection is part of the realm framework).
+   **Proposed — built as recommended:** building is allowed; arenas, the landing, gates, shrines and obelisks
+   are protected.
 2. Character level cap for 0.x (none / 120)?
 3. Does Realm 2 require netherite (Nether as a soft gate)?
 4. Number of realms for 1.0: 4 as sketched, or 5 like Demon's Souls?
@@ -422,22 +429,31 @@ Each question names the milestone that cannot start without an answer.
    flask. Recommendation: charges and upgrades live in player data; the flask item only shows and spends
    them, so a second flask adds nothing. One flask is given on first join and can be crafted again if lost.
    *Needed by:* milestone 2 (PLAN 2.7).
+   **Decided:** charges and upgrades live in player data. The flask is kept on death (never dropped or put into
+   a remnant) and refilled on respawn. A lost flask is crafted from a glass bottle + a diamond + coal or
+   charcoal (shapeless). See §7.
 7. **What does a second death do to the first remnant?** As written it destroys everything, items
    included: dying on the way back loses your diamond gear for good, which is harsher than both vanilla and
    Demon's Souls (there only the souls are lost). Recommendation: the XP burns; the items stay in the old
    remnant, which becomes an item-only remnant until picked up. Config `remnant.secondDeath`
    = `burn_xp` (default) / `burn_all`.
    *Needed by:* milestone 2 (PLAN 2.10).
+   **Proposed — built as recommended:** `remnant.secondDeath` with `burn_xp` as the default and `burn_all` as
+   the option.
 8. **How does an arena shrine work for players who have not beaten its boss?** The shrine is a block in a
    shared dimension: a player who has not beaten the boss could rest in the arena where the boss summons
    for them. Recommendation: the shrine is part of the arena structure, stands outside the fog wall, and is
    dormant (cannot be rested at, looks unlit to them) for players who have not beaten that boss.
    *Needed by:* milestone 7.
-9. **Nether and End level bonuses, unlisted mobs.** +10 / +20 put End endermen at level 32 (above the Realm 1
+   **Proposed — built as recommended:** outside the fog wall and dormant ("The ember here is cold to you"), but
+   it looks lit to everyone: a per-player look needs client-side progress.
+9. **Nether and End level bonuses, unlisted mobs.** The first values, +10 / +20, put End endermen at level 32 (above the Realm 1
    boss) and Nether mobs in the Realm 1 band, which breaks the "overworld 3–20" band in §5.4. Nether mobs,
    illagers and modded hostiles have no base level. Recommendation: Nether +5, End +8 (End endermen ≈ 20, the
    top of the overworld band); base level 4 for any hostile not listed; vanilla bosses keep vanilla stats.
    *Needed by:* milestone 3 (PLAN 3.5).
+   **Proposed — built as recommended:** Nether +5, End +8, unlisted hostiles 4, vanilla bosses unleveled (the
+   `embervoid:unleveled` entity tag). All in the `mobs` config section.
 10. **Which stats do something in 0.2.0?** Stamina is spent only by special attacks, and the only one in
     0.2.0 is on a debug weapon, so END does almost nothing. KIN has no ember damage yet, RES status
     resistance is a system that does not exist yet, and vanilla `luck` barely affects anything (fishing and a
@@ -445,5 +461,5 @@ Each question names the milestone that cannot start without an answer.
     RES → armor toughness + fire damage reduction; FOR → luck + a small bonus chance on mob drops; ship 1–2
     real weapons with a special attack in the Sanctum outer-hall loot so END matters.
     *Needed by:* milestone 3 (PLAN 3.2), and milestone 5 for the weapons.
-    *Partly decided:* FOR → luck + a small bonus chance on mob drops is built in 0.2.0. KIN/RES as recommended
-    are built; the Sanctum weapons are still open.
+    **Decided:** FOR → luck + a small bonus chance on mob drops in 0.2.0. **Proposed — built as recommended:**
+    KIN → flask healing, RES → armor toughness + fire damage reduction. **Open:** the Sanctum weapons.
