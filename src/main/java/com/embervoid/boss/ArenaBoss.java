@@ -1,11 +1,14 @@
 package com.embervoid.boss;
 
+import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
+
 /**
  * An entity that can be summoned as an arena boss. The framework ({@link BossFight}) owns the fight around it:
  * boss bar, fog wall, reset, phases, credit and loot. The entity owns its moves.
  *
- * <p>Implementations must call {@link BossFight#tickBoss} from their server tick and keep the default persistence
- * (bosses never despawn; {@link BossFight} discards them on reset).
+ * <p>Implementations must be mob entities, call {@link ArenaManager#tickBoss} from their server tick, and must not
+ * despawn on their own ({@link BossFight} makes them persistent and discards them on reset).
  */
 public interface ArenaBoss {
 	/** Health fractions at which the next phase starts, descending, e.g. {@code {0.5f}} for two phases. */
@@ -17,13 +20,13 @@ public interface ArenaBoss {
 	default void onPhaseChange(int phase) {
 	}
 
-	/** Plays a named animation (GeckoLib bosses); used by {@link Telegraph}. */
+	/** Plays a named animation (GeckoLib bosses); {@link Telegraph} calls it at the start of a windup. */
 	default void playAnimation(String name) {
 	}
 
-	/** Music played to fighters while the boss is alive, or null for none. */
-	@org.jetbrains.annotations.Nullable
-	default net.minecraft.util.Identifier music() {
+	/** Music played to the fighters while the fight lasts, or null for none. */
+	@Nullable
+	default Identifier music() {
 		return null;
 	}
 }

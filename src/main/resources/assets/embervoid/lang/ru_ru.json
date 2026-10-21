@@ -91,5 +91,19 @@
 	"embervoid.lodestar.cold": "Вне миров путеводный камень холоден",
 	"embervoid.lodestar.none": "Здесь не осталось стражей",
 	"embervoid.lodestar.distance": "Страж ждёт в %s блоках отсюда",
-	"embervoid.mob_level": "Ур. %s"
+	"embervoid.mob_level": "Ур. %s",
+	"item.embervoid.ember_heart": "Тлеющее сердце",
+	"embervoid.ember_heart.boss": "Добыто у: %s",
+	"entity.embervoid.test_boss": "Испытательный чемпион",
+	"boss.embervoid.ashen_reach.zone_a": "Чемпион зоны A",
+	"boss.embervoid.ashen_reach.zone_b": "Чемпион зоны B",
+	"boss.embervoid.ashen_reach.zone_c": "Чемпион зоны C",
+	"boss.embervoid.ashen_reach.final": "Чемпион глубин",
+	"embervoid.boss.bar": "%s — ур. %s",
+	"embervoid.boss.fog": "Стена пепла преграждает путь",
+	"embervoid.boss.first_kill": "%s повержен. Его тлеющее сердце теперь ваше",
+	"embervoid.boss.victory": "%s повержен",
+	"embervoid.shrine.kindled": "Алтарь арены разгорается для вас",
+	"embervoid.shrine.dormant": "Пламя не отзывается вам",
+	"embervoid.realm.completed": "Мир затихает. Следующий обелиск пробуждается"
 }
