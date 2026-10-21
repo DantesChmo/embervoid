@@ -16,8 +16,9 @@ import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
 /**
- * Operator-only debug commands: {@code /embervoid moblevel <targets>} shows levels (and what the default rules would
- * give at the current position), {@code /embervoid moblevel <targets> <level>} overrides them. Not translated.
+ * Operator-only debug commands: {@code /embervoid moblevel <targets>} shows levels (and the level a new spawn would
+ * get at the current position, providers included), {@code /embervoid moblevel <targets> <level>} overrides them.
+ * Not translated.
  */
 final class MobLevelCommands {
 	static void register() {
@@ -34,7 +35,7 @@ final class MobLevelCommands {
 		int count = 0;
 		for (Entity entity : EntityArgumentType.getEntities(context, "targets")) {
 			String rules = entity instanceof MobEntity mob && MobLevels.canHaveLevel(mob)
-					? ", default here " + MobLevels.defaultLevel(mob, (ServerWorld) mob.getWorld()) : "";
+					? ", at spawn here " + MobLevels.spawnLevel(mob, (ServerWorld) mob.getWorld()) : "";
 			String health = entity instanceof LivingEntity living
 					? String.format(", HP %.1f/%.1f", living.getHealth(), living.getMaxHealth()) : "";
 			String line = entity.getName().getString() + ": level " + MobLevels.getLevel(entity) + rules + health;

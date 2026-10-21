@@ -133,15 +133,22 @@ public final class MobLevels {
 		return MobLevelRules.level(config, base, dimensionBonus, distance, overworld && mob.getY() < 0);
 	}
 
-	private static void assign(MobEntity mob, ServerWorld world) {
+	/**
+	 * The level a hostile mob gets when first added to a world at its current position: the first registered
+	 * {@link LevelProvider} that answers, else {@link #defaultLevel}.
+	 */
+	public static int spawnLevel(MobEntity mob, ServerWorld world) {
 		for (LevelProvider provider : PROVIDERS) {
 			OptionalInt level = provider.levelFor(mob, world);
 			if (level.isPresent()) {
-				setLevel(mob, level.getAsInt());
-				return;
+				return MobLevelRules.clamp(level.getAsInt());
 			}
 		}
-		setLevel(mob, defaultLevel(mob, world));
+		return defaultLevel(mob, world);
+	}
+
+	private static void assign(MobEntity mob, ServerWorld world) {
+		setLevel(mob, spawnLevel(mob, world));
 	}
 
 	/** Puts the health modifier in line with the level (and the current config), keeping the health fraction. */
