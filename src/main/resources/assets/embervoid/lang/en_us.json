@@ -71,5 +71,19 @@
 	"embervoid.shrine.rested": "Rested. The shrine will remember you",
 	"embervoid.lodestar.cold": "The lodestar is cold outside the realms",
 	"embervoid.lodestar.none": "No guardian left to face here",
-	"embervoid.lodestar.distance": "A guardian waits %s blocks away"
+	"embervoid.lodestar.distance": "A guardian waits %s blocks away",
+	"item.embervoid.ember_heart": "Ember Heart",
+	"embervoid.ember_heart.boss": "Taken from %s",
+	"entity.embervoid.test_boss": "Test Champion",
+	"boss.embervoid.ashen_reach.zone_a": "Champion of Zone A",
+	"boss.embervoid.ashen_reach.zone_b": "Champion of Zone B",
+	"boss.embervoid.ashen_reach.zone_c": "Champion of Zone C",
+	"boss.embervoid.ashen_reach.final": "Champion of the Depths",
+	"embervoid.boss.bar": "%s — Lv %s",
+	"embervoid.boss.fog": "A wall of ash bars the way",
+	"embervoid.boss.first_kill": "%s has fallen. Its Ember Heart is yours",
+	"embervoid.boss.victory": "%s has fallen",
+	"embervoid.shrine.kindled": "The arena's shrine kindles for you",
+	"embervoid.shrine.dormant": "The flame does not answer you",
+	"embervoid.realm.completed": "The realm falls silent. The next obelisk stirs"
 }
