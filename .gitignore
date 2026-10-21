@@ -34,3 +34,6 @@ src/main/generated/.cache/
 # claude: worktrees and coordinator queue
 .claude/worktrees/
 .claude/qa-queue.md
+
+# game logs from datagen runs
+logs/

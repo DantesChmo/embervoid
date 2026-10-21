@@ -106,6 +106,7 @@
 	"embervoid.realm.completed": "The realm falls silent. The next obelisk stirs",
 	"block.embervoid.ember_shrine": "Ember Shrine",
 	"embervoid.shrine.rested": "You rest by the ember. Your flasks are full again",
+	"embervoid.shrine.dormant": "The flame does not answer you",
 	"block.embervoid.void_obelisk": "Void Obelisk",
 	"embervoid.obelisk.dark": "The flame has not reached it",
 	"block.embervoid.sanctum_flagstone": "Sanctum Flagstone",
