@@ -4,6 +4,7 @@ import com.embervoid.command.ModCommands;
 import com.embervoid.config.EmbervoidConfig;
 import com.embervoid.player.FlaskRefill;
 import com.embervoid.player.PlayerDataManager;
+import com.embervoid.player.RemnantDeathHandler;
 import com.embervoid.player.StaminaManager;
 import com.embervoid.registry.DebugItems;
 import com.embervoid.registry.ModBlocks;
@@ -40,6 +41,7 @@ public class Embervoid implements ModInitializer {
 		PlayerDataManager.register();
 		StaminaManager.register();
 		FlaskRefill.register();
+		RemnantDeathHandler.register();
 		ModCommands.register();
 
 		LOGGER.info("Embervoid: the embers stir...");

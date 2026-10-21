@@ -32,6 +32,9 @@ import java.util.UUID;
 /**
  * What a player leaves behind on death: their items (by inventory slot) and XP. It does not move, cannot be hurt and
  * is saved with the chunk like any entity. Only its owner can reclaim it, by right-clicking it.
+ *
+ * <p>Each player has at most one: {@link RemnantRegistry} records the current one, and any other remnant of theirs
+ * burns away as soon as it ticks (right away if loaded, otherwise when its chunk loads).
  */
 public class AshRemnantEntity extends Entity {
 	private DefaultedList<ItemStack> items = DefaultedList.of();
@@ -39,6 +42,8 @@ public class AshRemnantEntity extends Entity {
 	@Nullable
 	private UUID owner;
 	private String ownerName = "";
+	/** Ticks until the next check against the registry; 0 so a freshly loaded remnant checks at once. */
+	private int registryCheckDelay;
 
 	public AshRemnantEntity(EntityType<? extends AshRemnantEntity> type, World world) {
 		super(type, world);
@@ -46,8 +51,8 @@ public class AshRemnantEntity extends Entity {
 	}
 
 	/**
-	 * Moves the player's items and/or XP into a new remnant at {@code pos} and records it as their remnant.
-	 * The caller decides which of the two to take (config {@code remnant.mode}) and where to put it.
+	 * Moves the player's items and/or XP into a new remnant at {@code pos} and records it as their remnant
+	 * (any previous one burns away). The caller decides what to take (config {@code remnant.mode}) and where.
 	 */
 	public static AshRemnantEntity create(ServerPlayerEntity player, Vec3d pos, boolean takeItems, boolean takeExperience) {
 		AshRemnantEntity remnant = new AshRemnantEntity(ModEntities.ASH_REMNANT, player.getServerWorld());
@@ -71,10 +76,32 @@ public class AshRemnantEntity extends Entity {
 			player.setExperienceLevel(0);
 		}
 
+		RemnantRegistry.get(player.getServer()).setRemnant(player.getUuid(), remnant.getUuid());
 		player.getServerWorld().spawnEntity(remnant);
 		PlayerDataManager.get(player).remnantId = remnant.getUuid();
 		PlayerDataManager.sync(player);
 		return remnant;
+	}
+
+	/**
+	 * Burns the player's current remnant, if any: at once when it is loaded, otherwise the registry makes it burn
+	 * when its chunk loads. Returns whether there was one.
+	 */
+	public static boolean burnCurrent(ServerPlayerEntity player) {
+		RemnantRegistry registry = RemnantRegistry.get(player.getServer());
+		UUID current = registry.getRemnant(player.getUuid());
+		if (current == null) {
+			return false;
+		}
+		registry.clearRemnant(player.getUuid(), current);
+		for (ServerWorld world : player.getServer().getWorlds()) {
+			if (world.getEntity(current) instanceof AshRemnantEntity remnant) {
+				remnant.burn();
+			}
+		}
+		PlayerDataManager.get(player).remnantId = null;
+		PlayerDataManager.sync(player);
+		return true;
 	}
 
 	/** Exact XP points for the player's level and bar progress (vanilla's totalExperience drifts after /xp). */
@@ -134,6 +161,7 @@ public class AshRemnantEntity extends Entity {
 		player.addExperience(experience);
 		experience = 0;
 
+		RemnantRegistry.get(player.getServer()).clearRemnant(player.getUuid(), getUuid());
 		PlayerData data = PlayerDataManager.get(player);
 		if (getUuid().equals(data.remnantId)) {
 			data.remnantId = null;
@@ -146,10 +174,28 @@ public class AshRemnantEntity extends Entity {
 		discard();
 	}
 
+	/** Destroys the remnant and everything in it. */
+	public void burn() {
+		if (getWorld() instanceof ServerWorld world) {
+			world.spawnParticles(ParticleTypes.LARGE_SMOKE, getX(), getY() + 0.5, getZ(), 15, 0.3, 0.4, 0.3, 0.01);
+			world.playSound(null, getX(), getY(), getZ(), SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.BLOCKS, 0.8f, 0.6f);
+		}
+		items.clear();
+		experience = 0;
+		discard();
+	}
+
 	@Override
 	public void tick() {
 		super.tick();
 		World world = getWorld();
+		if (world instanceof ServerWorld serverWorld && owner != null && --registryCheckDelay <= 0) {
+			registryCheckDelay = 20;
+			if (!getUuid().equals(RemnantRegistry.get(serverWorld.getServer()).getRemnant(owner))) {
+				burn();
+				return;
+			}
+		}
 		if (world.isClient && random.nextInt(3) == 0) {
 			double x = getX() + (random.nextDouble() - 0.5) * 0.6;
 			double z = getZ() + (random.nextDouble() - 0.5) * 0.6;

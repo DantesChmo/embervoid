@@ -72,6 +72,7 @@ public final class ModCommands {
 						.then(literal("remnant")
 								.executes(context -> {
 									ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
+									AshRemnantEntity.burnCurrent(player);
 									AshRemnantEntity remnant = AshRemnantEntity.create(player, player.getPos(), true, true);
 									context.getSource().sendFeedback(() -> Text.literal("Ash Remnant " + remnant.getUuid()
 											+ " at " + remnant.getBlockPos().toShortString()), false);

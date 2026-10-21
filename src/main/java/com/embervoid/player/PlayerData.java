@@ -4,7 +4,10 @@ import com.embervoid.config.EmbervoidConfig;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Uuids;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -40,6 +43,12 @@ public final class PlayerData {
 
 	/** Time of day when the player lay down at night, or -1. Server-only, not saved or synced. */
 	public long sleepStartTime = -1;
+
+	/** Last spot the player stood on safe ground, a fallback for remnants. Server-only, not saved or synced. */
+	@Nullable
+	public BlockPos lastSafePos;
+	@Nullable
+	public RegistryKey<World> lastSafeWorld;
 
 	public PlayerData(float stamina, int flaskChargeUpgrades, int flaskHealUpgrades, @Nullable UUID remnantId) {
 		this.stamina = stamina;

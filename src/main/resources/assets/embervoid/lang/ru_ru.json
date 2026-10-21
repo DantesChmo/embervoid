@@ -14,6 +14,10 @@
 	"embervoid.remnant.name": "Пепельный останок: %s",
 	"embervoid.remnant.recovered": "Вы забрали то, что хранил пепел",
 	"embervoid.remnant.not_yours": "Этот пепел принадлежит игроку %s",
+	"embervoid.remnant.left": "Ваш пепельный останок лежит на %s",
+	"embervoid.remnant.location": "%s, %s, %s",
+	"embervoid.remnant.location_dimension": "%s (%s)",
+	"embervoid.remnant.burned": "Ваш прежний пепельный останок рассыпался в прах",
 	"itemGroup.embervoid.main": "Embervoid",
 	"modmenu.descriptionTranslation.embervoid": "Мир угасает. Тёмное фэнтези-приключение: данжи, боссы и проклятое снаряжение."
 }

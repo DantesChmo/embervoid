@@ -14,6 +14,10 @@
 	"embervoid.remnant.name": "Ash Remnant of %s",
 	"embervoid.remnant.recovered": "You reclaim what the ashes held",
 	"embervoid.remnant.not_yours": "These ashes belong to %s",
+	"embervoid.remnant.left": "Your Ash Remnant lies at %s",
+	"embervoid.remnant.location": "%s, %s, %s",
+	"embervoid.remnant.location_dimension": "%s (%s)",
+	"embervoid.remnant.burned": "Your previous Ash Remnant crumbled to nothing",
 	"itemGroup.embervoid.main": "Embervoid",
 	"modmenu.descriptionTranslation.embervoid": "The world is fading. A dark fantasy adventure: dungeons, bosses and cursed gear."
 }
