@@ -48,5 +48,7 @@
 	"block.embervoid.dead_door": "Dead Door",
 	"block.embervoid.dead_trapdoor": "Dead Trapdoor",
 	"block.embervoid.ash_soil": "Ash Soil",
-	"block.embervoid.ember_lantern": "Ember Lantern"
+	"block.embervoid.ember_lantern": "Ember Lantern",
+	"block.embervoid.ember_shrine": "Ember Shrine",
+	"embervoid.shrine.rested": "You rest by the ember. Your flasks are full again"
 }
