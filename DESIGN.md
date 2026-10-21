@@ -95,7 +95,7 @@ Purpose: make the overworld dangerous enough that the player *wants* to find the
 | Mob | Where / when | Role | Status |
 |---|---|---|---|
 | **Ash Ghoul** | Surface at night, any biome; underground | Fast, weak, packs of 3–5. Bursts into a blinding ash cloud on death | Decided (was planned) |
-| **Hollow** | Surface at night (rare), Sanctum outer halls | Armed undead swordsman/spearman. Slow, hard-hitting, blocks. Drops lots of XP | Proposed |
+| **Hollow** | Surface at night (rare), Sanctum outer halls | Armed undead swordsman/spearman. Slow, hard-hitting, blocks. Drops lots of XP | Decided |
 | **Ember Wisp** | Caves below y=0 | Small flyer, sets blocks and the player on fire, flees light | Decided |
 
 The Hollow Sentinel and Crypt Moth from the old plan move into Realm 1.
