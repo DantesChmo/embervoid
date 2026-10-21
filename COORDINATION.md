@@ -81,6 +81,13 @@ notes: <anything another track must know: new APIs, renamed classes, lang keys>
 
 **Question** — a design question or a blocker: `QUESTION` + the question and your recommended answer.
 
+## In-game checks (QA batching)
+
+The game is launched by the QA session, never once per merge. The coordinator collects fixes and sends QA
+**one batch** when no track has more fixes queued. Each batch item lists only the changed behaviour to verify
+(e.g. "S3: no water in the gate hall; S2: shaft casing screenshot"), not the whole original check. One client
+launch per batch.
+
 ## Coordinator
 
 - Runs the check queue first in, first out, each in a scratch worktree at the requested commit (`.claude/worktrees/qa`), and replies with what happened (logs, screenshots, and what the user saw when the user tested).
