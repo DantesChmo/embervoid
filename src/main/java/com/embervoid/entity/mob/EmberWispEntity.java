@@ -1,5 +1,6 @@
 package com.embervoid.entity.mob;
 
+import it.unimi.dsi.fastutil.longs.Long2BooleanOpenHashMap;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -20,6 +21,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
@@ -45,11 +47,16 @@ import java.util.EnumSet;
 public class EmberWispEntity extends HostileEntity implements GeoEntity {
 	/** Block light at or above which the wisp flees and will not attack. */
 	static final int LIGHT_LIMIT = 7;
+	/** Far enough to find any source that can light a spot to {@link #LIGHT_LIMIT} (luminance 15 − distance 8). */
+	private static final int FIRE_SCAN_RADIUS = 15 - LIGHT_LIMIT;
 	private static final int BURN_SECONDS = 4;
 	private static final int ATTACK_COOLDOWN_TICKS = 20;
 
 	private final AnimatableInstanceCache animations = GeckoLibUtil.createInstanceCache(this);
 	private int fireCooldown = 160;
+	/** {@link #isBright} answers for the current tick; it is asked several times a tick for the same spots. */
+	private final Long2BooleanOpenHashMap brightCache = new Long2BooleanOpenHashMap();
+	private long brightCacheTime = -1;
 
 	public EmberWispEntity(EntityType<? extends EmberWispEntity> type, World world) {
 		super(type, world);
@@ -73,9 +80,62 @@ public class EmberWispEntity extends HostileEntity implements GeoEntity {
 				&& HostileEntity.canSpawnInDark(type, world, reason, pos, random);
 	}
 
-	/** Whether the wisp shuns the light at {@code pos}. */
-	static boolean isBright(World world, BlockPos pos) {
-		return world.getLightLevel(LightType.BLOCK, pos) >= LIGHT_LIMIT;
+	/**
+	 * Whether the wisp shuns the light at {@code pos}: block light {@link #LIGHT_LIMIT} or more that does not come
+	 * from fire, so torches drive it off but the fires it lights itself do not.
+	 */
+	boolean isBright(BlockPos pos) {
+		World world = getWorld();
+		int light = world.getLightLevel(LightType.BLOCK, pos);
+		if (light < LIGHT_LIMIT) {
+			return false;
+		}
+		long key = pos.asLong();
+		long now = world.getTime();
+		if (brightCacheTime == now && brightCache.containsKey(key)) {
+			return brightCache.get(key);
+		}
+		if (brightCacheTime != now) {
+			brightCache.clear();
+			brightCacheTime = now;
+		}
+		boolean bright = isBrightIgnoringFire(world, pos, light);
+		brightCache.put(key, bright);
+		return bright;
+	}
+
+	/**
+	 * Estimates each nearby light source's contribution as luminance minus Manhattan distance (how block light
+	 * spreads, ignoring walls). If fire alone explains the light here, it counts only when another source would
+	 * reach {@link #LIGHT_LIMIT} on its own.
+	 */
+	static boolean isBrightIgnoringFire(World world, BlockPos pos, int light) {
+		int fireLight = 0;
+		int otherLight = 0;
+		BlockPos.Mutable cursor = new BlockPos.Mutable();
+		int r = FIRE_SCAN_RADIUS;
+		for (int dx = -r; dx <= r; dx++) {
+			for (int dy = -r; dy <= r; dy++) {
+				for (int dz = -r; dz <= r; dz++) {
+					int distance = Math.abs(dx) + Math.abs(dy) + Math.abs(dz);
+					if (distance > 15) {
+						continue;
+					}
+					BlockState state = world.getBlockState(cursor.set(pos.getX() + dx, pos.getY() + dy, pos.getZ() + dz));
+					int luminance = state.getLuminance();
+					if (luminance == 0) {
+						continue;
+					}
+					int reach = luminance - distance;
+					if (state.isIn(BlockTags.FIRE)) {
+						fireLight = Math.max(fireLight, reach);
+					} else {
+						otherLight = Math.max(otherLight, reach);
+					}
+				}
+			}
+		}
+		return light > fireLight || otherLight >= LIGHT_LIMIT;
 	}
 
 	@Override
@@ -95,7 +155,7 @@ public class EmberWispEntity extends HostileEntity implements GeoEntity {
 		goalSelector.add(8, new LookAroundGoal(this));
 		targetSelector.add(1, new RevengeGoal(this));
 		targetSelector.add(2, new ActiveTargetGoal<>(this, PlayerEntity.class, 10, true, false,
-				player -> !isBright(player.getWorld(), player.getBlockPos())));
+				player -> !isBright(player.getBlockPos())));
 	}
 
 	@Override
@@ -204,7 +264,7 @@ public class EmberWispEntity extends HostileEntity implements GeoEntity {
 
 		@Override
 		public boolean canStart() {
-			return isBright(wisp.getWorld(), wisp.getBlockPos());
+			return wisp.isBright(wisp.getBlockPos());
 		}
 
 		@Override
@@ -255,7 +315,7 @@ public class EmberWispEntity extends HostileEntity implements GeoEntity {
 		@Override
 		public boolean canStart() {
 			LivingEntity target = wisp.getTarget();
-			return target != null && target.isAlive() && !isBright(wisp.getWorld(), target.getBlockPos());
+			return target != null && target.isAlive() && !wisp.isBright(target.getBlockPos());
 		}
 
 		@Override
