@@ -1,6 +1,7 @@
 package com.embervoid.sanctum;
 
 import com.embervoid.progress.ProgressManager;
+import com.embervoid.sanctum.leveling.LevelUpNetworking;
 
 import java.util.Objects;
 
@@ -15,6 +16,7 @@ public final class Sanctum {
 		SanctumEntities.register();
 		SanctumLoot.register();
 		Attunement.register();
+		LevelUpNetworking.register();
 	}
 
 	private Sanctum() {}

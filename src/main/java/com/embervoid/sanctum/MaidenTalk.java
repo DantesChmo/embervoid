@@ -1,14 +1,12 @@
 package com.embervoid.sanctum;
 
+import com.embervoid.sanctum.leveling.LevelUpNetworking;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 
-/** What talking to the Ashen Maiden does. */
+/** What talking to the Ashen Maiden does: opens the level-up screen. */
 final class MaidenTalk {
 	static void talk(ServerPlayerEntity player, AshenMaidenEntity maiden) {
-		// The level-up screen needs player-core's levelUp and stat API; until then she only greets.
-		player.sendMessage(Text.translatable("embervoid.maiden.greeting").formatted(Formatting.GOLD), false);
+		LevelUpNetworking.open(player, maiden);
 	}
 
 	private MaidenTalk() {}
