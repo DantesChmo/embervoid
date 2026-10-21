@@ -9,7 +9,8 @@
 		"LivingEntityMobLevelMixin",
 		"PlayerEntityDifficultyMixin",
 		"DimensionLifecycleMixin",
-		"StructureTemplateMixin"
+		"StructureTemplateMixin",
+		"SinglePoolElementMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

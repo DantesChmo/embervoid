@@ -1,7 +1,9 @@
 package com.embervoid.sanctum;
 
+import com.embervoid.Embervoid;
 import com.embervoid.progress.ProgressManager;
 import com.embervoid.sanctum.leveling.LevelUpNetworking;
+import net.minecraft.util.Identifier;
 
 import java.util.Objects;
 
@@ -17,6 +19,11 @@ public final class Sanctum {
 		SanctumLoot.register();
 		Attunement.register();
 		LevelUpNetworking.register();
+	}
+
+	/** Whether a structure template is one of the Sanctum's jigsaw pieces ({@code embervoid:sanctum/...}). */
+	public static boolean isSanctumPiece(Identifier template) {
+		return template.getNamespace().equals(Embervoid.MOD_ID) && template.getPath().startsWith("sanctum/");
 	}
 
 	private Sanctum() {}
