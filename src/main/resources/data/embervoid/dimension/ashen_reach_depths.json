@@ -1,0 +1,11 @@
+{
+  "type": "embervoid:realm",
+  "generator": {
+    "type": "minecraft:noise",
+    "settings": "embervoid:ashen_reach_depths",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "embervoid:ashen_reach_depths"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "type": "embervoid:realm_feature",
+  "biomes": "#embervoid:ashen_reach",
+  "spawn_overrides": {},
+  "step": "surface_structures",
+  "terrain_adaptation": "beard_thin",
+  "feature": "arena",
+  "boss": {
+    "id": "embervoid:ashen_reach/zone_c",
+    "entity": "embervoid:test_boss",
+    "level": 25,
+    "radius": 20
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "placement": {
+    "type": "embervoid:realm_feature",
+    "salt": 718221,
+    "angle_spread": 1.0,
+    "min_distance": 160,
+    "max_distance": 260
+  },
+  "structures": [
+    {
+      "structure": "embervoid:ashen_reach_depths_arena",
+      "weight": 1
+    }
+  ]
+}

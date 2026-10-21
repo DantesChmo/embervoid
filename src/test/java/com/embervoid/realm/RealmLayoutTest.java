@@ -1,0 +1,95 @@
+package com.embervoid.realm;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class RealmLayoutTest {
+	private static final double START = Math.toRadians(-90);
+	private static final double WARP = Math.toRadians(20);
+
+	@Test
+	void angleIsNormalized() {
+		assertEquals(0, RealmLayout.angle(10, 0), 1e-9);
+		assertEquals(Math.PI / 2, RealmLayout.angle(0, 10), 1e-9);
+		assertEquals(Math.PI * 1.5, RealmLayout.angle(0, -10), 1e-9);
+	}
+
+	@Test
+	void sectorsCoverTheCircle() {
+		// Start at -90° (north), three sectors of 120°.
+		assertEquals(0, RealmLayout.sectorOf(Math.toRadians(-60), 3, START));
+		assertEquals(1, RealmLayout.sectorOf(Math.toRadians(90), 3, START));
+		assertEquals(2, RealmLayout.sectorOf(Math.toRadians(200), 3, START));
+		assertEquals(0, RealmLayout.sectorOf(Math.toRadians(-90), 3, START));
+		assertEquals(2, RealmLayout.sectorOf(Math.toRadians(-90.0001), 3, START));
+	}
+
+	@Test
+	void landingAndAbyss() {
+		assertEquals(RealmLayout.LANDING, RealmLayout.zoneAt(10, 10, 3, START, 48, 1200, 0, WARP));
+		assertEquals(RealmLayout.ABYSS, RealmLayout.zoneAt(1300, 0, 3, START, 48, 1200, 0, WARP));
+	}
+
+	@Test
+	void warpMovesBorders() {
+		// 1° past the border between sector 0 and 1 (at 30°): warped back by -20° it belongs to sector 0.
+		double a = Math.toRadians(31);
+		double x = Math.cos(a) * 500;
+		double z = Math.sin(a) * 500;
+		assertEquals(1, RealmLayout.zoneAt(x, z, 3, START, 48, 1200, 0, WARP));
+		assertEquals(0, RealmLayout.zoneAt(x, z, 3, START, 48, 1200, -1, WARP));
+		// Out-of-range warp is clamped.
+		assertEquals(0, RealmLayout.zoneAt(x, z, 3, START, 48, 1200, -5, WARP));
+	}
+
+	@Test
+	void falloffIsSmoothAndBounded() {
+		assertEquals(1, RealmLayout.falloff(100, 1100, 1200));
+		assertEquals(-1, RealmLayout.falloff(1300, 1100, 1200));
+		assertEquals(0, RealmLayout.falloff(1150, 1100, 1200), 1e-9);
+		double previous = 1;
+		for (int d = 1100; d <= 1200; d += 5) {
+			double v = RealmLayout.falloff(d, 1100, 1200);
+			assertTrue(v <= previous);
+			previous = v;
+		}
+	}
+
+	@Test
+	void featurePositionIsDeterministic() {
+		int[] a = RealmLayout.featurePosition(12345, 7, 3, 1, START, 0.5, 400, 900);
+		int[] b = RealmLayout.featurePosition(12345, 7, 3, 1, START, 0.5, 400, 900);
+		assertArrayEquals(a, b);
+		int[] other = RealmLayout.featurePosition(54321, 7, 3, 1, START, 0.5, 400, 900);
+		assertTrue(a[0] != other[0] || a[1] != other[1]);
+	}
+
+	@Test
+	void featurePositionAtDistanceZeroIsOrigin() {
+		assertArrayEquals(new int[]{0, 0}, RealmLayout.featurePosition(1, 1, 1, 0, 0, 1, 0, 0));
+	}
+
+	@Test
+	void arenasStayInTheirZoneForAnyWarp() {
+		// Arena footprint: radius 20 plus the shrine outside it plus snapping to a chunk corner, about 48 blocks.
+		// Whatever the noise does to the borders, all of it stays in the zone.
+		for (long seed = 0; seed < 2000; seed++) {
+			for (int zone = 0; zone < 3; zone++) {
+				int[] pos = RealmLayout.featurePosition(seed, 100 + zone, 3, zone, START, 0.5, 400, 900);
+				double distance = Math.sqrt((double) pos[0] * pos[0] + (double) pos[1] * pos[1]);
+				assertTrue(distance >= 399 && distance <= 901, "distance " + distance);
+				for (int dx = -48; dx <= 48; dx += 16) {
+					for (int dz = -48; dz <= 48; dz += 16) {
+						for (double warp : new double[]{-1, 0, 1}) {
+							assertEquals(zone, RealmLayout.zoneAt(pos[0] + dx, pos[1] + dz, 3, START, 48, 1200, warp, WARP),
+									"seed " + seed + " zone " + zone);
+						}
+					}
+				}
+			}
+		}
+	}
+}
