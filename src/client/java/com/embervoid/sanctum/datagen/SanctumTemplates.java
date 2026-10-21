@@ -1,6 +1,7 @@
 package com.embervoid.sanctum.datagen;
 
 import com.embervoid.Embervoid;
+import com.embervoid.entity.mob.MobEntities;
 import com.embervoid.progress.ProgressManager;
 import com.embervoid.sanctum.SanctumBlocks;
 import net.minecraft.block.BlockState;
@@ -14,6 +15,7 @@ import net.minecraft.block.enums.SlabType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
@@ -46,8 +48,9 @@ final class SanctumTemplates {
 	private static final Identifier CORE_IN = Embervoid.id("sanctum_core_in");
 
 	static final Identifier OUTER_HALL_LOOT = Embervoid.id("chests/sanctum_outer_hall");
-	/** Entity tag on the placeholder guards, so they can be found and replaced once the Hollow exists. */
+	/** Entity tag on the outer-hall guards. */
 	static final String GUARD_TAG = "embervoid.sanctum_guard";
+	private static final String HOLLOW = Registries.ENTITY_TYPE.getId(MobEntities.HOLLOW).toString();
 
 	private static final BlockState AIR = Blocks.AIR.getDefaultState();
 	private static final BlockState BRICKS = ASH_BRICKS.getDefaultState();
@@ -201,8 +204,8 @@ final class SanctumTemplates {
 		t.set(4, 5, 6, HANGING_LANTERN).set(4, 5, 16, HANGING_LANTERN);
 		t.chest(2, 1, 2, Direction.EAST, OUTER_HALL_LOOT);
 		t.chest(6, 1, 19, Direction.WEST, OUTER_HALL_LOOT);
-		t.entity(3, 1, 8, guard("minecraft:zombie"));
-		t.entity(5, 1, 13, guard("minecraft:zombie"));
+		t.entity(3, 1, 8, guard(HOLLOW));
+		t.entity(5, 1, 13, guard(HOLLOW));
 		t.entity(4, 1, 18, guard("minecraft:skeleton"));
 		return t;
 	}
@@ -254,7 +257,7 @@ final class SanctumTemplates {
 		t.door(2, 1, 0, Direction.NORTH, HALL_IN, null, null);
 		t.door(2, 1, 12, Direction.SOUTH, HALL_OUT, POOL_HALLS, HALL_IN);
 		t.set(1, 3, 6, HANGING_LANTERN);
-		t.entity(2, 1, 7, guard("minecraft:zombie"));
+		t.entity(2, 1, 7, guard(HOLLOW));
 		return t;
 	}
 
@@ -276,8 +279,8 @@ final class SanctumTemplates {
 		for (int[] p : new int[][]{{3, 3}, {9, 9}, {3, 9}, {9, 3}}) {
 			t.set(p[0], 5, p[1], HANGING_LANTERN);
 		}
-		t.entity(3, 1, 4, guard("minecraft:zombie"));
-		t.entity(9, 1, 4, guard("minecraft:zombie"));
+		t.entity(3, 1, 4, guard(HOLLOW));
+		t.entity(9, 1, 4, guard(HOLLOW));
 		t.entity(9, 1, 9, guard("minecraft:skeleton"));
 		return t;
 	}
@@ -316,7 +319,7 @@ final class SanctumTemplates {
 		}
 	}
 
-	/** A placeholder guard (vanilla mob) that never despawns. Replaced by the Hollow once that mob exists. */
+	/** An outer-hall guard that never despawns. Template mobs are initialized, so they get their usual gear. */
 	private static NbtCompound guard(String entityId) {
 		NbtCompound nbt = new NbtCompound();
 		nbt.putString("id", entityId);
@@ -324,15 +327,6 @@ final class SanctumTemplates {
 		NbtList tags = new NbtList();
 		tags.add(NbtString.of(GUARD_TAG));
 		nbt.put("Tags", tags);
-		if (entityId.equals("minecraft:skeleton")) {
-			NbtList hands = new NbtList();
-			NbtCompound bow = new NbtCompound();
-			bow.putString("id", "minecraft:bow");
-			bow.putByte("Count", (byte) 1);
-			hands.add(bow);
-			hands.add(new NbtCompound());
-			nbt.put("HandItems", hands);
-		}
 		return nbt;
 	}
 
