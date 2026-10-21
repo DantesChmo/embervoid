@@ -49,7 +49,7 @@ Required runtime mods: Fabric API, GeckoLib (from milestone 4).
 
 ## 1. Building blocks
 
-**Status:** Done.
+**Status:** Done, partly unverified (not verified in game block by block: drops itself, right tool, creative-tab names; the blocks render and are placed fine inside the Sanctum).
 
 **Goal:** the block palette that structures are built from (used by the Sanctum and Realm 1).
 
