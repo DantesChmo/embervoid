@@ -1,7 +1,10 @@
 package com.embervoid.entity;
 
+import com.embervoid.config.EmbervoidConfig;
 import com.embervoid.player.PlayerData;
 import com.embervoid.player.PlayerDataManager;
+import com.embervoid.player.XpUtil;
+import net.minecraft.block.piston.PistonBehavior;
 import com.embervoid.registry.ModEntities;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -30,11 +33,14 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * What a player leaves behind on death: their items (by inventory slot) and XP. It does not move, cannot be hurt and
- * is saved with the chunk like any entity. Only its owner can reclaim it, by right-clicking it.
+ * What a player leaves behind on death: their items (by inventory slot) and XP points. It does not move, cannot be
+ * hurt, killed, blown up or lost to the void, and is saved with the chunk like any entity. Only its owner can reclaim
+ * it, by right-clicking it.
  *
- * <p>Each player has at most one: {@link RemnantRegistry} records the current one, and any other remnant of theirs
- * burns away as soon as it ticks (right away if loaded, otherwise when its chunk loads).
+ * <p>{@link RemnantRegistry} records each player's current remnant. When a player dies again, the previous one is
+ * retired per {@code remnant.secondDeath}: with {@code burn_xp} its XP burns and it stays as an item-only remnant
+ * until picked up, with {@code burn_all} it burns. A remnant that is not loaded at that moment finds out when its
+ * chunk loads and next ticks, and resolves itself then.
  */
 public class AshRemnantEntity extends Entity {
 	private DefaultedList<ItemStack> items = DefaultedList.of();
@@ -42,6 +48,8 @@ public class AshRemnantEntity extends Entity {
 	@Nullable
 	private UUID owner;
 	private String ownerName = "";
+	/** Retired by a later death under {@code burn_xp}: holds items only and no longer checks the registry. */
+	private boolean itemOnly;
 	/** Ticks until the next check against the registry; 0 so a freshly loaded remnant checks at once. */
 	private int registryCheckDelay;
 
@@ -51,8 +59,8 @@ public class AshRemnantEntity extends Entity {
 	}
 
 	/**
-	 * Moves the player's items and/or XP into a new remnant at {@code pos} and records it as their remnant
-	 * (any previous one burns away). The caller decides what to take (config {@code remnant.mode}) and where.
+	 * Moves the player's items and/or XP into a new remnant at {@code pos} and records it as their current remnant.
+	 * Call {@link #retireCurrent} first. The caller decides what to take (config {@code remnant.mode}) and where.
 	 */
 	public static AshRemnantEntity create(ServerPlayerEntity player, Vec3d pos, boolean takeItems, boolean takeExperience) {
 		AshRemnantEntity remnant = new AshRemnantEntity(ModEntities.ASH_REMNANT, player.getServerWorld());
@@ -70,10 +78,8 @@ public class AshRemnantEntity extends Entity {
 			}
 		}
 		if (takeExperience) {
-			remnant.experience = totalExperience(player);
-			player.experienceProgress = 0;
-			player.totalExperience = 0;
-			player.setExperienceLevel(0);
+			remnant.experience = XpUtil.getPoints(player);
+			XpUtil.setPoints(player, 0);
 		}
 
 		RemnantRegistry.get(player.getServer()).setRemnant(player.getUuid(), remnant.getUuid());
@@ -83,41 +89,36 @@ public class AshRemnantEntity extends Entity {
 		return remnant;
 	}
 
+	/** What {@link #retireCurrent} did. */
+	public enum Retired {
+		/** The player had no current remnant. */
+		NONE,
+		/** Its XP burned; its items stay (or will, once its chunk loads). */
+		XP_BURNED,
+		/** It burned with everything in it (or will, once its chunk loads). */
+		BURNED
+	}
+
 	/**
-	 * Burns the player's current remnant, if any: at once when it is loaded, otherwise the registry makes it burn
-	 * when its chunk loads. Returns whether there was one.
+	 * Retires the player's current remnant per {@code remnant.secondDeath}: at once if it is loaded, otherwise when
+	 * its chunk loads (it is no longer the registry's current one).
 	 */
-	public static boolean burnCurrent(ServerPlayerEntity player) {
+	public static Retired retireCurrent(ServerPlayerEntity player) {
 		RemnantRegistry registry = RemnantRegistry.get(player.getServer());
 		UUID current = registry.getRemnant(player.getUuid());
 		if (current == null) {
-			return false;
+			return Retired.NONE;
 		}
 		registry.clearRemnant(player.getUuid(), current);
 		for (ServerWorld world : player.getServer().getWorlds()) {
 			if (world.getEntity(current) instanceof AshRemnantEntity remnant) {
-				remnant.burn();
+				remnant.retire();
 			}
 		}
 		PlayerDataManager.get(player).remnantId = null;
 		PlayerDataManager.sync(player);
-		return true;
-	}
-
-	/** Exact XP points for the player's level and bar progress (vanilla's totalExperience drifts after /xp). */
-	public static int totalExperience(PlayerEntity player) {
-		int total = 0;
-		for (int level = 0; level < player.experienceLevel; level++) {
-			total += experienceToNextLevel(level);
-		}
-		return total + Math.round(player.experienceProgress * experienceToNextLevel(player.experienceLevel));
-	}
-
-	private static int experienceToNextLevel(int level) {
-		if (level >= 30) {
-			return 112 + (level - 30) * 9;
-		}
-		return level >= 15 ? 37 + (level - 15) * 5 : 7 + level * 2;
+		return EmbervoidConfig.get().remnant().secondDeath() == EmbervoidConfig.SecondDeath.BURN_ALL
+				? Retired.BURNED : Retired.XP_BURNED;
 	}
 
 	@Nullable
@@ -158,7 +159,7 @@ public class AshRemnantEntity extends Entity {
 		}
 		overflow.forEach(inventory::offerOrDrop);
 		items.clear();
-		player.addExperience(experience);
+		XpUtil.addPoints(player, experience);
 		experience = 0;
 
 		RemnantRegistry.get(player.getServer()).clearRemnant(player.getUuid(), getUuid());
@@ -172,6 +173,24 @@ public class AshRemnantEntity extends Entity {
 		world.playSound(null, getX(), getY(), getZ(), SoundEvents.PARTICLE_SOUL_ESCAPE, SoundCategory.PLAYERS, 1.0f, 0.8f);
 		world.spawnParticles(ParticleTypes.SOUL, getX(), getY() + 0.6, getZ(), 20, 0.3, 0.4, 0.3, 0.02);
 		discard();
+	}
+
+	/** Applies {@code remnant.secondDeath} to this no-longer-current remnant. */
+	private void retire() {
+		if (EmbervoidConfig.get().remnant().secondDeath() == EmbervoidConfig.SecondDeath.BURN_ALL || isEmptyOfItems()) {
+			burn();
+			return;
+		}
+		if (experience > 0 && getWorld() instanceof ServerWorld world) {
+			world.spawnParticles(ParticleTypes.SMOKE, getX(), getY() + 0.6, getZ(), 12, 0.25, 0.4, 0.25, 0.01);
+			world.playSound(null, getX(), getY(), getZ(), SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.BLOCKS, 0.5f, 1.2f);
+		}
+		experience = 0;
+		itemOnly = true;
+	}
+
+	private boolean isEmptyOfItems() {
+		return items.stream().allMatch(ItemStack::isEmpty);
 	}
 
 	/** Destroys the remnant and everything in it. */
@@ -189,11 +208,13 @@ public class AshRemnantEntity extends Entity {
 	public void tick() {
 		super.tick();
 		World world = getWorld();
-		if (world instanceof ServerWorld serverWorld && owner != null && --registryCheckDelay <= 0) {
+		if (world instanceof ServerWorld serverWorld && owner != null && !itemOnly && --registryCheckDelay <= 0) {
 			registryCheckDelay = 20;
 			if (!getUuid().equals(RemnantRegistry.get(serverWorld.getServer()).getRemnant(owner))) {
-				burn();
-				return;
+				retire();
+				if (isRemoved()) {
+					return;
+				}
 			}
 		}
 		if (world.isClient && random.nextInt(3) == 0) {
@@ -212,6 +233,25 @@ public class AshRemnantEntity extends Entity {
 	@Override
 	public boolean damage(DamageSource source, float amount) {
 		return false;
+	}
+
+	/** {@code /kill} and similar do nothing; only reclaiming or retiring removes a remnant. */
+	@Override
+	public void kill() {
+	}
+
+	@Override
+	protected void tickInVoid() {
+	}
+
+	@Override
+	public boolean isImmuneToExplosion() {
+		return true;
+	}
+
+	@Override
+	public PistonBehavior getPistonBehavior() {
+		return PistonBehavior.IGNORE;
 	}
 
 	@Override
@@ -246,6 +286,7 @@ public class AshRemnantEntity extends Entity {
 		experience = nbt.getInt("Experience");
 		owner = nbt.containsUuid("Owner") ? nbt.getUuid("Owner") : null;
 		ownerName = nbt.getString("OwnerName");
+		itemOnly = nbt.getBoolean("ItemOnly");
 	}
 
 	@Override
@@ -257,5 +298,6 @@ public class AshRemnantEntity extends Entity {
 			nbt.putUuid("Owner", owner);
 		}
 		nbt.putString("OwnerName", ownerName);
+		nbt.putBoolean("ItemOnly", itemOnly);
 	}
 }

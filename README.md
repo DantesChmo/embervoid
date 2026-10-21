@@ -21,6 +21,7 @@ The mod reads `config/embervoid.json` (created with defaults on first launch). M
 | Key | Default | Range | Meaning |
 |-----|---------|-------|---------|
 | `remnant.mode` | `xp_and_items` | `off`, `xp`, `xp_and_items` | What goes into the Ash Remnant on death |
+| `remnant.secondDeath` | `burn_xp` | `burn_xp`, `burn_all` | What dying again does to the previous remnant: its XP burns and the items stay, or it burns with everything |
 | `stamina.max` | 100 | 1–10000 | Stamina pool size |
 | `stamina.regenPerTick` | 1.0 | 0.01–1000 | Stamina restored per tick while regenerating |
 | `stamina.regenDelayTicks` | 20 | 0–1200 | Ticks after spending stamina before it regenerates |

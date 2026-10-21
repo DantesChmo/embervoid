@@ -18,6 +18,7 @@
 	"embervoid.remnant.location": "%s, %s, %s",
 	"embervoid.remnant.location_dimension": "%s (%s)",
 	"embervoid.remnant.burned": "Ваш прежний пепельный останок рассыпался в прах",
+	"embervoid.remnant.xp_burned": "Опыт в вашем прежнем пепельном останке сгорел; вещи, если были, остались в нём",
 	"itemGroup.embervoid.main": "Embervoid",
 	"modmenu.descriptionTranslation.embervoid": "Мир угасает. Тёмное фэнтези-приключение: данжи, боссы и проклятое снаряжение.",
 	"block.embervoid.ash_stone": "Пепельный камень",
