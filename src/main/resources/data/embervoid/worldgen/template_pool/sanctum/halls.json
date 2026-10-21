@@ -2,7 +2,7 @@
 	"fallback": "embervoid:sanctum/hall_ends",
 	"elements": [
 		{
-			"weight": 3,
+			"weight": 5,
 			"element": {
 				"element_type": "minecraft:single_pool_element",
 				"location": "embervoid:sanctum/hall_corridor",

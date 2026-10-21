@@ -5,6 +5,7 @@ import com.embervoid.entity.mob.MobEntities;
 import com.embervoid.progress.ProgressManager;
 import com.embervoid.sanctum.SanctumBlocks;
 import com.embervoid.sanctum.SanctumEntities;
+import com.embervoid.sanctum.SanctumGuards;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.LanternBlock;
@@ -20,6 +21,7 @@ import net.minecraft.nbt.NbtString;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -50,9 +52,8 @@ final class SanctumTemplates {
 	private static final Identifier CORE_IN = Embervoid.id("sanctum_core_in");
 
 	static final Identifier OUTER_HALL_LOOT = Embervoid.id("chests/sanctum_outer_hall");
-	/** Entity tag on the outer-hall guards. */
-	static final String GUARD_TAG = "embervoid.sanctum_guard";
 	private static final String HOLLOW = Registries.ENTITY_TYPE.getId(MobEntities.HOLLOW).toString();
+	private static final String SKELETON = "minecraft:skeleton";
 
 	private static final BlockState AIR = Blocks.AIR.getDefaultState();
 	private static final BlockState BRICKS = ASH_BRICKS.getDefaultState();
@@ -81,13 +82,21 @@ final class SanctumTemplates {
 		return pieces;
 	}
 
+	/** Solid layers under the ruin's floor, so it sits on ground even on a slope (the structure carves nothing). */
+	static final int RUIN_FOUNDATION = 3;
+
 	/**
-	 * Surface ruin, 15x8x15. y = 0 is the ground layer (the structure starts one block below the surface).
-	 * A railed 5x5 shaft in the middle leads down to the descent.
+	 * Surface ruin, 15x11x15: a {@value #RUIN_FOUNDATION}-block foundation, then the ground layer (the structure
+	 * starts that far below the surface, see worldgen/structure/ember_sanctum.json). A railed 5x5 shaft in the middle
+	 * leads down through the foundation to the descent.
 	 */
 	private static TemplateBuilder ruin() {
-		TemplateBuilder t = new TemplateBuilder(15, 8, 15);
+		TemplateBuilder t = new TemplateBuilder(15, RUIN_FOUNDATION + 8, 15);
 		Random random = new Random(1);
+		t.fill(0, 0, 0, 14, RUIN_FOUNDATION - 1, 14, COBBLED);
+		t.fill(5, 0, 5, 9, RUIN_FOUNDATION - 1, 9, AIR);
+		t.jigsaw(7, 0, 7, JigsawOrientation.DOWN_SOUTH, RUIN_DOWN, POOL_DESCENT, DESCENT_TOP, AIR);
+		t.baseY(RUIN_FOUNDATION);
 		for (int x = 0; x < 15; x++) {
 			for (int z = 0; z < 15; z++) {
 				double r = random.nextDouble();
@@ -141,33 +150,36 @@ final class SanctumTemplates {
 			}
 		}
 		t.set(4, 2, 4, LANTERN).set(10, 2, 4, LANTERN).set(4, 2, 10, LANTERN).set(10, 2, 10, LANTERN);
-		t.jigsaw(7, 0, 7, JigsawOrientation.DOWN_SOUTH, RUIN_DOWN, POOL_DESCENT, DESCENT_TOP, AIR);
 		return t;
 	}
 
 	/**
-	 * Spiral stairwell, 7x20x7: stairs wind down around a 3x3 column on the outer ring of the 5x5 inside and end
-	 * at a doorway in the south wall. The top layer joins the ruin's shaft.
+	 * Spiral stairwell, 9x20x9 with walls two blocks thick, so caves never break into it: stairs wind down around a
+	 * 3x3 column on the outer ring of the 5x5 inside and end at a doorway in the south wall. The top layer joins the
+	 * ruin's shaft.
 	 */
 	private static TemplateBuilder descent() {
 		int height = 20;
-		TemplateBuilder t = new TemplateBuilder(7, height, 7);
-		t.fill(0, 0, 0, 6, height - 1, 6, BRICKS);
-		t.fill(1, 1, 1, 5, height - 1, 5, AIR);
-		t.fill(1, 0, 1, 5, 0, 5, POLISHED);
+		int wall = 2;
+		int size = 5 + 2 * wall;
+		int in = wall; // first inside x/z
+		TemplateBuilder t = new TemplateBuilder(size, height, size);
+		t.fill(0, 0, 0, size - 1, height - 1, size - 1, BRICKS);
+		t.fill(in, 1, in, in + 4, height - 1, in + 4, AIR);
+		t.fill(in, 0, in, in + 4, 0, in + 4, POLISHED);
 		for (int y = 0; y <= height - 2; y++) {
 			BlockState block = y % 5 == 4 ? CHISELED : BRICKS;
-			t.fill(2, y, 2, 4, y, 4, block);
+			t.fill(in + 1, y, in + 1, in + 3, y, in + 3, block);
 		}
 
 		// Outer ring of the 5x5 inside, clockwise from the north-west corner.
 		int[][] ring = new int[16][];
 		int n = 0;
-		for (int x = 1; x <= 5; x++) ring[n++] = new int[]{x, 1};
-		for (int z = 2; z <= 5; z++) ring[n++] = new int[]{5, z};
-		for (int x = 4; x >= 1; x--) ring[n++] = new int[]{x, 5};
-		for (int z = 4; z >= 2; z--) ring[n++] = new int[]{1, z};
-		int doorIndex = 10; // (3, 5), in front of the south door
+		for (int x = 0; x <= 4; x++) ring[n++] = new int[]{in + x, in};
+		for (int z = 1; z <= 4; z++) ring[n++] = new int[]{in + 4, in + z};
+		for (int x = 3; x >= 0; x--) ring[n++] = new int[]{in + x, in + 4};
+		for (int z = 3; z >= 1; z--) ring[n++] = new int[]{in, in + z};
+		int doorIndex = 10; // middle of the south side, in front of the door
 		int steps = height - 1;
 		for (int k = 0; k < steps; k++) {
 			int[] cell = ring[Math.floorMod(doorIndex - (steps - k), 16)];
@@ -175,10 +187,11 @@ final class SanctumTemplates {
 			Direction facing = Direction.fromVector(up[0] - cell[0], 0, up[1] - cell[1]);
 			t.set(cell[0], height - 1 - k, cell[1], POLISHED_ASH_STONE_STAIRS.getDefaultState().with(StairsBlock.FACING, facing));
 		}
-		t.fill(2, 1, 6, 4, 3, 6, AIR);
-		t.set(1, 1, 1, LANTERN);
-		t.door(3, 1, 6, Direction.SOUTH, HALL_OUT, POOL_GATE, HALL_IN);
-		t.jigsaw(3, height - 1, 3, JigsawOrientation.UP_SOUTH, DESCENT_TOP, null, null, AIR);
+		int center = in + 2;
+		t.fill(center - 1, 1, in + 5, center + 1, 3, size - 1, AIR);
+		t.set(in, 1, in, LANTERN);
+		t.door(center, 1, size - 1, Direction.SOUTH, HALL_OUT, POOL_GATE, HALL_IN);
+		t.jigsaw(center, height - 1, center, JigsawOrientation.UP_SOUTH, DESCENT_TOP, null, null, AIR);
 		return t;
 	}
 
@@ -206,9 +219,8 @@ final class SanctumTemplates {
 		t.set(4, 5, 6, HANGING_LANTERN).set(4, 5, 16, HANGING_LANTERN);
 		t.chest(2, 1, 2, Direction.EAST, OUTER_HALL_LOOT);
 		t.chest(6, 1, 19, Direction.WEST, OUTER_HALL_LOOT);
-		t.entity(3, 1, 8, guard(HOLLOW));
-		t.entity(5, 1, 13, guard(HOLLOW));
-		t.entity(4, 1, 18, guard("minecraft:skeleton"));
+		t.entity(4, 1, 12, guard(HOLLOW, null));
+		t.entity(4, 1, 18, guard(SKELETON, null));
 		return t;
 	}
 
@@ -268,11 +280,11 @@ final class SanctumTemplates {
 		t.door(2, 1, 0, Direction.NORTH, HALL_IN, null, null);
 		t.door(2, 1, 12, Direction.SOUTH, HALL_OUT, POOL_HALLS, HALL_IN);
 		t.set(1, 3, 6, HANGING_LANTERN);
-		t.entity(2, 1, 7, guard(HOLLOW));
+		t.entity(2, 1, 7, guard(HOLLOW, SanctumGuards.ROLL_HALL));
 		return t;
 	}
 
-	/** Crossroads chamber, 13x7x13, three exits, two chests, three guards. */
+	/** Crossroads chamber, 13x7x13, three exits, two chests, a Hollow spot and an archer spot. */
 	private static TemplateBuilder hallChamber() {
 		TemplateBuilder t = new TemplateBuilder(13, 7, 13);
 		t.room(POLISHED, BRICKS, BRICKS);
@@ -290,13 +302,12 @@ final class SanctumTemplates {
 		for (int[] p : new int[][]{{3, 3}, {9, 9}, {3, 9}, {9, 3}}) {
 			t.set(p[0], 5, p[1], HANGING_LANTERN);
 		}
-		t.entity(3, 1, 4, guard(HOLLOW));
-		t.entity(9, 1, 4, guard(HOLLOW));
-		t.entity(9, 1, 9, guard("minecraft:skeleton"));
+		t.entity(3, 1, 4, guard(HOLLOW, SanctumGuards.ROLL_HALL));
+		t.entity(9, 1, 9, guard(SKELETON, SanctumGuards.ROLL_ARCHER));
 		return t;
 	}
 
-	/** Dead-end crypt, 9x6x9: coffins along the walls, a chest at the back, one guard. */
+	/** Dead-end crypt, 9x6x9: coffins along the walls, a chest at the back, a Hollow spot. */
 	private static TemplateBuilder hallCrypt() {
 		TemplateBuilder t = new TemplateBuilder(9, 6, 9);
 		t.room(COBBLED, BRICKS, BRICKS);
@@ -309,7 +320,7 @@ final class SanctumTemplates {
 		t.door(4, 1, 0, Direction.NORTH, HALL_IN, null, null);
 		t.chest(4, 1, 7, Direction.NORTH, OUTER_HALL_LOOT);
 		t.set(4, 4, 4, HANGING_LANTERN);
-		t.entity(4, 1, 5, guard("minecraft:skeleton"));
+		t.entity(4, 1, 5, guard(HOLLOW, SanctumGuards.ROLL_HALL));
 		return t;
 	}
 
@@ -330,13 +341,19 @@ final class SanctumTemplates {
 		}
 	}
 
-	/** An outer-hall guard that never despawns. Template mobs are initialized, so they get their usual gear. */
-	private static NbtCompound guard(String entityId) {
+	/**
+	 * An outer-hall guard that never despawns. Template mobs are initialized, so they get their usual gear.
+	 * {@code rollTag} makes the spot optional (see {@link SanctumGuards}); null = always there.
+	 */
+	private static NbtCompound guard(String entityId, @Nullable String rollTag) {
 		NbtCompound nbt = new NbtCompound();
 		nbt.putString("id", entityId);
 		nbt.putBoolean("PersistenceRequired", true);
 		NbtList tags = new NbtList();
-		tags.add(NbtString.of(GUARD_TAG));
+		tags.add(NbtString.of(SanctumGuards.GUARD));
+		if (rollTag != null) {
+			tags.add(NbtString.of(rollTag));
+		}
 		nbt.put("Tags", tags);
 		return nbt;
 	}

@@ -34,6 +34,8 @@ final class TemplateBuilder {
 	final int sizeZ;
 	private final Map<BlockPos, Entry> blocks = new LinkedHashMap<>();
 	private final NbtList entities = new NbtList();
+	/** Added to every y given to the methods below, so a piece can be drawn on top of a foundation. */
+	private int baseY;
 
 	TemplateBuilder(int sizeX, int sizeY, int sizeZ) {
 		this.sizeX = sizeX;
@@ -45,7 +47,14 @@ final class TemplateBuilder {
 		return set(x, y, z, state, null);
 	}
 
+	/** From now on, y = 0 means {@code baseY} in the template. */
+	TemplateBuilder baseY(int baseY) {
+		this.baseY = baseY;
+		return this;
+	}
+
 	TemplateBuilder set(int x, int y, int z, BlockState state, @Nullable NbtCompound nbt) {
+		y += baseY;
 		if (x < 0 || y < 0 || z < 0 || x >= sizeX || y >= sizeY || z >= sizeZ) {
 			throw new IllegalArgumentException("Outside the template: " + x + ", " + y + ", " + z);
 		}
@@ -54,7 +63,7 @@ final class TemplateBuilder {
 	}
 
 	BlockState get(int x, int y, int z) {
-		Entry entry = blocks.get(new BlockPos(x, y, z));
+		Entry entry = blocks.get(new BlockPos(x, y + baseY, z));
 		return entry != null ? entry.state : Blocks.STRUCTURE_VOID.getDefaultState();
 	}
 
@@ -122,10 +131,10 @@ final class TemplateBuilder {
 		NbtCompound entry = new NbtCompound();
 		NbtList pos = new NbtList();
 		pos.add(NbtDouble.of(x + 0.5));
-		pos.add(NbtDouble.of(y));
+		pos.add(NbtDouble.of(y + baseY));
 		pos.add(NbtDouble.of(z + 0.5));
 		entry.put("pos", pos);
-		entry.put("blockPos", intList(x, y, z));
+		entry.put("blockPos", intList(x, y + baseY, z));
 		entry.put("nbt", nbt);
 		entities.add(entry);
 		return this;

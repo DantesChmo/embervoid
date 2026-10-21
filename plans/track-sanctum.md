@@ -62,3 +62,4 @@ Owns `com.embervoid.progress`, `com.embervoid.sanctum`, `registry/ModStructures`
 - started; plan written.
 - S1 merged to main (87874ac). S2–S9 committed; check request queued for 5678436 (structure, blocks, loot).
 - Synced with main b57ec47: realm.api, stats and new flask API wired in; all stubs gone.
+- QA #7 fixes merged (0538b38). User decision (c65c58d): smaller Sanctum — size 4, corridor-heavy halls, rolled side-hall guards (sanctum.hallGuardChance / hallArcherChance), no terrain carving + ruin foundation + 2-thick stairwell walls.

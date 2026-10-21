@@ -16,6 +16,7 @@ public final class Sanctum {
 		SanctumEntities.register();
 		SanctumLoot.register();
 		Attunement.register();
+		SanctumGuards.register();
 		LevelUpNetworking.register();
 	}
 
