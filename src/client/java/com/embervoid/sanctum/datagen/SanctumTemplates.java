@@ -81,13 +81,21 @@ final class SanctumTemplates {
 		return pieces;
 	}
 
+	/** Solid layers under the ruin's floor, so it sits on ground even on a slope (the structure carves nothing). */
+	static final int RUIN_FOUNDATION = 3;
+
 	/**
-	 * Surface ruin, 15x8x15. y = 0 is the ground layer (the structure starts one block below the surface).
-	 * A railed 5x5 shaft in the middle leads down to the descent.
+	 * Surface ruin, 15x11x15: a {@value #RUIN_FOUNDATION}-block foundation, then the ground layer (the structure
+	 * starts that far below the surface, see worldgen/structure/ember_sanctum.json). A railed 5x5 shaft in the middle
+	 * leads down through the foundation to the descent.
 	 */
 	private static TemplateBuilder ruin() {
-		TemplateBuilder t = new TemplateBuilder(15, 8, 15);
+		TemplateBuilder t = new TemplateBuilder(15, RUIN_FOUNDATION + 8, 15);
 		Random random = new Random(1);
+		t.fill(0, 0, 0, 14, RUIN_FOUNDATION - 1, 14, COBBLED);
+		t.fill(5, 0, 5, 9, RUIN_FOUNDATION - 1, 9, AIR);
+		t.jigsaw(7, 0, 7, JigsawOrientation.DOWN_SOUTH, RUIN_DOWN, POOL_DESCENT, DESCENT_TOP, AIR);
+		t.baseY(RUIN_FOUNDATION);
 		for (int x = 0; x < 15; x++) {
 			for (int z = 0; z < 15; z++) {
 				double r = random.nextDouble();
@@ -141,33 +149,36 @@ final class SanctumTemplates {
 			}
 		}
 		t.set(4, 2, 4, LANTERN).set(10, 2, 4, LANTERN).set(4, 2, 10, LANTERN).set(10, 2, 10, LANTERN);
-		t.jigsaw(7, 0, 7, JigsawOrientation.DOWN_SOUTH, RUIN_DOWN, POOL_DESCENT, DESCENT_TOP, AIR);
 		return t;
 	}
 
 	/**
-	 * Spiral stairwell, 7x20x7: stairs wind down around a 3x3 column on the outer ring of the 5x5 inside and end
-	 * at a doorway in the south wall. The top layer joins the ruin's shaft.
+	 * Spiral stairwell, 9x20x9 with walls two blocks thick, so caves never break into it: stairs wind down around a
+	 * 3x3 column on the outer ring of the 5x5 inside and end at a doorway in the south wall. The top layer joins the
+	 * ruin's shaft.
 	 */
 	private static TemplateBuilder descent() {
 		int height = 20;
-		TemplateBuilder t = new TemplateBuilder(7, height, 7);
-		t.fill(0, 0, 0, 6, height - 1, 6, BRICKS);
-		t.fill(1, 1, 1, 5, height - 1, 5, AIR);
-		t.fill(1, 0, 1, 5, 0, 5, POLISHED);
+		int wall = 2;
+		int size = 5 + 2 * wall;
+		int in = wall; // first inside x/z
+		TemplateBuilder t = new TemplateBuilder(size, height, size);
+		t.fill(0, 0, 0, size - 1, height - 1, size - 1, BRICKS);
+		t.fill(in, 1, in, in + 4, height - 1, in + 4, AIR);
+		t.fill(in, 0, in, in + 4, 0, in + 4, POLISHED);
 		for (int y = 0; y <= height - 2; y++) {
 			BlockState block = y % 5 == 4 ? CHISELED : BRICKS;
-			t.fill(2, y, 2, 4, y, 4, block);
+			t.fill(in + 1, y, in + 1, in + 3, y, in + 3, block);
 		}
 
 		// Outer ring of the 5x5 inside, clockwise from the north-west corner.
 		int[][] ring = new int[16][];
 		int n = 0;
-		for (int x = 1; x <= 5; x++) ring[n++] = new int[]{x, 1};
-		for (int z = 2; z <= 5; z++) ring[n++] = new int[]{5, z};
-		for (int x = 4; x >= 1; x--) ring[n++] = new int[]{x, 5};
-		for (int z = 4; z >= 2; z--) ring[n++] = new int[]{1, z};
-		int doorIndex = 10; // (3, 5), in front of the south door
+		for (int x = 0; x <= 4; x++) ring[n++] = new int[]{in + x, in};
+		for (int z = 1; z <= 4; z++) ring[n++] = new int[]{in + 4, in + z};
+		for (int x = 3; x >= 0; x--) ring[n++] = new int[]{in + x, in + 4};
+		for (int z = 3; z >= 1; z--) ring[n++] = new int[]{in, in + z};
+		int doorIndex = 10; // middle of the south side, in front of the door
 		int steps = height - 1;
 		for (int k = 0; k < steps; k++) {
 			int[] cell = ring[Math.floorMod(doorIndex - (steps - k), 16)];
@@ -175,10 +186,11 @@ final class SanctumTemplates {
 			Direction facing = Direction.fromVector(up[0] - cell[0], 0, up[1] - cell[1]);
 			t.set(cell[0], height - 1 - k, cell[1], POLISHED_ASH_STONE_STAIRS.getDefaultState().with(StairsBlock.FACING, facing));
 		}
-		t.fill(2, 1, 6, 4, 3, 6, AIR);
-		t.set(1, 1, 1, LANTERN);
-		t.door(3, 1, 6, Direction.SOUTH, HALL_OUT, POOL_GATE, HALL_IN);
-		t.jigsaw(3, height - 1, 3, JigsawOrientation.UP_SOUTH, DESCENT_TOP, null, null, AIR);
+		int center = in + 2;
+		t.fill(center - 1, 1, in + 5, center + 1, 3, size - 1, AIR);
+		t.set(in, 1, in, LANTERN);
+		t.door(center, 1, size - 1, Direction.SOUTH, HALL_OUT, POOL_GATE, HALL_IN);
+		t.jigsaw(center, height - 1, center, JigsawOrientation.UP_SOUTH, DESCENT_TOP, null, null, AIR);
 		return t;
 	}
 
