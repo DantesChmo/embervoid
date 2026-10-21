@@ -1,6 +1,6 @@
 # Embervoid — Roadmap
 
-What the mod is: [DESIGN.md](DESIGN.md). Task breakdown of the next milestones: [PLAN.md](PLAN.md).
+What the mod is: [DESIGN.md](DESIGN.md). What is built and how content plugs in: [CORE.md](CORE.md). Task breakdown of the next milestones: [PLAN.md](PLAN.md).
 
 Current version: **0.1.0**.
 Milestones are ordered by dependency. Releases group milestones so that every release is a playable loop.
