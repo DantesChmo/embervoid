@@ -2,6 +2,7 @@ package com.embervoid.client;
 
 import com.embervoid.Embervoid;
 import com.embervoid.config.ConfigSync;
+import com.embervoid.client.mob.MobLevelClient;
 import com.embervoid.client.mob.MobRenderers;
 import com.embervoid.config.EmbervoidClientConfig;
 import com.embervoid.config.EmbervoidConfig;
@@ -37,6 +38,7 @@ public class EmbervoidClient implements ClientModInitializer {
 
 		ClientStamina.register();
 		MobRenderers.register();
+		MobLevelClient.register();
 		ProgressClient.register();
 		// Particles and the name label only; a model comes with the art pass.
 		EntityRendererRegistry.register(ModEntities.ASH_REMNANT, EmptyEntityRenderer::new);

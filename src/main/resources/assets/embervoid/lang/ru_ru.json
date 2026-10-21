@@ -54,5 +54,6 @@
 	"entity.embervoid.hollow": "Полый",
 	"item.embervoid.hollow_spawn_egg": "Яйцо призыва полого",
 	"entity.embervoid.ember_wisp": "Тлеющий огонёк",
-	"item.embervoid.ember_wisp_spawn_egg": "Яйцо призыва тлеющего огонька"
+	"item.embervoid.ember_wisp_spawn_egg": "Яйцо призыва тлеющего огонька",
+	"embervoid.mob_level": "Ур. %s"
 }

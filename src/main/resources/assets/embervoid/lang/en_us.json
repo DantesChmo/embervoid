@@ -54,5 +54,6 @@
 	"entity.embervoid.hollow": "Hollow",
 	"item.embervoid.hollow_spawn_egg": "Hollow Spawn Egg",
 	"entity.embervoid.ember_wisp": "Ember Wisp",
-	"item.embervoid.ember_wisp_spawn_egg": "Ember Wisp Spawn Egg"
+	"item.embervoid.ember_wisp_spawn_egg": "Ember Wisp Spawn Egg",
+	"embervoid.mob_level": "Lv. %s"
 }
