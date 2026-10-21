@@ -17,12 +17,12 @@ Packages owned: `com.embervoid.realm` (dimensions, worldgen, teleports, gate, lo
 | Final zone | Separate dimension `embervoid:ashen_reach_depths`, same type, radius ~400, fixed biome |
 | Arena placement | `RealmFeaturePlacement` extends `RandomSpreadStructurePlacement` (so `/locate structure` works): one start chunk per world, angle inside the zone's sector (kept clear of warped borders), distance from the seed |
 | Landing / arenas | Code-built structure type `embervoid:realm_feature` (`kind`: landing / arena), one piece type; placeholders until the `.nbt` builds |
-| Landing | Return obelisk, Ember Shrine (stand-in), Sealed Gate. Protected (unbreakable blocks + no building inside arenas/landing) |
+| Landing | Return obelisk, Ember Shrine (sanctum's block), Sealed Gate. Protected (unbreakable blocks + no building inside arenas/landing) |
 | Player realm data | Own attachment `realm_player` (persistent, copied on death): Sanctum return point, last rested shrine per realm |
 | Respawn | `AFTER_RESPAWN`: died in a realm → teleport to that realm's last rested shrine (or landing). Overworld spawn point untouched; beds in realms do not set spawn |
 | Progress | Sanctum's `ProgressManager` (on `main`); Realm 1's id is `ProgressManager.REALM_1` |
-| Shrine | `ShrineHooks` events (`ALLOW_REST`, `RESTED`) for sanctum's Ember Shrine. Stand-in until it lands: soul campfire in realm dimensions |
-| Mob levels | `RealmMobLevels` picks the zone band's level on entity load; `setLevel`/`hasLevel` are stubs until the mobs level API is on `main` |
+| Shrine | Sanctum's Ember Shrine calls `ShrineHooks` (`ALLOW_REST`, `RESTED`); realms set the respawn point and keep arena shrines dormant |
+| Mob levels | `RealmMobLevels` is a `MobLevels` provider (zone band); bosses get the arena's level via `MobLevels.setLevel` |
 | Boss framework | `boss`: `ArenaBoss` interface + `BossFight` (boss bar with level, cylinder fog wall, participants, reset on leave/death, phases, credit, Ember Heart), `ArenaManager` (summon rule from arena structures), `Telegraph`, boss music S2C packet, arena shrine dormant per §10.8 |
 | Test boss | `TestBossEntity` (zombie model), two phases, telegraphed slam |
 
@@ -33,17 +33,17 @@ Packages owned: `com.embervoid.realm` (dimensions, worldgen, teleports, gate, lo
 - [x] R3 Realm dimension: biome source, falloff density function, dimension/type/noise JSON, placeholder biomes, void push-back
 - [x] R4 Final-zone dimension
 - [x] R5 `realm_feature` structure + placement: landing, 3 zone arenas, final arena; protection
-- [x] R6 Realm blocks, teleports, realm player data, respawn, shrine hooks + stand-in
+- [x] R6 Realm blocks, teleports, realm player data, respawn, shrine hooks
 - [x] R7 Sealed Gate, Ember Lodestar, zone level bands (decided; applying waits on the mobs API), debug commands
 - [x] R8 Boss framework
 - [x] R9 Test boss
 - [x] R10a Progress stub replaced by `ProgressManager`
-- [ ] R10b Apply level bands and boss levels through the mobs level API once it is on `main`
+- [x] R10b Level bands and boss levels through `MobLevels`; real Ember Shrine instead of the stand-in
 - [ ] R10c In-game check (requested), fixes, final merge request
 
 ## Contracts used / offered
 
-- Uses: sanctum `progress` API. Stubbed until merged: mobs level API; sanctum Ember Shrine block (soul campfire stand-in).
+- Uses: sanctum `progress` API and Ember Shrine block; mobs `MobLevels` (provider for zone bands, `setLevel` for bosses).
 - Offers: `realm.api.RealmTeleports.enterRealm(player, realmId, toLastShrine)` for the Sanctum's Void Obelisk;
   `realm.api.ShrineHooks` events for the Ember Shrine.
 
@@ -51,4 +51,4 @@ Packages owned: `com.embervoid.realm` (dimensions, worldgen, teleports, gate, lo
 
 - Debug: `/embervoid realm enter <realm> [toShrine] | leave | where | arenas | data`, `/embervoid boss fights`.
 - The realm radius is in both the dimension JSON and `Realms` (void push-back); keep them equal.
-- Arena shrines are an unlit soul campfire for everyone; a per-player lit look needs the real shrine block.
+- Arena shrines look lit for everyone; dormancy is only the refusal to rest. A per-player look needs client-side progress.

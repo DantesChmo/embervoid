@@ -1,4 +1,4 @@
-[14:52:41] [Test worker/WARN]: Config /var/folders/sv/24fk037x4yn24bb1pv8t4xsr0000gn/T/junit17172968214254413283/test.json is not valid JSON: com.google.gson.stream.MalformedJsonException: Expected ':' at line 1 column 8 path $.not
-[14:52:41] [Test worker/WARN]: Moved the broken config to /var/folders/sv/24fk037x4yn24bb1pv8t4xsr0000gn/T/junit17172968214254413283/test.json.broken and wrote defaults
-[14:52:41] [Test worker/WARN]: Config: flask.maxCharges (2) is below flask.baseCharges (5), raising it
-[14:52:41] [Test worker/WARN]: Config: a.count = 42 is invalid (expected a whole number from 0 to 10), using default 5
+[14:59:37] [Test worker/WARN]: Config /var/folders/sv/24fk037x4yn24bb1pv8t4xsr0000gn/T/junit12994503401535767072/test.json is not valid JSON: com.google.gson.stream.MalformedJsonException: Expected ':' at line 1 column 8 path $.not
+[14:59:37] [Test worker/WARN]: Moved the broken config to /var/folders/sv/24fk037x4yn24bb1pv8t4xsr0000gn/T/junit12994503401535767072/test.json.broken and wrote defaults
+[14:59:37] [Test worker/WARN]: Config: flask.maxCharges (2) is below flask.baseCharges (5), raising it
+[14:59:37] [Test worker/WARN]: Config: a.count = 42 is invalid (expected a whole number from 0 to 10), using default 5

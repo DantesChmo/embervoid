@@ -2,9 +2,9 @@ package com.embervoid.realm.worldgen;
 
 import com.embervoid.realm.RealmBlocks;
 import com.embervoid.registry.ModBlocks;
+import com.embervoid.sanctum.SanctumBlocks;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.CampfireBlock;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePiece;
@@ -97,7 +97,7 @@ public class RealmFeaturePiece extends StructurePiece {
 
 	private void generateLanding(StructureWorldAccess world, BlockBox chunkBox) {
 		disc(world, chunkBox, center, radius, ModBlocks.POLISHED_ASH_STONE.getDefaultState(), ModBlocks.ASH_BRICKS.getDefaultState());
-		put(world, chunkBox, shrinePos(), Blocks.SOUL_CAMPFIRE.getDefaultState());
+		put(world, chunkBox, shrinePos(), SanctumBlocks.EMBER_SHRINE.getDefaultState());
 
 		// Return obelisk to the north, Sealed Gate to the south, lanterns on the diagonals.
 		BlockPos obelisk = center.add(0, 1, -6);
@@ -129,7 +129,7 @@ public class RealmFeaturePiece extends StructurePiece {
 			}
 		}
 
-		// Path out to the shrine and a small platform under it. Arena shrines start unlit (DESIGN §10.8).
+		// Path out to the shrine and a small platform under it. The shrine is dormant until the boss is beaten (§10.8).
 		BlockPos shrine = shrinePos();
 		int steps = radius + SHRINE_DISTANCE;
 		for (int s = radius - 1; s <= steps; s++) {
@@ -139,7 +139,7 @@ public class RealmFeaturePiece extends StructurePiece {
 			disc(world, chunkBox, step, 1, ModBlocks.POLISHED_ASH_STONE.getDefaultState(), ModBlocks.POLISHED_ASH_STONE.getDefaultState());
 		}
 		disc(world, chunkBox, shrine.down(), 2, ModBlocks.POLISHED_ASH_STONE.getDefaultState(), ModBlocks.ASH_BRICKS.getDefaultState());
-		put(world, chunkBox, shrine, Blocks.SOUL_CAMPFIRE.getDefaultState().with(CampfireBlock.LIT, false));
+		put(world, chunkBox, shrine, SanctumBlocks.EMBER_SHRINE.getDefaultState());
 	}
 
 	/** Floor disc with a rim, a foundation down to the ground and cleared air above. */
