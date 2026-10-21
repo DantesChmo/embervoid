@@ -66,7 +66,7 @@ M2 was built on the old plan. Diffing the code on `main` (9c871b6) against PLAN 
 ## Choices made along the way (easy to change)
 
 - Flask charges also refill on respawn after death (souls convention); not in PLAN.
-- Flask recipe: shapeless glass bottle + gold ingot + coal/charcoal (`data/embervoid/recipes/healing_flask.json`).
+- Flask recipe: shapeless glass bottle + diamond + coal/charcoal (decided) (`data/embervoid/recipes/healing_flask.json`).
 - Sleep refill needs `doDaylightCycle` (with it off the time never jumps, so a skipped night cannot be told apart).
 - Stat effect sizes (`stats.*` defaults): END +2 stamina, +2% regen, +0.005 knockback res; DEX +0.5% attack speed;
   STR/DEX +2% weapon damage; KIN +2% flask heal; RES +0.1 toughness, −1% fire damage (cap 50%); FOR +0.1 luck,
