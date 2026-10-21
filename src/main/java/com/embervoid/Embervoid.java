@@ -5,6 +5,7 @@ import com.embervoid.config.ConfigSync;
 import com.embervoid.config.EmbervoidConfig;
 import com.embervoid.entity.mob.MobEntities;
 import com.embervoid.mob.MobLevels;
+import com.embervoid.player.FlaskKeeper;
 import com.embervoid.player.FlaskRefill;
 import com.embervoid.player.PlayerDataManager;
 import com.embervoid.player.RemnantDeathHandler;
@@ -50,6 +51,7 @@ public class Embervoid implements ModInitializer {
 		PlayerDataManager.register();
 		StaminaManager.register();
 		FlaskRefill.register();
+		FlaskKeeper.register();
 		RemnantDeathHandler.register();
 		StatEffects.register();
 		ModCommands.register();
