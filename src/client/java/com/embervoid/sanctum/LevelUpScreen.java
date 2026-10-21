@@ -1,7 +1,10 @@
 package com.embervoid.sanctum;
 
+import com.embervoid.player.XpUtil;
 import com.embervoid.sanctum.leveling.LevelUpNetworking;
 import com.embervoid.sanctum.leveling.StatSheet;
+import com.embervoid.stats.PlayerStats;
+import com.embervoid.stats.Stat;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
@@ -9,11 +12,13 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -36,6 +41,8 @@ public class LevelUpScreen extends Screen {
 
 	private final int maidenId;
 	private StatSheet sheet;
+	/** Stats hash a refresh was last requested for, so a mismatch asks the server only once. */
+	private int requestedFor;
 	private final List<ButtonWidget> plusButtons = new ArrayList<>();
 	/** Row whose preview is shown: the hovered one, or the last one hovered. */
 	private int selected;
@@ -90,7 +97,33 @@ public class LevelUpScreen extends Screen {
 		if (client.player == null || maiden == null
 				|| client.player.squaredDistanceTo(maiden) > AshenMaidenEntity.REACH * AshenMaidenEntity.REACH) {
 			close();
+			return;
 		}
+		// XP gained or spent elsewhere (orbs, /xp, enchanting) changes what can be bought right away.
+		int xp = XpUtil.getPoints(client.player);
+		if (xp != sheet.xpPoints()) {
+			update(new StatSheet(sheet.level(), sheet.cost(), xp, sheet.stats()));
+		}
+		// Stats changed elsewhere (commands, another screen): ask the server for a fresh sheet, once per change.
+		if (requestedFor != statsVersion(client.player) && !matchesStats(client.player)) {
+			requestedFor = statsVersion(client.player);
+			request(LevelUpNetworking.REFRESH);
+		}
+	}
+
+	/** Whether the sheet shows the stat values the client currently has for the player. */
+	private boolean matchesStats(PlayerEntity player) {
+		for (StatSheet.Stat stat : sheet.stats()) {
+			Stat s = Stat.byId(stat.id());
+			if (s != null && PlayerStats.get(player, s) != stat.value()) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private static int statsVersion(PlayerEntity player) {
+		return Arrays.hashCode(PlayerStats.getAll(player));
 	}
 
 	@Override
