@@ -29,6 +29,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.LightType;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.SpawnHelper;
@@ -39,6 +40,10 @@ import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
+
+import java.util.HashSet;
+import java.util.OptionalInt;
+import java.util.Set;
 
 /**
  * Fast, weak undead that hunts in packs of 3–5 at night and underground (DESIGN §3.2). When one finds a target the
@@ -51,6 +56,11 @@ public class AshGhoulEntity extends HostileEntity implements GeoEntity {
 	private static final float CLOUD_RADIUS = 2.5f;
 	private static final int CLOUD_TICKS = 80;
 	private static final int BLINDNESS_TICKS = 60;
+	/** Pack members spawn within this many blocks of the leader, horizontally... */
+	private static final int PACK_RADIUS = 3;
+	/** ...and this many blocks above or below its feet. */
+	private static final int PACK_STEP = 2;
+	private static final int PACK_TRIES_PER_MEMBER = 10;
 
 	private final AnimatableInstanceCache animations = GeckoLibUtil.createInstanceCache(this);
 
@@ -76,22 +86,35 @@ public class AshGhoulEntity extends HostileEntity implements GeoEntity {
 
 	private void spawnPack(ServerWorldAccess world, LocalDifficulty difficulty, int count) {
 		EntityType<?> type = getType();
-		for (int tries = 0; tries < count * 4 && count > 0; tries++) {
-			BlockPos pos = BlockPos.ofFloored(getX() + random.nextInt(7) - 3, getY() + random.nextInt(3) - 1,
-					getZ() + random.nextInt(7) - 3);
-			if (!SpawnHelper.canSpawn(SpawnRestriction.Location.ON_GROUND, world, pos, type)
-					|| !SpawnRestriction.canSpawn(type, world, SpawnReason.NATURAL, pos, random)
-					|| !world.isSpaceEmpty(type.createSimpleBoundingBox(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5))) {
+		int blockLightLimit = world.getDimension().monsterSpawnBlockLightLimit();
+		BlockPos leader = getBlockPos();
+		Set<BlockPos> taken = new HashSet<>();
+		taken.add(leader);
+		for (int tries = 0; tries < count * PACK_TRIES_PER_MEMBER && count > 0; tries++) {
+			int x = leader.getX() + random.nextInt(2 * PACK_RADIUS + 1) - PACK_RADIUS;
+			int z = leader.getZ() + random.nextInt(2 * PACK_RADIUS + 1) - PACK_RADIUS;
+			// Ground level near the leader's feet: the leader already passed the darkness roll, so members only need
+			// a real place to stand, out of fluids and out of block light.
+			OptionalInt y = PackPlacement.findStandingY(leader.getY(), PACK_STEP, candidate -> {
+				BlockPos pos = new BlockPos(x, candidate, z);
+				return !taken.contains(pos)
+						&& SpawnHelper.canSpawn(SpawnRestriction.Location.ON_GROUND, world, pos, type)
+						&& world.getLightLevel(LightType.BLOCK, pos) <= blockLightLimit
+						&& world.isSpaceEmpty(type.createSimpleBoundingBox(x + 0.5, candidate, z + 0.5));
+			});
+			if (y.isEmpty()) {
 				continue;
 			}
+			BlockPos pos = new BlockPos(x, y.getAsInt(), z);
 			AshGhoulEntity member = (AshGhoulEntity) type.create(world.toServerWorld());
 			if (member == null) {
 				return;
 			}
-			member.refreshPositionAndAngles(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, random.nextFloat() * 360, 0);
+			member.refreshPositionAndAngles(x + 0.5, pos.getY(), z + 0.5, random.nextFloat() * 360, 0);
 			// Not NATURAL, so a pack member does not bring a pack of its own.
 			member.initialize(world, difficulty, SpawnReason.REINFORCEMENT, null, null);
 			world.spawnEntityAndPassengers(member);
+			taken.add(pos);
 			count--;
 		}
 	}
