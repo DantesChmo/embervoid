@@ -69,5 +69,8 @@
 	"embervoid.flask_shard.offered": "Угли приняли осколок. Зарядов во фляге: %s",
 	"embervoid.flask_shard.max": "Фляга не вместит больше",
 	"item.embervoid.sanctum_map": "Карта Святилища",
-	"embervoid.shrine.dormant": "Эти угли холодны для вас"
+	"embervoid.shrine.dormant": "Эти угли холодны для вас",
+	"entity.embervoid.ashen_maiden": "Пепельная Дева",
+	"item.embervoid.ashen_maiden_spawn_egg": "Яйцо призыва Пепельной Девы",
+	"embervoid.maiden.greeting": "Пепельная Дева: Отдохни, странник. Угли сохранят тепло."
 }

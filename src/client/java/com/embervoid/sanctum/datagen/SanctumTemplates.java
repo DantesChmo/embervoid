@@ -4,6 +4,7 @@ import com.embervoid.Embervoid;
 import com.embervoid.entity.mob.MobEntities;
 import com.embervoid.progress.ProgressManager;
 import com.embervoid.sanctum.SanctumBlocks;
+import com.embervoid.sanctum.SanctumEntities;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.LanternBlock;
@@ -13,6 +14,7 @@ import net.minecraft.block.StairsBlock;
 import net.minecraft.block.enums.JigsawOrientation;
 import net.minecraft.block.enums.SlabType;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtFloat;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.registry.Registries;
@@ -212,7 +214,7 @@ final class SanctumTemplates {
 
 	/**
 	 * The core, 21x11x21: a safe room floored with Sanctum Flagstone (unbreakable, spawn-proof, attunes), the
-	 * Ember Shrine in the middle and four Void Obelisks in a ring. The Ashen Maiden will stand south of the shrine.
+	 * Ember Shrine in the middle, four Void Obelisks in a ring and the Ashen Maiden.
 	 */
 	private static TemplateBuilder core() {
 		TemplateBuilder t = new TemplateBuilder(21, 11, 21);
@@ -239,6 +241,15 @@ final class SanctumTemplates {
 			t.blockEntity(obelisks[i][0], 1, obelisks[i][1], SanctumBlocks.VOID_OBELISK.getDefaultState(),
 					"embervoid:void_obelisk", data);
 		}
+		// The Ashen Maiden stands south of the shrine, facing the entrance.
+		NbtCompound maiden = new NbtCompound();
+		maiden.putString("id", Registries.ENTITY_TYPE.getId(SanctumEntities.ASHEN_MAIDEN).toString());
+		maiden.putBoolean("PersistenceRequired", true);
+		NbtList rotation = new NbtList();
+		rotation.add(NbtFloat.of(180));
+		rotation.add(NbtFloat.of(0));
+		maiden.put("Rotation", rotation);
+		t.entity(10, 1, 15, maiden);
 		for (int[] p : new int[][]{{10, 5}, {10, 15}, {5, 10}, {15, 10}, {3, 3}, {17, 3}, {3, 17}, {17, 17}}) {
 			t.set(p[0], 9, p[1], HANGING_LANTERN);
 		}

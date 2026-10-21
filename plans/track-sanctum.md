@@ -13,7 +13,7 @@ Owns `com.embervoid.progress`, `com.embervoid.sanctum`, `registry/ModStructures`
 | S5 | **Core protection**: no hostile spawns, unbreakable core blocks | S2, S3, S4 | done (flagstone floor is spawn-proof; core blocks unbreakable) |
 | S6 | **Attunement** on first reaching a core | S1, S4 | done |
 | S7 | **Sanctum Map** in vanilla chest loot; **outer-hall loot** | S4 | done, needs in-game check |
-| S8 | **Ashen Maiden** NPC (GeckoLib) | mobs: GeckoLib on `main` | blocked |
+| S8 | **Ashen Maiden** NPC (GeckoLib) | mobs: GeckoLib on `main` | done (talk opens the screen once S9 lands) |
 | S9 | **Level-up screen** (C2S, one point per click) | player-core: `levelUp`, stat read API, `XpUtil` | blocked |
 
 ## Tasks

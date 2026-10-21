@@ -69,5 +69,8 @@
 	"embervoid.flask_shard.offered": "The ember takes the shard. Your flask holds %s charges",
 	"embervoid.flask_shard.max": "Your flask can hold no more",
 	"item.embervoid.sanctum_map": "Sanctum Map",
-	"embervoid.shrine.dormant": "The ember here is cold to you"
+	"embervoid.shrine.dormant": "The ember here is cold to you",
+	"entity.embervoid.ashen_maiden": "Ashen Maiden",
+	"item.embervoid.ashen_maiden_spawn_egg": "Ashen Maiden Spawn Egg",
+	"embervoid.maiden.greeting": "Ashen Maiden: Rest, wanderer. The ember will keep."
 }

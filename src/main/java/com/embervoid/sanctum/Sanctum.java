@@ -12,6 +12,7 @@ public final class Sanctum {
 		ProgressManager.register();
 		SanctumBlocks.register();
 		SanctumItems.register();
+		SanctumEntities.register();
 		SanctumLoot.register();
 		Attunement.register();
 	}
