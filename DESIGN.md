@@ -96,14 +96,15 @@ Purpose: make the overworld dangerous enough that the player *wants* to find the
 |---|---|---|---|
 | **Ash Ghoul** | Surface at night, any biome; underground | Fast, weak, packs of 3–5. Bursts into a blinding ash cloud on death | Decided (was planned) |
 | **Hollow** | Surface at night (rare), Sanctum outer halls | Armed undead swordsman/spearman. Slow, hard-hitting, blocks. Drops lots of XP | Proposed |
-| **Ember Wisp** | Caves below y=0 | Small flyer, sets blocks and the player on fire, flees light | Proposed |
+| **Ember Wisp** | Caves below y=0 | Small flyer, sets blocks and the player on fire, flees light | Decided |
 
 The Hollow Sentinel and Crypt Moth from the old plan move into Realm 1.
 
-#### Bestiary (Proposed, from track-mobs)
+#### Bestiary (Decided)
 
 **Hollow** — base level 15, undead.
-- 30 HP, armor 6, knockback resistance 0.6, speed 0.2. Base attack 2 + weapon (iron sword 70% / stone sword 30%).
+- 30 HP, armor 6, knockback resistance 0.6, speed 0.2. Base attack 0: damage comes from the weapon only
+  (iron sword 70% / stone sword 30%).
 - Telegraphed attack: 8-tick wind-up, one attack per 40 ticks.
 - **Guard:** with a target within 5 blocks and its attack on cooldown, it raises its guard for 30–60 ticks: half
   speed, melee from the front 120° takes 20% damage, projectiles from the front are deflected. An axe hit breaks
@@ -111,9 +112,8 @@ The Hollow Sentinel and Crypt Moth from the old plan move into Realm 1.
 - Spawns on the overworld surface at night under open sky, weight 5, alone; placed persistent in the Sanctum
   outer halls. Does not burn in daylight.
 - XP 20 base. Loot: 1–4 iron nuggets, 0–2 bones, 10% iron ingot on a player kill.
-- **Balance concern:** with the level-15 damage scaling this hits for ~10–12 HP through full iron on Normal,
-  so a fresh player dies in two hits. Recommendation: base attack 0 (weapon only) and reconsider during the
-  0.2.0 balance pass, aiming at ~6 HP through full iron.
+- Target for the 0.2.0 balance pass: ~6 HP per hit through full iron on Normal (with base attack 2 it was
+  ~10–12, two hits to kill a fresh player).
 
 **Ember Wisp** — base level 8 (+3 below y=0 from §5.4).
 - 8 HP flyer. Contact hit: 1 damage + 4 s of fire. Fire immune, hurt by water.
