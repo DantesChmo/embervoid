@@ -1,30 +1,26 @@
 package com.embervoid.realm;
 
 import com.embervoid.boss.ArenaBoss;
+import com.embervoid.mob.MobLevels;
 import com.embervoid.realm.worldgen.RealmBiomeSource;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.mob.Monster;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.OptionalInt;
+
 /**
  * Mob level bands per zone (DESIGN §5.4): a hostile mob that appears in a realm gets a level from the band of the
- * zone it stands in.
- *
- * <p>The level itself is stored by the mobs track's level API. Until that is on {@code main}, {@link #setLevel} and
- * {@link #hasLevel} are stubs, so this only decides levels; {@code /embervoid realm where} shows them.
+ * zone it stands in, through {@link MobLevels}' provider hook. Arena bosses get theirs from {@code BossFight}.
  */
 public final class RealmMobLevels {
 	public static void register() {
-		ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
-			if (entity instanceof Monster && !(entity instanceof ArenaBoss) && !hasLevel(entity)) {
-				RealmDefinition.LevelBand band = bandAt(world, entity.getBlockPos());
-				if (band != null) {
-					setLevel(entity, band.min() + world.random.nextInt(band.max() - band.min() + 1));
-				}
+		MobLevels.registerProvider((mob, world) -> {
+			if (mob instanceof ArenaBoss) {
+				return OptionalInt.empty();
 			}
+			RealmDefinition.LevelBand band = bandAt(world, mob.getBlockPos());
+			return band == null ? OptionalInt.empty() : OptionalInt.of(band.min() + world.random.nextInt(band.max() - band.min() + 1));
 		});
 	}
 
@@ -48,15 +44,6 @@ public final class RealmMobLevels {
 			return source.zoneAt(pos.getX(), pos.getZ(), world.getChunkManager().getNoiseConfig().getMultiNoiseSampler());
 		}
 		return RealmLayout.LANDING;
-	}
-
-	// --- Stub of the mobs track's level API; replace with calls into it once it is on main. ---
-
-	private static boolean hasLevel(Entity entity) {
-		return false;
-	}
-
-	private static void setLevel(Entity entity, int level) {
 	}
 
 	private RealmMobLevels() {}
