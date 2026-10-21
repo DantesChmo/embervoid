@@ -110,12 +110,7 @@ public final class RealmEvents {
 		if (player instanceof ServerPlayerEntity serverPlayer && world instanceof ServerWorld serverWorld) {
 			BlockPos pos = hit.getBlockPos();
 			if (ShrineHooks.ALLOW_REST.invoker().allowRest(serverPlayer, serverWorld, pos)) {
-				for (int i = 0; i < player.getInventory().size(); i++) {
-					ItemStack stack = player.getInventory().getStack(i);
-					if (stack.getItem() instanceof HealingFlaskItem) {
-						HealingFlaskItem.refill(stack, player);
-					}
-				}
+				HealingFlaskItem.refill(serverPlayer);
 				serverPlayer.setHealth(serverPlayer.getMaxHealth());
 				ShrineHooks.RESTED.invoker().onRested(serverPlayer, serverWorld, pos);
 				serverPlayer.sendMessage(Text.translatable("embervoid.shrine.rested"), true);
