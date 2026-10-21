@@ -24,8 +24,9 @@ level display). Branch `claude/track-mobs-*`.
 ## Ash Ghoul
 
 - 12 HP, 2.5 damage, speed 0.33 (zombie 0.23), follow range 32, undead (smite, burns in daylight), 5 XP.
-- Spawns: every overworld biome with monsters (not mushroom fields or the deep dark), monster group, weight 30
-  (zombie is 95), packs of 3–5, light rules like zombies (night surface or dark caves).
+- Spawns: every overworld biome with monsters (not mushroom fields or the deep dark), monster group, weight 12
+  (zombie is 95; ~4 ghouls per pick, so about the population weight 30 gave with scattered groups), light rules like zombies (night surface or dark caves). Packs of 3–5: the spawn entry is a
+  group of 1 and a natural spawn brings 2–4 more ghouls within 3 blocks (vanilla group spawning scatters groups).
 - Pack: when a ghoul picks a target, idle ghouls within 16 blocks take the same target.
 - Death: ash cloud (area effect cloud, radius 2.5 shrinking over 4 s) giving Blindness 3 s.
 - Loot: 0–2 bones, 0–1 charcoal (+Looting).
@@ -62,7 +63,7 @@ level-1 base values; levels scale HP, damage and XP (§5.4).
   sets a fire on a block near it (only with `mobGriefing`), so it ignites the cave around the player.
 - **Flees light:** at block light ≥ 7 (a torch nearby) it drops its target and flies to a darker spot within
   10 blocks; it will not dive at a player standing in light ≥ 7.
-- **Spawns:** overworld below y=0 in darkness (block light 0), weight 15, groups of 1–2, not in the deep dark.
+- **Spawns:** overworld below y=0 in darkness (block light 0) without open sky, weight 15, groups of 1–2, not in the deep dark.
 - **XP:** 6. **Loot:** 0–1 glowstone dust (+Looting), 5 % blaze powder on a player kill.
 
 ## Mob levels (PLAN 3.5–3.7)

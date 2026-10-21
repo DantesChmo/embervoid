@@ -66,10 +66,10 @@ public class EmberWispEntity extends HostileEntity implements GeoEntity {
 				.add(EntityAttributes.GENERIC_FOLLOW_RANGE, 16);
 	}
 
-	/** Dark spots below y=0 only. */
+	/** Natural spawns: dark caves below y=0 only (no open sky, so not on a superflat surface either). */
 	public static boolean canSpawn(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason reason,
 			BlockPos pos, Random random) {
-		return (reason != SpawnReason.NATURAL || pos.getY() < 0)
+		return (reason != SpawnReason.NATURAL || pos.getY() < 0 && !world.isSkyVisible(pos))
 				&& HostileEntity.canSpawnInDark(type, world, reason, pos, random);
 	}
 

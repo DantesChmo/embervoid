@@ -54,10 +54,10 @@ public final class MobEntities {
 	public static void register() {
 		FabricDefaultAttributeRegistry.register(ASH_GHOUL, AshGhoulEntity.createAttributes());
 
-		// Night on the surface or dark underground, like zombies; packs of 3-5.
+		// Night on the surface or dark underground, like zombies; packs of 3-5 (the leader brings the rest).
 		SpawnRestriction.register(ASH_GHOUL, SpawnRestriction.Location.ON_GROUND,
 				Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, HostileEntity::canSpawnInDark);
-		BiomeModifications.addSpawn(OVERWORLD_HOSTILE, SpawnGroup.MONSTER, ASH_GHOUL, 30, 3, 5);
+		BiomeModifications.addSpawn(OVERWORLD_HOSTILE, SpawnGroup.MONSTER, ASH_GHOUL, 12, 1, 1);
 
 		// Rare and alone, on the surface at night (open sky). The Sanctum places its own.
 		FabricDefaultAttributeRegistry.register(HOLLOW, HollowEntity.createAttributes());

@@ -1,9 +1,12 @@
 package com.embervoid.entity.mob;
 
 import net.minecraft.entity.AreaEffectCloudEntity;
+import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityGroup;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.SpawnRestriction;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.LookAroundGoal;
 import net.minecraft.entity.ai.goal.LookAtEntityGoal;
@@ -19,11 +22,16 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.LocalDifficulty;
+import net.minecraft.world.ServerWorldAccess;
+import net.minecraft.world.SpawnHelper;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -49,6 +57,43 @@ public class AshGhoulEntity extends HostileEntity implements GeoEntity {
 	public AshGhoulEntity(EntityType<? extends AshGhoulEntity> type, World world) {
 		super(type, world);
 		experiencePoints = 5;
+	}
+
+	/**
+	 * A natural spawn is the pack leader: it brings 2–4 more ghouls around it. Vanilla's own group spawning scatters
+	 * a group over a few random spots and drops the ones that fail, so it rarely produces a real pack; the biome
+	 * spawn entry is therefore a group of 1 and the pack comes from here.
+	 */
+	@Override
+	public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason reason,
+			@Nullable EntityData data, @Nullable NbtCompound nbt) {
+		EntityData result = super.initialize(world, difficulty, reason, data, nbt);
+		if (reason == SpawnReason.NATURAL) {
+			spawnPack(world, difficulty, 2 + random.nextInt(3));
+		}
+		return result;
+	}
+
+	private void spawnPack(ServerWorldAccess world, LocalDifficulty difficulty, int count) {
+		EntityType<?> type = getType();
+		for (int tries = 0; tries < count * 4 && count > 0; tries++) {
+			BlockPos pos = BlockPos.ofFloored(getX() + random.nextInt(7) - 3, getY() + random.nextInt(3) - 1,
+					getZ() + random.nextInt(7) - 3);
+			if (!SpawnHelper.canSpawn(SpawnRestriction.Location.ON_GROUND, world, pos, type)
+					|| !SpawnRestriction.canSpawn(type, world, SpawnReason.NATURAL, pos, random)
+					|| !world.isSpaceEmpty(type.createSimpleBoundingBox(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5))) {
+				continue;
+			}
+			AshGhoulEntity member = (AshGhoulEntity) type.create(world.toServerWorld());
+			if (member == null) {
+				return;
+			}
+			member.refreshPositionAndAngles(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, random.nextFloat() * 360, 0);
+			// Not NATURAL, so a pack member does not bring a pack of its own.
+			member.initialize(world, difficulty, SpawnReason.REINFORCEMENT, null, null);
+			world.spawnEntityAndPassengers(member);
+			count--;
+		}
 	}
 
 	public static DefaultAttributeContainer.Builder createAttributes() {
