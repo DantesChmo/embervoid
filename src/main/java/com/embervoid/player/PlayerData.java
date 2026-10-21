@@ -81,6 +81,11 @@ public final class PlayerData {
 	public BlockPos lastSafePos;
 	@Nullable
 	public RegistryKey<World> lastSafeWorld;
+	/** {@link #lastSafePos} from before the last teleport, a last fallback. Server-only, not saved or synced. */
+	@Nullable
+	public BlockPos preTeleportSafePos;
+	@Nullable
+	public RegistryKey<World> preTeleportSafeWorld;
 
 	private PlayerData() {
 		Arrays.fill(stats, Stat.BASE);

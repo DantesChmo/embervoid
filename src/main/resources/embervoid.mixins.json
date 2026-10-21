@@ -5,6 +5,7 @@
 	"mixins": [
 		"LivingEntityMixin",
 		"PlayerEntityMixin",
+		"ServerPlayNetworkHandlerMixin",
 		"LivingEntityMobLevelMixin",
 		"PlayerEntityDifficultyMixin"
 	],
