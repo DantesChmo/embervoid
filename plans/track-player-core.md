@@ -11,7 +11,7 @@ Status: `todo` · `in progress` · `done` · `sent` (merge request sent)
 |---|---|---|
 | Config sections | sent (e52b1d8) | `config/ConfigSection`, `SectionReader`, `ConfigFile`; `EmbervoidConfig.register`, `EmbervoidClientConfig.register` |
 | `XpUtil` | sent (e52b1d8) | `player/XpUtil` |
-| `levelUp(player, stat)` + stat read API | todo | `stats/` (3.1–3.4) |
+| `levelUp(player, stat)` + stat read API | done | `stats/PlayerStats`, `DerivedStats`, `Stat` |
 
 ## Milestone 2 vs. current PLAN.md — findings
 
@@ -53,12 +53,39 @@ M2 was built on the old plan. Diffing the code on `main` (9c871b6) against PLAN 
 | # | Task | Status |
 |---|---|---|
 | C1 | Config-section API, client config, `XpUtil` | sent |
-| C2 | JUnit in the build + tests for config and `XpUtil` | waiting on build.gradle answer |
-| M2a | Client-side player data holder (2.2) | todo |
-| M2b | Flask charges in player data, first-join flask, recipe (2.7) | todo |
-| M2c | Sleep refill only on a skipped night (2.8) | todo |
-| M2d | Remnant: `secondDeath`, `XpUtil`, immunity, stale resolve, safe spot (2.9, 2.10) | todo |
-| 3.1 | Stat storage | todo |
-| 3.2 | Stat effects | todo |
-| 3.3 | Weapon scaling at damage time | todo |
-| 3.4 | Leveling + debug commands, `levelUp` API → merge request | todo |
+| C2 | Tests for config, `XpUtil`, stats, leveling, sleep refill (JUnit setup came from main) | done |
+| M2a | Client-side player data holder (2.2) | done |
+| M2b | Flask charges in player data, first-join flask, recipe (2.7) | done |
+| M2c | Sleep refill only on a skipped night (2.8) | done |
+| M2d | Remnant: `secondDeath`, `XpUtil`, immunity, stale resolve, safe spot (2.9, 2.10) | done |
+| 3.1 | Stat storage | done |
+| 3.2 | Stat effects | done |
+| 3.3 | Weapon scaling at damage time | done |
+| 3.4 | Leveling + debug commands, `levelUp` API → merge request | done |
+
+## Choices made along the way (easy to change)
+
+- Flask charges also refill on respawn after death (souls convention); not in PLAN.
+- Flask recipe: shapeless glass bottle + gold ingot + coal/charcoal (`data/embervoid/recipes/healing_flask.json`).
+- Sleep refill needs `doDaylightCycle` (with it off the time never jumps, so a skipped night cannot be told apart).
+- Stat effect sizes (`stats.*` defaults): END +2 stamina, +2% regen, +0.005 knockback res; DEX +0.5% attack speed;
+  STR/DEX +2% weapon damage; KIN +2% flask heal; RES +0.1 toughness, −1% fire damage (cap 50%); FOR +0.1 luck,
+  all per full point. FOR's "bonus chance on mob drops" from §10.10 is not built.
+- Stat modifiers are temporary (not saved); stats are the only source of truth, and the saved health is restored
+  after they apply on join. Respawn after death: full health at the new max.
+- Weapon scaling: melee = main-hand item when the source is `player_attack` (sweeps included, enchantment damage
+  included in the scaled amount); projectiles carry a command tag `embervoid.scaling:<str>:<dex>` from the
+  weapon that fired them.
+- Russian stat names: Живучесть, Выносливость, Сила, Ловкость, Жар, Стойкость, Удача (ЖИВ ВЫН СИЛ ЛВК ЖАР СТК УДЧ).
+- `leveling.levelCap` = 0 (no cap) until DESIGN §10.2 is decided.
+
+## Stat API (for track-sanctum's Maiden screen)
+
+`com.embervoid.stats.PlayerStats` — reads work on both sides (client: local player, synced):
+`get(player, stat)`, `getAll(player)`, `level(player)`, `levelOf(int[])`, `derived(player)`,
+`derivedWith(player, stat, value)` (preview), `derivedOf(int[])`, `levelUpCost(player)`,
+`checkLevelUp(player, stat)` → `LevelUpResult` (`SUCCESS`, `STAT_CAP`, `LEVEL_CAP`, `NOT_ENOUGH_XP`, each with
+`message()`); server: `levelUp(ServerPlayerEntity, stat)`, `set(ServerPlayerEntity, stat, value)`.
+`Stat` has `id()`, `shortId()`, `displayName()`, `shortName()`, `byId(String)`. `DerivedStats` holds max health,
+stamina, regen, knockback resistance, attack speed bonus, toughness, luck, fire reduction, flask multiplier,
+STR/DEX damage bonuses. XP points: `XpUtil.getPoints(player)`.
