@@ -9,7 +9,7 @@
 	"embervoid.flask.charges": "Заряды: %s/%s",
 	"embervoid.flask.heal": "Восстанавливает %s ❤",
 	"embervoid.flask.sprinting": "Нельзя пить на бегу",
-	"embervoid.flask.refilled": "Вы отдохнули. Фляги снова полны",
+	"embervoid.flask.refilled": "Вы отдохнули. Фляга снова полна",
 	"entity.embervoid.ash_remnant": "Пепельный останок",
 	"embervoid.remnant.name": "Пепельный останок: %s",
 	"embervoid.remnant.recovered": "Вы забрали то, что хранил пепел",

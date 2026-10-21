@@ -9,7 +9,7 @@
 	"embervoid.flask.charges": "Charges: %s/%s",
 	"embervoid.flask.heal": "Restores %s ❤",
 	"embervoid.flask.sprinting": "Can't drink while running",
-	"embervoid.flask.refilled": "Rested. Your flasks are full again",
+	"embervoid.flask.refilled": "Rested. Your flask is full again",
 	"entity.embervoid.ash_remnant": "Ash Remnant",
 	"embervoid.remnant.name": "Ash Remnant of %s",
 	"embervoid.remnant.recovered": "You reclaim what the ashes held",
