@@ -8,20 +8,28 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import com.embervoid.stats.PlayerStats;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
 /**
  * Server-side stamina: spending, regeneration after a delay, and syncing to the owning client.
- * Pool size and regen come from the {@code stamina} config section.
+ * Pool size and regen come from the {@code stamina} config section, raised by Endurance ({@link PlayerStats}).
  */
 public final class StaminaManager {
 	/** S2C: current stamina (float), max stamina (varint), whether a spend just failed (boolean). */
 	public static final Identifier SYNC_PACKET = Embervoid.id("stamina");
 
-	public static int getMax() {
-		return EmbervoidConfig.get().stamina().max();
+	/** The player's stamina pool: {@code stamina.max} plus their Endurance bonus. */
+	public static int getMax(PlayerEntity player) {
+		return Math.round(PlayerStats.derived(player).maxStamina());
+	}
+
+	/** Stamina regenerated per tick: {@code stamina.regenPerTick} raised by Endurance. */
+	public static float getRegenPerTick(PlayerEntity player) {
+		return PlayerStats.derived(player).staminaRegenPerTick();
 	}
 
 	public static float get(ServerPlayerEntity player) {
@@ -51,29 +59,29 @@ public final class StaminaManager {
 
 	/** Sets stamina directly (clamped to the pool), e.g. from a debug command. */
 	public static void set(ServerPlayerEntity player, float value) {
-		PlayerDataManager.get(player).stamina = Math.max(0, Math.min(getMax(), value));
+		PlayerDataManager.get(player).stamina = Math.max(0, Math.min(getMax(player), value));
 		sync(player, false);
 	}
 
 	public static void sync(ServerPlayerEntity player, boolean failedSpend) {
 		PacketByteBuf buf = PacketByteBufs.create();
 		buf.writeFloat(get(player));
-		buf.writeVarInt(getMax());
+		buf.writeVarInt(getMax(player));
 		buf.writeBoolean(failedSpend);
 		ServerPlayNetworking.send(player, SYNC_PACKET, buf);
 	}
 
 	private static void tick(ServerPlayerEntity player) {
 		PlayerData data = PlayerDataManager.get(player);
-		int max = getMax();
+		int max = getMax(player);
 		if (data.stamina > max) {
-			// The configured pool shrank since this player last played.
+			// The pool shrank (config change, lower Endurance).
 			data.stamina = max;
 			sync(player, false);
 		} else if (data.staminaRegenDelay > 0) {
 			data.staminaRegenDelay--;
 		} else if (data.stamina < max) {
-			data.stamina = Math.min(max, data.stamina + EmbervoidConfig.get().stamina().regenPerTick());
+			data.stamina = Math.min(max, data.stamina + getRegenPerTick(player));
 			sync(player, false);
 		}
 	}
@@ -87,7 +95,7 @@ public final class StaminaManager {
 		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
 			if (!alive) {
 				PlayerData data = PlayerDataManager.get(newPlayer);
-				data.stamina = getMax();
+				data.stamina = getMax(newPlayer);
 				data.staminaRegenDelay = 0;
 			}
 			sync(newPlayer, false);

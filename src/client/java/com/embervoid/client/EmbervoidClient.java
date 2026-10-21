@@ -6,9 +6,6 @@ import com.embervoid.client.mob.MobRenderers;
 import com.embervoid.client.realm.RealmClient;
 import com.embervoid.config.EmbervoidClientConfig;
 import com.embervoid.config.EmbervoidConfig;
-import com.embervoid.item.HealingFlaskItem;
-import com.embervoid.player.PlayerData;
-import com.embervoid.player.PlayerDataManager;
 import com.embervoid.progress.ProgressClient;
 import com.embervoid.registry.ModBlocks;
 import com.embervoid.registry.ModEntities;
@@ -36,6 +33,7 @@ public class EmbervoidClient implements ClientModInitializer {
 		BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getCutout(),
 				ModBlocks.DEAD_DOOR, ModBlocks.DEAD_TRAPDOOR, ModBlocks.EMBER_LANTERN);
 
+		ClientPlayerData.register();
 		ClientStamina.register();
 		MobRenderers.register();
 		ProgressClient.register();
@@ -43,7 +41,7 @@ public class EmbervoidClient implements ClientModInitializer {
 		// Particles and the name label only; a model comes with the art pass.
 		EntityRendererRegistry.register(ModEntities.ASH_REMNANT, EmptyEntityRenderer::new);
 		FabricModelPredicateProviderRegistry.register(ModItems.HEALING_FLASK, Embervoid.id("empty"),
-				(stack, world, entity, seed) -> HealingFlaskItem.getMaxCharges(stack) > 0 && HealingFlaskItem.getCharges(stack) == 0 ? 1 : 0);
+				(stack, world, entity, seed) -> ClientPlayerData.get().flaskCharges <= 0 ? 1 : 0);
 
 		// Use the server's config while connected (in singleplayer it is the same as the local one).
 		ClientPlayNetworking.registerGlobalReceiver(ConfigSync.SYNC_PACKET, (client, handler, buf, responseSender) -> {
@@ -52,21 +50,12 @@ public class EmbervoidClient implements ClientModInitializer {
 		});
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> client.execute(EmbervoidConfig::useLocal));
 
-		ClientPlayNetworking.registerGlobalReceiver(PlayerDataManager.SYNC_PACKET, (client, handler, buf, responseSender) -> {
-			PlayerData data = PlayerData.read(buf);
-			client.execute(() -> {
-				if (client.player != null) {
-					PlayerDataManager.set(client.player, data);
-				}
-			});
-		});
-
 		// /embervoid_client data: show the player data as the client sees it (debug).
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
 				ClientCommandManager.literal("embervoid_client")
 						.then(ClientCommandManager.literal("data").executes(context -> {
 							context.getSource().sendFeedback(
-									Text.literal("[client] " + PlayerDataManager.get(context.getSource().getPlayer())
+									Text.literal("[client] " + ClientPlayerData.get()
 											+ ", maxStamina=" + ClientStamina.max()));
 							return 1;
 						}))));

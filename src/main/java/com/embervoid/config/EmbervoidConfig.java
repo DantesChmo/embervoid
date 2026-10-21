@@ -37,12 +37,30 @@ public final class EmbervoidConfig {
 		}
 	}
 
-	/** @param mode see {@link RemnantMode} */
-	public record Remnant(RemnantMode mode) {
+	/** What a new death does to the previous Ash Remnant (DESIGN §10.7). */
+	public enum SecondDeath {
+		/** The XP burns; the items stay in the old remnant until picked up. */
+		BURN_XP,
+		/** The old remnant burns with everything in it. */
+		BURN_ALL;
+
+		public String id() {
+			return SectionReader.enumId(this);
+		}
+	}
+
+	/**
+	 * @param mode        see {@link RemnantMode}
+	 * @param secondDeath see {@link SecondDeath}
+	 */
+	public record Remnant(RemnantMode mode, SecondDeath secondDeath) {
 		public static final ConfigSection<Remnant> SECTION = register(ConfigSection.of(
-				"remnant", new Remnant(RemnantMode.XP_AND_ITEMS),
-				in -> new Remnant(in.readEnum("mode", RemnantMode.XP_AND_ITEMS)),
-				(value, out) -> out.addProperty("mode", value.mode.id())));
+				"remnant", new Remnant(RemnantMode.XP_AND_ITEMS, SecondDeath.BURN_XP),
+				in -> new Remnant(in.readEnum("mode", RemnantMode.XP_AND_ITEMS), in.readEnum("secondDeath", SecondDeath.BURN_XP)),
+				(value, out) -> {
+					out.addProperty("mode", value.mode.id());
+					out.addProperty("secondDeath", value.secondDeath.id());
+				}));
 	}
 
 	/**

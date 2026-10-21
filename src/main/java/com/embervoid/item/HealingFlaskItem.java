@@ -3,13 +3,12 @@ package com.embervoid.item;
 import com.embervoid.config.EmbervoidConfig;
 import com.embervoid.player.PlayerData;
 import com.embervoid.player.PlayerDataManager;
+import com.embervoid.registry.ModItems;
 import net.minecraft.client.item.TooltipContext;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -21,27 +20,34 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.ToDoubleFunction;
 
 /**
- * Souls-style healing flask. Charges live on the stack; the server also writes the holder's max charges and heal
- * amount onto it (from the config and their flask upgrades), so the client can show them without the config.
+ * Souls-style healing flask. The charges belong to the player ({@link PlayerData#flaskCharges}), not the item: the
+ * flask only shows and spends them, so carrying a second flask adds nothing (DESIGN §10.6). Every player gets one
+ * on first join ({@link #giveStartingFlask}) and can craft another if it is lost.
  *
  * <p>Starting a drink spends a charge; the heal is then applied evenly over {@code flask.drinkTicks}, and
  * stopping early loses the rest. No drinking while sprinting, and a short recovery after each sip.
  */
 public class HealingFlaskItem extends Item {
-	/** Extra health per flask heal upgrade (task 3.6). */
+	/** Extra health per flask heal upgrade (Flask Shards, later). */
 	public static final float HEAL_PER_UPGRADE = 2.0f;
 
-	private static final String CHARGES = "Charges";
-	private static final String MAX_CHARGES = "MaxCharges";
-	private static final String HEAL = "Heal";
 	private static final int BAR_COLOR = 0xE8833A;
 	/** Recovery after a sip (finished or interrupted), so holding use does not chain drinks by accident. */
 	private static final int RECOVERY_TICKS = 20;
 
+	/** Multiplier on the heal per sip from the player's stats (Kindling, set by the stats system); 1 by default. */
+	private static ToDoubleFunction<PlayerEntity> healMultiplier = player -> 1.0;
+
 	public HealingFlaskItem(Settings settings) {
 		super(settings);
+	}
+
+	/** Lets the stats system scale flask healing (DESIGN §10.10: Kindling). */
+	public static void setHealMultiplier(ToDoubleFunction<PlayerEntity> multiplier) {
+		healMultiplier = multiplier;
 	}
 
 	/** Charge cap for this player: base charges plus upgrades, never above {@code flask.maxCharges}. */
@@ -50,61 +56,40 @@ public class HealingFlaskItem extends Item {
 		return Math.min(config.baseCharges() + PlayerDataManager.get(player).flaskChargeUpgrades, config.maxCharges());
 	}
 
+	/** Charges left (on a client: as last synced). */
+	public static int charges(PlayerEntity player) {
+		return MathHelper.clamp(PlayerDataManager.get(player).flaskCharges, 0, maxCharges(player));
+	}
+
+	/** Health restored by one full sip, in half-hearts. */
 	public static float healAmount(PlayerEntity player) {
 		PlayerData data = PlayerDataManager.get(player);
-		return EmbervoidConfig.get().flask().healAmount() + data.flaskHealUpgrades * HEAL_PER_UPGRADE;
+		float base = EmbervoidConfig.get().flask().healAmount() + data.flaskHealUpgrades * HEAL_PER_UPGRADE;
+		return (float) (base * healMultiplier.applyAsDouble(player));
 	}
 
-	public static int getCharges(ItemStack stack) {
-		NbtCompound nbt = stack.getNbt();
-		return nbt != null ? nbt.getInt(CHARGES) : 0;
+	/** Fills the player's charges to their cap (resting, respawning). */
+	public static void refill(ServerPlayerEntity player) {
+		PlayerDataManager.get(player).flaskCharges = maxCharges(player);
+		PlayerDataManager.sync(player);
 	}
 
-	/** Max charges as last written by the server; 0 if the stack was never held by a player. */
-	public static int getMaxCharges(ItemStack stack) {
-		NbtCompound nbt = stack.getNbt();
-		return nbt != null ? nbt.getInt(MAX_CHARGES) : 0;
-	}
-
-	/** Fills the flask to the player's cap (used on first pickup and, in task 2.7, after sleeping). */
-	public static void refill(ItemStack stack, PlayerEntity player) {
-		updateStats(stack, player);
-		stack.getOrCreateNbt().putInt(CHARGES, getMaxCharges(stack));
-	}
-
-	/** Writes the player's current max charges and heal onto the stack, clamping charges to the new max. */
-	private static void updateStats(ItemStack stack, PlayerEntity player) {
-		int max = maxCharges(player);
-		float heal = healAmount(player);
-		NbtCompound nbt = stack.getOrCreateNbt();
-		if (nbt.getInt(MAX_CHARGES) != max) {
-			nbt.putInt(MAX_CHARGES, max);
-		}
-		if (nbt.getFloat(HEAL) != heal) {
-			nbt.putFloat(HEAL, heal);
-		}
-		if (nbt.getInt(CHARGES) > max) {
-			nbt.putInt(CHARGES, max);
-		}
-	}
-
-	@Override
-	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
-		if (world.isClient || !(entity instanceof ServerPlayerEntity player)) {
+	/** Gives the player their one starting flask, full, the first time they join. */
+	public static void giveStartingFlask(ServerPlayerEntity player) {
+		PlayerData data = PlayerDataManager.get(player);
+		if (data.receivedFlask) {
 			return;
 		}
-		if (!stack.hasNbt() || !stack.getNbt().contains(CHARGES)) {
-			// A fresh flask (crafted, given, taken from the creative tab) starts full.
-			refill(stack, player);
-		} else {
-			updateStats(stack, player);
-		}
+		data.receivedFlask = true;
+		data.flaskCharges = maxCharges(player);
+		player.getInventory().offerOrDrop(new ItemStack(ModItems.HEALING_FLASK));
+		PlayerDataManager.sync(player);
 	}
 
 	@Override
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
 		ItemStack stack = user.getStackInHand(hand);
-		if (getCharges(stack) <= 0) {
+		if (charges(user) <= 0) {
 			return TypedActionResult.fail(stack);
 		}
 		if (user.isSprinting()) {
@@ -113,8 +98,9 @@ public class HealingFlaskItem extends Item {
 			}
 			return TypedActionResult.fail(stack);
 		}
-		if (!world.isClient && !user.getAbilities().creativeMode) {
-			stack.getNbt().putInt(CHARGES, getCharges(stack) - 1);
+		if (user instanceof ServerPlayerEntity player && !player.getAbilities().creativeMode) {
+			PlayerDataManager.get(player).flaskCharges = charges(player) - 1;
+			PlayerDataManager.sync(player);
 		}
 		user.setCurrentHand(hand);
 		return TypedActionResult.consume(stack);
@@ -122,8 +108,8 @@ public class HealingFlaskItem extends Item {
 
 	@Override
 	public void usageTick(World world, LivingEntity user, ItemStack stack, int remainingUseTicks) {
-		if (!world.isClient && stack.hasNbt()) {
-			user.heal(stack.getNbt().getFloat(HEAL) / getMaxUseTime(stack));
+		if (!world.isClient && user instanceof PlayerEntity player) {
+			player.heal(healAmount(player) / getMaxUseTime(stack));
 		}
 	}
 
@@ -145,12 +131,6 @@ public class HealingFlaskItem extends Item {
 	}
 
 	@Override
-	public boolean allowNbtUpdateAnimation(PlayerEntity player, Hand hand, ItemStack oldStack, ItemStack newStack) {
-		// Charge and stat updates should not replay the equip animation.
-		return oldStack.getItem() != newStack.getItem();
-	}
-
-	@Override
 	public UseAction getUseAction(ItemStack stack) {
 		return UseAction.DRINK;
 	}
@@ -160,15 +140,18 @@ public class HealingFlaskItem extends Item {
 		return EmbervoidConfig.get().flask().drinkTicks();
 	}
 
+	// Item bar and tooltip are drawn on the client, for the local player's charges.
+
 	@Override
 	public boolean isItemBarVisible(ItemStack stack) {
-		return getMaxCharges(stack) > 0;
+		return PlayerDataManager.getLocalPlayer() != null;
 	}
 
 	@Override
 	public int getItemBarStep(ItemStack stack) {
-		int max = getMaxCharges(stack);
-		return max > 0 ? MathHelper.clamp(Math.round(13.0f * getCharges(stack) / max), 0, 13) : 0;
+		PlayerEntity player = PlayerDataManager.getLocalPlayer();
+		int max = player != null ? maxCharges(player) : 0;
+		return max > 0 ? MathHelper.clamp(Math.round(13.0f * charges(player) / max), 0, 13) : 0;
 	}
 
 	@Override
@@ -178,12 +161,12 @@ public class HealingFlaskItem extends Item {
 
 	@Override
 	public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-		int max = getMaxCharges(stack);
-		if (max <= 0) {
+		PlayerEntity player = PlayerDataManager.getLocalPlayer();
+		if (player == null) {
 			return;
 		}
-		tooltip.add(Text.translatable("embervoid.flask.charges", getCharges(stack), max).formatted(Formatting.GOLD));
-		float hearts = stack.getNbt().getFloat(HEAL) / 2;
+		tooltip.add(Text.translatable("embervoid.flask.charges", charges(player), maxCharges(player)).formatted(Formatting.GOLD));
+		float hearts = Math.round(healAmount(player) * 5) / 10.0f;
 		tooltip.add(Text.translatable("embervoid.flask.heal",
 				hearts == (int) hearts ? Integer.toString((int) hearts) : Float.toString(hearts)).formatted(Formatting.GRAY));
 	}

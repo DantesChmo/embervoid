@@ -1,9 +1,7 @@
 package com.embervoid.client;
 
-import com.embervoid.player.PlayerDataManager;
 import com.embervoid.player.StaminaManager;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
 
 /** The local player's stamina as last sent by the server; read by the HUD. */
 public final class ClientStamina {
@@ -11,8 +9,7 @@ public final class ClientStamina {
 	private static long lastFailedSpendTime = Long.MIN_VALUE;
 
 	public static float current() {
-		MinecraftClient client = MinecraftClient.getInstance();
-		return client.player == null ? max : PlayerDataManager.get(client.player).stamina;
+		return ClientPlayerData.get().stamina;
 	}
 
 	public static int max() {
@@ -31,11 +28,9 @@ public final class ClientStamina {
 			boolean failedSpend = buf.readBoolean();
 			client.execute(() -> {
 				max = newMax;
-				if (client.player != null) {
-					PlayerDataManager.get(client.player).stamina = stamina;
-					if (failedSpend) {
-						lastFailedSpendTime = client.player.getWorld().getTime();
-					}
+				ClientPlayerData.get().stamina = stamina;
+				if (failedSpend && client.player != null) {
+					lastFailedSpendTime = client.player.getWorld().getTime();
 				}
 			});
 		});

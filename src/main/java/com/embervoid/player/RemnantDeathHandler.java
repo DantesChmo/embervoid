@@ -18,9 +18,9 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Death flow for Ash Remnants: called from {@code PlayerEntityMixin} when a player's inventory is about to drop.
- * Moves items and/or XP (per {@code remnant.mode}) into a remnant at a safe spot near the death, burns the previous
- * one, and tells the player where the new one is. The mixin skips it under {@code keepInventory}; with mode
- * {@code off} nothing changes either.
+ * Retires the previous remnant (per {@code remnant.secondDeath}), moves items and/or XP (per {@code remnant.mode})
+ * into a new one at the last spot the player stood on solid ground, and tells the player where it is. The mixin
+ * skips it under {@code keepInventory}; with mode {@code off} nothing changes either.
  */
 public final class RemnantDeathHandler {
 	private static final int SEARCH_RADIUS = 8;
@@ -33,12 +33,15 @@ public final class RemnantDeathHandler {
 			return;
 		}
 
-		if (AshRemnantEntity.burnCurrent(player)) {
-			player.sendMessage(Text.translatable("embervoid.remnant.burned").formatted(Formatting.DARK_RED));
+		switch (AshRemnantEntity.retireCurrent(player)) {
+			case BURNED -> player.sendMessage(Text.translatable("embervoid.remnant.burned").formatted(Formatting.DARK_RED));
+			case XP_BURNED -> player.sendMessage(Text.translatable("embervoid.remnant.xp_burned").formatted(Formatting.DARK_RED));
+			case NONE -> {
+			}
 		}
 
 		boolean takeItems = mode == EmbervoidConfig.RemnantMode.XP_AND_ITEMS && !player.getInventory().isEmpty();
-		boolean takeExperience = AshRemnantEntity.totalExperience(player) > 0;
+		boolean takeExperience = XpUtil.getPoints(player) > 0;
 		if (!takeItems && !takeExperience) {
 			return;
 		}
@@ -53,19 +56,22 @@ public final class RemnantDeathHandler {
 	}
 
 	/**
-	 * A reachable spot for the remnant: near the death if there is one, else where the player last stood on safe
-	 * ground in this dimension (deaths in the void or a lava lake), else the world spawn.
+	 * A reachable spot for the remnant: where the player last stood on solid ground in this dimension, tracked while
+	 * alive, so deaths in lava, the void, mid-fall or in a wall still leave it somewhere walkable. If that spot is
+	 * gone (built over, flooded) the closest safe spot around it; with no tracked spot in this dimension (died right
+	 * after arriving), the closest safe spot around the death; else the world spawn.
 	 */
 	private static Vec3d findRemnantPos(ServerPlayerEntity player) {
 		ServerWorld world = player.getServerWorld();
-		BlockPos death = player.getBlockPos();
-		BlockPos clamped = new BlockPos(death.getX(), MathHelper.clamp(death.getY(), world.getBottomY() + 1, world.getTopY() - 2), death.getZ());
-		BlockPos found = searchNear(world, clamped);
+		PlayerData data = PlayerDataManager.get(player);
+		BlockPos found = null;
+		if (data.lastSafePos != null && world.getRegistryKey().equals(data.lastSafeWorld)) {
+			found = isSafe(world, data.lastSafePos) ? data.lastSafePos : searchNear(world, data.lastSafePos);
+		}
 		if (found == null) {
-			PlayerData data = PlayerDataManager.get(player);
-			if (data.lastSafePos != null && world.getRegistryKey().equals(data.lastSafeWorld) && isSafe(world, data.lastSafePos)) {
-				found = data.lastSafePos;
-			}
+			BlockPos death = player.getBlockPos();
+			found = searchNear(world, new BlockPos(death.getX(),
+					MathHelper.clamp(death.getY(), world.getBottomY() + 1, world.getTopY() - 2), death.getZ()));
 		}
 		if (found == null) {
 			found = world.getSpawnPos();
