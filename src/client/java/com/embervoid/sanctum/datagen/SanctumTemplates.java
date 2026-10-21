@@ -154,17 +154,34 @@ final class SanctumTemplates {
 	}
 
 	/**
-	 * Spiral stairwell, 9x20x9 with walls two blocks thick, so caves never break into it: stairs wind down around a
-	 * 3x3 column on the outer ring of the 5x5 inside and end at a doorway in the south wall. The top layer joins the
-	 * ruin's shaft.
+	 * Spiral stairwell, 11x20x11: stairs wind down around a 3x3 column on the outer ring of the 5x5 inside and end at
+	 * a doorway in the south wall. The top layer joins the ruin's shaft. The wall is three thick: bricks inside, then
+	 * solid rock, then a ragged rock layer with gaps where the world keeps its own blocks, so caves never break in
+	 * and a shaft cut open by a ravine looks like a pillar of rock rather than a brick tower.
 	 */
 	private static TemplateBuilder descent() {
 		int height = 20;
-		int wall = 2;
+		int wall = 3;
 		int size = 5 + 2 * wall;
 		int in = wall; // first inside x/z
 		TemplateBuilder t = new TemplateBuilder(size, height, size);
 		t.fill(0, 0, 0, size - 1, height - 1, size - 1, BRICKS);
+		Random random = new Random(2);
+		for (int x = 0; x < size; x++) {
+			for (int z = 0; z < size; z++) {
+				int ring = Math.min(Math.min(x, z), Math.min(size - 1 - x, size - 1 - z));
+				if (ring > 1) {
+					continue;
+				}
+				for (int y = 0; y < height; y++) {
+					if (ring == 0 && random.nextDouble() < 0.4) {
+						t.clear(x, y, z);
+					} else {
+						t.set(x, y, z, rock(random));
+					}
+				}
+			}
+		}
 		t.fill(in, 1, in, in + 4, height - 1, in + 4, AIR);
 		t.fill(in, 0, in, in + 4, 0, in + 4, POLISHED);
 		for (int y = 0; y <= height - 2; y++) {
@@ -188,6 +205,8 @@ final class SanctumTemplates {
 			t.set(cell[0], height - 1 - k, cell[1], POLISHED_ASH_STONE_STAIRS.getDefaultState().with(StairsBlock.FACING, facing));
 		}
 		int center = in + 2;
+		// Doorway through the wall, with solid sides and top even where the outer layer is ragged.
+		t.fill(center - 2, 0, in + 5, center + 2, 4, size - 1, BRICKS);
 		t.fill(center - 1, 1, in + 5, center + 1, 3, size - 1, AIR);
 		t.set(in, 1, in, LANTERN);
 		t.door(center, 1, size - 1, Direction.SOUTH, HALL_OUT, POOL_GATE, HALL_IN);
@@ -330,6 +349,12 @@ final class SanctumTemplates {
 		t.fill(0, 0, 0, 4, 4, 0, BRICKS);
 		t.jigsaw(2, 1, 0, JigsawOrientation.NORTH_UP, HALL_IN, null, null, BRICKS);
 		return t;
+	}
+
+	/** Rough natural-looking rock for casings. */
+	private static BlockState rock(Random random) {
+		double r = random.nextDouble();
+		return r < 0.4 ? STONE : r < 0.7 ? COBBLED : r < 0.9 ? Blocks.STONE.getDefaultState() : Blocks.TUFF.getDefaultState();
 	}
 
 	/** Opens a 3-wide, 3-high doorway in the wall at (x, z), centered on the connector. */
