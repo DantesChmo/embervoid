@@ -15,6 +15,7 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.BucketItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -22,6 +23,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.GlobalPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 
 /** Server-side realm rules: respawn, shrines, the void edge and protected landings/arenas. */
 public final class RealmEvents {
@@ -29,11 +31,12 @@ public final class RealmEvents {
 	private static final int VOID_MARGIN = 32;
 
 	public static void register() {
-		// Death in a realm: respawn at the last rested shrine there, else the landing. The bed spawn stays as it was.
+		// Death in a realm dimension: respawn at the last shrine rested at in that dimension, else its landing (the
+		// open zones and the final zone each count on their own). The bed spawn stays as it was.
 		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
-			RealmDefinition realm = Realms.byWorld(oldPlayer.getWorld().getRegistryKey());
-			if (!alive && realm != null && !RealmTeleports.toShrine(newPlayer, realm)) {
-				RealmTeleports.toLanding(newPlayer, realm.world());
+			RegistryKey<World> died = oldPlayer.getWorld().getRegistryKey();
+			if (!alive && Realms.byWorld(died) != null && !RealmTeleports.toShrine(newPlayer, died)) {
+				RealmTeleports.toLanding(newPlayer, died);
 			}
 		});
 		// Beds work in realms (DESIGN §10.1) but never move the player's spawn point there.
@@ -42,7 +45,7 @@ public final class RealmEvents {
 		ShrineHooks.RESTED.register((player, world, pos) -> {
 			RealmDefinition realm = Realms.byWorld(world.getRegistryKey());
 			if (realm != null) {
-				RealmPlayerData.get(player).shrines.put(realm.id(), GlobalPos.create(world.getRegistryKey(), pos));
+				RealmPlayerData.get(player).shrines.put(world.getRegistryKey().getValue(), GlobalPos.create(world.getRegistryKey(), pos));
 			}
 		});
 
