@@ -30,8 +30,8 @@ public final class RealmTeleports {
 	 * Takes the player into a realm, remembering where they came from (the Sanctum) so the return obelisk brings them
 	 * back there.
 	 *
-	 * @param toLastShrine arrive at the last Ember Shrine rested at in that realm instead of the landing; falls back to
-	 *                     the landing when there is none
+	 * @param toLastShrine arrive at the last Ember Shrine rested at in the realm's open zones instead of the landing;
+	 *                     falls back to the landing when there is none
 	 * @return false if the realm is unknown or still locked for this player (they get a message)
 	 */
 	public static boolean enterRealm(ServerPlayerEntity player, Identifier realmId, boolean toLastShrine) {
@@ -45,16 +45,17 @@ public final class RealmTeleports {
 			data.returnPoint = GlobalPos.create(player.getWorld().getRegistryKey(), player.getBlockPos());
 			data.returnYaw = player.getYaw();
 		}
-		if (toLastShrine && toShrine(player, realm)) {
+		if (toLastShrine && toShrine(player, realm.world())) {
 			return true;
 		}
 		toLanding(player, realm.world());
 		return true;
 	}
 
-	/** True if the player has a shrine to return to in that realm (for the obelisk's "landing or shrine" choice). */
+	/** True if the player has a shrine to return to in the realm's open zones (the obelisk's "landing or shrine"). */
 	public static boolean hasRestedShrine(ServerPlayerEntity player, Identifier realmId) {
-		return RealmPlayerData.get(player).shrines.containsKey(realmId);
+		RealmDefinition realm = Realms.byId(realmId);
+		return realm != null && RealmPlayerData.get(player).shrines.containsKey(realm.world().getValue());
 	}
 
 	/** Back to where the player entered the realm from; the overworld spawn if that is unknown. */
@@ -79,9 +80,9 @@ public final class RealmTeleports {
 		}
 	}
 
-	/** To the last shrine rested at in the realm. Returns false (and does nothing) if there is none. */
-	public static boolean toShrine(ServerPlayerEntity player, RealmDefinition realm) {
-		GlobalPos shrine = RealmPlayerData.get(player).shrines.get(realm.id());
+	/** To the last shrine rested at in that realm dimension. Returns false (and does nothing) if there is none. */
+	public static boolean toShrine(ServerPlayerEntity player, RegistryKey<World> dimension) {
+		GlobalPos shrine = RealmPlayerData.get(player).shrines.get(dimension.getValue());
 		ServerWorld world = shrine == null ? null : player.getServer().getWorld(shrine.getDimension());
 		if (world == null) {
 			return false;

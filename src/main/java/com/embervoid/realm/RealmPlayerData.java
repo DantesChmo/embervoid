@@ -16,7 +16,7 @@ import java.util.Optional;
 
 /**
  * Per-player realm travel state, server-side only: where to return when leaving a realm, and the last Ember Shrine
- * rested at in each realm (the realm respawn point). Progress (bosses, realms) is not here; see
+ * rested at in each realm dimension (the respawn point there). Progress (bosses, realms) is not here; see
  * {@link com.embervoid.progress.ProgressManager}.
  */
 public final class RealmPlayerData {
@@ -38,7 +38,7 @@ public final class RealmPlayerData {
 	@Nullable
 	public GlobalPos returnPoint;
 	public float returnYaw;
-	/** Realm id → last rested shrine block in that realm (either of its dimensions). */
+	/** Realm dimension id → last shrine block rested at in that dimension (open zones and final zone apart). */
 	public final Map<Identifier, GlobalPos> shrines;
 
 	public RealmPlayerData() {

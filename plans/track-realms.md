@@ -19,7 +19,7 @@ Packages owned: `com.embervoid.realm` (dimensions, worldgen, teleports, gate, lo
 | Landing / arenas | Code-built structure type `embervoid:realm_feature` (`kind`: landing / arena), one piece type; placeholders until the `.nbt` builds |
 | Landing | Return obelisk, Ember Shrine (sanctum's block), Sealed Gate. Protected (unbreakable blocks + no building inside arenas/landing) |
 | Player realm data | Own attachment `realm_player` (persistent, copied on death): Sanctum return point, last rested shrine per realm |
-| Respawn | `AFTER_RESPAWN`: died in a realm → teleport to that realm's last rested shrine (or landing). Overworld spawn point untouched; beds in realms do not set spawn |
+| Respawn | `AFTER_RESPAWN`: died in a realm dimension → last shrine rested at in that same dimension, else its landing (open zones and depths apart). Overworld spawn point untouched; beds in realms do not set spawn |
 | Progress | Sanctum's `ProgressManager` (on `main`); Realm 1's id is `ProgressManager.REALM_1` |
 | Shrine | Sanctum's Ember Shrine calls `ShrineHooks` (`ALLOW_REST`, `RESTED`); realms set the respawn point and keep arena shrines dormant |
 | Mob levels | `RealmMobLevels` is a `MobLevels` provider (zone band); bosses get the arena's level via `MobLevels.setLevel` |
@@ -55,3 +55,5 @@ Packages owned: `com.embervoid.realm` (dimensions, worldgen, teleports, gate, lo
 - Balance (QA #8): the test boss at Lv 18 hit for 37 melee / 23 slam with 404 HP. Its base values (200 HP, 8 attack,
   10 slam) are level-1 numbers that `MobLevels` then scales; real bosses need base values chosen with that scaling.
 - Every arena leaves an Ember Shrine: worldgen places it, and the kill re-places it if it is missing (logged).
+- "Respawn at the last shrine rested at in that realm" (DESIGN §4.2) is per dimension of the realm (QA #8b). The obelisk's
+  "last shrine" option uses the open-zone shrine.
