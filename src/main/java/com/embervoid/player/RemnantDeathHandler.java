@@ -59,7 +59,8 @@ public final class RemnantDeathHandler {
 	 * A reachable spot for the remnant: where the player last stood on solid ground in this dimension, tracked while
 	 * alive, so deaths in lava, the void, mid-fall or in a wall still leave it somewhere walkable. If that spot is
 	 * gone (built over, flooded) the closest safe spot around it; with no tracked spot in this dimension (died right
-	 * after arriving), the closest safe spot around the death; else the world spawn.
+	 * after a teleport or arriving), the closest safe spot around the death; then the spot from before the last
+	 * teleport; else the world spawn.
 	 */
 	private static Vec3d findRemnantPos(ServerPlayerEntity player) {
 		ServerWorld world = player.getServerWorld();
@@ -72,6 +73,9 @@ public final class RemnantDeathHandler {
 			BlockPos death = player.getBlockPos();
 			found = searchNear(world, new BlockPos(death.getX(),
 					MathHelper.clamp(death.getY(), world.getBottomY() + 1, world.getTopY() - 2), death.getZ()));
+		}
+		if (found == null && data.preTeleportSafePos != null && world.getRegistryKey().equals(data.preTeleportSafeWorld)) {
+			found = isSafe(world, data.preTeleportSafePos) ? data.preTeleportSafePos : searchNear(world, data.preTeleportSafePos);
 		}
 		if (found == null) {
 			found = world.getSpawnPos();
@@ -118,6 +122,22 @@ public final class RemnantDeathHandler {
 		BlockState state = world.getBlockState(pos);
 		return state.getCollisionShape(world, pos).isEmpty()
 				&& !state.getFluidState().isIn(FluidTags.LAVA) && !state.isIn(BlockTags.FIRE);
+	}
+
+	/**
+	 * Forgets the safe spot when the player is teleported: it is sampled only every {@link #SAFE_POS_INTERVAL}
+	 * ticks, so a death right after a teleport would otherwise put the remnant back where they jumped from. Until
+	 * the next sample, a death uses the search around the death point, and the old spot only if that finds nothing
+	 * (pearled into a lava lake).
+	 */
+	public static void onTeleport(ServerPlayerEntity player) {
+		PlayerData data = PlayerDataManager.get(player);
+		if (data.lastSafePos != null) {
+			data.preTeleportSafePos = data.lastSafePos;
+			data.preTeleportSafeWorld = data.lastSafeWorld;
+		}
+		data.lastSafePos = null;
+		data.lastSafeWorld = null;
 	}
 
 	/** Remembers where each player last stood on safe ground, as a fallback spot for void and lava deaths. */
