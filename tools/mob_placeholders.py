@@ -265,8 +265,9 @@ def hollow():
             "left_arm": {"rotation": keys(0, [15, 0, 0], 0.6, [-15, 0, 0], 1.2, [15, 0, 0])},
         }),
         "attack.swing": anim(0.9, {
-            "right_arm": {"rotation": keys(0, zero, 0.35, [-165, 0, 10], 0.55, [-40, 0, 0], 0.9, zero)},
-            "body": {"rotation": keys(0, zero, 0.35, [0, 15, 0], 0.55, [0, -20, 0], 0.9, zero)},
+            # Wind-up to 0.3 s, the blade comes down at 0.4 s (HollowEntity.WINDUP_TICKS = 8).
+            "right_arm": {"rotation": keys(0, zero, 0.3, [-165, 0, 10], 0.45, [-40, 0, 0], 0.9, zero)},
+            "body": {"rotation": keys(0, zero, 0.3, [0, 15, 0], 0.45, [0, -20, 0], 0.9, zero)},
         }, loop=False),
         "attack.block": anim(1.0, {
             "right_arm": {"rotation": keys(0, block, 1, block)},

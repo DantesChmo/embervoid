@@ -42,6 +42,13 @@ public final class MobDataGen {
 			exporter.accept(table(MobEntities.ASH_GHOUL), LootTable.builder()
 					.pool(drop(Items.BONE, 0, 2))
 					.pool(drop(Items.CHARCOAL, 0, 1)));
+			exporter.accept(table(MobEntities.HOLLOW), LootTable.builder()
+					.pool(drop(Items.IRON_NUGGET, 1, 4))
+					.pool(drop(Items.BONE, 0, 2))
+					.pool(rare(Items.IRON_INGOT, 0.1f, 0.02f)));
+			exporter.accept(table(MobEntities.EMBER_WISP), LootTable.builder()
+					.pool(drop(Items.GLOWSTONE_DUST, 0, 1))
+					.pool(rare(Items.BLAZE_POWDER, 0.05f, 0.01f)));
 		}
 
 		private static Identifier table(EntityType<?> type) {
