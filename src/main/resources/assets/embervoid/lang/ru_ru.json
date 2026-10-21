@@ -54,5 +54,22 @@
 	"entity.embervoid.hollow": "Полый",
 	"item.embervoid.hollow_spawn_egg": "Яйцо призыва полого",
 	"entity.embervoid.ember_wisp": "Тлеющий огонёк",
-	"item.embervoid.ember_wisp_spawn_egg": "Яйцо призыва тлеющего огонька"
+	"item.embervoid.ember_wisp_spawn_egg": "Яйцо призыва тлеющего огонька",
+	"block.embervoid.return_obelisk": "Обелиск возвращения",
+	"block.embervoid.sealed_gate": "Запечатанные врата",
+	"item.embervoid.ember_lodestar": "Тлеющий путеводный камень",
+	"biome.embervoid.ashen_reach_landing": "Пепельный предел: пристань",
+	"biome.embervoid.ashen_reach_abyss": "Пепельный предел: бездна",
+	"biome.embervoid.ashen_reach_zone_a": "Пепельный предел: зона A",
+	"biome.embervoid.ashen_reach_zone_b": "Пепельный предел: зона B",
+	"biome.embervoid.ashen_reach_zone_c": "Пепельный предел: зона C",
+	"biome.embervoid.ashen_reach_depths": "Пепельный предел: глубины",
+	"embervoid.realm.locked": "Пламя ещё не достигло этого мира",
+	"embervoid.realm.gate.open": "Запечатанные врата поддаются",
+	"embervoid.realm.gate.sealed": "Врата запечатаны. Стражей осталось: %s",
+	"embervoid.realm.void": "Пустота отталкивает вас",
+	"embervoid.shrine.rested": "Вы отдохнули. Алтарь запомнит вас",
+	"embervoid.lodestar.cold": "Вне миров путеводный камень холоден",
+	"embervoid.lodestar.none": "Здесь не осталось стражей",
+	"embervoid.lodestar.distance": "Страж ждёт в %s блоках отсюда"
 }

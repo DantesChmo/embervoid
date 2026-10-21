@@ -7,7 +7,7 @@
   "feature": "arena",
   "boss": {
     "id": "embervoid:ashen_reach/zone_b",
-    "entity": "embervoid:test_boss",
+    "entity": "minecraft:zombie",
     "level": 21,
     "radius": 20
   }
