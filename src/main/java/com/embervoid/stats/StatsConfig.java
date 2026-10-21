@@ -23,13 +23,15 @@ public final class StatsConfig {
 	 * @param resilienceFireReduction      fire damage taken, fraction removed
 	 * @param resilienceFireReductionCap   most fire damage RES can remove (0–1)
 	 * @param fortuneLuck                  luck
+	 * @param fortuneExtraDrop             chance that a mob killed by the player drops its loot a second time
+	 * @param fortuneExtraDropCap          highest extra-drop chance Fortune can give (0–1)
 	 */
 	public record Effects(float vitalityHealth, float enduranceStamina, float enduranceStaminaRegen,
 			float enduranceKnockbackResistance, float strengthDamage, float dexterityDamage, float dexterityAttackSpeed,
 			float kindlingFlaskHeal, float resilienceToughness, float resilienceFireReduction,
-			float resilienceFireReductionCap, float fortuneLuck) {
+			float resilienceFireReductionCap, float fortuneLuck, float fortuneExtraDrop, float fortuneExtraDropCap) {
 		public static final Effects DEFAULT = new Effects(1.0f, 2.0f, 0.02f, 0.005f, 0.02f, 0.02f, 0.005f, 0.02f,
-				0.1f, 0.01f, 0.5f, 0.1f);
+				0.1f, 0.01f, 0.5f, 0.1f, 0.005f, 0.25f);
 
 		public static final ConfigSection<Effects> SECTION = EmbervoidConfig.register(ConfigSection.of(
 				"stats", DEFAULT,
@@ -45,7 +47,9 @@ public final class StatsConfig {
 						in.readFloat("resilienceToughness", DEFAULT.resilienceToughness, 0, 100),
 						in.readFloat("resilienceFireReduction", DEFAULT.resilienceFireReduction, 0, 1),
 						in.readFloat("resilienceFireReductionCap", DEFAULT.resilienceFireReductionCap, 0, 1),
-						in.readFloat("fortuneLuck", DEFAULT.fortuneLuck, 0, 100)),
+						in.readFloat("fortuneLuck", DEFAULT.fortuneLuck, 0, 100),
+						in.readFloat("fortuneExtraDrop", DEFAULT.fortuneExtraDrop, 0, 1),
+						in.readFloat("fortuneExtraDropCap", DEFAULT.fortuneExtraDropCap, 0, 1)),
 				(value, out) -> {
 					out.addProperty("vitalityHealth", value.vitalityHealth);
 					out.addProperty("enduranceStamina", value.enduranceStamina);
@@ -59,6 +63,8 @@ public final class StatsConfig {
 					out.addProperty("resilienceFireReduction", value.resilienceFireReduction);
 					out.addProperty("resilienceFireReductionCap", value.resilienceFireReductionCap);
 					out.addProperty("fortuneLuck", value.fortuneLuck);
+					out.addProperty("fortuneExtraDrop", value.fortuneExtraDrop);
+					out.addProperty("fortuneExtraDropCap", value.fortuneExtraDropCap);
 				}));
 	}
 

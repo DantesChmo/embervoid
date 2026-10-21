@@ -70,7 +70,7 @@ M2 was built on the old plan. Diffing the code on `main` (9c871b6) against PLAN 
 - Sleep refill needs `doDaylightCycle` (with it off the time never jumps, so a skipped night cannot be told apart).
 - Stat effect sizes (`stats.*` defaults): END +2 stamina, +2% regen, +0.005 knockback res; DEX +0.5% attack speed;
   STR/DEX +2% weapon damage; KIN +2% flask heal; RES +0.1 toughness, −1% fire damage (cap 50%); FOR +0.1 luck,
-  all per full point. FOR's "bonus chance on mob drops" from §10.10 is not built.
+  all per full point. FOR → extra mob-drop chance (decided): +0.5% per full point, cap 25% (FOR 40 → 10%, 99 → 15.9%); the mob's loot table is rolled once more.
 - Stat modifiers are temporary (not saved); stats are the only source of truth, and the saved health is restored
   after they apply on join. Respawn after death: full health at the new max.
 - Weapon scaling: melee = main-hand item when the source is `player_attack` (sweeps included, enchantment damage

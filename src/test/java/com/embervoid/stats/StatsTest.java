@@ -42,6 +42,19 @@ class StatsTest {
 		assertEquals(1, d.flaskHealMultiplier());
 		assertEquals(0, d.strengthDamageBonus());
 		assertEquals(0, d.dexterityDamageBonus());
+		assertEquals(0, d.extraDropChance());
+	}
+
+	@Test
+	void fortuneExtraDropCurve() {
+		assertEquals(0.05f, DerivedStats.of(stats(Stat.FORTUNE, 20), EFFECTS, 100, 1).extraDropChance(), 1e-6);
+		assertEquals(0.10f, DerivedStats.of(stats(Stat.FORTUNE, 40), EFFECTS, 100, 1).extraDropChance(), 1e-6);
+		assertEquals(0.159f, DerivedStats.of(stats(Stat.FORTUNE, 99), EFFECTS, 100, 1).extraDropChance(), 1e-6);
+		// Below 10 there is no negative chance, and the cap holds for generous configs.
+		assertEquals(0, DerivedStats.of(stats(Stat.FORTUNE, 1), EFFECTS, 100, 1).extraDropChance());
+		StatsConfig.Effects generous = new StatsConfig.Effects(1, 2, 0.02f, 0.005f, 0.02f, 0.02f, 0.005f, 0.02f,
+				0.1f, 0.01f, 0.5f, 0.1f, 0.05f, 0.25f);
+		assertEquals(0.25f, DerivedStats.of(stats(Stat.FORTUNE, 99), generous, 100, 1).extraDropChance());
 	}
 
 	@Test
@@ -65,7 +78,7 @@ class StatsTest {
 	@Test
 	void fireReductionIsCapped() {
 		StatsConfig.Effects strong = new StatsConfig.Effects(1, 2, 0.02f, 0.005f, 0.02f, 0.02f, 0.005f, 0.02f,
-				0.1f, 0.1f, 0.5f, 0.1f);
+				0.1f, 0.1f, 0.5f, 0.1f, 0.005f, 0.25f);
 		assertEquals(0.5f, DerivedStats.of(stats(Stat.RESILIENCE, 99), strong, 100, 1).fireDamageReduction());
 	}
 

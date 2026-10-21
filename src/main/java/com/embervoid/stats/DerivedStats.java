@@ -15,10 +15,11 @@ package com.embervoid.stats;
  * @param flaskHealMultiplier   multiplier on Healing Flask heal (1 = unchanged)
  * @param strengthDamageBonus   damage bonus with a fully STR-scaling weapon, as a fraction
  * @param dexterityDamageBonus  damage bonus with a fully DEX-scaling weapon, as a fraction
+ * @param extraDropChance       chance (0–1) that a mob this player kills drops its loot a second time
  */
 public record DerivedStats(float maxHealth, float maxStamina, float staminaRegenPerTick, double knockbackResistance,
 		double attackSpeedBonus, double armorToughness, double luck, float fireDamageReduction,
-		float flaskHealMultiplier, float strengthDamageBonus, float dexterityDamageBonus) {
+		float flaskHealMultiplier, float strengthDamageBonus, float dexterityDamageBonus, float extraDropChance) {
 	/** Vanilla player max health. */
 	public static final float BASE_HEALTH = 20;
 
@@ -47,6 +48,7 @@ public record DerivedStats(float maxHealth, float maxStamina, float staminaRegen
 				(float) Math.max(0, Math.min(effects.resilienceFireReductionCap(), res * effects.resilienceFireReduction())),
 				(float) Math.max(0, 1 + kin * effects.kindlingFlaskHeal()),
 				(float) (str * effects.strengthDamage()),
-				(float) (dex * effects.dexterityDamage()));
+				(float) (dex * effects.dexterityDamage()),
+				(float) Math.max(0, Math.min(effects.fortuneExtraDropCap(), fortune * effects.fortuneExtraDrop())));
 	}
 }
