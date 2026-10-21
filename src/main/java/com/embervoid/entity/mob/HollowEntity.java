@@ -75,6 +75,11 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 	private final AnimatableInstanceCache animations = GeckoLibUtil.createInstanceCache(this);
 	/** Ticks until the swing lands, or -1 when not winding up. */
 	private int windup = -1;
+	/**
+	 * Ticks until it may start the next swing. Kept here, not in the goal: vanilla's MeleeAttackGoal always resets
+	 * its own cooldown to 20 ticks and clears it whenever the goal restarts.
+	 */
+	private int attackCooldown;
 	/** Ticks left in the current guard or stagger. */
 	private int stanceTicks;
 
@@ -153,13 +158,14 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 
 	/** Starts a swing if it can attack now; called by the attack goal when the target is in reach. */
 	boolean startSwing() {
-		if (windup >= 0 || isStaggered()) {
+		if (windup >= 0 || attackCooldown > 0 || isStaggered()) {
 			return false;
 		}
 		if (isGuarding()) {
 			setStance(STANCE_NONE, 0);
 		}
 		windup = WINDUP_TICKS;
+		attackCooldown = ATTACK_INTERVAL_TICKS;
 		triggerAnim("attack", "swing");
 		playSound(SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, 0.6f, 0.6f);
 		return true;
@@ -172,6 +178,9 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 	@Override
 	protected void mobTick() {
 		super.mobTick();
+		if (attackCooldown > 0) {
+			attackCooldown--;
+		}
 		LivingEntity target = getTarget();
 		if (windup >= 0 && --windup < 0 && target != null && target.isAlive()
 				// A little extra reach so a target backing off at the last moment still needs to commit.
@@ -285,7 +294,10 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 		return animations;
 	}
 
-	/** Chases like a zombie; when in reach and cooled down, starts the Hollow's wind-up swing instead of hitting. */
+	/**
+	 * Chases like a zombie; when in reach, starts the Hollow's wind-up swing instead of hitting. The cooldown between
+	 * swings is the entity's ({@link #startSwing}).
+	 */
 	static class HollowAttackGoal extends MeleeAttackGoal {
 		private final HollowEntity hollow;
 
@@ -296,14 +308,9 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 
 		@Override
 		protected void attack(LivingEntity target, double squaredDistance) {
-			if (squaredDistance <= getSquaredMaxAttackDistance(target) && isCooledDown() && hollow.startSwing()) {
-				resetCooldown();
+			if (squaredDistance <= getSquaredMaxAttackDistance(target)) {
+				hollow.startSwing();
 			}
-		}
-
-		@Override
-		protected int getMaxCooldown() {
-			return getTickCount(ATTACK_INTERVAL_TICKS);
 		}
 
 		@Override

@@ -60,8 +60,9 @@ public final class MobRenderers {
 			@Override
 			protected void renderStackForBone(MatrixStack poseStack, GeoBone bone, ItemStack stack, HollowEntity hollow,
 					VertexConsumerProvider bufferSource, float partialTick, int packedLight, int packedOverlay) {
-				// The item model points up the hand; turn it to point forward out of the fist, like vanilla's held items.
-				poseStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-90));
+				// In bone space the third-person sword already points forward (-Z, the model's front); tilt the blade
+				// up a little so it reads as held ready. (-90 here, as in vanilla's held-item layer, points it at the ground.)
+				poseStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(30));
 				super.renderStackForBone(poseStack, bone, stack, hollow, bufferSource, partialTick, packedLight, packedOverlay);
 			}
 		});
