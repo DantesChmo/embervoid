@@ -7,8 +7,8 @@ level display). Branch `claude/track-mobs-*`.
 |---|---|---|
 | M1 | GeckoLib 4.8.4 as a required dependency + Ash Ghoul (model pipeline) | done |
 | M2 | Bestiary details for Hollow and Ember Wisp (below), sent as a QUESTION | sent, awaiting answer |
-| M3 | Hollow | todo |
-| M4 | Ember Wisp | todo |
+| M3 | Hollow | done |
+| M4 | Ember Wisp | done |
 | M5 | Mob levels (3.5) + level API | todo |
 | M6 | Difficulty factors (3.6) | todo |
 | M7 | Level display (3.7) | todo |
@@ -58,8 +58,8 @@ level-1 base values; levels scale HP, damage and XP (§5.4).
 - **Role:** small cave flyer that punishes exploring dark caves without light. Light is the counter.
 - **Stats:** 8 HP, flying speed 0.5, contact attack 1 damage + sets the target on fire for 4 s, fire immune,
   hurt by water, no fall damage. Hitbox 0.5×0.5.
-- **Behaviour:** hovers through caves; dives at a player within 16 blocks it can see. Every 8–12 s it sets a
-  fire on a block near it (only with `mobGriefing`), so it ignites the cave around the player.
+- **Behaviour:** hovers through caves; dives at a player within 16 blocks it can see. While it has a target, every 8–12 s it
+  sets a fire on a block near it (only with `mobGriefing`), so it ignites the cave around the player.
 - **Flees light:** at block light ≥ 7 (a torch nearby) it drops its target and flies to a darker spot within
   10 blocks; it will not dive at a player standing in light ≥ 7.
 - **Spawns:** overworld below y=0 in darkness (block light 0), weight 15, groups of 1–2, not in the deep dark.
