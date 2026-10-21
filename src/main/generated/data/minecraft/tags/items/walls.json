@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "embervoid:ash_stone_wall",
+    "embervoid:cobbled_ash_stone_wall",
+    "embervoid:polished_ash_stone_wall",
+    "embervoid:ash_brick_wall"
+  ]
+}

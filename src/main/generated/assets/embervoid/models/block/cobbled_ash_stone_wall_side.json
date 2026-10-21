@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/template_wall_side",
+  "textures": {
+    "wall": "embervoid:block/cobbled_ash_stone"
+  }
+}

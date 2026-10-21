@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/stairs",
+  "textures": {
+    "bottom": "embervoid:block/cobbled_ash_stone",
+    "side": "embervoid:block/cobbled_ash_stone",
+    "top": "embervoid:block/cobbled_ash_stone"
+  }
+}

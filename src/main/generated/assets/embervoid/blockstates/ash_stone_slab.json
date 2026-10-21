@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "embervoid:block/ash_stone_slab"
+    },
+    "type=double": {
+      "model": "embervoid:block/ash_stone"
+    },
+    "type=top": {
+      "model": "embervoid:block/ash_stone_slab_top"
+    }
+  }
+}

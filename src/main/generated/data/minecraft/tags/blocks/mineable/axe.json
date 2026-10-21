@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "#embervoid:dead_logs",
+    "embervoid:dead_planks",
+    "embervoid:dead_stairs",
+    "embervoid:dead_slab",
+    "embervoid:dead_fence",
+    "embervoid:dead_fence_gate",
+    "embervoid:dead_door",
+    "embervoid:dead_trapdoor"
+  ]
+}

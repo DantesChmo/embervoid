@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 2,
+  "ingredient": {
+    "item": "embervoid:polished_ash_stone"
+  },
+  "result": "embervoid:ash_brick_slab"
+}

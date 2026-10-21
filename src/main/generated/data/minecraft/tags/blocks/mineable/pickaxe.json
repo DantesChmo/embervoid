@@ -1,0 +1,24 @@
+{
+  "replace": false,
+  "values": [
+    "embervoid:ash_stone",
+    "embervoid:ash_stone_stairs",
+    "embervoid:ash_stone_slab",
+    "embervoid:ash_stone_wall",
+    "embervoid:cobbled_ash_stone",
+    "embervoid:cobbled_ash_stone_stairs",
+    "embervoid:cobbled_ash_stone_slab",
+    "embervoid:cobbled_ash_stone_wall",
+    "embervoid:polished_ash_stone",
+    "embervoid:polished_ash_stone_stairs",
+    "embervoid:polished_ash_stone_slab",
+    "embervoid:polished_ash_stone_wall",
+    "embervoid:ash_bricks",
+    "embervoid:ash_brick_stairs",
+    "embervoid:ash_brick_slab",
+    "embervoid:ash_brick_wall",
+    "embervoid:cracked_ash_bricks",
+    "embervoid:chiseled_ash_stone",
+    "embervoid:ember_lantern"
+  ]
+}

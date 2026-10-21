@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "tag": "minecraft:coals"
+    },
+    "N": {
+      "item": "minecraft:iron_nugget"
+    },
+    "T": {
+      "item": "minecraft:torch"
+    }
+  },
+  "pattern": [
+    "NNN",
+    "NTN",
+    "NCN"
+  ],
+  "result": {
+    "item": "embervoid:ember_lantern"
+  },
+  "show_notification": true
+}

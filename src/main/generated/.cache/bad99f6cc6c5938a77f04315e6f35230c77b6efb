@@ -1,0 +1,13 @@
+// 1.20.1	2026-10-20T20:39:13.913841	Embervoid/Tags for minecraft:item
+51349c2eb875a9905a82e946897bcabc0417272d data/minecraft/tags/items/fence_gates.json
+713ed3191fa9b6f9635f79ab668835e2782ee39d data/minecraft/tags/items/walls.json
+1229a492e732d85df1e50e62c4e3a59d9e12ce65 data/minecraft/tags/items/wooden_slabs.json
+c5b1694afe228197d546ac7515d23b5f0594e30f data/minecraft/tags/items/logs_that_burn.json
+6c8dd68a8465354de01210ae8e65b8225ea6be5a data/embervoid/tags/items/dead_logs.json
+ae60829db7f6d76a0e0508c7f02835602706f90e data/minecraft/tags/items/stairs.json
+0a37e023f992e3c6e196156421b0fe8ea71fcf75 data/minecraft/tags/items/wooden_stairs.json
+83846b773cca60a07a25c64b6f74c517ac5280bd data/minecraft/tags/items/wooden_fences.json
+ced9df5c095d83f5cd6ddc52db71092ee08f8e77 data/minecraft/tags/items/wooden_trapdoors.json
+f42821a18d37ef1c9eb63aacb208acb82d8fb621 data/minecraft/tags/items/planks.json
+06f43caf9937515df12fc8c43156807ac8aa2e78 data/minecraft/tags/items/slabs.json
+16e69e526909accd1ed1734416bf063fcdb4c8ef data/minecraft/tags/items/wooden_doors.json

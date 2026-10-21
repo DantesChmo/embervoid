@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "embervoid:block/ash_bricks",
+    "side": "embervoid:block/ash_bricks",
+    "top": "embervoid:block/ash_bricks"
+  }
+}

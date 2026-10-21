@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/door_top_right_open",
+  "textures": {
+    "bottom": "embervoid:block/dead_door_bottom",
+    "top": "embervoid:block/dead_door_top"
+  }
+}

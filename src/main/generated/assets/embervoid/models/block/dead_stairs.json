@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/stairs",
+  "textures": {
+    "bottom": "embervoid:block/dead_planks",
+    "side": "embervoid:block/dead_planks",
+    "top": "embervoid:block/dead_planks"
+  }
+}

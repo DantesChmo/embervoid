@@ -11,6 +11,10 @@ base {
 }
 
 repositories {
+	maven {
+		name = 'TerraformersMC'
+		url = 'https://maven.terraformersmc.com/releases/'
+	}
 }
 
 loom {
@@ -28,11 +32,22 @@ fabricApi {
 	configureDataGeneration()
 }
 
+// The datagen entrypoint lives in the client source set.
+loom.runs.datagen.source(sourceSets.client)
+
+// configureDataGeneration() already adds src/main/generated to main resources; keep datagen's cache out of the jar.
+sourceSets.main.resources {
+	exclude '.cache/**'
+}
+
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+	// Dev-only: mod list in runClient. Not bundled, not required by players.
+	modLocalRuntime "com.terraformersmc:modmenu:${project.modmenu_version}"
 }
 
 processResources {

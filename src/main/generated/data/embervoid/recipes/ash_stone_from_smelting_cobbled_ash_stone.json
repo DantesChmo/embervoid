@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:smelting",
+  "category": "blocks",
+  "cookingtime": 200,
+  "experience": 0.1,
+  "group": "ash_stone",
+  "ingredient": {
+    "item": "embervoid:cobbled_ash_stone"
+  },
+  "result": "embervoid:ash_stone"
+}

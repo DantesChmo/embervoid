@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "embervoid:block/polished_ash_stone",
+    "side": "embervoid:block/polished_ash_stone",
+    "top": "embervoid:block/polished_ash_stone"
+  }
+}

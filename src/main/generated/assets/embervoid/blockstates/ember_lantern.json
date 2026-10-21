@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "hanging=false": {
+      "model": "embervoid:block/ember_lantern"
+    },
+    "hanging=true": {
+      "model": "embervoid:block/ember_lantern_hanging"
+    }
+  }
+}
