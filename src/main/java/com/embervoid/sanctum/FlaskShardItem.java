@@ -20,7 +20,7 @@ import java.util.List;
 
 /**
  * Flask Shard: found in Sanctum outer halls. Offered at an Ember Shrine (use it on the shrine), it adds one flask
- * charge, up to {@code flask.maxCharges}.
+ * charge, up to {@code flask.maxCharges}; the new charge comes filled.
  */
 public class FlaskShardItem extends Item {
 	public FlaskShardItem(Settings settings) {
@@ -34,7 +34,10 @@ public class FlaskShardItem extends Item {
 			player.sendMessage(Text.translatable("embervoid.flask_shard.max").formatted(Formatting.GRAY), true);
 			return false;
 		}
+		// The new charge comes filled; the others stay as they are until the next rest.
+		int charges = HealingFlaskItem.charges(player);
 		data.flaskChargeUpgrades++;
+		data.flaskCharges = charges + 1;
 		PlayerDataManager.sync(player);
 		if (!player.getAbilities().creativeMode) {
 			stack.decrement(1);
