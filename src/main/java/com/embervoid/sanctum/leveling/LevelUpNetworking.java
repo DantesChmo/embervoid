@@ -21,8 +21,9 @@ import net.minecraft.util.Identifier;
 public final class LevelUpNetworking {
 	/** S2C: {@code boolean open, varint maidenId, StatSheet}. open = false only refreshes an open screen. */
 	public static final Identifier SHEET = Embervoid.id("level_up_sheet");
-	/** C2S: {@code varint maidenId, string statId}. */
+	/** C2S: {@code varint maidenId, string statId}; {@link #REFRESH} as the stat only asks for a fresh sheet. */
 	public static final Identifier LEVEL_UP = Embervoid.id("level_up");
+	public static final String REFRESH = "";
 
 	/** Opens the level-up screen for a player talking to {@code maiden}. */
 	public static void open(ServerPlayerEntity player, AshenMaidenEntity maiden) {
@@ -49,6 +50,10 @@ public final class LevelUpNetworking {
 		Entity entity = player.getServerWorld().getEntityById(maidenId);
 		if (!player.isAlive() || !(entity instanceof AshenMaidenEntity maiden)
 				|| player.squaredDistanceTo(maiden) > AshenMaidenEntity.REACH * AshenMaidenEntity.REACH) {
+			return;
+		}
+		if (statId.equals(REFRESH)) {
+			sendSheet(player, maiden, false);
 			return;
 		}
 		Text failure = LevelingBridge.levelUp(player, statId);
