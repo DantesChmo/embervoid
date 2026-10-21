@@ -45,8 +45,20 @@ Owns `com.embervoid.progress`, `com.embervoid.sanctum`, `registry/ModStructures`
   `embervoid:on_sanctum_maps`) added to village, ruined portal and shipwreck chest loot through `LootTableEvents.MODIFY`.
   Outer-hall chest loot table `embervoid:chests/sanctum_outer_hall`: vanilla loot + flask shards (item `flask_shard`
   as placeholder upgrade material; 3 shards → +1 flask charge, via the flask API once player-core has upgrades).
-- **S8 / S9** after the contracts land on `main`.
+- **S8 Ashen Maiden.** `sanctum.AshenMaidenEntity` (GeckoLib, placeholder assets from `tools/maiden_placeholder.py`),
+  placed by the core template south of the shrine. Invulnerable except `/kill` and the void, never despawns.
+- **S9 Level-up screen.** `sanctum.leveling`: server builds a `StatSheet` (stats, derived now/next, cost, XP) and
+  sends it; `LevelUpScreen` shows it; "+" sends `embervoid:level_up` (maiden id, stat id), validated on the server.
+
+## Stubs to replace after syncing with `main`
+
+| Stub | Replace with | When |
+|---|---|---|
+| `sanctum.RealmBridge` | `realm.api.ShrineHooks.ALLOW_REST / RESTED`, `realm.api.RealmTeleports.enterRealm / hasRestedShrine` | realms merges `realm.api` |
+| `sanctum.leveling.LevelingBridge` | player-core's stat read API (values, caps, derived values) and `levelUp(player, stat)` | player-core merges 3.1–3.4 |
+| `ShrineRest.refillFlasks` (per-stack `HealingFlaskItem.refill`) | `HealingFlaskItem.refill(ServerPlayerEntity)` | player-core merges fb04362 (charges in player data) |
 
 ## Status log
 
 - started; plan written.
+- S1 merged to main (87874ac). S2–S9 committed; check request queued for 5678436 (structure, blocks, loot).
