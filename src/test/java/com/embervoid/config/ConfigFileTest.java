@@ -96,6 +96,33 @@ class ConfigFileTest {
 	}
 
 	@Test
+	void keysListsTheObjectInFileOrder() {
+		ConfigFile file = new ConfigFile("test.json");
+		ConfigSection<java.util.List<String>> keys = file.register(ConfigSection.of("map", java.util.List.of(),
+				in -> in.keys(), (value, out) -> value.forEach(key -> out.addProperty(key, 1))));
+		ConfigFile.Values values = file.parse(JsonParser.parseString(
+				"{\"map\": {\"modded:beast\": 5, \"minecraft:zombie\": 3}}").getAsJsonObject());
+		assertEquals(java.util.List.of("modded:beast", "minecraft:zombie"), values.get(keys));
+		assertEquals(java.util.List.of(), file.parse(new JsonObject()).get(keys));
+	}
+
+	@Test
+	void mobLevelsAcceptAddedEntitiesAndDimensions() {
+		ConfigFile file = new ConfigFile("test.json");
+		file.register(com.embervoid.mob.MobConfig.SECTION);
+		com.embervoid.mob.MobConfig.Levels levels = file.parse(JsonParser.parseString("{\"mobs\": {\"levels\": {"
+				+ "\"defaultBaseLevel\": 6,"
+				+ "\"baseLevels\": {\"othermod:beast\": 12, \"othermod:broken\": \"x\"},"
+				+ "\"dimensionBonus\": {\"othermod:deep\": 7}}}}").getAsJsonObject())
+				.get(com.embervoid.mob.MobConfig.SECTION).levels();
+		assertEquals(12, levels.baseLevels().get("othermod:beast"));
+		assertEquals(6, levels.baseLevels().get("othermod:broken"));
+		assertEquals(7, levels.dimensionBonus().get("othermod:deep"));
+		// The built-in entries are still there.
+		assertTrue(levels.baseLevels().keySet().containsAll(com.embervoid.mob.MobConfig.DEFAULT.levels().baseLevels().keySet()));
+	}
+
+	@Test
 	void duplicateNamesAreRejected() {
 		ConfigFile file = new ConfigFile("test.json");
 		file.register(section("a"));

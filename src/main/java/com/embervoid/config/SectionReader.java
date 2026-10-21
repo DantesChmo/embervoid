@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -31,6 +32,14 @@ public final class SectionReader {
 	/** Dotted path of this object in the file, e.g. {@code structures.ruins}. */
 	public String path() {
 		return path;
+	}
+
+	/**
+	 * Keys present in this object, in file order. For objects whose keys are data rather than fixed settings (e.g.
+	 * a level per entity type id), so users can add entries for other mods and dimensions.
+	 */
+	public List<String> keys() {
+		return List.copyOf(json.keySet());
 	}
 
 	/** Reader for a nested object; missing or non-object values read as empty (all defaults). */
