@@ -11,8 +11,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,8 +34,9 @@ public final class PlayerData {
 			Codec.INT.optionalFieldOf("flask_heal_upgrades", 0).forGetter(data -> data.flaskHealUpgrades),
 			Codec.BOOL.optionalFieldOf("received_flask", false).forGetter(data -> data.receivedFlask),
 			Uuids.INT_STREAM_CODEC.optionalFieldOf("remnant_id").forGetter(data -> Optional.ofNullable(data.remnantId)),
-			Codec.unboundedMap(Codec.STRING, Codec.INT).optionalFieldOf("stats", Map.of()).forGetter(PlayerData::statsById)
-	).apply(instance, (stamina, charges, chargeUpgrades, healUpgrades, receivedFlask, remnantId, stats) -> {
+			Codec.unboundedMap(Codec.STRING, Codec.INT).optionalFieldOf("stats", Map.of()).forGetter(PlayerData::statsById),
+			FlaskKeeper.Kept.CODEC.listOf().optionalFieldOf("kept_on_death", List.of()).forGetter(data -> List.copyOf(data.keptOnDeath))
+	).apply(instance, (stamina, charges, chargeUpgrades, healUpgrades, receivedFlask, remnantId, stats, kept) -> {
 		PlayerData data = createDefault();
 		data.stamina = stamina;
 		charges.ifPresent(value -> data.flaskCharges = value);
@@ -41,6 +44,7 @@ public final class PlayerData {
 		data.flaskHealUpgrades = healUpgrades;
 		data.receivedFlask = receivedFlask;
 		data.remnantId = remnantId.orElse(null);
+		data.keptOnDeath.addAll(kept);
 		stats.forEach((id, value) -> {
 			Stat stat = Stat.byId(id);
 			if (stat != null) {
@@ -69,6 +73,9 @@ public final class PlayerData {
 	 * {@code PlayerStats}, which also applies their effects.
 	 */
 	public final int[] stats = new int[Stat.COUNT];
+
+	/** Items held back on death until respawn (Healing Flasks, see {@link FlaskKeeper}). Saved, not synced. */
+	public final List<FlaskKeeper.Kept> keptOnDeath = new ArrayList<>();
 
 	/** Ticks until stamina starts regenerating. Server-only, not saved or synced. */
 	public int staminaRegenDelay;

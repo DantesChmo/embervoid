@@ -1,5 +1,6 @@
 package com.embervoid.mixin;
 
+import com.embervoid.player.FlaskKeeper;
 import com.embervoid.player.RemnantDeathHandler;
 import com.embervoid.stats.LoadedHealth;
 import net.minecraft.entity.player.PlayerEntity;
@@ -22,12 +23,14 @@ abstract class PlayerEntityMixin implements LoadedHealth {
 	@Shadow
 	protected abstract void vanishCursedItems();
 
-	// Runs only on death, after totems had their chance and before anything drops. Whatever the remnant takes is
-	// gone from the inventory and XP bar, so vanilla then drops nothing (or only what the remnant mode leaves).
+	// Runs only on death, after totems had their chance and before anything drops. Flasks are set aside first (kept
+	// through death, even with Curse of Vanishing); whatever the remnant takes is gone from the inventory and XP
+	// bar, so vanilla then drops nothing (or only what the remnant mode leaves).
 	@Inject(method = "dropInventory", at = @At("HEAD"))
 	private void embervoid$leaveRemnant(CallbackInfo ci) {
 		if ((Object) this instanceof ServerPlayerEntity player
 				&& !player.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) {
+			FlaskKeeper.takeFlasks(player);
 			// Like vanilla, Curse of Vanishing items are destroyed rather than kept in the remnant.
 			vanishCursedItems();
 			RemnantDeathHandler.onDeath(player);

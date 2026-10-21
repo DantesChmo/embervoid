@@ -1,6 +1,7 @@
 package com.embervoid.entity;
 
 import com.embervoid.config.EmbervoidConfig;
+import com.embervoid.player.FlaskKeeper;
 import com.embervoid.player.PlayerData;
 import com.embervoid.player.PlayerDataManager;
 import com.embervoid.player.XpUtil;
@@ -74,7 +75,10 @@ public class AshRemnantEntity extends Entity {
 		remnant.items = DefaultedList.ofSize(inventory.size(), ItemStack.EMPTY);
 		if (takeItems) {
 			for (int i = 0; i < inventory.size(); i++) {
-				remnant.items.set(i, inventory.removeStack(i));
+				// Healing Flasks never go into a remnant (DESIGN §7); on death FlaskKeeper has already set them aside.
+				if (!FlaskKeeper.isKeptOnDeath(inventory.getStack(i))) {
+					remnant.items.set(i, inventory.removeStack(i));
+				}
 			}
 		}
 		if (takeExperience) {
