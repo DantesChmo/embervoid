@@ -53,5 +53,9 @@
 	"embervoid.shrine.rested": "You rest by the ember. Your flasks are full again",
 	"block.embervoid.void_obelisk": "Void Obelisk",
 	"embervoid.obelisk.dark": "The flame has not reached it",
-	"embervoid.obelisk.forming": "The way is still forming"
+	"embervoid.obelisk.forming": "The way is still forming",
+	"block.embervoid.sanctum_flagstone": "Sanctum Flagstone",
+	"embervoid.sanctum.attuned": "Attuned",
+	"embervoid.sanctum.attuned.subtitle": "The ember knows you now",
+	"embervoid.sanctum.welcome": "The Sanctum remembers you"
 }

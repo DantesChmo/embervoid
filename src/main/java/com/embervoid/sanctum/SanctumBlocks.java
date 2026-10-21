@@ -17,6 +17,9 @@ public final class SanctumBlocks {
 	public static final Block VOID_OBELISK = ModBlocks.register("void_obelisk", new VoidObeliskBlock(core()
 			.luminance(state -> 4).nonOpaque()));
 
+	/** Floor of a Sanctum core. Standing on it attunes a player ({@link Attunement}); nothing hostile spawns on it. */
+	public static final Block SANCTUM_FLAGSTONE = ModBlocks.register("sanctum_flagstone", new Block(core()));
+
 	public static final BlockEntityType<VoidObeliskBlockEntity> VOID_OBELISK_ENTITY = Registry.register(
 			Registries.BLOCK_ENTITY_TYPE, Embervoid.id("void_obelisk"),
 			FabricBlockEntityTypeBuilder.create(VoidObeliskBlockEntity::new, VOID_OBELISK).build());

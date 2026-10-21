@@ -53,5 +53,9 @@
 	"embervoid.shrine.rested": "Вы отдыхаете у углей. Фляги снова полны",
 	"block.embervoid.void_obelisk": "Обелиск Пустоты",
 	"embervoid.obelisk.dark": "Пламя ещё не коснулось его",
-	"embervoid.obelisk.forming": "Путь ещё не сложился"
+	"embervoid.obelisk.forming": "Путь ещё не сложился",
+	"block.embervoid.sanctum_flagstone": "Плита Святилища",
+	"embervoid.sanctum.attuned": "Связь обретена",
+	"embervoid.sanctum.attuned.subtitle": "Теперь угли знают вас",
+	"embervoid.sanctum.welcome": "Святилище помнит вас"
 }
