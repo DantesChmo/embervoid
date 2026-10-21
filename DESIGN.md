@@ -172,7 +172,8 @@ Demon's Souls gives an archstone shard after each boss. We do the same:
 - Each zone boss leaves an **Ember Shrine** in its arena. The landing has one from the start. How an arena
   shrine behaves for players who have not beaten that boss is **Open** (§10.8).
 - Resting at a shrine: refills flasks, sets the **realm respawn point**, allows teleport to the Sanctum.
-- Dying **in a realm**: respawn at the last shrine rested at in that realm. Your overworld bed spawn is not
+- Dying **in a realm**: respawn at the last shrine rested at in that dimension of the realm (the open zones and
+  the final zone count separately); with no rested shrine there, at that dimension's landing. Your overworld bed spawn is not
   touched.
 - Dying **in the overworld**: vanilla respawn.
 - The **Ash Remnant** (§7) applies everywhere: your XP — your currency — waits where you died.
