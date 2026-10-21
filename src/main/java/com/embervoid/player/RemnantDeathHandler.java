@@ -59,8 +59,8 @@ public final class RemnantDeathHandler {
 	 * A reachable spot for the remnant: where the player last stood on solid ground in this dimension, tracked while
 	 * alive, so deaths in lava, the void, mid-fall or in a wall still leave it somewhere walkable. If that spot is
 	 * gone (built over, flooded) the closest safe spot around it; with no tracked spot in this dimension (died right
-	 * after a teleport or arriving), the closest safe spot around the death; then the spot from before the last
-	 * teleport; else the world spawn.
+	 * after a teleport or arriving), the closest safe spot around the death, or the ground below it when the death
+	 * was high in the air; then the spot from before the last teleport; else the world spawn.
 	 */
 	private static Vec3d findRemnantPos(ServerPlayerEntity player) {
 		ServerWorld world = player.getServerWorld();
@@ -71,8 +71,12 @@ public final class RemnantDeathHandler {
 		}
 		if (found == null) {
 			BlockPos death = player.getBlockPos();
-			found = searchNear(world, new BlockPos(death.getX(),
-					MathHelper.clamp(death.getY(), world.getBottomY() + 1, world.getTopY() - 2), death.getZ()));
+			BlockPos clamped = new BlockPos(death.getX(),
+					MathHelper.clamp(death.getY(), world.getBottomY() + 1, world.getTopY() - 2), death.getZ());
+			found = searchNear(world, clamped);
+			if (found == null) {
+				found = searchBelow(world, clamped);
+			}
 		}
 		if (found == null && data.preTeleportSafePos != null && world.getRegistryKey().equals(data.preTeleportSafeWorld)) {
 			found = isSafe(world, data.preTeleportSafePos) ? data.preTeleportSafePos : searchNear(world, data.preTeleportSafePos);
@@ -96,6 +100,35 @@ public final class RemnantDeathHandler {
 							continue;
 						}
 						pos.set(center.getX() + dx, y, center.getZ() + dz);
+						if (isSafe(world, pos)) {
+							return pos.toImmutable();
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * The first safe ground straight below {@code center}, in the closest of the columns {@link #searchNear} checks
+	 * (for deaths high above the ground). A column ends at its first non-passable block: if that is not a safe floor
+	 * (lava, fire, a slab) the column gives nothing, and an empty column down to the void gives nothing either.
+	 */
+	@Nullable
+	private static BlockPos searchBelow(ServerWorld world, BlockPos center) {
+		BlockPos.Mutable pos = new BlockPos.Mutable();
+		for (int radius = 0; radius <= SEARCH_RADIUS; radius++) {
+			for (int dx = -radius; dx <= radius; dx++) {
+				for (int dz = -radius; dz <= radius; dz++) {
+					if (Math.max(Math.abs(dx), Math.abs(dz)) != radius) {
+						continue;
+					}
+					for (int y = center.getY(); y > world.getBottomY(); y--) {
+						pos.set(center.getX() + dx, y, center.getZ() + dz);
+						if (!isOpen(world, pos)) {
+							break;
+						}
 						if (isSafe(world, pos)) {
 							return pos.toImmutable();
 						}
