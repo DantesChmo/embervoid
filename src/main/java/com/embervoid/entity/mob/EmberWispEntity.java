@@ -32,6 +32,7 @@ import net.minecraft.world.GameRules;
 import net.minecraft.world.LightType;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -51,9 +52,15 @@ public class EmberWispEntity extends HostileEntity implements GeoEntity {
 	private static final int FIRE_SCAN_RADIUS = 15 - LIGHT_LIMIT;
 	private static final int BURN_SECONDS = 4;
 	private static final int ATTACK_COOLDOWN_TICKS = 20;
+	private static final int RETREAT_TICKS = 60;
 
 	private final AnimatableInstanceCache animations = GeckoLibUtil.createInstanceCache(this);
 	private int fireCooldown = 160;
+	/** Ticks left of backing off after giving up a target that stood in the light. */
+	private int retreatTicks;
+	/** Where it backs off from (the target it gave up), or null. */
+	@Nullable
+	private Vec3d retreatFrom;
 	/** {@link #isBright} answers for the current tick; it is asked several times a tick for the same spots. */
 	private final Long2BooleanOpenHashMap brightCache = new Long2BooleanOpenHashMap();
 	private long brightCacheTime = -1;
@@ -161,6 +168,17 @@ public class EmberWispEntity extends HostileEntity implements GeoEntity {
 	@Override
 	protected void mobTick() {
 		super.mobTick();
+		if (retreatTicks > 0) {
+			retreatTicks--;
+		}
+		LivingEntity target = getTarget();
+		if (target != null && isBright(target.getBlockPos())) {
+			// It will not dive into the light, so it gives up and backs off into the dark instead of hovering at
+			// the edge of the light next to its target.
+			retreatFrom = target.getPos();
+			retreatTicks = RETREAT_TICKS;
+			setTarget(null);
+		}
 		if (getTarget() != null && --fireCooldown <= 0) {
 			fireCooldown = 160 + random.nextInt(81);
 			if (getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
@@ -253,7 +271,10 @@ public class EmberWispEntity extends HostileEntity implements GeoEntity {
 		return animations;
 	}
 
-	/** In bright light: drop the target and fly to the darkest of a few nearby spots. */
+	/**
+	 * In bright light, or backing off from a target in the light: drop the target and fly to the darkest of a few
+	 * nearby spots, preferring ones away from the target it gave up.
+	 */
 	static class FleeLightGoal extends Goal {
 		private final EmberWispEntity wisp;
 
@@ -264,7 +285,7 @@ public class EmberWispEntity extends HostileEntity implements GeoEntity {
 
 		@Override
 		public boolean canStart() {
-			return wisp.isBright(wisp.getBlockPos());
+			return wisp.retreatTicks > 0 || wisp.isBright(wisp.getBlockPos());
 		}
 
 		@Override
@@ -277,6 +298,7 @@ public class EmberWispEntity extends HostileEntity implements GeoEntity {
 			wisp.setTarget(null);
 			BlockPos darkest = null;
 			int darkestLight = Integer.MAX_VALUE;
+			double bestScore = Double.MAX_VALUE;
 			for (int i = 0; i < 16; i++) {
 				BlockPos pos = wisp.getBlockPos().add(wisp.random.nextInt(21) - 10, wisp.random.nextInt(9) - 4,
 						wisp.random.nextInt(21) - 10);
@@ -284,7 +306,11 @@ public class EmberWispEntity extends HostileEntity implements GeoEntity {
 					continue;
 				}
 				int light = wisp.getWorld().getLightLevel(LightType.BLOCK, pos);
-				if (light < darkestLight) {
+				// Darkness first; among equally dark spots, the one farthest from what it backs off from.
+				double away = wisp.retreatFrom == null ? 0 : Math.sqrt(pos.getSquaredDistance(wisp.retreatFrom));
+				double score = light * 100.0 - away;
+				if (score < bestScore) {
+					bestScore = score;
 					darkest = pos;
 					darkestLight = light;
 				}

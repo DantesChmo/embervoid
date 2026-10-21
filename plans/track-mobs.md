@@ -62,7 +62,8 @@ level-1 base values; levels scale HP, damage and XP (§5.4).
 - **Behaviour:** hovers through caves; dives at a player within 16 blocks it can see. While it has a target, every 8–12 s it
   sets a fire on a block near it (only with `mobGriefing`), so it ignites the cave around the player.
 - **Flees light:** at block light ≥ 7 not explained by fire (a torch nearby; its own fires don't count) it drops its target and flies to a darker spot within
-  10 blocks; it will not dive at a player standing in light ≥ 7.
+  10 blocks; it will not dive at a player standing in light ≥ 7: it drops that
+  target and backs off into the dark (away from the player) for 3 s.
 - **Spawns:** overworld below y=0 in darkness (block light 0) without open sky, weight 15, groups of 1–2, not in the deep dark.
 - **XP:** 6. **Loot:** 0–1 glowstone dust (+Looting), 5 % blaze powder on a player kill.
 
