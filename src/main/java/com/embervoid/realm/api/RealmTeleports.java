@@ -1,9 +1,9 @@
 package com.embervoid.realm.api;
 
+import com.embervoid.progress.ProgressManager;
 import com.embervoid.realm.RealmDefinition;
 import com.embervoid.realm.RealmPlayerData;
 import com.embervoid.realm.Realms;
-import com.embervoid.realm.progress.RealmProgress;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -36,7 +36,7 @@ public final class RealmTeleports {
 	 */
 	public static boolean enterRealm(ServerPlayerEntity player, Identifier realmId, boolean toLastShrine) {
 		RealmDefinition realm = Realms.byId(realmId);
-		if (realm == null || !RealmProgress.get().isRealmUnlocked(player, realmId)) {
+		if (realm == null || !ProgressManager.isRealmUnlocked(player, realmId)) {
 			player.sendMessage(Text.translatable("embervoid.realm.locked"), true);
 			return false;
 		}

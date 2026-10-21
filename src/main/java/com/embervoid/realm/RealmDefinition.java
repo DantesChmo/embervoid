@@ -11,7 +11,7 @@ import java.util.stream.Stream;
  * One realm: its two dimensions (open zones and the final zone behind the Sealed Gate), its bosses and mob levels.
  * Worldgen (zones, arenas, radius) is datapack JSON; this is what the game logic needs to know about it.
  *
- * @param id            progress id of the realm, e.g. {@code embervoid:ashen_reach}
+ * @param id            progress id of the realm, e.g. {@code embervoid:realm_1}
  * @param zoneBosses    progress ids of the zone bosses, in zone order; all of them open the Sealed Gate
  * @param finalBoss     progress id of the realm boss; beating it completes the realm
  * @param zoneLevels    mob level band of each zone, in zone order (same order as the biome source's zones)

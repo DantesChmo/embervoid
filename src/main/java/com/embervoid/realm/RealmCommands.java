@@ -1,7 +1,7 @@
 package com.embervoid.realm;
 
+import com.embervoid.progress.ProgressManager;
 import com.embervoid.realm.api.RealmTeleports;
-import com.embervoid.realm.progress.RealmProgress;
 import com.embervoid.realm.worldgen.RealmFeatures;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -41,19 +41,6 @@ public final class RealmCommands {
 							context.getSource().sendFeedback(() -> Text.literal("[server] " + RealmPlayerData.get(player)), false);
 							return 1;
 						}))
-						// /embervoid realm beat <bossId> and /embervoid realm complete <realm>: set progress for tests.
-						.then(literal("beat").then(argument("boss", IdentifierArgumentType.identifier()).executes(context -> {
-							Identifier boss = IdentifierArgumentType.getIdentifier(context, "boss");
-							RealmProgress.get().markBossBeaten(context.getSource().getPlayerOrThrow(), boss);
-							context.getSource().sendFeedback(() -> Text.literal("Beaten: " + boss), false);
-							return 1;
-						})))
-						.then(literal("complete").then(argument("realm", IdentifierArgumentType.identifier()).executes(context -> {
-							Identifier realm = IdentifierArgumentType.getIdentifier(context, "realm");
-							RealmProgress.get().markRealmCompleted(context.getSource().getPlayerOrThrow(), realm);
-							context.getSource().sendFeedback(() -> Text.literal("Completed: " + realm), false);
-							return 1;
-						})))
 				)));
 	}
 
@@ -84,7 +71,7 @@ public final class RealmCommands {
 	private static int arenas(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
 		ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
 		for (RealmArenas.Location arena : RealmArenas.all(player.getServerWorld())) {
-			boolean beaten = RealmProgress.get().hasBeatenBoss(player, arena.spec().bossId());
+			boolean beaten = ProgressManager.hasBeatenBoss(player, arena.spec().bossId());
 			context.getSource().sendFeedback(() -> Text.literal(arena.spec().bossId() + " at " + arena.pos().getX() + ", "
 					+ arena.pos().getZ() + " (level " + arena.spec().level() + (beaten ? ", beaten)" : ")")), false);
 		}

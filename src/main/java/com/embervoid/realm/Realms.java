@@ -1,6 +1,7 @@
 package com.embervoid.realm;
 
 import com.embervoid.Embervoid;
+import com.embervoid.progress.ProgressManager;
 import com.embervoid.realm.RealmDefinition.LevelBand;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -13,7 +14,7 @@ import java.util.List;
 /** All realms, in unlock order. */
 public final class Realms {
 	public static final RealmDefinition ASHEN_REACH = new RealmDefinition(
-			Embervoid.id("ashen_reach"),
+			ProgressManager.REALM_1,
 			RegistryKey.of(RegistryKeys.WORLD, Embervoid.id("ashen_reach")),
 			RegistryKey.of(RegistryKeys.WORLD, Embervoid.id("ashen_reach_depths")),
 			List.of(Embervoid.id("ashen_reach/zone_a"), Embervoid.id("ashen_reach/zone_b"), Embervoid.id("ashen_reach/zone_c")),

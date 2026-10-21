@@ -1,7 +1,7 @@
 package com.embervoid.realm;
 
 import com.embervoid.boss.ArenaSpec;
-import com.embervoid.realm.progress.RealmProgress;
+import com.embervoid.progress.ProgressManager;
 import com.embervoid.realm.worldgen.RealmFeaturePlacement;
 import com.embervoid.realm.worldgen.RealmFeatureStructure;
 import net.minecraft.registry.Registry;
@@ -46,9 +46,8 @@ public final class RealmArenas {
 	/** The nearest arena in the player's world whose boss they have not beaten, or null. */
 	@Nullable
 	public static Location nearestUnbeaten(ServerPlayerEntity player) {
-		RealmProgress progress = RealmProgress.get();
 		return all(player.getServerWorld()).stream()
-				.filter(arena -> !progress.hasBeatenBoss(player, arena.spec().bossId()))
+				.filter(arena -> !ProgressManager.hasBeatenBoss(player, arena.spec().bossId()))
 				.min(Comparator.comparingDouble(arena -> arena.pos().getSquaredDistance(player.getX(), 0, player.getZ())))
 				.orElse(null);
 	}

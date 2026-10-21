@@ -1,7 +1,7 @@
 package com.embervoid.realm;
 
+import com.embervoid.progress.ProgressManager;
 import com.embervoid.realm.api.RealmTeleports;
-import com.embervoid.realm.progress.RealmProgress;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -46,7 +46,6 @@ public class SealedGateBlock extends Block {
 	}
 
 	public static long remainingZoneBosses(ServerPlayerEntity player, RealmDefinition realm) {
-		RealmProgress progress = RealmProgress.get();
-		return realm.zoneBosses().stream().filter(boss -> !progress.hasBeatenBoss(player, boss)).count();
+		return realm.zoneBosses().stream().filter(boss -> !ProgressManager.hasBeatenBoss(player, boss)).count();
 	}
 }

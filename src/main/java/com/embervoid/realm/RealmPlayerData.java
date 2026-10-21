@@ -17,7 +17,7 @@ import java.util.Optional;
 /**
  * Per-player realm travel state, server-side only: where to return when leaving a realm, and the last Ember Shrine
  * rested at in each realm (the realm respawn point). Progress (bosses, realms) is not here; see
- * {@link com.embervoid.realm.progress.RealmProgress}.
+ * {@link com.embervoid.progress.ProgressManager}.
  */
 public final class RealmPlayerData {
 	public static final Codec<RealmPlayerData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
