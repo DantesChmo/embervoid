@@ -7,10 +7,10 @@ import com.embervoid.client.mob.MobRenderers;
 import com.embervoid.client.realm.RealmClient;
 import com.embervoid.config.EmbervoidClientConfig;
 import com.embervoid.config.EmbervoidConfig;
-import com.embervoid.progress.ProgressClient;
 import com.embervoid.registry.ModBlocks;
 import com.embervoid.registry.ModEntities;
 import com.embervoid.registry.ModItems;
+import com.embervoid.sanctum.SanctumClient;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
@@ -38,8 +38,9 @@ public class EmbervoidClient implements ClientModInitializer {
 		ClientStamina.register();
 		MobRenderers.register();
 		MobLevelClient.register();
-		ProgressClient.register();
 		RealmClient.register();
+		// Also registers the progress sync receiver.
+		SanctumClient.register();
 		// Particles and the name label only; a model comes with the art pass.
 		EntityRendererRegistry.register(ModEntities.ASH_REMNANT, EmptyEntityRenderer::new);
 		FabricModelPredicateProviderRegistry.register(ModItems.HEALING_FLASK, Embervoid.id("empty"),

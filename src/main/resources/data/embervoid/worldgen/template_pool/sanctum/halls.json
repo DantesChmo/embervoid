@@ -1,0 +1,32 @@
+{
+	"fallback": "embervoid:sanctum/hall_ends",
+	"elements": [
+		{
+			"weight": 3,
+			"element": {
+				"element_type": "minecraft:single_pool_element",
+				"location": "embervoid:sanctum/hall_corridor",
+				"projection": "rigid",
+				"processors": "embervoid:sanctum_decay"
+			}
+		},
+		{
+			"weight": 2,
+			"element": {
+				"element_type": "minecraft:single_pool_element",
+				"location": "embervoid:sanctum/hall_chamber",
+				"projection": "rigid",
+				"processors": "embervoid:sanctum_decay"
+			}
+		},
+		{
+			"weight": 2,
+			"element": {
+				"element_type": "minecraft:single_pool_element",
+				"location": "embervoid:sanctum/hall_crypt",
+				"projection": "rigid",
+				"processors": "embervoid:sanctum_decay"
+			}
+		}
+	]
+}
