@@ -8,7 +8,8 @@
 		"ServerPlayNetworkHandlerMixin",
 		"LivingEntityMobLevelMixin",
 		"PlayerEntityDifficultyMixin",
-		"DimensionLifecycleMixin"
+		"DimensionLifecycleMixin",
+		"StructureTemplateMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
