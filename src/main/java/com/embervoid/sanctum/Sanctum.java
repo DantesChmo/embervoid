@@ -14,6 +14,7 @@ public final class Sanctum {
 		Objects.requireNonNull(SanctumConfig.SECTION);
 		ProgressManager.register();
 		SanctumBlocks.register();
+		SanctumStructures.register();
 		SanctumItems.register();
 		SanctumEntities.register();
 		SanctumLoot.register();

@@ -62,12 +62,6 @@ final class TemplateBuilder {
 		return this;
 	}
 
-	/** Leaves (x, y, z) out of the template again, so the world keeps its block there. */
-	TemplateBuilder clear(int x, int y, int z) {
-		blocks.remove(new BlockPos(x, y + baseY, z));
-		return this;
-	}
-
 	BlockState get(int x, int y, int z) {
 		Entry entry = blocks.get(new BlockPos(x, y + baseY, z));
 		return entry != null ? entry.state : Blocks.STRUCTURE_VOID.getDefaultState();

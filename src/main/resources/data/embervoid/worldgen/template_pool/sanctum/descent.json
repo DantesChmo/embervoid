@@ -7,7 +7,7 @@
 				"element_type": "minecraft:single_pool_element",
 				"location": "embervoid:sanctum/descent",
 				"projection": "rigid",
-				"processors": "embervoid:sanctum_decay"
+				"processors": "embervoid:sanctum_descent"
 			}
 		}
 	]

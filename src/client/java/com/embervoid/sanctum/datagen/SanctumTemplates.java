@@ -156,7 +156,7 @@ final class SanctumTemplates {
 	/**
 	 * Spiral stairwell, 11x20x11: stairs wind down around a 3x3 column on the outer ring of the 5x5 inside and end at
 	 * a doorway in the south wall. The top layer joins the ruin's shaft. The wall is three thick: bricks inside, then
-	 * solid rock, then a ragged rock layer with gaps where the world keeps its own blocks, so caves never break in
+	 * solid rock, then a ragged rock layer with gaps where the world keeps its own blocks (rock where that is water or lava), so caves never break in
 	 * and a shaft cut open by a ravine looks like a pillar of rock rather than a brick tower.
 	 */
 	private static TemplateBuilder descent() {
@@ -175,7 +175,8 @@ final class SanctumTemplates {
 				}
 				for (int y = 0; y < height; y++) {
 					if (ring == 0 && random.nextDouble() < 0.4) {
-						t.clear(x, y, z);
+						// A gap: the world keeps its block, or gets rock if it is a fluid (CasingGapProcessor).
+						t.set(x, y, z, Blocks.STRUCTURE_VOID.getDefaultState());
 					} else {
 						t.set(x, y, z, rock(random));
 					}
