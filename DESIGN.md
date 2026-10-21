@@ -100,6 +100,29 @@ Purpose: make the overworld dangerous enough that the player *wants* to find the
 
 The Hollow Sentinel and Crypt Moth from the old plan move into Realm 1.
 
+#### Bestiary (Proposed, from track-mobs)
+
+**Hollow** — base level 15, undead.
+- 30 HP, armor 6, knockback resistance 0.6, speed 0.2. Base attack 2 + weapon (iron sword 70% / stone sword 30%).
+- Telegraphed attack: 8-tick wind-up, one attack per 40 ticks.
+- **Guard:** with a target within 5 blocks and its attack on cooldown, it raises its guard for 30–60 ticks: half
+  speed, melee from the front 120° takes 20% damage, projectiles from the front are deflected. An axe hit breaks
+  the guard and staggers it for 60 ticks.
+- Spawns on the overworld surface at night under open sky, weight 5, alone; placed persistent in the Sanctum
+  outer halls. Does not burn in daylight.
+- XP 20 base. Loot: 1–4 iron nuggets, 0–2 bones, 10% iron ingot on a player kill.
+- **Balance concern:** with the level-15 damage scaling this hits for ~10–12 HP through full iron on Normal,
+  so a fresh player dies in two hits. Recommendation: base attack 0 (weapon only) and reconsider during the
+  0.2.0 balance pass, aiming at ~6 HP through full iron.
+
+**Ember Wisp** — base level 8 (+3 below y=0 from §5.4).
+- 8 HP flyer. Contact hit: 1 damage + 4 s of fire. Fire immune, hurt by water.
+- Dives at players within 16 blocks. Every 8–12 s lights a fire nearby (only with `mobGriefing`).
+- **Flees light:** at block light ≥ 7 it drops its target and flies to a darker spot, and it does not dive at a
+  player standing in light ≥ 7. Torches are the counter.
+- Spawns below y=0 at block light 0, weight 15, groups of 1–2, not in the Deep Dark.
+- XP 6. Loot: 0–1 glowstone dust, 5% blaze powder on a player kill.
+
 ### 3.3 Later ideas
 - **Ember Moon** night event (rare): mobs +5 levels, red sky, more XP. Bloodborne's blood moon.
 
