@@ -120,7 +120,8 @@ The Hollow Sentinel and Crypt Moth from the old plan move into Realm 1.
 - Dives at players within 16 blocks. Every 8–12 s lights a fire nearby (only with `mobGriefing`).
 - **Flees light:** at block light ≥ 7 it drops its target and flies to a darker spot, and it does not dive at a
   player standing in light ≥ 7. Torches are the counter.
-- Spawns below y=0 at block light 0, weight 15, groups of 1–2, not in the Deep Dark.
+- Spawns below y=0 at block light 0 and only under cover (no open sky), weight 15, groups of 1–2, not in the
+  Deep Dark.
 - XP 6. Loot: 0–1 glowstone dust, 5% blaze powder on a player kill.
 
 ### 3.3 Later ideas
