@@ -350,7 +350,7 @@ Loot per realm:
 | Mechanic | Design | Status |
 |---|---|---|
 | Stamina | Spent **only** by right-click special attacks. Vanilla hits, sprinting and blocking stay free. Max and regen from END | Decided |
-| Healing Flask | Charges (start 3), heal over time, cannot drink while sprinting. Refilled by resting at an Ember Shrine or sleeping in a bed. Where the charges live (item or player) is **Open** (§10.6) | Decided (shrine refill new; charge storage Open) |
+| Healing Flask | Charges (start 3), heal over time, cannot drink while sprinting. Refilled by resting at an Ember Shrine, sleeping through the night in a bed, and on respawn after death. Charges live in player data (built per §10.6). A lost flask is crafted again from a glass bottle + a diamond + coal or charcoal (shapeless); a second flask adds no charges | Decided |
 | Flask Shards | Permanent +1 charge or +healing per sip, capped | Decided |
 | Ash Remnant | On death XP and all items go into a remnant at a safe spot (the last position on solid ground). Modes `off` / `xp` / `xp_and_items`. With XP as the leveling currency this is our bloodstain. What dying again before reaching it does is **Open** (§10.7) | Decided (second death Open) |
 | Full-set bonuses | Armor sets grant a bonus when all 4 pieces are worn | Decided |
@@ -367,6 +367,21 @@ These are big enough to get their own documents. Each is needed before the miles
 | **Realm 1 content** | Per-zone mobs, structures, the 4 bosses (moves and phases), loot tables | Realm 1 |
 | **Bestiary (overworld)** | Hollow and Ember Wisp in detail, behaviors | Overworld threats |
 | **Realms 2–4** | Each realm's zones, mobs, bosses, material | Each realm |
+
+### 8.1 Special-attack contract (Decided)
+
+The part of the weapons doc every special attack follows:
+
+- **Trigger:** right-click (use) with the weapon in the main hand or offhand, in air or on a block. No new keybind.
+- **Cost:** a fixed stamina amount per use, set by the weapon. Allowed while any stamina is left (the pool
+  bottoms out at 0, souls-style). With 0 stamina the use fails: the HUD bar flashes, an action-bar message and
+  a fizzle sound. Creative and spectator never spend stamina.
+- **Cooldown:** the vanilla item cooldown per item type, started on a successful use and shown as the vanilla
+  overlay.
+- **Tooltip:** "Right-click: <name>" and "<cost> stamina, <cooldown>s cooldown".
+- **Limits:** runs on the server only; breaks and places no blocks; does no damage through walls; hits go
+  through the normal `damage()` call with the player as attacker, so armor, mob levels and weapon scaling apply;
+  no teleporting through blocks. Vanilla left-click attacks, sprinting and blocking stay free.
 
 ---
 
@@ -428,3 +443,5 @@ Each question names the milestone that cannot start without an answer.
     RES → armor toughness + fire damage reduction; FOR → luck + a small bonus chance on mob drops; ship 1–2
     real weapons with a special attack in the Sanctum outer-hall loot so END matters.
     *Needed by:* milestone 3 (PLAN 3.2), and milestone 5 for the weapons.
+    *Partly decided:* FOR → luck + a small bonus chance on mob drops is built in 0.2.0. KIN/RES as recommended
+    are built; the Sanctum weapons are still open.
