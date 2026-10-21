@@ -61,10 +61,10 @@ public final class MobRenderers {
 			protected void renderStackForBone(MatrixStack poseStack, GeoBone bone, ItemStack stack, HollowEntity hollow,
 					VertexConsumerProvider bufferSource, float partialTick, int packedLight, int packedOverlay) {
 				// The blade lies in the Hollow's front-back plane; turning about the bone's X axis swings it within that
-				// plane, and a larger angle turns it down -> back -> up -> forward. Measured in game: -90 points it at
-				// the ground, +30 about 35 degrees behind vertical. +125 is 95 degrees further: in front of the
-				// Hollow, about 30 degrees above horizontal.
-				poseStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(125));
+				// plane, and a larger angle turns it from up towards the back. Measured in game: +30 points the blade
+				// ~35 degrees behind vertical, +125 ~30 degrees below horizontal pointing back. A half turn from +125
+				// reverses it: blade in front, ~30 degrees above horizontal.
+				poseStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-55));
 				super.renderStackForBone(poseStack, bone, stack, hollow, bufferSource, partialTick, packedLight, packedOverlay);
 			}
 		});
