@@ -16,7 +16,7 @@ Languages: English, Russian.
 ```
 
 ## Configuration
-The mod reads `config/embervoid.json` (created with defaults on first launch). Missing keys are filled in, and invalid values are logged and reset to defaults. If the file is not valid JSON, it is moved to `embervoid.json.broken` and replaced with defaults.
+The mod reads `config/embervoid.json` (created with defaults on first launch). Missing keys are filled in, and invalid values are logged and reset to defaults. If the file is not valid JSON, it is moved to `embervoid.json.broken` and replaced with defaults. On a server, the server's config is sent to each joining client and used for that session, so the client follows the server's values.
 
 | Key | Default | Range | Meaning |
 |-----|---------|-------|---------|

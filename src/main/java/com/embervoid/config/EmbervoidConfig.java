@@ -22,6 +22,9 @@ import java.util.Locale;
  * <p>Missing keys are filled with defaults, invalid values are logged and replaced with defaults, and the file is
  * rewritten when anything had to be fixed. A file that is not valid JSON is moved to {@code embervoid.json.broken}
  * and replaced with defaults. Keys are documented in README.md.
+ *
+ * <p>On a client connected to a server, {@link #get()} returns the server's config instead (see {@link ConfigSync}),
+ * so both sides agree on values like the flask drink time; the local file is back in effect after disconnecting.
  */
 public record EmbervoidConfig(Remnant remnant, Stamina stamina, Flask flask, Structures structures) {
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -36,7 +39,10 @@ public record EmbervoidConfig(Remnant remnant, Stamina stamina, Flask flask, Str
 					new StructurePlacement(40, 16),
 					new StructurePlacement(64, 24)));
 
-	private static EmbervoidConfig current = DEFAULT;
+	/** What {@link #get()} returns: the local file, or the server's config while connected to one. */
+	private static volatile EmbervoidConfig current = DEFAULT;
+	/** The config read from the local file. */
+	private static EmbervoidConfig local = DEFAULT;
 
 	/** What happens to a player's XP and items on death. */
 	public enum RemnantMode {
@@ -75,7 +81,7 @@ public record EmbervoidConfig(Remnant remnant, Stamina stamina, Flask flask, Str
 
 	public record Structures(StructurePlacement ruins, StructurePlacement crypt, StructurePlacement fortress) {}
 
-	/** The loaded config; defaults until {@link #load()} runs. */
+	/** The config in effect; defaults until {@link #load()} runs. */
 	public static EmbervoidConfig get() {
 		return current;
 	}
@@ -101,10 +107,32 @@ public record EmbervoidConfig(Remnant remnant, Stamina stamina, Flask flask, Str
 		}
 
 		Reader reader = new Reader(root == null ? new JsonObject() : root);
-		current = reader.read();
+		local = reader.read();
+		current = local;
 		if (root == null || reader.dirty) {
-			write(path, current);
+			write(path, local);
 		}
+	}
+
+	/** Uses a config received from the server until {@link #useLocal()} (client side). */
+	public static void useServer(EmbervoidConfig config) {
+		current = config;
+	}
+
+	/** Goes back to the local file's config, e.g. after leaving a server (client side). */
+	public static void useLocal() {
+		current = local;
+	}
+
+	/** Compact JSON for sending the config over the network. */
+	public static String toNetworkString(EmbervoidConfig config) {
+		return toJson(config).toString();
+	}
+
+	/** Parses {@link #toNetworkString} output, with the same validation as the file. */
+	public static EmbervoidConfig fromNetworkString(String json) {
+		JsonElement parsed = JsonParser.parseString(json);
+		return new Reader(parsed.isJsonObject() ? parsed.getAsJsonObject() : new JsonObject()).read();
 	}
 
 	private static void backupBroken(Path path) {

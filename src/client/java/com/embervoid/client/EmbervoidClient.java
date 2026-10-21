@@ -1,6 +1,8 @@
 package com.embervoid.client;
 
 import com.embervoid.Embervoid;
+import com.embervoid.config.ConfigSync;
+import com.embervoid.config.EmbervoidConfig;
 import com.embervoid.item.HealingFlaskItem;
 import com.embervoid.player.PlayerData;
 import com.embervoid.player.PlayerDataManager;
@@ -9,6 +11,7 @@ import com.embervoid.registry.ModItems;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
@@ -24,6 +27,13 @@ public class EmbervoidClient implements ClientModInitializer {
 		EntityRendererRegistry.register(ModEntities.ASH_REMNANT, EmptyEntityRenderer::new);
 		FabricModelPredicateProviderRegistry.register(ModItems.HEALING_FLASK, Embervoid.id("empty"),
 				(stack, world, entity, seed) -> HealingFlaskItem.getMaxCharges(stack) > 0 && HealingFlaskItem.getCharges(stack) == 0 ? 1 : 0);
+
+		// Use the server's config while connected (in singleplayer it is the same as the local one).
+		ClientPlayNetworking.registerGlobalReceiver(ConfigSync.SYNC_PACKET, (client, handler, buf, responseSender) -> {
+			EmbervoidConfig config = EmbervoidConfig.fromNetworkString(buf.readString());
+			client.execute(() -> EmbervoidConfig.useServer(config));
+		});
+		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> client.execute(EmbervoidConfig::useLocal));
 
 		ClientPlayNetworking.registerGlobalReceiver(PlayerDataManager.SYNC_PACKET, (client, handler, buf, responseSender) -> {
 			PlayerData data = PlayerData.read(buf);

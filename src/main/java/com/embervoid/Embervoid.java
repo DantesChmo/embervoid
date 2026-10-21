@@ -1,6 +1,7 @@
 package com.embervoid;
 
 import com.embervoid.command.ModCommands;
+import com.embervoid.config.ConfigSync;
 import com.embervoid.config.EmbervoidConfig;
 import com.embervoid.player.FlaskRefill;
 import com.embervoid.player.PlayerDataManager;
@@ -38,6 +39,7 @@ public class Embervoid implements ModInitializer {
 		ModEntities.register();
 		ModItemGroups.register();
 		ModStructures.register();
+		ConfigSync.register();
 		PlayerDataManager.register();
 		StaminaManager.register();
 		FlaskRefill.register();
