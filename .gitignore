@@ -27,3 +27,6 @@ run/
 hs_err_*.log
 replay_*.log
 *.hprof
+
+# datagen cache
+src/main/generated/.cache/
