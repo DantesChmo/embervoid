@@ -1,16 +1,15 @@
 package com.embervoid.realm;
 
-import com.embervoid.item.HealingFlaskItem;
 import com.embervoid.realm.api.RealmTeleports;
 import com.embervoid.realm.api.ShrineHooks;
 import com.embervoid.realm.worldgen.RealmFeatures;
+import com.embervoid.sanctum.SanctumBlocks;
 import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BucketItem;
@@ -20,12 +19,9 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.GlobalPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 
 /** Server-side realm rules: respawn, shrines, the void edge and protected landings/arenas. */
 public final class RealmEvents {
@@ -49,7 +45,6 @@ public final class RealmEvents {
 				RealmPlayerData.get(player).shrines.put(realm.id(), GlobalPos.create(world.getRegistryKey(), pos));
 			}
 		});
-		UseBlockCallback.EVENT.register(RealmEvents::useStandInShrine);
 
 		// Landings and arenas cannot be broken or built in (DESIGN §10.1); the rest of a realm can.
 		PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, blockEntity) ->
@@ -83,7 +78,7 @@ public final class RealmEvents {
 	}
 
 	private static boolean isInteractive(BlockState state) {
-		return state.isOf(RealmBlocks.RETURN_OBELISK) || state.isOf(RealmBlocks.SEALED_GATE) || state.isOf(Blocks.SOUL_CAMPFIRE);
+		return state.isOf(RealmBlocks.RETURN_OBELISK) || state.isOf(RealmBlocks.SEALED_GATE) || state.isOf(SanctumBlocks.EMBER_SHRINE);
 	}
 
 	private static void pushBackFromVoid(ServerWorld world, double maxDistance) {
@@ -96,27 +91,6 @@ public final class RealmEvents {
 				player.sendMessage(Text.translatable("embervoid.realm.void"), true);
 			}
 		}
-	}
-
-	/**
-	 * TEMPORARY stand-in for the sanctum track's Ember Shrine: in a realm, a soul campfire acts as a shrine (rest,
-	 * refill flasks, set the realm respawn point). Goes away once the shrine block calls {@link ShrineHooks}.
-	 */
-	private static ActionResult useStandInShrine(PlayerEntity player, World world, Hand hand, BlockHitResult hit) {
-		if (hand != Hand.MAIN_HAND || player.isSneaking() || !Realms.isRealm(world)
-				|| !world.getBlockState(hit.getBlockPos()).isOf(Blocks.SOUL_CAMPFIRE)) {
-			return ActionResult.PASS;
-		}
-		if (player instanceof ServerPlayerEntity serverPlayer && world instanceof ServerWorld serverWorld) {
-			BlockPos pos = hit.getBlockPos();
-			if (ShrineHooks.ALLOW_REST.invoker().allowRest(serverPlayer, serverWorld, pos)) {
-				HealingFlaskItem.refill(serverPlayer);
-				serverPlayer.setHealth(serverPlayer.getMaxHealth());
-				ShrineHooks.RESTED.invoker().onRested(serverPlayer, serverWorld, pos);
-				serverPlayer.sendMessage(Text.translatable("embervoid.shrine.rested"), true);
-			}
-		}
-		return ActionResult.SUCCESS;
 	}
 
 	private RealmEvents() {}

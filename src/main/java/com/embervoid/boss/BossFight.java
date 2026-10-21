@@ -1,6 +1,7 @@
 package com.embervoid.boss;
 
 import com.embervoid.Embervoid;
+import com.embervoid.mob.MobLevels;
 import com.embervoid.progress.ProgressManager;
 import com.embervoid.realm.RealmDefinition;
 import com.embervoid.realm.Realms;
@@ -111,6 +112,7 @@ public class BossFight {
 			}
 		}
 		world.spawnEntity(boss);
+		MobLevels.setLevel(boss, spec.level());
 		world.playSound(null, center, SoundEvents.ENTITY_WITHER_SPAWN, SoundCategory.HOSTILE, 1.0f, 0.8f);
 		((ArenaBoss) boss).onPhaseChange(0);
 		return true;
