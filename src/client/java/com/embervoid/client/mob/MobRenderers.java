@@ -60,9 +60,11 @@ public final class MobRenderers {
 			@Override
 			protected void renderStackForBone(MatrixStack poseStack, GeoBone bone, ItemStack stack, HollowEntity hollow,
 					VertexConsumerProvider bufferSource, float partialTick, int packedLight, int packedOverlay) {
-				// In bone space the third-person sword already points forward (-Z, the model's front); tilt the blade
-				// up a little so it reads as held ready. (-90 here, as in vanilla's held-item layer, points it at the ground.)
-				poseStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(30));
+				// The blade lies in the Hollow's front-back plane; turning about the bone's X axis swings it within that
+				// plane, and a larger angle turns it down -> back -> up -> forward. Measured in game: -90 points it at
+				// the ground, +30 about 35 degrees behind vertical. +125 is 95 degrees further: in front of the
+				// Hollow, about 30 degrees above horizontal.
+				poseStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(125));
 				super.renderStackForBone(poseStack, bone, stack, hollow, bufferSource, partialTick, packedLight, packedOverlay);
 			}
 		});
