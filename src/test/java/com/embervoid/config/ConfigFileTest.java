@@ -96,6 +96,17 @@ class ConfigFileTest {
 	}
 
 	@Test
+	void keysListsTheObjectInFileOrder() {
+		ConfigFile file = new ConfigFile("test.json");
+		ConfigSection<java.util.List<String>> keys = file.register(ConfigSection.of("map", java.util.List.of(),
+				in -> in.keys(), (value, out) -> value.forEach(key -> out.addProperty(key, 1))));
+		ConfigFile.Values values = file.parse(JsonParser.parseString(
+				"{\"map\": {\"modded:beast\": 5, \"minecraft:zombie\": 3}}").getAsJsonObject());
+		assertEquals(java.util.List.of("modded:beast", "minecraft:zombie"), values.get(keys));
+		assertEquals(java.util.List.of(), file.parse(new JsonObject()).get(keys));
+	}
+
+	@Test
 	void duplicateNamesAreRejected() {
 		ConfigFile file = new ConfigFile("test.json");
 		file.register(section("a"));
