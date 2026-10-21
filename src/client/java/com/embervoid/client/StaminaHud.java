@@ -1,5 +1,6 @@
 package com.embervoid.client;
 
+import com.embervoid.config.EmbervoidClientConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -8,7 +9,8 @@ import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.util.math.MathHelper;
 
 /**
- * Stamina bar above the hunger row, drawn with plain fills (no texture). Hidden while stamina is full,
+ * Stamina bar above the hunger row, drawn with plain fills (no texture). Hidden while stamina is full
+ * (client option {@code staminaBar.hideWhenFull}),
  * and flashes red for a moment when the server reports a spend that failed for lack of stamina.
  *
  * <p>Drawn from {@code InGameHudMixin} right after the vanilla status bars, so it only shows when they do
@@ -35,7 +37,7 @@ public final class StaminaHud {
 		float current = MathHelper.clamp(ClientStamina.current(), 0, max);
 		long sinceFail = player.getWorld().getTime() - ClientStamina.lastFailedSpendTime();
 		boolean flashing = sinceFail >= 0 && sinceFail < FLASH_TICKS;
-		if (current >= max && !flashing) {
+		if (current >= max && !flashing && EmbervoidClientConfig.staminaBar().hideWhenFull()) {
 			return;
 		}
 

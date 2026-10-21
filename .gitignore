@@ -30,3 +30,7 @@ replay_*.log
 
 # datagen cache
 src/main/generated/.cache/
+
+# claude: worktrees and coordinator queue
+.claude/worktrees/
+.claude/qa-queue.md
