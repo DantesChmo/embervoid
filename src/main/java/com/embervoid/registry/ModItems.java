@@ -1,6 +1,7 @@
 package com.embervoid.registry;
 
 import com.embervoid.Embervoid;
+import com.embervoid.item.HealingFlaskItem;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -14,6 +15,8 @@ public final class ModItems {
 	public static final List<Item> ALL = new ArrayList<>();
 
 	// public static final Item EMBER_STEEL_INGOT = register("ember_steel_ingot", new Item(new Item.Settings()));
+
+	public static final Item HEALING_FLASK = register("healing_flask", new HealingFlaskItem(new Item.Settings().maxCount(1)));
 
 	public static <T extends Item> T register(String name, T item) {
 		ALL.add(item);

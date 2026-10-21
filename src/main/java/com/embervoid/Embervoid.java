@@ -1,5 +1,13 @@
 package com.embervoid;
 
+import com.embervoid.command.ModCommands;
+import com.embervoid.config.ConfigSync;
+import com.embervoid.config.EmbervoidConfig;
+import com.embervoid.player.FlaskRefill;
+import com.embervoid.player.PlayerDataManager;
+import com.embervoid.player.RemnantDeathHandler;
+import com.embervoid.player.StaminaManager;
+import com.embervoid.registry.DebugItems;
 import com.embervoid.registry.ModBlocks;
 import com.embervoid.registry.ModEntities;
 import com.embervoid.registry.ModItemGroups;
@@ -21,13 +29,22 @@ public class Embervoid implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		EmbervoidConfig.load();
+
 		// Order matters: blocks before items (BlockItems), items before item groups.
 		ModSounds.register();
 		ModBlocks.register();
 		ModItems.register();
+		DebugItems.register();
 		ModEntities.register();
 		ModItemGroups.register();
 		ModStructures.register();
+		ConfigSync.register();
+		PlayerDataManager.register();
+		StaminaManager.register();
+		FlaskRefill.register();
+		RemnantDeathHandler.register();
+		ModCommands.register();
 
 		LOGGER.info("Embervoid: the embers stir...");
 	}
