@@ -12,6 +12,7 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -56,7 +57,8 @@ public final class ArenaManager {
 			if (ProgressManager.hasBeatenBoss(player, feature.structure().boss().orElseThrow().bossId())) {
 				return true;
 			}
-			return false; // the shrine tells the player
+			player.sendMessage(Text.translatable("embervoid.shrine.dormant"), true);
+			return false;
 		});
 	}
 

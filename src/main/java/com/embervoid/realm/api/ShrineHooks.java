@@ -12,7 +12,7 @@ import net.minecraft.util.math.BlockPos;
  * (DESIGN §10.8).
  */
 public final class ShrineHooks {
-	/** Whether the player may rest at the shrine at {@code pos}. On false the shrine tells the player it is cold to them. */
+	/** Whether the player may rest at the shrine at {@code pos}. A listener that says no tells the player why. */
 	public static final Event<AllowRest> ALLOW_REST = EventFactory.createArrayBacked(AllowRest.class,
 			listeners -> (player, world, pos) -> {
 				for (AllowRest listener : listeners) {
