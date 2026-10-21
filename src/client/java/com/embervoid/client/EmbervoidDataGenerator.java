@@ -1,6 +1,7 @@
 package com.embervoid.client;
 
 import com.embervoid.Embervoid;
+import com.embervoid.sanctum.datagen.SanctumTemplateProvider;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
@@ -49,6 +50,7 @@ public class EmbervoidDataGenerator implements DataGeneratorEntrypoint {
 		BlockTagGen blockTags = pack.addProvider(BlockTagGen::new);
 		pack.addProvider((output, registries) -> new ItemTagGen(output, registries, blockTags));
 		pack.addProvider(Recipes::new);
+		pack.addProvider(SanctumTemplateProvider::new);
 	}
 
 	private static class Models extends FabricModelProvider {

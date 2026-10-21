@@ -9,9 +9,9 @@ Owns `com.embervoid.progress`, `com.embervoid.sanctum`, `registry/ModStructures`
 | S1 | **`progress` API** (contract for realms) | — | done, merge requested |
 | S2 | **Ember Shrine** block | S1, flask API (player-core) | done |
 | S3 | **Void Obelisks** (dark / lit / kindled per player) | S1 | done |
-| S4 | **Sanctum structure** (generated templates, jigsaw, structure_set) | M1 blocks | todo |
-| S5 | **Core protection**: no hostile spawns, unbreakable core blocks | S2, S3, S4 | todo |
-| S6 | **Attunement** on first reaching a core | S1, S4 | todo |
+| S4 | **Sanctum structure** (generated templates, jigsaw, structure_set) | M1 blocks | done, needs in-game check |
+| S5 | **Core protection**: no hostile spawns, unbreakable core blocks | S2, S3, S4 | done (flagstone floor is spawn-proof; core blocks unbreakable) |
+| S6 | **Attunement** on first reaching a core | S1, S4 | done |
 | S7 | **Sanctum Map** in vanilla chest loot; **outer-hall loot** | S4 | todo |
 | S8 | **Ashen Maiden** NPC (GeckoLib) | mobs: GeckoLib on `main` | blocked |
 | S9 | **Level-up screen** (C2S, one point per click) | player-core: `levelUp`, stat read API, `XpUtil` | blocked |
