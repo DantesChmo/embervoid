@@ -57,5 +57,10 @@
 	"block.embervoid.sanctum_flagstone": "Sanctum Flagstone",
 	"embervoid.sanctum.attuned": "Attuned",
 	"embervoid.sanctum.attuned.subtitle": "The ember knows you now",
-	"embervoid.sanctum.welcome": "The Sanctum remembers you"
+	"embervoid.sanctum.welcome": "The Sanctum remembers you",
+	"item.embervoid.flask_shard": "Flask Shard",
+	"embervoid.flask_shard.tooltip": "Offer it at an Ember Shrine to deepen your flask",
+	"embervoid.flask_shard.offered": "The ember takes the shard. Your flask holds %s charges",
+	"embervoid.flask_shard.max": "Your flask can hold no more",
+	"item.embervoid.sanctum_map": "Sanctum Map"
 }

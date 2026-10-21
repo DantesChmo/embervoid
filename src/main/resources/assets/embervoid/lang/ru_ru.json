@@ -57,5 +57,10 @@
 	"block.embervoid.sanctum_flagstone": "Плита Святилища",
 	"embervoid.sanctum.attuned": "Связь обретена",
 	"embervoid.sanctum.attuned.subtitle": "Теперь угли знают вас",
-	"embervoid.sanctum.welcome": "Святилище помнит вас"
+	"embervoid.sanctum.welcome": "Святилище помнит вас",
+	"item.embervoid.flask_shard": "Осколок фляги",
+	"embervoid.flask_shard.tooltip": "Поднесите к Алтарю углей, чтобы углубить флягу",
+	"embervoid.flask_shard.offered": "Угли приняли осколок. Зарядов во фляге: %s",
+	"embervoid.flask_shard.max": "Фляга не вместит больше",
+	"item.embervoid.sanctum_map": "Карта Святилища"
 }

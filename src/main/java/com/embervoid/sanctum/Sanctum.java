@@ -7,6 +7,8 @@ public final class Sanctum {
 	public static void register() {
 		ProgressManager.register();
 		SanctumBlocks.register();
+		SanctumItems.register();
+		SanctumLoot.register();
 		Attunement.register();
 	}
 

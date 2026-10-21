@@ -4,6 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
@@ -42,7 +43,13 @@ public class EmberShrineBlock extends Block {
 	@SuppressWarnings("deprecation")
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		if (!world.isClient && player instanceof ServerPlayerEntity serverPlayer) {
-			ShrineRest.rest(serverPlayer, pos);
+			ItemStack stack = player.getStackInHand(hand);
+			if (stack.getItem() instanceof FlaskShardItem) {
+				// Offering a shard is not a rest; the upgraded flask fills on the next rest.
+				FlaskShardItem.offer(serverPlayer, stack, pos);
+			} else {
+				ShrineRest.rest(serverPlayer, pos);
+			}
 		}
 		return ActionResult.success(world.isClient);
 	}
