@@ -41,6 +41,8 @@ The mod reads `config/embervoid.json` (created with defaults on first launch). M
 | `stats.resilienceFireReduction` | 0.01 | 0–1 | Fire damage removed per full Resilience point |
 | `stats.resilienceFireReductionCap` | 0.5 | 0–1 | Most fire damage Resilience can remove |
 | `stats.fortuneLuck` | 0.1 | 0–100 | Luck per full Fortune point |
+| `stats.fortuneExtraDrop` | 0.005 | 0–1 | Chance per full Fortune point that a mob you kill drops its loot a second time |
+| `stats.fortuneExtraDropCap` | 0.25 | 0–1 | Highest extra-drop chance |
 | `leveling.costBase` / `costLinear` / `costQuadratic` | 20 / 6 / 0.15 | ≥ 0 | Cost of level L → L+1 in XP points: `costBase + costLinear·L + costQuadratic·L²` |
 | `leveling.statCap` | 99 | 10–999 | Highest value a stat can be levelled to |
 | `leveling.levelCap` | 0 | ≥ 0 | Highest character level reachable by leveling; 0 = no cap |

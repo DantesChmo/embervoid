@@ -19,7 +19,7 @@ import java.util.UUID;
 /**
  * Applies stat effects (DESIGN §5.2, §10.10). Vanilla attributes get modifiers with fixed UUIDs, so other mods that
  * read attributes see them: VIT → max health, DEX → attack speed, END → knockback resistance, RES → armor toughness,
- * FOR → luck. Our own values: END → stamina max and regen ({@link StaminaManager}), KIN → flask healing, RES → fire
+ * FOR → luck. Our own values: FOR → a chance of a second loot drop from mobs the player kills, END → stamina max and regen ({@link StaminaManager}), KIN → flask healing, RES → fire
  * damage reduction, STR/DEX → weapon damage ({@link WeaponScaling}), the last two applied when damage is dealt.
  *
  * <p>Modifiers are temporary (not saved): they are recomputed on join, respawn and every stat change, so the
@@ -85,6 +85,12 @@ public final class StatEffects {
 			amount *= 1 - PlayerStats.derived(player).fireDamageReduction();
 		}
 		return amount;
+	}
+
+	/** Whether a mob killed by {@code killer} should drop its loot a second time (Fortune). */
+	public static boolean rollExtraDrop(ServerPlayerEntity killer) {
+		float chance = PlayerStats.derived(killer).extraDropChance();
+		return chance > 0 && killer.getRandom().nextFloat() < chance;
 	}
 
 	public static void register() {
