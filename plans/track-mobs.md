@@ -84,9 +84,9 @@ level-1 base values; levels scale HP, damage and XP (§5.4).
   `hud.showMobLevel` in `embervoid-client.json`.
 - **API** (`com.embervoid.mob.MobLevels`): `getLevel(entity)` (both sides), `setLevel(living, level)` (server,
   any living entity, rescales HP, resyncs), `registerProvider((mob, world) -> OptionalInt)` to decide levels at
-  spawn (first non-empty wins, else the default rules), `defaultLevel(mob, world)`, `canHaveLevel(entity)`.
+  spawn (first non-empty wins, else the default rules), `spawnLevel(mob, world)` (providers, then default rules), `defaultLevel(mob, world)`, `canHaveLevel(entity)`.
 - **Config limitation:** `baseLevels` / `dimensionBonus` read only the keys present in the defaults (the section
   reader cannot list a JSON object's keys). New keys need either a default entry or a `keys()` method on
   `SectionReader` (player-core).
-- **Debug:** `/embervoid moblevel <targets>` shows level, default level here and HP; `/embervoid moblevel
+- **Debug:** `/embervoid moblevel <targets>` shows level, the level a spawn here would get (providers included) and HP; `/embervoid moblevel
   <targets> <level>` overrides.
