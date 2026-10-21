@@ -90,5 +90,6 @@
 	"embervoid.shrine.rested": "Rested. The shrine will remember you",
 	"embervoid.lodestar.cold": "The lodestar is cold outside the realms",
 	"embervoid.lodestar.none": "No guardian left to face here",
-	"embervoid.lodestar.distance": "A guardian waits %s blocks away"
+	"embervoid.lodestar.distance": "A guardian waits %s blocks away",
+	"embervoid.mob_level": "Lv. %s"
 }

@@ -90,5 +90,6 @@
 	"embervoid.shrine.rested": "Вы отдохнули. Алтарь запомнит вас",
 	"embervoid.lodestar.cold": "Вне миров путеводный камень холоден",
 	"embervoid.lodestar.none": "Здесь не осталось стражей",
-	"embervoid.lodestar.distance": "Страж ждёт в %s блоках отсюда"
+	"embervoid.lodestar.distance": "Страж ждёт в %s блоках отсюда",
+	"embervoid.mob_level": "Ур. %s"
 }
