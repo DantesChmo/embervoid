@@ -1,0 +1,12 @@
+{
+  "placement": {
+    "type": "embervoid:realm_feature",
+    "salt": 718201
+  },
+  "structures": [
+    {
+      "structure": "embervoid:ashen_reach_landing",
+      "weight": 1
+    }
+  ]
+}

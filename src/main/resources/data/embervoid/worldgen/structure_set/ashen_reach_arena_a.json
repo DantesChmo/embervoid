@@ -1,0 +1,18 @@
+{
+  "placement": {
+    "type": "embervoid:realm_feature",
+    "salt": 718210,
+    "sector_count": 3,
+    "sector": 0,
+    "start_angle": -90.0,
+    "angle_spread": 0.5,
+    "min_distance": 400,
+    "max_distance": 900
+  },
+  "structures": [
+    {
+      "structure": "embervoid:ashen_reach_arena_a",
+      "weight": 1
+    }
+  ]
+}

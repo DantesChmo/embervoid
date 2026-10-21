@@ -1,6 +1,7 @@
 package com.embervoid.sanctum;
 
 import com.embervoid.config.EmbervoidConfig;
+import com.embervoid.item.HealingFlaskItem;
 import com.embervoid.player.PlayerData;
 import com.embervoid.player.PlayerDataManager;
 import net.minecraft.client.item.TooltipContext;
@@ -28,9 +29,8 @@ public class FlaskShardItem extends Item {
 
 	/** Spends one shard from {@code stack} on a flask charge upgrade. Returns false if the flask is maxed. */
 	static boolean offer(ServerPlayerEntity player, ItemStack stack, BlockPos shrinePos) {
-		EmbervoidConfig.Flask config = EmbervoidConfig.get().flask();
 		PlayerData data = PlayerDataManager.get(player);
-		if (config.baseCharges() + data.flaskChargeUpgrades >= config.maxCharges()) {
+		if (HealingFlaskItem.maxCharges(player) >= EmbervoidConfig.get().flask().maxCharges()) {
 			player.sendMessage(Text.translatable("embervoid.flask_shard.max").formatted(Formatting.GRAY), true);
 			return false;
 		}
@@ -42,7 +42,7 @@ public class FlaskShardItem extends Item {
 		player.getServerWorld().playSound(null, shrinePos, SoundEvents.BLOCK_AMETHYST_BLOCK_RESONATE,
 				SoundCategory.BLOCKS, 1.0f, 0.8f);
 		player.sendMessage(Text.translatable("embervoid.flask_shard.offered",
-				config.baseCharges() + data.flaskChargeUpgrades).formatted(Formatting.GOLD), true);
+				HealingFlaskItem.maxCharges(player)).formatted(Formatting.GOLD), true);
 		return true;
 	}
 

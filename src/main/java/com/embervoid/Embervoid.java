@@ -8,6 +8,7 @@ import com.embervoid.player.FlaskRefill;
 import com.embervoid.player.PlayerDataManager;
 import com.embervoid.player.RemnantDeathHandler;
 import com.embervoid.player.StaminaManager;
+import com.embervoid.realm.RealmInit;
 import com.embervoid.registry.DebugItems;
 import com.embervoid.registry.ModBlocks;
 import com.embervoid.registry.ModEntities;
@@ -16,6 +17,7 @@ import com.embervoid.registry.ModItems;
 import com.embervoid.registry.ModSounds;
 import com.embervoid.registry.ModStructures;
 import com.embervoid.sanctum.Sanctum;
+import com.embervoid.stats.StatEffects;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
@@ -47,7 +49,9 @@ public class Embervoid implements ModInitializer {
 		StaminaManager.register();
 		FlaskRefill.register();
 		RemnantDeathHandler.register();
+		StatEffects.register();
 		ModCommands.register();
+		RealmInit.register();
 		Sanctum.register();
 
 		LOGGER.info("Embervoid: the embers stir...");

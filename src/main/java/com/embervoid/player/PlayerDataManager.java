@@ -12,6 +12,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Supplier;
 
 /** Stores {@link PlayerData} on players and syncs it to the owning client. */
 public final class PlayerDataManager {
@@ -27,15 +30,37 @@ public final class PlayerDataManager {
 			.copyOnDeath()
 			.buildAndRegister(Embervoid.id("player_data"));
 
+	/**
+	 * Client side: the local player's synced data, kept outside the player entity because the client recreates that
+	 * entity on respawn and dimension change. Set by the client initializer; null on a dedicated server.
+	 */
+	@Nullable
+	private static Supplier<PlayerData> clientData;
+	@Nullable
+	private static Supplier<PlayerEntity> clientPlayer;
+
+	/**
+	 * The player's data. On the server, the attachment; on a client, the synced copy for the local player and
+	 * defaults for anyone else (other players' data is not sent).
+	 */
 	@SuppressWarnings("UnstableApiUsage")
 	public static PlayerData get(PlayerEntity player) {
+		if (player.getWorld().isClient && clientData != null) {
+			return player == clientPlayer.get() ? clientData.get() : PlayerData.createDefault();
+		}
 		return player.getAttachedOrCreate(PLAYER_DATA);
 	}
 
-	/** Replaces the player's data; the client uses this when a sync packet arrives. */
-	@SuppressWarnings("UnstableApiUsage")
-	public static void set(PlayerEntity player, PlayerData data) {
-		player.setAttached(PLAYER_DATA, data);
+	/** Client side: the local player, or null when there is none (dedicated server, main menu). */
+	@Nullable
+	public static PlayerEntity getLocalPlayer() {
+		return clientPlayer != null ? clientPlayer.get() : null;
+	}
+
+	/** Called once by the client initializer. */
+	public static void setClientAccess(Supplier<PlayerData> data, Supplier<PlayerEntity> player) {
+		clientData = data;
+		clientPlayer = player;
 	}
 
 	/** Sends the player's data to their client. Call after changing it on the server. */
