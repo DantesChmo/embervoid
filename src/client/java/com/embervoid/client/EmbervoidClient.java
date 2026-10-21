@@ -3,13 +3,16 @@ package com.embervoid.client;
 import com.embervoid.Embervoid;
 import com.embervoid.item.HealingFlaskItem;
 import com.embervoid.player.PlayerData;
-import com.embervoid.registry.ModItems;
 import com.embervoid.player.PlayerDataManager;
+import com.embervoid.registry.ModEntities;
+import com.embervoid.registry.ModItems;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
+import net.minecraft.client.render.entity.EmptyEntityRenderer;
 import net.minecraft.text.Text;
 
 public class EmbervoidClient implements ClientModInitializer {
@@ -17,6 +20,8 @@ public class EmbervoidClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		// Entity renderers, HUD (boss bar), keybinds.
 		ClientStamina.register();
+		// Particles and the name label only; a model comes with the art pass.
+		EntityRendererRegistry.register(ModEntities.ASH_REMNANT, EmptyEntityRenderer::new);
 		FabricModelPredicateProviderRegistry.register(ModItems.HEALING_FLASK, Embervoid.id("empty"),
 				(stack, world, entity, seed) -> HealingFlaskItem.getMaxCharges(stack) > 0 && HealingFlaskItem.getCharges(stack) == 0 ? 1 : 0);
 

@@ -1,5 +1,6 @@
 package com.embervoid.command;
 
+import com.embervoid.entity.AshRemnantEntity;
 import com.embervoid.player.PlayerData;
 import com.embervoid.player.PlayerDataManager;
 import com.embervoid.player.StaminaManager;
@@ -66,7 +67,16 @@ public final class ModCommands {
 													context.getSource().sendFeedback(() -> Text.literal(
 															"Stamina: " + StaminaManager.get(player) + "/" + StaminaManager.getMax()), false);
 													return 1;
-												}))))));
+												}))))
+						// /embervoid remnant: move your items and XP into an Ash Remnant at your feet (like a death).
+						.then(literal("remnant")
+								.executes(context -> {
+									ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
+									AshRemnantEntity remnant = AshRemnantEntity.create(player, player.getPos(), true, true);
+									context.getSource().sendFeedback(() -> Text.literal("Ash Remnant " + remnant.getUuid()
+											+ " at " + remnant.getBlockPos().toShortString()), false);
+									return 1;
+								}))));
 	}
 
 	private ModCommands() {}

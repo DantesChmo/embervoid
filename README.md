@@ -37,5 +37,6 @@ The mod reads `config/embervoid.json` (created with defaults on first launch). M
 - `/embervoid stamina` (operator) — show your stamina.
 - `/embervoid stamina spend <amount>` (operator) — spend stamina as an action would (survival/adventure only).
 - `/embervoid stamina set <value>` (operator) — set your stamina.
+- `/embervoid remnant` (operator) — move your items and XP into an Ash Remnant at your feet, as a death would.
 - `/embervoid_client data` — show the player data as your client sees it.
 - `embervoid:debug_sweep` (dev environment only, `/give` or the creative tab) — test weapon for the special-attack framework: right-click does a knockback sweep for 30 stamina with a 1 s cooldown.

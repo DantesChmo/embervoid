@@ -10,6 +10,10 @@
 	"embervoid.flask.heal": "Восстанавливает %s ❤",
 	"embervoid.flask.sprinting": "Нельзя пить на бегу",
 	"embervoid.flask.refilled": "Вы отдохнули. Фляги снова полны",
+	"entity.embervoid.ash_remnant": "Пепельный останок",
+	"embervoid.remnant.name": "Пепельный останок: %s",
+	"embervoid.remnant.recovered": "Вы забрали то, что хранил пепел",
+	"embervoid.remnant.not_yours": "Этот пепел принадлежит игроку %s",
 	"itemGroup.embervoid.main": "Embervoid",
 	"modmenu.descriptionTranslation.embervoid": "Мир угасает. Тёмное фэнтези-приключение: данжи, боссы и проклятое снаряжение."
 }
