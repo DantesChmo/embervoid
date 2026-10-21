@@ -4,6 +4,7 @@ import com.embervoid.command.ModCommands;
 import com.embervoid.config.ConfigSync;
 import com.embervoid.config.EmbervoidConfig;
 import com.embervoid.entity.mob.MobEntities;
+import com.embervoid.mob.MobLevels;
 import com.embervoid.player.FlaskRefill;
 import com.embervoid.player.PlayerDataManager;
 import com.embervoid.player.RemnantDeathHandler;
@@ -42,6 +43,7 @@ public class Embervoid implements ModInitializer {
 		DebugItems.register();
 		ModEntities.register();
 		MobEntities.register();
+		MobLevels.register();
 		ModItemGroups.register();
 		ModStructures.register();
 		ConfigSync.register();
@@ -52,6 +54,7 @@ public class Embervoid implements ModInitializer {
 		StatEffects.register();
 		ModCommands.register();
 		RealmInit.register();
+		// Also registers the progress API.
 		Sanctum.register();
 
 		LOGGER.info("Embervoid: the embers stir...");

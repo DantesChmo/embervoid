@@ -3,7 +3,8 @@
 	"package": "com.embervoid.mixin.client",
 	"compatibilityLevel": "JAVA_17",
 	"client": [
-		"InGameHudMixin"
+		"InGameHudMixin",
+		"EntityRendererMobLevelMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

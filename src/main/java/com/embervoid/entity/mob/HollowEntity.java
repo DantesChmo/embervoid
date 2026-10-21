@@ -89,7 +89,8 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 				.add(EntityAttributes.GENERIC_ARMOR, 6)
 				.add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, 0.6)
 				.add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.2)
-				.add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 2)
+				// All of its damage comes from the weapon (DESIGN §3.2).
+				.add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 0)
 				.add(EntityAttributes.GENERIC_FOLLOW_RANGE, 24);
 	}
 
