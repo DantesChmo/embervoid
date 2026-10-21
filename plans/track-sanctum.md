@@ -8,7 +8,7 @@ Owns `com.embervoid.progress`, `com.embervoid.sanctum`, `registry/ModStructures`
 |----|------|------------|--------|
 | S1 | **`progress` API** (contract for realms) | — | done, merge requested |
 | S2 | **Ember Shrine** block | S1, flask API (player-core) | done |
-| S3 | **Void Obelisks** (dark / lit / kindled per player) | S1 | todo |
+| S3 | **Void Obelisks** (dark / lit / kindled per player) | S1 | done |
 | S4 | **Sanctum structure** (generated templates, jigsaw, structure_set) | M1 blocks | todo |
 | S5 | **Core protection**: no hostile spawns, unbreakable core blocks | S2, S3, S4 | todo |
 | S6 | **Attunement** on first reaching a core | S1, S4 | todo |

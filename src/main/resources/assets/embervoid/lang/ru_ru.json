@@ -50,5 +50,8 @@
 	"block.embervoid.ash_soil": "Пепельная почва",
 	"block.embervoid.ember_lantern": "Тлеющий фонарь",
 	"block.embervoid.ember_shrine": "Алтарь углей",
-	"embervoid.shrine.rested": "Вы отдыхаете у углей. Фляги снова полны"
+	"embervoid.shrine.rested": "Вы отдыхаете у углей. Фляги снова полны",
+	"block.embervoid.void_obelisk": "Обелиск Пустоты",
+	"embervoid.obelisk.dark": "Пламя ещё не коснулось его",
+	"embervoid.obelisk.forming": "Путь ещё не сложился"
 }

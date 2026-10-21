@@ -2,14 +2,24 @@ package com.embervoid.sanctum;
 
 import com.embervoid.Embervoid;
 import com.embervoid.registry.ModBlocks;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 
 /** Sanctum core blocks. All unbreakable and spawn-proof: they only come from the structure (or creative). */
 public final class SanctumBlocks {
 	public static final Block EMBER_SHRINE = ModBlocks.register("ember_shrine", new EmberShrineBlock(core()
 			.luminance(state -> 15).nonOpaque()));
+	public static final Block VOID_OBELISK = ModBlocks.register("void_obelisk", new VoidObeliskBlock(core()
+			.luminance(state -> 4).nonOpaque()));
+
+	public static final BlockEntityType<VoidObeliskBlockEntity> VOID_OBELISK_ENTITY = Registry.register(
+			Registries.BLOCK_ENTITY_TYPE, Embervoid.id("void_obelisk"),
+			FabricBlockEntityTypeBuilder.create(VoidObeliskBlockEntity::new, VOID_OBELISK).build());
 
 	/** Unbreakable like bedrock, immune to explosions, mobs never spawn on it. */
 	static AbstractBlock.Settings core() {
