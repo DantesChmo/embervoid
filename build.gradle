@@ -59,8 +59,15 @@ dependencies {
 	// Dev-only: mod list in runClient. Not bundled, not required by players.
 	modLocalRuntime "com.terraformersmc:modmenu:${project.modmenu_version}"
 
-	// Unit tests for pure logic; Fabric's JUnit 5 bundle can load Minecraft classes.
-	testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
+	// Unit tests for pure logic.
+	testImplementation "org.junit.jupiter:junit-jupiter:5.10.2"
+	testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.10.2"
+}
+
+// Tests see the mod's main classes and Minecraft (split source sets keep them off the test classpath otherwise).
+sourceSets.test {
+	compileClasspath += sourceSets.main.compileClasspath
+	runtimeClasspath += sourceSets.main.runtimeClasspath
 }
 
 test {

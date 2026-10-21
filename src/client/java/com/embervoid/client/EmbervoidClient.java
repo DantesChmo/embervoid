@@ -3,6 +3,7 @@ package com.embervoid.client;
 import com.embervoid.Embervoid;
 import com.embervoid.config.ConfigSync;
 import com.embervoid.client.mob.MobRenderers;
+import com.embervoid.config.EmbervoidClientConfig;
 import com.embervoid.config.EmbervoidConfig;
 import com.embervoid.item.HealingFlaskItem;
 import com.embervoid.player.PlayerData;
@@ -26,6 +27,8 @@ import net.minecraft.text.Text;
 public class EmbervoidClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
+		EmbervoidClientConfig.load();
+
 		// Entity renderers, HUD (boss bar), keybinds.
 
 		// Blocks with see-through pixels.
