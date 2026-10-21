@@ -24,17 +24,20 @@ import java.util.Map;
 public final class SanctumLoot {
 	public static final TagKey<Structure> ON_SANCTUM_MAPS = TagKey.of(RegistryKeys.STRUCTURE, Embervoid.id("on_sanctum_maps"));
 
-	/** Vanilla chest → chance of one Sanctum Map. */
-	private static final Map<Identifier, Float> MAP_CHANCES = Map.of(
-			new Identifier("chests/village/village_cartographer"), 0.25f,
-			new Identifier("chests/village/village_temple"), 0.1f,
-			new Identifier("chests/ruined_portal"), 0.08f,
-			new Identifier("chests/shipwreck_map"), 0.25f);
+	/** Vanilla chest → chance of one Sanctum Map, from the config. */
+	private static Map<Identifier, Float> mapChances(SanctumConfig config) {
+		return Map.of(
+				new Identifier("chests/village/village_cartographer"), config.mapChanceCartographer(),
+				new Identifier("chests/village/village_temple"), config.mapChanceTemple(),
+				new Identifier("chests/ruined_portal"), config.mapChanceRuinedPortal(),
+				new Identifier("chests/shipwreck_map"), config.mapChanceShipwreck());
+	}
 
 	static void register() {
 		LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) -> {
-			Float chance = MAP_CHANCES.get(id);
-			if (chance == null || !source.isBuiltin()) {
+			SanctumConfig config = SanctumConfig.get();
+			Float chance = mapChances(config).get(id);
+			if (chance == null || chance <= 0 || !source.isBuiltin()) {
 				return;
 			}
 			tableBuilder.pool(LootPool.builder()
@@ -44,7 +47,7 @@ public final class SanctumLoot {
 									.withDestination(ON_SANCTUM_MAPS)
 									.withDecoration(MapIcon.Type.RED_X)
 									.withZoom((byte) 2)
-									.searchRadius(64))
+									.searchRadius(config.mapSearchRadius()))
 							.apply(SetNameLootFunction.builder(Text.translatable("item.embervoid.sanctum_map")))));
 		});
 	}

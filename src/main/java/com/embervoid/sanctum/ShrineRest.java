@@ -1,8 +1,6 @@
 package com.embervoid.sanctum;
 
 import com.embervoid.item.HealingFlaskItem;
-import net.fabricmc.fabric.api.event.Event;
-import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -12,29 +10,17 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 
-/** What resting at an Ember Shrine does, and the hook for systems that add to it. */
-public final class ShrineRest {
-	/**
-	 * Fired on the server after a player rested at a shrine. The realms track sets the realm respawn point here
-	 * (milestone 6); {@code player.getServerWorld()} is the shrine's world.
-	 */
-	public static final Event<Rested> RESTED = EventFactory.createArrayBacked(Rested.class,
-			listeners -> (player, shrinePos) -> {
-				for (Rested listener : listeners) {
-					listener.onRested(player, shrinePos);
-				}
-			});
-
-	@FunctionalInterface
-	public interface Rested {
-		void onRested(ServerPlayerEntity player, BlockPos shrinePos);
-	}
-
+/** What resting at an Ember Shrine does. Realm respawn points hook in through {@link RealmBridge}. */
+final class ShrineRest {
 	static void rest(ServerPlayerEntity player, BlockPos pos) {
+		if (!RealmBridge.allowRest(player, player.getServerWorld(), pos)) {
+			player.sendMessage(Text.translatable("embervoid.shrine.dormant").formatted(Formatting.DARK_GRAY), true);
+			return;
+		}
 		refillFlasks(player);
 		player.getServerWorld().playSound(null, pos, SoundEvents.ITEM_FIRECHARGE_USE, SoundCategory.BLOCKS, 0.6f, 0.8f);
 		player.sendMessage(Text.translatable("embervoid.shrine.rested").formatted(Formatting.GOLD), true);
-		RESTED.invoker().onRested(player, pos);
+		RealmBridge.rested(player, player.getServerWorld(), pos);
 	}
 
 	/** Fills every healing flask in the inventory through the flask's own API. */

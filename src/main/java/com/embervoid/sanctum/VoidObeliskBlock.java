@@ -25,6 +25,8 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Void Obelisk: leads to one realm (stored in its block entity). The block itself has no state: each player
  * sees it dark, lit or kindled from their own progress, drawn on the client by the obelisk renderer.
+ * A lit obelisk takes the player to its realm: to their last rested shrine there, or to the landing when sneaking
+ * or when they have not rested in that realm yet.
  */
 public class VoidObeliskBlock extends BlockWithEntity {
 	private static final VoxelShape OUTLINE = VoxelShapes.union(
@@ -87,9 +89,12 @@ public class VoidObeliskBlock extends BlockWithEntity {
 		Identifier realm = obelisk.getRealm();
 		if (Glow.of(ProgressManager.get(player), realm) == Glow.DARK) {
 			player.sendMessage(Text.translatable("embervoid.obelisk.dark").formatted(Formatting.DARK_GRAY), true);
-		} else if (ObeliskActivation.EVENT.invoker().onActivate(serverPlayer, realm, pos) == ActionResult.PASS) {
-			// Nothing handles this realm yet (realms come in milestone 6).
-			player.sendMessage(Text.translatable("embervoid.obelisk.forming").formatted(Formatting.GOLD), true);
+		} else {
+			// With a rested shrine in that realm the player goes back to it; sneaking picks the landing instead.
+			boolean toLastShrine = !player.isSneaking() && RealmBridge.hasRestedShrine(serverPlayer, realm);
+			if (!RealmBridge.enterRealm(serverPlayer, realm, toLastShrine)) {
+				player.sendMessage(Text.translatable("embervoid.obelisk.forming").formatted(Formatting.GOLD), true);
+			}
 		}
 		return ActionResult.SUCCESS;
 	}

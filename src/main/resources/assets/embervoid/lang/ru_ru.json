@@ -68,5 +68,6 @@
 	"embervoid.flask_shard.tooltip": "Поднесите к Алтарю углей, чтобы углубить флягу",
 	"embervoid.flask_shard.offered": "Угли приняли осколок. Зарядов во фляге: %s",
 	"embervoid.flask_shard.max": "Фляга не вместит больше",
-	"item.embervoid.sanctum_map": "Карта Святилища"
+	"item.embervoid.sanctum_map": "Карта Святилища",
+	"embervoid.shrine.dormant": "Эти угли холодны для вас"
 }
