@@ -9,6 +9,7 @@ import com.embervoid.player.PlayerDataManager;
 import com.embervoid.player.RemnantDeathHandler;
 import com.embervoid.player.StaminaManager;
 import com.embervoid.progress.ProgressManager;
+import com.embervoid.realm.RealmInit;
 import com.embervoid.registry.DebugItems;
 import com.embervoid.registry.ModBlocks;
 import com.embervoid.registry.ModEntities;
@@ -49,6 +50,7 @@ public class Embervoid implements ModInitializer {
 		RemnantDeathHandler.register();
 		ModCommands.register();
 		ProgressManager.register();
+		RealmInit.register();
 
 		LOGGER.info("Embervoid: the embers stir...");
 	}

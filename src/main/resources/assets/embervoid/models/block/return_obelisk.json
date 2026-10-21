@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "minecraft:block/crying_obsidian",
+    "side": "minecraft:block/chiseled_deepslate"
+  }
+}

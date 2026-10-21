@@ -54,5 +54,22 @@
 	"entity.embervoid.hollow": "Hollow",
 	"item.embervoid.hollow_spawn_egg": "Hollow Spawn Egg",
 	"entity.embervoid.ember_wisp": "Ember Wisp",
-	"item.embervoid.ember_wisp_spawn_egg": "Ember Wisp Spawn Egg"
+	"item.embervoid.ember_wisp_spawn_egg": "Ember Wisp Spawn Egg",
+	"block.embervoid.return_obelisk": "Return Obelisk",
+	"block.embervoid.sealed_gate": "Sealed Gate",
+	"item.embervoid.ember_lodestar": "Ember Lodestar",
+	"biome.embervoid.ashen_reach_landing": "Ashen Reach: Landing",
+	"biome.embervoid.ashen_reach_abyss": "Ashen Reach: Abyss",
+	"biome.embervoid.ashen_reach_zone_a": "Ashen Reach: Zone A",
+	"biome.embervoid.ashen_reach_zone_b": "Ashen Reach: Zone B",
+	"biome.embervoid.ashen_reach_zone_c": "Ashen Reach: Zone C",
+	"biome.embervoid.ashen_reach_depths": "Ashen Reach: Depths",
+	"embervoid.realm.locked": "The flame has not reached this realm",
+	"embervoid.realm.gate.open": "The Sealed Gate yields to you",
+	"embervoid.realm.gate.sealed": "The gate is sealed. Guardians still standing: %s",
+	"embervoid.realm.void": "The void pushes you back",
+	"embervoid.shrine.rested": "Rested. The shrine will remember you",
+	"embervoid.lodestar.cold": "The lodestar is cold outside the realms",
+	"embervoid.lodestar.none": "No guardian left to face here",
+	"embervoid.lodestar.distance": "A guardian waits %s blocks away"
 }

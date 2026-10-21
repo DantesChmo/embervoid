@@ -1,0 +1,21 @@
+{
+  "type": "embervoid:realm",
+  "generator": {
+    "type": "minecraft:noise",
+    "settings": "embervoid:ashen_reach",
+    "biome_source": {
+      "type": "embervoid:realm_zones",
+      "landing": "embervoid:ashen_reach_landing",
+      "abyss": "embervoid:ashen_reach_abyss",
+      "zones": [
+        "embervoid:ashen_reach_zone_a",
+        "embervoid:ashen_reach_zone_b",
+        "embervoid:ashen_reach_zone_c"
+      ],
+      "start_angle": -90.0,
+      "landing_radius": 48.0,
+      "radius": 1200.0,
+      "warp": 20.0
+    }
+  }
+}
