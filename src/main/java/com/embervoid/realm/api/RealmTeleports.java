@@ -2,10 +2,10 @@ package com.embervoid.realm.api;
 
 import com.embervoid.progress.ProgressManager;
 import com.embervoid.realm.RealmDefinition;
+import com.embervoid.realm.RealmLayout;
 import com.embervoid.realm.RealmPlayerData;
 import com.embervoid.realm.Realms;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -104,23 +104,29 @@ public final class RealmTeleports {
 		return new Vec3d(0.5, y, 2.5);
 	}
 
-	/** A free spot next to a shrine: beside it if there is room, else on top of it. */
+	/**
+	 * A free spot next to a shrine: solid floor and two blocks of air, never the shrine's own block. Rings of radius
+	 * 1 to 3 around it are searched, at the shrine's level first, then one up and one down. With no such spot the
+	 * player goes on top of the highest block beside the shrine.
+	 */
 	public static Vec3d standingSpot(ServerWorld world, BlockPos shrine) {
 		world.getChunk(shrine);
-		for (Direction direction : Direction.Type.HORIZONTAL) {
-			BlockPos pos = shrine.offset(direction);
+		for (BlockPos pos : RealmLayout.standingCandidates(shrine.getX(), shrine.getY(), shrine.getZ(), 3)
+				.stream().map(c -> new BlockPos(c[0], c[1], c[2])).toList()) {
 			if (canStand(world, pos)) {
 				return Vec3d.ofBottomCenter(pos);
 			}
 		}
-		return Vec3d.ofBottomCenter(shrine.up());
+		BlockPos beside = shrine.east();
+		return Vec3d.ofBottomCenter(new BlockPos(beside.getX(), world.getTopY(Heightmap.Type.MOTION_BLOCKING, beside.getX(), beside.getZ()), beside.getZ()));
 	}
 
 	private static boolean canStand(ServerWorld world, BlockPos pos) {
-		BlockState below = world.getBlockState(pos.down());
-		return below.isSideSolidFullSquare(world, pos.down(), Direction.UP)
+		BlockPos floor = pos.down();
+		return world.getBlockState(floor).isSideSolidFullSquare(world, floor, Direction.UP)
 				&& world.getBlockState(pos).getCollisionShape(world, pos).isEmpty()
-				&& world.getBlockState(pos.up()).getCollisionShape(world, pos.up()).isEmpty();
+				&& world.getBlockState(pos.up()).getCollisionShape(world, pos.up()).isEmpty()
+				&& world.getFluidState(pos).isEmpty();
 	}
 
 	@Nullable
