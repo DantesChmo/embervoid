@@ -8,7 +8,6 @@ import net.minecraft.item.Item;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.world.World;
 
@@ -56,6 +55,6 @@ public class AshBombEntity extends ThrownItemEntity {
 		}
 		world.spawnParticles(ParticleTypes.LARGE_SMOKE, getX(), getY() + 0.3, getZ(), 10, 0.6, 0.3, 0.6, 0.02);
 		world.spawnParticles(ParticleTypes.WHITE_ASH, getX(), getY() + 0.5, getZ(), 30, 1.2, 0.5, 1.2, 0.02);
-		world.playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.PLAYERS, 0.6f, 1.6f);
+		world.playSound(null, getX(), getY(), getZ(), GearSounds.ASH_BOMB_BURST, SoundCategory.PLAYERS, 1.0f, 1.0f);
 	}
 }

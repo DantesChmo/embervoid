@@ -7,7 +7,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 
 /**
@@ -56,7 +55,7 @@ public class AshenScytheItem extends GearWeaponItem {
 			world.spawnParticles(ParticleTypes.WHITE_ASH, at.x, at.y + 0.3, at.z, 6, side.x * 0.8, 0.2, side.z * 0.8, 0.01);
 			world.spawnParticles(ParticleTypes.SMALL_FLAME, at.x, at.y + 0.2, at.z, 1, 0.3, 0.1, 0.3, 0.01);
 		}
-		world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENTITY_BLAZE_SHOOT,
-				SoundCategory.PLAYERS, 0.8f, 0.5f);
+		world.playSound(null, player.getX(), player.getY(), player.getZ(), GearSounds.ASH_WAVE,
+				SoundCategory.PLAYERS, 0.8f, 1.0f);
 	}
 }

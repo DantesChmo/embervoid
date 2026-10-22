@@ -8,7 +8,6 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,7 +21,7 @@ import java.util.List;
 public class CinderHoundEntity extends ReachMob {
 	public static final double HOWL_RANGE = 24;
 	public static final int BITE_FIRE_SECONDS = 2;
-	static final Move BITE = new Move("attack.bite", 6, 20, SoundEvents.ENTITY_WOLF_GROWL, 0.7f);
+	static final Move BITE = new Move("attack.bite", 6, 20, ReachMobSounds.CINDER_HOUND_SNARL, 1.0f);
 
 	public CinderHoundEntity(EntityType<? extends CinderHoundEntity> type, World world) {
 		super(type, world);
@@ -53,7 +52,7 @@ public class CinderHoundEntity extends ReachMob {
 
 	private void howl(LivingEntity target) {
 		triggerAnim(ACTION, "misc.howl");
-		playSound(SoundEvents.ENTITY_WOLF_HOWL, 1.5f, 0.6f);
+		playSound(ReachMobSounds.CINDER_HOUND_HOWL, 1.5f, 1.0f);
 		for (CinderHoundEntity other : getWorld().getEntitiesByClass(CinderHoundEntity.class,
 				getBoundingBox().expand(HOWL_RANGE), hound -> hound != this && hound.isAlive() && hound.getTarget() == null)) {
 			other.joinHunt(target);
@@ -91,21 +90,21 @@ public class CinderHoundEntity extends ReachMob {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.ENTITY_WOLF_GROWL;
+		return ReachMobSounds.CINDER_HOUND_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_WOLF_HURT;
+		return ReachMobSounds.CINDER_HOUND_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_WOLF_DEATH;
+		return ReachMobSounds.CINDER_HOUND_DEATH;
 	}
 
 	@Override
-	public float getSoundPitch() {
-		return super.getSoundPitch() * 0.7f;
+	protected SoundEvent stepSound() {
+		return ReachMobSounds.CINDER_HOUND_STEP;
 	}
 }

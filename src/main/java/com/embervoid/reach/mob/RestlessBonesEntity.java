@@ -18,7 +18,6 @@ import net.minecraft.item.Items;
 import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -39,7 +38,7 @@ public class RestlessBonesEntity extends ReachMob {
 	public static final float PILE_HEALTH = 6;
 	public static final int REFORM_TICKS = 100;
 	public static final int LIGHT_TO_STAY_DEAD = 8;
-	static final Move MELEE = new Move("attack.swing", 10, 30, SoundEvents.ENTITY_SKELETON_AMBIENT, 0.7f);
+	static final Move MELEE = new Move("attack.swing", 10, 30, ReachMobSounds.RESTLESS_BONES_WINDUP, 1.0f);
 	private static final byte STATE_PILE = 1;
 	private static final RawAnimation PILE = RawAnimation.begin().thenLoop("misc.pile");
 	private static final EntityDimensions PILE_SIZE = EntityDimensions.changing(0.8f, 0.5f);
@@ -99,7 +98,7 @@ public class RestlessBonesEntity extends ReachMob {
 		super.setHealth(getMaxHealth() * PILE_HEALTH / BASE_HEALTH);
 		reformTicks = REFORM_TICKS;
 		triggerAnim(ACTION, "misc.collapse");
-		playSound(SoundEvents.ENTITY_SKELETON_DEATH, 1.0f, 0.8f);
+		playSound(ReachMobSounds.RESTLESS_BONES_COLLAPSE, 1.0f, 1.0f);
 		rattle(30);
 	}
 
@@ -112,7 +111,7 @@ public class RestlessBonesEntity extends ReachMob {
 		super.setHealth(getMaxHealth() / 2);
 		reformTicks = 0;
 		triggerAnim(ACTION, "misc.reform");
-		playSound(SoundEvents.ENTITY_SKELETON_AMBIENT, 1.0f, 0.5f);
+		playSound(ReachMobSounds.RESTLESS_BONES_REFORM, 1.0f, 1.0f);
 		rattle(20);
 	}
 
@@ -142,7 +141,7 @@ public class RestlessBonesEntity extends ReachMob {
 		DamageSource source = attacker instanceof PlayerEntity player ? getDamageSources().playerAttack(player)
 				: attacker != null ? getDamageSources().mobAttack(attacker) : getDamageSources().magic();
 		timeUntilRegen = 0;
-		playSound(SoundEvents.BLOCK_BONE_BLOCK_BREAK, 1.0f, 0.6f);
+		playSound(ReachMobSounds.RESTLESS_BONES_CRUMBLE, 1.0f, 1.0f);
 		if (getWorld() instanceof ServerWorld world) {
 			world.spawnParticles(ParticleTypes.WHITE_ASH, getX(), getY() + 0.2, getZ(), 30, 0.4, 0.2, 0.4, 0.02);
 		}
@@ -218,21 +217,21 @@ public class RestlessBonesEntity extends ReachMob {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return isPile() ? null : SoundEvents.ENTITY_SKELETON_AMBIENT;
+		return isPile() ? null : ReachMobSounds.RESTLESS_BONES_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_SKELETON_HURT;
+		return ReachMobSounds.RESTLESS_BONES_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_SKELETON_DEATH;
+		return ReachMobSounds.RESTLESS_BONES_DEATH;
 	}
 
 	@Override
-	public float getSoundPitch() {
-		return super.getSoundPitch() * 0.9f;
+	protected SoundEvent stepSound() {
+		return ReachMobSounds.RESTLESS_BONES_STEP;
 	}
 }

@@ -12,7 +12,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -116,7 +115,7 @@ public class TreeLanternEntity extends Entity {
 			return;
 		}
 		if (getWorld() instanceof ServerWorld world) {
-			world.playSound(null, getX(), getY(), getZ(), SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.HOSTILE, 1.5f, 1.0f);
+			world.playSound(null, getX(), getY(), getZ(), ReachBossSounds.TREE_LANTERN_SHATTER, SoundCategory.HOSTILE, 1.5f, 1.0f);
 			world.spawnParticles(ParticleTypes.FLAME, getX(), getY(), getZ(), 20, 0.2, 0.2, 0.2, 0.05);
 		}
 		GrievingTreeEntity owner = tree();

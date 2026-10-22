@@ -4,6 +4,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
 
 import java.util.List;
 
@@ -75,7 +76,12 @@ final class ReliquaryInventory implements Inventory {
 			return;
 		}
 		ReliquaryManager.SlotRef ref = slots.get(slot);
+		boolean equips = !stack.isEmpty() && !ItemStack.areItemsEqual(getStack(slot), stack);
 		ReliquaryManager.setStack(player, ref.kind(), ref.slot(), stack);
+		if (equips) {
+			player.getWorld().playSound(null, player.getX(), player.getY(), player.getZ(), ReliquarySounds.EQUIP, SoundCategory.PLAYERS,
+					1.0f, 1.0f);
+		}
 	}
 
 	@Override

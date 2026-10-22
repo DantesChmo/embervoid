@@ -17,7 +17,6 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.UUID;
@@ -98,8 +97,8 @@ public final class GearEffects {
 					player.getZ() + Math.sin(angle) * radius, 1, 0, 0.1, 0, 0.01);
 		}
 		world.spawnParticles(ParticleTypes.LAVA, player.getX(), player.getY() + 1, player.getZ(), 12, 0.5, 0.5, 0.5, 0);
-		world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENTITY_BLAZE_SHOOT,
-				SoundCategory.PLAYERS, 1.2f, 0.6f);
+		world.playSound(null, player.getX(), player.getY(), player.getZ(), GearSounds.FURNACE_HEART_NOVA,
+				SoundCategory.PLAYERS, 1.2f, 1.0f);
 	}
 
 	static void register() {

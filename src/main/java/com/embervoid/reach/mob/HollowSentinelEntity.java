@@ -10,7 +10,6 @@ import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -38,8 +37,8 @@ public class HollowSentinelEntity extends ReachMob {
 	public static final double BASH_RANGE = 2.5;
 	/** The spear reaches this far past its own half width. */
 	private static final double SPEAR_REACH = 3.0;
-	static final Move THRUST = new Move("attack.thrust", THRUST_WINDUP, 40, SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, 0.6f);
-	static final Move BASH = new Move("attack.bash", BASH_WINDUP, 50, SoundEvents.ITEM_SHIELD_BLOCK, 0.5f);
+	static final Move THRUST = new Move("attack.thrust", THRUST_WINDUP, 40, ReachMobSounds.HOLLOW_SENTINEL_DRAW_SPEAR, 1.0f);
+	static final Move BASH = new Move("attack.bash", BASH_WINDUP, 50, ReachMobSounds.HOLLOW_SENTINEL_PLANT_SHIELD, 1.0f);
 	private static final byte STATE_GUARD = 1;
 	private static final byte STATE_OPEN = 2;
 	private static final RawAnimation GUARD = RawAnimation.begin().thenLoop("misc.guard");
@@ -108,7 +107,7 @@ public class HollowSentinelEntity extends ReachMob {
 					target.velocityModified = true;
 				}
 			}
-			playSound(SoundEvents.ITEM_SHIELD_BREAK, 1.0f, 0.6f);
+			playSound(ReachMobSounds.HOLLOW_SENTINEL_BASH, 1.0f, 1.0f);
 		}
 		setState(STATE_OPEN);
 		openTicks = OPEN_TICKS;
@@ -132,7 +131,7 @@ public class HollowSentinelEntity extends ReachMob {
 	@Override
 	public boolean damage(DamageSource source, float amount) {
 		if (!getWorld().isClient && blocks(source)) {
-			playSound(SoundEvents.ITEM_SHIELD_BLOCK, 1.0f, 0.7f);
+			playSound(ReachMobSounds.HOLLOW_SENTINEL_BLOCK, 1.0f, 1.0f);
 			return false;
 		}
 		return super.damage(source, amount);
@@ -197,21 +196,26 @@ public class HollowSentinelEntity extends ReachMob {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.ENTITY_SKELETON_AMBIENT;
+		return ReachMobSounds.HOLLOW_SENTINEL_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_WITHER_SKELETON_HURT;
+		return ReachMobSounds.HOLLOW_SENTINEL_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_WITHER_SKELETON_DEATH;
+		return ReachMobSounds.HOLLOW_SENTINEL_DEATH;
 	}
 
 	@Override
-	public float getSoundPitch() {
-		return super.getSoundPitch() * 0.7f;
+	protected SoundEvent stepSound() {
+		return ReachMobSounds.HOLLOW_SENTINEL_STEP;
+	}
+
+	@Override
+	protected float stepVolume() {
+		return 0.4f;
 	}
 }

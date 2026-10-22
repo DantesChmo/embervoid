@@ -23,6 +23,7 @@ import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -140,7 +141,7 @@ public class GrievingTreeEntity extends ReachBoss {
 		endStun();
 		moveCooldown = 40;
 		playAnimation(UPROOT);
-		world.playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_RAVAGER_ROAR, SoundCategory.HOSTILE, 2.0f, 0.4f);
+		world.playSound(null, getX(), getY(), getZ(), ReachBossSounds.GRIEVING_TREE_UPROOT, SoundCategory.HOSTILE, 2.0f, 1.0f);
 		world.playSound(null, getX(), getY(), getZ(), SoundEvents.BLOCK_ROOTED_DIRT_BREAK, SoundCategory.HOSTILE, 2.0f, 0.5f);
 		world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.ROOTED_DIRT.getDefaultState()),
 				getX(), getY() + 0.3, getZ(), 120, 2.5, 0.3, 2.5, 0.2);
@@ -188,7 +189,7 @@ public class GrievingTreeEntity extends ReachBoss {
 		stunTicks = STUN_TICKS;
 		dataTracker.set(STUNNED_FLAG, true);
 		playAnimation(STUNNED);
-		getWorld().playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_WARDEN_HURT, SoundCategory.HOSTILE, 2.0f, 0.5f);
+		getWorld().playSound(null, getX(), getY(), getZ(), ReachBossSounds.GRIEVING_TREE_STUN, SoundCategory.HOSTILE, 2.0f, 1.0f);
 		if (fight != null) {
 			fogLiftTicks = FOG_LIFT_TICKS;
 			fight.clearFog();
@@ -277,7 +278,7 @@ public class GrievingTreeEntity extends ReachBoss {
 		for (LivingEntity target : targets) {
 			Vec3d direction = directionTo(target.getPos());
 			TelegraphShape line = TelegraphShape.line(getPos(), getPos().add(direction.multiply(ROOT_LENGTH)), 1.0);
-			telegraph(line, 26, first ? ROOT_LINES : null, first ? SoundEvents.BLOCK_ROOTED_DIRT_BREAK : null, ParticleTypes.MYCELIUM,
+			telegraph(line, 26, first ? ROOT_LINES : null, first ? ReachBossSounds.GRIEVING_TREE_ROOT_LINES : null, ParticleTypes.MYCELIUM,
 					player -> {
 						player.damage(getDamageSources().mobAttack(this), ROOT_DAMAGE);
 						player.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 40, 2), this);
@@ -292,7 +293,7 @@ public class GrievingTreeEntity extends ReachBoss {
 	public void branchSweep(LivingEntity target) {
 		face(target.getPos());
 		Vec3d direction = directionTo(target.getPos());
-		telegraph(TelegraphShape.cone(getPos(), direction, SWEEP_RANGE, 50), 20, BRANCH_SWEEP, SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP,
+		telegraph(TelegraphShape.cone(getPos(), direction, SWEEP_RANGE, 50), 20, BRANCH_SWEEP, ReachBossSounds.GRIEVING_TREE_BRANCH_SWEEP,
 				ParticleTypes.MYCELIUM, player -> {
 					player.damage(getDamageSources().mobAttack(this), SWEEP_DAMAGE);
 					knockAway(player, 1.1, 0.4);
@@ -306,7 +307,7 @@ public class GrievingTreeEntity extends ReachBoss {
 	/** P2: roots close in a ring around the target; anyone inside is held fast. */
 	public void rootCage(LivingEntity target) {
 		Vec3d at = target.getPos();
-		telegraph(TelegraphShape.ring(at, 2.5), 24, ROOT_CAGE, SoundEvents.BLOCK_ROOTED_DIRT_PLACE, ParticleTypes.MYCELIUM, player -> {
+		telegraph(TelegraphShape.ring(at, 2.5), 24, ROOT_CAGE, ReachBossSounds.GRIEVING_TREE_ROOT_CAGE, ParticleTypes.MYCELIUM, player -> {
 			player.damage(getDamageSources().mobAttack(this), CAGE_DAMAGE);
 			player.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 60, 5), this);
 		});
@@ -323,7 +324,7 @@ public class GrievingTreeEntity extends ReachBoss {
 			double angle = random.nextDouble() * Math.PI * 2;
 			fight.spawnAdd(ReachMobs.WITHERED_THRALL, getPos().add(Math.cos(angle) * 4, 6, Math.sin(angle) * 4));
 		}
-		getWorld().playSound(null, getX(), getY() + 6, getZ(), SoundEvents.BLOCK_CHAIN_BREAK, SoundCategory.HOSTILE, 1.5f, 0.8f);
+		getWorld().playSound(null, getX(), getY() + 6, getZ(), ReachBossSounds.GRIEVING_TREE_THRALLS, SoundCategory.HOSTILE, 1.5f, 1.0f);
 	}
 
 	@Override
@@ -373,5 +374,25 @@ public class GrievingTreeEntity extends ReachBoss {
 	@Override
 	public boolean isPushedByFluids() {
 		return false;
+	}
+
+	@Override
+	protected SoundEvent getAmbientSound() {
+		return ReachBossSounds.GRIEVING_TREE_AMBIENT;
+	}
+
+	@Override
+	protected SoundEvent getHurtSound(DamageSource source) {
+		return ReachBossSounds.GRIEVING_TREE_HURT;
+	}
+
+	@Override
+	protected SoundEvent getDeathSound() {
+		return ReachBossSounds.GRIEVING_TREE_DEATH;
+	}
+
+	@Override
+	protected SoundEvent stepSound() {
+		return ReachBossSounds.GRIEVING_TREE_STEP;
 	}
 }

@@ -18,7 +18,6 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -42,8 +41,8 @@ public class GraveWardenEntity extends ReachMob {
 	public static final int RAISED_PER_RING = 2;
 	public static final int MAX_RAISED = 4;
 	public static final int STAGGER_TICKS = 40;
-	static final Move MELEE = new Move("attack.swing", 12, 40, SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, 0.5f);
-	static final Move BELL = new Move("attack.bell", BELL_WINDUP, 0, SoundEvents.BLOCK_BELL_RESONATE, 0.6f);
+	static final Move MELEE = new Move("attack.swing", 12, 40, ReachMobSounds.GRAVE_WARDEN_WINDUP, 1.0f);
+	static final Move BELL = new Move("attack.bell", BELL_WINDUP, 0, ReachMobSounds.GRAVE_WARDEN_RAISE_BELL, 1.0f);
 
 	private int bellTimer = -1;
 	private final List<UUID> raised = new ArrayList<>();
@@ -113,7 +112,7 @@ public class GraveWardenEntity extends ReachMob {
 		if (!(getWorld() instanceof ServerWorld world)) {
 			return;
 		}
-		world.playSound(null, getX(), getY(), getZ(), SoundEvents.BLOCK_BELL_USE, getSoundCategory(), 3.0f, 0.5f);
+		world.playSound(null, getX(), getY(), getZ(), ReachMobSounds.GRAVE_WARDEN_BELL, getSoundCategory(), 3.0f, 1.0f);
 		world.spawnParticles(ParticleTypes.SONIC_BOOM, getX(), getBodyY(0.8), getZ(), 1, 0, 0, 0, 0);
 		List<RestlessBonesEntity> bones = world.getEntitiesByClass(RestlessBonesEntity.class, getBoundingBox().expand(BELL_RANGE),
 				b -> b.isAlive() && b.squaredDistanceTo(this) <= BELL_RANGE * BELL_RANGE);
@@ -192,21 +191,26 @@ public class GraveWardenEntity extends ReachMob {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.ENTITY_SKELETON_AMBIENT;
+		return ReachMobSounds.GRAVE_WARDEN_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_WITHER_SKELETON_HURT;
+		return ReachMobSounds.GRAVE_WARDEN_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_WITHER_SKELETON_DEATH;
+		return ReachMobSounds.GRAVE_WARDEN_DEATH;
 	}
 
 	@Override
-	public float getSoundPitch() {
-		return super.getSoundPitch() * 0.6f;
+	protected SoundEvent stepSound() {
+		return ReachMobSounds.GRAVE_WARDEN_STEP;
+	}
+
+	@Override
+	protected float stepVolume() {
+		return 0.4f;
 	}
 }

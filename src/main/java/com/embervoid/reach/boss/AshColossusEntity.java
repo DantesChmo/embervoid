@@ -24,6 +24,7 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -146,8 +147,7 @@ public class AshColossusEntity extends ReachBoss {
 		leapTarget = null;
 		moveCooldown = 30;
 		playAnimation(SHED);
-		world.playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_IRON_GOLEM_DAMAGE, SoundCategory.HOSTILE, 2.0f, 0.5f);
-		world.playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_BLAZE_AMBIENT, SoundCategory.HOSTILE, 2.0f, 0.5f);
+		world.playSound(null, getX(), getY(), getZ(), ReachBossSounds.ASH_COLOSSUS_SHED, SoundCategory.HOSTILE, 2.0f, 1.0f);
 		world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, ModBlocks.ASH_STONE.getDefaultState()),
 				getX(), getY() + 2.5, getZ(), 80, 1.0, 1.5, 1.0, 0.2);
 		world.spawnParticles(ParticleTypes.FLAME, getX(), getY() + 2.5, getZ(), 40, 0.8, 1.0, 0.8, 0.05);
@@ -223,7 +223,7 @@ public class AshColossusEntity extends ReachBoss {
 
 	public void fist(LivingEntity target) {
 		face(target.getPos());
-		telegraph(TelegraphShape.cone(getPos(), directionTo(target.getPos()), 5.5, 45), 18, FIST, SoundEvents.ENTITY_IRON_GOLEM_ATTACK,
+		telegraph(TelegraphShape.cone(getPos(), directionTo(target.getPos()), 5.5, 45), 18, FIST, ReachBossSounds.ASH_COLOSSUS_FIST,
 				ParticleTypes.FLAME, player -> {
 					player.damage(getDamageSources().mobAttack(this), FIST_DAMAGE);
 					knockAway(player, 1.2, 0.4);
@@ -233,7 +233,7 @@ public class AshColossusEntity extends ReachBoss {
 	/** A wide low sweep that drags the players it catches towards it. */
 	public void drag(LivingEntity target) {
 		face(target.getPos());
-		telegraph(TelegraphShape.cone(getPos(), directionTo(target.getPos()), 6, 70), 16, DRAG, SoundEvents.BLOCK_GRAVEL_BREAK,
+		telegraph(TelegraphShape.cone(getPos(), directionTo(target.getPos()), 6, 70), 16, DRAG, ReachBossSounds.ASH_COLOSSUS_DRAG,
 				ParticleTypes.ASH, player -> {
 					player.damage(getDamageSources().mobAttack(this), DRAG_DAMAGE);
 					knockAway(player, -0.9, 0.1);
@@ -245,7 +245,7 @@ public class AshColossusEntity extends ReachBoss {
 		face(target.getPos());
 		Vec3d landing = target.getPos();
 		TelegraphShape ring = TelegraphShape.ring(landing, LEAP_RADIUS);
-		Telegraph.windup(this, ring, 22, LEAP, SoundEvents.ENTITY_RAVAGER_ROAR, ParticleTypes.FLAME, () -> {
+		Telegraph.windup(this, ring, 22, LEAP, ReachBossSounds.ASH_COLOSSUS_LEAP, ParticleTypes.FLAME, () -> {
 			Vec3d delta = landing.subtract(getPos());
 			setVelocity(delta.x / LEAP_FLIGHT_TICKS, 0.9 + Math.max(0, delta.y) * 0.08, delta.z / LEAP_FLIGHT_TICKS);
 			velocityModified = true;
@@ -284,7 +284,7 @@ public class AshColossusEntity extends ReachBoss {
 	public void boulder(LivingEntity target) {
 		face(target.getPos());
 		Vec3d impact = target.getPos();
-		telegraph(TelegraphShape.shadow(impact, BOULDER_RADIUS), 30, BOULDER, SoundEvents.BLOCK_STONE_BREAK, ParticleTypes.SMOKE,
+		telegraph(TelegraphShape.shadow(impact, BOULDER_RADIUS), 30, BOULDER, ReachBossSounds.ASH_COLOSSUS_BOULDER, ParticleTypes.SMOKE,
 				player -> {
 					player.damage(getDamageSources().mobAttack(this), BOULDER_DAMAGE);
 					knockAway(player, 0.6, 0.4);
@@ -302,7 +302,7 @@ public class AshColossusEntity extends ReachBoss {
 	public void smash(BlockPos block) {
 		face(Vec3d.ofCenter(block));
 		telegraph(TelegraphShape.cone(getPos(), directionTo(Vec3d.ofCenter(block)), SMASH_REACH + 1, 40), 20, SMASH,
-				SoundEvents.ENTITY_IRON_GOLEM_ATTACK, ParticleTypes.FLAME, player -> {
+				ReachBossSounds.ASH_COLOSSUS_SMASH, ParticleTypes.FLAME, player -> {
 					player.damage(getDamageSources().mobAttack(this), FIST_DAMAGE);
 					knockAway(player, 1.2, 0.4);
 				});
@@ -334,7 +334,7 @@ public class AshColossusEntity extends ReachBoss {
 	/** The ash storm: a roar, then 6 s of ash on everyone it can see. */
 	public void startStorm() {
 		stormTimer = STORM_INTERVAL;
-		Telegraph.windup(this, STORM_WINDUP, STORM, SoundEvents.ENTITY_ENDER_DRAGON_GROWL, ParticleTypes.ASH, 6, () -> {
+		Telegraph.windup(this, STORM_WINDUP, STORM, ReachBossSounds.ASH_COLOSSUS_STORM, ParticleTypes.ASH, 6, () -> {
 			BossFight fight = fight();
 			if (fight != null) {
 				fight.addHazard(new AshStormHazard(this, STORM_TICKS, STORM_DAMAGE));
@@ -413,5 +413,25 @@ public class AshColossusEntity extends ReachBoss {
 	@Override
 	public boolean isFireImmune() {
 		return true;
+	}
+
+	@Override
+	protected SoundEvent getAmbientSound() {
+		return ReachBossSounds.ASH_COLOSSUS_AMBIENT;
+	}
+
+	@Override
+	protected SoundEvent getHurtSound(DamageSource source) {
+		return ReachBossSounds.ASH_COLOSSUS_HURT;
+	}
+
+	@Override
+	protected SoundEvent getDeathSound() {
+		return ReachBossSounds.ASH_COLOSSUS_DEATH;
+	}
+
+	@Override
+	protected SoundEvent stepSound() {
+		return ReachBossSounds.ASH_COLOSSUS_STEP;
 	}
 }

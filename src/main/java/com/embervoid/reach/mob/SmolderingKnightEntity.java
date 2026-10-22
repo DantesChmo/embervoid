@@ -9,7 +9,6 @@ import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -30,10 +29,10 @@ public class SmolderingKnightEntity extends ReachMob {
 	private static final int LUNGE_TICKS = 8;
 	private static final double LUNGE_SPEED = 0.85;
 	private static final float LUNGE_DAMAGE_FACTOR = 1.25f;
-	static final Move COMBO_1 = new Move("attack.combo1", 6, 0, SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, 0.7f);
-	static final Move COMBO_2 = new Move("attack.combo2", 5, 0, SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, 0.8f);
-	static final Move COMBO_3 = new Move("attack.combo3", 8, 40, SoundEvents.ENTITY_PLAYER_ATTACK_STRONG, 0.6f);
-	static final Move CROUCH = new Move("attack.crouch", CROUCH_TICKS, 80, SoundEvents.ENTITY_BLAZE_BURN, 0.5f);
+	static final Move COMBO_1 = new Move("attack.combo1", 6, 0, ReachMobSounds.SMOLDERING_KNIGHT_SWING, 0.95f);
+	static final Move COMBO_2 = new Move("attack.combo2", 5, 0, ReachMobSounds.SMOLDERING_KNIGHT_SWING, 1.05f);
+	static final Move COMBO_3 = new Move("attack.combo3", 8, 40, ReachMobSounds.SMOLDERING_KNIGHT_HEAVY, 1.0f);
+	static final Move CROUCH = new Move("attack.crouch", CROUCH_TICKS, 80, ReachMobSounds.SMOLDERING_KNIGHT_CROUCH, 1.0f);
 
 	private int lungeTicks;
 
@@ -126,7 +125,7 @@ public class SmolderingKnightEntity extends ReachMob {
 		velocityModified = true;
 		lungeTicks = LUNGE_TICKS;
 		triggerAnim(ACTION, "attack.lunge");
-		playSound(SoundEvents.ENTITY_BLAZE_SHOOT, 1.0f, 0.6f);
+		playSound(ReachMobSounds.SMOLDERING_KNIGHT_LUNGE, 1.0f, 1.0f);
 		if (getWorld() instanceof ServerWorld world) {
 			world.spawnParticles(ParticleTypes.FLAME, getX(), getY() + 0.2, getZ(), 20, 0.3, 0.1, 0.3, 0.02);
 		}
@@ -158,21 +157,26 @@ public class SmolderingKnightEntity extends ReachMob {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.ENTITY_WITHER_SKELETON_AMBIENT;
+		return ReachMobSounds.SMOLDERING_KNIGHT_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_WITHER_SKELETON_HURT;
+		return ReachMobSounds.SMOLDERING_KNIGHT_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_WITHER_SKELETON_DEATH;
+		return ReachMobSounds.SMOLDERING_KNIGHT_DEATH;
 	}
 
 	@Override
-	public float getSoundPitch() {
-		return super.getSoundPitch() * 0.7f;
+	protected SoundEvent stepSound() {
+		return ReachMobSounds.SMOLDERING_KNIGHT_STEP;
+	}
+
+	@Override
+	protected float stepVolume() {
+		return 0.4f;
 	}
 }

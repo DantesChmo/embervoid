@@ -10,7 +10,6 @@ import net.minecraft.item.ItemUsage;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.Stats;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
@@ -60,12 +59,12 @@ public class AmberBalmItem extends LoreItem {
 
 	@Override
 	public SoundEvent getDrinkSound() {
-		return SoundEvents.ITEM_HONEY_BOTTLE_DRINK;
+		return GearSounds.AMBER_BALM_DRINK;
 	}
 
 	@Override
 	public SoundEvent getEatSound() {
-		return SoundEvents.ITEM_HONEY_BOTTLE_DRINK;
+		return GearSounds.AMBER_BALM_DRINK;
 	}
 
 	@Override

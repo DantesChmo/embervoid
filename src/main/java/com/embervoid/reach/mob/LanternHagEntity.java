@@ -11,7 +11,6 @@ import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -31,7 +30,7 @@ public class LanternHagEntity extends ReachMob {
 	public static final double MAX_RANGE = 12;
 	/** Closer than this she only backs off: a flask at her feet would burn her too. */
 	public static final double MIN_THROW_RANGE = 4;
-	static final Move THROW = new Move("attack.throw", THROW_WINDUP, 50, SoundEvents.ENTITY_WITCH_CELEBRATE, 0.8f);
+	static final Move THROW = new Move("attack.throw", THROW_WINDUP, 50, ReachMobSounds.LANTERN_HAG_RAISE_LANTERN, 1.0f);
 
 	public LanternHagEntity(EntityType<? extends LanternHagEntity> type, World world) {
 		super(type, world);
@@ -85,7 +84,7 @@ public class LanternHagEntity extends ReachMob {
 		// The witch's arc: aim above the target by a fifth of the distance.
 		flask.setVelocity(dx, dy + distance * 0.2, dz, 0.75f, 2.0f);
 		getWorld().spawnEntity(flask);
-		playSound(SoundEvents.ENTITY_WITCH_THROW, 1.0f, 0.8f + random.nextFloat() * 0.4f);
+		playSound(ReachMobSounds.LANTERN_HAG_THROW, 1.0f, 0.9f + random.nextFloat() * 0.2f);
 	}
 
 	@Override
@@ -95,22 +94,17 @@ public class LanternHagEntity extends ReachMob {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.ENTITY_WITCH_AMBIENT;
+		return ReachMobSounds.LANTERN_HAG_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_WITCH_HURT;
+		return ReachMobSounds.LANTERN_HAG_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_WITCH_DEATH;
-	}
-
-	@Override
-	public float getSoundPitch() {
-		return super.getSoundPitch() * 0.8f;
+		return ReachMobSounds.LANTERN_HAG_DEATH;
 	}
 
 	/**

@@ -15,7 +15,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
@@ -76,10 +75,8 @@ public class FlaskEmberItem extends LoreItem {
 		}
 		if (user instanceof ServerPlayerEntity player) {
 			setUsed(player, true);
-			world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.BLOCK_AMETHYST_BLOCK_RESONATE,
-					SoundCategory.PLAYERS, 1.0f, 0.7f);
-			world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.ITEM_FIRECHARGE_USE,
-					SoundCategory.PLAYERS, 0.6f, 0.8f);
+			world.playSound(null, user.getX(), user.getY(), user.getZ(), GearSounds.FLASK_EMBER_USE,
+					SoundCategory.PLAYERS, 1.0f, 1.0f);
 			player.sendMessage(Text.translatable("embervoid.gear.flask_ember.used").formatted(Formatting.GOLD), true);
 			if (!player.getAbilities().creativeMode) {
 				stack.decrement(1);

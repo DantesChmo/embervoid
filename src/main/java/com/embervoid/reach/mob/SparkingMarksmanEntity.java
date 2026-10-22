@@ -17,7 +17,6 @@ import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +35,7 @@ public class SparkingMarksmanEntity extends ReachMob {
 	public static final double RANGE = 24;
 	/** Crossbow bolt speed, blocks per tick. */
 	private static final float BOLT_SPEED = 3.15f;
-	static final Move AIM = new Move("attack.aim", AIM_TICKS, 60, SoundEvents.ITEM_CROSSBOW_LOADING_MIDDLE, 0.8f);
+	static final Move AIM = new Move("attack.aim", AIM_TICKS, 60, ReachMobSounds.SPARKING_MARKSMAN_SPARK, 1.0f);
 	private static final byte STATE_AIMING = 1;
 
 	public SparkingMarksmanEntity(EntityType<? extends SparkingMarksmanEntity> type, World world) {
@@ -124,7 +123,7 @@ public class SparkingMarksmanEntity extends ReachMob {
 		bolt.setShotFromCrossbow(true);
 		bolt.pickupType = PersistentProjectileEntity.PickupPermission.DISALLOWED;
 		getWorld().spawnEntity(bolt);
-		playSound(SoundEvents.ITEM_CROSSBOW_SHOOT, 1.0f, 0.8f);
+		playSound(ReachMobSounds.SPARKING_MARKSMAN_SHOOT, 1.0f, 1.0f);
 	}
 
 	@Override
@@ -150,22 +149,17 @@ public class SparkingMarksmanEntity extends ReachMob {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.ENTITY_PILLAGER_AMBIENT;
+		return ReachMobSounds.SPARKING_MARKSMAN_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_PILLAGER_HURT;
+		return ReachMobSounds.SPARKING_MARKSMAN_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_PILLAGER_DEATH;
-	}
-
-	@Override
-	public float getSoundPitch() {
-		return super.getSoundPitch() * 0.8f;
+		return ReachMobSounds.SPARKING_MARKSMAN_DEATH;
 	}
 
 	/** Faces its target and aims whenever it has a clear line within range. */

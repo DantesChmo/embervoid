@@ -7,6 +7,7 @@ import com.embervoid.boss.FloodHazard;
 import com.embervoid.boss.Telegraph;
 import com.embervoid.boss.TelegraphShape;
 import com.embervoid.reach.gear.GearConsumables;
+import com.embervoid.reach.mob.ReachMobSounds;
 import com.embervoid.reach.mob.ReachMobs;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -28,6 +29,7 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -159,8 +161,7 @@ public class CryptKeeperEntity extends ReachBoss {
 		int flood = fight.spec().radius() + FLOOD_MARGIN;
 		if (phase == 1) {
 			playAnimation(LANTERN_SHATTER);
-			world.playSound(null, getX(), getY(), getZ(), SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.HOSTILE, 2.0f, 0.6f);
-			world.playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_WARDEN_EMERGE, SoundCategory.HOSTILE, 1.5f, 1.2f);
+			world.playSound(null, getX(), getY(), getZ(), ReachBossSounds.CRYPT_KEEPER_LANTERN_SHATTER, SoundCategory.HOSTILE, 2.0f, 1.0f);
 			world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME, getX(), getY() + 2.5, getZ(), 40, 0.6, 0.6, 0.6, 0.05);
 			world.spawnParticles(ParticleTypes.LARGE_SMOKE, getX(), getY() + 2.5, getZ(), 30, 0.6, 0.6, 0.6, 0.02);
 			fight.addHazard(new FloodHazard(flood, 1, 60));
@@ -168,7 +169,7 @@ public class CryptKeeperEntity extends ReachBoss {
 			getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).setBaseValue(0.24);
 		} else if (phase == 2) {
 			playAnimation(RAISE_DEAD);
-			world.playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_SKELETON_HORSE_DEATH, SoundCategory.HOSTILE, 2.0f, 0.5f);
+			world.playSound(null, getX(), getY(), getZ(), ReachBossSounds.CRYPT_KEEPER_RAISE_DEAD, SoundCategory.HOSTILE, 2.0f, 1.0f);
 			fight.addHazard(new FloodHazard(flood, 2, 60));
 			raiseDead(fight);
 			getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).setBaseValue(0.26);
@@ -219,11 +220,11 @@ public class CryptKeeperEntity extends ReachBoss {
 		if (hit < 3) {
 			TelegraphShape cone = TelegraphShape.cone(getPos(), facing, SWING_RANGE, 55);
 			int windup = hit == 1 ? 14 : 10;
-			telegraph(cone, windup, hit == 1 ? SWING_1 : SWING_2, SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, ParticleTypes.SOUL_FIRE_FLAME,
+			telegraph(cone, windup, hit == 1 ? SWING_1 : SWING_2, ReachBossSounds.CRYPT_KEEPER_SWING, ParticleTypes.SOUL_FIRE_FLAME,
 					player -> player.damage(getDamageSources().mobAttack(this), SWING_DAMAGE));
 		} else {
 			TelegraphShape line = TelegraphShape.line(getPos(), getPos().add(facing.multiply(6.5)), 1.1);
-			telegraph(line, 22, OVERHEAD, SoundEvents.ENTITY_RAVAGER_ROAR, UNBLOCKABLE, player -> {
+			telegraph(line, 22, OVERHEAD, ReachBossSounds.CRYPT_KEEPER_OVERHEAD, UNBLOCKABLE, player -> {
 				BossHits.shieldBreaking(this, player, OVERHEAD_DAMAGE);
 				player.addVelocity(0, 0.3, 0);
 				player.velocityModified = true;
@@ -250,7 +251,7 @@ public class CryptKeeperEntity extends ReachBoss {
 
 	public void sweep() {
 		Vec3d at = getPos();
-		telegraph(TelegraphShape.ring(at, SWEEP_RADIUS), 24, SWEEP, SoundEvents.ENTITY_EVOKER_PREPARE_ATTACK, ParticleTypes.SOUL_FIRE_FLAME,
+		telegraph(TelegraphShape.ring(at, SWEEP_RADIUS), 24, SWEEP, ReachBossSounds.CRYPT_KEEPER_SWEEP, ParticleTypes.SOUL_FIRE_FLAME,
 				player -> {
 					player.damage(getDamageSources().mobAttack(this), SWEEP_DAMAGE);
 					knockAway(player, 1.0, 0.35);
@@ -262,7 +263,7 @@ public class CryptKeeperEntity extends ReachBoss {
 		face(target.getPos());
 		Vec3d landing = target.getPos();
 		TelegraphShape shadow = TelegraphShape.shadow(landing, FIRE_POOL_RADIUS);
-		telegraph(shadow, 20, LANTERN_THROW, SoundEvents.ENTITY_BLAZE_SHOOT, ParticleTypes.FLAME, player -> {
+		telegraph(shadow, 20, LANTERN_THROW, ReachBossSounds.CRYPT_KEEPER_LANTERN_THROW, ParticleTypes.FLAME, player -> {
 			player.damage(getDamageSources().mobAttack(this), LANTERN_DAMAGE);
 			player.setOnFireFor(2);
 		});
@@ -270,7 +271,7 @@ public class CryptKeeperEntity extends ReachBoss {
 		Telegraph.windup(this, 20, null, null, ParticleTypes.FLAME, 0, () -> {
 			BossFight fight = fight();
 			if (fight != null && getWorld() instanceof ServerWorld world) {
-				world.playSound(null, landing.x, landing.y, landing.z, SoundEvents.ITEM_FIRECHARGE_USE, SoundCategory.HOSTILE, 1.5f, 0.8f);
+				world.playSound(null, landing.x, landing.y, landing.z, ReachMobSounds.FIRE_FLASK_IGNITE, SoundCategory.HOSTILE, 1.5f, 1.0f);
 				fight.addHazard(new AreaHazard(TelegraphShape.ring(landing, FIRE_POOL_RADIUS), 100, 10,
 						BossHits.source(this, DamageTypes.IN_FIRE), FIRE_POOL_DAMAGE, ParticleTypes.FLAME, player -> player.setOnFireFor(2)));
 			}
@@ -282,7 +283,7 @@ public class CryptKeeperEntity extends ReachBoss {
 		face(target.getPos());
 		Vec3d facing = directionTo(target.getPos());
 		Vec3d end = getPos().add(facing.multiply(9));
-		telegraph(TelegraphShape.line(getPos(), end, 1.0), 18, THRUST, SoundEvents.ENTITY_RAVAGER_ATTACK, ParticleTypes.SOUL_FIRE_FLAME,
+		telegraph(TelegraphShape.line(getPos(), end, 1.0), 18, THRUST, ReachBossSounds.CRYPT_KEEPER_THRUST, ParticleTypes.SOUL_FIRE_FLAME,
 				player -> {
 					player.damage(getDamageSources().mobAttack(this), THRUST_DAMAGE);
 					knockAway(player, 0.6, 0.2);
@@ -455,5 +456,25 @@ public class CryptKeeperEntity extends ReachBoss {
 	/** Test hook: whether any of its arena's braziers burns. */
 	public boolean anyBrazierLit() {
 		return braziers.stream().anyMatch(this::isBurning);
+	}
+
+	@Override
+	protected SoundEvent getAmbientSound() {
+		return ReachBossSounds.CRYPT_KEEPER_AMBIENT;
+	}
+
+	@Override
+	protected SoundEvent getHurtSound(DamageSource source) {
+		return ReachBossSounds.CRYPT_KEEPER_HURT;
+	}
+
+	@Override
+	protected SoundEvent getDeathSound() {
+		return ReachBossSounds.CRYPT_KEEPER_DEATH;
+	}
+
+	@Override
+	protected SoundEvent stepSound() {
+		return ReachBossSounds.CRYPT_KEEPER_STEP;
 	}
 }
