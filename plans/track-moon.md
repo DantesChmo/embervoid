@@ -12,6 +12,7 @@ Packages owned: `com.embervoid.moon` (main), `com.embervoid.client.moon` (client
 | State machine | `MoonNightManager` on `END_SERVER_TICK`: starts a scheduled night at dusk; ends at dawn when no hold is open (`DAWN`), on the last release (`GOAL_MET`), after `moon.fallbackMinutes` of server ticks (`TIMEOUT`), or by command (`COMMAND`) |
 | API | `moon.api.MoonNights` (`current`, `NIGHT_STARTED`, `NIGHT_ENDED`, `hold`, `release`, `holds`), `moon.api.MoonNight` enum, `moon.api.CurseOfTheNight.stacks` |
 | Config | `MoonConfig`: `enabled`, `cycleInterval` 3, `fallbackMinutes` 30, `fullMoon.{levelBonus 3, followRange 1.5, zombieLevelBonus 5, ghostMissChance 0.15}`, `blood.{vampirism 0.25, provokeMinutes 5}` — keys of all three tracks |
+| Sky sync | `MoonSync` S2C `embervoid:moon_night` (night ordinal) on join, respawn, dimension change, start/end. Client `client.moon.MoonClient` fades a tint 0→1 over 100 ticks on the blood new moon in the overworld; mixins `MoonSkyColorMixin` (`ClientWorld.getSkyColor`), `MoonFogColorMixin` (`BackgroundRenderer.render` before `clearColor`, not under water/lava), `MoonRenderMixin` (shader colour before the moon texture in `WorldRenderer.renderSky`) |
 | Debug | `/embervoid moon status | start full | start blood | stop | setcycle <n>` |
 
 Decisions made here (small, easy to change):
@@ -28,7 +29,7 @@ Decisions made here (small, easy to change):
 
 - [x] 8.1 Moon-night state + `moon.api` (schedule JUnit-tested)
 - [x] 8.2 Night hold (time freeze), dawn on release, sleep block, fallback, announcements
-- [ ] 8.3 Blood-red sky sync
+- [x] 8.3 Blood-red sky sync
 - [ ] 8.4 Full moon mob modifiers
 - [ ] 8.5 Curse of the Night
 - [ ] 8.6 Vampirism

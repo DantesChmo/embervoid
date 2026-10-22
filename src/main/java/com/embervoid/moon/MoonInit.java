@@ -8,6 +8,7 @@ public final class MoonInit {
 		Embervoid.LOGGER.debug("Moon config section: {}", MoonConfig.SECTION.name());
 		MoonNightManager.register();
 		MoonSleep.register();
+		MoonSync.register();
 		MoonCommands.register();
 	}
 
