@@ -113,6 +113,23 @@ public class LanternHagEntity extends ReachMob {
 		return super.getSoundPitch() * 0.8f;
 	}
 
+	/**
+	 * Steps straight away from the target (6 blocks), or to a random spot away from it when that path is blocked.
+	 */
+	void backOff(LivingEntity target) {
+		Vec3d away = getPos().subtract(target.getPos()).multiply(1, 0, 1);
+		if (away.lengthSquared() > 1.0E-4) {
+			Vec3d spot = getPos().add(away.normalize().multiply(6));
+			if (getNavigation().startMovingTo(spot.x, spot.y, spot.z, 1.2)) {
+				return;
+			}
+		}
+		Vec3d spot = NoPenaltyTargeting.findFrom(this, 16, 7, target.getPos());
+		if (spot != null) {
+			getNavigation().startMovingTo(spot.x, spot.y, spot.z, 1.2);
+		}
+	}
+
 	/** Holds the 8–12 block band around the target and throws when it can see it. */
 	static class KeepRangeGoal extends Goal {
 		private final LanternHagEntity hag;
@@ -155,10 +172,7 @@ public class LanternHagEntity extends ReachMob {
 			if (--repath <= 0) {
 				repath = 10;
 				if (distance < MIN_RANGE) {
-					Vec3d away = NoPenaltyTargeting.findFrom(hag, 16, 7, target.getPos());
-					if (away != null) {
-						hag.getNavigation().startMovingTo(away.x, away.y, away.z, 1.2);
-					}
+					hag.backOff(target);
 				} else if (distance > MAX_RANGE || !seen) {
 					hag.getNavigation().startMovingTo(target, 1.0);
 				} else {
