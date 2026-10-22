@@ -6,7 +6,7 @@ import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.passive.IronGolemEntity;
+import net.minecraft.entity.passive.CowEntity;
 import net.minecraft.loot.LootTable;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registry;
@@ -28,19 +28,11 @@ import java.util.stream.Collectors;
  * loot tables.
  */
 public final class ReachMobTests implements FabricGameTest {
-	/** A 100 HP target that does not move or fight back. */
-	static IronGolemEntity dummy(TestContext context, int x, int z) {
-		// On the ground (relative y 0 is the floor's top layer of air): with no AI it would float where it spawned.
-		IronGolemEntity golem = context.spawnMob(EntityType.IRON_GOLEM, x, 0, z);
-		golem.setAiDisabled(true);
-		return golem;
-	}
-
 	/** A Cinder Husk's swing lands exactly 10 ticks after the telegraph starts, not before. */
 	@GameTest(templateName = EMPTY_STRUCTURE)
 	public void meleeLandsAfterTheWindup(TestContext context) {
-		IronGolemEntity target = dummy(context, 2, 3);
-		var husk = context.spawnMob(ReachMobs.CINDER_HUSK, 2, 1, 2);
+		CowEntity target = ReachTests.dummy(context, 2, 3);
+		var husk = ReachTests.still(context, ReachMobs.CINDER_HUSK, 2, 1, 2);
 		husk.setAiDisabled(true);
 		husk.setTarget(target);
 		context.assertTrue(husk.startMove(husk.meleeMove()), "the swing did not start");
@@ -53,17 +45,17 @@ public final class ReachMobTests implements FabricGameTest {
 		context.waitAndRun(11, () -> {
 			context.assertTrue(target.getHealth() < target.getMaxHealth(), "no hit after the windup");
 			context.assertFalse(husk.isWindingUp(), "still winding up");
-			context.complete();
+			ReachTests.finish(context);
 		});
 	}
 
 	/** A cancelled windup never lands; a target that walked out of reach is not hit either. */
 	@GameTest(templateName = EMPTY_STRUCTURE)
 	public void cancelledOrOutOfReachMoveDoesNotLand(TestContext context) {
-		IronGolemEntity near = dummy(context, 2, 3);
-		IronGolemEntity far = dummy(context, 7, 7);
-		var cancelled = context.spawnMob(ReachMobs.CINDER_HUSK, 2, 1, 2);
-		var outOfReach = context.spawnMob(ReachMobs.CINDER_HUSK, 2, 1, 6);
+		CowEntity near = ReachTests.dummy(context, 2, 3);
+		CowEntity far = ReachTests.dummy(context, 7, 7);
+		var cancelled = ReachTests.still(context, ReachMobs.CINDER_HUSK, 2, 1, 2);
+		var outOfReach = ReachTests.still(context, ReachMobs.CINDER_HUSK, 2, 1, 6);
 		cancelled.setAiDisabled(true);
 		outOfReach.setAiDisabled(true);
 		cancelled.setTarget(near);
@@ -74,7 +66,7 @@ public final class ReachMobTests implements FabricGameTest {
 		context.waitAndRun(15, () -> {
 			context.assertTrue(near.getHealth() == near.getMaxHealth(), "a cancelled swing landed");
 			context.assertTrue(far.getHealth() == far.getMaxHealth(), "a swing landed out of reach");
-			context.complete();
+			ReachTests.finish(context);
 		});
 	}
 
@@ -84,9 +76,9 @@ public final class ReachMobTests implements FabricGameTest {
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE)
 	public void placedTagMakesAGuard(TestContext context) {
-		var placed = context.spawnMob(ReachMobs.HOLLOW_SENTINEL, 2, 1, 2);
+		var placed = ReachTests.still(context, ReachMobs.HOLLOW_SENTINEL, 2, 1, 2);
 		placed.addCommandTag(ReachMob.PLACED_TAG);
-		var natural = context.spawnMob(ReachMobs.HOLLOW_SENTINEL, 5, 1, 5);
+		var natural = ReachTests.still(context, ReachMobs.HOLLOW_SENTINEL, 5, 1, 5);
 		context.waitAndRun(2, () -> {
 			context.assertTrue(placed.isPlaced() && placed.isPersistent(), "tagged mob not placed/persistent");
 			context.assertTrue(placed.hasPositionTarget() && placed.getPositionTarget().equals(placed.home()),
@@ -98,7 +90,7 @@ public final class ReachMobTests implements FabricGameTest {
 			MobEntity copy = (MobEntity) EntityType.loadEntityWithPassengers(saved, context.getWorld(), entity -> entity);
 			context.assertTrue(copy instanceof ReachMob mob && mob.isPlaced() && placed.home().equals(mob.home())
 					&& mob.getPositionTarget().equals(mob.home()), "placed state lost on reload");
-			context.complete();
+			ReachTests.finish(context);
 		});
 	}
 
@@ -124,7 +116,7 @@ public final class ReachMobTests implements FabricGameTest {
 						+ entry.getKey().getValue() + ": " + monsters.contains(mob) + ", expected " + want.contains(mob));
 			}
 		}
-		context.complete();
+		ReachTests.finish(context);
 	}
 
 	/** Every Realm 1 mob has a non-empty loot table (its basic drops). */
@@ -137,6 +129,6 @@ public final class ReachMobTests implements FabricGameTest {
 			LootTable loot = context.getWorld().getServer().getLootManager().getLootTable(table);
 			context.assertTrue(loot != LootTable.EMPTY, "no loot table " + table);
 		}
-		context.complete();
+		ReachTests.finish(context);
 	}
 }
