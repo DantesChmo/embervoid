@@ -35,9 +35,9 @@ instead of an error, or a vanilla stand-in behind one constant).
 
 | Contract | Owner | Used by | Contents |
 |---|---|---|---|
-| Fog API (PLAN 9.1) | reach-world | reach-bosses (arena fog), reliquary (Fog Stalker ring) | Client API to push/clear a fog override by source id (density, colour), strongest wins; per-zone fog built on it |
+| Fog API (PLAN 9.1, merged) | reach-world | reach-bosses (arena fog), reliquary (Fog Stalker ring) | `client.realm.RealmFog`: `push(source, density 0–1, rgb[, clearable])`, `clear`, `has`, `setClearing(source, factor)` (clearable layers only; arena fog pushes `clearable=false`), `reset` on disconnect; strongest wins, eased; per-zone fog is source `embervoid:zone` |
 | Placed enemies (PLAN 9.2) | reach-world | reach-mobs (placed behaviour), reach-bosses (arena guards if any) | Template marker + processor spawning an entity id at worldgen, persistent, never respawns, zone-band level; a way for the mob to know it was placed |
-| Items and chest stubs (PLAN 11.1) | reach-gear | reach-world (ore drops, chests), reach-bosses (souls, rematch, Flask Ember), reliquary (chest injection) | Item ids and empty chest tables from PLAN.md |
+| Items and chest stubs (PLAN 11.1, merged: `reach.gear.GearItems`, `reach.gear.GearLootTables`) | reach-gear | reach-world (ore drops, chests), reach-bosses (souls, rematch, Flask Ember), reliquary (chest injection) | Item ids and empty chest tables from PLAN.md |
 | `embervoid:realm_ores` | reach-world | reliquary (Delver's Ring) | Block tag of the three realm ores |
 | Mob ids | reach-mobs | reach-world (markers), reach-bosses (adds), reach-gear / reliquary (loot injection) | Entity ids from PLAN.md |
 | Built APIs | — | all | `mob.MobLevels`, `boss.ArenaBoss` / `BossFight` / `Telegraph`, `progress.ProgressManager`, `realm.RealmMobLevels`, special attacks (`item.ability`), Ash Remnant (`player`), stats — see CORE.md |
@@ -64,7 +64,7 @@ ids) and replace it after syncing with `main`.
 - Work task by task, one commit per task, on the track branch. `./gradlew build` must pass on every commit; `./gradlew runDatagen` when assets or data change. Pure logic gets JUnit tests.
 - **Do not launch a client:** no `runClient` and no `tools/client_check.py` (it crashes the Claude app). A track may run `./gradlew runGametest` and `python3 tools/server_check.py` (headless servers). The user does not play-test: a behaviour is checked by a GameTest or the server check, written by the track that built it.
 - Open questions in DESIGN.md §10: build the recommended answer, keep it easy to change.
-- To get other tracks' merged work: sync the worktree with `main` (the app's `sync_with_base_branch`), never merge another track's branch directly.
+- To get other tracks' merged work: `git merge main` (the local `main` branch; it is not pushed, so the app's `sync_with_base_branch`, which reads `origin/main`, does not see it). Never merge another track's branch directly.
 - Do not push, do not open PRs. The coordinator merges.
 
 ## Messages to the coordinator

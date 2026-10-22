@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "embervoid:grave_iron_ingot"
+    },
+    {
+      "item": "embervoid:grave_iron_ingot"
+    },
+    {
+      "item": "embervoid:grave_iron_ingot"
+    },
+    {
+      "item": "embervoid:grave_iron_ingot"
+    },
+    {
+      "item": "embervoid:cinder_shard"
+    },
+    {
+      "item": "embervoid:cinder_shard"
+    },
+    {
+      "item": "embervoid:royal_amber"
+    },
+    {
+      "item": "embervoid:royal_amber"
+    }
+  ],
+  "result": {
+    "item": "embervoid:smoldering_ingot"
+  }
+}
