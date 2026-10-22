@@ -28,9 +28,23 @@ says). After syncing with `main`: switch the imports to `moon.api`, delete `vamp
   - `VampireState` (overworld `PersistentState`): night counter, stage, timer, the turning Vampire. Vampires store
     their night id; one that does not belong to the current stage vanishes on its next tick (unloaded chunks,
     restarts).
-  - In 8.10 the finished transformation releases the hold (the boss comes in 8.11).
   - Debug: `/embervoid vampire status | provoke`.
-- [ ] **8.11 Vampire boss.**
+- [x] **8.11 Vampire boss.**
+  - `VampireBossEntity` (`HostileEntity`, GeckoLib placeholder `vampire_boss`, rendered ×1.2): implements `ArenaBoss`
+    (phases 60 % / 30 %, `Telegraph` animations) but does not call `ArenaManager.tickBoss` (it has no arena) — no
+    hook in `boss` was needed. Base 220 HP, 7 melee, armor 4 (scaled by its level). Moves: claws; Blood Leap
+    (1 s crouch, rings mark the landing, 9 in r 3.5); Blood Nova from 60 % (1.5 s shrinking ring r 6, 10 damage, heals
+    25 % of what it dealt); Mist Step from 30 % (vanishes in smoke, strikes from behind its target), faster.
+    No fall damage. 200 XP before level scaling, like the test boss.
+  - `VampireFight` (one per server, state in `VampireState`): the boss forms where the Vampire turned. Players within
+    48 blocks then take part; any living player who comes within 48 later joins, except those who died in it.
+    Level `VampireLevel.of` (JUnit): highest participant level, ≥ `vampire.bossMinLevel` 15, ≤ top band of the highest
+    unlocked realm (Ashen Reach: 30) or `vampire.bossCapNoRealm` 20. Shared bar "Vampire — Lv N", crimson forest
+    music. Kill → personal loot into each credited fighter's inventory: first kill (progress id `embervoid:vampire`)
+    `firstKillShards` 2 Flask Shards + Vampire Fang (`embervoid:vampire_fang`), repeat `repeatShardChance` 50 % one
+    shard; hold released. Every fighter dead, or nobody near for 30 s → the Vampire leaves, hold released. Night
+    ended another way → boss leaves, no credit. Restart mid-fight: boss stays (persistent), bar rebuilt.
+  - `/embervoid vampire status` shows the fight.
 - [ ] **8.12 Vampire arena dimension.**
 
 ## Notes

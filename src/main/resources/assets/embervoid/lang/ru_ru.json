@@ -152,5 +152,12 @@
 	"embervoid.vampire.talk.3": "Побудьте со мной. До рассвета ещё так далеко.",
 	"embervoid.vampire.arrived": "Из темноты выходят бледные фигуры. Кажется, они дружелюбны... пока.",
 	"embervoid.vampire.provoked": "%s бьёт вампира — тот сбрасывает личину!",
-	"embervoid.vampire.impatient": "Вампиру надоело ждать, и он сбрасывает личину!"
+	"embervoid.vampire.impatient": "Вампиру надоело ждать, и он сбрасывает личину!",
+	"entity.embervoid.vampire_boss": "Вампир",
+	"boss.embervoid.vampire": "Вампир",
+	"item.embervoid.vampire_fang": "Клык вампира",
+	"embervoid.vampire.boss.first_kill": "Вампир повержен. Его клык и осколки фляги (%s) — ваши",
+	"embervoid.vampire.boss.beaten": "Вампир уничтожен. Кровавая луна меркнет",
+	"embervoid.vampire.boss.won": "Против вампира не осталось никого. Он со смехом растворяется в ночи",
+	"embervoid.vampire.boss.left": "Охотиться больше не на кого, и вампир растворяется в ночи"
 }

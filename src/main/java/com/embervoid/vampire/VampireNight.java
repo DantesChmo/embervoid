@@ -32,6 +32,7 @@ import java.util.List;
  *   players in a Sanctum core left out) gets 1–3 friendly Vampires nearby. The night is held from then on.</li>
  *   <li>The first player hit on any Vampire turns that one; every other Vampire vanishes.</li>
  *   <li>If nobody provokes one within {@code vampire.provokeMinutes}, the Vampire nearest to a player turns.</li>
+ *   <li>The turned Vampire becomes the boss ({@link VampireFight}); the hold is released when that fight is over.</li>
  *   <li>When the night ends any other way (timeout, command), all Vampires leave.</li>
  * </ul>
  */
@@ -213,22 +214,18 @@ public final class VampireNight {
 		}
 	}
 
-	/**
-	 * The transformation is over. The boss form comes with PLAN 8.11; until then the Vampire leaves and the night is
-	 * released.
-	 */
+	/** The transformation is over: the boss forms where the Vampire stood. */
 	static void onTurned(VampireEntity vampire) {
-		MinecraftServer server = vampire.getServer();
-		VampireState state = VampireState.get(server);
-		state.stage = Stage.NONE;
+		ServerWorld world = (ServerWorld) vampire.getWorld();
+		VampireState state = VampireState.get(world.getServer());
 		state.turning = null;
-		state.markDirty();
 		vampire.discard();
-		MoonNights.release(server, HOLD);
+		VampireFight.form(world, vampire.getPos(), vampire.getYaw());
 	}
 
 	/** The night ended (dawn, timeout, command): every Vampire leaves. */
 	static void end(MinecraftServer server) {
+		VampireFight.end(server);
 		VampireState state = VampireState.get(server);
 		if (state.stage == Stage.NONE) {
 			return;
@@ -243,6 +240,7 @@ public final class VampireNight {
 
 	/** After a restart: keep going if the blood night is still on, else forget it. */
 	private static void resume(MinecraftServer server) {
+		VampireFight.reset();
 		VampireState state = VampireState.get(server);
 		if (state.stage == Stage.NONE) {
 			return;
@@ -267,7 +265,7 @@ public final class VampireNight {
 		return switch (state.stage) {
 			case GROUPS -> true;
 			case TURNING -> vampire.getUuid().equals(state.turning);
-			case NONE -> false;
+			case NONE, FIGHT -> false;
 		};
 	}
 

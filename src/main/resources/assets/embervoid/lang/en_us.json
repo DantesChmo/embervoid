@@ -152,5 +152,12 @@
 	"embervoid.vampire.talk.3": "Stay a while. Dawn is still very far away.",
 	"embervoid.vampire.arrived": "Pale figures step out of the dark. They seem friendly... for now.",
 	"embervoid.vampire.provoked": "%s struck a Vampire. It sheds its disguise!",
-	"embervoid.vampire.impatient": "The Vampire grows tired of waiting and sheds its disguise!"
+	"embervoid.vampire.impatient": "The Vampire grows tired of waiting and sheds its disguise!",
+	"entity.embervoid.vampire_boss": "Vampire",
+	"boss.embervoid.vampire": "Vampire",
+	"item.embervoid.vampire_fang": "Vampire Fang",
+	"embervoid.vampire.boss.first_kill": "The Vampire falls. Its fang and %s Flask Shard(s) are yours",
+	"embervoid.vampire.boss.beaten": "The Vampire is destroyed. The blood moon wanes",
+	"embervoid.vampire.boss.won": "No one is left to face the Vampire. It melts into the night, laughing",
+	"embervoid.vampire.boss.left": "With no one to hunt, the Vampire melts into the night"
 }
