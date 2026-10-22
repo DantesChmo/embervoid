@@ -2,6 +2,7 @@ package com.embervoid.client.reach.boss.datagen;
 
 import com.embervoid.reach.boss.ReachBossEntities;
 import com.embervoid.reach.gear.GearItems;
+import com.embervoid.registry.ModBlocks;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.SimpleFabricLootTableProvider;
@@ -47,6 +48,9 @@ public final class ReachBossDataGen {
 			exporter.accept(ReachBossEntities.ASH_COLOSSUS.getLootTableId(), LootTable.builder()
 					.pool(drop(GearItems.CINDER_SHARD, 3, 6))
 					.pool(drop(Items.CHARCOAL, 2, 5)));
+			exporter.accept(ReachBossEntities.GRIEVING_TREE.getLootTableId(), LootTable.builder()
+					.pool(drop(GearItems.ROYAL_AMBER, 3, 6))
+					.pool(drop(ModBlocks.DEAD_LOG.asItem(), 2, 5)));
 		}
 
 		static LootPool.Builder drop(Item item, float min, float max) {

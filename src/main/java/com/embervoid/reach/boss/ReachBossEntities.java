@@ -23,9 +23,23 @@ public final class ReachBossEntities {
 					.fireImmune()
 					.build());
 
+	public static final EntityType<GrievingTreeEntity> GRIEVING_TREE = ModEntities.register("grieving_tree",
+			FabricEntityTypeBuilder.<GrievingTreeEntity>create(SpawnGroup.MONSTER, GrievingTreeEntity::new)
+					.dimensions(EntityDimensions.fixed(3.0f, 10.0f))
+					.trackRangeBlocks(128)
+					.build());
+	/** The Grieving Tree's hanged lanterns (not a fixed id; only the tree makes them). */
+	public static final EntityType<TreeLanternEntity> TREE_LANTERN = ModEntities.register("tree_lantern",
+			FabricEntityTypeBuilder.<TreeLanternEntity>create(SpawnGroup.MISC, TreeLanternEntity::new)
+					.dimensions(EntityDimensions.fixed(0.6f, 0.8f))
+					.trackRangeBlocks(96)
+					.disableSaving()
+					.build());
+
 	static void register() {
 		FabricDefaultAttributeRegistry.register(CRYPT_KEEPER, CryptKeeperEntity.createAttributes());
 		FabricDefaultAttributeRegistry.register(ASH_COLOSSUS, AshColossusEntity.createAttributes());
+		FabricDefaultAttributeRegistry.register(GRIEVING_TREE, GrievingTreeEntity.createAttributes());
 	}
 
 	private ReachBossEntities() {}

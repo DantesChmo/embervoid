@@ -1,0 +1,336 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.embervoid.grieving_tree",
+				"texture_width": 512,
+				"texture_height": 256,
+				"visible_bounds_width": 8,
+				"visible_bounds_height": 11,
+				"visible_bounds_offset": [
+					0,
+					5.5,
+					0
+				]
+			},
+			"bones": [
+				{
+					"name": "root",
+					"pivot": [
+						0,
+						0,
+						0
+					]
+				},
+				{
+					"name": "roots",
+					"pivot": [
+						0,
+						0,
+						0
+					],
+					"parent": "root",
+					"cubes": [
+						{
+							"origin": [
+								-24,
+								0,
+								-4
+							],
+							"size": [
+								16,
+								6,
+								8
+							],
+							"uv": [
+								0,
+								0
+							]
+						},
+						{
+							"origin": [
+								8,
+								0,
+								-4
+							],
+							"size": [
+								16,
+								6,
+								8
+							],
+							"uv": [
+								48,
+								0
+							]
+						},
+						{
+							"origin": [
+								-4,
+								0,
+								-24
+							],
+							"size": [
+								8,
+								6,
+								16
+							],
+							"uv": [
+								96,
+								0
+							]
+						},
+						{
+							"origin": [
+								-4,
+								0,
+								8
+							],
+							"size": [
+								8,
+								6,
+								16
+							],
+							"uv": [
+								144,
+								0
+							]
+						}
+					]
+				},
+				{
+					"name": "right_root_leg",
+					"pivot": [
+						-8,
+						20,
+						0
+					],
+					"parent": "root",
+					"cubes": [
+						{
+							"origin": [
+								-14,
+								0,
+								-6
+							],
+							"size": [
+								12,
+								20,
+								12
+							],
+							"uv": [
+								192,
+								0
+							]
+						}
+					]
+				},
+				{
+					"name": "left_root_leg",
+					"pivot": [
+						8,
+						20,
+						0
+					],
+					"parent": "root",
+					"cubes": [
+						{
+							"origin": [
+								2,
+								0,
+								-6
+							],
+							"size": [
+								12,
+								20,
+								12
+							],
+							"uv": [
+								240,
+								0
+							]
+						}
+					]
+				},
+				{
+					"name": "trunk",
+					"pivot": [
+						0,
+						20,
+						0
+					],
+					"parent": "root",
+					"cubes": [
+						{
+							"origin": [
+								-12,
+								20,
+								-12
+							],
+							"size": [
+								24,
+								104,
+								24
+							],
+							"uv": [
+								288,
+								0
+							]
+						},
+						{
+							"origin": [
+								-6,
+								80,
+								-13
+							],
+							"size": [
+								12,
+								10,
+								1
+							],
+							"uv": [
+								384,
+								0
+							]
+						}
+					]
+				},
+				{
+					"name": "crown",
+					"pivot": [
+						0,
+						124,
+						0
+					],
+					"parent": "trunk",
+					"cubes": [
+						{
+							"origin": [
+								-36,
+								124,
+								-36
+							],
+							"size": [
+								72,
+								26,
+								72
+							],
+							"uv": [
+								0,
+								128
+							]
+						}
+					]
+				},
+				{
+					"name": "branch_front",
+					"pivot": [
+						0,
+						104,
+						-10
+					],
+					"parent": "trunk",
+					"cubes": [
+						{
+							"origin": [
+								-3,
+								104,
+								-50
+							],
+							"size": [
+								6,
+								6,
+								40
+							],
+							"uv": [
+								288,
+								128
+							]
+						}
+					]
+				},
+				{
+					"name": "branch_back",
+					"pivot": [
+						0,
+						104,
+						10
+					],
+					"parent": "trunk",
+					"cubes": [
+						{
+							"origin": [
+								-3,
+								104,
+								10
+							],
+							"size": [
+								6,
+								6,
+								40
+							],
+							"uv": [
+								380,
+								128
+							]
+						}
+					]
+				},
+				{
+					"name": "branch_left",
+					"pivot": [
+						10,
+						104,
+						0
+					],
+					"parent": "trunk",
+					"cubes": [
+						{
+							"origin": [
+								10,
+								104,
+								-3
+							],
+							"size": [
+								40,
+								6,
+								6
+							],
+							"uv": [
+								0,
+								226
+							]
+						}
+					]
+				},
+				{
+					"name": "branch_right",
+					"pivot": [
+						-10,
+						104,
+						0
+					],
+					"parent": "trunk",
+					"cubes": [
+						{
+							"origin": [
+								-50,
+								104,
+								-3
+							],
+							"size": [
+								40,
+								6,
+								6
+							],
+							"uv": [
+								92,
+								226
+							]
+						}
+					]
+				}
+			]
+		}
+	]
+}

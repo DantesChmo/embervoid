@@ -26,6 +26,8 @@ final class PlacedFight<T extends ReachBoss> {
 	final BossArena arena;
 	final ArenaFrame frame;
 	final List<ServerPlayerEntity> players = new ArrayList<>();
+	/** Each player's connection, recording the arena fog sent to them. */
+	final List<BossArena.FogRecorder> fog = new ArrayList<>();
 	BossFight fight;
 	T boss;
 
@@ -54,7 +56,9 @@ final class PlacedFight<T extends ReachBoss> {
 		this.arena.forceChunks(center, arena.site());
 		this.frame = ArenaTemplateTests.place(context, arena, center);
 		for (int[] spot : spots) {
-			players.add(this.arena.joinAt(frame.top(spot[0], spot[1], spot[2])));
+			BossArena.FogRecorder recorder = new BossArena.FogRecorder();
+			fog.add(recorder);
+			players.add(this.arena.joinAt(frame.top(spot[0], spot[1], spot[2]), recorder));
 		}
 	}
 

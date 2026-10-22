@@ -96,7 +96,7 @@
 	"embervoid.ember_heart.boss": "Добыто у: %s",
 	"entity.embervoid.test_boss": "Испытательный чемпион",
 	"boss.embervoid.ashen_reach.zone_a": "Пепельный колосс",
-	"boss.embervoid.ashen_reach.zone_b": "Чемпион зоны B",
+	"boss.embervoid.ashen_reach.zone_b": "Скорбящее древо",
 	"boss.embervoid.ashen_reach.zone_c": "Хранитель склепа",
 	"boss.embervoid.ashen_reach.final": "Чемпион глубин",
 	"embervoid.boss.bar": "%s — ур. %s",
@@ -361,5 +361,7 @@
 	"embervoid.gear.flask_ember.used": "Фляга вбирает уголёк: каждый глоток лечит сильнее",
 	"embervoid.gear.flask_ember.already": "В вашей фляге уже тлеет уголёк",
 	"entity.embervoid.crypt_keeper": "Хранитель склепа",
-	"entity.embervoid.ash_colossus": "Пепельный колосс"
+	"entity.embervoid.ash_colossus": "Пепельный колосс",
+	"entity.embervoid.grieving_tree": "Скорбящее древо",
+	"entity.embervoid.tree_lantern": "Висячий фонарь"
 }
