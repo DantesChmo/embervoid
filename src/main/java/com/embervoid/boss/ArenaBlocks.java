@@ -29,6 +29,23 @@ public final class ArenaBlocks {
 		world.setBlockState(at, state, Block.NOTIFY_ALL);
 	}
 
+	/**
+	 * Remembers a block's state now without changing it, so whatever happens to it during the fight (a player lights
+	 * a brazier) is undone when the fight ends.
+	 */
+	public void remember(BlockPos pos) {
+		BlockPos at = pos.toImmutable();
+		original.putIfAbsent(at, world.getBlockState(at));
+	}
+
+	/**
+	 * Remembers {@code state} as the block's state before the fight, unless it is already remembered: for blocks the
+	 * fight itself changed indirectly (water that flowed from the fight's own water).
+	 */
+	public void rememberAs(BlockPos pos, BlockState state) {
+		original.putIfAbsent(pos.toImmutable(), state);
+	}
+
 	/** Whether this fight has changed the block. */
 	public boolean isChanged(BlockPos pos) {
 		return original.containsKey(pos);

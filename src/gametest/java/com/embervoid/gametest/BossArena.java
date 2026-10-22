@@ -20,6 +20,7 @@ import net.minecraft.test.GameTestException;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.GameMode;
@@ -44,6 +45,7 @@ final class BossArena {
 	private final Difficulty difficulty;
 	private final List<ServerPlayerEntity> players = new ArrayList<>();
 	private final List<BossFight> fights = new ArrayList<>();
+	private final List<ChunkPos> forced = new ArrayList<>();
 
 	/** {@code configJson}: a config to use for the test (e.g. {@code {"boss": {...}}}), or null for the local one. */
 	BossArena(TestContext context, @Nullable String configJson) {
@@ -76,6 +78,40 @@ final class BossArena {
 		player.teleport(context.getWorld(), pos.x, pos.y, pos.z, 0, 0);
 		players.add(player);
 		return player;
+	}
+
+	/** A survival player joined standing at an absolute position (in a placed arena). */
+	ServerPlayerEntity joinAt(Vec3d pos) {
+		ServerPlayerEntity player = new ServerPlayerEntity(server, context.getWorld(), new GameProfile(UUID.randomUUID(), "boss-test-player"));
+		server.getPlayerManager().onPlayerConnect(new FogRecorder(), player);
+		player.changeGameMode(GameMode.SURVIVAL);
+		player.teleport(context.getWorld(), pos.x, pos.y, pos.z, 0, 0);
+		players.add(player);
+		return player;
+	}
+
+	/**
+	 * Force-loads the chunks within {@code radius} of an absolute position (an arena placed far from the test area,
+	 * where no test player's chunk ticket reaches: the test players never move as far as the chunk manager knows).
+	 * Released when the test ends.
+	 */
+	void forceChunks(BlockPos center, int radius) {
+		ChunkPos min = new ChunkPos(center.add(-radius, 0, -radius));
+		ChunkPos max = new ChunkPos(center.add(radius, 0, radius));
+		for (int x = min.x; x <= max.x; x++) {
+			for (int z = min.z; z <= max.z; z++) {
+				context.getWorld().setChunkForced(x, z, true);
+				forced.add(new ChunkPos(x, z));
+			}
+		}
+	}
+
+	/** Starts a fight at an absolute arena centre (the floor block). */
+	BossFight startAt(ArenaSpec spec, BlockPos center) {
+		BossFight fight = ArenaManager.start(context.getWorld(), spec, center);
+		context.assertTrue(fight != null, "the fight did not start");
+		fights.add(fight);
+		return fight;
 	}
 
 	ServerPlayerEntity join(int x, int z) {
@@ -135,6 +171,10 @@ final class BossArena {
 				server.getPlayerManager().remove(player);
 			}
 		}
+		for (ChunkPos chunk : forced) {
+			context.getWorld().setChunkForced(chunk.x, chunk.z, false);
+		}
+		forced.clear();
 		EmbervoidConfig.useLocal();
 		server.setDifficulty(difficulty, true);
 	}

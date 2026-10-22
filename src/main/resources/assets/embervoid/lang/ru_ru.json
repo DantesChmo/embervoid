@@ -97,7 +97,7 @@
 	"entity.embervoid.test_boss": "Испытательный чемпион",
 	"boss.embervoid.ashen_reach.zone_a": "Чемпион зоны A",
 	"boss.embervoid.ashen_reach.zone_b": "Чемпион зоны B",
-	"boss.embervoid.ashen_reach.zone_c": "Чемпион зоны C",
+	"boss.embervoid.ashen_reach.zone_c": "Хранитель склепа",
 	"boss.embervoid.ashen_reach.final": "Чемпион глубин",
 	"embervoid.boss.bar": "%s — ур. %s",
 	"embervoid.boss.fog": "Стена пепла преграждает путь",
@@ -351,5 +351,6 @@
 	"embervoid.gear.whetstone.no_weapon": "Держите оружие обелиска в другой руке",
 	"embervoid.gear.whetstone.sharp": "Оружие и так остро",
 	"embervoid.gear.flask_ember.used": "Фляга вбирает уголёк: каждый глоток лечит сильнее",
-	"embervoid.gear.flask_ember.already": "В вашей фляге уже тлеет уголёк"
+	"embervoid.gear.flask_ember.already": "В вашей фляге уже тлеет уголёк",
+	"entity.embervoid.crypt_keeper": "Хранитель склепа"
 }

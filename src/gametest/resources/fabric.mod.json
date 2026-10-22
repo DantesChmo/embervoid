@@ -21,7 +21,8 @@
 			"com.embervoid.gametest.ReliquaryTests",
 			"com.embervoid.gametest.BossFrameworkTests",
 			"com.embervoid.gametest.ArenaTemplateTests",
-			"com.embervoid.gametest.ReachWorldTests"
+			"com.embervoid.gametest.ReachWorldTests",
+			"com.embervoid.gametest.CryptKeeperTests"
 		]
 	},
 	"mixins": [

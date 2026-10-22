@@ -7,7 +7,7 @@
   "feature": "arena",
   "boss": {
     "id": "embervoid:ashen_reach/zone_c",
-    "entity": "embervoid:test_boss",
+    "entity": "embervoid:crypt_keeper",
     "level": 24,
     "radius": 32
   },

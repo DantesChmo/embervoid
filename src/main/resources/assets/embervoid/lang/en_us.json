@@ -97,7 +97,7 @@
 	"entity.embervoid.test_boss": "Test Champion",
 	"boss.embervoid.ashen_reach.zone_a": "Champion of Zone A",
 	"boss.embervoid.ashen_reach.zone_b": "Champion of Zone B",
-	"boss.embervoid.ashen_reach.zone_c": "Champion of Zone C",
+	"boss.embervoid.ashen_reach.zone_c": "Crypt Keeper",
 	"boss.embervoid.ashen_reach.final": "Champion of the Depths",
 	"embervoid.boss.bar": "%s — Lv %s",
 	"embervoid.boss.fog": "A wall of ash bars the way",
@@ -351,5 +351,6 @@
 	"embervoid.gear.whetstone.no_weapon": "Hold a weapon of the realm in your other hand",
 	"embervoid.gear.whetstone.sharp": "The weapon is already keen",
 	"embervoid.gear.flask_ember.used": "The flask drinks the ember: every sip heals more",
-	"embervoid.gear.flask_ember.already": "Your flask already holds an ember"
+	"embervoid.gear.flask_ember.already": "Your flask already holds an ember",
+	"entity.embervoid.crypt_keeper": "Crypt Keeper"
 }
