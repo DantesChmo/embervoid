@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "item": "embervoid:smoldering_ingot"
+  },
+  "base": {
+    "item": "minecraft:diamond_helmet"
+  },
+  "result": {
+    "item": "embervoid:smoldering_helmet"
+  },
+  "template": {
+    "item": "embervoid:smoldering_template"
+  }
+}

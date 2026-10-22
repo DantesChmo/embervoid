@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "item": "embervoid:smoldering_ingot"
+  },
+  "base": {
+    "item": "minecraft:diamond_chestplate"
+  },
+  "result": {
+    "item": "embervoid:smoldering_chestplate"
+  },
+  "template": {
+    "item": "embervoid:smoldering_template"
+  }
+}

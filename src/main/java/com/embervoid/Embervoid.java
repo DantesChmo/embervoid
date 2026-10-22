@@ -13,6 +13,7 @@ import com.embervoid.player.PlayerDataManager;
 import com.embervoid.player.RemnantDeathHandler;
 import com.embervoid.player.StaminaManager;
 import com.embervoid.reach.gear.ReachGear;
+import com.embervoid.reach.mob.ReachMobs;
 import com.embervoid.realm.RealmInit;
 import com.embervoid.registry.DebugItems;
 import com.embervoid.registry.ModBlocks;
@@ -51,6 +52,7 @@ public class Embervoid implements ModInitializer {
 		MobEntities.register();
 		MobLevels.register();
 		NightMobs.register();
+		ReachMobs.register();
 		ModItemGroups.register();
 		ModStructures.register();
 		ConfigSync.register();

@@ -1,26 +1,37 @@
 package com.embervoid.gametest;
 
 import com.embervoid.entity.AshRemnantEntity;
+import com.embervoid.gametest.mixin.ServerPlayerEntityAccessor;
 import com.embervoid.player.XpUtil;
 import com.embervoid.registry.ModEntities;
 import com.embervoid.reliquary.ArtifactItem;
 import com.embervoid.reliquary.Reliquary;
 import com.embervoid.reliquary.ReliquaryConfig;
 import com.embervoid.reliquary.ReliquaryItems;
+import com.embervoid.reliquary.ReliquaryLoot;
 import com.embervoid.reliquary.ReliquaryManager;
 import com.embervoid.reliquary.ReliquaryScreenHandler;
+import com.embervoid.reliquary.RingEffects;
+import com.embervoid.reliquary.RingItem;
 import com.embervoid.reliquary.SlotKinds;
 import com.embervoid.stats.PlayerStats;
 import com.embervoid.stats.Stat;
 import com.embervoid.stats.StatEffects;
 import com.mojang.authlib.GameProfile;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.passive.CowEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.loot.LootTable;
+import net.minecraft.loot.context.LootContextParameterSet;
+import net.minecraft.loot.context.LootContextParameters;
+import net.minecraft.loot.context.LootContextTypes;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkSide;
@@ -31,9 +42,12 @@ import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.GameTest;
+import net.minecraft.test.GameTestException;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
@@ -45,6 +59,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 /**
  * The Reliquary (PLAN 11.9–11.13) on real server players. The gametest mod tags vanilla stand-ins as accessories
@@ -306,6 +321,237 @@ public final class ReliquaryTests implements FabricGameTest {
 		context.assertTrue(player.getMaxHealth() == health, "max health not back: " + player.getMaxHealth());
 		context.assertTrue(player.getAttributeValue(EntityAttributes.GENERIC_LUCK) == luck, "luck not back");
 		TestPlayers.complete(context, player);
+	}
+
+	/** Every ring (PLAN 11.12) is a ring-slot item only. */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void ringsFitRingSlotsOnly(TestContext context) {
+		context.assertTrue(ReliquaryItems.RINGS.size() == 6, "expected 6 rings");
+		for (RingItem ring : ReliquaryItems.RINGS) {
+			context.assertTrue(SlotKinds.RING.accepts(new ItemStack(ring)), ring + " is not in #embervoid:rings");
+			context.assertFalse(SlotKinds.ARTIFACT.accepts(new ItemStack(ring)), ring + " fits an artifact slot");
+		}
+		context.complete();
+	}
+
+	/** Courier's Ring: sprinting is 15 % faster; walking, or sprinting without the ring, is not. */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void couriersRingSpeedsUpSprinting(TestContext context) {
+		ServerPlayerEntity player = joinPlayer(context, new RecordingConnection());
+		player.setSprinting(true);
+		double sprint = player.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
+		ReliquaryManager.setStack(player, SlotKinds.RING, 0, new ItemStack(ReliquaryItems.COURIERS_RING));
+		double withRing = player.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
+		float bonus = ReliquaryConfig.get().rings().courierSprintBonus();
+		context.assertTrue(Math.abs(withRing - sprint * (1 + bonus)) < 1e-6, "sprint " + sprint + " -> " + withRing);
+		player.setSprinting(false);
+		double walk = player.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
+		context.assertTrue(Math.abs(walk - player.getAttributeBaseValue(EntityAttributes.GENERIC_MOVEMENT_SPEED)) < 1e-6,
+				"walking speed with the ring " + walk);
+		player.setSprinting(true);
+		ReliquaryManager.setStack(player, SlotKinds.RING, 0, ItemStack.EMPTY);
+		context.assertTrue(Math.abs(player.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED) - sprint) < 1e-6,
+				"ring taken off while sprinting: " + player.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED));
+		TestPlayers.complete(context, player);
+	}
+
+	/** Ring of Ash Feathers: no fall damage up to 8 blocks, less beyond; a capped fall speed unless sneaking. */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void ashFeathersSoftenFalls(TestContext context) {
+		ServerPlayerEntity player = joinPlayer(context, new RecordingConnection());
+		((ServerPlayerEntityAccessor) player).embervoid$setJoinInvulnerabilityTicks(0);
+		float health = player.getHealth();
+		player.handleFallDamage(7, 1, player.getDamageSources().fall());
+		context.assertTrue(player.getHealth() < health, "a 7-block fall without the ring did no damage");
+		player.setHealth(player.getMaxHealth());
+		player.timeUntilRegen = 0;
+		health = player.getHealth();
+
+		ReliquaryManager.setStack(player, SlotKinds.RING, 1, new ItemStack(ReliquaryItems.RING_OF_ASH_FEATHERS));
+		player.handleFallDamage(7.9f, 1, player.getDamageSources().fall());
+		context.assertTrue(player.getHealth() == health, "a 7.9-block fall hurt with the ring: " + player.getHealth());
+		player.handleFallDamage(10, 1, player.getDamageSources().fall());
+		float taken = health - player.getHealth();
+		context.assertTrue(taken > 0 && taken <= 2.01f, "a 10-block fall with the ring took " + taken + ", expected 2");
+
+		player.setOnGround(false);
+		context.assertTrue(RingEffects.maxFallSpeed(player) == ReliquaryConfig.get().rings().featherMaxFallSpeed(),
+				"no fall speed cap in the air");
+		player.setSneaking(true);
+		context.assertTrue(RingEffects.maxFallSpeed(player) == 0, "fall speed capped while sneaking");
+		TestPlayers.complete(context, player);
+	}
+
+	/** Ring of the Fog Stalker: the fog API clearing factor is 2 with the ring, 1 without. */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void fogStalkerClearsFog(TestContext context) {
+		ServerPlayerEntity player = joinPlayer(context, new RecordingConnection());
+		context.assertTrue(RingEffects.fogClearing(player) == 1, "fog cleared without the ring");
+		ReliquaryManager.setStack(player, SlotKinds.RING, 0, new ItemStack(ReliquaryItems.RING_OF_THE_FOG_STALKER));
+		context.assertTrue(RingEffects.fogClearing(player) == 2, "clearing " + RingEffects.fogClearing(player));
+		TestPlayers.complete(context, player);
+	}
+
+	/**
+	 * Delver's Ring: Haste I (×1.2) mining realm ores, nothing on other blocks. The gametest mod tags iron ore as a
+	 * realm ore until track reach-world adds the real ones.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void delversRingHastesRealmOres(TestContext context) {
+		ServerPlayerEntity player = joinPlayer(context, new RecordingConnection());
+		BlockState ore = Blocks.IRON_ORE.getDefaultState();
+		BlockState stone = Blocks.STONE.getDefaultState();
+		context.assertTrue(ore.isIn(RingEffects.REALM_ORES), "iron ore not tagged as a realm ore in the test pack");
+		float oreSpeed = player.getBlockBreakingSpeed(ore);
+		float stoneSpeed = player.getBlockBreakingSpeed(stone);
+		ReliquaryManager.setStack(player, SlotKinds.RING, 0, new ItemStack(ReliquaryItems.DELVERS_RING));
+		context.assertTrue(Math.abs(player.getBlockBreakingSpeed(ore) - oreSpeed * 1.2f) < 1e-4,
+				"ore speed " + oreSpeed + " -> " + player.getBlockBreakingSpeed(ore));
+		context.assertTrue(player.getBlockBreakingSpeed(stone) == stoneSpeed, "stone sped up");
+		TestPlayers.complete(context, player);
+	}
+
+	/**
+	 * Drowned Man's Ring: the wearer keeps full air under water. Test players are not ticked by a connection, so the
+	 * test runs their base tick (where air is counted) itself.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void drownedMansRingBreathesUnderwater(TestContext context) {
+		ServerPlayerEntity player = joinPlayer(context, new RecordingConnection());
+		for (int y = 1; y <= 3; y++) {
+			context.setBlockState(2, y, 2, Blocks.WATER);
+		}
+		Vec3d pos = context.getAbsolute(new Vec3d(2.5, 1, 2.5));
+		player.teleport(context.getWorld(), pos.x, pos.y, pos.z, 0, 0);
+		context.assertFalse(player.canBreatheInWater(), "breathes under water without the ring");
+		for (int i = 0; i < 20; i++) {
+			player.baseTick();
+		}
+		context.assertTrue(player.isSubmergedInWater(), "player not under water");
+		context.assertTrue(player.getAir() < player.getMaxAir(), "no air lost without the ring");
+
+		player.setAir(player.getMaxAir());
+		ReliquaryManager.setStack(player, SlotKinds.RING, 0, new ItemStack(ReliquaryItems.DROWNED_MANS_RING));
+		context.assertTrue(player.canBreatheInWater(), "ring does not give water breathing");
+		for (int i = 0; i < 20; i++) {
+			player.baseTick();
+		}
+		context.assertTrue(player.getAir() == player.getMaxAir(), "air " + player.getAir() + " under water with the ring");
+		TestPlayers.complete(context, player);
+	}
+
+	/** Ring of Embers: the wearer's melee hits set the target on fire; without it they do not. */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void ringOfEmbersIgnites(TestContext context) {
+		ServerPlayerEntity player = joinPlayer(context, new RecordingConnection());
+		CowEntity plain = context.spawnEntity(EntityType.COW, 4, 1, 2);
+		player.attack(plain);
+		context.assertFalse(plain.isOnFire(), "set on fire without the ring");
+
+		ReliquaryManager.setStack(player, SlotKinds.RING, 0, new ItemStack(ReliquaryItems.RING_OF_EMBERS));
+		CowEntity target = context.spawnEntity(EntityType.COW, 4, 1, 4);
+		player.attack(target);
+		context.assertTrue(target.isOnFire(), "melee hit did not ignite");
+		context.assertTrue(target.getFireTicks() <= ReliquaryConfig.get().rings().embersFireSeconds() * 20,
+				"burns too long: " + target.getFireTicks());
+		plain.discard();
+		target.discard();
+		TestPlayers.complete(context, player);
+	}
+
+	/**
+	 * Each zone's treasure chest (PLAN 11.13) rolls an artifact at about 8 % and a ring at about 5 %, only of that
+	 * zone's accessories.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void treasureChestsRollZoneAccessories(TestContext context) {
+		ServerWorld world = context.getWorld();
+		ReliquaryConfig.Drops drops = ReliquaryConfig.get().drops();
+		int rolls = 4000;
+		for (ReliquaryLoot.Zone zone : ReliquaryLoot.ZONES) {
+			LootTable table = world.getServer().getLootManager().getLootTable(zone.treasureChest());
+			context.assertTrue(table != LootTable.EMPTY, "no table " + zone.treasureChest());
+			LootContextParameterSet params = new LootContextParameterSet.Builder(world)
+					.add(LootContextParameters.ORIGIN, context.getAbsolute(new Vec3d(2, 1, 2)))
+					.build(LootContextTypes.CHEST);
+			int[] counts = count(zone, rolls, () -> table.generateLoot(params));
+			assertRate(context, zone.name() + " chest artifacts", counts[0], rolls, drops.chestArtifact());
+			assertRate(context, zone.name() + " chest rings", counts[1], rolls, drops.chestRing());
+		}
+		context.complete();
+	}
+
+	/**
+	 * Elite tables get the zone's accessories at about 2 % / 1 %, from player kills only. The mob tables are track
+	 * reach-mobs'; one that does not exist yet (the Smoldering Knight's, milestone 13) is checked on an empty table
+	 * with the same injection.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void elitesRollZoneAccessoriesOnPlayerKills(TestContext context) {
+		ServerWorld world = context.getWorld();
+		ServerPlayerEntity player = joinPlayer(context, new RecordingConnection());
+		ReliquaryConfig.Drops drops = ReliquaryConfig.get().drops();
+		CowEntity victim = context.spawnEntity(EntityType.COW, 4, 1, 4);
+		context.assertFalse(ReliquaryLoot.inject(new Identifier("minecraft", "entities/cow"), LootTable.builder()),
+				"injected into an unrelated table");
+		int rolls = 10_000;
+		for (ReliquaryLoot.Zone zone : ReliquaryLoot.ZONES) {
+			if (zone.eliteTable() == null) {
+				continue;
+			}
+			LootTable table = world.getServer().getLootManager().getLootTable(zone.eliteTable());
+			if (table == LootTable.EMPTY) {
+				LootTable.Builder builder = LootTable.builder().type(LootContextTypes.ENTITY);
+				context.assertTrue(ReliquaryLoot.inject(zone.eliteTable(), builder), "not injected into " + zone.eliteTable());
+				table = builder.build();
+			}
+			LootTable loot = table;
+			LootContextParameterSet.Builder params = new LootContextParameterSet.Builder(world)
+					.add(LootContextParameters.THIS_ENTITY, victim)
+					.add(LootContextParameters.ORIGIN, victim.getPos())
+					.add(LootContextParameters.DAMAGE_SOURCE, world.getDamageSources().playerAttack(player));
+			LootContextParameterSet byPlayer = params.add(LootContextParameters.LAST_DAMAGE_PLAYER, player)
+					.add(LootContextParameters.KILLER_ENTITY, player)
+					.build(LootContextTypes.ENTITY);
+			int[] counts = count(zone, rolls, () -> loot.generateLoot(byPlayer));
+			assertRate(context, zone.name() + " elite artifacts", counts[0], rolls, drops.eliteArtifact());
+			assertRate(context, zone.name() + " elite rings", counts[1], rolls, drops.eliteRing());
+
+			LootContextParameterSet noPlayer = new LootContextParameterSet.Builder(world)
+					.add(LootContextParameters.THIS_ENTITY, victim)
+					.add(LootContextParameters.ORIGIN, victim.getPos())
+					.add(LootContextParameters.DAMAGE_SOURCE, world.getDamageSources().generic())
+					.build(LootContextTypes.ENTITY);
+			int[] none = count(zone, 2_000, () -> loot.generateLoot(noPlayer));
+			context.assertTrue(none[0] + none[1] == 0, zone.name() + ": elite dropped accessories without a player kill");
+		}
+		victim.discard();
+		TestPlayers.complete(context, player);
+	}
+
+	/** Artifacts and rings of {@code zone} in {@code rolls} loot rolls; fails on another zone's accessory. */
+	private static int[] count(ReliquaryLoot.Zone zone, int rolls, Supplier<List<ItemStack>> loot) {
+		int[] counts = new int[2];
+		for (int i = 0; i < rolls; i++) {
+			for (ItemStack stack : loot.get()) {
+				if (zone.artifacts().contains(stack.getItem())) {
+					counts[0]++;
+				} else if (zone.rings().contains(stack.getItem())) {
+					counts[1]++;
+				} else if (stack.getItem() instanceof ArtifactItem || stack.getItem() instanceof RingItem) {
+					throw new GameTestException(zone.name() + " dropped another zone's " + stack);
+				}
+			}
+		}
+		return counts;
+	}
+
+	/** {@code hits} out of {@code rolls} within five standard deviations of {@code chance}. */
+	private static void assertRate(TestContext context, String what, int hits, int rolls, float chance) {
+		double expected = rolls * chance;
+		double tolerance = 5 * Math.sqrt(rolls * chance * (1 - chance));
+		context.assertTrue(Math.abs(hits - expected) <= tolerance, what + ": " + hits + " in " + rolls
+				+ ", expected about " + Math.round(expected));
 	}
 
 	/** VIT bonus per test player, read by a bonus source registered once for these tests. */

@@ -12,7 +12,10 @@
 		"StructureTemplateMixin",
 		"SinglePoolElementMixin",
 		"TrackTargetGoalMixin",
-		"PlayerEntityVampirismMixin"
+		"PlayerEntityVampirismMixin",
+		"GearLivingEntityMixin",
+		"ReliquaryLivingEntityMixin",
+		"ReliquaryPlayerEntityMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

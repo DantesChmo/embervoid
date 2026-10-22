@@ -14,6 +14,7 @@
 			"com.embervoid.gametest.SanctumTests",
 			"com.embervoid.gametest.NightMobTests",
 			"com.embervoid.gametest.VampireTests",
+			"com.embervoid.gametest.ReachMobTests",
 			"com.embervoid.gametest.GearTests",
 			"com.embervoid.gametest.ReliquaryTests",
 			"com.embervoid.gametest.BossFrameworkTests",

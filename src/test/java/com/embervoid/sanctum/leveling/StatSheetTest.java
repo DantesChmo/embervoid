@@ -14,7 +14,7 @@ class StatSheetTest {
 	@Test
 	void packetRoundTrip() {
 		StatSheet sheet = new StatSheet(12, 95, 140, List.of(
-				new StatSheet.Stat("vitality", 14, 99, List.of(new StatSheet.Derived("embervoid.derived.max_health", "24", "25"))),
+				new StatSheet.Stat("vitality", 14, 99, List.of(new StatSheet.Derived("embervoid.derived.max_health", "24", "25")), 3),
 				new StatSheet.Stat("fortune", 99, 99, List.of())));
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		sheet.write(buf);
