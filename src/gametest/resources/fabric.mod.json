@@ -15,7 +15,8 @@
 			"com.embervoid.gametest.NightMobTests",
 			"com.embervoid.gametest.VampireTests",
 			"com.embervoid.gametest.GearTests",
-			"com.embervoid.gametest.ReliquaryTests"
+			"com.embervoid.gametest.ReliquaryTests",
+			"com.embervoid.gametest.BossFrameworkTests"
 		]
 	},
 	"mixins": [
