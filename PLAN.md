@@ -284,7 +284,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 11.7 | **Consumables + Flask Ember** | reach-gear | 11.1, 11.2 | todo |
 | 11.8 | **Chest loot + realm loot on mobs** | reach-gear | 11.3–11.7 | todo |
 | 11.9 | **Reliquary: data, sync, screen** | reliquary | — | done (GameTest; screen look and button position not seen) |
-| 11.10 | **Reliquary: remnant, stat points** | reliquary | 11.9 | todo |
+| 11.10 | **Reliquary: remnant, stat points** | reliquary | 11.9 | done (GameTest) |
 | 11.11 | **8 artifacts** | reliquary | 11.10 | todo |
 | 11.12 | **6 rings** | reliquary | 11.9, 9.1 | todo |
 | 11.13 | **Accessory drops** | reliquary | 11.11, 11.12 | todo |
@@ -374,6 +374,9 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 
 ## Open follow-ups
 
+- **Maiden screen and artifact points:** the level-up screen shows a player's own stat values while its derived
+  numbers include artifact bonus points (`PlayerStats.bonus`); show the bonus as "(+3)" next to the value (small
+  `sanctum` change, after 11.11).
 - **In-game checks not run yet:** QA #7f (Sanctum casing gaps, next batch); QA #8 step 9 (second and third
   player: personal Ember Heart, fog wall pushing back an outsider, independent progress); Hollow wind-up timing
   and dodge, guard block/break sounds; stamina HUD bar and debug weapon (2.5, 2.6); sounds and boss music.
