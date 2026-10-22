@@ -220,7 +220,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 9.3 | **Zones renamed, eternal dusk, zone looks** | — | done (GameTest + server check; zone looks and title not seen) |
 | 9.4 | **Zone terrain density + arena sites** | 9.3 | done (GameTest + server check; terrain shapes not seen) |
 | 9.5 | **Realm 1 blocks and ores** | 9.3, 11.1 | done (GameTest + server check; textures and particles not seen) |
-| 9.6 | **Landing plaza, roads, milestones, outposts** | 9.2, 9.4 | todo |
+| 9.6 | **Landing plaza, roads, milestones, outposts** | 9.2, 9.4 | done (GameTest + server check; roads on steep ground and looks not seen) |
 | 9.7 | **Minor structures per zone** | 9.2, 9.5, chest ids | todo |
 | 9.8 | **Necropolis crypt jigsaw + water** | 9.7 | todo |
 | 9.9 | **World edge** | 9.4 | todo |
@@ -257,9 +257,9 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 10.2 | **Cinder Husk, Ash Stalker** | 10.1 | done (GameTest; models not seen) |
 | 10.3 | **Ashen Carrion** | 10.1 | done (GameTest; models not seen) |
 | 10.4 | **Withered Thrall (+ hanging cage), Lantern Hag** | 10.1 | done (GameTest; models not seen) |
-| 10.5 | **Bark Hollow** | 10.1 | todo |
-| 10.6 | **Restless Bones, Crypt Moth** | 10.1 | todo |
-| 10.7 | **Hollow Sentinel, Grave Warden** | 10.6 | todo |
+| 10.5 | **Bark Hollow** | 10.1 | done (GameTest; models not seen) |
+| 10.6 | **Restless Bones, Crypt Moth** | 10.1 | done (GameTest; models not seen) |
+| 10.7 | **Hollow Sentinel, Grave Warden** | 10.6 | done (GameTest; models not seen) |
 
 - **10.1 Pipeline.** Greybox GeckoLib models at final size with draft animations under final names (extend
   `tools/mob_placeholders.py`); a shared base for windup telegraphs (DESIGN §4.5 ticks) and the "placed" state;
@@ -280,7 +280,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 11.3 | **Smoldering Plate + Template** | reach-gear | 11.1 | done (GameTest; armor textures not seen) |
 | 11.4 | **Mob-drop sets + unique pieces** | reach-gear | 11.1 | done (GameTest; textures not seen) |
 | 11.5 | **Ashen Scythe, Warden's Scourge, Royal Ash Rapier** | reach-gear | 11.1, 11.2 | done (GameTest; textures and reach feel not seen) |
-| 11.6 | **Huntsman's Crossbow** | reach-gear | 11.1 | done (GameTest; held like a normal item when charged, textures not seen) |
+| 11.6 | **Huntsman's Crossbow** | reach-gear | 11.1 | done (GameTest; crossbow arm poses fixed by client mixins, not run on a client; textures not seen) |
 | 11.7 | **Consumables + Flask Ember** | reach-gear | 11.1, 11.2 | done (GameTest; Lantern Oil gives Night Vision, no dynamic light; textures and bomb visuals not seen) |
 | 11.8 | **Chest loot + realm loot on mobs** | reach-gear | 11.3–11.7 | done (GameTest) |
 | 11.9 | **Reliquary: data, sync, screen** | reliquary | — | done (GameTest; screen look and button position not seen) |
@@ -322,7 +322,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 12.1 | **Boss framework additions** | 9.1 | done (GameTest; telegraph particles and arena fog not seen) |
 | 12.2 | **Three arenas built** | 9.4 | done (GameTest on the templates; used in the world once 9.4 lands; looks not seen) |
 | 12.3 | **Crypt Keeper** (first: riskiest) | 12.1, 12.2 | done (GameTest + server check; model, telegraphs, darkness and flood looks not seen) |
-| 12.4 | **Ash Colossus** | 12.1, 12.2 | todo |
+| 12.4 | **Ash Colossus** | 12.1, 12.2 | done (GameTest + server check; model, storm and cinders not seen) |
 | 12.5 | **Grieving Tree** | 12.1, 12.2 | todo |
 | 12.6 | **Souls and Flask Shards** | 11.1 | todo |
 | 12.7 | **Ash of Rematch** (DESIGN §10.11 as recommended) | 11.1, 12.6 | todo |
@@ -348,7 +348,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 |-----|------|-------|------------|--------|
 | 13.1 | **Depths "Burning City": dimension type, terrain** | reach-world | 9.4, 9.5 | todo |
 | 13.2 | **Citadel jigsaw (~10–12 pieces)** | reach-world | 13.1, 9.2 | todo |
-| 13.3 | **Cinder Hound, Sparking Marksman, Furnace Golem, Smoldering Knight** | reach-mobs | 10.1 | todo |
+| 13.3 | **Cinder Hound, Sparking Marksman, Furnace Golem, Smoldering Knight** | reach-mobs | 10.1 | done (GameTest; models not seen) |
 | 13.4 | **Smoldering Lord** | reach-bosses | 12.3–12.5, 13.2 | todo |
 | 13.5 | **Realm completion, Realm 2 obelisk lit, depths open** | coordinator | 13.4 | todo |
 

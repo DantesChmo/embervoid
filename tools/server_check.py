@@ -8,10 +8,10 @@ What it does:
    RCON on a local port, and waits for "Done".
 2. Over RCON: locates the nearest Ember Sanctum and force-loads the chunks around it (so it is really generated in
    overworld terrain), force-loads the Ashen Reach landing and depths centre, locates the three zone arenas and the
-   depths arena and force-loads them too, force-loads every road outpost and checks each got its chest, force-loads
-   the Vampire arena, starts and stops a full moon and a blood new moon, opens, checks and closes the Vampire arena,
-   waits for generation, saves, stops the server. Commands with an expected answer fail the check when the answer does
-   not match.
+   depths arena and force-loads them too, force-loads every road outpost and checks each got its chest, locates and
+   force-loads a minor structure of each zone, force-loads the Vampire arena, starts and stops a full moon and a blood
+   new moon, opens, checks and closes the Vampire arena, waits for generation, saves, stops the server. Commands with
+   an expected answer fail the check when the answer does not match.
 3. Scans the whole output (build + server log) for crashes, mixin failures, ERROR lines and datapack load errors.
    Exit code 0 only if there are none. WARN lines are listed but do not fail the check.
 
@@ -176,6 +176,14 @@ def exercise(rcon):
     roads = run("Roads", "execute in embervoid:ashen_reach run embervoid realm roads")
     for kind, x, z in re.findall(r"(toll_gate|watchtower) at (-?\d+) (-?\d+)", roads):
         generate_around(f"Outpost {kind}", "embervoid:ashen_reach", (int(x), int(z)), 24)
+    # Minor structures (PLAN 9.7): one per zone, located and generated.
+    for structure in ("fields/barn", "woods/hanging_cages", "necropolis/chapel"):
+        pos = located(run(f"Minor {structure}", "execute in embervoid:ashen_reach run locate structure "
+                          f"embervoid:ashen_reach/{structure}"))
+        if pos:
+            generate_around(f"Minor {structure}", "embervoid:ashen_reach", pos, 24)
+        else:
+            FAILED_EXPECTATIONS.append(f"Minor {structure}: not located")
     generate_around("Depths landing", "embervoid:ashen_reach_depths", (0, 0))
     pos = located(run("Depths arena", "execute in embervoid:ashen_reach_depths run locate structure "
                       "embervoid:ashen_reach_depths_arena"))

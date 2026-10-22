@@ -12,7 +12,8 @@ import java.util.Random;
 
 /**
  * What a zone puts into its templates (PLAN 9.6–9.8): its name in ids, its mobs by role (final mob ids, DESIGN §4.5
- * bestiary) and its chest tables. Outposts get fodder and ranged mobs only, never tanks.
+ * bestiary) and its chest tables. Outposts get fodder and ranged mobs only, never tanks. The Fields have no tank or
+ * ranged mob: their "tank" slot is the Ash Stalker ambusher, their "ranged" slot the Ashen Carrion perching up high.
  */
 public record ReachZoneKit(String name, Identifier fodder, Identifier ranged, Identifier tank, Identifier elite) {
 	public static final ReachZoneKit FIELDS = new ReachZoneKit("fields", mob("cinder_husk"), mob("ashen_carrion"),

@@ -1,0 +1,15 @@
+{
+  "name": "embervoid:ashen_reach/woods/hunting_lodge",
+  "fallback": "minecraft:empty",
+  "elements": [
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "embervoid:ashen_reach/woods/hunting_lodge",
+        "processors": "embervoid:ashen_reach/minor",
+        "projection": "rigid"
+      }
+    }
+  ]
+}

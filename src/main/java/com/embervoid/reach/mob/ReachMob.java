@@ -294,6 +294,17 @@ public abstract class ReachMob extends HostileEntity implements GeoEntity {
 		dataTracker.set(STATE, state);
 	}
 
+	@Override
+	public void onTrackedDataSet(TrackedData<?> data) {
+		super.onTrackedDataSet(data);
+		if (STATE.equals(data)) {
+			onStateChanged();
+		}
+	}
+
+	/** Called on both sides when the state byte changes (e.g. to resize the hitbox). */
+	protected void onStateChanged() {}
+
 	/** The looping animation for a state, or null for none (then walk/idle plays). */
 	@Nullable
 	protected RawAnimation stateAnimation(byte state) {

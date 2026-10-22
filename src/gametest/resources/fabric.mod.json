@@ -17,6 +17,8 @@
 			"com.embervoid.gametest.ReachMobTests",
 			"com.embervoid.gametest.ReachFieldsTests",
 			"com.embervoid.gametest.ReachWoodsTests",
+			"com.embervoid.gametest.ReachNecropolisTests",
+			"com.embervoid.gametest.ReachCitadelTests",
 			"com.embervoid.gametest.GearTests",
 			"com.embervoid.gametest.ReliquaryTests",
 			"com.embervoid.gametest.BossFrameworkTests",

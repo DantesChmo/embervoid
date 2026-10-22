@@ -1,5 +1,6 @@
 package com.embervoid.gametest;
 
+import com.embervoid.reach.mob.BarkHollowEntity;
 import com.embervoid.reach.mob.FireFlaskEntity;
 import com.embervoid.reach.mob.LanternHagEntity;
 import com.embervoid.reach.mob.ReachMobs;
@@ -101,6 +102,76 @@ public final class ReachWoodsTests implements FabricGameTest {
 		hag.setTarget(target);
 		context.waitAndRun(120, () -> {
 			context.assertTrue(hag.distanceTo(target) >= 6, "hag still " + hag.distanceTo(target) + " blocks from her target");
+			ReachTests.finish(context);
+		});
+	}
+
+	/** Dormant until a player is within 6, then 20 ticks of creaking and it is up with that player as target. */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 100, batchId = "reach_bark_wake")
+	public void barkHollowWakesWhenAPlayerComesClose(TestContext context) {
+		ServerPlayerEntity player = ReachTests.player(context, 3, 12);
+		BarkHollowEntity hollow = ReachTests.still(context, ReachMobs.BARK_HOLLOW, 3, 0, 2);
+		hollow.goDormant();
+		context.waitAndRun(10, () -> {
+			context.assertTrue(hollow.isDormant() && !hollow.showsBone("eyes"), "not dormant with a player 10 blocks away");
+			ReachTests.teleport(context, player, 3.5, 1, 6.5);
+		});
+		context.waitAndRun(13, () -> context.assertTrue(hollow.isAwakening() && hollow.showsBone("eyes"), "did not stir"));
+		context.waitAndRun(40, () -> {
+			context.assertFalse(hollow.isDormant() || hollow.isAwakening(), "still not up");
+			context.assertTrue(hollow.getTarget() == player, "not after the player that woke it");
+			ReachTests.finish(context);
+		});
+	}
+
+	/** An axe in a melee hit and fire do ×1.5; a bare hand does the plain amount. Armor is off to compare. */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void barkHollowTakesMoreFromAxesAndFire(TestContext context) {
+		ServerPlayerEntity player = ReachTests.mockPlayer(context, 1, 1);
+		BarkHollowEntity plain = hollow(context, 4, 2);
+		BarkHollowEntity axed = hollow(context, 4, 6);
+		BarkHollowEntity burnt = hollow(context, 8, 6);
+		var sources = context.getWorld().getDamageSources();
+		plain.damage(sources.playerAttack(player), 4);
+		player.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_AXE));
+		axed.damage(sources.playerAttack(player), 4);
+		burnt.damage(sources.inFire(), 4);
+		assertLost(context, plain, 4, "bare hand");
+		assertLost(context, axed, 6, "axe");
+		assertLost(context, burnt, 6, "fire");
+		ReachTests.finish(context);
+	}
+
+	private static BarkHollowEntity hollow(TestContext context, int x, int z) {
+		BarkHollowEntity hollow = ReachTests.still(context, ReachMobs.BARK_HOLLOW, x, 0, z);
+		hollow.setAiDisabled(true);
+		hollow.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(0);
+		return hollow;
+	}
+
+	private static void assertLost(TestContext context, BarkHollowEntity hollow, float expected, String what) {
+		float lost = hollow.getMaxHealth() - hollow.getHealth();
+		context.assertTrue(Math.abs(lost - expected) < 0.01, what + ": lost " + lost + ", expected " + expected);
+	}
+
+	/** The sweep lands 20 ticks after the windup on what stands in front within 3 blocks, not behind it. */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 60)
+	public void barkHollowSweepsInFront(TestContext context) {
+		BarkHollowEntity hollow = ReachTests.still(context, ReachMobs.BARK_HOLLOW, 4, 0, 4);
+		hollow.setAiDisabled(true);
+		hollow.setYaw(0);
+		hollow.setBodyYaw(0);
+		// Yaw 0 faces +z.
+		CowEntity front = ReachTests.dummy(context, 4, 7);
+		CowEntity side = ReachTests.dummy(context, 6, 6);
+		CowEntity behind = ReachTests.dummy(context, 4, 1);
+		hollow.setTarget(front);
+		context.assertTrue(hollow.startMove(hollow.meleeMove()), "the sweep did not start");
+		context.waitAndRun(BarkHollowEntity.SWEEP_WINDUP - 1, () -> context.assertTrue(front.getHealth() == front.getMaxHealth(), "hit early"));
+		context.waitAndRun(BarkHollowEntity.SWEEP_WINDUP + 2, () -> {
+			context.assertTrue(front.getHealth() < front.getMaxHealth(), "the one in front was not hit");
+			context.assertTrue(side.getHealth() < side.getMaxHealth(), "the one front-left was not hit");
+			context.assertTrue(behind.getHealth() == behind.getMaxHealth(), "the one behind was hit");
 			ReachTests.finish(context);
 		});
 	}
