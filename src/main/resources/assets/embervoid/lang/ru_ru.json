@@ -306,5 +306,14 @@
 	"embervoid.gear.furnace_heart_cuirass.piece": "Ниже 30 % здоровья: огненная волна обжигает и отбрасывает врагов вокруг (раз в 60 с)",
 	"death.attack.embervoid.ember": "%2$s обратил %1$s в пепел",
 	"death.attack.embervoid.ember.item": "%2$s обратил %1$s в пепел с помощью %3$s",
-	"death.attack.embervoid.ember.player": "%1$s обращён в пепел в схватке с %2$s"
+	"death.attack.embervoid.ember.player": "%1$s обращён в пепел в схватке с %2$s",
+	"item.embervoid.ashen_scythe": "Пепельная коса",
+	"item.embervoid.ashen_scythe.passive": "Задевает врагов вокруг цели; полностью заряженный удар пускает вперёд волну пепла",
+	"item.embervoid.wardens_scourge": "Бич стража",
+	"item.embervoid.wardens_scourge.passive": "Досягаемость 6, одна цель; каждый удар усиливает кровотечение",
+	"item.embervoid.royal_ash_rapier": "Королевская пепельная рапира",
+	"item.embervoid.royal_ash_rapier.passive": "Досягаемость 2,5; каждый удар усиливает кровотечение и поджигает цель",
+	"embervoid.ability.harvest": "Жатва",
+	"embervoid.ability.lash": "Хлёст",
+	"embervoid.ability.lunge": "Выпад"
 }

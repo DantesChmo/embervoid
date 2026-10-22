@@ -15,6 +15,7 @@
 		"PlayerEntityVampirismMixin",
 		"GearLivingEntityMixin",
 		"GearEnchantmentHelperMixin",
+		"GearServerPlayNetworkHandlerMixin",
 		"ReliquaryLivingEntityMixin",
 		"ReliquaryPlayerEntityMixin"
 	],

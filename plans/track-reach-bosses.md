@@ -10,7 +10,7 @@ courtyard piece), boss assets and loot. Config section `boss`.
 ## Tasks
 
 - [x] **12.1 Boss framework additions** (below; GameTests `BossFrameworkTests`, JUnit `TelegraphShapeTest`, `BossScalingTest`)
-- [ ] **12.2 Three arenas built**
+- [x] **12.2 Three arenas built** (templates; placed by reach-world's arena site code, 9.4; GameTests `ArenaTemplateTests`)
 - [ ] **12.3 Crypt Keeper**
 - [ ] **12.4 Ash Colossus**
 - [ ] **12.5 Grieving Tree**
@@ -39,6 +39,27 @@ Fixed decisions (small, mine):
 - Adds are 3 levels below the boss: Colossus 18 → 15, Tree 21 → 18, Keeper 24 → 21, Lord 30 → 27 (each the bottom of
   its zone band).
 - Fighters are fixed at summon (as before); HP and adds scale to that count.
+
+## 12.2 Arenas — design
+
+Templates `embervoid:ashen_reach/arena_fields|arena_woods|arena_necropolis` (`data/embervoid/structures/ashen_reach/*.nbt`),
+written by datagen (`client.reach.boss.datagen.ArenaTemplates`, through the Sanctum's `TemplateBuilder`). Contract with
+reach-world (their `ArenaSite` / `placeTemplate`): square of side 2·site + 1, centred, y = 0 the floor, north (−Z) turned
+towards the landing in 90° steps. Layout numbers in `reach.boss.arena.ReachArenas`, used by datagen and by the bosses;
+`ArenaFrame` turns layout offsets into world positions with the same rotation rule.
+
+| Arena | Fog wall r / site r | Contents |
+|---|---|---|
+| Fields — crater market | 40 / 48 | market paving, brick curb at the fog wall, 10 burnt-granary pillars (3×3, 8 high, dead log corners) on a ring r 24, 8 ruined stalls, rubble on the crater floor |
+| Woods — Royal Grove | 48 / 56 | podzol/moss garden, gravel cross and ring paths, hedge rows, 12 lantern posts, benches, brick garden wall at r 51–52 (5 high) with a 7-wide gate north |
+| Necropolis — sinkhole ossuary | 32 / 40 | lower floor (tuff, cracked bricks, moss), walkways 2 high (centre dais, cross, ring r 11.5–13.5, 4 brazier pedestals) that stay dry in 2 blocks of water, 4 unlit campfire braziers, bone columns and a roof ring r 19–31 at y 10 (9 blocks headroom, fallen in places), switchback stair of half-block steps from the rim (y 18) down the pit wall |
+
+Every arena: shrine platform on the north axis at fog radius + 4 (the arena structure puts the shrine block there), the
+arena-side chest two blocks east of it (`chests/ashen_reach/<zone>_arena`). The boss spawns on the lowest free spot over
+the centre (the Necropolis dais).
+
+Asked reach-world: `shrinePos()` on the template's north axis (centre + rotation(0, 1, −(r + 4))); arena JSON boss radius
+40 / 48 / 32, level 18 / 21 / 24, site radius 48 / 56 / 40.
 
 ## Status / notes
 

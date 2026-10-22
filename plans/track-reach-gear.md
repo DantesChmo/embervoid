@@ -69,7 +69,27 @@ textures). Config section `gear`. Tests: `GearTests` (GameTests), JUnit under `s
   - Mixins: `GearLivingEntityMixin` gained a `damage` RETURN hook and the mask's scaling; new `GearEnchantmentHelperMixin`.
   - Test players have no connection, so tests call `playerTick()` where a real player's tick matters.
   - Textures: placeholder icons and layers, not seen in game.
-- [ ] **11.5 Ashen Scythe, Warden's Scourge, Royal Ash Rapier.**
+- [x] **11.5 Ashen Scythe, Warden's Scourge, Royal Ash Rapier.**
+  - `GearWeaponItem` (not a sword: no vanilla sweep): `Spec(damage, speed, scaling, kindlingShare, reach, bleed,
+    igniteSeconds)`, attribute modifiers from the spec, durability 1800, enchantability 15, repaired with a
+    Smoldering Ingot, special attack through `SpecialAbilities`, STR/DEX through `WeaponScaling.addMeleeRule`.
+    `GearWeapons`: `ashen_scythe` (8, 1.1, STR 0.6/DEX 0.4), `wardens_scourge` (8, 0.9, reach 6, bleed 1, DEX 1),
+    `royal_ash_rapier` (6, 2.0, reach 2.5, bleed 1, fire 3 s, DEX 0.7 + KIN 0.3).
+  - "Ember part KIN" read as: 0.3 of the Rapier's melee hit scales with KIN; all ember damage dealt by a player scales
+    with KIN in full; 2 % per effective point like STR/DEX (`gear.weapons.kindlingPerPoint`), in `GearDamage`.
+  - Reach (`GearReach`): long reach = server raycast on the swing packet (`GearServerPlayNetworkHandlerMixin`, onHandSwing
+    TAIL), skipped when a vanilla attack came within the last tick; blocks stop the ray. Short reach = the attack
+    event refuses targets beyond it (survival). The attack event also records the swing's charge for weapon effects.
+  - Scythe: sweep r 2.5 at 75 % of the charged hit around the target; full charge (> 0.9) → ash wave 6 × 3 ahead, 3
+    ember damage. Specials (`GearAbilities`, numbers in `gear.weapons`): Harvest (r 3.5 spin at weapon damage, 25 st,
+    4 s), Lash (pulls the first mob within whip reach ~4 blocks by velocity, knockback resistance applies, 20 st, 5 s),
+    Lunge (dash ~4 blocks by velocity, thrust lands at once on the first mob within dash + reach: weapon damage, 2
+    bleed, fire; 20 st, 3 s).
+  - Recipes (shapeless): soul + 2 Smoldering Ingot + zone part — iron hoe (Scythe), chain (Scourge), golden sword (Rapier).
+  - Mock test players always answer `isCreative()` true: code checks `getAbilities().creativeMode` instead.
+  - Not done: Sharpness, Smite and the like cannot go on these weapons (vanilla `EnchantmentTarget.WEAPON` accepts
+    swords only); Unbreaking and Mending work. A follow-up if wanted.
+  - Textures: placeholder icons, not seen; the swing feel of 6-block reach not seen in game.
 - [ ] **11.6 Huntsman's Crossbow.**
 - [ ] **11.7 Consumables + Flask Ember.**
 - [ ] **11.8 Chest loot + realm loot on mobs.**

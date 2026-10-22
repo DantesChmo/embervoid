@@ -19,7 +19,8 @@
 			"com.embervoid.gametest.ReachWoodsTests",
 			"com.embervoid.gametest.GearTests",
 			"com.embervoid.gametest.ReliquaryTests",
-			"com.embervoid.gametest.BossFrameworkTests"
+			"com.embervoid.gametest.BossFrameworkTests",
+			"com.embervoid.gametest.ArenaTemplateTests"
 		]
 	},
 	"mixins": [

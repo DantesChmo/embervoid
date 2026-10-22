@@ -147,7 +147,8 @@ public class BossFight {
 			Embervoid.LOGGER.warn("Arena boss {} is not an ArenaBoss mob: {}", spec.bossId(), spec.entity());
 			return false;
 		}
-		boss.refreshPositionAndAngles(center.getX() + 0.5, center.getY() + 1, center.getZ() + 0.5, world.random.nextFloat() * 360, 0);
+		Vec3d spawn = standingSpot(boss);
+		boss.refreshPositionAndAngles(spawn.x, spawn.y, spawn.z, world.random.nextFloat() * 360, 0);
 		boss.setPersistent();
 		boss.setCustomName(bossName());
 		bossUuid = boss.getUuid();
@@ -165,6 +166,18 @@ public class BossFight {
 		switchIn = BossScaling.switchTicks(config.targetSwitchMinSeconds(), config.targetSwitchMaxSeconds(), world.random.nextDouble());
 		arenaBoss.onPhaseChange(0);
 		return true;
+	}
+
+	/** The lowest spot over the arena centre where {@code entity} fits (a dais or rubble may stand there). */
+	private Vec3d standingSpot(Entity entity) {
+		Vec3d spot = centerPos();
+		for (int up = 0; up < 12; up++) {
+			Vec3d at = spot.add(0, up, 0);
+			if (world.isSpaceEmpty(entity, entity.getType().getDimensions().getBoxAt(at))) {
+				return at;
+			}
+		}
+		return spot;
 	}
 
 	/** Multiplayer scaling at summon: more HP and one add per fighter beyond the first. */
@@ -352,11 +365,13 @@ public class BossFight {
 
 		holdFogWall();
 		if (!isInside(boss.getPos(), -1)) {
-			boss.requestTeleport(center.getX() + 0.5, center.getY() + 1, center.getZ() + 0.5);
+			Vec3d back = standingSpot(boss);
+			boss.requestTeleport(back.x, back.y, back.z);
 		}
 		for (MobEntity add : adds()) {
 			if (!isInside(add.getPos(), 1)) {
-				add.requestTeleport(center.getX() + 0.5, center.getY() + 1, center.getZ() + 0.5);
+				Vec3d back = standingSpot(add);
+				add.requestTeleport(back.x, back.y, back.z);
 			}
 		}
 		tickHazards();

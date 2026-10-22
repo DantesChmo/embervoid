@@ -4,6 +4,7 @@ import com.embervoid.Embervoid;
 import com.embervoid.reach.gear.Bleeding;
 import com.embervoid.reach.gear.GearArmor;
 import com.embervoid.reach.gear.GearLootTables;
+import com.embervoid.reach.gear.GearWeapons;
 import com.embervoid.registry.ModBlocks;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
@@ -96,6 +97,9 @@ public final class GearDataGen {
 			for (Item item : ARMOR) {
 				gen.registerArmor((ArmorItem) item);
 			}
+			for (Item item : GearWeapons.MELEE) {
+				gen.register(item, Models.HANDHELD);
+			}
 		}
 	}
 
@@ -141,6 +145,12 @@ public final class GearDataGen {
 						.offerTo(exporter, getItemPath(result) + "_smithing");
 			}
 
+			// Weapons: the boss's soul + 2 Smoldering Ingot + a part from its zone (a reaper's hoe, a crypt chain, a
+			// courtier's gilded blade).
+			weapon(exporter, GearWeapons.ASHEN_SCYTHE, ASH_COLOSSUS_SOUL, Items.IRON_HOE);
+			weapon(exporter, GearWeapons.WARDENS_SCOURGE, CRYPT_KEEPER_SOUL, Items.CHAIN);
+			weapon(exporter, GearWeapons.ROYAL_ASH_RAPIER, SMOLDERING_LORD_SOUL, Items.GOLDEN_SWORD);
+
 			// DESIGN §10.11, built as recommended.
 			ShapelessRecipeJsonBuilder.create(RecipeCategory.MISC, ASH_OF_REMATCH)
 					.input(CINDER_SHARD, 4)
@@ -149,6 +159,15 @@ public final class GearDataGen {
 					.criterion(hasItem(CINDER_SHARD), conditionsFromItem(CINDER_SHARD))
 					.offerTo(exporter);
 		}
+	}
+
+	static void weapon(Consumer<RecipeJsonProvider> exporter, Item weapon, Item soul, Item part) {
+		ShapelessRecipeJsonBuilder.create(RecipeCategory.COMBAT, weapon)
+				.input(soul)
+				.input(SMOLDERING_INGOT, 2)
+				.input(part)
+				.criterion(FabricRecipeProvider.hasItem(soul), FabricRecipeProvider.conditionsFromItem(soul))
+				.offerTo(exporter);
 	}
 
 	private static class ChestLoot extends SimpleFabricLootTableProvider {
