@@ -17,11 +17,13 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.boss.BossBar;
 import net.minecraft.entity.boss.ServerBossBar;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -49,7 +51,8 @@ import java.util.UUID;
  *   <li>The fight owns what the boss leaves in the arena: adds ({@link #spawnAdd}), hazards ({@link #addHazard}),
  *   changed blocks ({@link #blocks}) and arena fog ({@link #setFog}). All of it goes when the fight ends.</li>
  *   <li>Every 8–10 s the boss turns to the fighter who hurt it most meanwhile (or to another one).</li>
- *   <li>On the kill, every fighter still inside gets credit; a first kill gives that player their own Ember Heart.</li>
+ *   <li>On the kill, every fighter still inside gets credit; a first kill gives that player their own personal loot
+ *   ({@link BossReward}: the boss's soul and more, or else an Ember Heart).</li>
  * </ul>
  */
 public class BossFight {
@@ -76,6 +79,8 @@ public class BossFight {
 	private int phase;
 	private boolean ended;
 	private int switchIn;
+	/** A boss summoned again with Ash of Rematch (PLAN 12.7): no soul for a repeat kill. */
+	private boolean rematch;
 	/** Arena fog now shown to the fighters: {density, colour}, or null. */
 	private float @Nullable [] fog;
 
@@ -122,6 +127,15 @@ public class BossFight {
 
 	public int phase() {
 		return phase;
+	}
+
+	/** Whether this fight was started with Ash of Rematch: a repeat kill never gives the soul. */
+	public boolean isRematch() {
+		return rematch;
+	}
+
+	void setRematch(boolean rematch) {
+		this.rematch = rematch;
 	}
 
 	/** Real blocks the fight changes; put back when it ends. */
@@ -471,18 +485,29 @@ public class BossFight {
 		RealmDefinition realm = Realms.byWorld(world.getRegistryKey());
 		boolean finalBoss = realm != null && realm.finalBoss().equals(spec.bossId());
 		boolean shrine = ensureShrine();
+		BossReward reward = BossReward.of(spec.bossId());
 		for (UUID uuid : fighters) {
 			ServerPlayerEntity player = world.getServer().getPlayerManager().getPlayer(uuid);
 			if (player == null || player.getServerWorld() != world || !player.isAlive() || !isInside(player.getPos(), 2)) {
 				continue;
 			}
+			// Personal loot: straight into this player's inventory, nobody else can pick it up.
 			if (ProgressManager.markBossBeaten(player, spec.bossId())) {
-				// Personal loot: straight into this player's inventory, nobody else can pick it up.
-				player.getInventory().offerOrDrop(EmberHeartItem.of(spec.bossId()));
-				player.sendMessage(Text.translatable("embervoid.boss.first_kill", bossName()), false);
+				if (reward == null) {
+					player.getInventory().offerOrDrop(EmberHeartItem.of(spec.bossId()));
+					player.sendMessage(Text.translatable("embervoid.boss.first_kill", bossName()), false);
+				} else {
+					List<ItemStack> items = reward.firstKillItems();
+					items.forEach(stack -> player.getInventory().offerOrDrop(stack.copy()));
+					player.sendMessage(Text.translatable("embervoid.boss.first_kill.items", bossName(), itemList(items)), false);
+				}
 				if (shrine) {
 					player.sendMessage(Text.translatable("embervoid.shrine.kindled"), true);
 				}
+			} else if (reward != null && !rematch && world.random.nextFloat() < BossConfig.get().repeatSoulChance()) {
+				// Helping a friend: now and then the soul answers again.
+				player.getInventory().offerOrDrop(new ItemStack(reward.soul()));
+				player.sendMessage(Text.translatable("embervoid.boss.repeat_soul", bossName(), new ItemStack(reward.soul()).toHoverableText()), false);
 			} else {
 				player.sendMessage(Text.translatable("embervoid.boss.victory", bossName()), true);
 			}
@@ -512,6 +537,18 @@ public class BossFight {
 			Embervoid.LOGGER.warn("Arena shrine of {} was missing at {}; placed it", spec.bossId(), shrine.toShortString());
 		}
 		return true;
+	}
+
+	/** "a, b and c" of the items' names, for the first-kill message. */
+	private static Text itemList(List<ItemStack> items) {
+		MutableText list = Text.empty();
+		for (int i = 0; i < items.size(); i++) {
+			if (i > 0) {
+				list.append(Text.literal(", "));
+			}
+			list.append(items.get(i).toHoverableText());
+		}
+		return list;
 	}
 
 	private static void completeRealm(ServerPlayerEntity player, RealmDefinition realm) {

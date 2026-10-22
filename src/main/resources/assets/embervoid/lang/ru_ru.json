@@ -363,5 +363,7 @@
 	"entity.embervoid.crypt_keeper": "Хранитель склепа",
 	"entity.embervoid.ash_colossus": "Пепельный колосс",
 	"entity.embervoid.grieving_tree": "Скорбящее древо",
-	"entity.embervoid.tree_lantern": "Висячий фонарь"
+	"entity.embervoid.tree_lantern": "Висячий фонарь",
+	"embervoid.boss.first_kill.items": "%s повержен. Ваше: %s",
+	"embervoid.boss.repeat_soul": "%s повержен. Его душа снова откликается вам: %s"
 }

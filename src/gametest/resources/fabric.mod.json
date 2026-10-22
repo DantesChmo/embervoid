@@ -26,7 +26,8 @@
 			"com.embervoid.gametest.ReachWorldTests",
 			"com.embervoid.gametest.CryptKeeperTests",
 			"com.embervoid.gametest.AshColossusTests",
-			"com.embervoid.gametest.GrievingTreeTests"
+			"com.embervoid.gametest.GrievingTreeTests",
+			"com.embervoid.gametest.BossRewardTests"
 		]
 	},
 	"mixins": [

@@ -14,7 +14,7 @@ courtyard piece), boss assets and loot. Config section `boss`.
 - [x] **12.3 Crypt Keeper** (GameTests `CryptKeeperTests` in the real ossuary template)
 - [x] **12.4 Ash Colossus** (GameTests `AshColossusTests` in the real crater market template)
 - [x] **12.5 Grieving Tree** (GameTests `GrievingTreeTests` in the real Royal Grove template)
-- [ ] **12.6 Souls and Flask Shards**
+- [x] **12.6 Souls and Flask Shards** (GameTests `BossRewardTests`)
 - [ ] **12.7 Ash of Rematch**
 - [ ] **13.4 Smoldering Lord**
 
@@ -137,6 +137,15 @@ bones). Greybox assets: `python3 tools/boss_placeholders.py [name]` (helpers fro
 
 - P2 (50 %): uproots (animation, dirt), old lanterns fall, 4 new ones on its own branches (5.5–7 up, 3.5 out) walk with
   it, thicker fog. Model bone `roots` shows only while rooted.
+
+## 12.6 Souls and Flask Shards
+
+- Framework: `boss.BossReward(soul, firstKill extras)` registered per boss progress id (`BossReward.register`); the
+  fight hands it out instead of the Ember Heart. First kill: soul + extras, message "%s has fallen. Yours: …". A credited
+  fighter who had already beaten the boss gets the soul at `boss.repeatSoulChance` (0.25), never in a rematch
+  (`BossFight.isRematch`). Bosses without a reward keep the Ember Heart (test boss, any later realm).
+- Realm 1 (`ReachBosses`): zone_a Ash Colossus soul, zone_b Grieving Tree soul, zone_c Crypt Keeper soul, each + 1 Flask
+  Shard. The Smoldering Lord's (soul + Flask Ember) comes with 13.4.
 
 ## Status / notes
 
