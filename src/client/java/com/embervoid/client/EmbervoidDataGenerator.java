@@ -3,6 +3,7 @@ package com.embervoid.client;
 import com.embervoid.Embervoid;
 import com.embervoid.client.mob.MobDataGen;
 import com.embervoid.client.reach.boss.datagen.ReachBossDataGen;
+import com.embervoid.client.reach.citadel.CitadelTemplateProvider;
 import com.embervoid.client.nightmob.NightMobDataGen;
 import com.embervoid.client.reach.mob.ReachMobDataGen;
 import com.embervoid.client.reach.world.ReachWorldDataGen;
@@ -65,6 +66,7 @@ public class EmbervoidDataGenerator implements DataGeneratorEntrypoint {
 		GearDataGen.addProviders(pack);
 		ReliquaryDataGen.addProviders(pack);
 		ReachWorldDataGen.addProviders(pack);
+		pack.addProvider(CitadelTemplateProvider::new);
 	}
 
 	private static class Models extends FabricModelProvider {

@@ -2,14 +2,32 @@ package com.embervoid.gametest;
 
 import com.embervoid.Embervoid;
 import com.embervoid.reach.citadel.CitadelLayout;
+import com.embervoid.reach.citadel.CitadelPiece;
+import com.embervoid.reach.gear.GearLootTables;
 import com.embervoid.reach.world.ReachBlocks;
 import com.embervoid.reach.world.ReachZones;
 import com.embervoid.realm.RealmArenas;
 import com.embervoid.realm.RealmDefinition;
 import com.embervoid.realm.RealmMobLevels;
 import com.embervoid.realm.Realms;
+import com.embervoid.realm.placed.PlacedEnemies;
+import com.embervoid.realm.worldgen.RealmFeaturePlacement;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.entity.LootableContainerBlockEntity;
+import net.minecraft.entity.Entity;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.structure.StructurePiece;
+import net.minecraft.structure.StructurePlacementData;
+import net.minecraft.structure.StructureSet;
+import net.minecraft.structure.StructureStart;
+import net.minecraft.structure.StructureTemplate;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockBox;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.gen.structure.Structure;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.GameTest;
@@ -20,7 +38,10 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /** The depths "Burning City" and the Smoldering Citadel (PLAN 13.1–13.2, track citadel). */
 public final class CitadelWorldTests implements FabricGameTest {
@@ -97,6 +118,119 @@ public final class CitadelWorldTests implements FabricGameTest {
 		context.assertTrue(arena.siteRadius() == CitadelLayout.COURTYARD_RADIUS, "courtyard site radius " + arena.siteRadius());
 		context.assertTrue(arena.spec().bossId().equals(Realms.ASHEN_REACH.finalBoss()) && arena.spec().level() == 30,
 				"courtyard boss " + arena.spec());
+		context.complete();
+	}
+
+	/**
+	 * The Citadel (PLAN 13.2): one start at its fixed chunk, every piece with its template, built the way worldgen does
+	 * at its real position. Placed mobs where the bestiary puts them (read from the templates' markers, then spawned with
+	 * no marker left), Citadel chests only, the treasure in the keep, and the route open from the landing to the keep.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 6000)
+	public void citadelBuildsAlongTheRoute(TestContext context) {
+		ServerWorld depths = depths(context);
+		ChunkGenerator generator = depths.getChunkManager().getChunkGenerator();
+		Identifier id = Embervoid.id("ashen_reach_depths_citadel");
+		Structure structure = depths.getRegistryManager().get(RegistryKeys.STRUCTURE).get(id);
+		context.assertTrue(structure != null, "no structure " + id);
+		ChunkPos startChunk = null;
+		for (RegistryEntry<StructureSet> set : depths.getChunkManager().getStructurePlacementCalculator().getStructureSets()) {
+			if (set.value().placement() instanceof RealmFeaturePlacement placement
+					&& set.value().structures().stream().anyMatch(e -> e.structure().value() == structure)) {
+				startChunk = placement.getStartChunk(depths.getSeed(), 0, 0);
+			}
+		}
+		context.assertTrue(new ChunkPos(new BlockPos(CitadelLayout.START_X, 0, CitadelLayout.START_Z)).equals(startChunk),
+				"the Citadel starts in chunk " + startChunk);
+		StructureStart start = structure.createStructureStart(depths.getRegistryManager(), generator, generator.getBiomeSource(),
+				depths.getChunkManager().getNoiseConfig(), depths.getStructureTemplateManager(), depths.getSeed(), startChunk, 0,
+				depths, biome -> true);
+		context.assertTrue(start.getChildren().size() == CitadelLayout.PIECES.size(), "pieces: " + start.getChildren().size());
+
+		// Markers in the templates: which mob each piece places.
+		Map<String, List<Identifier>> mobs = new HashMap<>();
+		for (StructurePiece child : start.getChildren()) {
+			CitadelPiece piece = (CitadelPiece) child;
+			StructureTemplate template = piece.getTemplate();
+			CitadelLayout.Piece layout = CitadelLayout.PIECES.stream()
+					.filter(p -> p.template().equals(piece.templateId())).findFirst().orElseThrow();
+			context.assertTrue(template.getSize().getX() == layout.sizeX() && template.getSize().getY() == layout.sizeY()
+					&& template.getSize().getZ() == layout.sizeZ(), layout.name() + ": template size " + template.getSize());
+			List<Identifier> ids = new ArrayList<>();
+			for (StructureTemplate.StructureBlockInfo info : template.getInfosForBlock(BlockPos.ORIGIN, new StructurePlacementData(),
+					PlacedEnemies.MARKER)) {
+				ids.add(new Identifier(info.nbt().getString("entity")));
+			}
+			mobs.put(layout.name(), ids);
+		}
+		Identifier marksman = Embervoid.id("sparking_marksman");
+		Identifier golem = Embervoid.id("furnace_golem");
+		Identifier knight = Embervoid.id("smoldering_knight");
+		Map<String, List<Identifier>> expected = Map.of(
+				"gatehouse", List.of(marksman, marksman, marksman), "wall_west", List.of(marksman, marksman),
+				"wall_east", List.of(marksman, marksman), "tower_west", List.of(knight), "tower_east", List.of(knight),
+				"inner_ring_west", List.of(golem, golem, golem), "inner_ring_east", List.of(golem, golem),
+				"keep", List.of(knight, knight));
+		for (CitadelLayout.Piece piece : CitadelLayout.PIECES) {
+			List<Identifier> found = new ArrayList<>(mobs.get(piece.name()));
+			List<Identifier> want = new ArrayList<>(expected.getOrDefault(piece.name(), List.of()));
+			found.sort(null);
+			want.sort(null);
+			context.assertTrue(found.equals(want), piece.name() + " places " + found + ", expected " + want);
+		}
+
+		BlockBox box = start.getBoundingBox();
+		ChunkPos.stream(new ChunkPos(box.getMinX() >> 4, box.getMinZ() >> 4), new ChunkPos(box.getMaxX() >> 4, box.getMaxZ() >> 4))
+				.forEach(c -> start.place(depths, depths.getStructureAccessor(), generator, depths.getRandom(),
+						new BlockBox(c.getStartX(), depths.getBottomY(), c.getStartZ(), c.getEndX(), depths.getTopY(), c.getEndZ()), c));
+
+		int common = 0;
+		List<BlockPos> treasure = new ArrayList<>();
+		for (StructurePiece child : start.getChildren()) {
+			BlockBox pieceBox = child.getBoundingBox();
+			for (BlockPos pos : BlockPos.iterate(pieceBox.getMinX(), pieceBox.getMinY(), pieceBox.getMinZ(),
+					pieceBox.getMaxX(), pieceBox.getMaxY(), pieceBox.getMaxZ())) {
+				BlockState state = depths.getBlockState(pos);
+				context.assertTrue(!state.isOf(PlacedEnemies.MARKER), "placed-enemy marker left at " + pos);
+				if (state.isOf(Blocks.CHEST) && depths.getBlockEntity(pos) instanceof LootableContainerBlockEntity chest) {
+					String table = chest.createNbt().getString("LootTable");
+					if (table.equals(GearLootTables.CITADEL_TREASURE.toString())) {
+						treasure.add(pos.toImmutable());
+					} else {
+						context.assertTrue(table.equals(GearLootTables.CITADEL_COMMON.toString()), "chest table " + table + " at " + pos);
+						common++;
+					}
+				}
+			}
+		}
+		CitadelLayout.Piece keep = CitadelLayout.KEEP;
+		context.assertTrue(treasure.size() == 1 && treasure.get(0).getX() >= keep.minX() && treasure.get(0).getX() <= keep.maxX()
+				&& treasure.get(0).getZ() >= keep.minZ() && treasure.get(0).getZ() <= keep.maxZ(), "treasure chests at " + treasure);
+		context.assertTrue(common >= 7, "only " + common + " common chests");
+
+		// The spawned mobs, then gone again (test worlds are shared).
+		int placed = 0;
+		List<Entity> spawned = new ArrayList<>();
+		for (Entity entity : depths.iterateEntities()) {
+			if (PlacedEnemies.isPlaced(entity) && box.contains(entity.getBlockPos())) {
+				spawned.add(entity);
+			}
+		}
+		for (Entity entity : spawned) {
+			placed++;
+			entity.discard();
+		}
+		context.assertTrue(placed == 16, "spawned " + placed + " placed mobs, expected 16");
+
+		// The route is open: the gate, the tunnel, the plaza, the courtyard's edge, the keep door and its hall.
+		int floor = CitadelLayout.PLATEAU_Y;
+		for (BlockPos stand : List.of(new BlockPos(0, 67 + 1, -45), new BlockPos(0, 71 + 1, -100), new BlockPos(0, 75, -130),
+				new BlockPos(0, 82, -140), new BlockPos(0, floor + 1, -150), new BlockPos(0, floor + 1, -231),
+				new BlockPos(4, floor + 1, -255))) {
+			context.assertTrue(!depths.getBlockState(stand.down()).isAir(), "no floor under " + stand);
+			context.assertTrue(depths.getBlockState(stand).getCollisionShape(depths, stand).isEmpty()
+					&& depths.getBlockState(stand.up()).getCollisionShape(depths, stand.up()).isEmpty(), "route blocked at " + stand);
+		}
 		context.complete();
 	}
 

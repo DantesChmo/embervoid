@@ -9,7 +9,8 @@ What it does:
 2. Over RCON: locates the nearest Ember Sanctum and force-loads the chunks around it (so it is really generated in
    overworld terrain), force-loads the Ashen Reach landing and depths centre, locates the three zone arenas and the
    depths arena and force-loads them too, force-loads every road outpost and checks each got its chest, locates and
-   force-loads a minor structure of each zone, force-loads the Vampire arena, starts and stops a full moon and a blood
+   force-loads a minor structure of each zone, locates the Smoldering Citadel and force-loads its whole route (then
+   expects the keep's treasure chest and every placed Citadel mob), force-loads the Vampire arena, starts and stops a full moon and a blood
    new moon, opens, checks and closes the Vampire arena, waits for generation, saves, stops the server. Commands with
    an expected answer fail the check when the answer does not match.
 3. Scans the whole output (build + server log) for crashes, mixin failures, ERROR lines and datapack load errors.
@@ -159,6 +160,18 @@ def exercise(rcon):
         if not re.search(pattern, response):
             FAILED_EXPECTATIONS.append(f"{label}: expected /{pattern}/, got {response.strip()!r}")
 
+    def expect_eventually(label, command, pattern, timeout=120):
+        """Like expect, but asks again every few seconds while chunks are still generating."""
+        deadline = time.time() + timeout
+        while True:
+            response = rcon.command(command)
+            if re.search(pattern, response.strip()) or time.time() > deadline:
+                break
+            time.sleep(5)
+        log.append((label, command, response.strip()))
+        if not re.search(pattern, response.strip()):
+            FAILED_EXPECTATIONS.append(f"{label}: expected /{pattern}/, got {response.strip()!r}")
+
     def generate_around(label, dimension, pos, radius=48):
         x, z = pos
         run(label, f"execute in {dimension} run forceload add {x - radius} {z - radius} {x + radius} {z + radius}")
@@ -189,6 +202,10 @@ def exercise(rcon):
                       "embervoid:ashen_reach_depths_arena"))
     if pos:
         generate_around("Depths arena", "embervoid:ashen_reach_depths", pos, 32)
+    # The Smoldering Citadel (PLAN 13.2): its one start, then the whole route from the outskirts to the keep.
+    expect("Citadel", "execute in embervoid:ashen_reach_depths run locate structure "
+           "embervoid:ashen_reach_depths_citadel", r"at \[0, ~, -160\]")
+    run("Citadel", "execute in embervoid:ashen_reach_depths run forceload add -76 -272 76 -30")
     generate_around("Vampire arena", "embervoid:vampire_arena", (0, 0), 16)
     # The Vampire arena without players (PLAN 8.12): builds whole, keeps its chunks while open, closes cleanly.
     expect("Vampire arena open", "embervoid vampire arena open", r"Vampire arena open, 0 player")
@@ -205,6 +222,12 @@ def exercise(rcon):
             expect("Vampires without players", "embervoid vampire status", r", NONE, ")
         run(f"Moon {night} stop", "embervoid moon stop")
     time.sleep(GENERATION_WAIT)
+    # The Citadel's treasure chest in the keep and its placed mobs (7 Marksmen, 5 Golems, 4 Knights), once generated.
+    citadel = "execute in embervoid:ashen_reach_depths if "
+    expect_eventually("Citadel treasure", citadel + "block 0 89 -265 minecraft:chest", r"Test passed")
+    for mob, count in (("sparking_marksman", 7), ("furnace_golem", 5), ("smoldering_knight", 4)):
+        expect_eventually(f"Citadel {mob}", citadel + f"entity @e[type=embervoid:{mob},tag=embervoid.placed]",
+                          rf"Test passed, count: {count}$")
     expect("Road outposts built", "execute in embervoid:ashen_reach run embervoid realm roads",
            r"^(?![\s\S]*(missing|not loaded))3 roads")
     run("Save", "save-all flush")
