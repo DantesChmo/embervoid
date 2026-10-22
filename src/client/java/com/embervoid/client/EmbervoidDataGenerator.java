@@ -3,6 +3,7 @@ package com.embervoid.client;
 import com.embervoid.Embervoid;
 import com.embervoid.client.mob.MobDataGen;
 import com.embervoid.client.nightmob.NightMobDataGen;
+import com.embervoid.client.reliquary.ReliquaryDataGen;
 import com.embervoid.client.reach.gear.GearDataGen;
 import com.embervoid.sanctum.datagen.SanctumTemplateProvider;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
@@ -57,6 +58,7 @@ public class EmbervoidDataGenerator implements DataGeneratorEntrypoint {
 		NightMobDataGen.addProviders(pack);
 		pack.addProvider(SanctumTemplateProvider::new);
 		GearDataGen.addProviders(pack);
+		ReliquaryDataGen.addProviders(pack);
 	}
 
 	private static class Models extends FabricModelProvider {

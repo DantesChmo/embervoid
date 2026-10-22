@@ -11,14 +11,21 @@ import java.util.Map;
 /**
  * The {@code reliquary} config section (DESIGN §4.5).
  *
- * @param slots slots per {@link SlotKind#name()}; 0 hides a kind. Lowering a count hands the items in the lost
- *              slots back to the player on their next join
+ * @param slots     slots per {@link SlotKind#name()}; 0 hides a kind. Lowering a count hands the items in the lost
+ *                  slots back to the player on their next join
+ * @param artifacts stat points the artifacts give
  */
-public record ReliquaryConfig(Map<String, Integer> slots) {
+public record ReliquaryConfig(Map<String, Integer> slots, Artifacts artifacts) {
+	/**
+	 * @param points     points of a one-stat artifact (DESIGN §4.5: +3)
+	 * @param sealPoints points per stat of the Seal of the Ashen King (+1 to every stat)
+	 */
+	public record Artifacts(int points, int sealPoints) {}
+
 	/** Most slots of one kind: the screen has room for three columns of three on each side of the player model. */
 	public static final int MAX_SLOTS_PER_KIND = 8;
 
-	public static final ReliquaryConfig DEFAULT = new ReliquaryConfig(defaultSlots());
+	public static final ReliquaryConfig DEFAULT = new ReliquaryConfig(defaultSlots(), new Artifacts(3, 1));
 
 	public static final ConfigSection<ReliquaryConfig> SECTION = EmbervoidConfig.register(ConfigSection.of(
 			"reliquary", DEFAULT, ReliquaryConfig::read, ReliquaryConfig::write));
@@ -45,7 +52,10 @@ public record ReliquaryConfig(Map<String, Integer> slots) {
 		for (SlotKind kind : SlotKinds.ALL) {
 			slots.put(kind.name(), slotsIn.readInt(kind.name(), kind.defaultCount(), 0, MAX_SLOTS_PER_KIND));
 		}
-		return new ReliquaryConfig(Map.copyOf(slots));
+		SectionReader artifacts = in.section("artifacts");
+		return new ReliquaryConfig(Map.copyOf(slots), new Artifacts(
+				artifacts.readInt("points", DEFAULT.artifacts.points, 0, 99),
+				artifacts.readInt("sealPoints", DEFAULT.artifacts.sealPoints, 0, 99)));
 	}
 
 	private static void write(ReliquaryConfig value, JsonObject out) {
@@ -54,5 +64,9 @@ public record ReliquaryConfig(Map<String, Integer> slots) {
 			slots.addProperty(kind.name(), value.slots(kind));
 		}
 		out.add("slots", slots);
+		JsonObject artifacts = new JsonObject();
+		artifacts.addProperty("points", value.artifacts.points);
+		artifacts.addProperty("sealPoints", value.artifacts.sealPoints);
+		out.add("artifacts", artifacts);
 	}
 }

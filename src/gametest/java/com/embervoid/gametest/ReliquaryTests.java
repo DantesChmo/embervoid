@@ -3,7 +3,10 @@ package com.embervoid.gametest;
 import com.embervoid.entity.AshRemnantEntity;
 import com.embervoid.player.XpUtil;
 import com.embervoid.registry.ModEntities;
+import com.embervoid.reliquary.ArtifactItem;
 import com.embervoid.reliquary.Reliquary;
+import com.embervoid.reliquary.ReliquaryConfig;
+import com.embervoid.reliquary.ReliquaryItems;
 import com.embervoid.reliquary.ReliquaryManager;
 import com.embervoid.reliquary.ReliquaryScreenHandler;
 import com.embervoid.reliquary.SlotKinds;
@@ -14,6 +17,7 @@ import com.mojang.authlib.GameProfile;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -247,6 +251,60 @@ public final class ReliquaryTests implements FabricGameTest {
 		TEST_BONUS.remove(player.getUuid());
 		StatEffects.apply(player);
 		context.assertTrue(player.getMaxHealth() == health, "max health not back: " + player.getMaxHealth());
+		TestPlayers.complete(context, player);
+	}
+
+	/**
+	 * Each artifact (PLAN 11.11) is an artifact-slot item; worn, it raises its stats by the config points (the Seal
+	 * every stat by 1) through the stat system: max health and luck follow, the level and level cost do not.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void artifactsGiveStatPointsNotLevels(TestContext context) {
+		ServerPlayerEntity player = joinPlayer(context, new RecordingConnection());
+		int level = PlayerStats.level(player);
+		int cost = PlayerStats.levelUpCost(player);
+		float health = player.getMaxHealth();
+		double luck = player.getAttributeValue(EntityAttributes.GENERIC_LUCK);
+		int points = ReliquaryConfig.get().artifacts().points();
+		int sealPoints = ReliquaryConfig.get().artifacts().sealPoints();
+		context.assertTrue(ReliquaryItems.ARTIFACTS.size() == 8, "expected 8 artifacts");
+
+		for (ArtifactItem artifact : ReliquaryItems.ARTIFACTS) {
+			ItemStack stack = new ItemStack(artifact);
+			context.assertTrue(SlotKinds.ARTIFACT.accepts(stack), artifact + " is not in #embervoid:artifacts");
+			context.assertFalse(SlotKinds.RING.accepts(stack), artifact + " fits a ring slot");
+			context.assertTrue(ReliquaryManager.canEquip(player, SlotKinds.ARTIFACT, 0, stack), artifact + " cannot be equipped");
+			ReliquaryManager.setStack(player, SlotKinds.ARTIFACT, 0, stack);
+			boolean seal = artifact == ReliquaryItems.SEAL_OF_THE_ASHEN_KING;
+			for (Stat stat : Stat.values()) {
+				int expected = artifact.points().getOrDefault(stat, 0);
+				context.assertTrue(PlayerStats.effective(player, stat) == Stat.BASE + expected
+								&& PlayerStats.get(player, stat) == Stat.BASE,
+						artifact + ": " + stat + " effective " + PlayerStats.effective(player, stat) + ", expected +" + expected);
+			}
+			context.assertTrue(artifact.points().size() == (seal ? Stat.COUNT : 1), artifact + " raises " + artifact.points());
+			context.assertTrue(artifact.points().values().stream().allMatch(v -> v == (seal ? sealPoints : points)),
+					artifact + " points " + artifact.points());
+			context.assertTrue(PlayerStats.level(player) == level && PlayerStats.levelUpCost(player) == cost,
+					artifact + " changed level/cost: " + PlayerStats.level(player) + "/" + PlayerStats.levelUpCost(player));
+			int vit = artifact.points().getOrDefault(Stat.VITALITY, 0);
+			context.assertTrue(player.getMaxHealth() == health + vit, artifact + ": max health " + player.getMaxHealth());
+			int fortune = artifact.points().getOrDefault(Stat.FORTUNE, 0);
+			double expectedLuck = luck + PlayerStats.derived(player).luck();
+			context.assertTrue(Math.abs(player.getAttributeValue(EntityAttributes.GENERIC_LUCK) - expectedLuck) < 1e-6
+					&& (fortune == 0 || player.getAttributeValue(EntityAttributes.GENERIC_LUCK) > luck),
+					artifact + ": luck " + player.getAttributeValue(EntityAttributes.GENERIC_LUCK));
+		}
+
+		// Two artifacts add up; taking them off restores everything.
+		ReliquaryManager.setStack(player, SlotKinds.ARTIFACT, 0, new ItemStack(ReliquaryItems.LAST_HARVEST_GRAIN));
+		ReliquaryManager.setStack(player, SlotKinds.ARTIFACT, 1, new ItemStack(ReliquaryItems.SEAL_OF_THE_ASHEN_KING));
+		context.assertTrue(PlayerStats.effective(player, Stat.VITALITY) == Stat.BASE + points + sealPoints,
+				"grain + seal VIT " + PlayerStats.effective(player, Stat.VITALITY));
+		ReliquaryManager.setStack(player, SlotKinds.ARTIFACT, 0, ItemStack.EMPTY);
+		ReliquaryManager.setStack(player, SlotKinds.ARTIFACT, 1, ItemStack.EMPTY);
+		context.assertTrue(player.getMaxHealth() == health, "max health not back: " + player.getMaxHealth());
+		context.assertTrue(player.getAttributeValue(EntityAttributes.GENERIC_LUCK) == luck, "luck not back");
 		TestPlayers.complete(context, player);
 	}
 
