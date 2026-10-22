@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "embervoid:cinder_shard"
+    },
+    {
+      "item": "embervoid:cinder_shard"
+    },
+    {
+      "item": "embervoid:cinder_shard"
+    },
+    {
+      "item": "embervoid:cinder_shard"
+    },
+    {
+      "item": "embervoid:royal_amber"
+    },
+    {
+      "item": "minecraft:bone"
+    }
+  ],
+  "result": {
+    "item": "embervoid:ash_of_rematch"
+  }
+}

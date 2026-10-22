@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "cookingtime": 200,
+  "experience": 1.0,
+  "group": "grave_iron_ingot",
+  "ingredient": {
+    "item": "embervoid:raw_grave_iron"
+  },
+  "result": "embervoid:grave_iron_ingot"
+}
