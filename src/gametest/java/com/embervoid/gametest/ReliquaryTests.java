@@ -8,6 +8,7 @@ import com.embervoid.reliquary.ArtifactItem;
 import com.embervoid.reliquary.Reliquary;
 import com.embervoid.reliquary.ReliquaryConfig;
 import com.embervoid.reliquary.ReliquaryItems;
+import com.embervoid.reliquary.ReliquaryLoot;
 import com.embervoid.reliquary.ReliquaryManager;
 import com.embervoid.reliquary.ReliquaryScreenHandler;
 import com.embervoid.reliquary.RingEffects;
@@ -27,6 +28,10 @@ import net.minecraft.entity.passive.CowEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.loot.LootTable;
+import net.minecraft.loot.context.LootContextParameterSet;
+import net.minecraft.loot.context.LootContextParameters;
+import net.minecraft.loot.context.LootContextTypes;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkSide;
@@ -37,9 +42,12 @@ import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.GameTest;
+import net.minecraft.test.GameTestException;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
@@ -51,6 +59,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 /**
  * The Reliquary (PLAN 11.9–11.13) on real server players. The gametest mod tags vanilla stand-ins as accessories
@@ -448,6 +457,101 @@ public final class ReliquaryTests implements FabricGameTest {
 		plain.discard();
 		target.discard();
 		TestPlayers.complete(context, player);
+	}
+
+	/**
+	 * Each zone's treasure chest (PLAN 11.13) rolls an artifact at about 8 % and a ring at about 5 %, only of that
+	 * zone's accessories.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void treasureChestsRollZoneAccessories(TestContext context) {
+		ServerWorld world = context.getWorld();
+		ReliquaryConfig.Drops drops = ReliquaryConfig.get().drops();
+		int rolls = 4000;
+		for (ReliquaryLoot.Zone zone : ReliquaryLoot.ZONES) {
+			LootTable table = world.getServer().getLootManager().getLootTable(zone.treasureChest());
+			context.assertTrue(table != LootTable.EMPTY, "no table " + zone.treasureChest());
+			LootContextParameterSet params = new LootContextParameterSet.Builder(world)
+					.add(LootContextParameters.ORIGIN, context.getAbsolute(new Vec3d(2, 1, 2)))
+					.build(LootContextTypes.CHEST);
+			int[] counts = count(zone, rolls, () -> table.generateLoot(params));
+			assertRate(context, zone.name() + " chest artifacts", counts[0], rolls, drops.chestArtifact());
+			assertRate(context, zone.name() + " chest rings", counts[1], rolls, drops.chestRing());
+		}
+		context.complete();
+	}
+
+	/**
+	 * Elite tables get the zone's accessories at about 2 % / 1 %, from player kills only. The mob tables are track
+	 * reach-mobs'; one that does not exist yet (the Smoldering Knight's, milestone 13) is checked on an empty table
+	 * with the same injection.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void elitesRollZoneAccessoriesOnPlayerKills(TestContext context) {
+		ServerWorld world = context.getWorld();
+		ServerPlayerEntity player = joinPlayer(context, new RecordingConnection());
+		ReliquaryConfig.Drops drops = ReliquaryConfig.get().drops();
+		CowEntity victim = context.spawnEntity(EntityType.COW, 4, 1, 4);
+		context.assertFalse(ReliquaryLoot.inject(new Identifier("minecraft", "entities/cow"), LootTable.builder()),
+				"injected into an unrelated table");
+		int rolls = 10_000;
+		for (ReliquaryLoot.Zone zone : ReliquaryLoot.ZONES) {
+			if (zone.eliteTable() == null) {
+				continue;
+			}
+			LootTable table = world.getServer().getLootManager().getLootTable(zone.eliteTable());
+			if (table == LootTable.EMPTY) {
+				LootTable.Builder builder = LootTable.builder().type(LootContextTypes.ENTITY);
+				context.assertTrue(ReliquaryLoot.inject(zone.eliteTable(), builder), "not injected into " + zone.eliteTable());
+				table = builder.build();
+			}
+			LootTable loot = table;
+			LootContextParameterSet.Builder params = new LootContextParameterSet.Builder(world)
+					.add(LootContextParameters.THIS_ENTITY, victim)
+					.add(LootContextParameters.ORIGIN, victim.getPos())
+					.add(LootContextParameters.DAMAGE_SOURCE, world.getDamageSources().playerAttack(player));
+			LootContextParameterSet byPlayer = params.add(LootContextParameters.LAST_DAMAGE_PLAYER, player)
+					.add(LootContextParameters.KILLER_ENTITY, player)
+					.build(LootContextTypes.ENTITY);
+			int[] counts = count(zone, rolls, () -> loot.generateLoot(byPlayer));
+			assertRate(context, zone.name() + " elite artifacts", counts[0], rolls, drops.eliteArtifact());
+			assertRate(context, zone.name() + " elite rings", counts[1], rolls, drops.eliteRing());
+
+			LootContextParameterSet noPlayer = new LootContextParameterSet.Builder(world)
+					.add(LootContextParameters.THIS_ENTITY, victim)
+					.add(LootContextParameters.ORIGIN, victim.getPos())
+					.add(LootContextParameters.DAMAGE_SOURCE, world.getDamageSources().generic())
+					.build(LootContextTypes.ENTITY);
+			int[] none = count(zone, 2_000, () -> loot.generateLoot(noPlayer));
+			context.assertTrue(none[0] + none[1] == 0, zone.name() + ": elite dropped accessories without a player kill");
+		}
+		victim.discard();
+		TestPlayers.complete(context, player);
+	}
+
+	/** Artifacts and rings of {@code zone} in {@code rolls} loot rolls; fails on another zone's accessory. */
+	private static int[] count(ReliquaryLoot.Zone zone, int rolls, Supplier<List<ItemStack>> loot) {
+		int[] counts = new int[2];
+		for (int i = 0; i < rolls; i++) {
+			for (ItemStack stack : loot.get()) {
+				if (zone.artifacts().contains(stack.getItem())) {
+					counts[0]++;
+				} else if (zone.rings().contains(stack.getItem())) {
+					counts[1]++;
+				} else if (stack.getItem() instanceof ArtifactItem || stack.getItem() instanceof RingItem) {
+					throw new GameTestException(zone.name() + " dropped another zone's " + stack);
+				}
+			}
+		}
+		return counts;
+	}
+
+	/** {@code hits} out of {@code rolls} within five standard deviations of {@code chance}. */
+	private static void assertRate(TestContext context, String what, int hits, int rolls, float chance) {
+		double expected = rolls * chance;
+		double tolerance = 5 * Math.sqrt(rolls * chance * (1 - chance));
+		context.assertTrue(Math.abs(hits - expected) <= tolerance, what + ": " + hits + " in " + rolls
+				+ ", expected about " + Math.round(expected));
 	}
 
 	/** VIT bonus per test player, read by a bonus source registered once for these tests. */

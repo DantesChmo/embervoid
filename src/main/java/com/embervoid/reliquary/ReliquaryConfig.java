@@ -15,8 +15,9 @@ import java.util.Map;
  *                  slots back to the player on their next join
  * @param artifacts stat points the artifacts give
  * @param rings     ring numbers
+ * @param drops     accessory drop chances
  */
-public record ReliquaryConfig(Map<String, Integer> slots, Artifacts artifacts, Rings rings) {
+public record ReliquaryConfig(Map<String, Integer> slots, Artifacts artifacts, Rings rings, Drops drops) {
 	/**
 	 * @param points     points of a one-stat artifact (DESIGN §4.5: +3)
 	 * @param sealPoints points per stat of the Seal of the Ashen King (+1 to every stat)
@@ -34,11 +35,22 @@ public record ReliquaryConfig(Map<String, Integer> slots, Artifacts artifacts, R
 	public record Rings(float courierSprintBonus, float featherSafeFall, float featherMaxFallSpeed,
 			float fogStalkerClearing, int delverHasteLevel, int embersFireSeconds) {}
 
+	/**
+	 * Chances of one accessory of the zone (DESIGN §4.5), per treasure chest and per elite killed by a player.
+	 *
+	 * @param chestArtifact artifact per treasure chest (8 %)
+	 * @param chestRing     ring per treasure chest (5 %)
+	 * @param eliteArtifact artifact per elite (2 %)
+	 * @param eliteRing     ring per elite (1 %)
+	 */
+	public record Drops(float chestArtifact, float chestRing, float eliteArtifact, float eliteRing) {}
+
 	/** Most slots of one kind: the screen has room for three columns of three on each side of the player model. */
 	public static final int MAX_SLOTS_PER_KIND = 8;
 
 	public static final ReliquaryConfig DEFAULT = new ReliquaryConfig(defaultSlots(), new Artifacts(3, 1),
-			new Rings(0.15f, 8, 0.5f, 2, 1, 2));
+			new Rings(0.15f, 8, 0.5f, 2, 1, 2),
+			new Drops(0.08f, 0.05f, 0.02f, 0.01f));
 
 	public static final ConfigSection<ReliquaryConfig> SECTION = EmbervoidConfig.register(ConfigSection.of(
 			"reliquary", DEFAULT, ReliquaryConfig::read, ReliquaryConfig::write));
@@ -69,7 +81,17 @@ public record ReliquaryConfig(Map<String, Integer> slots, Artifacts artifacts, R
 		return new ReliquaryConfig(Map.copyOf(slots), new Artifacts(
 				artifacts.readInt("points", DEFAULT.artifacts.points, 0, 99),
 				artifacts.readInt("sealPoints", DEFAULT.artifacts.sealPoints, 0, 99)),
-				readRings(in.section("rings")));
+				readRings(in.section("rings")),
+				readDrops(in.section("drops")));
+	}
+
+	private static Drops readDrops(SectionReader in) {
+		Drops def = DEFAULT.drops;
+		return new Drops(
+				in.readFloat("chestArtifact", def.chestArtifact, 0, 1),
+				in.readFloat("chestRing", def.chestRing, 0, 1),
+				in.readFloat("eliteArtifact", def.eliteArtifact, 0, 1),
+				in.readFloat("eliteRing", def.eliteRing, 0, 1));
 	}
 
 	private static Rings readRings(SectionReader in) {
@@ -101,5 +123,11 @@ public record ReliquaryConfig(Map<String, Integer> slots, Artifacts artifacts, R
 		rings.addProperty("delverHasteLevel", value.rings.delverHasteLevel);
 		rings.addProperty("embersFireSeconds", value.rings.embersFireSeconds);
 		out.add("rings", rings);
+		JsonObject drops = new JsonObject();
+		drops.addProperty("chestArtifact", value.drops.chestArtifact);
+		drops.addProperty("chestRing", value.drops.chestRing);
+		drops.addProperty("eliteArtifact", value.drops.eliteArtifact);
+		drops.addProperty("eliteRing", value.drops.eliteRing);
+		out.add("drops", drops);
 	}
 }
