@@ -97,7 +97,7 @@
 	"entity.embervoid.test_boss": "Test Champion",
 	"boss.embervoid.ashen_reach.zone_a": "Champion of Zone A",
 	"boss.embervoid.ashen_reach.zone_b": "Champion of Zone B",
-	"boss.embervoid.ashen_reach.zone_c": "Champion of Zone C",
+	"boss.embervoid.ashen_reach.zone_c": "Crypt Keeper",
 	"boss.embervoid.ashen_reach.final": "Champion of the Depths",
 	"embervoid.boss.bar": "%s — Lv %s",
 	"embervoid.boss.fog": "A wall of ash bars the way",
@@ -279,5 +279,6 @@
 	"item.embervoid.drowned_mans_ring.effect": "Water breathing",
 	"item.embervoid.ring_of_embers": "Ring of Embers",
 	"item.embervoid.ring_of_embers.desc": "A spark of the hoarded flame, still trying to get out.",
-	"item.embervoid.ring_of_embers.effect": "Melee hits set the target on fire for 2 seconds"
+	"item.embervoid.ring_of_embers.effect": "Melee hits set the target on fire for 2 seconds",
+	"entity.embervoid.crypt_keeper": "Crypt Keeper"
 }

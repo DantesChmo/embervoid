@@ -97,7 +97,7 @@
 	"entity.embervoid.test_boss": "Испытательный чемпион",
 	"boss.embervoid.ashen_reach.zone_a": "Чемпион зоны A",
 	"boss.embervoid.ashen_reach.zone_b": "Чемпион зоны B",
-	"boss.embervoid.ashen_reach.zone_c": "Чемпион зоны C",
+	"boss.embervoid.ashen_reach.zone_c": "Хранитель склепа",
 	"boss.embervoid.ashen_reach.final": "Чемпион глубин",
 	"embervoid.boss.bar": "%s — ур. %s",
 	"embervoid.boss.fog": "Стена пепла преграждает путь",
@@ -279,5 +279,6 @@
 	"item.embervoid.drowned_mans_ring.effect": "Подводное дыхание",
 	"item.embervoid.ring_of_embers": "Кольцо углей",
 	"item.embervoid.ring_of_embers.desc": "Искра утаённого пламени, всё ещё рвущаяся наружу.",
-	"item.embervoid.ring_of_embers.effect": "Удары в ближнем бою поджигают цель на 2 секунды"
+	"item.embervoid.ring_of_embers.effect": "Удары в ближнем бою поджигают цель на 2 секунды",
+	"entity.embervoid.crypt_keeper": "Хранитель склепа"
 }
