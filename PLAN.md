@@ -215,7 +215,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 
 | ID  | Task | Depends on | Status |
 |-----|------|------------|--------|
-| 9.1 | **Fog API + per-zone fog** (contract, first) | — | todo |
+| 9.1 | **Fog API + per-zone fog** (contract, first) | — | done – not verified in game (fog look not seen) |
 | 9.2 | **Placed enemies** (contract) | — | todo |
 | 9.3 | **Zones renamed, eternal dusk, zone looks** | — | todo |
 | 9.4 | **Zone terrain density + arena sites** | 9.3 | todo |
