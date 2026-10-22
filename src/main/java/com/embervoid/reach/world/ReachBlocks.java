@@ -28,7 +28,7 @@ public final class ReachBlocks {
 
 	/** Ashen Fields: scorched bales in the furrows and on scarecrows. */
 	public static final Block BURNT_STRAW = register("burnt_straw", new PillarBlock(AbstractBlock.Settings.copy(Blocks.HAY_BLOCK)
-			.mapColor(MapColor.BLACK)));
+			.mapColor(MapColor.BLACK).sounds(ReachBlockSounds.BURNT_STRAW)));
 	/** Road milestone: a knee-high carved post every ~100 blocks. */
 	public static final Block MILESTONE = register("milestone", new MarkerStoneBlock(AbstractBlock.Settings.copy(ModBlocks.ASH_BRICKS)
 			.nonOpaque(), MarkerStoneBlock.MILESTONE_SHAPE));
@@ -47,13 +47,13 @@ public final class ReachBlocks {
 
 	/** Ashen Fields ore: 1–3 Cinder Shards, Fortune works; iron pickaxe. */
 	public static final Block CINDER_ORE = register("cinder_ore", new ExperienceDroppingBlock(AbstractBlock.Settings.copy(Blocks.IRON_ORE)
-			.mapColor(MapColor.BLACK).luminance(state -> 2), UniformIntProvider.create(1, 3)));
+			.mapColor(MapColor.BLACK).luminance(state -> 2).sounds(ReachBlockSounds.CINDER_ORE), UniformIntProvider.create(1, 3)));
 	/** Royal Woods ore: 1–2 Royal Amber; iron pickaxe. */
 	public static final Block AMBER_VEIN = register("amber_vein", new ExperienceDroppingBlock(AbstractBlock.Settings.copy(Blocks.GOLD_ORE)
-			.mapColor(MapColor.BLACK), UniformIntProvider.create(1, 3)));
+			.mapColor(MapColor.BLACK).sounds(ReachBlockSounds.AMBER_VEIN), UniformIntProvider.create(1, 3)));
 	/** Sunken Necropolis ore: Raw Grave Iron; diamond pickaxe. */
 	public static final Block GRAVE_IRON_ORE = register("grave_iron_ore", new ExperienceDroppingBlock(AbstractBlock.Settings.copy(Blocks.DIAMOND_ORE)
-			.mapColor(MapColor.BLACK), ConstantIntProvider.create(0)));
+			.mapColor(MapColor.BLACK).sounds(ReachBlockSounds.GRAVE_IRON_ORE), ConstantIntProvider.create(0)));
 
 	public static final List<Block> ORES = List.of(CINDER_ORE, AMBER_VEIN, GRAVE_IRON_ORE);
 	public static final List<Block> ALL = List.of(BURNT_STRAW, MILESTONE, GRAVESTONE, EMBER_CRACK, SMOLDERING_LOG,
