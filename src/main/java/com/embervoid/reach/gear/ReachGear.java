@@ -11,6 +11,8 @@ public final class ReachGear {
 		GearArmor.register();
 		GearDamage.register();
 		GearEffects.register();
+		GearWeapons.register();
+		GearReach.register();
 		GearCommands.register();
 	}
 

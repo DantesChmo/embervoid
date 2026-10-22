@@ -2,17 +2,23 @@ package com.embervoid.gametest;
 
 import com.embervoid.Embervoid;
 import com.embervoid.reach.gear.Bleeding;
+import com.embervoid.reach.gear.GearAbilities;
 import com.embervoid.reach.gear.GearArmor;
 import com.embervoid.reach.gear.GearConfig;
 import com.embervoid.reach.gear.GearDamage;
 import com.embervoid.reach.gear.GearItems;
 import com.embervoid.reach.gear.GearLootTables;
+import com.embervoid.reach.gear.GearReach;
+import com.embervoid.reach.gear.GearWeapons;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.EntityAttribute;
+import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.HuskEntity;
@@ -31,6 +37,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 
@@ -239,6 +246,114 @@ public final class GearTests implements FabricGameTest {
 			context.assertTrue(player.getItemCooldownManager().isCoolingDown(GearArmor.FURNACE_HEART_CUIRASS), "no cooldown");
 			TestPlayers.complete(context, player);
 		}, player));
+	}
+
+	/** Weapon recipes exist and the weapons carry their DESIGN damage and speed. */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void weaponRecipesAndNumbers(TestContext context) {
+		assertRecipe(context, "ashen_scythe", GearWeapons.ASHEN_SCYTHE);
+		assertRecipe(context, "wardens_scourge", GearWeapons.WARDENS_SCOURGE);
+		assertRecipe(context, "royal_ash_rapier", GearWeapons.ROYAL_ASH_RAPIER);
+		float[][] numbers = {{8, 1.1f}, {8, 0.9f}, {6, 2.0f}};
+		for (int i = 0; i < GearWeapons.MELEE.size(); i++) {
+			ItemStack stack = new ItemStack(GearWeapons.MELEE.get(i));
+			double damage = 1 + modifier(stack, EntityAttributes.GENERIC_ATTACK_DAMAGE);
+			double speed = 4 + modifier(stack, EntityAttributes.GENERIC_ATTACK_SPEED);
+			context.assertTrue(Math.abs(damage - numbers[i][0]) < 1e-4 && Math.abs(speed - numbers[i][1]) < 1e-4,
+					stack.getItem() + ": damage " + damage + ", speed " + speed);
+		}
+		context.complete();
+	}
+
+	/**
+	 * The Scourge hits a mob 5 blocks away on a swing (server raycast) and makes it bleed; the Rapier refuses a target
+	 * beyond 2.5 blocks.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 100)
+	public void weaponReach(TestContext context) {
+		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
+		withPlayers(context, () -> {
+			HuskEntity far = husk(context, 2, 7);
+			HuskEntity mid = husk(context, 4, 6);
+			HuskEntity near = husk(context, 0, 4);
+			hold(player, GearWeapons.WARDENS_SCOURGE);
+			GearReach.onSwing(player, Hand.MAIN_HAND);
+			context.assertTrue(far.getHealth() < far.getMaxHealth(), "the Scourge did not reach 5 blocks");
+			context.assertTrue(Bleeding.level(far) == 1, "the Scourge's hit did not bleed");
+
+			hold(player, GearWeapons.ROYAL_ASH_RAPIER);
+			context.assertTrue(GearReach.beforeAttackForTest(player, mid) == ActionResult.FAIL, "the Rapier hit beyond 2.5 blocks");
+			context.assertTrue(GearReach.beforeAttackForTest(player, near) == ActionResult.PASS, "the Rapier missed at 2 blocks");
+			player.attack(near);
+			context.assertTrue(near.isOnFire() && Bleeding.level(near) == 1, "the Rapier's hit did not burn and bleed");
+		}, player);
+		TestPlayers.complete(context, player);
+	}
+
+	/** A fully charged Scythe hit sweeps the mob beside the target and sends an ash wave to a mob further ahead. */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 100)
+	public void scytheSweepAndAshWave(TestContext context) {
+		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
+		withPlayers(context, () -> {
+			HuskEntity target = husk(context, 2, 4);
+			HuskEntity beside = husk(context, 4, 5);
+			HuskEntity ahead = husk(context, 2, 7);
+			hold(player, GearWeapons.ASHEN_SCYTHE);
+			for (int tick = 0; tick < 30; tick++) {
+				player.playerTick();
+			}
+			GearReach.beforeAttackForTest(player, target);
+			player.attack(target);
+			context.assertTrue(target.getHealth() < target.getMaxHealth(), "the target was not hit");
+			context.assertTrue(beside.getHealth() < beside.getMaxHealth(), "the sweep missed the mob beside the target");
+			context.assertTrue(ahead.getHealth() < ahead.getMaxHealth(), "the ash wave missed the mob 5 blocks ahead");
+		}, player);
+		TestPlayers.complete(context, player);
+	}
+
+	/** Harvest hits all around, Lash pulls a mob 5 blocks away closer, Lunge dashes and bleeds its target twice. */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 100)
+	public void weaponSpecialAttacks(TestContext context) {
+		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
+		withPlayers(context, () -> {
+			ServerWorld world = context.getWorld();
+			HuskEntity left = husk(context, 0, 2);
+			HuskEntity behind = husk(context, 2, 0);
+			hold(player, GearWeapons.ASHEN_SCYTHE);
+			GearAbilities.HARVEST.perform(world, player, player.getMainHandStack());
+			context.assertTrue(left.getHealth() < left.getMaxHealth() && behind.getHealth() < behind.getMaxHealth(),
+					"Harvest missed a mob beside or behind the player");
+
+			HuskEntity far = husk(context, 2, 7);
+			hold(player, GearWeapons.WARDENS_SCOURGE);
+			GearAbilities.LASH.perform(world, player, player.getMainHandStack());
+			context.assertTrue(far.getVelocity().z < -0.5, "Lash did not pull: velocity " + far.getVelocity());
+
+			hold(player, GearWeapons.ROYAL_ASH_RAPIER);
+			GearAbilities.LUNGE.perform(world, player, player.getMainHandStack());
+			context.assertTrue(player.getVelocity().z > 1, "Lunge did not dash: velocity " + player.getVelocity());
+			context.assertTrue(Bleeding.level(far) == 2 && far.isOnFire(), "Lunge: bleeding " + Bleeding.level(far));
+		}, player);
+		TestPlayers.complete(context, player);
+	}
+
+	/** A husk with no AI standing on a stone block at relative {@code (x, 1, z)}. */
+	static HuskEntity husk(TestContext context, int x, int z) {
+		context.setBlockState(x, 0, z, Blocks.STONE);
+		HuskEntity husk = context.spawnMob(EntityType.HUSK, x, 1, z);
+		husk.setAiDisabled(true);
+		return husk;
+	}
+
+	/** Puts the item in the main hand and lets a tick apply its attributes, as a real player's tick would. */
+	static void hold(ServerPlayerEntity player, Item item) {
+		player.setStackInHand(Hand.MAIN_HAND, new ItemStack(item));
+		player.playerTick();
+	}
+
+	static double modifier(ItemStack stack, EntityAttribute attribute) {
+		return stack.getAttributeModifiers(EquipmentSlot.MAINHAND).get(attribute).stream()
+				.mapToDouble(EntityAttributeModifier::getValue).sum();
 	}
 
 	static void equip(LivingEntity entity, List<Item> set) {
