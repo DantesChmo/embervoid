@@ -122,11 +122,11 @@ notes in `plans/<track>.md`. Config: track-moon owns the `moon` section; night-m
 | ID  | Task | Track | Depends on | Status |
 |-----|------|-------|------------|--------|
 | 8.1 | **Moon-night state + `moon.api`** | moon | — | done – not verified in game |
-| 8.2 | **Night hold, sleep block, fallback, announcements** | moon | 8.1 | todo |
-| 8.3 | **Blood-red sky sync** | moon | 8.1 | todo |
-| 8.4 | **Full moon mob modifiers** | moon | 8.1 | todo |
-| 8.5 | **Curse of the Night** | moon | 8.1 | todo |
-| 8.6 | **Vampirism** | moon | 8.1 | todo |
+| 8.2 | **Night hold, sleep block, fallback, announcements** | moon | 8.1 | done – not verified in game |
+| 8.3 | **Blood-red sky sync** | moon | 8.1 | done – not verified in game |
+| 8.4 | **Full moon mob modifiers** | moon | 8.1 | done – not verified in game |
+| 8.5 | **Curse of the Night** | moon | 8.1 | done – not verified in game |
+| 8.6 | **Vampirism** | moon | 8.1 | done – not verified in game |
 | 8.7 | **Ashen Zombie** | night-mobs | — | done – not verified in game |
 | 8.8 | **Ghost** | night-mobs | 8.7 | done – not verified in game |
 | 8.9 | **Full moon waves** | night-mobs | 8.1, 8.5, 8.7, 8.8 | todo |
