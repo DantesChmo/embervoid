@@ -98,9 +98,11 @@ textures). Config section `gear`. Tests: `GearTests` (GameTests), JUnit under `s
     `gear.crossbow`). Scaling DEX 0.5 / STR 0.5 through `WeaponScaling.addRangedRule`.
   - Recipe: Grieving Tree soul + 2 Smoldering Ingot + a crossbow. Model states (pull, pulling, charged, firework)
     registered client-side in `GearClient` like vanilla's; models hand-written in resources.
-  - Not done (visual, client-only, unverifiable here): third-person "hold a charged crossbow" pose and the
-    first-person crossbow placement are keyed to `Items.CROSSBOW` in vanilla renderers, so this one is held like an
-    ordinary item when charged. Textures placeholders, not seen.
+  - Poses: vanilla keys the "hold a loaded crossbow" arm pose and the two-handed first-person crossbow to
+    `Items.CROSSBOW`; client mixins `GearPlayerEntityRendererMixin` (getArmPose) and `GearHeldItemRendererMixin`
+    (hand render type, charged check, first-person item) wrap those `isOf` checks so
+    `HuntsmansCrossbowItem.countsAsCrossbow` answers yes for it. Targets resolved by the mixin annotation processor;
+    not seen in game (no client launch). Textures placeholders, not seen.
 - [x] **11.7 Consumables + Flask Ember.** (config `gear.consumables`)
   - Hook commit `ed8e17b` in `item.HealingFlaskItem` (player-core's): `addHealMultiplier(ToDoubleFunction<PlayerEntity>)`,
     multiplied on top of the stats multiplier.

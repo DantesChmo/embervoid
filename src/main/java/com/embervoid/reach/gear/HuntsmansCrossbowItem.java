@@ -3,7 +3,9 @@ package com.embervoid.reach.gear;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.CrossbowItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
@@ -35,6 +37,14 @@ public class HuntsmansCrossbowItem extends CrossbowItem {
 		bolt.setDamage(bolt.getDamage() * config.boltDamageMultiplier());
 		bolt.setPunch(Math.max(bolt.getPunch(), config.punch()));
 		bolt.setPierceLevel((byte) Math.min(127, bolt.getPierceLevel() + config.pierce()));
+	}
+
+	/**
+	 * Whether a vanilla "is this the crossbow?" check ({@code stack.isOf(item)}) should answer yes for this stack: the
+	 * client's arm poses and first-person crossbow handling are keyed to {@code Items.CROSSBOW}.
+	 */
+	public static boolean countsAsCrossbow(ItemStack stack, Item item) {
+		return item == Items.CROSSBOW && stack.getItem() instanceof HuntsmansCrossbowItem;
 	}
 
 	@Override

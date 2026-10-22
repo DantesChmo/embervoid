@@ -13,6 +13,7 @@ import com.embervoid.reach.gear.GearItems;
 import com.embervoid.reach.gear.GearLootTables;
 import com.embervoid.reach.gear.GearReach;
 import com.embervoid.reach.gear.GearWeapons;
+import com.embervoid.reach.gear.HuntsmansCrossbowItem;
 import com.embervoid.registry.ModBlocks;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
@@ -360,6 +361,10 @@ public final class GearTests implements FabricGameTest {
 		ItemStack crossbow = new ItemStack(GearWeapons.HUNTSMANS_CROSSBOW);
 		context.assertTrue(CrossbowItem.getPullTime(crossbow) == 40, "charge " + CrossbowItem.getPullTime(crossbow));
 		context.assertTrue(CrossbowItem.getPullTime(new ItemStack(Items.CROSSBOW)) == 25, "vanilla crossbow charge changed");
+		// The client's crossbow poses ask this (GearPlayerEntityRendererMixin, GearHeldItemRendererMixin).
+		context.assertTrue(HuntsmansCrossbowItem.countsAsCrossbow(crossbow, Items.CROSSBOW)
+				&& !HuntsmansCrossbowItem.countsAsCrossbow(crossbow, Items.BOW)
+				&& !HuntsmansCrossbowItem.countsAsCrossbow(new ItemStack(Items.BOW), Items.CROSSBOW), "crossbow pose check");
 
 		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
 		withPlayers(context, () -> {
