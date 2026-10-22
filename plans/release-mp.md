@@ -24,7 +24,15 @@ Bugs found:
 
 ## R40.4b — performance (`tools/server_check.py --perf [--profile]`, `/embervoid perf`)
 
-See `docs/perf-0.4.0.md`.
+Results and method in `docs/perf-0.4.0.md`. In short: every area, with and without a player, and every boss fight
+runs at 4–9 ms mean tick time; the realm generates faster than vanilla terrain; the mod's code is under 0.5 % of the
+profile samples. No hot spot needed a fix.
+
+- `--perf`: phase 1 generates each area alone (no players), phase 2 sends a headless bot player to each, phase 3 loads
+  everything with three bots, phase 4 starts each boss fight with a bot. `--profile` adds a JFR recording and the
+  mod's busiest methods.
+- The bots (`Bot`, protocol 763, no compression) must report their position: the server moves a player's chunk
+  tickets only on a movement packet, not on a teleport. Without that, phase 2 waited on chunks that never ticked.
 
 ## Decisions (small, made here)
 
