@@ -232,6 +232,9 @@ public final class NightMobTests implements FabricGameTest {
 	/** An Ashen Zombie under the noon sun does not burn; a vanilla zombie next to it does (the control). */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "nightmobs_daylight", tickLimit = 140)
 	public void ashenZombieDoesNotBurnInDaylight(TestContext context) {
+		// Noon, no rain, and no moon night left by another test holding the clock before dawn.
+		MoonNightManager.forceStop(context.getWorld().getServer());
+		context.getWorld().setWeather(6000, 0, false, false);
 		context.getWorld().setTimeOfDay(6000);
 		AshenZombieEntity ashen = context.spawnMob(NightMobs.ASHEN_ZOMBIE, 2, 1, 2);
 		ZombieEntity zombie = context.spawnMob(EntityType.ZOMBIE, 5, 1, 5);
