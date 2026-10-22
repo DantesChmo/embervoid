@@ -56,7 +56,7 @@ public class BarkHollowEntity extends ReachMob {
 
 	public BarkHollowEntity(EntityType<? extends BarkHollowEntity> type, World world) {
 		super(type, world);
-		experiencePoints = 30;
+		experiencePoints = 22;
 	}
 
 	public static DefaultAttributeContainer.Builder createAttributes() {

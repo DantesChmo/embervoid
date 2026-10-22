@@ -12,8 +12,8 @@ milestone track (`track-reach-bosses`) is done.
 
 | Track | Session name | Scope | Owns |
 |---|---|---|---|
-| R1 | `release-balance` | R40.1a–c (+ R30.2) | `docs/balance-0.4.0.md`, `com.embervoid.balance` (calculator, tests); number changes in any package (config defaults, base attributes), each a small commit |
-| R2 | `release-art` | R40.2a–d | `tools/model_preview.py`, `tools/*_placeholders.py`, `assets/embervoid/geo/**`, `animations/**`, `textures/**` |
+| R1 | `release-balance` (done) | R40.1a–c (+ R30.2) | `docs/balance-0.4.0.md`, `com.embervoid.balance` (calculator, tests); number changes in any package (config defaults, base attributes), each a small commit |
+| R2 | `release-art` (done) | R40.2a–d | `tools/model_preview.py`, `tools/*_placeholders.py`, `assets/embervoid/geo/**`, `animations/**`, `textures/**` |
 | R3 | `release-audio` | R40.3a–b | `assets/embervoid/sounds.json`, `assets/embervoid/sounds/**`, `registry/ModSounds` + per-package sound classes, `CREDITS.md`; sound hooks in entity/item classes as small separate commits |
 | R4 | `release-mp` | R40.4a–b (+ R30.3) | multiplayer GameTests, `tools/server_check.py` perf options; fixes in the owning package as separate commits |
 
@@ -32,7 +32,7 @@ Smoldering Citadel (milestone 13).
 | B | `track-reach-mobs` (done) | PLAN 10.1–10.7, 13.3: greybox pipeline, the 10 zone mobs, then the 4 Citadel mobs | `com.embervoid.reach.mob`, `com.embervoid.client.reach.mob`, their assets and entity loot tables, `tools/mob_placeholders.py` |
 | C | `track-reach-gear` (done) | PLAN 11.1–11.8: materials and boss items, Bleeding, Smoldering Plate, mob sets and uniques, weapons, consumables, chest loot and realm loot on mobs | `com.embervoid.reach.gear`, `com.embervoid.client.reach.gear`, `loot_tables/chests/ashen_reach/**`, its recipes, tags and assets |
 | D | `track-reliquary` (done) | PLAN 11.9–11.13 (all merged, plus the Maiden screen's bonus points): Reliquary screen and slots, remnant and stat hooks, 8 artifacts, 6 rings, their drops | `com.embervoid.reliquary`, `com.embervoid.client.reliquary`, its tags and assets |
-| E | `track-reach-bosses` | PLAN 12.1–12.7, 13.4: boss framework additions, three arenas, Crypt Keeper, Ash Colossus, Grieving Tree, souls, Ash of Rematch; then the Smoldering Lord | `com.embervoid.boss`, `com.embervoid.reach.boss`, `com.embervoid.client.reach.boss`, arena contents (`structures/ashen_reach/arena_*`, the Citadel courtyard piece), boss assets and loot |
+| E | `track-reach-bosses` (done) | PLAN 12.1–12.7, 13.4: boss framework additions, three arenas, Crypt Keeper, Ash Colossus, Grieving Tree, souls, Ash of Rematch; then the Smoldering Lord | `com.embervoid.boss`, `com.embervoid.reach.boss`, `com.embervoid.client.reach.boss`, arena contents (`structures/ashen_reach/arena_*`, the Citadel courtyard piece), boss assets and loot |
 | F | `track-citadel` (done) | PLAN 13.1–13.2: depths "Burning City" dimension, Citadel jigsaw, the courtyard site for the Smoldering Lord | `com.embervoid.reach.citadel`, `client.reach.citadel`; depths `dimension*` / noise settings / biome; `structures/ashen_reach/citadel/**` |
 
 At most **4 track sessions run at once**; a new track starts only when another is done, and a finished track's

@@ -6,6 +6,7 @@ import com.embervoid.boss.BossHits;
 import com.embervoid.boss.FloodHazard;
 import com.embervoid.boss.Telegraph;
 import com.embervoid.boss.TelegraphShape;
+import com.embervoid.reach.gear.GearConsumables;
 import com.embervoid.reach.mob.ReachMobs;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -20,6 +21,7 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleTypes;
@@ -59,6 +61,8 @@ import java.util.List;
 public class CryptKeeperEntity extends ReachBoss {
 	/** Block light where it stands at or above which it takes full damage in P2 and P3. */
 	public static final int LIT_LEVEL = 8;
+	/** A player carrying a lit lantern this close lights it up. */
+	public static final double LANTERN_REACH = 4;
 	/** Damage taken in the dark (P2, P3). */
 	public static final float DARK_DAMAGE = 0.5f;
 
@@ -101,7 +105,7 @@ public class CryptKeeperEntity extends ReachBoss {
 
 	public CryptKeeperEntity(EntityType<? extends CryptKeeperEntity> type, World world) {
 		super(type, world);
-		this.experiencePoints = 300;
+		this.experiencePoints = 190;
 	}
 
 	public static DefaultAttributeContainer.Builder createAttributes() {
@@ -292,11 +296,19 @@ public class CryptKeeperEntity extends ReachBoss {
 
 	// --- Light, moths, the dead ---
 
-	/** Whether it stands in light (block light ≥ {@value #LIT_LEVEL}): lit braziers, a torch, lava. */
+	/**
+	 * Whether it stands in light: block light ≥ {@value #LIT_LEVEL} where it stands (lit braziers, a torch, lava), or
+	 * a player within {@value #LANTERN_REACH} blocks carrying an Ember Lantern lit with Amber Lantern Oil (DESIGN §4.5:
+	 * the oil is "for the Necropolis darkness and the Crypt Keeper").
+	 */
 	public boolean isLit() {
 		World world = getWorld();
 		BlockPos feet = getBlockPos();
-		return Math.max(world.getLightLevel(LightType.BLOCK, feet), world.getLightLevel(LightType.BLOCK, feet.up(2))) >= LIT_LEVEL;
+		if (Math.max(world.getLightLevel(LightType.BLOCK, feet), world.getLightLevel(LightType.BLOCK, feet.up(2))) >= LIT_LEVEL) {
+			return true;
+		}
+		return !world.getEntitiesByClass(PlayerEntity.class, getBoundingBox().expand(LANTERN_REACH),
+				player -> !player.isSpectator() && GearConsumables.carriesLitLantern(player)).isEmpty();
 	}
 
 	@Override

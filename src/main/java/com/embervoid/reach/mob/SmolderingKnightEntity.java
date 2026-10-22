@@ -39,12 +39,12 @@ public class SmolderingKnightEntity extends ReachMob {
 
 	public SmolderingKnightEntity(EntityType<? extends SmolderingKnightEntity> type, World world) {
 		super(type, world);
-		experiencePoints = 80;
+		experiencePoints = 50;
 	}
 
 	public static DefaultAttributeContainer.Builder createAttributes() {
 		return HostileEntity.createHostileAttributes()
-				.add(EntityAttributes.GENERIC_MAX_HEALTH, 100)
+				.add(EntityAttributes.GENERIC_MAX_HEALTH, 75)
 				.add(EntityAttributes.GENERIC_ARMOR, 10)
 				.add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, 0.6)
 				.add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 8)

@@ -185,7 +185,7 @@ notes in `plans/<track>.md`. Config: track-moon owns the `moon` section; night-m
 | ID  | Task | Who | Status |
 |-----|------|-----|--------|
 | R30.1 | **Sealed Gate placeholder**: in 0.3.0 the gate shows "the depths are still forming" instead of opening (config `realm.depthsOpen`, default false) | coordinator | done – not verified in game |
-| R30.2 | Balance pass on the moon nights | release-balance (R40.1c) | todo |
+| R30.2 | Balance pass on the moon nights | release-balance (R40.1c) | done (R40.1c) |
 | R30.3 | Multiplayer and performance test | release-mp (R40.4) | todo |
 | R30.4 | Release 0.3.0 | coordinator | todo |
 
@@ -371,13 +371,13 @@ performance) are done here with them.
 
 | ID  | Task | Track | Depends on | Status |
 |-----|------|-------|------------|--------|
-| R40.1a | **Balance model**: expected player level, stats and gear at each stage; mob and boss numbers against it | release-balance | — | todo |
-| R40.1b | **In-engine fight checks**: GameTests that measure hits-to-kill both ways for every mob and boss | release-balance | R40.1a | todo |
-| R40.1c | **Tuning**: zone bands, boss base values, XP yield vs level cost, loot rates, moon nights (R30.2) | release-balance | R40.1b | todo |
-| R40.2a | **Offline model preview**: render GeckoLib models + textures (and item/block textures) to PNG without a client | release-art | — | todo |
-| R40.2b | **Zone mobs art**: the 10 Realm 1 zone mobs from greybox to final models, textures, animations | release-art | R40.2a | todo |
-| R40.2c | **Citadel mobs and bosses art**: 4 Citadel mobs, 4 bosses (+ tree lantern, fire flask, ash bomb) | release-art | R40.2a | todo |
-| R40.2d | **Texture consistency**: Realm 1 items, armor layers, blocks, GUI (Reliquary) in one style | release-art | R40.2a | todo |
+| R40.1a | **Balance model**: expected player level, stats and gear at each stage; mob and boss numbers against it | release-balance | — | done (`docs/balance-0.4.0.md`; feel not played) |
+| R40.1b | **In-engine fight checks**: GameTests that measure hits-to-kill both ways for every mob and boss | release-balance | R40.1a | done (`docs/balance-0.4.0.md`; feel not played) |
+| R40.1c | **Tuning**: zone bands, boss base values, XP yield vs level cost, loot rates, moon nights (R30.2) | release-balance | R40.1b | done (`docs/balance-0.4.0.md`; feel not played) |
+| R40.2a | **Offline model preview**: render GeckoLib models + textures (and item/block textures) to PNG without a client | release-art | — | done (`tools/model_preview.py`) |
+| R40.2b | **Zone mobs art**: the 10 Realm 1 zone mobs from greybox to final models, textures, animations | release-art | R40.2a | done (checked by preview; not seen in game) |
+| R40.2c | **Citadel mobs and bosses art**: 4 Citadel mobs, 4 bosses (+ tree lantern, fire flask, ash bomb) | release-art | R40.2a | done (checked by preview; not seen in game; two client renderer hooks not run on a client) |
+| R40.2d | **Texture consistency**: Realm 1 items, armor layers, blocks, GUI (Reliquary) in one style | release-art | R40.2a | done (checked by preview; Reliquary screen drawing not run on a client) |
 | R40.3a | **Sound events**: every Realm 1 mob, boss, weapon, consumable and block gets its sounds (vanilla sound files, own events, subtitles in both languages) | release-audio | — | todo |
 | R40.3b | **Boss music**: shared zone-boss theme and the Smoldering Lord theme as sound events; placeholder until licensed tracks are approved; `CREDITS.md` | release-audio | R40.3a | todo |
 | R40.4a | **Multiplayer GameTests**: 2–3 players through realm progress, boss scaling and adds, personal loot, fog wall, rematch, remnants, accessory sync | release-mp | — | todo |
@@ -405,8 +405,6 @@ performance) are done here with them.
 
 ## Open follow-ups
 
-- **Realm weapons and enchantments:** Sharpness, Smite etc. cannot go on the Scythe, Scourge and Rapier (vanilla's
-  weapon enchantment target is swords only); Unbreaking and Mending work. Decide in the R40.1 balance pass.
 - **In-game checks not run yet:** QA #7f (Sanctum casing gaps, next batch); QA #8 step 9 (second and third
   player: personal Ember Heart, fog wall pushing back an outsider, independent progress); Hollow wind-up timing
   and dodge, guard block/break sounds; stamina HUD bar and debug weapon (2.5, 2.6); sounds and boss music.

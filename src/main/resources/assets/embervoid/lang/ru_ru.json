@@ -166,6 +166,7 @@
 	"embervoid.wave.ghosts": "На вас нет проклятия — вместо зомби идут призраки: %s",
 	"embervoid.wave.cleared": "Ваша волна полной луны побеждена",
 	"embervoid.wave.shard": "Призраки оставили осколок фляги",
+	"embervoid.wave.ghosts_left": "Призраки взяли своё и рассеялись",
 	"entity.embervoid.vampire": "Вампир",
 	"embervoid.vampire.talk": "%s: «%s»",
 	"embervoid.vampire.talk.0": "Чудная ночь, не правда ли? Луна прячет для нас своё лицо.",

@@ -1,5 +1,6 @@
 package com.embervoid.client.reliquary;
 
+import com.embervoid.Embervoid;
 import com.embervoid.reliquary.ReliquaryLayout;
 import com.embervoid.reliquary.ReliquaryScreenHandler;
 import com.embervoid.reliquary.SlotKind;
@@ -9,19 +10,20 @@ import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
 /**
  * The Reliquary screen: the player model in the middle, accessory slots left and right of it (positions from
- * {@link ReliquaryLayout}), the inventory below. Drawn with plain fills in the vanilla container colours; a texture
- * comes with the art pass. Closes with the inventory key or the Reliquary key.
+ * {@link ReliquaryLayout}), the inventory below. Background from {@link #TEXTURE} ({@code tools/reach_gui_art.py}):
+ * the panel with the model alcove, and a slot sprite drawn at every slot (bronze-framed for accessory slots), since
+ * slot kinds and counts are data. Closes with the inventory key or the Reliquary key.
  */
 public class ReliquaryScreen extends HandledScreen<ReliquaryScreenHandler> {
-	private static final int PANEL = 0xFFC6C6C6;
-	private static final int LIGHT = 0xFFFFFFFF;
-	private static final int SHADOW = 0xFF555555;
-	private static final int SLOT_FILL = 0xFF8B8B8B;
-	private static final int SLOT_DARK = 0xFF373737;
-	private static final int MODEL_FILL = 0xFF000000;
+	public static final Identifier TEXTURE = Embervoid.id("textures/gui/reliquary.png");
+	/** Slot sprites in the texture: the vanilla slot, then the accessory slot. */
+	private static final int SLOT_U = 176;
+	private static final int SLOT_V = 0;
+	private static final int ACCESSORY_SLOT_V = 18;
 	private static final int TEXT = 0x404040;
 
 	public ReliquaryScreen(ReliquaryScreenHandler handler, PlayerInventory inventory, Text title) {
@@ -42,19 +44,17 @@ public class ReliquaryScreen extends HandledScreen<ReliquaryScreenHandler> {
 	protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
 		int left = x;
 		int top = y;
-		bevel(context, left, top, backgroundWidth, backgroundHeight, PANEL, LIGHT, SHADOW);
+		context.drawTexture(TEXTURE, left, top, 0, 0, backgroundWidth, backgroundHeight);
 		for (Slot slot : handler.slots) {
-			bevel(context, left + slot.x - 1, top + slot.y - 1, ReliquaryLayout.SLOT, ReliquaryLayout.SLOT,
-					SLOT_FILL, SLOT_DARK, LIGHT);
+			int v = handler.kindOf(slot.id) != null ? ACCESSORY_SLOT_V : SLOT_V;
+			context.drawTexture(TEXTURE, left + slot.x - 1, top + slot.y - 1, SLOT_U, v, ReliquaryLayout.SLOT,
+					ReliquaryLayout.SLOT);
 		}
-		int modelLeft = left + ReliquaryLayout.MODEL_LEFT;
-		int modelTop = top + ReliquaryLayout.MODEL_TOP;
-		int modelWidth = ReliquaryLayout.MODEL_RIGHT - ReliquaryLayout.MODEL_LEFT;
-		int modelHeight = ReliquaryLayout.MODEL_BOTTOM - ReliquaryLayout.MODEL_TOP;
-		bevel(context, modelLeft - 1, modelTop - 1, modelWidth + 2, modelHeight + 2, MODEL_FILL, SLOT_DARK, LIGHT);
 		if (client != null && client.player != null) {
+			int modelLeft = left + ReliquaryLayout.MODEL_LEFT;
+			int modelWidth = ReliquaryLayout.MODEL_RIGHT - ReliquaryLayout.MODEL_LEFT;
 			int centreX = modelLeft + modelWidth / 2;
-			int feetY = modelTop + modelHeight - 5;
+			int feetY = top + ReliquaryLayout.MODEL_BOTTOM - 5;
 			InventoryScreen.drawEntity(context, centreX, feetY, 30, centreX - mouseX, feetY - 50 - mouseY, client.player);
 		}
 	}
@@ -84,14 +84,5 @@ public class ReliquaryScreen extends HandledScreen<ReliquaryScreenHandler> {
 			return true;
 		}
 		return super.keyPressed(keyCode, scanCode, modifiers);
-	}
-
-	/** A rectangle with a 1 px bevel: light top-left, dark bottom-right (or the reverse for sunken slots). */
-	private static void bevel(DrawContext context, int x, int y, int width, int height, int fill, int topLeft, int bottomRight) {
-		context.fill(x, y, x + width, y + height, fill);
-		context.fill(x, y, x + width - 1, y + 1, topLeft);
-		context.fill(x, y, x + 1, y + height - 1, topLeft);
-		context.fill(x + 1, y + height - 1, x + width, y + height, bottomRight);
-		context.fill(x + width - 1, y + 1, x + width, y + height, bottomRight);
 	}
 }

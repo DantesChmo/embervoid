@@ -18,6 +18,7 @@ import com.embervoid.registry.ModBlocks;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.minecraft.block.Blocks;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.EntityType;
@@ -29,6 +30,7 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.HuskEntity;
+import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.inventory.SimpleInventory;
@@ -271,7 +273,8 @@ public final class GearTests implements FabricGameTest {
 		assertRecipe(context, "ashen_scythe", GearWeapons.ASHEN_SCYTHE);
 		assertRecipe(context, "wardens_scourge", GearWeapons.WARDENS_SCOURGE);
 		assertRecipe(context, "royal_ash_rapier", GearWeapons.ROYAL_ASH_RAPIER);
-		float[][] numbers = {{8, 1.1f}, {8, 0.9f}, {6, 2.0f}};
+		// DESIGN §4.5, Scythe and Scourge raised in R40.1c.
+		float[][] numbers = {{10, 1.1f}, {9, 0.9f}, {6, 2.0f}};
 		for (int i = 0; i < GearWeapons.MELEE.size(); i++) {
 			ItemStack stack = new ItemStack(GearWeapons.MELEE.get(i));
 			double damage = 1 + modifier(stack, EntityAttributes.GENERIC_ATTACK_DAMAGE);
@@ -602,5 +605,48 @@ public final class GearTests implements FabricGameTest {
 		Recipe<?> recipe = server.getRecipeManager().get(Embervoid.id(name)).orElse(null);
 		context.assertTrue(recipe != null, "missing recipe " + name);
 		context.assertTrue(recipe.getOutput(server.getRegistryManager()).isOf(output), "recipe " + name + " makes the wrong item");
+	}
+	/**
+	 * R40.1c: the realm melee weapons take Sharpness, Smite, Bane of Arthropods, Fire Aspect, Looting and Knockback on
+	 * the anvil ({@code isAcceptableItem}) and the enchanting table (offered at power 30), not Sweeping Edge; Sharpness V
+	 * adds its 3 damage to a hit.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void realmWeaponsTakeSwordEnchantments(TestContext context) {
+		for (Item weapon : GearWeapons.MELEE) {
+			ItemStack stack = new ItemStack(weapon);
+			List<Enchantment> offered = EnchantmentHelper.getPossibleEntries(30, stack, false).stream()
+					.map(entry -> entry.enchantment).toList();
+			for (Enchantment enchantment : GearWeapons.SWORD_ENCHANTMENTS) {
+				String what = enchantment.getTranslationKey() + " on " + weapon;
+				context.assertTrue(enchantment.isAcceptableItem(stack), "anvil refuses " + what);
+				context.assertTrue(offered.contains(enchantment), "table does not offer " + what);
+			}
+			context.assertFalse(Enchantments.SWEEPING.isAcceptableItem(stack), "Sweeping Edge on " + weapon);
+		}
+		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
+		// The Scourge: a single target, no ash wave or sweep to add to the hit.
+		ItemStack sharp = new ItemStack(GearWeapons.WARDENS_SCOURGE);
+		sharp.addEnchantment(Enchantments.SHARPNESS, 5);
+		float plain = meleeHit(context, player, new ItemStack(GearWeapons.WARDENS_SCOURGE));
+		float enchanted = meleeHit(context, player, sharp);
+		context.assertTrue(Math.abs(enchanted - plain - 3) < 0.01, "Sharpness V added " + (enchanted - plain) + ", not 3");
+		TestPlayers.complete(context, player);
+	}
+
+	/** Health a fresh iron golem (no armor) loses to one fully charged hit by {@code player} with {@code weapon}. */
+	private static float meleeHit(TestContext context, ServerPlayerEntity player, ItemStack weapon) {
+		player.equipStack(EquipmentSlot.MAINHAND, weapon);
+		player.playerTick();
+		IronGolemEntity golem = context.spawnEntity(EntityType.IRON_GOLEM, 4, 1, 2);
+		golem.setAiDisabled(true);
+		((com.embervoid.gametest.mixin.LivingEntityAccessor) player).embervoid$setLastAttackedTicks(100);
+		player.setOnGround(true);
+		player.fallDistance = 0;
+		float before = golem.getHealth();
+		player.attack(golem);
+		float lost = before - golem.getHealth();
+		golem.discard();
+		return lost;
 	}
 }

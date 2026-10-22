@@ -50,7 +50,7 @@ class MobLevelRulesTest {
 		assertEquals(1.0f, MobLevelRules.damageMultiplier(LEVELS, 1), 1e-6);
 		assertEquals(1.5f, MobLevelRules.damageMultiplier(LEVELS, 11), 1e-6);
 		assertEquals(5, MobLevelRules.experience(LEVELS, 1, 5));
-		assertEquals(10, MobLevelRules.experience(LEVELS, 11, 5));
+		assertEquals(8, MobLevelRules.experience(LEVELS, 11, 5));
 	}
 
 	@Test

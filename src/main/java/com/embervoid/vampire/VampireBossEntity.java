@@ -40,7 +40,8 @@ import software.bernie.geckolib.util.GeckoLibUtil;
  * {@link ArenaBoss} for the phase thresholds and {@link Telegraph}'s animation hook, and does not call {@code
  * ArenaManager.tickBoss} (that would discard it, having no arena).
  *
- * <p>Moves (base values; mob levels scale health and every hit):
+ * <p>Moves (base values: claws 5, leap 7, nova 7.5, set in R40.1c so that at its lowest level, 15, no hit on a
+ * player in iron goes above heavy; mob levels scale health and every hit):
  * <ul>
  *   <li>Claws: melee.</li>
  *   <li>Blood Leap: crouches for 1 s with a ring marking where it will land, then leaps there; a hit around the
@@ -56,10 +57,10 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 
 	private static final int LEAP_WINDUP = 20;
 	private static final double LEAP_RADIUS = 3.5;
-	private static final float LEAP_DAMAGE = 9;
+	private static final float LEAP_DAMAGE = 7;
 	private static final int NOVA_WINDUP = 30;
 	private static final double NOVA_RADIUS = 6;
-	private static final float NOVA_DAMAGE = 10;
+	private static final float NOVA_DAMAGE = 7.5f;
 	private static final float NOVA_HEAL = 0.25f;
 	private static final int MIST_WINDUP = 12;
 
@@ -82,7 +83,7 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 	public static DefaultAttributeContainer.Builder createAttributes() {
 		return HostileEntity.createHostileAttributes()
 				.add(EntityAttributes.GENERIC_MAX_HEALTH, 220)
-				.add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 7)
+				.add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 5)
 				.add(EntityAttributes.GENERIC_ARMOR, 4)
 				.add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3)
 				.add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64)

@@ -166,6 +166,7 @@
 	"embervoid.wave.ghosts": "No curse on you: %s Ghosts come instead",
 	"embervoid.wave.cleared": "Your full moon wave is beaten",
 	"embervoid.wave.shard": "The ghosts leave a Flask Shard behind",
+	"embervoid.wave.ghosts_left": "The ghosts have taken their due and drift away",
 	"entity.embervoid.vampire": "Vampire",
 	"embervoid.vampire.talk": "%s: \"%s\"",
 	"embervoid.vampire.talk.0": "A lovely night, is it not? The moon hides her face for us.",
