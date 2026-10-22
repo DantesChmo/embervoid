@@ -171,6 +171,8 @@ ru_ru, base level in `MobConfig`. `tools/mob_placeholders.py` writes placeholder
   the disc facing the landing. Protected.
 - **Sealed Gate:** opens per player after all three zone bosses → `embervoid:ashen_reach_depths` (radius ~400,
   levels 25–30) with the realm boss arena. Beating it completes Realm 1 and unlocks the next realm id.
+  `realm.depthsOpen` (default false in 0.3.0): when off, an unsealed gate only says the depths are still
+  forming; `/embervoid realm` commands still reach them.
 - **Ember Lodestar** (`embervoid:ember_lodestar`): compass needle to the nearest unbeaten arena, right-click
   gives the distance. Cold outside realms.
 - **Respawn:** death in a realm dimension → last shrine rested at in that same dimension, else its landing.

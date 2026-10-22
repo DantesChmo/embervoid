@@ -4,7 +4,10 @@
 	"compatibilityLevel": "JAVA_17",
 	"client": [
 		"InGameHudMixin",
-		"EntityRendererMobLevelMixin"
+		"EntityRendererMobLevelMixin",
+		"MoonSkyColorMixin",
+		"MoonFogColorMixin",
+		"MoonRenderMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

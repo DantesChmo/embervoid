@@ -116,19 +116,20 @@ Split into tasks in the track plans, which keep each task's choices and notes. A
 ## Milestone 8 — Moon nights
 
 Design: [DESIGN.md](DESIGN.md) §3.3; §10.12 built as recommended. Three tracks (COORDINATION.md); each keeps its
-notes in `plans/<track>.md`. All numbers go into the `moon` config section.
+notes in `plans/<track>.md`. Config: track-moon owns the `moon` section; night-mobs uses `nightMobs`, vampire uses
+`vampire` (one class per top-level section). Keys written below as `moon.fullMoon.*` / `moon.blood.*` live there.
 
 | ID  | Task | Track | Depends on | Status |
 |-----|------|-------|------------|--------|
-| 8.1 | **Moon-night state + `moon.api`** | moon | — | todo |
-| 8.2 | **Night hold, sleep block, fallback, announcements** | moon | 8.1 | todo |
-| 8.3 | **Blood-red sky sync** | moon | 8.1 | todo |
-| 8.4 | **Full moon mob modifiers** | moon | 8.1 | todo |
-| 8.5 | **Curse of the Night** | moon | 8.1 | todo |
-| 8.6 | **Vampirism** | moon | 8.1 | todo |
-| 8.7 | **Ashen Zombie** | night-mobs | — | todo |
-| 8.8 | **Ghost** | night-mobs | 8.7 | todo |
-| 8.9 | **Full moon waves** | night-mobs | 8.1, 8.5, 8.7, 8.8 | todo |
+| 8.1 | **Moon-night state + `moon.api`** | moon | — | done – not verified in game |
+| 8.2 | **Night hold, sleep block, fallback, announcements** | moon | 8.1 | done – not verified in game |
+| 8.3 | **Blood-red sky sync** | moon | 8.1 | done – not verified in game |
+| 8.4 | **Full moon mob modifiers** | moon | 8.1 | done – not verified in game |
+| 8.5 | **Curse of the Night** | moon | 8.1 | done – not verified in game |
+| 8.6 | **Vampirism** | moon | 8.1 | done – not verified in game |
+| 8.7 | **Ashen Zombie** | night-mobs | — | done – not verified in game |
+| 8.8 | **Ghost** | night-mobs | 8.7 | done – not verified in game |
+| 8.9 | **Full moon waves** | night-mobs | 8.1, 8.5, 8.7, 8.8 | done – not verified in game |
 | 8.10 | **Vampire NPC + provoking** | vampire | 8.1 | todo |
 | 8.11 | **Vampire boss** | vampire | 8.10 | todo |
 | 8.12 | **Vampire arena dimension** | vampire | 8.11 | todo |
@@ -181,7 +182,7 @@ notes in `plans/<track>.md`. All numbers go into the `moon` config section.
 
 | ID  | Task | Who | Status |
 |-----|------|-----|--------|
-| R30.1 | **Sealed Gate placeholder**: in 0.3.0 the gate shows "the depths are still forming" instead of opening (config `realm.depthsOpen`, default false) | coordinator | todo |
+| R30.1 | **Sealed Gate placeholder**: in 0.3.0 the gate shows "the depths are still forming" instead of opening (config `realm.depthsOpen`, default false) | coordinator | done – not verified in game |
 | R30.2 | Balance pass on the moon nights | coordinator | todo |
 | R30.3 | Multiplayer and performance test | coordinator | todo |
 | R30.4 | Release 0.3.0 | coordinator | todo |
