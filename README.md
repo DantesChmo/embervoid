@@ -46,7 +46,7 @@ The mod reads `config/embervoid.json` (created with defaults on first launch). M
 | `leveling.costBase` / `costLinear` / `costQuadratic` | 20 / 6 / 0.15 | ≥ 0 | Cost of level L → L+1 in XP points: `costBase + costLinear·L + costQuadratic·L²` |
 | `leveling.statCap` | 99 | 10–999 | Highest value a stat can be levelled to |
 | `leveling.levelCap` | 0 | ≥ 0 | Highest character level reachable by leveling; 0 = no cap |
-| `realm.depthsOpen` | false | true, false | Whether an unsealed Sealed Gate leads into the depths (off in 0.3.0: "the depths are still forming") |
+| `realm.depthsOpen` | true | true, false | Whether an unsealed Sealed Gate leads into the depths (off: "the depths are still forming"; was off in 0.3.0) |
 | `moon.enabled` | true | true, false | Moon nights on or off |
 | `moon.cycleInterval` | 3 | 1–1000 | A moon-night cycle every N lunar cycles (8 days each); the world's first full moon never counts |
 | `moon.fallbackMinutes` | 30 | 1–1440 | Real-time minutes after which a moon night ends even if its goal is not met |

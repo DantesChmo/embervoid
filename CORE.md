@@ -196,7 +196,7 @@ Design: DESIGN §3.3, §10.12. All models are placeholders. Config sections `moo
   the disc facing the landing. Protected.
 - **Sealed Gate:** opens per player after all three zone bosses → `embervoid:ashen_reach_depths` (radius ~400,
   levels 25–30) with the realm boss arena. Beating it completes Realm 1 and unlocks the next realm id.
-  `realm.depthsOpen` (default false in 0.3.0): when off, an unsealed gate only says the depths are still
+  `realm.depthsOpen` (default true since 0.4.0, false in 0.3.0): when off, an unsealed gate only says the depths are still
   forming; `/embervoid realm` commands still reach them.
 - **Ember Lodestar** (`embervoid:ember_lodestar`): compass needle to the nearest unbeaten arena, right-click
   gives the distance. Cold outside realms.
