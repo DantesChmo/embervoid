@@ -36,6 +36,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.loot.LootTable;
+import net.minecraft.loot.context.LootContextParameterSet;
+import net.minecraft.loot.context.LootContextParameters;
+import net.minecraft.loot.context.LootContextTypes;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.recipe.Recipe;
@@ -51,8 +54,10 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 
 /** Ashen Reach gear (PLAN milestone 11): recipes, loot tables and item behaviour. */
 public final class GearTests implements FabricGameTest {
@@ -456,6 +461,96 @@ public final class GearTests implements FabricGameTest {
 			context.assertTrue(Math.abs(HealingFlaskItem.healAmount(player) - after) < 1e-4, "a second ember changed healing");
 		}, player);
 		TestPlayers.complete(context, player);
+	}
+
+	/**
+	 * Chest tables: the arena chest always holds a template and an Ash of Rematch; a treasure chest holds its zone's
+	 * weapon about 4 % of the time; a common chest holds its zone's material.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 200)
+	public void chestLoot(TestContext context) {
+		ServerWorld world = context.getWorld();
+		LootContextParameterSet chest = new LootContextParameterSet.Builder(world)
+				.add(LootContextParameters.ORIGIN, context.getAbsolute(new Vec3d(1, 1, 1)))
+				.build(LootContextTypes.CHEST);
+		Map<String, Item> weapons = Map.of("fields", GearWeapons.ASHEN_SCYTHE, "woods", GearWeapons.HUNTSMANS_CROSSBOW,
+				"necropolis", GearWeapons.WARDENS_SCOURGE);
+		Map<String, Item> materials = Map.of("fields", GearItems.CINDER_SHARD, "woods", GearItems.ROYAL_AMBER,
+				"necropolis", GearItems.RAW_GRAVE_IRON);
+		for (String zone : GearLootTables.ZONES) {
+			List<ItemStack> arena = world.getServer().getLootManager().getLootTable(GearLootTables.arena(zone)).generateLoot(chest);
+			context.assertTrue(arena.stream().anyMatch(stack -> stack.isOf(GearItems.SMOLDERING_TEMPLATE))
+					&& arena.stream().anyMatch(stack -> stack.isOf(GearItems.ASH_OF_REMATCH)), zone + " arena chest: " + arena);
+			int weapon = count(world, GearLootTables.treasure(zone), chest, weapons.get(zone), 3000);
+			context.assertTrue(weapon >= 80 && weapon <= 170, zone + " treasure: weapon in " + weapon + " of 3000, expected ~120");
+			context.assertTrue(count(world, GearLootTables.common(zone), chest, materials.get(zone), 100) > 0,
+					zone + " common chests never hold " + materials.get(zone));
+		}
+		int rapier = count(world, GearLootTables.CITADEL_TREASURE, chest, GearWeapons.ROYAL_ASH_RAPIER, 3000);
+		context.assertTrue(rapier >= 80 && rapier <= 170, "Citadel treasure: Rapier in " + rapier + " of 3000");
+		context.complete();
+	}
+
+	/**
+	 * Realm loot on mobs: a Grave Warden killed by a player drops a Necropolis Warden piece ~15 % and the Drowned
+	 * Sabatons ~4 % of the time, and neither without a player; a Cinder Husk drops a Reaper's Garb piece ~3 %.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 200)
+	public void mobRealmLoot(TestContext context) {
+		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
+		withPlayers(context, () -> {
+			ServerWorld world = context.getWorld();
+			LivingEntity warden = (LivingEntity) Registries.ENTITY_TYPE.get(Embervoid.id("grave_warden")).create(world);
+			LivingEntity husk = (LivingEntity) Registries.ENTITY_TYPE.get(Embervoid.id("cinder_husk")).create(world);
+			context.assertTrue(warden != null && husk != null, "realm mobs are not registered");
+			int set = 0;
+			int sabatons = 0;
+			int reaper = 0;
+			int unearned = 0;
+			for (int kill = 0; kill < 3000; kill++) {
+				for (ItemStack stack : roll(world, warden, player)) {
+					set += GearArmor.NECROPOLIS_WARDEN.contains(stack.getItem()) ? 1 : 0;
+					sabatons += stack.isOf(GearArmor.DROWNED_SABATONS) ? 1 : 0;
+				}
+				for (ItemStack stack : roll(world, husk, player)) {
+					reaper += GearArmor.REAPERS_GARB.contains(stack.getItem()) ? 1 : 0;
+				}
+				for (ItemStack stack : roll(world, warden, null)) {
+					unearned += GearArmor.NECROPOLIS_WARDEN.contains(stack.getItem()) || stack.isOf(GearArmor.DROWNED_SABATONS) ? 1 : 0;
+				}
+			}
+			context.assertTrue(set >= 370 && set <= 530, "Grave Warden set pieces " + set + " of 3000, expected ~450");
+			context.assertTrue(sabatons >= 75 && sabatons <= 170, "Grave Warden sabatons " + sabatons + " of 3000, expected ~120");
+			context.assertTrue(reaper >= 55 && reaper <= 130, "Cinder Husk Reaper pieces " + reaper + " of 3000, expected ~90");
+			context.assertTrue(unearned == 0, unearned + " set pieces without a player kill");
+		}, player);
+		TestPlayers.complete(context, player);
+	}
+
+	static int count(ServerWorld world, Identifier table, LootContextParameterSet params, Item item, int rolls) {
+		LootTable loot = world.getServer().getLootManager().getLootTable(table);
+		int found = 0;
+		for (int i = 0; i < rolls; i++) {
+			for (ItemStack stack : loot.generateLoot(params)) {
+				found += stack.isOf(item) ? 1 : 0;
+			}
+		}
+		return found;
+	}
+
+	/** One roll of a mob's loot table, killed by {@code player} (or by nothing). */
+	static List<ItemStack> roll(ServerWorld world, LivingEntity mob, @Nullable ServerPlayerEntity player) {
+		LootContextParameterSet.Builder params = new LootContextParameterSet.Builder(world)
+				.add(LootContextParameters.THIS_ENTITY, mob)
+				.add(LootContextParameters.ORIGIN, player == null ? Vec3d.ZERO : player.getPos())
+				.add(LootContextParameters.DAMAGE_SOURCE, player == null ? world.getDamageSources().generic()
+						: world.getDamageSources().playerAttack(player));
+		if (player != null) {
+			params.add(LootContextParameters.KILLER_ENTITY, player)
+					.add(LootContextParameters.DIRECT_KILLER_ENTITY, player)
+					.add(LootContextParameters.LAST_DAMAGE_PLAYER, player);
+		}
+		return world.getServer().getLootManager().getLootTable(mob.getLootTable()).generateLoot(params.build(LootContextTypes.ENTITY));
 	}
 
 	/** A husk with no AI standing on a stone block at relative {@code (x, 1, z)}. */

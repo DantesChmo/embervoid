@@ -15,6 +15,7 @@ public final class ReachGear {
 		GearReach.register();
 		GearConsumables.register();
 		FlaskEmberItem.register();
+		GearLoot.register();
 		GearCommands.register();
 	}
 
