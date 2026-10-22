@@ -215,7 +215,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 
 | ID  | Task | Depends on | Status |
 |-----|------|------------|--------|
-| 9.1 | **Fog API + per-zone fog** (contract, first) | — | todo |
+| 9.1 | **Fog API + per-zone fog** (contract, first) | — | done – not verified in game (fog look not seen) |
 | 9.2 | **Placed enemies** (contract) | — | todo |
 | 9.3 | **Zones renamed, eternal dusk, zone looks** | — | todo |
 | 9.4 | **Zone terrain density + arena sites** | 9.3 | todo |
@@ -275,7 +275,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 
 | ID  | Task | Track | Depends on | Status |
 |-----|------|-------|------------|--------|
-| 11.1 | **Materials, boss items, chest table stubs** (contract, first) | reach-gear | — | todo |
+| 11.1 | **Materials, boss items, chest table stubs** (contract, first) | reach-gear | — | done (GameTest; item textures not seen) |
 | 11.2 | **Bleeding + `bleed_immune`** | reach-gear | — | todo |
 | 11.3 | **Smoldering Plate + Template** | reach-gear | 11.1 | todo |
 | 11.4 | **Mob-drop sets + unique pieces** | reach-gear | 11.1 | todo |
@@ -283,9 +283,9 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 11.6 | **Huntsman's Crossbow** | reach-gear | 11.1 | todo |
 | 11.7 | **Consumables + Flask Ember** | reach-gear | 11.1, 11.2 | todo |
 | 11.8 | **Chest loot + realm loot on mobs** | reach-gear | 11.3–11.7 | todo |
-| 11.9 | **Reliquary: data, sync, screen** | reliquary | — | todo |
-| 11.10 | **Reliquary: remnant, stat points** | reliquary | 11.9 | todo |
-| 11.11 | **8 artifacts** | reliquary | 11.10 | todo |
+| 11.9 | **Reliquary: data, sync, screen** | reliquary | — | done (GameTest; screen look and button position not seen) |
+| 11.10 | **Reliquary: remnant, stat points** | reliquary | 11.9 | done (GameTest) |
+| 11.11 | **8 artifacts** | reliquary | 11.10 | done (GameTest; textures and tooltips not seen) |
 | 11.12 | **6 rings** | reliquary | 11.9, 9.1 | todo |
 | 11.13 | **Accessory drops** | reliquary | 11.11, 11.12 | todo |
 
@@ -374,6 +374,9 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 
 ## Open follow-ups
 
+- **Maiden screen and artifact points:** the level-up screen shows a player's own stat values while its derived
+  numbers include artifact bonus points (`PlayerStats.bonus`); show the bonus as "(+3)" next to the value (small
+  `sanctum` change, after 11.11).
 - **In-game checks not run yet:** QA #7f (Sanctum casing gaps, next batch); QA #8 step 9 (second and third
   player: personal Ember Heart, fog wall pushing back an outsider, independent progress); Hollow wind-up timing
   and dodge, guard block/break sounds; stamina HUD bar and debug weapon (2.5, 2.6); sounds and boss music.
