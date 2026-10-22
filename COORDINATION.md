@@ -5,30 +5,49 @@ by track sessions at once. Each track has its own git worktree and branch. The *
 main checkout; the session that started the tracks, `startedBy` in the session list) merges tracks into `main`,
 owns the docs, and is the only place where the game is launched.
 
-## Tracks — 0.3.0 (milestone 8, moon nights)
+## Tracks — 0.4.0 (milestones 9–13, Realm 1 "Ashen Reach")
+
+Tasks in PLAN.md "0.4.0"; design in DESIGN §4.5. Each track does its zone tasks first, then its layer of the
+Smoldering Citadel (milestone 13).
 
 | Track | Session name | Scope | Owns (packages / files) |
 |---|---|---|---|
-| A | `track-moon` | PLAN 8.1–8.6: moon-night state and `moon.api`, night hold, sleep block, fallback, red sky, full moon mob modifiers, Curse of the Night, vampirism | `com.embervoid.moon` (main), `com.embervoid.client.moon` (client) |
-| B | `track-night-mobs` | PLAN 8.7–8.9: Ashen Zombie, Ghost, full moon waves | `com.embervoid.nightmob` (main), `com.embervoid.client.nightmob` (client), their assets |
-| C | `track-vampire` | PLAN 8.10–8.12: Vampire NPC, Vampire boss, Vampire arena dimension | `com.embervoid.vampire` (main), `com.embervoid.client.vampire` (client), `data/embervoid/dimension*/vampire_arena*`, their assets |
+| A | `track-reach-world` | PLAN 9.1–9.9, 13.1–13.2: fog API, placed enemies, zones, terrain, blocks and ores, landing and roads, minor structures, crypt, world edge; depths dimension and Citadel jigsaw | `com.embervoid.realm` (incl. `realm.worldgen`), `com.embervoid.reach.world`, `com.embervoid.client.realm` / `client.reach.world`; realm `dimension*` / `worldgen/**` JSON; `structures/ashen_reach/**` except arena contents; its blocks' assets |
+| B | `track-reach-mobs` | PLAN 10.1–10.7, 13.3: greybox pipeline, the 10 zone mobs, then the 4 Citadel mobs | `com.embervoid.reach.mob`, `com.embervoid.client.reach.mob`, their assets and entity loot tables, `tools/mob_placeholders.py` |
+| C | `track-reach-gear` | PLAN 11.1–11.8: materials and boss items, Bleeding, Smoldering Plate, mob sets and uniques, weapons, consumables, chest loot and realm loot on mobs | `com.embervoid.reach.gear`, `com.embervoid.client.reach.gear`, `loot_tables/chests/ashen_reach/**`, its recipes, tags and assets |
+| D | `track-reliquary` | PLAN 11.9–11.13: Reliquary screen and slots, remnant and stat hooks, 8 artifacts, 6 rings, their drops | `com.embervoid.reliquary`, `com.embervoid.client.reliquary`, its tags and assets |
+| E | `track-reach-bosses` | PLAN 12.1–12.7, 13.4: boss framework additions, three arenas, Crypt Keeper, Ash Colossus, Grieving Tree, souls, Ash of Rematch; then the Smoldering Lord | `com.embervoid.boss`, `com.embervoid.reach.boss`, `com.embervoid.client.reach.boss`, arena contents (`structures/ashen_reach/arena_*`, the Citadel courtyard piece), boss assets and loot |
 
-All three tracks are merged into `main` (8.1–8.12). Coordinator: R30.1 done; the release tasks remain.
-Milestones 4–7 tracks (`track-player-core`, `track-mobs`, `track-sanctum`, `track-realms`) are done and merged.
-Packages from them (`player`, `stats`, `mob`, `entity/mob`, `progress`, `sanctum`, `realm`, `boss`) are not owned
-by a 0.3.0 track: a track that needs a small hook there (e.g. a new event in `boss`) adds it as a separate commit
-and names it in its merge request.
+Coordinator: PLAN 13.5 and the 0.4.0 release tasks. Earlier tracks (0.2.0: `track-player-core`, `track-mobs`,
+`track-sanctum`, `track-realms`; 0.3.0: `track-moon`, `track-night-mobs`, `track-vampire`) are done and merged.
+Packages not owned by a 0.4.0 track (`player`, `stats`, `mob`, `entity/mob`, `progress`, `sanctum`, `moon`,
+`nightmob`, `vampire`): a track that needs a small hook there (e.g. Flask Ember in the flask, artifact points in
+`stats`) adds it as a separate commit and names it in its merge request.
+
+**Arena boundary:** reach-world decides where an arena sits and the ground under it (placement, height,
+blending); reach-bosses builds what stands on it (the arena itself, shrine spot, arena-side chest, hazards).
 
 ## Contracts between tracks
 
+Fixed ids for mobs, bosses, materials, chest loot tables and tags are listed in PLAN.md "0.4.0": reference them
+by id before the owner merges (an unknown id must not fail datapack loading: optional tag entries, a warning
+instead of an error, or a vanilla stand-in behind one constant).
+
 | Contract | Owner | Used by | Contents |
 |---|---|---|---|
-| `moon.api.MoonNights` | moon | night-mobs, vampire | `current(server)`; `NIGHT_STARTED` / `NIGHT_ENDED(reason)` events; `hold` / `release(server, Identifier)` |
-| `moon.api.CurseOfTheNight` | moon | night-mobs | `stacks(player)` |
-| Built APIs | — | all | `mob.MobLevels` (levels), `boss.ArenaBoss` / `BossFight` (boss framework), `progress.ProgressManager` (unlocked realms), `realm.RealmMobLevels` (bands), `sanctum` core check, Ash Remnant (`player`) — see CORE.md |
+| Fog API (PLAN 9.1) | reach-world | reach-bosses (arena fog), reliquary (Fog Stalker ring) | Client API to push/clear a fog override by source id (density, colour), strongest wins; per-zone fog built on it |
+| Placed enemies (PLAN 9.2) | reach-world | reach-mobs (placed behaviour), reach-bosses (arena guards if any) | Template marker + processor spawning an entity id at worldgen, persistent, never respawns, zone-band level; a way for the mob to know it was placed |
+| Items and chest stubs (PLAN 11.1) | reach-gear | reach-world (ore drops, chests), reach-bosses (souls, rematch, Flask Ember), reliquary (chest injection) | Item ids and empty chest tables from PLAN.md |
+| `embervoid:realm_ores` | reach-world | reliquary (Delver's Ring) | Block tag of the three realm ores |
+| Mob ids | reach-mobs | reach-world (markers), reach-bosses (adds), reach-gear / reliquary (loot injection) | Entity ids from PLAN.md |
+| Built APIs | — | all | `mob.MobLevels`, `boss.ArenaBoss` / `BossFight` / `Telegraph`, `progress.ProgressManager`, `realm.RealmMobLevels`, special attacks (`item.ability`), Ash Remnant (`player`), stats — see CORE.md |
 
-`track-moon` sends 8.1 (the API) for merge first, as soon as it compiles. Until then the other tracks write
-against a small local stub with the same signatures and replace it after syncing with `main`.
+`track-reach-world` sends 9.1 and 9.2 for merge first, `track-reach-gear` sends 11.1 first, as soon as each
+compiles. Until then the other tracks write against a small local stub with the same signatures (or the fixed
+ids) and replace it after syncing with `main`.
+
+**Config:** one top-level section per track: reach-world keeps `realm`, reach-mobs `reachMobs`, reach-gear
+`gear`, reliquary `reliquary`, reach-bosses keeps `boss` (+ per-boss keys inside it).
 
 ## Shared files
 

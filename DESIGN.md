@@ -348,7 +348,7 @@ Line-up: giants with spectacle, and arenas that take part in the fight.
 - **Multiplayer:** HP ×(1 + 0.5·(n − 1)) at summon, +1 add per extra fighter, damage unchanged; target switch every
   8–10 s or to the top damage dealer.
 - **Rematch:** a consumable (working name *Ash of Rematch*) used at the arena shrine of a beaten boss summons it
-  again for loot and XP, never its soul. Source and price: Open (§10.11).
+  again for loot and XP, never its soul. Source and price: Proposed — built as recommended (§10.11).
 - **Models:** script-generated greybox models at final size with draft animations under the final animation names
   (like `tools/mob_placeholders.py`); fights are tuned on them, art later.
 - **Music:** one shared zone-boss theme and a separate Smoldering Lord theme (CC-licensed, `CREDITS.md`).
@@ -713,6 +713,9 @@ Each question names the milestone that cannot start without an answer.
 11. **Rematch item for Realm 1 bosses** (§4.5): where does *Ash of Rematch* come from and what does it cost (a
     craft from realm materials, a chest drop, XP at the Maiden)?
     *Needed by:* milestone 12.
+    **Proposed — built as recommended:** crafted, shapeless: 4 Cinder Shard + 1 Royal Amber + 1 bone → 1 Ash of
+    Rematch (recipe JSON, easy to change); one also lies in each zone's arena-side chest. Used on the arena shrine
+    of a boss the player has beaten: summons it again for loot and XP, never its soul or Flask Shard.
 12. **Moon nights** (§3.3): rewards for both nights; whether a player kill counts toward the curse; and the four
     conflicts listed in §3.3 (remnant in the Vampire arena, who is pulled into it, Vampires in multiplayer, one
     shared night).

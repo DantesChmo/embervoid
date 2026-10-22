@@ -20,7 +20,7 @@ Open questions in [DESIGN.md](DESIGN.md) §10 name the milestone they block. Dec
 is done; until then its tasks build the recommended answer and keep it easy to change.
 
 **Where things stand:** milestones 1–7 are built and on `main`; most of it was checked in game (single player).
-What was not checked in game is marked "(not verified in game: …)" on its line. Milestone 8 (moon nights) is built and covered by GameTests. Not started: the 0.2.0 release tasks, most 0.3.0 release tasks, the art pass, and 0.4.0 (milestones 9–13).
+What was not checked in game is marked "(not verified in game: …)" on its line. Milestone 8 (moon nights) is built and covered by GameTests. 0.4.0 (milestones 9–13) is in progress in five tracks. Not started: the 0.2.0 release tasks, most 0.3.0 release tasks, the art pass.
 
 ## Decisions
 
@@ -206,14 +206,14 @@ shrines).
 
 # 0.4.0 "Ashen Reach" — the first obelisk
 
-The full Realm 1 per [DESIGN.md](DESIGN.md) §4.5. Design is decided; DESIGN §10.11 is open and blocks
-milestone 12. Order: zones A–C, roads and the three
+The full Realm 1 per [DESIGN.md](DESIGN.md) §4.5. Design is decided; DESIGN §10.11 (rematch item) is built as
+recommended. Tasks and tracks: PLAN.md "0.4.0", COORDINATION.md. Order: zones A–C, roads and the three
 arenas first, the Citadel last. New mobs and bosses start on script-generated greybox models at final size; art
 comes in the release pass.
 
 ## 9. Realm 1: world
 
-**Status:** Not started.
+**Status:** In progress (track reach-world).
 
 - [ ] Zones renamed: **Ashen Fields**, **Royal Woods**, **Sunken Necropolis** (ids stay `zone_a/b/c`); eternal dusk (`fixed_time` ≈ 13500)
 - [ ] Zone-aware terrain density function (plain / hills and ravines / sinkhole basin), blended at borders
@@ -226,7 +226,7 @@ comes in the release pass.
 
 ## 10. Realm 1: zone bestiary
 
-**Status:** Not started.
+**Status:** In progress (track reach-mobs).
 
 - [ ] Zone spawners list only Realm 1 mobs (placeholder zombies go); placed enemies at worldgen that never respawn
 - [ ] Fields: **Cinder Husk**, **Ash Stalker** (buried ambush), **Ashen Carrion** (diving flyer)
@@ -236,7 +236,7 @@ comes in the release pass.
 
 ## 11. Realm 1: loot and accessories
 
-**Status:** Not started.
+**Status:** In progress (tracks reach-gear, reliquary).
 
 - [ ] Materials: Cinder Shard, Royal Amber, Grave Iron, **Smoldering Ingot**, Smoldering Template
 - [ ] **Smoldering Plate** (smithing table, like netherite) with its set bonus
@@ -250,7 +250,7 @@ comes in the release pass.
 
 ## 12. Realm 1: zone bosses
 
-**Status:** Not started. Rematch item blocked by DESIGN §10.11.
+**Status:** In progress (track reach-bosses). Rematch item per DESIGN §10.11 as recommended.
 
 - [ ] Boss framework additions: arena hazard layer (restored on reset), S2C arena fog, telegraph shapes (ring, line, cone, falling shadow), shield-breaking hit, fight-bound adds, non-HP phase, HP scaling HP ×(1 + 0.5·(n − 1)) + 1 add per extra fighter
 - [ ] **Crypt Keeper** (first: riskiest) in the flooded ossuary: light, rising water, braziers, moths, Restless Bones
@@ -262,7 +262,7 @@ comes in the release pass.
 
 ## 13. Realm 1: Smoldering Citadel
 
-**Status:** Not started.
+**Status:** Not started (each track does its part after its zone tasks).
 
 - [ ] Depths dimension "Burning City": own `dimension_type` (dark red sky, dusk), hill terrain, ember cracks and smouldering logs
 - [ ] Citadel jigsaw (~10–12 pieces): outskirts → burning streets → wall and gatehouse → inner ring and towers → courtyard → keep

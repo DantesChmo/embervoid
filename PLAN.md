@@ -189,10 +189,188 @@ notes in `plans/<track>.md`. Config: track-moon owns the `moon` section; night-m
 | R30.3 | Multiplayer and performance test | coordinator | todo |
 | R30.4 | Release 0.3.0 | coordinator | todo |
 
-## Milestones 9 and later
+## 0.4.0 "Ashen Reach" — milestones 9–13
 
-0.4.0 (milestones 9–13): design in DESIGN §4.5. Split into tasks before work starts.
-Checklists in [ROADMAP.md](ROADMAP.md) are the starting point.
+Design: [DESIGN.md](DESIGN.md) §4.5; §10.11 built as recommended. Five tracks (COORDINATION.md), each keeps its
+notes in `plans/<track>.md`. A track works its own layer of the Citadel (milestone 13) after its zone tasks.
+Every task ends with GameTests (or the server check for worldgen) for what it built; models are greybox at
+final size with final animation names, art comes in the release pass.
+
+Fixed ids (contracts, so tracks can reference each other's content before it is merged):
+- **Mobs** `embervoid:` `cinder_husk`, `ash_stalker`, `ashen_carrion`, `withered_thrall`, `lantern_hag`,
+  `bark_hollow`, `restless_bones`, `crypt_moth`, `hollow_sentinel`, `grave_warden`, `cinder_hound`,
+  `sparking_marksman`, `furnace_golem`, `smoldering_knight`.
+- **Bosses** `embervoid:` `ash_colossus`, `grieving_tree`, `crypt_keeper`, `smoldering_lord`; progress ids stay
+  `embervoid:ashen_reach/zone_a|b|c` and the realm boss id in `realm.Realms`.
+- **Materials and boss items** (track reach-gear, 11.1): `cinder_shard`, `royal_amber`, `raw_grave_iron`,
+  `grave_iron_ingot`, `smoldering_ingot`, `smoldering_template`, souls `ash_colossus_soul`, `grieving_tree_soul`,
+  `crypt_keeper_soul`, `smoldering_lord_soul`, `ash_of_rematch`, `flask_ember`.
+- **Chest loot tables** (track reach-gear, empty stubs in 11.1): `embervoid:chests/ashen_reach/<zone>_common`,
+  `<zone>_treasure`, `<zone>_arena` for zone `fields`, `woods`, `necropolis`; `citadel_common`,
+  `citadel_treasure`.
+- **Tags:** `embervoid:realm_ores` (blocks, reach-world), `embervoid:bleed_immune` (entities, reach-gear; entries
+  `"required": false`), `embervoid:artifacts`, `embervoid:rings` (items, reliquary).
+
+### Milestone 9 — Realm 1: world (track `reach-world`)
+
+| ID  | Task | Depends on | Status |
+|-----|------|------------|--------|
+| 9.1 | **Fog API + per-zone fog** (contract, first) | — | todo |
+| 9.2 | **Placed enemies** (contract) | — | todo |
+| 9.3 | **Zones renamed, eternal dusk, zone looks** | — | todo |
+| 9.4 | **Zone terrain density + arena sites** | 9.3 | todo |
+| 9.5 | **Realm 1 blocks and ores** | 9.3, 11.1 | todo |
+| 9.6 | **Landing plaza, roads, milestones, outposts** | 9.2, 9.4 | todo |
+| 9.7 | **Minor structures per zone** | 9.2, 9.5, chest ids | todo |
+| 9.8 | **Necropolis crypt jigsaw + water** | 9.7 | todo |
+| 9.9 | **World edge** | 9.4 | todo |
+
+- **9.1 Fog API.** Client mixin on `BackgroundRenderer` with a small API (client side, e.g.
+  `ReachFog.push(source, density, color)` / `clear(source)`, strongest wins, eased) so the boss arena fog (12.1)
+  and the Ring of the Fog Stalker (11.12) reuse it. Per-zone fog: Fields grey-ochre, Woods dense grey-green,
+  Necropolis blue-grey, picked from the biome under the camera. Sent for merge as soon as it works.
+- **9.2 Placed enemies.** A marker in templates + structure processor that spawns the named entity at worldgen:
+  persistent, never respawns, not reset by shrine rest, level from the zone band. Takes any entity id; an unknown
+  id logs a warning and spawns nothing, so templates use the final mob ids from the start. Sent for merge early.
+- **9.3 Zones.** Names Ashen Fields / Royal Woods / Sunken Necropolis (ids stay `zone_a/b/c`), both languages;
+  `fixed_time` ≈ 13500 in the realm `dimension_type`; zone biome looks (surface, colours, particles, ambient);
+  placeholder vanilla `spawners` removed (track reach-mobs adds its own spawns in code).
+- **9.4 Terrain.** One zone-aware density function (plain / hills and ravines / sinkhole basin), blended at the
+  borders; arenas get a flat site at the right height (arena height offset). Dry everywhere but the Necropolis.
+- **9.5 Blocks and ores.** ~6–8 blocks (burnt straw, milestone, gravestone, ember crack, smouldering log, wet
+  crypt stone…), datagen, both languages. Cinder Ore, Amber Vein, Grave Iron Ore, each generated only in its
+  zone, tag `embervoid:realm_ores`; drops per DESIGN §4.5 (items from 11.1).
+- **9.6 Landing and roads.** Landing as the crossroads plaza (shrine, Return Obelisk, Sealed Gate stay where
+  they are); road generator: ash-brick road from the landing to each arena, a milestone every ~100 blocks, 2
+  outposts per road (toll gate, watchtower) with placed fodder/ranged mobs, never tanks.
+- **9.7 Minor structures.** ~20–25 `.nbt` pieces (DESIGN §4.5 table) with placed enemies and chests pointing at
+  the chest table ids above (treasure chests: Fields granary vault, Woods hunting lodge).
+- **9.8 Crypt.** Necropolis crypt jigsaw (5–7 pieces) below crypt entrances, lower crypt with the treasure chest;
+  water only here (sinkhole bottoms, flooded crypts), placed by structures/features.
+- **9.9 World edge.** Broken walls and collapsed bridges at the abyss cliffs.
+
+### Milestone 10 — Realm 1: zone bestiary (track `reach-mobs`)
+
+| ID  | Task | Depends on | Status |
+|-----|------|------------|--------|
+| 10.1 | **Greybox pipeline + shared mob base + spawns** | — | todo |
+| 10.2 | **Cinder Husk, Ash Stalker** | 10.1 | todo |
+| 10.3 | **Ashen Carrion** | 10.1 | todo |
+| 10.4 | **Withered Thrall (+ hanging cage), Lantern Hag** | 10.1 | todo |
+| 10.5 | **Bark Hollow** | 10.1 | todo |
+| 10.6 | **Restless Bones, Crypt Moth** | 10.1 | todo |
+| 10.7 | **Hollow Sentinel, Grave Warden** | 10.6 | todo |
+
+- **10.1 Pipeline.** Greybox GeckoLib models at final size with draft animations under final names (extend
+  `tools/mob_placeholders.py`); a shared base for windup telegraphs (DESIGN §4.5 ticks) and the "placed" state;
+  natural spawns for fodder, ranged and the rare Carrion through `BiomeModifications` on the zone biomes only;
+  base levels in the mob config defaults; basic vanilla-flavoured drops. Realm loot rolls (materials, set pieces,
+  artifacts) are injected by tracks reach-gear and reliquary, not written here.
+- **10.2–10.7** Each mob per the DESIGN §4.5 bestiary table: stats, behaviour, telegraph, sounds (vanilla
+  placeholders), both languages, GameTests for the behaviour (ambush trigger, dive, cage drop, dormant tree and
+  ×1.5 from axes/fire, bone pile re-forming and staying dead in light, torch snuffing, shield front immunity and
+  bash window, bell re-forming piles).
+
+### Milestone 11 — Realm 1: loot and accessories (tracks `reach-gear`, `reliquary`)
+
+| ID  | Task | Track | Depends on | Status |
+|-----|------|-------|------------|--------|
+| 11.1 | **Materials, boss items, chest table stubs** (contract, first) | reach-gear | — | todo |
+| 11.2 | **Bleeding + `bleed_immune`** | reach-gear | — | todo |
+| 11.3 | **Smoldering Plate + Template** | reach-gear | 11.1 | todo |
+| 11.4 | **Mob-drop sets + unique pieces** | reach-gear | 11.1 | todo |
+| 11.5 | **Ashen Scythe, Warden's Scourge, Royal Ash Rapier** | reach-gear | 11.1, 11.2 | todo |
+| 11.6 | **Huntsman's Crossbow** | reach-gear | 11.1 | todo |
+| 11.7 | **Consumables + Flask Ember** | reach-gear | 11.1, 11.2 | todo |
+| 11.8 | **Chest loot + realm loot on mobs** | reach-gear | 11.3–11.7 | todo |
+| 11.9 | **Reliquary: data, sync, screen** | reliquary | — | todo |
+| 11.10 | **Reliquary: remnant, stat points** | reliquary | 11.9 | todo |
+| 11.11 | **8 artifacts** | reliquary | 11.10 | todo |
+| 11.12 | **6 rings** | reliquary | 11.9, 9.1 | todo |
+| 11.13 | **Accessory drops** | reliquary | 11.11, 11.12 | todo |
+
+- **11.1** Items and recipes for the materials (Smoldering Ingot shapeless, Grave Iron smelting), the four boss
+  souls, Ash of Rematch (item and recipe; its use is 12.7), Flask Ember (item only; its effect is 11.7), and empty
+  chest loot tables at the fixed ids. Sent for merge first: world, mobs and bosses reference these ids.
+- **11.2** Bleeding status effect I–III (+1 per hit, 6 s, refreshes, 0.5/1/1.5 HP/s ignoring armor), tag
+  `embervoid:bleed_immune` with optional entries.
+- **11.3** Smoldering Template recipe; smithing diamond piece + ingot + template → Smoldering Plate (numbers in
+  DESIGN §4.5), −8 % fire damage per piece, set: no burning ticks.
+- **11.4** Reaper's Garb, Huntsman's Leathers, Necropolis Warden with set bonuses; Scarecrow's Mask, Huntsman's
+  Greaves, Drowned Sabatons, Furnace Heart Cuirass with their effects.
+- **11.5** Weapons with passives and specials through the special-attack framework (DESIGN §8.1); reach by a
+  server raycast on attack; recipes soul + 2 Smoldering Ingot + zone part.
+- **11.6** Crossbow: 2.0 s charge, ≈ 1.5× bolt, strong knockback, pierce 1.
+- **11.7** Ash Bomb, Smoldering Resin, cinder fuel, Amber Balm, Amber Lantern Oil, Whetstone (and anvil repair of
+  uniques); Flask Ember: +15 % flask healing once (hook in the flask, separate commit in `player`).
+- **11.8** Chest tables per DESIGN §4.5 (common / treasure / arena-side; zone weapon 4 % in treasure chests);
+  material, set-piece (3 % fodder / 15 % elite, player kill, FOR applies) and unique-piece (0.5 % / 4 %) rolls
+  injected into the mob loot tables with `LootTableEvents.MODIFY`.
+- **11.9** Reliquary attachment (synced to the owner), own screen with the player model, opened by a button next
+  to the recipe book and a keybind, 2 artifact + 2 ring slots; slot kinds and counts from the tags.
+- **11.10** Accessories go into the Ash Remnant on death with the inventory; artifact stat points go through the
+  stat system without raising level or level cost (hook in `stats`, separate commit).
+- **11.11 / 11.12** Artifacts and rings per DESIGN §4.5 (Fog Stalker ring through the 9.1 fog API, not in boss
+  arenas; Delver's Ring on `embervoid:realm_ores`).
+- **11.13** Artifact (8 % chest, 2 % elite) and ring (5 % chest, 1 % elite) rolls injected into the treasure
+  chest tables and elite mob tables.
+
+### Milestone 12 — Realm 1: zone bosses (track `reach-bosses`)
+
+| ID  | Task | Depends on | Status |
+|-----|------|------------|--------|
+| 12.1 | **Boss framework additions** | 9.1 | todo |
+| 12.2 | **Three arenas built** | 9.4 | todo |
+| 12.3 | **Crypt Keeper** (first: riskiest) | 12.1, 12.2 | todo |
+| 12.4 | **Ash Colossus** | 12.1, 12.2 | todo |
+| 12.5 | **Grieving Tree** | 12.1, 12.2 | todo |
+| 12.6 | **Souls and Flask Shards** | 11.1 | todo |
+| 12.7 | **Ash of Rematch** (DESIGN §10.11 as recommended) | 11.1, 12.6 | todo |
+
+- **12.1** Arena hazard layer (ticked by the fight, restored on reset; real blocks only for water), S2C arena fog
+  through the 9.1 API, telegraph shapes (ring at a point, line, cone, falling shadow), shield-breaking hit,
+  fight-bound adds (removed with the fight), a non-HP phase, HP ×(1 + 0.5·(n − 1)) + 1 add per extra fighter at
+  summon, target switch every 8–10 s or to the top damage dealer. Own GameTests.
+- **12.2** The arenas replace the placeholder discs: crater market (r ~40, ≥ 8 smashable pillars), Royal Grove
+  (walled garden behind the hunting lodge, r ~48), sinkhole with a switchback stair into the flooded ossuary
+  (r ~32, ceiling ≥ 9); arena shrine outside the fog wall and the arena-side chest (`<zone>_arena`). Track
+  reach-world owns where an arena sits and the ground under it; this track owns what is built there.
+- **12.3–12.5** Each boss per DESIGN §4.5 (moves, phases, hazards, damage table, fixed levels 24 / 18 / 21);
+  adds use the fixed mob ids (vanilla stand-ins behind one constant until track reach-mobs merges them).
+- **12.6** First kill: the boss's soul as personal loot (25 % for a credited player who had already beaten it) +
+  a Flask Shard; replaces the Ember Heart for Realm 1 bosses.
+- **12.7** Ash of Rematch used on the arena shrine of a boss the player has beaten summons it again: loot and XP,
+  never its soul or Flask Shard.
+
+### Milestone 13 — Realm 1: Smoldering Citadel (all tracks, after their zone tasks)
+
+| ID  | Task | Track | Depends on | Status |
+|-----|------|-------|------------|--------|
+| 13.1 | **Depths "Burning City": dimension type, terrain** | reach-world | 9.4, 9.5 | todo |
+| 13.2 | **Citadel jigsaw (~10–12 pieces)** | reach-world | 13.1, 9.2 | todo |
+| 13.3 | **Cinder Hound, Sparking Marksman, Furnace Golem, Smoldering Knight** | reach-mobs | 10.1 | todo |
+| 13.4 | **Smoldering Lord** | reach-bosses | 12.3–12.5, 13.2 | todo |
+| 13.5 | **Realm completion, Realm 2 obelisk lit, depths open** | coordinator | 13.4 | todo |
+
+- **13.1** Own `dimension_type` for the depths (dark red sky, same dusk), hill terrain, ember cracks and
+  smouldering logs only here, radius ~400, levels 25–30.
+- **13.2** Route: depths landing in the outskirts → burning streets → city wall and gatehouse → inner ring and
+  towers → courtyard below the keep wall (the Lord's arena site; track reach-bosses builds its contents) → keep
+  with the treasure chest (`citadel_treasure`). Placed Citadel mobs per DESIGN §4.5.
+- **13.4** P0 on the wall (non-HP phase, signal braziers), P1 greatsword, P2 at 50 % with one zone hazard every
+  ~25 s; soul and Flask Ember as first-kill personal loot.
+- **13.5** `realm.depthsOpen` default true; the Lord's kill completes Realm 1 and lights the Realm 2 obelisk
+  (leads nowhere yet); a GameTest of the whole realm loop.
+
+## 0.4.0 release tasks
+
+| ID  | Task | Who | Status |
+|-----|------|-----|--------|
+| R40.1 | Balance: zone bands vs player level, boss difficulty, XP yield, loot rates | coordinator | todo |
+| R40.2 | Art pass: realm mobs and bosses from greybox to final models; textures consistency | coordinator | todo |
+| R40.3 | Sounds and music: shared zone-boss theme, Smoldering Lord theme (`CREDITS.md`) | coordinator | todo |
+| R40.4 | Multiplayer and performance test (realm worldgen time, entity counts, placed enemies) | coordinator | todo |
+| R40.5 | Release 0.4.0 | coordinator | todo |
 
 ## Open follow-ups
 
