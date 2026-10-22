@@ -235,7 +235,10 @@ the bar name, point the arena JSON's `boss.entity` at it, add its id to the real
 - New content in its own package and registry class, one line in `Embervoid` / `EmbervoidClient`; items via
   `ModItems.register` so they show in the creative tab; datagen providers for models, loot and tags.
 - Tunable numbers through a config section (`EmbervoidConfig.register(ConfigSection.of(...))`).
-- Pure logic gets JUnit tests (`src/test`); in-game checks go through the QA batch (COORDINATION.md).
+- Pure logic gets JUnit tests (`src/test`). Behaviour on real entities, players and worldgen gets a GameTest in
+  `src/gametest/java/com/embervoid/gametest` (a class implementing `FabricGameTest`, listed under `fabric-gametest`
+  in `src/gametest/resources/fabric.mod.json`; `TestPlayers` makes a survival server player). What has to be seen
+  in game goes through the QA batch (COORDINATION.md).
 - Never discard or spawn entities inside `ENTITY_LOAD` (it crashed the server once); decide at worldgen or
   defer to the end of the tick.
 

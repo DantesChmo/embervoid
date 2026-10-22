@@ -1,0 +1,20 @@
+{
+	"schemaVersion": 1,
+	"id": "embervoid-gametest",
+	"version": "${version}",
+	"name": "Embervoid GameTests",
+	"description": "In-game tests for Embervoid, run by ./gradlew runGametest. Dev only, never shipped.",
+	"license": "All-Rights-Reserved",
+	"environment": "*",
+	"entrypoints": {
+		"fabric-gametest": [
+			"com.embervoid.gametest.MobLevelTests",
+			"com.embervoid.gametest.PlayerTests",
+			"com.embervoid.gametest.SanctumTests"
+		]
+	},
+	"depends": {
+		"embervoid": "*",
+		"fabric-gametest-api-v1": "*"
+	}
+}

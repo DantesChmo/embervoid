@@ -81,6 +81,23 @@ notes: <anything another track must know: new APIs, renamed classes, lang keys>
 
 **Question** — a design question or a blocker: `QUESTION` + the question and your recommended answer.
 
+## Automated checks (before every QA batch)
+
+Run in the main checkout (or the QA worktree) on the commit that goes to QA; a batch goes to the user only when both
+pass. Neither needs a game account or a window.
+
+- `./gradlew runGametest` — Fabric GameTests in `src/gametest` (its own mod `embervoid-gametest`, never in the
+  jar) on a headless superflat server: mob levels, starting flask, shrine rest, death → Ash Remnant → recovery,
+  Sanctum generation and contents. Fails the build on any failed test; report in `build/gametest/junit.xml`.
+  The test world has only the vanilla dimensions, so realm checks live in the server check.
+- `python3 tools/server_check.py` — a real dedicated server (`runServerCheck`, run dir `run/server-check`, fresh
+  world each time): boots to Done, generates a real Sanctum, the Ashen Reach landing, the three zone arenas and the
+  depths over RCON, then fails on any crash, mixin failure, ERROR line or datapack load error in the log. Client
+  mixins and rendering are not covered: that stays with in-game QA.
+
+A batch item that these checks cover (counts, messages, no-crash) is not sent to the user; QA keeps what has to be
+seen or felt in game.
+
 ## In-game checks (QA batching)
 
 The game is launched by the QA session, never once per merge. The coordinator collects fixes and sends QA

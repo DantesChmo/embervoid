@@ -25,6 +25,14 @@ repositories {
 	}
 }
 
+// In-game tests (Fabric GameTest), run by runGametest on a headless server. Its own mod, never in the jar.
+sourceSets {
+	gametest {
+		compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+		runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
+	}
+}
+
 loom {
 	splitEnvironmentSourceSets()
 
@@ -33,6 +41,33 @@ loom {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
 		}
+		"embervoid-gametest" {
+			sourceSet sourceSets.gametest
+		}
+	}
+
+	runs {
+		gametest {
+			server()
+			name = "Game Test"
+			source sourceSets.gametest
+			vmArg "-Dfabric-api.gametest"
+			vmArg "-Dfabric-api.gametest.report-file=${project.layout.buildDirectory.get()}/gametest/junit.xml"
+			runDir "build/gametest"
+		}
+		// Dedicated server for tools/server_check.py: boots, generates realm and Sanctum chunks, scans the log.
+		serverCheck {
+			server()
+			name = "Server Check"
+			runDir "run/server-check"
+		}
+	}
+}
+
+// A fresh world for every run, so results never depend on the previous one.
+tasks.named('runGametest') {
+	doFirst {
+		delete "build/gametest/world", "build/gametest/junit.xml"
 	}
 }
 
@@ -74,11 +109,13 @@ test {
 	useJUnitPlatform()
 }
 
-processResources {
-	inputs.property "version", project.version
+[processResources, processGametestResources].each {
+	it.configure {
+		inputs.property "version", project.version
 
-	filesMatching("fabric.mod.json") {
-		expand "version": project.version
+		filesMatching("fabric.mod.json") {
+			expand "version": project.version
+		}
 	}
 }
 
