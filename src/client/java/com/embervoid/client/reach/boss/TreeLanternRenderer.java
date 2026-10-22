@@ -1,6 +1,7 @@
 package com.embervoid.client.reach.boss;
 
 import com.embervoid.reach.boss.TreeLanternEntity;
+import com.embervoid.registry.ModBlocks;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.LanternBlock;
@@ -14,9 +15,12 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
-/** Draws the Grieving Tree's hanged lantern as a hanging lantern block with a stretch of chain above it, always lit. */
+/**
+ * Draws the Grieving Tree's hanged lantern as the realm's hanging Ember Lantern with a stretch of chain above it,
+ * always lit.
+ */
 public class TreeLanternRenderer extends EntityRenderer<TreeLanternEntity> {
-	private static final BlockState LANTERN = Blocks.LANTERN.getDefaultState().with(LanternBlock.HANGING, true);
+	private static final BlockState LANTERN = ModBlocks.EMBER_LANTERN.getDefaultState().with(LanternBlock.HANGING, true);
 	private static final BlockState CHAIN = Blocks.CHAIN.getDefaultState();
 	private final BlockRenderManager blocks;
 

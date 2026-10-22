@@ -13,7 +13,7 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 /**
- * GeckoLib renderers for the Ashen Reach bosses: greybox models at final size from {@code tools/boss_placeholders.py},
+ * GeckoLib renderers for the Ashen Reach bosses: models from {@code tools/reach_boss_art.py},
  * glowmask layer, bones the boss shows only at times ({@link ReachBoss#toggledBones}) hidden or shown every frame.
  */
 public final class ReachBossClient {

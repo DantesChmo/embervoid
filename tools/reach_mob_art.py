@@ -316,12 +316,12 @@ def rivets(face, color, step=3, inset=1):
 
 
 def mail(face, rng, dark, light):
-    """Chainmail: a checker of dark and light links."""
+    """Chainmail: rows of links, every other row offset, a highlight on some."""
     for y in range(face.h):
         for x in range(face.w):
-            if (x + y) % 2 == 0:
+            if (x + (y // 2)) % 2 == 0 and y % 2 == 0:
                 face.set(x, y, dark)
-            elif rng.random() < 0.3:
+            elif rng.random() < 0.15:
                 face.set(x, y, light)
 
 
@@ -1285,13 +1285,421 @@ def grave_warden():
     write_model("grave_warden", bones, animations, [3, 3])
 
 
+# --- Citadel: Cinder Hound ------------------------------------------------------------------------------------------
+# A lean hound of the burning streets: charred hide split by glowing seams along the ribs, a mane of ash spikes, a
+# mouth that glows inside, an ember-tipped tail. Bite after a 6-tick lunge; howls to pull the pack.
+
+def cinder_hound():
+    hide = Material(CHAR, base=2.2, noise=0.7, speck=0.05, top=1.0, grad=0.8)
+
+    def ribs_glow(face, rng):
+        if face.name in ("left", "right"):
+            for x in range(1, face.w - 1, 2):
+                face.vline(x, 1, face.h - 3, CHAR[0])
+                if rng.random() < 0.6:
+                    face.lit(x, rng.randint(2, max(2, face.h - 3)), EMBER, 0.9)
+        if face.name == "top":
+            char_cracks(face, rng, 1)
+
+    def head_side(face, rng):
+        if face.name in ("left", "right"):
+            ex = 1 if face.name == "right" else face.w - 2
+            face.set(ex, 1, VOID)
+            face.lit(ex, 1, EMBER_HOT, 1.0)
+        if face.name == "front":
+            face.lit(1, 1, EMBER_HOT, 1.0)
+            face.lit(face.w - 2, 1, EMBER_HOT, 1.0)
+            face.set(1, 2, VOID)
+            face.set(face.w - 2, 2, VOID)
+
+    def jaw(face, rng):
+        if face.name == "top":
+            face.rect(0, 0, face.w, face.h, VOID)
+            for y in range(face.h):
+                face.lit(face.w // 2, y, EMBER, 0.8)
+        if face.side():
+            for x in range(0, face.w, 2):
+                face.set(x, 0, BONE[4])
+
+    def snout(face, rng):
+        if face.name == "bottom":
+            for x in range(0, face.w, 2):
+                face.set(x, face.h - 1, BONE[4])
+        if face.name == "front":
+            face.set(face.cx, 0, VOID)
+
+    spike = Material(ASH, base=1.6, noise=0.6, top=1.2)
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("body", [0, 10, 0], "root", None, [
+            Box([-3, 6.5, -6.5], [6, 7, 6], hide, {"all": ribs_glow}),
+            Box([-2.5, 7.5, -0.5], [5, 5, 7], hide.but(base=2.0), {"all": ribs_glow}),
+        ] + [Box([-1, 12.5, z], [2, 2, 2], spike, rotation=[-40, 0, 0], pivot=[0, 13, z + 1])
+             for z in (-6, -3.5, -1, 1.5)]),
+        Bone("head", [0, 11, -6], "body", None, [
+            Box([-2.5, 8.5, -11], [5, 5, 5], hide.but(base=2.6), {"all": head_side}),
+            Box([-1.5, 9, -15], [3, 3, 4], hide.but(base=2.4), {"all": snout}),
+            Box([-1.5, 8, -14.5], [3, 1, 4], hide.but(base=1.6), {"all": jaw}),
+            Box([-2.5, 13, -8.5], [1, 3, 1], spike, rotation=[-25, 0, 10], pivot=[-2, 13, -8]),
+            Box([1.5, 13, -8.5], [1, 3, 1], spike, rotation=[-25, 0, -10], pivot=[2, 13, -8]),
+        ]),
+        Bone("tail", [0, 12, 7], "body", [-30, 0, 0], [
+            Box([-1, 11, 6.5], [2, 2, 6], hide, {"sides": lambda f, r: char_cracks(f, r, 1)}),
+            Box([-1, 11, 12.5], [2, 2, 2], Material(ramp("a0401a", "e06a22", "ff9a3a", "ffd27a"), base=2.0,
+                                                    noise=0.6, glow=0.9)),
+        ]),
+    ]
+    leg = Material(CHAR, base=1.8, noise=0.6, grad=1.2)
+    paw = Material(CHAR, base=1.0, noise=0.4)
+    for name, x, z in (("front_right_leg", -2, -4), ("front_left_leg", 2, -4), ("back_right_leg", -2, 5),
+                       ("back_left_leg", 2, 5)):
+        ox = -3 if x < 0 else 1
+        oz = -5 if z < 0 else 4
+        bones.append(Bone(name, [x, 7, z], "root", None, [
+            Box([ox, 1, oz], [2, 6, 2], leg, {"sides": lambda f, r: r.random() < 0.3 and ember_cracks(
+                f, r, 1, EMBER_DEEP, EMBER_DARK, 0.7, (1, 2))}),
+            Box([ox, 0, oz - 0.5], [2, 1, 2], paw, {"front": lambda f, r: f.set(0, 0, BONE[3])}),
+        ]))
+
+    def gait(length, angle):
+        h = length / 2
+        a, b = [angle, 0, 0], [-angle, 0, 0]
+        return {
+            "front_right_leg": rot(0, a, h, b, length, a), "back_left_leg": rot(0, a, h, b, length, a),
+            "front_left_leg": rot(0, b, h, a, length, b), "back_right_leg": rot(0, b, h, a, length, b),
+            "tail": rot(0, [-30, 10, 0], h, [-30, -10, 0], length, [-30, 10, 0]),
+            "body": pos(0, ZERO, length / 4, [0, 0.6, 0], h, ZERO, h + length / 4, [0, 0.6, 0], length, ZERO),
+            "head": rot(0, [4, 0, 0], h, [-4, 0, 0], length, [4, 0, 0]),
+        }
+
+    animations = {
+        "misc.idle": anim(2.0, {"tail": rot(0, [-30, 8, 0], 1, [-30, -8, 0], 2, [-30, 8, 0]),
+                                "head": rot(0, ZERO, 1, [5, 0, 0], 2, ZERO),
+                                "body": pos(0, ZERO, 1, [0, 0.3, 0], 2, ZERO)}),
+        "move.walk": anim(0.5, gait(0.5, 40)),
+        "attack.bite": anim(0.5, {
+            "head": rot(0, ZERO, 0.3, [-25, 0, 0], 0.35, [20, 0, 0], 0.5, ZERO),
+            "body": rot(0, ZERO, 0.3, [5, 0, 0], 0.35, [-5, 0, 0], 0.5, ZERO),
+        }, loop=False),
+        "misc.howl": anim(1.0, {"head": rot(0, ZERO, 0.2, [-55, 0, 0], 0.8, [-55, 0, 0], 1.0, ZERO),
+                                "tail": rot(0, [-30, 0, 0], 0.2, [-60, 0, 0], 0.8, [-60, 0, 0], 1.0, [-30, 0, 0])},
+                            loop=False),
+    }
+    write_model("cinder_hound", bones, animations, [1.5, 1.2])
+
+
+# --- Citadel: Sparking Marksman ------------------------------------------------------------------------------------
+# A crossbowman on the burning walls: soot-red quilted gambeson, a kettle hat over a mail hood, a scarf over the
+# face, bolts at the hip. A spark lights on the bolt tip (the spark bone) 20 ticks before it fires.
+
+GAMBESON = ramp("2a1714", "3c201b", "512b23", "67372c", "7d4536")
+
+
+def sparking_marksman():
+    quilt = Material(GAMBESON, base=2.4, noise=0.5, edge=0.4)
+
+    def quilted(face, rng):
+        if face.side():
+            for y in range(1, face.h, 3):
+                face.hline(0, y, face.w, GAMBESON[1])
+            for x in range(1, face.w, 3):
+                for y in range(face.h):
+                    if (y // 3) % 2 == 0:
+                        face.set(x, y, GAMBESON[1])
+        if face.name == "front":
+            band(face, face.h - 3, LEATHER[1])
+            face.set(face.cx, face.h - 3, BRONZE[4])
+
+    def face_front(face, rng):
+        face.rect(0, 0, face.w, 2, IRON[1])  # mail coif edge
+        face.set(2, 3, VOID)
+        face.set(5, 3, VOID)
+        face.lit(2, 3, EMBER, 0.9)
+        face.lit(5, 3, EMBER, 0.9)
+        face.rect(0, 5, face.w, 3, GAMBESON[3])  # scarf
+        face.hline(0, 5, face.w, GAMBESON[4])
+
+    def sleeve(face, rng):
+        lower(face, 3, LEATHER, rng, 2.0)
+        quilted(face, rng) if face.name != "front" else None
+
+    bones, top = humanoid(legs=12, body=(8, 12, 4), head=(8, 8, 8), arm=(4, 12, 4), leg=(4, 4),
+                          mats={"body": quilt, "head": Material(SKIN_OLD, base=1.4, noise=0.4),
+                                "arm": quilt.but(base=2.0), "leg": Material(LEATHER, base=1.6, noise=0.5, grain="v")},
+                          decals={"body": {"all": quilted}, "head": {"front": face_front}, "arm": {"all": sleeve},
+                                  "leg": {"all": lambda f, r: lower(f, 4, IRON, r, 1.6)}})
+    coif = Material(IRON, base=2.4, noise=0.4)
+    head = bone(bones, "head")
+    head.add(Box([-4.5, top - 0.5, -4.5], [9, 8, 9], coif, {"all": mail_hood}, inflate=0.1),
+             Box([-4.5, top + 7.5, -4.5], [9, 2, 9], Material(IRON, base=2.8, noise=0.5, top=1.0),
+                 {"all": lambda f, r: scatter(f, r, 2, RUST[1])}),
+             Box([-5.5, top + 7, -5.5], [11, 1, 11], Material(IRON, base=2.4, noise=0.5),
+                 {"top": lambda f, r: trim(f, IRON[4])}))
+    bone(bones, "body").add(
+        Box([1.5, 14, -3], [3, 4, 2], Material(LEATHER, base=2.0, noise=0.4), rotation=[0, 0, -10],
+            pivot=[3, 16, -2]),
+        Box([2, 18, -2.5], [1, 2, 1], Material(WOOD, base=3.0, noise=0.3), {"top": lambda f, r: f.set(0, 0, IRON[4])}),
+        Box([3, 18, -2.5], [1, 2, 1], Material(WOOD, base=3.0, noise=0.3), {"top": lambda f, r: f.set(0, 0, IRON[4])}),
+    )
+    wood = Material(WOOD, base=1.6, noise=0.5, grain="h")
+    bones.append(Bone("crossbow", [-6, 12, 0], "right_arm", None, [
+        Box([-7, 11, -9], [2, 2, 8], wood, {"sides": lambda f, r: f.hline(0, 0, f.w, WOOD[3])}),
+        Box([-11, 12, -9], [10, 1, 1], Material(IRON, base=2.4, noise=0.4)),
+        Box([-11, 12, -8], [1, 1, 1], Material(IRON, base=1.6, noise=0.3)),
+        Box([-2, 12, -8], [1, 1, 1], Material(IRON, base=1.6, noise=0.3)),
+        Box([-10, 12.5, -7.5], [8, 0, 1], Material(ROPE, base=3.0, noise=0.2)),
+        Box([-6.5, 13, -10.5], [1, 0.5, 4], Material(WOOD, base=3.2, noise=0.2), inflate=0.05),
+    ]))
+    bones.append(Bone("spark", [-6, 12, -10], "crossbow", None, [
+        Box([-6.5, 11.5, -11], [1, 1, 1], Material(ramp("ffb347", "ffe9a0"), base=0.8, noise=0.4, glow=1.0),
+            inflate=0.2)]))
+    aim = [-90, 0, 0]
+    animations = {
+        "misc.idle": idle(3.0, 3, 2),
+        "move.walk": walk(1.0, 25, 15, 0.4),
+        "attack.aim": anim(1.0, {
+            "right_arm": rot(0, ZERO, 0.3, aim, 1.0, aim),
+            "left_arm": rot(0, ZERO, 0.3, [-80, 30, 0], 1.0, [-80, 30, 0]),
+            "head": rot(0, ZERO, 0.3, [5, 0, 0], 1.0, [5, 0, 0]),
+            "body": rot(0, ZERO, 0.3, [0, -10, 0], 1.0, [0, -10, 0]),
+        }, loop=False),
+        "attack.shoot": anim(0.3, {"right_arm": rot(0, aim, 0.1, [-110, 0, 0], 0.3, ZERO),
+                                   "crossbow": pos(0, ZERO, 0.1, [0, 0, 1.5], 0.3, ZERO)}, loop=False),
+    }
+    write_model("sparking_marksman", bones, animations, [2, 2.5])
+
+
+def mail_hood(face, rng):
+    """A mail coif: link texture, the face opening cleared on the front, nothing underneath."""
+    if face.name == "bottom":
+        clear_all(face)
+        return
+    mail(face, rng, IRON[1], IRON[4])
+    if face.name == "front":
+        for y in range(2, face.h):
+            for x in range(1, face.w - 1):
+                face.clear(x, y)
+
+
+# --- Citadel: Furnace Golem ------------------------------------------------------------------------------------------
+# The king's furnace given legs: riveted soot-black cast iron, a glowing grate in the chest, a chimney for a crown,
+# heavy fists. Heats with each hit taken: the heat bone (shown by the renderer) lights the seams for 25 ticks before
+# the fire wave.
+
+CAST = ramp("141314", "1e1d1f", "29282b", "353438", "434246", "55545a")
+
+
+def furnace_golem():
+    cast = Material(CAST, base=2.6, noise=0.5, speck=0.05, edge=1.0, grad=0.8, top=0.8)
+
+    def plates(face, rng):
+        if face.side() or face.name == "top":
+            for y in range(4, face.h, 6):
+                face.hline(0, y, face.w, CAST[0])
+            rivets(face, CAST[5], 3)
+            scatter(face, rng, face.w * face.h // 50, RUST[1])
+
+    def grate(face, rng):
+        if face.name == "front":
+            face.rect(0, 0, face.w, face.h, CAST[1])
+            for x in range(1, face.w - 1, 2):
+                for y in range(1, face.h - 1):
+                    face.lit(x, y, EMBER if (x + y) % 3 else EMBER_HOT, 1.0)
+            trim(face, CAST[4])
+
+    def heat_seams(face, rng):
+        # Only the seams and rivet lines glow; the rest of the overlay is clear so the iron shows.
+        clear_all(face)
+        if face.side() or face.name == "top":
+            for y in range(4, face.h, 6):
+                for x in range(face.w):
+                    if rng.random() < 0.8:
+                        face.lit(x, y, EMBER, 1.0)
+            ember_cracks(face, rng, max(2, face.w // 3), EMBER_HOT, EMBER, 1.0, (2, 5))
+
+    def helm_front(face, rng):
+        face.hline(1, 2, face.w - 2, VOID)
+        for x in (2, face.w - 3):
+            face.lit(x, 2, EMBER_HOT, 1.0)
+        face.lit(face.cx, 2, EMBER, 0.6)
+
+    def chimney(face, rng):
+        if face.name == "top":
+            face.rect(0, 0, face.w, face.h, CAST[0])
+            face.lit(1, 1, EMBER, 0.9)
+            face.lit(2, 2, EMBER_HOT, 0.9)
+        elif face.side():
+            band(face, 0, CAST[5])
+            band(face, 1, CAST[0])
+
+    body_box = Box([-8, 12, -6], [16, 18, 12], cast, {"all": plates})
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("body", [0, 12, 0], "root", None, [
+            body_box,
+            Box([-4, 17, -6.5], [8, 8, 1], cast, {"all": grate}),
+            Box([-9, 26, -4], [18, 3, 8], cast.but(base=3.2), {"all": lambda f, r: rivets(f, CAST[5], 2)}),
+        ]),
+        Bone("heat", [0, 12, 0], "body", None, [Box([-8, 12, -6], [16, 18, 12], cast, {"all": heat_seams},
+                                                    inflate=0.3)]),
+        Bone("head", [0, 30, 0], "body", None, [
+            Box([-4, 30, -4], [8, 6, 8], cast.but(base=2.9), {"front": helm_front}),
+            Box([-2, 36, -2], [4, 8, 4], cast.but(base=2.2), {"all": chimney}),
+        ]),
+    ]
+    arm = Box([-12.5, 15, -2.5], [4, 13, 5], cast, {"all": plates})
+    fist = Box([-13.5, 8, -3.5], [6, 7, 7], cast.but(base=2.2), {"all": lambda f, r: (rivets(f, CAST[5], 2),
+                                                                                    f.hline(0, 1, f.w, CAST[0]))})
+    shoulder = Box([-14, 24, -3.5], [6, 5, 7], cast.but(base=3.0), {"all": lambda f, r: rivets(f, CAST[5], 2)})
+    bones.append(Bone("right_arm", [-10.5, 28, 0], "body", None, [arm, fist, shoulder]))
+    bones.append(Bone("left_arm", [10.5, 28, 0], "body", None, [mirror_box(arm), mirror_box(fist),
+                                                                   mirror_box(shoulder)]))
+    leg = Box([-7, 0, -3], [6, 12, 6], cast.but(base=2.3), {"all": plates})
+    foot = Box([-7.5, 0, -4], [7, 2, 7], cast.but(base=1.8))
+    bones.append(Bone("right_leg", [-4, 12, 0], "root", None, [leg, foot]))
+    bones.append(Bone("left_leg", [4, 12, 0], "root", None, [mirror_box(leg), mirror_box(foot)]))
+    animations = {
+        "misc.idle": idle(4.0, 2, 1),
+        "move.walk": walk(1.6, 18, 12, 0.8),
+        "attack.slam": overhead(0.7, 1.2, ("right_arm", "left_arm")),
+        "misc.heat": anim(1.25, {
+            "body": rot(0, ZERO, 0.25, [0, 0, 2], 0.5, [0, 0, -2], 0.75, [0, 0, 2], 1.0, [0, 0, -2], 1.25, ZERO),
+            "right_arm": rot(0, ZERO, 1.25, [0, 0, 25]), "left_arm": rot(0, ZERO, 1.25, [0, 0, -25]),
+            "head": rot(0, ZERO, 1.25, [-15, 0, 0]),
+        }, loop=False),
+        "attack.wave": anim(0.5, {
+            "right_arm": rot(0, [0, 0, 25], 0.1, [0, 0, 70], 0.5, ZERO),
+            "left_arm": rot(0, [0, 0, -25], 0.1, [0, 0, -70], 0.5, ZERO),
+            "head": rot(0, [-15, 0, 0], 0.5, ZERO),
+        }, loop=False),
+    }
+    write_model("furnace_golem", bones, animations, [3, 3.5], tex_w=128)
+
+
+# --- Citadel: Smoldering Knight --------------------------------------------------------------------------------------
+# The king's guard: blackened plate split by ember seams, a tattered crimson surcoat with the gold crown, a crested
+# great helm with a red plume, a greatsword with a glowing edge. 3-hit combo; a lunge after a 15-tick crouch.
+
+CRIMSON = ramp("2a0d0c", "3f1411", "571b16", "70241c", "8a2f22")
+GOLD = ramp("5a3d12", "7f5a1a", "a67b26", "c99a36", "e8be55")
+BLACK_STEEL = ramp("121214", "1b1b1e", "252529", "303035", "3d3d43", "4e4e55")
+
+
+def smoldering_knight():
+    steel = Material(BLACK_STEEL, base=2.8, noise=0.5, edge=0.8, grad=1.0, top=1.0)
+
+    def seams(face, rng):
+        if face.side():
+            for y in range(3, face.h, 5):
+                face.hline(0, y, face.w, BLACK_STEEL[0])
+                if rng.random() < 0.7:
+                    face.lit(rng.randrange(face.w), y, EMBER, 0.9)
+
+    def helm(face, rng):
+        if face.name == "front":
+            face.hline(1, 3, face.w - 2, VOID)
+            face.lit(2, 3, EMBER_HOT, 1.0)
+            face.lit(face.w - 3, 3, EMBER_HOT, 1.0)
+            face.vline(face.cx, 4, 3, BLACK_STEEL[0])
+            for x in range(1, face.w - 1, 2):
+                face.set(x, 6, BLACK_STEEL[0])
+        if face.side():
+            band(face, 0, GOLD[2])
+        if face.name == "bottom":
+            clear_all(face)
+
+    bones, top = humanoid(legs=13, body=(9, 14, 5), head=(8, 8, 8), arm=(4, 14, 4), leg=(4, 4),
+                          mats={"body": steel, "head": Material(CHAR, base=1.0, noise=0.4), "arm": steel.but(base=2.5),
+                                "leg": steel.but(base=2.4)},
+                          decals={"body": {"all": seams}, "arm": {"all": seams}, "leg": {"all": seams}})
+    head = bone(bones, "head")
+    head.add(Box([-4.5, top, -4.5], [9, 9, 9], steel.but(base=3.0), {"all": helm}),
+             Box([-0.5, top + 9, -3], [1, 2, 7], Material(GOLD, base=2.6, noise=0.4)),
+             Box([-0.5, top + 10, -1], [1, 3, 7], Material(CRIMSON, base=3.0, noise=0.6, grain="h"),
+                 {"sides": lambda f, r: ragged_edge(f, r, "right", 2, 0.5)}, rotation=[-20, 0, 0],
+                 pivot=[0, top + 10, 0]))
+    surcoat = Material(CRIMSON, base=2.6, noise=0.6, grain="v")
+
+    def coat(face, rng):
+        if face.name in ("front", "back"):
+            ragged_edge(face, rng, "bottom", 3, 0.5)
+            holes(face, rng, 1)
+            trim(face, GOLD[1], ("left", "right"))
+            if face.name == "front":
+                cx = face.cx
+                face.hline(cx - 2, 4, 4, GOLD[4])          # the crown of the Ashen King
+                for x in (cx - 2, cx, cx + 1):
+                    face.set(x, 3, GOLD[3])
+                face.set(cx - 1, 2, GOLD[4])
+        else:
+            clear_all(face)
+
+    body = bone(bones, "body")
+    body.add(Box([-3.5, 7, -2.8], [7, 16, 0], surcoat, {"all": coat}),
+             Box([-3.5, 7, 2.8], [7, 16, 0], surcoat, {"all": coat}),
+             Box([-5, 12, -3], [10, 3, 6], steel.but(base=2.0), {"all": lambda f, r: band(f, 1, GOLD[2])},
+                 inflate=0.3))
+    pauldron = Box([-9.5, top - 4, -3], [5, 4, 6], steel.but(base=3.2),
+                   {"all": lambda f, r: (seams(f, r), band(f, f.h - 1, GOLD[2]))}, inflate=0.3)
+    bone(bones, "right_arm").add(pauldron)
+    bone(bones, "left_arm").add(mirror_box(pauldron))
+
+    def edge(face, rng):
+        if face.name in ("top", "bottom"):
+            for y in range(face.h):
+                face.lit(0, y, EMBER, 0.8)
+                face.lit(face.w - 1, y, EMBER_DEEP, 0.6)
+        if face.side():
+            face.hline(0, 0, face.w, BLACK_STEEL[5])
+
+    bones.append(Bone("sword", [-6.5, 13, 0], "right_arm", None, [
+        Box([-7, 12, -22], [1, 3, 18], Material(BLACK_STEEL, base=3.6, noise=0.4), {"all": edge}),
+        Box([-7, 12.5, -23], [1, 2, 1], Material(BLACK_STEEL, base=4.0, noise=0.3)),
+        Box([-8.5, 12.5, -4], [4, 2, 1], Material(GOLD, base=2.6, noise=0.4)),
+        Box([-7, 12.5, -3], [1, 2, 3], Material(LEATHER, base=1.6, noise=0.4)),
+        Box([-7, 12.5, 0], [1, 2, 1], Material(GOLD, base=3.0, noise=0.3)),
+    ]))
+
+    def cut(windup, length, start, end, body_y=(0, 0)):
+        return anim(length, {
+            "right_arm": rot(0, ZERO, windup, start, windup + 0.1, end, length, ZERO),
+            "body": rot(0, ZERO, windup, [0, body_y[0], 0], windup + 0.1, [0, body_y[1], 0], length, ZERO),
+        }, loop=False)
+
+    animations = {
+        "misc.idle": idle(3.0, 2, 1),
+        "move.walk": walk(1.1, 22, 10, 0.4),
+        "attack.combo1": cut(0.3, 0.6, [-120, 0, 40], [-40, 0, -30], (30, -30)),
+        "attack.combo2": cut(0.25, 0.55, [-60, 0, -60], [-60, 0, 50], (-30, 35)),
+        "attack.combo3": cut(0.4, 0.8, [-170, 0, 0], [-20, 0, 0]),
+        "attack.crouch": anim(0.75, {
+            "body": rot(0, ZERO, 0.75, [25, 0, 0]),
+            "right_leg": rot(0, ZERO, 0.75, [-40, 0, 0]), "left_leg": rot(0, ZERO, 0.75, [30, 0, 0]),
+            "right_arm": rot(0, ZERO, 0.75, [40, 0, 0]),
+            "root": pos(0, ZERO, 0.75, [0, -3, 0]),
+        }, loop=False),
+        "attack.lunge": anim(0.5, {
+            "right_arm": rot(0, [40, 0, 0], 0.1, [-95, 0, 0], 0.5, ZERO),
+            "body": rot(0, [25, 0, 0], 0.1, [10, 0, 0], 0.5, ZERO),
+            "root": pos(0, [0, -3, 0], 0.2, ZERO),
+        }, loop=False),
+    }
+    write_model("smoldering_knight", bones, animations, [3, 3])
+
+
+CITADEL_MOBS = [
+    ("cinder_hound", cinder_hound), ("sparking_marksman", sparking_marksman),
+    ("furnace_golem", furnace_golem), ("smoldering_knight", smoldering_knight),
+]
+
+
 ZONE_MOBS = [
     ("cinder_husk", cinder_husk), ("ash_stalker", ash_stalker), ("ashen_carrion", ashen_carrion),
     ("withered_thrall", withered_thrall), ("lantern_hag", lantern_hag), ("bark_hollow", bark_hollow),
     ("restless_bones", restless_bones), ("crypt_moth", crypt_moth), ("hollow_sentinel", hollow_sentinel),
     ("grave_warden", grave_warden),
 ]
-MOBS = ZONE_MOBS
+MOBS = ZONE_MOBS + CITADEL_MOBS
 
 
 if __name__ == "__main__":

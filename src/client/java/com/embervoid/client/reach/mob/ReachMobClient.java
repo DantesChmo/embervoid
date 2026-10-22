@@ -1,13 +1,10 @@
 package com.embervoid.client.reach.mob;
 
 import com.embervoid.Embervoid;
-import com.embervoid.reach.mob.FireFlaskEntity;
 import com.embervoid.reach.mob.ReachMob;
 import com.embervoid.reach.mob.ReachMobs;
+import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.FlyingItemEntityRenderer;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EntityType;
 import net.minecraft.registry.Registries;
 import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
@@ -18,7 +15,7 @@ import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 /**
  * GeckoLib renderers for the Realm 1 mobs. Assets follow GeckoLib's default layout (see {@code MobRenderers});
- * greybox models come from {@code tools/mob_placeholders.py}. Bones a mob shows only at times
+ * models come from {@code tools/reach_mob_art.py}. Bones a mob shows only at times
  * ({@link ReachMob#toggledBones}) are hidden or shown every frame.
  */
 public final class ReachMobClient {
@@ -37,16 +34,8 @@ public final class ReachMobClient {
 		renderer(ReachMobs.SPARKING_MARKSMAN, true);
 		renderer(ReachMobs.FURNACE_GOLEM, false);
 		renderer(ReachMobs.SMOLDERING_KNIGHT, true);
-		// The flask flies as an item; once it is a fire patch it is invisible and only its particles show.
-		EntityRendererRegistry.register(ReachMobs.FIRE_FLASK, context -> new FlyingItemEntityRenderer<FireFlaskEntity>(context) {
-			@Override
-			public void render(FireFlaskEntity flask, float yaw, float tickDelta, MatrixStack matrices,
-					VertexConsumerProvider vertices, int light) {
-				if (!flask.isInvisible()) {
-					super.render(flask, yaw, tickDelta, matrices, vertices, light);
-				}
-			}
-		});
+		ModelLoadingPlugin.register(plugin -> plugin.addModels(FireFlaskRenderer.MODEL));
+		EntityRendererRegistry.register(ReachMobs.FIRE_FLASK, FireFlaskRenderer::new);
 	}
 
 	/** A GeckoLib renderer with the glowmask layer; {@code turnsHead}: the {@code head} bone follows the look. */

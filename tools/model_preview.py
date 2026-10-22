@@ -526,7 +526,7 @@ class Frame:
                         continue
                     z = p0[2] + za * a + zb * b
                     i = rowbase + px
-                    if z >= depth[i]:
+                    if z > depth[i] + 1e-7:  # GL_LEQUAL, as Minecraft draws entities
                         continue
                     if color is not None:
                         c = color(a, b)
@@ -673,7 +673,13 @@ def cube_quads(cube, bone_m, tex, glow, bone_inflate=0):
         "down": ((x1, y0, z0), (-w, 0, 0), (0, 0, d)),
     }
     out = []
-    for name, (u, v, du, dv) in face_uvs(cube).items():
+    faces = face_uvs(cube)
+    # GeckoLib's quad order (BakedModelFactory): with the depth test passing on equal depth, the later of two
+    # coincident faces (a zero-thickness plane) is the one that shows.
+    for name in ("west", "east", "north", "south", "up", "down"):
+        if name not in faces:
+            continue
+        u, v, du, dv = faces[name]
         p, ea, eb = geometry[name]
         out.append(Quad(apply(m, p), apply_dir(m, ea), apply_dir(m, eb), (u, v), (du, 0), (0, dv), tex, glow))
     return out
