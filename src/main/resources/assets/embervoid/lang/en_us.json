@@ -320,5 +320,7 @@
 	"embervoid.zone.ashen_reach.zone_a": "Ashen Fields",
 	"embervoid.zone.ashen_reach.zone_b": "Royal Woods",
 	"embervoid.zone.ashen_reach.zone_c": "Sunken Necropolis",
-	"embervoid.zone.ashen_reach.depths": "Smoldering Citadel"
+	"embervoid.zone.ashen_reach.depths": "Smoldering Citadel",
+	"item.embervoid.huntsmans_crossbow": "Huntsman's Crossbow",
+	"item.embervoid.huntsmans_crossbow.passive": "Slow to load; bolts hit harder, knock back hard and pierce a foe"
 }

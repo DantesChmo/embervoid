@@ -23,11 +23,15 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.HuskEntity;
 import net.minecraft.entity.projectile.ArrowEntity;
+import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.inventory.SimpleInventory;
+import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.loot.LootTable;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.registry.Registries;
@@ -333,6 +337,34 @@ public final class GearTests implements FabricGameTest {
 			GearAbilities.LUNGE.perform(world, player, player.getMainHandStack());
 			context.assertTrue(player.getVelocity().z > 1, "Lunge did not dash: velocity " + player.getVelocity());
 			context.assertTrue(Bleeding.level(far) == 2 && far.isOnFire(), "Lunge: bleeding " + Bleeding.level(far));
+		}, player);
+		TestPlayers.complete(context, player);
+	}
+
+	/** Huntsman's Crossbow: 2 s charge, and its bolts deal 1.5× with Punch III and pierce one mob. */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 100)
+	public void huntsmansCrossbowBolts(TestContext context) {
+		assertRecipe(context, "huntsmans_crossbow", GearWeapons.HUNTSMANS_CROSSBOW);
+		ItemStack crossbow = new ItemStack(GearWeapons.HUNTSMANS_CROSSBOW);
+		context.assertTrue(CrossbowItem.getPullTime(crossbow) == 40, "charge " + CrossbowItem.getPullTime(crossbow));
+		context.assertTrue(CrossbowItem.getPullTime(new ItemStack(Items.CROSSBOW)) == 25, "vanilla crossbow charge changed");
+
+		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
+		withPlayers(context, () -> {
+			NbtList projectiles = new NbtList();
+			projectiles.add(new ItemStack(Items.ARROW).writeNbt(new NbtCompound()));
+			crossbow.getOrCreateNbt().put("ChargedProjectiles", projectiles);
+			CrossbowItem.setCharged(crossbow, true);
+			player.setStackInHand(Hand.MAIN_HAND, crossbow);
+			CrossbowItem.shootAll(context.getWorld(), player, Hand.MAIN_HAND, crossbow, 3.15f, 0);
+			List<PersistentProjectileEntity> bolts = context.getWorld().getEntitiesByClass(PersistentProjectileEntity.class,
+					player.getBoundingBox().expand(4), bolt -> bolt.getOwner() == player);
+			context.assertTrue(bolts.size() == 1, "expected one bolt, got " + bolts.size());
+			PersistentProjectileEntity bolt = bolts.get(0);
+			context.assertTrue(Math.abs(bolt.getDamage() - 3.0) < 1e-6, "bolt damage " + bolt.getDamage() + ", expected 3.0");
+			context.assertTrue(bolt.getPunch() == 3 && bolt.getPierceLevel() == 1,
+					"punch " + bolt.getPunch() + ", pierce " + bolt.getPierceLevel());
+			bolt.discard();
 		}, player);
 		TestPlayers.complete(context, player);
 	}

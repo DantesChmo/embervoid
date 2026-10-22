@@ -146,10 +146,11 @@ public final class GearDataGen {
 			}
 
 			// Weapons: the boss's soul + 2 Smoldering Ingot + a part from its zone (a reaper's hoe, a crypt chain, a
-			// courtier's gilded blade).
+			// courtier's gilded blade, a hunter's crossbow). The crossbow's models are hand-written resources.
 			weapon(exporter, GearWeapons.ASHEN_SCYTHE, ASH_COLOSSUS_SOUL, Items.IRON_HOE);
 			weapon(exporter, GearWeapons.WARDENS_SCOURGE, CRYPT_KEEPER_SOUL, Items.CHAIN);
 			weapon(exporter, GearWeapons.ROYAL_ASH_RAPIER, SMOLDERING_LORD_SOUL, Items.GOLDEN_SWORD);
+			weapon(exporter, GearWeapons.HUNTSMANS_CROSSBOW, GRIEVING_TREE_SOUL, Items.CROSSBOW);
 
 			// DESIGN §10.11, built as recommended.
 			ShapelessRecipeJsonBuilder.create(RecipeCategory.MISC, ASH_OF_REMATCH)
