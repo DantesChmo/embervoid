@@ -285,7 +285,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 11.8 | **Chest loot + realm loot on mobs** | reach-gear | 11.3–11.7 | todo |
 | 11.9 | **Reliquary: data, sync, screen** | reliquary | — | done (GameTest; screen look and button position not seen) |
 | 11.10 | **Reliquary: remnant, stat points** | reliquary | 11.9 | done (GameTest) |
-| 11.11 | **8 artifacts** | reliquary | 11.10 | todo |
+| 11.11 | **8 artifacts** | reliquary | 11.10 | done (GameTest; textures and tooltips not seen) |
 | 11.12 | **6 rings** | reliquary | 11.9, 9.1 | todo |
 | 11.13 | **Accessory drops** | reliquary | 11.11, 11.12 | todo |
 
