@@ -189,5 +189,7 @@
 	"embervoid.reliquary.title": "Reliquary",
 	"embervoid.reliquary.button": "Reliquary (%s)",
 	"embervoid.reliquary.slot.artifact": "Artifact",
-	"embervoid.reliquary.slot.ring": "Ring"
+	"embervoid.reliquary.slot.ring": "Ring",
+	"embervoid.reliquary.when_worn": "When worn:",
+	"embervoid.reliquary.stat_points": "+%s %s"
 }

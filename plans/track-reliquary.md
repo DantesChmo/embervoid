@@ -8,8 +8,8 @@ Design: DESIGN §4.5 "Loot" (Artifacts, Rings, Reliquary). Owns `com.embervoid.r
 
 | Task | Status | Commit |
 |---|---|---|
-| 11.9 Reliquary: data, sync, screen | done | see git log |
-| 11.10 Remnant + stat points (hooks in `player`, `stats`) | todo | |
+| 11.9 Reliquary: data, sync, screen | merged | 3aa4b5a |
+| 11.10 Remnant + stat points (hooks in `player`, `stats`) | done | see git log |
 | 11.11 8 artifacts | todo | |
 | 11.12 6 rings | todo | |
 | 11.13 Accessory drops | todo | |
@@ -44,3 +44,23 @@ Design: DESIGN §4.5 "Loot" (Artifacts, Rings, Reliquary). Owns `com.embervoid.r
   no duplicates; unequip to inventory; leftovers handed back on join. `ReliquaryLayoutTest` (JUnit).
 - **Not seen:** the screen's look, the model, the button position on the inventory screen (no client launch).
 - Placeholder textures: `tools/reliquary_placeholders.py`.
+
+## 11.10 — remnant, stat points
+
+- **Hook in `player`** (own commit): `player.DeathStashes` — item stores outside the vanilla inventory register a
+  `Stash` (`takeAll`, `restore(index, stack)`, `isEmpty`) under an id. On death with `remnant.mode` `xp_and_items`
+  the Ash Remnant takes every stash with the inventory (a death with only accessories still leaves a remnant); with
+  `xp` / `off` stashes drop at the player like the inventory; `keepInventory` keeps them (attachment copied).
+  `AshRemnantEntity` saves stashes in NBT (`Stashes`: id → list of stacks with `Index`); reclaiming puts each stack
+  back through `restore`, what does not fit (slot taken, slot gone) goes to the inventory or the ground.
+- **Hook in `stats`** (own commit): `PlayerStats.BonusSource` / `registerBonusSource`; `bonus(player)`,
+  `effective(player, stat)`. `derived` / `derivedWith` include bonus points; `get`, `level`, `levelUpCost`,
+  `checkLevelUp` (stat cap) do not. A source calls `StatEffects.apply` when its bonus changes.
+- **Reliquary side:** `ArtifactItem` (stat points, tooltip), `ReliquaryEffects` registers the bonus source (worn
+  artifacts), `StatEffects.apply` on `ReliquaryManager.CHANGED`, and the Reliquary as stash `embervoid:reliquary`
+  (index = slot order, a recovered accessory goes back into its old slot when free).
+- Not done (follow-up): the Maiden's level-up screen still shows own stat values; derived numbers there include
+  artifact points.
+- **Tests:** accessories into the remnant and back (also through remnant NBT), accessories alone leave a remnant,
+  taken slot → inventory, keepInventory keeps them, bonus points change max health but not stat value, level or
+  cost (test-only bonus source; real artifacts in 11.11).

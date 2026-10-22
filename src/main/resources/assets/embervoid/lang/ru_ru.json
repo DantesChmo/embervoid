@@ -189,5 +189,7 @@
 	"embervoid.reliquary.title": "Реликварий",
 	"embervoid.reliquary.button": "Реликварий (%s)",
 	"embervoid.reliquary.slot.artifact": "Артефакт",
-	"embervoid.reliquary.slot.ring": "Кольцо"
+	"embervoid.reliquary.slot.ring": "Кольцо",
+	"embervoid.reliquary.when_worn": "Если надето:",
+	"embervoid.reliquary.stat_points": "+%s %s"
 }
