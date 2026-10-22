@@ -8,7 +8,9 @@ import com.embervoid.reach.boss.CryptKeeperEntity;
 import com.embervoid.reach.boss.ReachBossEntities;
 import com.embervoid.reach.boss.arena.ArenaFrame;
 import com.embervoid.reach.boss.arena.ReachArenas;
+import com.embervoid.reach.gear.GearConsumables;
 import com.embervoid.reach.mob.ReachMobs;
+import com.embervoid.registry.ModBlocks;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -114,6 +116,27 @@ public final class CryptKeeperTests implements FabricGameTest {
 						k.arena.finish();
 					});
 				});
+			});
+		});
+	}
+
+	/** In the dark, a fighter beside it with an Ember Lantern lit by Amber Lantern Oil lights it up: full damage. */
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "keeper_lantern_oil", tickLimit = PlacedFight.LOAD_LIMIT + 300)
+	public void litLanternCountsAsLight(TestContext context) {
+		Keeper.start(context, 5, new int[]{0, 3}, ReachArenas.WALKWAY_TOP, k -> {
+			ServerPlayerEntity player = k.player;
+			k.boss.setHealth(k.boss.getMaxHealth() * 0.59f);
+			k.arena.after(5, () -> {
+				context.assertTrue(k.fight.phase() == 1 && !k.boss.isLit(), "lit without a lantern");
+				player.setStackInHand(Hand.OFF_HAND, new ItemStack(ModBlocks.EMBER_LANTERN));
+				player.setStackInHand(Hand.MAIN_HAND, new ItemStack(GearConsumables.AMBER_LANTERN_OIL));
+				player.getMainHandStack().use(k.world(), player, Hand.MAIN_HAND);
+				context.assertTrue(GearConsumables.carriesLitLantern(player), "the lantern did not light");
+				context.assertTrue(k.boss.isLit(), "a lit lantern 3 blocks away does not light it");
+				float before = k.boss.getHealth();
+				k.boss.damage(player.getDamageSources().indirectMagic(player, player), 10);
+				context.assertTrue(Math.abs(before - k.boss.getHealth() - 10) < 0.01, "by the lantern it lost " + (before - k.boss.getHealth()));
+				k.arena.finish();
 			});
 		});
 	}
