@@ -41,7 +41,7 @@ public class SparkingMarksmanEntity extends ReachMob {
 
 	public SparkingMarksmanEntity(EntityType<? extends SparkingMarksmanEntity> type, World world) {
 		super(type, world);
-		experiencePoints = 20;
+		experiencePoints = 15;
 	}
 
 	public static DefaultAttributeContainer.Builder createAttributes() {

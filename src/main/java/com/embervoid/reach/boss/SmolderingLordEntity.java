@@ -98,7 +98,7 @@ public class SmolderingLordEntity extends ReachBoss {
 
 	public SmolderingLordEntity(EntityType<? extends SmolderingLordEntity> type, World world) {
 		super(type, world);
-		this.experiencePoints = 500;
+		this.experiencePoints = 300;
 	}
 
 	public static DefaultAttributeContainer.Builder createAttributes() {

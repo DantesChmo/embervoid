@@ -39,7 +39,7 @@ public class SmolderingKnightEntity extends ReachMob {
 
 	public SmolderingKnightEntity(EntityType<? extends SmolderingKnightEntity> type, World world) {
 		super(type, world);
-		experiencePoints = 80;
+		experiencePoints = 50;
 	}
 
 	public static DefaultAttributeContainer.Builder createAttributes() {

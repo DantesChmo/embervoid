@@ -96,7 +96,7 @@ public class AshColossusEntity extends ReachBoss {
 
 	public AshColossusEntity(EntityType<? extends AshColossusEntity> type, World world) {
 		super(type, world);
-		this.experiencePoints = 250;
+		this.experiencePoints = 150;
 	}
 
 	public static DefaultAttributeContainer.Builder createAttributes() {

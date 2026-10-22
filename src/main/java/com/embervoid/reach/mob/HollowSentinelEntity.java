@@ -49,7 +49,7 @@ public class HollowSentinelEntity extends ReachMob {
 
 	public HollowSentinelEntity(EntityType<? extends HollowSentinelEntity> type, World world) {
 		super(type, world);
-		experiencePoints = 30;
+		experiencePoints = 22;
 	}
 
 	public static DefaultAttributeContainer.Builder createAttributes() {

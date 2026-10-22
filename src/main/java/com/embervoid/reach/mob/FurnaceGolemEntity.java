@@ -37,7 +37,7 @@ public class FurnaceGolemEntity extends ReachMob {
 
 	public FurnaceGolemEntity(EntityType<? extends FurnaceGolemEntity> type, World world) {
 		super(type, world);
-		experiencePoints = 45;
+		experiencePoints = 30;
 	}
 
 	public static DefaultAttributeContainer.Builder createAttributes() {
