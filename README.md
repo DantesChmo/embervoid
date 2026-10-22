@@ -47,6 +47,19 @@ The mod reads `config/embervoid.json` (created with defaults on first launch). M
 | `leveling.statCap` | 99 | 10–999 | Highest value a stat can be levelled to |
 | `leveling.levelCap` | 0 | ≥ 0 | Highest character level reachable by leveling; 0 = no cap |
 | `realm.depthsOpen` | true | true, false | Whether an unsealed Sealed Gate leads into the depths (off: "the depths are still forming"; was off in 0.3.0) |
+| `boss.healthPerExtraFighter` | 0.5 | 0–10 | Boss health bonus per fighter beyond the first: HP × (1 + this·(n − 1)) |
+| `boss.addsPerExtraFighter` | 1 | 0–10 | Extra adds per fighter beyond the first |
+| `boss.addLevelOffset` | 3 | −50–50 | Level of a boss's adds relative to the boss |
+| `boss.targetSwitchMinSeconds` / `targetSwitchMaxSeconds` | 8 / 10 | 0.5–600 | How often a boss switches to another fighter |
+| `boss.repeatSoulChance` | 0.25 | 0–1 | Chance of the boss's soul for a fighter who has beaten it before (never in a rematch) |
+| `reachMobs.spawns.<mob>.weight` / `minGroup` / `maxGroup` | per mob | ≥ 0 | Natural spawns of Ashen Reach mobs in their zone; weight 0 turns a mob's spawning off |
+| `gear.bleeding.*`, `gear.smoldering.*`, `gear.sets.*`, `gear.uniques.*` | | | Bleeding (duration, levels, damage); Smoldering Plate fire reduction; armour set bonuses; unique pieces |
+| `gear.weapons.*`, `gear.crossbow.*`, `gear.consumables.*` | | | Realm weapons' passives and specials (stamina, cooldowns, reach effects); Huntsman's Crossbow; consumables |
+| `gear.loot.*` | | | Material, set-piece and unique-piece drop chances from Ashen Reach mobs |
+| `reliquary.slots.<kind>` | 2 | 0–8 | Reliquary slots per kind (`artifact`, `ring`) |
+| `reliquary.artifacts.points` / `sealPoints` | 3 / 1 | 0–99 | Stat points of a one-stat artifact / of the Seal of the Ashen King (each stat) |
+| `reliquary.rings.*` | | | Ring effects: sprint bonus, safe fall, fog clearing, Haste level, ignite seconds |
+| `reliquary.drops.chestArtifact` / `chestRing` / `eliteArtifact` / `eliteRing` | 0.08 / 0.05 / 0.02 / 0.01 | 0–1 | Accessory drop chances in treasure chests and from elites |
 | `moon.enabled` | true | true, false | Moon nights on or off |
 | `moon.cycleInterval` | 3 | 1–1000 | A moon-night cycle every N lunar cycles (8 days each); the world's first full moon never counts |
 | `moon.fallbackMinutes` | 30 | 1–1440 | Real-time minutes after which a moon night ends even if its goal is not met |
@@ -65,6 +78,9 @@ The mod reads `config/embervoid.json` (created with defaults on first launch). M
 | `vampire.bossCapNoRealm` | 20 | 1–999 | Highest Vampire boss level when nobody taking part has unlocked a realm |
 | `vampire.firstKillShards` | 2 | 0–64 | Flask Shards for a player's first Vampire kill |
 | `vampire.repeatShardChance` | 0.5 | 0–1 | Chance of one Flask Shard on later kills |
+
+Every key, with its current value, is written to `config/embervoid.json`; the grouped rows above list the sections
+whose keys are documented in the file itself.
 
 A "full point" follows the soft caps: stat values up to 20 count fully, 21–40 at half, 41–99 at a fifth.
 
@@ -89,5 +105,12 @@ Client preferences live in `config/embervoid-client.json` (same rules; never rea
 - `/embervoid moon status | start full | start blood | stop | setcycle <n> | curse <player> <stacks>` (operator) — moon nights: state, start or stop one now, jump the clock to cycle n, set Curse of the Night stacks.
 - `/embervoid wave status | spawn <players> | clear <players>` (operator) — full moon waves.
 - `/embervoid vampire status | provoke` (operator) — blood new moon Vampires and the Vampire fight.
+- `/embervoid realm enter <realm> [toShrine] | leave | where | arenas | roads | data | edge` (operator) — realm travel and layout: enter a realm, leave it, where you are, its boss arenas, roads and world edge.
+- `/embervoid progress attune | reset` (operator) — attune to the Sanctum / reset your realm progress.
+- `/embervoid boss fights` (operator) — running boss fights.
+- `/embervoid reliquary <player> [open|clear]` (operator) — show, open or empty a player's Reliquary.
+- `/embervoid gear bleed <targets> [stacks]` (operator) — add Bleeding levels as that many hits would.
+- `/embervoid moblevel <targets> [level]` (operator) — show mob levels (and the level a new spawn here would get), or override them.
+- `/embervoid perf ticks | chunks | entities` (operator) — tick time, loaded chunks and entity counts (used by `tools/server_check.py --perf`).
 - `/embervoid_client data` — show the player data as your client sees it.
 - `embervoid:debug_sweep` (dev environment only, `/give` or the creative tab) — test weapon for the special-attack framework: right-click does a knockback sweep for 30 stamina with a 1 s cooldown.
