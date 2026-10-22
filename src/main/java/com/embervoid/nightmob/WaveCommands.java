@@ -1,6 +1,6 @@
 package com.embervoid.nightmob;
 
-import com.embervoid.nightmob.moonstub.MoonNights;
+import com.embervoid.moon.api.MoonNights;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;

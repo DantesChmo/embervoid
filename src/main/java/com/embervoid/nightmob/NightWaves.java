@@ -2,9 +2,9 @@ package com.embervoid.nightmob;
 
 import com.embervoid.Embervoid;
 import com.embervoid.mob.MobLevels;
-import com.embervoid.nightmob.moonstub.CurseOfTheNight;
-import com.embervoid.nightmob.moonstub.MoonNight;
-import com.embervoid.nightmob.moonstub.MoonNights;
+import com.embervoid.moon.api.CurseOfTheNight;
+import com.embervoid.moon.api.MoonNight;
+import com.embervoid.moon.api.MoonNights;
 import com.embervoid.sanctum.SanctumItems;
 import com.mojang.serialization.Codec;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
