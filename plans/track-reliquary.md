@@ -10,8 +10,8 @@ Design: DESIGN §4.5 "Loot" (Artifacts, Rings, Reliquary). Owns `com.embervoid.r
 |---|---|---|
 | 11.9 Reliquary: data, sync, screen | merged | 3aa4b5a |
 | 11.10 Remnant + stat points (hooks in `player`, `stats`) | merge requested | da98386 |
-| 11.11 8 artifacts | done | see git log |
-| 11.12 6 rings | todo | |
+| 11.11 8 artifacts | merge requested | 2ff719e |
+| 11.12 6 rings | done | see git log |
 | 11.13 Accessory drops | todo | |
 
 ## 11.9 — data, sync, screen
@@ -76,3 +76,26 @@ Design: DESIGN §4.5 "Loot" (Artifacts, Rings, Reliquary). Owns `com.embervoid.r
   `tools/reliquary_placeholders.py`.
 - **Test:** every artifact is in the tag and only fits artifact slots; worn, it raises exactly its stats by the
   config points (`effective`), own values, level and cost unchanged, max health / luck follow; two stack; off restores.
+
+## 11.12 — rings
+
+`RingItem` (flavour + effect line in the tooltip), `RingEffects` (logic, both sides where the client moves its own
+player), mixins `ReliquaryLivingEntityMixin` / `ReliquaryPlayerEntityMixin`, numbers in config `reliquary.rings`.
+
+| Ring | Zone | How |
+|---|---|---|
+| Courier's Ring | Fields | movement speed modifier ×1.15 (MULTIPLY_TOTAL, on top of vanilla sprint), added/removed in `setSprinting` (both sides) and on ring change |
+| Ring of Ash Feathers | Fields | fall distance −5 before vanilla's 3 (no damage up to 8 blocks, 5 less beyond); client caps fall speed at 0.5 b/t — decided: not while sneaking, flying, gliding, swimming, climbing |
+| Ring of the Fog Stalker | Woods | client: `RealmFog.setClearing(embervoid:ring/fog_stalker, 2)` (9.1 API, already on main); arena fog is not clearable, so arenas are unaffected |
+| Delver's Ring | Woods | `getBlockBreakingSpeed` ×1.2 (Haste I) on `#embervoid:realm_ores`, both sides; no status icon |
+| Drowned Man's Ring | Necropolis | `canBreatheInWater` true |
+| Ring of Embers | Citadel | `ALLOW_DAMAGE`: the wearer's direct melee hit (player attack) sets the target on fire 2 s |
+
+- `#embervoid:realm_ores` is reach-world's (9.5, not merged yet): an empty tag until then. The gametest mod adds
+  `minecraft:iron_ore` to it (optional entry) for the Delver's test.
+- Gametest-only accessor `gametest.mixin.ServerPlayerEntityAccessor` (join invulnerability: test players never tick).
+- Effect lines in the tooltip name the default numbers (15 %, 8 blocks, 2 s).
+- **Tests:** rings fit ring slots only; Courier's speed while sprinting, not walking, removed with the ring; Ash
+  Feathers fall damage (7.9 free, 10 → 2) and the fall cap rules; Fog Stalker factor; Delver's ×1.2 on a realm ore,
+  not on stone; Drowned Man's air under water (base ticks run by the test); Ring of Embers ignites on melee.
+- **Not seen:** the slow fall feel, the fog clearing on screen.

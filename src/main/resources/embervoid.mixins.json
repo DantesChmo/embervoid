@@ -13,7 +13,9 @@
 		"SinglePoolElementMixin",
 		"TrackTargetGoalMixin",
 		"PlayerEntityVampirismMixin",
-		"GearLivingEntityMixin"
+		"GearLivingEntityMixin",
+		"ReliquaryLivingEntityMixin",
+		"ReliquaryPlayerEntityMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
