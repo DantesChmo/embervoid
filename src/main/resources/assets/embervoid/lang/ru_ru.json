@@ -84,6 +84,7 @@
 	"biome.embervoid.ashen_reach_zone_c": "Провалившийся некрополь",
 	"biome.embervoid.ashen_reach_depths": "Тлеющая цитадель",
 	"embervoid.realm.locked": "Пламя ещё не достигло этого мира",
+	"embervoid.realm.forming": "Пламя горит, но путь дальше ещё не сложился",
 	"embervoid.realm.gate.open": "Запечатанные врата поддаются",
 	"embervoid.realm.gate.sealed": "Врата запечатаны. Стражей осталось: %s",
 	"embervoid.realm.gate.forming": "Врата поддаются, но глубины за ними ещё не обрели форму",

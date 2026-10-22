@@ -36,8 +36,13 @@ public final class RealmTeleports {
 	 */
 	public static boolean enterRealm(ServerPlayerEntity player, Identifier realmId, boolean toLastShrine) {
 		RealmDefinition realm = Realms.byId(realmId);
-		if (realm == null || !ProgressManager.isRealmUnlocked(player, realmId)) {
+		if (!ProgressManager.isRealmUnlocked(player, realmId)) {
 			player.sendMessage(Text.translatable("embervoid.realm.locked"), true);
+			return false;
+		}
+		if (realm == null) {
+			// Unlocked by the previous realm's boss, but not built yet.
+			player.sendMessage(Text.translatable("embervoid.realm.forming"), true);
 			return false;
 		}
 		RealmPlayerData data = RealmPlayerData.get(player);

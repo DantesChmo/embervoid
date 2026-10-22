@@ -14,6 +14,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 /**
  * The {@code progress} API: per-player attunement, unlocked / completed realms and beaten bosses.
@@ -28,6 +31,12 @@ public final class ProgressManager {
 
 	/** The first realm; unlocked for every player on attunement. Its content is owned by the realms track. */
 	public static final Identifier REALM_1 = Embervoid.id("realm_1");
+	/**
+	 * The realms of the Sanctum's obelisks, in order (DESIGN §4.4). Only Realm 1 is built; the others can still be
+	 * unlocked, so their obelisk lights up before its realm exists.
+	 */
+	public static final List<Identifier> REALM_ORDER = List.of(REALM_1, Embervoid.id("realm_2"),
+			Embervoid.id("realm_3"), Embervoid.id("realm_4"));
 
 	// Persistent and copied on death. Dimension changes keep the player entity; the client gets a resync.
 	@SuppressWarnings("UnstableApiUsage")
@@ -75,6 +84,13 @@ public final class ProgressManager {
 
 	public static boolean hasBeatenBoss(PlayerEntity player, Identifier boss) {
 		return get(player).hasBeatenBoss(boss);
+	}
+
+	/** The realm after {@code realm} in {@link #REALM_ORDER}, or null for the last one or an unknown id. */
+	@Nullable
+	public static Identifier nextRealm(Identifier realm) {
+		int index = REALM_ORDER.indexOf(realm);
+		return index >= 0 && index + 1 < REALM_ORDER.size() ? REALM_ORDER.get(index + 1) : null;
 	}
 
 	/** Attunes the player and unlocks {@link #REALM_1}. Returns false if they were already attuned. */

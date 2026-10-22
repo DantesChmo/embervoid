@@ -553,9 +553,10 @@ public class BossFight {
 
 	private static void completeRealm(ServerPlayerEntity player, RealmDefinition realm) {
 		ProgressManager.completeRealm(player, realm.id());
-		int index = Realms.ALL.indexOf(realm);
-		if (index >= 0 && index + 1 < Realms.ALL.size()) {
-			ProgressManager.unlockRealm(player, Realms.ALL.get(index + 1).id());
+		// The next obelisk lights up even while its realm is not built yet.
+		Identifier next = ProgressManager.nextRealm(realm.id());
+		if (next != null) {
+			ProgressManager.unlockRealm(player, next);
 		}
 		player.sendMessage(Text.translatable("embervoid.realm.completed"), false);
 	}
