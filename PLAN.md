@@ -323,7 +323,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 12.2 | **Three arenas built** | 9.4 | done (GameTest on the templates; used in the world once 9.4 lands; looks not seen) |
 | 12.3 | **Crypt Keeper** (first: riskiest) | 12.1, 12.2 | done (GameTest + server check; model, telegraphs, darkness and flood looks not seen) |
 | 12.4 | **Ash Colossus** | 12.1, 12.2 | done (GameTest + server check; model, storm and cinders not seen) |
-| 12.5 | **Grieving Tree** | 12.1, 12.2 | todo |
+| 12.5 | **Grieving Tree** | 12.1, 12.2 | done (GameTest + server check; model, lanterns and grove fog not seen) |
 | 12.6 | **Souls and Flask Shards** | 11.1 | todo |
 | 12.7 | **Ash of Rematch** (DESIGN §10.11 as recommended) | 11.1, 12.6 | todo |
 
