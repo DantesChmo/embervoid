@@ -2,6 +2,8 @@ package com.embervoid.gametest;
 
 import com.embervoid.Embervoid;
 import com.embervoid.mob.MobLevels;
+import com.embervoid.reach.gear.GearItems;
+import com.embervoid.reach.world.ReachBlocks;
 import com.embervoid.reach.world.ReachZones;
 import com.embervoid.reach.world.ZoneTitles;
 import com.embervoid.realm.RealmArenas;
@@ -16,11 +18,15 @@ import com.embervoid.realm.worldgen.RealmFeaturePiece;
 import com.embervoid.sanctum.SanctumBlocks;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.SharedConstants;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtInt;
@@ -46,6 +52,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.SpawnSettings;
+import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.structure.Structure;
 
@@ -253,6 +260,71 @@ public final class ReachWorldTests implements FabricGameTest {
 			context.assertTrue(realm.getBlockState(piece.shrinePos()).isOf(SanctumBlocks.EMBER_SHRINE),
 					name + ": no shrine at " + piece.shrinePos());
 			context.assertTrue(checked > 100, name + ": only " + checked + " floor columns checked");
+		}
+		context.complete();
+	}
+	/** Ore drops (PLAN 9.5): counts per DESIGN §4.5, and the pickaxe each ore needs. */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void oresDropTheirMaterials(TestContext context) {
+		ServerWorld world = context.getWorld();
+		BlockPos pos = context.getAbsolutePos(new BlockPos(1, 2, 1));
+		ItemStack iron = new ItemStack(Items.IRON_PICKAXE);
+		ItemStack diamond = new ItemStack(Items.DIAMOND_PICKAXE);
+		for (int i = 0; i < 20; i++) {
+			assertDrop(context, world, pos, ReachBlocks.CINDER_ORE, iron, GearItems.CINDER_SHARD, 1, 3);
+			assertDrop(context, world, pos, ReachBlocks.AMBER_VEIN, iron, GearItems.ROYAL_AMBER, 1, 2);
+			assertDrop(context, world, pos, ReachBlocks.GRAVE_IRON_ORE, diamond, GearItems.RAW_GRAVE_IRON, 1, 1);
+		}
+		context.assertTrue(iron.isSuitableFor(ReachBlocks.CINDER_ORE.getDefaultState())
+				&& iron.isSuitableFor(ReachBlocks.AMBER_VEIN.getDefaultState()), "an iron pickaxe cannot mine cinder / amber");
+		context.assertTrue(!new ItemStack(Items.STONE_PICKAXE).isSuitableFor(ReachBlocks.CINDER_ORE.getDefaultState()),
+				"a stone pickaxe mines cinder ore");
+		context.assertTrue(!iron.isSuitableFor(ReachBlocks.GRAVE_IRON_ORE.getDefaultState())
+				&& diamond.isSuitableFor(ReachBlocks.GRAVE_IRON_ORE.getDefaultState()), "grave iron is not a diamond-tier ore");
+		for (Block ore : ReachBlocks.ORES) {
+			context.assertTrue(ore.getDefaultState().isIn(ReachBlocks.REALM_ORES), ore + " is not in embervoid:realm_ores");
+		}
+		context.complete();
+	}
+
+	private static void assertDrop(TestContext context, ServerWorld world, BlockPos pos, Block ore, ItemStack tool,
+			Item item, int min, int max) {
+		List<ItemStack> drops = Block.getDroppedStacks(ore.getDefaultState(), world, pos, null, null, tool);
+		int count = drops.stream().filter(stack -> stack.isOf(item)).mapToInt(ItemStack::getCount).sum();
+		context.assertTrue(drops.size() == 1 && count >= min && count <= max,
+				ore + " dropped " + drops + ", expected " + min + "–" + max + " " + item);
+	}
+
+	/** Each zone ore generates in its own zone only (PLAN 9.5). */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 2400)
+	public void zoneOresStayInTheirZone(TestContext context) {
+		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
+		// Sector centres: start angle −90°, three 120° sectors.
+		double[] centres = {-30, 90, 210};
+		for (int zone = 0; zone < 3; zone++) {
+			int[] counts = new int[ReachBlocks.ORES.size()];
+			double a = Math.toRadians(centres[zone]);
+			for (int k = 0; k < 4; k++) {
+				int x = (int) (Math.cos(a) * 350) + (k % 2) * 16;
+				int z = (int) (Math.sin(a) * 350) + (k / 2) * 16;
+				WorldChunk chunk = realm.getChunk(x >> 4, z >> 4);
+				BlockPos.Mutable pos = new BlockPos.Mutable();
+				for (int dx = 0; dx < 16; dx++) {
+					for (int dz = 0; dz < 16; dz++) {
+						for (int y = realm.getBottomY(); y < 120; y++) {
+							BlockState state = chunk.getBlockState(pos.set(dx, y, dz));
+							int ore = ReachBlocks.ORES.indexOf(state.getBlock());
+							if (ore >= 0) {
+								counts[ore]++;
+							}
+						}
+					}
+				}
+			}
+			String found = "zone " + zone + ": cinder " + counts[0] + ", amber " + counts[1] + ", grave iron " + counts[2];
+			for (int ore = 0; ore < counts.length; ore++) {
+				context.assertTrue(ore == zone ? counts[ore] > 0 : counts[ore] == 0, found);
+			}
 		}
 		context.complete();
 	}

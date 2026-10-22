@@ -1,0 +1,80 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "embervoid:block/milestone",
+    "front": "embervoid:block/milestone_front",
+    "side": "embervoid:block/milestone",
+    "top": "embervoid:block/milestone_top"
+  },
+  "elements": [
+    {
+      "from": [
+        3,
+        0,
+        3
+      ],
+      "to": [
+        13,
+        14,
+        13
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3,
+            2,
+            13,
+            16
+          ],
+          "texture": "#front"
+        },
+        "south": {
+          "uv": [
+            3,
+            2,
+            13,
+            16
+          ],
+          "texture": "#side"
+        },
+        "east": {
+          "uv": [
+            3,
+            2,
+            13,
+            16
+          ],
+          "texture": "#side"
+        },
+        "west": {
+          "uv": [
+            3,
+            2,
+            13,
+            16
+          ],
+          "texture": "#side"
+        },
+        "up": {
+          "uv": [
+            3,
+            3,
+            13,
+            13
+          ],
+          "texture": "#top"
+        },
+        "down": {
+          "uv": [
+            3,
+            3,
+            13,
+            13
+          ],
+          "texture": "#top",
+          "cullface": "down"
+        }
+      }
+    }
+  ]
+}

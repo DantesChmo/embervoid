@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "embervoid:block/smoldering_log_horizontal",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "embervoid:block/smoldering_log"
+    },
+    "axis=z": {
+      "model": "embervoid:block/smoldering_log_horizontal",
+      "x": 90
+    }
+  }
+}

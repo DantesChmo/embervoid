@@ -323,5 +323,14 @@
 	"embervoid.zone.ashen_reach.zone_c": "Провалившийся некрополь",
 	"embervoid.zone.ashen_reach.depths": "Тлеющая цитадель",
 	"item.embervoid.huntsmans_crossbow": "Арбалет королевского ловчего",
-	"item.embervoid.huntsmans_crossbow.passive": "Долго заряжается; болты бьют сильнее, мощно отбрасывают и пробивают врага"
+	"item.embervoid.huntsmans_crossbow.passive": "Долго заряжается; болты бьют сильнее, мощно отбрасывают и пробивают врага",
+	"block.embervoid.burnt_straw": "Горелая солома",
+	"block.embervoid.milestone": "Верстовой камень",
+	"block.embervoid.gravestone": "Надгробие",
+	"block.embervoid.ember_crack": "Тлеющая трещина",
+	"block.embervoid.smoldering_log": "Тлеющее бревно",
+	"block.embervoid.wet_crypt_stone": "Сырой склепный камень",
+	"block.embervoid.cinder_ore": "Зольная руда",
+	"block.embervoid.amber_vein": "Янтарная жила",
+	"block.embervoid.grave_iron_ore": "Могильная железная руда"
 }

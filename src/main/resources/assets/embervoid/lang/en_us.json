@@ -323,5 +323,14 @@
 	"embervoid.zone.ashen_reach.zone_c": "Sunken Necropolis",
 	"embervoid.zone.ashen_reach.depths": "Smoldering Citadel",
 	"item.embervoid.huntsmans_crossbow": "Huntsman's Crossbow",
-	"item.embervoid.huntsmans_crossbow.passive": "Slow to load; bolts hit harder, knock back hard and pierce a foe"
+	"item.embervoid.huntsmans_crossbow.passive": "Slow to load; bolts hit harder, knock back hard and pierce a foe",
+	"block.embervoid.burnt_straw": "Burnt Straw",
+	"block.embervoid.milestone": "Milestone",
+	"block.embervoid.gravestone": "Gravestone",
+	"block.embervoid.ember_crack": "Ember Crack",
+	"block.embervoid.smoldering_log": "Smoldering Log",
+	"block.embervoid.wet_crypt_stone": "Wet Crypt Stone",
+	"block.embervoid.cinder_ore": "Cinder Ore",
+	"block.embervoid.amber_vein": "Amber Vein",
+	"block.embervoid.grave_iron_ore": "Grave Iron Ore"
 }

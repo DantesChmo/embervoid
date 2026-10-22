@@ -19,6 +19,13 @@
     "embervoid:ash_brick_wall",
     "embervoid:cracked_ash_bricks",
     "embervoid:chiseled_ash_stone",
-    "embervoid:ember_lantern"
+    "embervoid:ember_lantern",
+    "embervoid:milestone",
+    "embervoid:gravestone",
+    "embervoid:ember_crack",
+    "embervoid:wet_crypt_stone",
+    "embervoid:cinder_ore",
+    "embervoid:amber_vein",
+    "embervoid:grave_iron_ore"
   ]
 }

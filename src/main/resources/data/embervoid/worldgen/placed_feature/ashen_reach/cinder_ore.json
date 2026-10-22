@@ -1,0 +1,27 @@
+{
+  "feature": "embervoid:ashen_reach/cinder_ore",
+  "placement": [
+    {
+      "type": "minecraft:count",
+      "count": 14
+    },
+    {
+      "type": "minecraft:in_square"
+    },
+    {
+      "type": "minecraft:height_range",
+      "height": {
+        "type": "minecraft:trapezoid",
+        "min_inclusive": {
+          "absolute": 4
+        },
+        "max_inclusive": {
+          "absolute": 80
+        }
+      }
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}
