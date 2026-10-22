@@ -187,8 +187,10 @@ final class BossArena {
 			}
 		}
 		for (ServerPlayerEntity player : players) {
-			if (server.getPlayerManager().getPlayer(player.getUuid()) == player) {
-				server.getPlayerManager().remove(player);
+			// By UUID: a player who died and respawned is a new entity.
+			ServerPlayerEntity current = server.getPlayerManager().getPlayer(player.getUuid());
+			if (current != null) {
+				server.getPlayerManager().remove(current);
 			}
 		}
 		for (Map.Entry<ServerWorld, ChunkPos> chunk : forced) {

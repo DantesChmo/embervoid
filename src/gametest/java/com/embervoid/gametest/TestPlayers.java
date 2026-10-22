@@ -26,9 +26,14 @@ final class TestPlayers {
 		return player;
 	}
 
-	/** Respawns a dead player the way the death screen does; the returned player replaces {@code player}. */
+	/**
+	 * Respawns a dead player the way the death screen does; the returned player replaces {@code player}. As in vanilla,
+	 * the connection is handed to the new player only after the respawn (and its events) is done.
+	 */
 	static ServerPlayerEntity respawn(ServerPlayerEntity player) {
-		return player.getServer().getPlayerManager().respawnPlayer(player, false);
+		ServerPlayerEntity respawned = player.getServer().getPlayerManager().respawnPlayer(player, false);
+		respawned.networkHandler.player = respawned;
+		return respawned;
 	}
 
 	/** Removes the players from the server and completes the test. */
