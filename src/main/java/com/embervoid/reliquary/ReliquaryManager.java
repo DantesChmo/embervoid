@@ -18,6 +18,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -225,6 +226,8 @@ public final class ReliquaryManager {
 						new ReliquaryInventory(player, slots));
 			}
 		});
+		player.getWorld().playSound(null, player.getX(), player.getY(), player.getZ(), ReliquarySounds.OPEN, SoundCategory.PLAYERS,
+				1.0f, 1.0f);
 	}
 
 	public static void register() {
