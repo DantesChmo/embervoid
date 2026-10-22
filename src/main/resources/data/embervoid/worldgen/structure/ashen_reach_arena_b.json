@@ -9,10 +9,10 @@
     "id": "embervoid:ashen_reach/zone_b",
     "entity": "embervoid:test_boss",
     "level": 21,
-    "radius": 20
+    "radius": 48
   },
   "site": {
-    "radius": 52,
+    "radius": 56,
     "height_offset": 0,
     "ground": {
       "Name": "minecraft:podzol",

@@ -103,16 +103,16 @@ public class RealmFeaturePiece extends StructurePiece {
 		return site;
 	}
 
-	/** Where the feature's Ember Shrine stands: the landing's center, or outside an arena towards the landing. */
+	/**
+	 * Where the feature's Ember Shrine stands: the landing's center, or outside an arena on the arena's north axis
+	 * (the side turned towards the landing, see {@link #rotationTowardsLanding}), {@value #SHRINE_DISTANCE} blocks past
+	 * the fog wall. Arena templates build the shrine platform there.
+	 */
 	public BlockPos shrinePos() {
 		if (kind == RealmFeatureStructure.Kind.LANDING) {
 			return center.up();
 		}
-		double length = Math.sqrt((double) center.getX() * center.getX() + (double) center.getZ() * center.getZ());
-		double dx = length < 1 ? 1 : -center.getX() / length;
-		double dz = length < 1 ? 0 : -center.getZ() / length;
-		int d = radius + SHRINE_DISTANCE;
-		return center.add((int) Math.round(dx * d), 1, (int) Math.round(dz * d));
+		return center.add(new BlockPos(0, 1, -(radius + SHRINE_DISTANCE)).rotate(rotationTowardsLanding()));
 	}
 
 	@Override
@@ -230,8 +230,8 @@ public class RealmFeaturePiece extends StructurePiece {
 		template.place(world, origin, origin, data, random, 2);
 	}
 
-	/** Rotation that turns a template's north (−Z) side towards the landing. */
-	BlockRotation rotationTowardsLanding() {
+	/** Rotation that turns a template's north (−Z) side towards the landing, in 90° steps. */
+	public BlockRotation rotationTowardsLanding() {
 		int dx = -center.getX();
 		int dz = -center.getZ();
 		if (Math.abs(dx) > Math.abs(dz)) {

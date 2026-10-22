@@ -9,10 +9,10 @@
     "id": "embervoid:ashen_reach/zone_a",
     "entity": "embervoid:test_boss",
     "level": 18,
-    "radius": 20
+    "radius": 40
   },
   "site": {
-    "radius": 44,
+    "radius": 48,
     "height_offset": -8,
     "ground": {
       "Name": "embervoid:ash_soil"

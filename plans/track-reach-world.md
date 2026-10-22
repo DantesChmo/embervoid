@@ -85,11 +85,13 @@ Owns `com.embervoid.realm` (incl. `realm.worldgen`, `realm.fog`), `com.embervoid
 - Arena sites: optional `site` in the arena structure JSON (`realm.worldgen.ArenaSite`: radius, height offset,
   ground block, template). The floor height is the median of the ground at the centre and 8 points at ⅔ of the site
   radius, plus the offset; the piece fills the site down to the terrain, clears it to the sky (64 up) and terrain
-  adaptation (`beard_box` for the sunken ones) blends the slopes. Fields r 44, −8 (crater); Woods r 52, 0; Necropolis
-  r 36, −18 (sinkhole).
+  adaptation (`beard_box` for the sunken ones) blends the slopes. Site r / offset: Fields 48, −8 (crater); Woods 56, 0;
+  Necropolis 40, −18 (sinkhole; the template's rim is at y 18). Fog wall r 40 / 48 / 32, levels 18 / 21 / 24 (from
+  reach-bosses' 12.2 numbers).
 - Arena template hand-over (track reach-bosses): `embervoid:ashen_reach/arena_fields|arena_woods|arena_necropolis`
   under `data/embervoid/structures/`; placed centred on the site, its y = 0 layer at the floor, its north (−Z) side
-  turned towards the landing, with the placed-enemy processor. The code shrine still goes to `shrinePos()` (fog radius
-  + 4 towards the landing). Without a template the placeholder disc stands on the site.
+  turned towards the landing in 90° steps (`RealmFeaturePiece.rotationTowardsLanding`, same rule as reach-bosses'
+  `ArenaFrame`), with the placed-enemy processor. The code puts the shrine block at `shrinePos()` = centre +
+  rotated (0, 1, −(fog r + 4)), on the template's north axis. Without a template the placeholder disc stands there.
 - GameTest: each arena start made and placed at its real position (the test world does not generate structures); the
   site is solid at the floor and open for 12 blocks above. Server check passes (realm, arenas, depths generate).

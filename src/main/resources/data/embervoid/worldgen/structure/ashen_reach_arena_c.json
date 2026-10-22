@@ -8,11 +8,11 @@
   "boss": {
     "id": "embervoid:ashen_reach/zone_c",
     "entity": "embervoid:test_boss",
-    "level": 25,
-    "radius": 20
+    "level": 24,
+    "radius": 32
   },
   "site": {
-    "radius": 36,
+    "radius": 40,
     "height_offset": -18,
     "ground": {
       "Name": "minecraft:gravel"
