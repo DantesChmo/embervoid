@@ -44,11 +44,12 @@ public final class MoonNightManager {
 			end(server, state, EndReason.TIMEOUT);
 			return;
 		}
-		long lastHeldTime = MoonSchedule.dawnOf(state.nightDay) - 1;
 		if (!state.holds.isEmpty()) {
-			// Held: the clock stops just before dawn (also undoing a /time set past it).
-			if (time > lastHeldTime) {
-				overworld.setTimeOfDay(lastHeldTime);
+			// Held: the clock stops just before dawn (also undoing a /time set past it). This runs after the worlds
+			// ticked, so set it two ticks short: the next tick's advance then reaches dawn - 1, never dawn itself.
+			long heldTime = MoonSchedule.dawnOf(state.nightDay) - 2;
+			if (time > heldTime) {
+				overworld.setTimeOfDay(heldTime);
 			}
 			return;
 		}
