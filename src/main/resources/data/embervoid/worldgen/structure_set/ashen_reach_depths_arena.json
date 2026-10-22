@@ -2,9 +2,10 @@
   "placement": {
     "type": "embervoid:realm_feature",
     "salt": 718221,
-    "angle_spread": 1.0,
-    "min_distance": 160,
-    "max_distance": 260
+    "start_angle": 90.001,
+    "angle_spread": 0.0,
+    "min_distance": 192,
+    "max_distance": 192
   },
   "structures": [
     {
