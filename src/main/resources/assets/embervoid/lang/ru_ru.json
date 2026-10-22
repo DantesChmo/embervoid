@@ -314,5 +314,7 @@
 	"item.embervoid.royal_ash_rapier.passive": "Досягаемость 2,5; каждый удар усиливает кровотечение и поджигает цель",
 	"embervoid.ability.harvest": "Жатва",
 	"embervoid.ability.lash": "Хлёст",
-	"embervoid.ability.lunge": "Выпад"
+	"embervoid.ability.lunge": "Выпад",
+	"item.embervoid.huntsmans_crossbow": "Арбалет королевского ловчего",
+	"item.embervoid.huntsmans_crossbow.passive": "Долго заряжается; болты бьют сильнее, мощно отбрасывают и пробивают врага"
 }

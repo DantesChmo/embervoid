@@ -14,21 +14,25 @@ import com.google.gson.JsonObject;
  * @param sets       the mob-drop set bonuses
  * @param uniques    the unique armor pieces
  * @param weapons    the unique weapons' passives and special attacks (base damage, speed and reach are in code)
+ * @param crossbow   Huntsman's Crossbow
  */
-public record GearConfig(Bleeding bleeding, Smoldering smoldering, Sets sets, Uniques uniques, Weapons weapons) {
+public record GearConfig(Bleeding bleeding, Smoldering smoldering, Sets sets, Uniques uniques, Weapons weapons,
+		Crossbow crossbow) {
 	private static final GearConfig DEFAULTS = new GearConfig(Bleeding.DEFAULTS, Smoldering.DEFAULTS, Sets.DEFAULTS,
-			Uniques.DEFAULTS, Weapons.DEFAULTS);
+			Uniques.DEFAULTS, Weapons.DEFAULTS, Crossbow.DEFAULTS);
 
 	public static final ConfigSection<GearConfig> SECTION = EmbervoidConfig.register(ConfigSection.of(
 			"gear", DEFAULTS,
 			in -> new GearConfig(Bleeding.read(in.section("bleeding")), Smoldering.read(in.section("smoldering")),
-					Sets.read(in.section("sets")), Uniques.read(in.section("uniques")), Weapons.read(in.section("weapons"))),
+					Sets.read(in.section("sets")), Uniques.read(in.section("uniques")), Weapons.read(in.section("weapons")),
+					Crossbow.read(in.section("crossbow"))),
 			(value, out) -> {
 				out.add("bleeding", value.bleeding.write());
 				out.add("smoldering", value.smoldering.write());
 				out.add("sets", value.sets.write());
 				out.add("uniques", value.uniques.write());
 				out.add("weapons", value.weapons.write());
+				out.add("crossbow", value.crossbow.write());
 			}));
 
 	public static GearConfig get() {
@@ -196,6 +200,33 @@ public record GearConfig(Bleeding bleeding, Smoldering smoldering, Sets sets, Un
 			out.addProperty("lungeDash", lungeDash);
 			out.addProperty("lungeStamina", lungeStamina);
 			out.addProperty("lungeCooldown", lungeCooldown);
+			return out;
+		}
+	}
+
+	/**
+	 * @param chargeTicks          charge time without Quick Charge (vanilla 25)
+	 * @param boltDamageMultiplier bolt damage against a vanilla crossbow's
+	 * @param punch                knockback level of the bolts (Punch)
+	 * @param pierce               extra mobs a bolt passes through
+	 */
+	public record Crossbow(int chargeTicks, float boltDamageMultiplier, int punch, int pierce) {
+		static final Crossbow DEFAULTS = new Crossbow(40, 1.5f, 3, 1);
+
+		static Crossbow read(SectionReader in) {
+			return new Crossbow(
+					in.readInt("chargeTicks", DEFAULTS.chargeTicks, 5, 200),
+					in.readFloat("boltDamageMultiplier", DEFAULTS.boltDamageMultiplier, 0, 10),
+					in.readInt("punch", DEFAULTS.punch, 0, 10),
+					in.readInt("pierce", DEFAULTS.pierce, 0, 10));
+		}
+
+		JsonObject write() {
+			JsonObject out = new JsonObject();
+			out.addProperty("chargeTicks", chargeTicks);
+			out.addProperty("boltDamageMultiplier", boltDamageMultiplier);
+			out.addProperty("punch", punch);
+			out.addProperty("pierce", pierce);
 			return out;
 		}
 	}

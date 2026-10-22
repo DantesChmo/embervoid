@@ -378,6 +378,47 @@ RAPIER = [
 ]
 
 
+def line(c, x0, y0, x1, y1, color):
+    dx, dy = abs(x1 - x0), -abs(y1 - y0)
+    sx, sy = (1 if x0 < x1 else -1), (1 if y0 < y1 else -1)
+    err = dx + dy
+    while True:
+        c.set(x0, y0, color)
+        if x0 == x1 and y0 == y1:
+            return
+        e2 = 2 * err
+        if e2 >= dy:
+            err += dy
+            x0 += sx
+        if e2 <= dx:
+            err += dx
+            y0 += sy
+
+
+def crossbow():
+    """Huntsman's Crossbow, pointing up-right like vanilla's sprite: standby, three pulling stages, loaded with an
+    arrow or a firework."""
+    wood, dark_wood = (120, 84, 50, 255), (78, 52, 30, 255)
+    limb, string = (84, 100, 62, 255), (230, 226, 210, 255)
+    nock = {"standby": (10, 5), "pulling_0": (9, 6), "pulling_1": (8, 7), "pulling_2": (7, 8), "arrow": (7, 8),
+            "firework": (7, 8)}
+    for state, (sx, sy) in nock.items():
+        c = Canvas(16, 16)
+        line(c, 2, 13, 11, 4, wood)
+        line(c, 3, 13, 11, 5, dark_wood)
+        line(c, 7, 1, 14, 8, limb)
+        line(c, 8, 1, 14, 7, limb)
+        line(c, 7, 1, sx, sy, string)
+        line(c, 14, 8, sx, sy, string)
+        if state == "arrow":
+            line(c, sx, sy, 13, 2, (170, 170, 176, 255))
+            c.set(13, 2, (90, 90, 96, 255))
+        if state == "firework":
+            line(c, sx, sy, 12, 3, (196, 40, 40, 255))
+            c.set(12, 3, (240, 220, 120, 255))
+        c.save(os.path.join(ITEM_DIR, "huntsmans_crossbow_" + state + ".png"))
+
+
 def weapons():
     handle = (92, 60, 40, 255)
     p = palette((214, 214, 220, 255), (150, 150, 160, 255), (90, 90, 100, 255), (255, 120, 40, 255))
@@ -386,6 +427,7 @@ def weapons():
     icon("wardens_scourge", WHIP, dict(p, L=(150, 158, 176, 255), M=(98, 106, 124, 255), D=(58, 64, 80, 255),
                                        E=(140, 20, 24, 255), W=(60, 50, 44, 255)))
     icon("royal_ash_rapier", RAPIER, dict(p, E=(232, 180, 60, 255), W=(120, 30, 30, 255)))
+    crossbow()
 
 
 def palette(light, mid, dark, extra=(255, 255, 255, 255)):

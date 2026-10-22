@@ -16,6 +16,7 @@
 		"GearLivingEntityMixin",
 		"GearEnchantmentHelperMixin",
 		"GearServerPlayNetworkHandlerMixin",
+		"GearCrossbowItemMixin",
 		"ReliquaryLivingEntityMixin",
 		"ReliquaryPlayerEntityMixin"
 	],

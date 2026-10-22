@@ -314,5 +314,7 @@
 	"item.embervoid.royal_ash_rapier.passive": "Reach 2.5; each hit adds Bleeding and sets the target on fire",
 	"embervoid.ability.harvest": "Harvest",
 	"embervoid.ability.lash": "Lash",
-	"embervoid.ability.lunge": "Lunge"
+	"embervoid.ability.lunge": "Lunge",
+	"item.embervoid.huntsmans_crossbow": "Huntsman's Crossbow",
+	"item.embervoid.huntsmans_crossbow.passive": "Slow to load; bolts hit harder, knock back hard and pierce a foe"
 }

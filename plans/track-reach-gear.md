@@ -90,6 +90,16 @@ textures). Config section `gear`. Tests: `GearTests` (GameTests), JUnit under `s
   - Not done: Sharpness, Smite and the like cannot go on these weapons (vanilla `EnchantmentTarget.WEAPON` accepts
     swords only); Unbreaking and Mending work. A follow-up if wanted.
   - Textures: placeholder icons, not seen; the swing feel of 6-block reach not seen in game.
-- [ ] **11.6 Huntsman's Crossbow.**
+- [x] **11.6 Huntsman's Crossbow.**
+  - `HuntsmansCrossbowItem extends CrossbowItem` (`GearWeapons.HUNTSMANS_CROSSBOW`, durability 1200, repaired with
+    a Smoldering Ingot; vanilla crossbow enchantments apply). Vanilla reads charge time and makes bolts in static
+    methods, so `GearCrossbowItemMixin` adds the extra charge to `getPullTime` (40 ticks, Quick Charge still −5 per
+    level) and strengthens the bolt at the end of `createArrow`: damage ×1.5, Punch 3, pierce +1 (config
+    `gear.crossbow`). Scaling DEX 0.5 / STR 0.5 through `WeaponScaling.addRangedRule`.
+  - Recipe: Grieving Tree soul + 2 Smoldering Ingot + a crossbow. Model states (pull, pulling, charged, firework)
+    registered client-side in `GearClient` like vanilla's; models hand-written in resources.
+  - Not done (visual, client-only, unverifiable here): third-person "hold a charged crossbow" pose and the
+    first-person crossbow placement are keyed to `Items.CROSSBOW` in vanilla renderers, so this one is held like an
+    ordinary item when charged. Textures placeholders, not seen.
 - [ ] **11.7 Consumables + Flask Ember.**
 - [ ] **11.8 Chest loot + realm loot on mobs.**
