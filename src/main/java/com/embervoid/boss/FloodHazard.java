@@ -1,5 +1,6 @@
 package com.embervoid.boss;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;
@@ -43,12 +44,34 @@ public class FloodHazard implements ArenaHazard {
 		int perTick = (int) Math.ceil((double) pending.size() / Math.max(1, ticks - age));
 		for (int i = 0; i < perTick && !pending.isEmpty(); i++) {
 			BlockPos pos = pending.remove(pending.size() - 1);
-			if (world.getBlockState(pos).isAir() || world.getBlockState(pos).isOf(Blocks.WATER)) {
+			BlockState state = world.getBlockState(pos);
+			if (state.isOf(Blocks.WATER)) {
+				// Flowed here from this flood's own water: it was air before the fight.
+				fight.blocks().rememberAs(pos, Blocks.AIR.getDefaultState());
+			}
+			if (state.isAir() || state.isOf(Blocks.WATER)) {
 				fight.blocks().set(pos, Blocks.WATER.getDefaultState());
 			}
 		}
 		age++;
 		return !pending.isEmpty();
+	}
+
+	/**
+	 * Ended before it finished (the fight is over): the spots it had not filled yet may hold water that spread there
+	 * on its own; drain them too (the filled ones come back with the arena's blocks).
+	 */
+	@Override
+	public void end(BossFight fight) {
+		if (pending == null) {
+			return;
+		}
+		for (BlockPos pos : pending) {
+			if (fight.world().getBlockState(pos).isOf(Blocks.WATER)) {
+				fight.world().setBlockState(pos, Blocks.AIR.getDefaultState(), Block.NOTIFY_ALL);
+			}
+		}
+		pending.clear();
 	}
 
 	/** Every air block from the floor up to the water surface over solid floor, in random order (so it rises evenly). */

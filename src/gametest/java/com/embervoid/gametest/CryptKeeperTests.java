@@ -159,7 +159,8 @@ public final class CryptKeeperTests implements FabricGameTest {
 				context.assertTrue(bones >= 3, "only " + bones + " Restless Bones rose");
 				ArenaManager.reset(k.fight);
 				context.assertTrue(k.world().isAir(k.frame.at(LOWER[0], 1, LOWER[1])) && k.world().isAir(k.frame.at(LOWER[0], 2, LOWER[1])),
-						"the water stayed after the reset");
+						"the water stayed after the reset: " + k.world().getBlockState(k.frame.at(LOWER[0], 1, LOWER[1])) + " / "
+								+ k.world().getBlockState(k.frame.at(LOWER[0], 2, LOWER[1])) + " restored " + k.fight.blocks().size() + " ended " + k.fight.isEnded());
 				context.assertTrue(k.fight.adds().isEmpty(), "adds stayed after the reset");
 				k.arena.finish();
 			});

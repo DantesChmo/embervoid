@@ -38,6 +38,14 @@ public final class ArenaBlocks {
 		original.putIfAbsent(at, world.getBlockState(at));
 	}
 
+	/**
+	 * Remembers {@code state} as the block's state before the fight, unless it is already remembered: for blocks the
+	 * fight itself changed indirectly (water that flowed from the fight's own water).
+	 */
+	public void rememberAs(BlockPos pos, BlockState state) {
+		original.putIfAbsent(pos.toImmutable(), state);
+	}
+
 	/** Whether this fight has changed the block. */
 	public boolean isChanged(BlockPos pos) {
 		return original.containsKey(pos);
