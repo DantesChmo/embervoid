@@ -433,9 +433,9 @@ final class ArenaTemplates {
 			}
 			c.set(brazier.getX(), brazier.getY(), brazier.getZ(), Blocks.CAMPFIRE.getDefaultState().with(CampfireBlock.LIT, false));
 		}
-		// Path in from the north to the shrine.
-		for (int z = -arena.radius(); z >= -arena.radius() - ReachArenas.SHRINE_GAP; z--) {
-			for (int x = -1; x <= 1; x++) {
+		// Way in from the north edge (where the inner ring road meets the square, x −3…3) past the shrine.
+		for (int z = -arena.radius(); z >= -arena.site(); z--) {
+			for (int x = -3; x <= 3; x++) {
 				c.set(x, 0, z, POLISHED);
 			}
 		}

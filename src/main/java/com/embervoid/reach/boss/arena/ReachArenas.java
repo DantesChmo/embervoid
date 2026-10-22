@@ -52,7 +52,7 @@ public final class ReachArenas {
 	public static final Arena NECROPOLIS = new Arena("necropolis", Embervoid.id("ashen_reach/arena_necropolis"), 32, 40, 20, true);
 
 	/** Smoldering Citadel: the courtyard below the keep wall (PLAN 13.4); the Lord stands on the wall first. */
-	public static final Arena CITADEL = new Arena("citadel", Embervoid.id("ashen_reach/arena_citadel"), 24, 32, 14, false);
+	public static final Arena CITADEL = new Arena("citadel", Embervoid.id("ashen_reach/arena_citadel"), 30, 36, 14, false);
 
 	public static final List<Arena> ALL = List.of(FIELDS, WOODS, NECROPOLIS, CITADEL);
 
@@ -123,13 +123,17 @@ public final class ReachArenas {
 
 	// --- Citadel courtyard ---
 
-	/** The keep wall across the south of the courtyard: its inner face, depth and height (the walkway's top block). */
-	public static final int KEEP_WALL_Z = 21;
-	public static final int KEEP_WALL_DEPTH = 4;
+	/**
+	 * The keep wall across the south of the courtyard (away from the landing; the keep stands behind it, track
+	 * citadel): its inner face, depth (to the template's south edge) and height (the walkway's top block). The inner
+	 * face stays inside the fog wall so the Lord on it is in the fight.
+	 */
+	public static final int KEEP_WALL_Z = 26;
+	public static final int KEEP_WALL_DEPTH = 11;
 	public static final int KEEP_WALL_HEIGHT = 10;
-	/** The gate through the keep wall (to the keep), this wide each side of the axis and this high. */
-	public static final int KEEP_GATE_HALF_WIDTH = 1;
-	public static final int KEEP_GATE_HEIGHT = 5;
+	/** The gate tunnel through the keep wall to the keep's door: x −2…2, y 1…6 (agreed with track citadel). */
+	public static final int KEEP_GATE_HALF_WIDTH = 2;
+	public static final int KEEP_GATE_HEIGHT = 6;
 
 	/** Where the Lord stands on the wall in P0 (the block his feet are in). */
 	public static BlockPos lordOnWall() {
@@ -143,7 +147,7 @@ public final class ReachArenas {
 
 	/** The three signal braziers (campfires on 3×3 pedestals two high); lighting all brings the Lord down. */
 	public static List<BlockPos> signalBraziers() {
-		return List.of(new BlockPos(-12, 3, 4), new BlockPos(12, 3, 4), new BlockPos(0, 3, -12));
+		return List.of(new BlockPos(-15, 3, 5), new BlockPos(15, 3, 5), new BlockPos(0, 3, -15));
 	}
 
 	private ReachArenas() {}

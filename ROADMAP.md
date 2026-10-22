@@ -213,51 +213,51 @@ comes in the release pass.
 
 ## 9. Realm 1: world
 
-**Status:** In progress (track reach-world).
+**Status:** Done (PLAN 9.1–9.9; GameTests + server check; looks not seen in game).
 
-- [ ] Zones renamed: **Ashen Fields**, **Royal Woods**, **Sunken Necropolis** (ids stay `zone_a/b/c`); eternal dusk (`fixed_time` ≈ 13500)
-- [ ] Zone-aware terrain density function (plain / hills and ravines / sinkhole basin), blended at borders
-- [ ] Per-zone fog density (client mixin on `BackgroundRenderer`, reused for arena fog)
-- [ ] New blocks (~6–8): burnt straw, milestone, gravestone, ember crack, smouldering log, wet crypt stone…
-- [ ] Ores: Cinder Ore (Fields), Amber Vein (Woods), Grave Iron Ore (Necropolis), each only in its zone
-- [ ] Landing as the crossroads plaza; roads to each arena with milestones and 2 outposts per road
-- [ ] Minor structures per zone (~20–25 `.nbt` pieces) and the Necropolis crypt jigsaw (5–7 pieces); water only in the Necropolis
-- [ ] World edge: broken walls and collapsed bridges at the abyss cliffs
+- [x] Zones renamed: **Ashen Fields**, **Royal Woods**, **Sunken Necropolis** (ids stay `zone_a/b/c`); eternal dusk (`fixed_time` ≈ 13500)
+- [x] Zone-aware terrain density function (plain / hills and ravines / sinkhole basin), blended at borders
+- [x] Per-zone fog density (client mixin on `BackgroundRenderer`, reused for arena fog)
+- [x] New blocks (~6–8): burnt straw, milestone, gravestone, ember crack, smouldering log, wet crypt stone…
+- [x] Ores: Cinder Ore (Fields), Amber Vein (Woods), Grave Iron Ore (Necropolis), each only in its zone
+- [x] Landing as the crossroads plaza; roads to each arena with milestones and 2 outposts per road
+- [x] Minor structures per zone (~20–25 `.nbt` pieces) and the Necropolis crypt jigsaw (5–7 pieces); water only in the Necropolis
+- [x] World edge: broken walls and collapsed bridges at the abyss cliffs
 
 ## 10. Realm 1: zone bestiary
 
-**Status:** In progress (track reach-mobs).
+**Status:** Done (PLAN 10.1–10.7; GameTests; greybox models, not seen in game).
 
-- [ ] Zone spawners list only Realm 1 mobs (placeholder zombies go); placed enemies at worldgen that never respawn
-- [ ] Fields: **Cinder Husk**, **Ash Stalker** (buried ambush), **Ashen Carrion** (diving flyer)
-- [ ] Woods: **Withered Thrall** (incl. hanging cages), **Lantern Hag** (fire flask), **Bark Hollow** (dormant tree)
-- [ ] Necropolis: **Restless Bones** (bone pile, re-forms, light keeps it dead), **Crypt Moth** (seeks light, snuffs torches), **Hollow Sentinel** (tower shield, bash window), **Grave Warden** (bell-ringer)
-- [ ] Drops: basics + material and set-piece rolls per §4.5
+- [x] Zone spawners list only Realm 1 mobs (placeholder zombies go); placed enemies at worldgen that never respawn
+- [x] Fields: **Cinder Husk**, **Ash Stalker** (buried ambush), **Ashen Carrion** (diving flyer)
+- [x] Woods: **Withered Thrall** (incl. hanging cages), **Lantern Hag** (fire flask), **Bark Hollow** (dormant tree)
+- [x] Necropolis: **Restless Bones** (bone pile, re-forms, light keeps it dead), **Crypt Moth** (seeks light, snuffs torches), **Hollow Sentinel** (tower shield, bash window), **Grave Warden** (bell-ringer)
+- [x] Drops: basics + material and set-piece rolls per §4.5
 
 ## 11. Realm 1: loot and accessories
 
-**Status:** In progress (tracks reach-gear, reliquary).
+**Status:** Done (PLAN 11.1–11.13; GameTests; textures and screens not seen in game).
 
-- [ ] Materials: Cinder Shard, Royal Amber, Grave Iron, **Smoldering Ingot**, Smoldering Template
-- [ ] **Smoldering Plate** (smithing table, like netherite) with its set bonus
-- [ ] Mob-drop sets **Reaper's Garb**, **Huntsman's Leathers**, **Necropolis Warden** with set bonuses; unique pieces Scarecrow's Mask, Huntsman's Greaves, Drowned Sabatons, Furnace Heart Cuirass
-- [ ] Weapons: **Ashen Scythe**, **Huntsman's Crossbow**, **Warden's Scourge**, **Royal Ash Rapier** (recipes from boss souls + chest drops); server raycast for reach
-- [ ] **Bleeding** placeholder status effect and the `embervoid:bleed_immune` tag
-- [ ] **Reliquary**: own screen (button + keybind), 2 artifact + 2 ring slots, player attachment, accessories into the Ash Remnant on death
-- [ ] 8 artifacts and 6 rings
-- [ ] Consumables: Ash Bomb, Smoldering Resin, Amber Balm, Amber Lantern Oil, Whetstone, Flask Ember
-- [ ] Chest loot tables: ordinary, treasure and arena-side chests
+- [x] Materials: Cinder Shard, Royal Amber, Grave Iron, **Smoldering Ingot**, Smoldering Template
+- [x] **Smoldering Plate** (smithing table, like netherite) with its set bonus
+- [x] Mob-drop sets **Reaper's Garb**, **Huntsman's Leathers**, **Necropolis Warden** with set bonuses; unique pieces Scarecrow's Mask, Huntsman's Greaves, Drowned Sabatons, Furnace Heart Cuirass
+- [x] Weapons: **Ashen Scythe**, **Huntsman's Crossbow**, **Warden's Scourge**, **Royal Ash Rapier** (recipes from boss souls + chest drops); server raycast for reach
+- [x] **Bleeding** placeholder status effect and the `embervoid:bleed_immune` tag
+- [x] **Reliquary**: own screen (button + keybind), 2 artifact + 2 ring slots, player attachment, accessories into the Ash Remnant on death
+- [x] 8 artifacts and 6 rings
+- [x] Consumables: Ash Bomb, Smoldering Resin, Amber Balm, Amber Lantern Oil, Whetstone, Flask Ember
+- [x] Chest loot tables: ordinary, treasure and arena-side chests
 
 ## 12. Realm 1: zone bosses
 
-**Status:** In progress (track reach-bosses). Rematch item per DESIGN §10.11 as recommended.
+**Status:** Done except music (PLAN 12.1–12.7; GameTests; greybox models, moves not seen in game). Shared zone-boss theme is release task R40.3.
 
-- [ ] Boss framework additions: arena hazard layer (restored on reset), S2C arena fog, telegraph shapes (ring, line, cone, falling shadow), shield-breaking hit, fight-bound adds, non-HP phase, HP scaling HP ×(1 + 0.5·(n − 1)) + 1 add per extra fighter
-- [ ] **Crypt Keeper** (first: riskiest) in the flooded ossuary: light, rising water, braziers, moths, Restless Bones
-- [ ] **Ash Colossus** in the crater market: smashable pillars, ash storm, exposed core
-- [ ] **Grieving Tree** in the Royal Grove: lanterns, arena fog, uproot phase
-- [ ] Per-boss souls (first-kill personal drop, 25 % when helping), Flask Shard per zone boss
-- [ ] Rematch item (*Ash of Rematch*) at a beaten boss's arena shrine
+- [x] Boss framework additions: arena hazard layer (restored on reset), S2C arena fog, telegraph shapes (ring, line, cone, falling shadow), shield-breaking hit, fight-bound adds, non-HP phase, HP scaling HP ×(1 + 0.5·(n − 1)) + 1 add per extra fighter
+- [x] **Crypt Keeper** (first: riskiest) in the flooded ossuary: light, rising water, braziers, moths, Restless Bones
+- [x] **Ash Colossus** in the crater market: smashable pillars, ash storm, exposed core
+- [x] **Grieving Tree** in the Royal Grove: lanterns, arena fog, uproot phase
+- [x] Per-boss souls (first-kill personal drop, 25 % when helping), Flask Shard per zone boss
+- [x] Rematch item (*Ash of Rematch*) at a beaten boss's arena shrine
 - [ ] Shared zone-boss music theme
 
 ## 13. Realm 1: Smoldering Citadel

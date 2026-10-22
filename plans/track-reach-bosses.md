@@ -165,13 +165,13 @@ bones). Greybox assets: `python3 tools/boss_placeholders.py [name]` (helpers fro
 Shard, 2–5 gold ingots. First kill (`BossReward` on `embervoid:ashen_reach/final`): his soul + a Flask Ember. Adds per
 extra fighter: Cinder Hound. Killing him completes the realm (existing `BossFight` rule for the realm's final boss).
 
-- Courtyard template `embervoid:ashen_reach/arena_citadel` (`ReachArenas.CITADEL`: fog wall r 24, site r 32, no arena
-  chest): flagstones with a few ember cracks, burning beams, the keep wall across the south (z 21–24, 10 high, walkway on
-  top, crenellations, a 3-wide gate to the keep), three signal braziers (campfires on 3×3 pedestals) at (−12, 4),
-  (12, 4), (0, −12), shrine platform north. For now `ashen_reach_depths_arena.json` places it through reach-world's
-  arena site (radius 32, ground ash bricks); track-citadel may move the site into the Citadel jigsaw courtyard — the
-  template stays the contract (centre, y = 0 floor, north towards the depths landing).
-- P0 (scripted phase): on the wall at (0, 11, 22), untouchable, with 2 Sparking Marksmen (fight adds, marked placed).
+- Courtyard template `embervoid:ashen_reach/arena_citadel` (`ReachArenas.CITADEL`: fog wall r 30, site r 36 = 73×73,
+  no arena chest), to track-citadel's courtyard site (centre 0, −192, floor 88; `ashen_reach_depths_arena.json` is
+  theirs, entity set to `smoldering_lord` here): flagstones with a few ember cracks, burning beams, the keep wall along
+  the template's south edge (z 26–36, 10 high, walkway on top, crenellations) with the gate tunnel x −2…2, y 1…6 to the
+  keep's door behind it, three signal braziers (campfires on 3×3 pedestals) at (−15, 5), (15, 5), (0, −15), the way in
+  from the inner ring at the north edge (x −3…3) past the shrine platform.
+- P0 (scripted phase): on the wall at (0, 11, 27), untouchable, with 2 Sparking Marksmen (fight adds, marked placed).
   Every 3 s from the wall: mortar rings (r 3 on up to two fighters, 40 ticks, 9 fire) or a flame line (from below the
   wall across the courtyard at a fighter, 30 ticks, 8 fire, then 3 s of fire on the line). All three signal braziers lit
   → he comes down: ring r 6 in the middle, 30 ticks, landing 10 (invulnerable until he lands).

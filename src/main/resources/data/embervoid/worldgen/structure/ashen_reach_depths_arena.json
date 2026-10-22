@@ -3,19 +3,19 @@
   "biomes": "#embervoid:ashen_reach_depths",
   "spawn_overrides": {},
   "step": "surface_structures",
-  "terrain_adaptation": "beard_box",
+  "terrain_adaptation": "none",
   "feature": "arena",
   "boss": {
     "id": "embervoid:ashen_reach/final",
     "entity": "embervoid:smoldering_lord",
     "level": 30,
-    "radius": 24
+    "radius": 30
   },
   "site": {
-    "radius": 32,
+    "radius": 36,
     "height_offset": 0,
     "ground": {
-      "Name": "embervoid:ash_bricks"
+      "Name": "minecraft:polished_blackstone_bricks"
     },
     "template": "embervoid:ashen_reach/arena_citadel"
   }

@@ -13,6 +13,7 @@ import com.embervoid.player.PlayerDataManager;
 import com.embervoid.player.RemnantDeathHandler;
 import com.embervoid.player.StaminaManager;
 import com.embervoid.reach.boss.ReachBosses;
+import com.embervoid.reach.citadel.Citadel;
 import com.embervoid.reach.gear.ReachGear;
 import com.embervoid.reach.mob.ReachMobs;
 import com.embervoid.realm.RealmInit;
@@ -72,6 +73,7 @@ public class Embervoid implements ModInitializer {
 		ReachGear.register();
 		ReliquaryInit.register();
 		ReachBosses.register();
+		Citadel.register();
 
 		LOGGER.info("Embervoid: the embers stir...");
 	}
