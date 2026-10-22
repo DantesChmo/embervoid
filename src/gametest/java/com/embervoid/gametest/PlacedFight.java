@@ -23,6 +23,8 @@ import java.util.function.Consumer;
  * the test. The boss's brain is held (no moves of its own) unless the test lets it go.
  */
 final class PlacedFight<T extends ReachBoss> {
+	/** Ticks to wait for the far arena's chunks to generate and tick (it varies a lot on the test server). */
+	static final int LOAD_LIMIT = 1000;
 	final BossArena arena;
 	final ArenaFrame frame;
 	final List<ServerPlayerEntity> players = new ArrayList<>();
@@ -37,11 +39,15 @@ final class PlacedFight<T extends ReachBoss> {
 	static <T extends ReachBoss> void start(TestContext context, ReachArenas.Arena arena, BlockPos center, String bossId,
 			EntityType<T> type, int level, int[][] spots, Consumer<PlacedFight<T>> then) {
 		PlacedFight<T> placed = new PlacedFight<>(context, arena, center, spots);
-		placed.arena.await(() -> placed.world().shouldTickEntity(center.up()), 200, "the arena chunks to tick", () -> {
+		// The fight area: the middle and the fog wall north, south, east and west (the Lord stands by the wall).
+		int r = arena.radius();
+		List<BlockPos> area = List.of(center.up(), center.add(-r, 1, 0), center.add(r, 1, 0), center.add(0, 1, -r), center.add(0, 1, r));
+		placed.arena.await(() -> area.stream().allMatch(pos -> placed.world().shouldTickEntity(pos)), LOAD_LIMIT, "the arena chunks to tick", () -> {
 			ArenaSpec spec = new ArenaSpec(new Identifier("embervoid", bossId), type, level, arena.radius());
 			placed.fight = placed.arena.startAt(spec, center);
 			if (placed.fight.boss() == null || placed.fight.boss().getType() != type) {
-				throw new GameTestException("no " + type.getUntranslatedName() + " in the fight");
+				throw new GameTestException("no " + type.getUntranslatedName() + " in the fight (ended " + placed.fight.isEnded()
+						+ ", boss " + placed.fight.bossUuid() + " -> " + placed.world().getEntity(placed.fight.bossUuid()) + ")");
 			}
 			@SuppressWarnings("unchecked")
 			T boss = (T) placed.fight.boss();

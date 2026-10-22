@@ -28,6 +28,12 @@ public final class ReachBossEntities {
 					.dimensions(EntityDimensions.fixed(3.0f, 10.0f))
 					.trackRangeBlocks(128)
 					.build());
+	public static final EntityType<SmolderingLordEntity> SMOLDERING_LORD = ModEntities.register("smoldering_lord",
+			FabricEntityTypeBuilder.<SmolderingLordEntity>create(SpawnGroup.MONSTER, SmolderingLordEntity::new)
+					.dimensions(EntityDimensions.fixed(1.4f, 3.5f))
+					.trackRangeBlocks(96)
+					.fireImmune()
+					.build());
 	/** The Grieving Tree's hanged lanterns (not a fixed id; only the tree makes them). */
 	public static final EntityType<TreeLanternEntity> TREE_LANTERN = ModEntities.register("tree_lantern",
 			FabricEntityTypeBuilder.<TreeLanternEntity>create(SpawnGroup.MISC, TreeLanternEntity::new)
@@ -40,6 +46,7 @@ public final class ReachBossEntities {
 		FabricDefaultAttributeRegistry.register(CRYPT_KEEPER, CryptKeeperEntity.createAttributes());
 		FabricDefaultAttributeRegistry.register(ASH_COLOSSUS, AshColossusEntity.createAttributes());
 		FabricDefaultAttributeRegistry.register(GRIEVING_TREE, GrievingTreeEntity.createAttributes());
+		FabricDefaultAttributeRegistry.register(SMOLDERING_LORD, SmolderingLordEntity.createAttributes());
 	}
 
 	private ReachBossEntities() {}

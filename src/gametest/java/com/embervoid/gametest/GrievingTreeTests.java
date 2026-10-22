@@ -34,7 +34,7 @@ public final class GrievingTreeTests implements FabricGameTest {
 	 * Fog comes down when it wakes; its trunk shrugs off most damage; a shot lantern stuns it (trunk ×1.5) and lifts
 	 * the fog, which comes back when the lift ends.
 	 */
-	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "tree_lantern_shot", tickLimit = 500)
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "tree_lantern_shot", tickLimit = PlacedFight.LOAD_LIMIT + 500)
 	public void shotLanternStunsAndLiftsTheFog(TestContext context) {
 		start(context, 0, new int[][]{{0, 0, 12}}, f -> {
 			GrievingTreeEntity tree = f.boss;
@@ -67,7 +67,7 @@ public final class GrievingTreeTests implements FabricGameTest {
 	}
 
 	/** A sword cannot reach a hanging lantern; after a branch sweep the nearest one hangs low and a hit breaks it. */
-	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "tree_lantern_melee", tickLimit = 400)
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "tree_lantern_melee", tickLimit = PlacedFight.LOAD_LIMIT + 400)
 	public void meleeBreaksOnlyALoweredLantern(TestContext context) {
 		start(context, 1, new int[][]{{0, 0, 7}}, f -> {
 			GrievingTreeEntity tree = f.boss;
@@ -91,7 +91,7 @@ public final class GrievingTreeTests implements FabricGameTest {
 	}
 
 	/** Root lines hurt and slow the fighters they reach; thralls drop from the branches as fight adds. */
-	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "tree_roots", tickLimit = 400)
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "tree_roots", tickLimit = PlacedFight.LOAD_LIMIT + 400)
 	public void rootLinesAndThralls(TestContext context) {
 		start(context, 2, new int[][]{{0, 0, 10}, {-10, 0, 0}}, f -> {
 			GrievingTreeEntity tree = f.boss;
@@ -116,7 +116,7 @@ public final class GrievingTreeTests implements FabricGameTest {
 	}
 
 	/** P2 at 50 %: uprooted and walking, four new lanterns on its own branches, thicker fog, root cages. */
-	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "tree_uproot", tickLimit = 400)
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "tree_uproot", tickLimit = PlacedFight.LOAD_LIMIT + 400)
 	public void secondPhaseUprootsAndThickensTheFog(TestContext context) {
 		start(context, 3, new int[][]{{0, 0, 10}}, f -> {
 			GrievingTreeEntity tree = f.boss;

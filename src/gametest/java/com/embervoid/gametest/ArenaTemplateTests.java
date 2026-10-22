@@ -107,6 +107,28 @@ public final class ArenaTemplateTests implements FabricGameTest {
 		context.complete();
 	}
 
+	/** Citadel courtyard: the keep wall with its gate and walkway, three unlit signal braziers, the shrine platform. */
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "arena_citadel", tickLimit = 400)
+	public void citadelCourtyard(TestContext context) {
+		ArenaFrame frame = place(context, ReachArenas.CITADEL, new BlockPos(3000, FLOOR_Y, 0));
+		ServerWorld world = context.getWorld();
+		context.assertTrue(frame.rotation() == BlockRotation.COUNTERCLOCKWISE_90, "rotation " + frame.rotation());
+		BlockPos lord = ReachArenas.lordOnWall();
+		context.assertTrue(!world.isAir(frame.at(lord.getX(), lord.getY() - 1, lord.getZ())), "nothing for the Lord to stand on");
+		context.assertTrue(world.isAir(frame.at(lord.getX(), lord.getY(), lord.getZ())), "the Lord's spot on the wall is taken");
+		context.assertTrue(world.isAir(frame.at(0, 2, ReachArenas.KEEP_WALL_Z + 1)), "no gate through the keep wall");
+		context.assertTrue(!world.isAir(frame.at(8, 4, ReachArenas.KEEP_WALL_Z + 1)), "no keep wall beside the gate");
+		context.assertTrue(lord.getZ() < ReachArenas.CITADEL.radius() - 1, "the Lord's spot is outside the fog wall");
+		for (BlockPos brazier : ReachArenas.signalBraziers()) {
+			BlockState state = world.getBlockState(frame.at(brazier.getX(), brazier.getY(), brazier.getZ()));
+			context.assertTrue(state.isOf(Blocks.CAMPFIRE) && !state.get(CampfireBlock.LIT), "no unlit signal brazier at " + brazier.toShortString());
+		}
+		BlockPos shrine = ReachArenas.CITADEL.shrine();
+		context.assertTrue(!world.isAir(frame.at(shrine.getX(), 0, shrine.getZ())), "no shrine platform");
+		context.assertTrue(world.isAir(frame.at(shrine.getX(), 1, shrine.getZ())), "the shrine spot is taken");
+		context.complete();
+	}
+
 	/** Places an arena template the way the arena structure does: centred on {@code center}, north to the landing. */
 	static ArenaFrame place(TestContext context, Arena arena, BlockPos center) {
 		ServerWorld world = context.getWorld();

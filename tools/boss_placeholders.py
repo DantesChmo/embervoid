@@ -263,8 +263,94 @@ def grieving_tree():
     write_mob("grieving_tree", bones, 512, [8, 11], animations, paint)
 
 
+# --- Smoldering Lord: the greedy king, 3.5 blocks, burning plate (shatters in P2), a crown, a greatsword ------------
+
+def smoldering_lord():
+    legs, body_h, head = 22, 22, 10
+    top = legs + body_h
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("right_leg", [-3.5, legs, 0], "root", None, [Cube([-7, 0, -3.5], [7, legs, 7], "body")]),
+        Bone("left_leg", [3.5, legs, 0], "root", None, [Cube([0, 0, -3.5], [7, legs, 7], "body")]),
+        Bone("body", [0, legs, 0], "root", None, [Cube([-8, legs, -4.5], [16, body_h, 9], "body")]),
+        Bone("armor", [0, legs, 0], "body", None, [
+            Cube([-8.5, legs + 6, -5], [17, 16, 10], "plate", inflate=0.5),
+            Cube([-12, top - 4, -5], [7, 5, 10], "plate"),
+            Cube([5, top - 4, -5], [7, 5, 10], "plate"),
+        ]),
+        Bone("head", [0, top, 0], "body", None, [
+            Cube([-5, top, -5], [10, head, 10], "head"),
+            Cube([-5.5, top + head, -5.5], [11, 3, 11], "crown"),
+        ]),
+        Bone("right_arm", [-10.5, top - 2, 0], "body", None, [Cube([-13, top - 22, -2.5], [5, 22, 5], "body")]),
+        Bone("left_arm", [10.5, top - 2, 0], "body", None, [Cube([8, top - 22, -2.5], [5, 22, 5], "body")]),
+        Bone("greatsword", [-10.5, top - 20, 0], "right_arm", None, [
+            Cube([-11.5, top - 24, -1], [2, 6, 2], "hilt"),
+            Cube([-14, top - 18, -1], [7, 2, 2], "hilt"),
+            Cube([-12, top - 16, -1.5], [3, 36, 3], "blade"),
+        ]),
+    ]
+    s1, s2, slam, lunge, mortar, line, descend = t(14), t(10), t(20), t(18), 1.0, t(30), t(30)
+    animations = {
+        "misc.idle": anim(3.0, {
+            "body": rot(0, ZERO, 1.5, [2, 0, 0], 3.0, ZERO),
+            "right_arm": rot(0, [-20, 0, 0], 1.5, [-24, 0, 0], 3.0, [-20, 0, 0]),
+        }),
+        "move.walk": anim(1.2, {
+            "right_leg": rot(0, [25, 0, 0], 0.6, [-25, 0, 0], 1.2, [25, 0, 0]),
+            "left_leg": rot(0, [-25, 0, 0], 0.6, [25, 0, 0], 1.2, [-25, 0, 0]),
+            "left_arm": rot(0, [15, 0, 0], 0.6, [-15, 0, 0], 1.2, [15, 0, 0]),
+            "right_arm": rot(0, [-20, 0, 0], 1.2, [-20, 0, 0]),
+        }),
+        "attack.greatsword_1": anim(s1 + 0.35, {
+            "right_arm": rot(0, [-20, 0, 0], s1, [-90, -80, 0], s1 + 0.1, [-90, 70, 0], s1 + 0.35, [-20, 0, 0]),
+            "body": rot(0, ZERO, s1, [0, 30, 0], s1 + 0.1, [0, -30, 0], s1 + 0.35, ZERO),
+        }, loop=False),
+        "attack.greatsword_2": anim(s2 + 0.3, {
+            "right_arm": rot(0, [-90, 70, 0], s2, [-95, 80, 0], s2 + 0.1, [-90, -70, 0], s2 + 0.3, [-20, 0, 0]),
+            "body": rot(0, [0, -30, 0], s2, [0, -35, 0], s2 + 0.1, [0, 30, 0], s2 + 0.3, ZERO),
+        }, loop=False),
+        "attack.slam": anim(slam + 0.5, {
+            "right_arm": rot(0, [-20, 0, 0], slam, [-180, 0, 10], slam + 0.08, [-60, 0, 0], slam + 0.5, [-20, 0, 0]),
+            "left_arm": rot(0, ZERO, slam, [-170, 0, -10], slam + 0.08, [-60, 0, 0], slam + 0.5, ZERO),
+            "body": rot(0, ZERO, slam, [-10, 0, 0], slam + 0.08, [25, 0, 0], slam + 0.5, ZERO),
+        }, loop=False),
+        "attack.lunge": anim(lunge + 0.5, {
+            "right_arm": rot(0, [-20, 0, 0], lunge, [20, 0, 0], lunge + 0.08, [-90, 0, 0], lunge + 0.5, [-20, 0, 0]),
+            "body": rot(0, ZERO, lunge, [-15, 0, 0], lunge + 0.08, [25, 0, 0], lunge + 0.5, ZERO),
+            "root": pos(0, ZERO, lunge, [0, -2, 2], lunge + 0.1, [0, 0, -4], lunge + 0.5, ZERO),
+        }, loop=False),
+        "attack.mortar": anim(mortar, {
+            "left_arm": rot(0, ZERO, 0.4, [-170, 0, -20], 0.6, [-140, 0, -20], mortar, ZERO),
+        }, loop=False),
+        "attack.flame_line": anim(line + 0.4, {
+            "right_arm": rot(0, [-20, 0, 0], line, [-170, 0, 0], line + 0.1, [-10, 0, 0], line + 0.4, [-20, 0, 0]),
+        }, loop=False),
+        "misc.descend": anim(descend + 0.3, {
+            "root": pos(0, ZERO, descend * 0.6, [0, -4, 0], descend, [0, 6, 0], descend + 0.3, ZERO),
+            "right_arm": rot(0, [-20, 0, 0], descend, [-170, 0, 0], descend + 0.3, [-20, 0, 0]),
+        }, loop=False),
+        "misc.shatter": anim(1.2, {
+            "body": rot(0, ZERO, 0.3, [-15, 0, 0], 0.6, [10, 0, 0], 1.2, ZERO),
+            "armor": pos(0, ZERO, 0.4, [0, 0, 3], 0.6, [0, -6, 4]),
+        }, loop=False),
+        "misc.hazard": anim(1.5, {
+            "right_arm": rot(0, [-20, 0, 0], 0.7, [-30, 0, 70], 1.5, [-20, 0, 0]),
+            "left_arm": rot(0, ZERO, 0.7, [-30, 0, -70], 1.5, ZERO),
+            "head": rot(0, ZERO, 0.7, [-30, 0, 0], 1.5, ZERO),
+        }, loop=False),
+    }
+    paint = painter({"default": (52, 40, 36, 255), "body": (48, 36, 32, 255), "plate": (70, 58, 50, 255),
+                     "head": (40, 30, 26, 255), "crown": (200, 150, 50, 255), "hilt": (90, 70, 40, 255),
+                     "blade": (120, 70, 50, 255)},
+                    eye=(255, 140, 40, 255), eye_tags=("head",), eye_row=0.45, glow_tags=("blade",),
+                    cracks=("plate", "body"), crack_color=(255, 120, 30, 255))
+    write_mob("smoldering_lord", bones, 128, [3, 4], animations, paint)
+
+
 BOSSES = [("crypt_keeper", crypt_keeper), ("ash_colossus", ash_colossus),
-          ("grieving_tree", grieving_tree)]
+          ("grieving_tree", grieving_tree),
+          ("smoldering_lord", smoldering_lord)]
 
 
 if __name__ == "__main__":

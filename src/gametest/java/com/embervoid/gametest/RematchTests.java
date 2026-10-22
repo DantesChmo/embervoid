@@ -44,14 +44,15 @@ public final class RematchTests implements FabricGameTest {
 	 * has not beaten it) primes it, and stepping in summons it again as a rematch: loot drops, no soul (even at a repeat
 	 * chance of 1) and no Flask Shard.
 	 */
-	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "rematch", tickLimit = 2400)
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "rematch", tickLimit = PlacedFight.LOAD_LIMIT + 2400)
 	public void ashOfRematchSummonsABeatenBoss(TestContext context) {
 		BossArena arena = new BossArena(context, "{\"boss\": {\"repeatSoulChance\": 1}}");
 		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
 		RealmFeaturePiece[] piece = new RealmFeaturePiece[1];
 		ServerPlayerEntity[] players = new ServerPlayerEntity[2];
-		arena.step(() -> {
-			piece[0] = placeArena(arena, realm, "ashen_reach_arena_c");
+		arena.step(() -> piece[0] = placeArena(arena, realm, "ashen_reach_arena_c"));
+		// The arena's chunks are forced; wait until they tick (the boss must be found in them) before anyone steps in.
+		arena.await(() -> arenaTicks(realm, piece[0]), PlacedFight.LOAD_LIMIT, "the arena chunks to tick", () -> {
 			players[0] = arena.join(2, 2);
 			players[1] = arena.join(4, 2);
 			for (ServerPlayerEntity player : players) {
@@ -61,8 +62,22 @@ public final class RematchTests implements FabricGameTest {
 			ProgressManager.markBossBeaten(players[0], ReachBosses.NECROPOLIS);
 			// A player who has beaten it walks in: nothing happens.
 			moveTo(players[0], realm, piece[0].center().up(3).add(0, 0, 6));
+			arena.after(20, () -> afterWalkIn(context, arena, realm, piece[0], players));
 		});
-		arena.after(20, () -> {
+	}
+
+	private static boolean arenaTicks(ServerWorld realm, RealmFeaturePiece piece) {
+		BlockPos c = piece.center();
+		int r = piece.radius();
+		return realm.shouldTickEntity(c.up()) && realm.shouldTickEntity(piece.shrinePos())
+				&& realm.shouldTickEntity(c.add(r, 1, 0)) && realm.shouldTickEntity(c.add(-r, 1, 0))
+				&& realm.shouldTickEntity(c.add(0, 1, r)) && realm.shouldTickEntity(c.add(0, 1, -r));
+	}
+
+	private static void afterWalkIn(TestContext context, BossArena arena, ServerWorld realm, RealmFeaturePiece arenaPiece,
+			ServerPlayerEntity[] players) {
+		RealmFeaturePiece[] piece = {arenaPiece};
+		arena.step(() -> {
 			context.assertTrue(ArenaManager.fightAt(realm, piece[0].center()) == null, "the boss rose for a player who beat it");
 			moveTo(players[0], realm, piece[0].shrinePos().add(1, 0, 1));
 			ItemStack ash = new ItemStack(GearItems.ASH_OF_REMATCH, 2);

@@ -16,7 +16,7 @@ courtyard piece), boss assets and loot. Config section `boss`.
 - [x] **12.5 Grieving Tree** (GameTests `GrievingTreeTests` in the real Royal Grove template)
 - [x] **12.6 Souls and Flask Shards** (GameTests `BossRewardTests`)
 - [x] **12.7 Ash of Rematch** (GameTest `RematchTests` at the real Necropolis arena in the realm)
-- [ ] **13.4 Smoldering Lord**
+- [x] **13.4 Smoldering Lord** (GameTests `SmolderingLordTests` in the real courtyard template; reward in `BossRewardTests`)
 
 ## 12.1 Framework additions — design
 
@@ -158,10 +158,37 @@ bones). Greybox assets: `python3 tools/boss_placeholders.py [name]` (helpers fro
   the first-kill reward. An unused priming lapses after 60 s.
 - Source of the ash (recipe, arena-side chest) is reach-gear's (DESIGN §10.11).
 
+## 13.4 Smoldering Lord
+
+`embervoid:smoldering_lord`, 1.4 × 3.5, base HP 260 (~712 at Lv 30), armor 12 → 4 in P2, KB res 1, speed 0.26 → 0.32,
+500 XP before level scaling, music placeholder `music.dragon`. Loot (every kill): 1–2 Smoldering Ingot, 4–8 Cinder
+Shard, 2–5 gold ingots. First kill (`BossReward` on `embervoid:ashen_reach/final`): his soul + a Flask Ember. Adds per
+extra fighter: Cinder Hound. Killing him completes the realm (existing `BossFight` rule for the realm's final boss).
+
+- Courtyard template `embervoid:ashen_reach/arena_citadel` (`ReachArenas.CITADEL`: fog wall r 30, site r 36 = 73×73,
+  no arena chest), to track-citadel's courtyard site (centre 0, −192, floor 88; `ashen_reach_depths_arena.json` is
+  theirs, entity set to `smoldering_lord` here): flagstones with a few ember cracks, burning beams, the keep wall along
+  the template's south edge (z 26–36, 10 high, walkway on top, crenellations) with the gate tunnel x −2…2, y 1…6 to the
+  keep's door behind it, three signal braziers (campfires on 3×3 pedestals) at (−15, 5), (15, 5), (0, −15), the way in
+  from the inner ring at the north edge (x −3…3) past the shrine platform.
+- P0 (scripted phase): on the wall at (0, 11, 27), untouchable, with 2 Sparking Marksmen (fight adds, marked placed).
+  Every 3 s from the wall: mortar rings (r 3 on up to two fighters, 40 ticks, 9 fire) or a flame line (from below the
+  wall across the courtyard at a fighter, 30 ticks, 8 fire, then 3 s of fire on the line). All three signal braziers lit
+  → he comes down: ring r 6 in the middle, 30 ticks, landing 10 (invulnerable until he lands).
+- P1: greatsword combo (cone r 5 ±60° 14 / 10 ticks, 9 each, burning; slam ring r 3.5 in front, 20 ticks, 12) and a
+  lunge (line to just past the target, 6–14, 18 ticks, 11; dashes; a fire trail on the line for 4 s, 2 per 0.5 s).
+- P2 (50 %): armor shatters (×1.25 damage taken, faster); every 25 s (first after 12.5 s) one zone hazard in turn: ash
+  storm (`AshStormHazard`, 6 s, 2/s, cover shelters), fog (0.8 dark red, 20 s), darkness (15 s, Darkness on fighters,
+  he takes half damage outside block light ≥ 8 — the signal braziers still burn).
+- Framework: the Colossus's storm is now `boss.AshStormHazard`, shared.
+
 ## Status / notes
 
 - Started 2026-10-22.
 - GameTests use `BossArena` (stone floor, real joined players, fights through `ArenaManager.start`) with the framework's
   test boss, AI off. One batch per test (fights are global).
+- Far-away test arenas: their chunks are forced and every test waits (up to `PlacedFight.LOAD_LIMIT`, 1000 ticks)
+  until the fight area's chunks tick; without that a boss spawned or moved into a still-loading chunk is not found and
+  the fight resets (the cause of the flaky `RematchTests` and slow-loading Colossus tests).
 - Server check: not run in this worktree (its run folder needs the Minecraft EULA accepted; left to the coordinator).
 - `BossConfig.SECTION` is loaded in `BossInit`, so a config parsed before any fight (tests, the client) has the `boss` keys.

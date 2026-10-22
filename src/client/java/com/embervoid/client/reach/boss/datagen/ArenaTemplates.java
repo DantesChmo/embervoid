@@ -1,6 +1,7 @@
 package com.embervoid.client.reach.boss.datagen;
 
 import com.embervoid.reach.boss.arena.ReachArenas;
+import com.embervoid.reach.world.ReachBlocks;
 import com.embervoid.reach.boss.arena.ReachArenas.Arena;
 import com.embervoid.sanctum.datagen.TemplateBuilder;
 import net.minecraft.block.BlockState;
@@ -47,6 +48,7 @@ final class ArenaTemplates {
 		templates.put(ReachArenas.FIELDS.template(), fields());
 		templates.put(ReachArenas.WOODS.template(), woods());
 		templates.put(ReachArenas.NECROPOLIS.template(), necropolis());
+		templates.put(ReachArenas.CITADEL.template(), citadel());
 		return templates;
 	}
 
@@ -85,6 +87,9 @@ final class ArenaTemplates {
 				}
 			}
 			set(shrine.getX(), 0, shrine.getZ(), CHISELED);
+			if (!arena.hasChest()) {
+				return;
+			}
 			BlockPos chest = arena.chest();
 			builder.chest(chest.getX() + arena.site(), chest.getY(), chest.getZ() + arena.site(), Direction.NORTH, arena.chestLoot());
 		}
@@ -368,6 +373,74 @@ final class ArenaTemplates {
 				}
 			}
 		}
+	}
+
+	// --- Smoldering Citadel: the courtyard below the keep wall ---
+
+	private static TemplateBuilder citadel() {
+		Arena arena = ReachArenas.CITADEL;
+		Canvas c = new Canvas(arena, 0xC17ADE1L);
+		BlockState[] paving = {BRICKS, POLISHED, CRACKED, COBBLED};
+		int[] pavingWeights = {45, 25, 20, 10};
+		BlockState ember = ReachBlocks.EMBER_CRACK.getDefaultState();
+		BlockState smoldering = ReachBlocks.SMOLDERING_LOG.getDefaultState();
+		int wallZ = ReachArenas.KEEP_WALL_Z;
+		int wallTop = ReachArenas.KEEP_WALL_HEIGHT;
+		for (int x = -arena.site(); x <= arena.site(); x++) {
+			for (int z = -arena.site(); z <= arena.site(); z++) {
+				if (!c.inSite(x, z)) {
+					continue;
+				}
+				double r = radius(x, z);
+				BlockState floor = r <= 3.5 ? CHISELED : (r > 6 && c.random.nextInt(50) == 0 ? ember : c.pick(paving, pavingWeights));
+				c.set(x, 0, z, floor);
+				if (z >= wallZ && z < wallZ + ReachArenas.KEEP_WALL_DEPTH) {
+					boolean gate = Math.abs(x) <= ReachArenas.KEEP_GATE_HALF_WIDTH;
+					for (int y = 1; y <= wallTop; y++) {
+						if (gate && y <= ReachArenas.KEEP_GATE_HEIGHT) {
+							continue;
+						}
+						c.set(x, y, z, y == wallTop ? POLISHED : (c.random.nextInt(5) == 0 ? CRACKED : BRICKS));
+					}
+					// Crenellations along the wall's inner edge.
+					if (z == wallZ && Math.abs(x) % 2 == 0 && Math.abs(x) > 2) {
+						c.set(x, wallTop + 1, z, BRICKS);
+					}
+				}
+			}
+		}
+		// Burning beams fallen across the courtyard.
+		for (int i = 0; i < 6; i++) {
+			double angle = c.random.nextDouble() * Math.PI * 2;
+			double r = 8 + c.random.nextDouble() * 12;
+			int x = (int) Math.round(Math.sin(angle) * r);
+			int z = (int) Math.round(-Math.cos(angle) * r);
+			if (z >= wallZ - 2) {
+				continue;
+			}
+			boolean alongX = c.random.nextBoolean();
+			for (int d = -2; d <= 2; d++) {
+				c.set(alongX ? x + d : x, 1, alongX ? z : z + d,
+						smoldering.with(PillarBlock.AXIS, alongX ? Direction.Axis.X : Direction.Axis.Z));
+			}
+		}
+		// Signal braziers on pedestals: lighting all three brings the Lord down from the wall.
+		for (BlockPos brazier : ReachArenas.signalBraziers()) {
+			for (int dx = -1; dx <= 1; dx++) {
+				for (int dz = -1; dz <= 1; dz++) {
+					c.column(brazier.getX() + dx, brazier.getZ() + dz, 1, brazier.getY() - 1, CHISELED);
+				}
+			}
+			c.set(brazier.getX(), brazier.getY(), brazier.getZ(), Blocks.CAMPFIRE.getDefaultState().with(CampfireBlock.LIT, false));
+		}
+		// Way in from the north edge (where the inner ring road meets the square, x −3…3) past the shrine.
+		for (int z = -arena.radius(); z >= -arena.site(); z--) {
+			for (int x = -3; x <= 3; x++) {
+				c.set(x, 0, z, POLISHED);
+			}
+		}
+		c.shrinePlatform(POLISHED);
+		return c.builder;
 	}
 
 	private ArenaTemplates() {}

@@ -72,6 +72,21 @@ public final class BossRewardTests implements FabricGameTest {
 		});
 	}
 
+	/** The Smoldering Lord's first kill: his soul and a Flask Ember, no Flask Shard. */
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "reward_lord", tickLimit = 100)
+	public void lordGivesSoulAndFlaskEmber(TestContext context) {
+		BossArena arena = new BossArena(context, null);
+		arena.step(() -> {
+			arena.floor(4, 4, RADIUS + 1);
+			ServerPlayerEntity player = arena.join(4, 6);
+			kill(arena.start(ReachBosses.CITADEL, BossEntities.TEST_BOSS, 4, 4, RADIUS, 1));
+			context.assertTrue(player.getInventory().count(GearItems.SMOLDERING_LORD_SOUL) == 1, "no soul");
+			context.assertTrue(player.getInventory().count(GearItems.FLASK_EMBER) == 1, "no Flask Ember");
+			context.assertTrue(player.getInventory().count(SanctumItems.FLASK_SHARD) == 0, "a Flask Shard from the Lord");
+			arena.finish();
+		});
+	}
+
 	static void kill(BossFight fight) {
 		MobEntity boss = fight.boss();
 		boss.setAiDisabled(true);

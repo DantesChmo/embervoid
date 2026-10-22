@@ -38,7 +38,7 @@ public final class CryptKeeperTests implements FabricGameTest {
 	private static final int[] WALKWAY = {0, 6};
 
 	/** P1: a raised shield blocks a halberd swing; the overhead breaks it and lands. */
-	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "keeper_shield", tickLimit = 400)
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "keeper_shield", tickLimit = PlacedFight.LOAD_LIMIT + 400)
 	public void overheadBreaksTheShield(TestContext context) {
 		Keeper.start(context, 0, new int[]{0, 3}, ReachArenas.WALKWAY_TOP, k -> {
 			ServerPlayerEntity player = k.player;
@@ -69,7 +69,7 @@ public final class CryptKeeperTests implements FabricGameTest {
 	}
 
 	/** P1: the lantern throw lands where the target stood and leaves a fire pool that keeps hurting. */
-	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "keeper_lantern", tickLimit = 400)
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "keeper_lantern", tickLimit = PlacedFight.LOAD_LIMIT + 400)
 	public void lanternThrowLeavesAFirePool(TestContext context) {
 		Keeper.start(context, 1, LOWER, 0, k -> {
 			k.arena.after(BossArena.JOIN_INVULNERABLE_TICKS, () -> k.boss.lanternThrow(k.player));
@@ -85,7 +85,7 @@ public final class CryptKeeperTests implements FabricGameTest {
 	 * P2 at 60 %: the lantern is gone, the fighters are in Darkness, the lower floor floods one block while the
 	 * walkways stay dry; in the dark the boss takes half damage, by a lit brazier full damage.
 	 */
-	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "keeper_dark", tickLimit = 500)
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "keeper_dark", tickLimit = PlacedFight.LOAD_LIMIT + 500)
 	public void darkPhaseFloodsAndHalvesDamage(TestContext context) {
 		Keeper.start(context, 2, WALKWAY, ReachArenas.WALKWAY_TOP, k -> {
 			ServerPlayerEntity player = k.player;
@@ -119,7 +119,7 @@ public final class CryptKeeperTests implements FabricGameTest {
 	}
 
 	/** A Crypt Moth that reaches a lit brazier puts it out; with a brazier burning, moths keep coming. */
-	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "keeper_moths", tickLimit = 600)
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "keeper_moths", tickLimit = PlacedFight.LOAD_LIMIT + 600)
 	public void mothsSmotherLitBraziers(TestContext context) {
 		Keeper.start(context, 3, WALKWAY, ReachArenas.WALKWAY_TOP, k -> {
 			BlockPos brazier = k.frame.at(-ReachArenas.BRAZIER_OFFSET, ReachArenas.WALKWAY_TOP + 1, ReachArenas.BRAZIER_OFFSET);
@@ -148,7 +148,7 @@ public final class CryptKeeperTests implements FabricGameTest {
 	 * P3 at 30 %: the water reaches two blocks on the lower floor (walkways dry) and Restless Bones rise; a reset
 	 * drains the arena and removes them.
 	 */
-	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "keeper_drowned", tickLimit = 500)
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "keeper_drowned", tickLimit = PlacedFight.LOAD_LIMIT + 500)
 	public void deepFloodRaisesBonesAndDrainsOnReset(TestContext context) {
 		Keeper.start(context, 4, WALKWAY, ReachArenas.WALKWAY_TOP, k -> {
 			k.boss.setHealth(k.boss.getMaxHealth() * 0.29f);
@@ -186,7 +186,8 @@ public final class CryptKeeperTests implements FabricGameTest {
 		static void start(TestContext context, int spot, int[] at, int y, java.util.function.Consumer<Keeper> then) {
 			Keeper k = new Keeper(context, spot, at, y);
 			BlockPos center = k.frame.center();
-			k.arena.await(() -> k.world().shouldTickEntity(center.up()), 200, "the arena chunks to tick", () -> {
+			k.arena.await(() -> k.world().shouldTickEntity(center.up()) && k.world().shouldTickEntity(center.add(0, 1, ReachArenas.NECROPOLIS.radius()))
+					&& k.world().shouldTickEntity(center.add(0, 1, -ReachArenas.NECROPOLIS.radius())), PlacedFight.LOAD_LIMIT, "the arena chunks to tick", () -> {
 				ArenaSpec spec = new ArenaSpec(new Identifier("embervoid", "ashen_reach/zone_c"), ReachBossEntities.CRYPT_KEEPER, 24,
 						ReachArenas.NECROPOLIS.radius());
 				k.fight = k.arena.startAt(spec, center);
