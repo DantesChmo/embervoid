@@ -13,7 +13,8 @@
 			"com.embervoid.gametest.PlayerTests",
 			"com.embervoid.gametest.SanctumTests",
 			"com.embervoid.gametest.NightMobTests",
-			"com.embervoid.gametest.VampireTests"
+			"com.embervoid.gametest.VampireTests",
+			"com.embervoid.gametest.GearTests"
 		]
 	},
 	"mixins": [

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "embervoid:item/grave_iron_ingot"
+  }
+}
