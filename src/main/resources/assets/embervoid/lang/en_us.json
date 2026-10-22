@@ -143,5 +143,16 @@
 	"embervoid.derived.flask_heal": "Flask healing",
 	"embervoid.derived.armor_toughness": "Armor toughness",
 	"embervoid.derived.fire_reduction": "Fire damage reduction",
-	"embervoid.derived.luck": "Luck"
+	"embervoid.derived.luck": "Luck",
+	"embervoid.moon.title.full_moon": "The Full Moon",
+	"embervoid.moon.subtitle.full_moon": "The dead will not rest tonight",
+	"embervoid.moon.started.full_moon": "The full moon rises. Beds will not help you tonight.",
+	"embervoid.moon.title.blood_new_moon": "The Blood New Moon",
+	"embervoid.moon.subtitle.blood_new_moon": "The sky bleeds",
+	"embervoid.moon.started.blood_new_moon": "The blood new moon rises. Beds will not help you tonight.",
+	"embervoid.moon.title.dawn": "Dawn",
+	"embervoid.moon.ended.full_moon": "The full moon sets.",
+	"embervoid.moon.ended.blood_new_moon": "The blood new moon fades.",
+	"embervoid.moon.ended.timeout": "The night could not hold any longer. %s",
+	"embervoid.moon.no_sleep": "You cannot sleep on a moon night"
 }

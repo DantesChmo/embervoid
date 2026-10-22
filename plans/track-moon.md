@@ -17,12 +17,17 @@ Packages owned: `com.embervoid.moon` (main), `com.embervoid.client.moon` (client
 Decisions made here (small, easy to change):
 - `hold` outside a moon night returns false and holds nothing; holds are cleared when a night ends.
 - Holds are saved with the world, so a held night stays held across a restart (owners can reconcile via `holds`).
+- Held night: the overworld clock is set back to 22999 of the night's day every tick (clients may see up to a
+  second of drift between time syncs). Release of the last hold moves the clock to dawn (23000).
+- Beds refuse from 12000 on the day of a scheduled night (vanilla allows lying down at ~12542, before our dusk at
+  13000) and during any moon night; the respawn point is still set. Sleepers are woken when a night starts.
+- Announcements: chat line to every player, title only to overworld players; end title "Dawn" for any reason.
 - `start` during the day moves the clock to dusk of the same day; `setcycle n` sets the clock to 1000 on day 8n.
 
 ## Tasks
 
 - [x] 8.1 Moon-night state + `moon.api` (schedule JUnit-tested)
-- [ ] 8.2 Night hold (time freeze), dawn on release, sleep block, fallback, announcements
+- [x] 8.2 Night hold (time freeze), dawn on release, sleep block, fallback, announcements
 - [ ] 8.3 Blood-red sky sync
 - [ ] 8.4 Full moon mob modifiers
 - [ ] 8.5 Curse of the Night

@@ -143,5 +143,16 @@
 	"embervoid.derived.flask_heal": "Лечение флягой",
 	"embervoid.derived.armor_toughness": "Прочность брони",
 	"embervoid.derived.fire_reduction": "Снижение урона от огня",
-	"embervoid.derived.luck": "Удача"
+	"embervoid.derived.luck": "Удача",
+	"embervoid.moon.title.full_moon": "Полнолуние",
+	"embervoid.moon.subtitle.full_moon": "Этой ночью мёртвые не знают покоя",
+	"embervoid.moon.started.full_moon": "Восходит полная луна. Этой ночью кровать не спасёт.",
+	"embervoid.moon.title.blood_new_moon": "Кровавое новолуние",
+	"embervoid.moon.subtitle.blood_new_moon": "Небо истекает кровью",
+	"embervoid.moon.started.blood_new_moon": "Наступает кровавое новолуние. Этой ночью кровать не спасёт.",
+	"embervoid.moon.title.dawn": "Рассвет",
+	"embervoid.moon.ended.full_moon": "Полная луна заходит.",
+	"embervoid.moon.ended.blood_new_moon": "Кровавое новолуние угасает.",
+	"embervoid.moon.ended.timeout": "Ночь больше не может длиться. %s",
+	"embervoid.moon.no_sleep": "В лунную ночь не уснуть"
 }
