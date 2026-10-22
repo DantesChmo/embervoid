@@ -1,6 +1,8 @@
 package com.embervoid.gametest;
 
+import com.embervoid.Embervoid;
 import com.embervoid.config.EmbervoidConfig;
+import com.embervoid.gametest.mixin.ServerPlayerEntityAccessor;
 import com.embervoid.mob.MobLevels;
 import com.embervoid.moon.MoonNightManager;
 import com.embervoid.moon.api.CurseOfTheNight;
@@ -11,6 +13,7 @@ import com.embervoid.nightmob.GhostEntity;
 import com.embervoid.nightmob.NightMobConfig;
 import com.embervoid.nightmob.NightMobs;
 import com.embervoid.nightmob.NightWaves;
+import com.embervoid.registry.ModEntities;
 import com.embervoid.sanctum.SanctumItems;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -25,6 +28,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -103,6 +107,38 @@ public final class NightMobTests implements FabricGameTest {
 				context.assertTrue(player.getInventory().count(SanctumItems.FLASK_SHARD) == 1,
 						"Flask Shards after the ghost wave: " + player.getInventory().count(SanctumItems.FLASK_SHARD));
 				context.assertTrue(MoonNights.current(context.getWorld().getServer()) == MoonNight.NONE, "night still on");
+				finish(context, player);
+			}));
+		}).run();
+	}
+
+	/**
+	 * A Ghost wave ends when its player dies (R40.1c): the Ghosts vanish and the wave's hold is released, while the
+	 * death still adds its curse stack. Another hold keeps the night on, as another player's wave would.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "nightmobs_ghost_death", tickLimit = 100)
+	public void ghostWaveEndsWhenItsPlayerDies(TestContext context) {
+		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
+		MinecraftServer server = context.getWorld().getServer();
+		Identifier other = Embervoid.id("test/other_wave");
+		safe(context, player, () -> {
+			List<MobEntity> wave = startFullMoon(context, player, 0);
+			context.assertTrue(!wave.isEmpty() && wave.get(0) instanceof GhostEntity, "no ghost wave: " + wave);
+			MoonNights.hold(server, other);
+			((ServerPlayerEntityAccessor) player).embervoid$setJoinInvulnerabilityTicks(0);
+			player.damage(wave.get(0).getDamageSources().mobAttack(wave.get(0)), 1000);
+			context.assertTrue(player.isDead(), "the player survived");
+			context.waitAndRun(2, safe(context, player, () -> {
+				context.assertTrue(NightWaves.waveOf(server, player.getUuid()).isEmpty(), "the wave is still there");
+				for (MobEntity ghost : wave) {
+					context.assertTrue(ghost.isRemoved(), "a ghost stayed");
+				}
+				context.assertTrue(!MoonNights.holds(server).contains(NightWaves.holdId(player.getUuid())), "the wave still holds the night");
+				context.assertTrue(MoonNights.current(server) == MoonNight.FULL_MOON, "the night ended with another hold open");
+				context.assertTrue(CurseOfTheNight.stacks(player) == 1, "curse stacks after the death: " + CurseOfTheNight.stacks(player));
+				MoonNights.release(server, other);
+				context.getWorld().getEntitiesByType(ModEntities.ASH_REMNANT, remnant -> player.getUuid().equals(remnant.getOwner()))
+						.forEach(Entity::discard);
 				finish(context, player);
 			}));
 		}).run();

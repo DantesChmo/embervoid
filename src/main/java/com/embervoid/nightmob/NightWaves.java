@@ -9,6 +9,7 @@ import com.embervoid.sanctum.SanctumItems;
 import com.mojang.serialization.Codec;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -33,6 +34,7 @@ import net.minecraft.world.SpawnHelper;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.Set;
@@ -43,8 +45,9 @@ import java.util.UUID;
  * one Ashen Zombie per Curse of the Night stack (at most {@link NightMobConfig#maxZombies}), or
  * {@link NightMobConfig#ghostCount} Ghosts with no curse, {@code spawnMinDistance}–{@code spawnMaxDistance} blocks
  * away. Each wave holds the night ({@code embervoid:wave/<uuid>}) until all its mobs are gone; a cleared Ghost wave
- * gives its owner a Flask Shard. A player outside the overworld when the night starts gets their wave on arrival
- * while the night is still on. When the night ends, every wave mob left vanishes.
+ * gives its owner a Flask Shard. A Ghost wave ends when its player dies (R40.1c): a lost fight costs that death (and
+ * its curse stack), not a night of them. A player outside the overworld when the night starts gets their wave on
+ * arrival while the night is still on. When the night ends, every wave mob left vanishes.
  */
 public final class NightWaves {
 	/** The full moon night ({@link WaveState#night}) a wave mob came on; absent on any other mob. */
@@ -60,6 +63,11 @@ public final class NightWaves {
 	private static final int CHECK_INTERVAL_TICKS = 20;
 	/** Stale wave mobs found while loading, discarded at the end of the tick (not in the middle of loading them). */
 	private static final List<Entity> STALE = new ArrayList<>();
+	/**
+	 * Players who died with a Ghost wave, whose wave goes at the end of the tick: after the death has added its curse
+	 * stack, and not from inside the death.
+	 */
+	private static final Set<UUID> DIED = new LinkedHashSet<>();
 
 	public static void register() {
 		MoonNights.NIGHT_STARTED.register((server, night) -> {
@@ -73,11 +81,27 @@ public final class NightWaves {
 			}
 		});
 		ServerLifecycleEvents.SERVER_STARTED.register(NightWaves::resume);
-		ServerLifecycleEvents.SERVER_STOPPED.register(server -> STALE.clear());
+		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
+			STALE.clear();
+			DIED.clear();
+		});
+		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
+			if (entity instanceof ServerPlayerEntity player) {
+				WaveState.Wave wave = WaveState.get(player.getServer()).waves.get(player.getUuid());
+				if (wave != null && wave.kind == WaveRules.Kind.GHOSTS) {
+					DIED.add(player.getUuid());
+				}
+			}
+		});
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			if (!STALE.isEmpty()) {
 				STALE.forEach(Entity::discard);
 				STALE.clear();
+			}
+			if (!DIED.isEmpty()) {
+				List<UUID> died = List.copyOf(DIED);
+				DIED.clear();
+				died.forEach(owner -> ghostsLeave(server, owner));
 			}
 			if (server.getTicks() % CHECK_INTERVAL_TICKS == 0) {
 				serveArrivals(server);
@@ -341,6 +365,16 @@ public final class NightWaves {
 	private static void giveShard(ServerPlayerEntity player) {
 		player.getInventory().offerOrDrop(new ItemStack(SanctumItems.FLASK_SHARD));
 		player.sendMessage(Text.translatable("embervoid.wave.shard").formatted(Formatting.GOLD), false);
+	}
+
+	/** {@code owner} died to their Ghost wave: the Ghosts vanish and the night no longer waits for them. */
+	private static void ghostsLeave(MinecraftServer server, UUID owner) {
+		if (clearWave(server, owner) > 0) {
+			ServerPlayerEntity player = server.getPlayerManager().getPlayer(owner);
+			if (player != null) {
+				player.sendMessage(Text.translatable("embervoid.wave.ghosts_left").formatted(Formatting.DARK_PURPLE), false);
+			}
+		}
 	}
 
 	/** Removes {@code owner}'s wave (debug): its mobs vanish and its hold is released. */
