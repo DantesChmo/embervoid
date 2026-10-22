@@ -6,12 +6,14 @@ import com.embervoid.moon.api.MoonNights;
 import com.embervoid.moon.api.MoonNights.EndReason;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 
 /**
  * Runs the moon-night state machine on the overworld's clock: starts a scheduled night at dusk, ends it at dawn
- * (unless held), on the last release or after the real-time fallback. Behind {@link MoonNights}.
+ * (while held, the clock stops just before dawn), on the last release (dawn comes at once) or after the real-time
+ * fallback. Behind {@link MoonNights}.
  */
 public final class MoonNightManager {
 	public static void register() {
@@ -42,10 +44,34 @@ public final class MoonNightManager {
 			end(server, state, EndReason.TIMEOUT);
 			return;
 		}
-		boolean nightOver = day != state.nightDay || !MoonSchedule.isNight(time);
-		if (nightOver && state.holds.isEmpty()) {
+		long lastHeldTime = MoonSchedule.dawnOf(state.nightDay) - 1;
+		if (!state.holds.isEmpty()) {
+			// Held: the clock stops just before dawn (also undoing a /time set past it).
+			if (time > lastHeldTime) {
+				overworld.setTimeOfDay(lastHeldTime);
+			}
+			return;
+		}
+		if (day != state.nightDay || !MoonSchedule.isNight(time)) {
 			end(server, state, EndReason.DAWN);
 		}
+	}
+
+	/**
+	 * Whether beds refuse now: during a moon night, and on the evening before a scheduled one (vanilla lets players
+	 * lie down a little before dusk, which would skip the night).
+	 */
+	public static boolean sleepBlocked(MinecraftServer server) {
+		MoonNightState state = MoonNightState.get(server);
+		if (state.night.isEvent()) {
+			return true;
+		}
+		MoonConfig config = MoonConfig.get();
+		long time = server.getOverworld().getTimeOfDay();
+		long day = MoonSchedule.day(time);
+		return config.enabled() && day != state.lastEndedDay
+				&& MoonSchedule.nightOf(day, config.cycleInterval()).isEvent()
+				&& MoonSchedule.timeInDay(time) >= MoonSchedule.EVENING;
 	}
 
 	/** Starts {@code night} now (debug), ending any current one; moves the clock to dusk if it is day. */
@@ -103,6 +129,12 @@ public final class MoonNightManager {
 		state.holds.clear();
 		state.markDirty();
 		Embervoid.LOGGER.info("Moon night started: {} (day {})", night.id(), day);
+		for (ServerPlayerEntity player : server.getOverworld().getPlayers()) {
+			if (player.isSleeping()) {
+				player.wakeUp(true, true);
+			}
+		}
+		MoonAnnouncements.started(server, night);
 		MoonNights.NIGHT_STARTED.invoker().onNightStarted(server, night);
 	}
 
@@ -113,7 +145,16 @@ public final class MoonNightManager {
 		state.elapsedTicks = 0;
 		state.holds.clear();
 		state.markDirty();
+		if (reason == EndReason.GOAL_MET) {
+			// The goal is met: dawn comes now.
+			ServerWorld overworld = server.getOverworld();
+			long dawn = MoonSchedule.dawnOf(state.nightDay);
+			if (overworld.getTimeOfDay() < dawn) {
+				overworld.setTimeOfDay(dawn);
+			}
+		}
 		Embervoid.LOGGER.info("Moon night ended: {} ({})", night.id(), reason.name().toLowerCase());
+		MoonAnnouncements.ended(server, night, reason);
 		MoonNights.NIGHT_ENDED.invoker().onNightEnded(server, night, reason);
 	}
 

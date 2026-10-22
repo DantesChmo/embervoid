@@ -15,6 +15,8 @@ public final class MoonSchedule {
 	public static final long DAY_TICKS = 24_000;
 	/** Time of day (within the day) when a moon night starts: dusk, as monsters start to spawn. */
 	public static final int NIGHT_START = 13_000;
+	/** Time of day from which vanilla lets players sleep; beds refuse from here on the day of a moon night. */
+	public static final int EVENING = 12_000;
 	/** Time of day when a moon night ends at dawn; a held night stops just before it. */
 	public static final int NIGHT_END = 23_000;
 	public static final int DAYS_PER_CYCLE = 8;

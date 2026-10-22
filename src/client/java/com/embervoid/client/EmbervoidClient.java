@@ -5,6 +5,7 @@ import com.embervoid.config.ConfigSync;
 import com.embervoid.client.mob.MobLevelClient;
 import com.embervoid.client.mob.MobRenderers;
 import com.embervoid.client.nightmob.NightMobClient;
+import com.embervoid.client.moon.MoonClient;
 import com.embervoid.client.realm.RealmClient;
 import com.embervoid.config.EmbervoidClientConfig;
 import com.embervoid.config.EmbervoidConfig;
@@ -41,6 +42,7 @@ public class EmbervoidClient implements ClientModInitializer {
 		MobLevelClient.register();
 		NightMobClient.register();
 		RealmClient.register();
+		MoonClient.register();
 		// Also registers the progress sync receiver.
 		SanctumClient.register();
 		// Particles and the name label only; a model comes with the art pass.

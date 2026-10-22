@@ -4,8 +4,10 @@ import com.embervoid.moon.api.MoonNight;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 
@@ -15,10 +17,12 @@ import static net.minecraft.server.command.CommandManager.literal;
 /**
  * Operator-only debug commands under {@code /embervoid moon}. Output is not translated on purpose.
  * <ul>
- *   <li>{@code status}: the current night, the day, holds and the next scheduled event</li>
+ *   <li>{@code status}: the current night, the day, holds, the next scheduled event and online players' curse
+ *   stacks</li>
  *   <li>{@code start full | blood}: start that night now (moves the clock to dusk if it is day)</li>
  *   <li>{@code stop}: end the current night</li>
  *   <li>{@code setcycle <cycle>}: set the clock to the morning of that lunar cycle's full moon day</li>
+ *   <li>{@code curse <player> <stacks>}: set a player's Curse of the Night stacks</li>
  * </ul>
  */
 final class MoonCommands {
@@ -46,7 +50,17 @@ final class MoonCommands {
 													"[server] Clock set to the morning of cycle " + cycle + " (day "
 															+ cycle * MoonSchedule.DAYS_PER_CYCLE + ")"), true);
 											return 1;
-										}))))));
+										})))
+								.then(literal("curse")
+										.then(argument("player", EntityArgumentType.player())
+												.then(argument("stacks", IntegerArgumentType.integer(0)).executes(context -> {
+													ServerPlayerEntity player = EntityArgumentType.getPlayer(context, "player");
+													CurseManager.set(player, IntegerArgumentType.getInteger(context, "stacks"));
+													context.getSource().sendFeedback(() -> Text.literal("[server] "
+															+ player.getName().getString() + ": curse stacks "
+															+ CurseManager.stacks(player)), true);
+													return 1;
+												})))))));
 	}
 
 	private static int start(CommandContext<ServerCommandSource> context, MoonNight night) {
@@ -75,6 +89,10 @@ final class MoonCommands {
 						config.cycleInterval()).id());
 		if (!config.enabled()) {
 			out.append(" (moon.enabled is false)");
+		}
+		out.append("\nCurse of the Night:");
+		for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+			out.append(' ').append(player.getName().getString()).append('=').append(CurseManager.stacks(player));
 		}
 		String text = out.toString();
 		context.getSource().sendFeedback(() -> Text.literal(text), false);

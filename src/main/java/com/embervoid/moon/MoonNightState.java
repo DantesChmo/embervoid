@@ -28,6 +28,8 @@ public final class MoonNightState extends PersistentState {
 	/** Day of the last night that ended, so a night stopped early does not start again. */
 	long lastEndedDay = Long.MIN_VALUE;
 	final Set<Identifier> holds = new LinkedHashSet<>();
+	/** Number of full moons that have ended; curse stacks from an earlier count are void (see {@link CurseManager}). */
+	long curseEpoch;
 
 	public static MoonNightState get(MinecraftServer server) {
 		return server.getOverworld().getPersistentStateManager().getOrCreate(MoonNightState::fromNbt, MoonNightState::new, ID);
@@ -45,6 +47,10 @@ public final class MoonNightState extends PersistentState {
 		return elapsedTicks;
 	}
 
+	public long curseEpoch() {
+		return curseEpoch;
+	}
+
 	public Set<Identifier> holds() {
 		return Collections.unmodifiableSet(holds);
 	}
@@ -54,6 +60,7 @@ public final class MoonNightState extends PersistentState {
 		state.night = MoonNight.byOrdinal(nbt.getInt("Night"));
 		state.nightDay = nbt.getLong("NightDay");
 		state.elapsedTicks = nbt.getLong("Elapsed");
+		state.curseEpoch = nbt.getLong("CurseEpoch");
 		state.lastEndedDay = nbt.contains("LastEndedDay") ? nbt.getLong("LastEndedDay") : Long.MIN_VALUE;
 		NbtList holds = nbt.getList("Holds", NbtElement.STRING_TYPE);
 		for (int i = 0; i < holds.size(); i++) {
@@ -71,6 +78,7 @@ public final class MoonNightState extends PersistentState {
 		nbt.putLong("NightDay", nightDay);
 		nbt.putLong("Elapsed", elapsedTicks);
 		nbt.putLong("LastEndedDay", lastEndedDay);
+		nbt.putLong("CurseEpoch", curseEpoch);
 		NbtList list = new NbtList();
 		holds.forEach(id -> list.add(NbtString.of(id.toString())));
 		nbt.put("Holds", list);
