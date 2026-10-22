@@ -8,6 +8,7 @@ import com.embervoid.moon.MoonSync;
 import com.embervoid.moon.api.CurseOfTheNight;
 import com.embervoid.moon.api.MoonNight;
 import com.embervoid.moon.api.MoonNights;
+import com.mojang.authlib.GameProfile;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.BedBlock;
 import net.minecraft.block.Blocks;
@@ -23,18 +24,21 @@ import net.minecraft.network.PacketCallbacks;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.GameMode;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Moon nights on a real server (PLAN 8.1–8.6). The moon state and the clock are global, so every test has a batch
@@ -227,23 +231,151 @@ public final class MoonTests implements FabricGameTest {
 		}));
 	}
 
-	/** The server tells the client about the night when it starts and ends ({@code embervoid:moon_night}). */
+	/**
+	 * The server tells the client about the night when it starts and ends ({@code embervoid:moon_night}); the first
+	 * packet is the join's (no night).
+	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "moon_sync")
 	public void nightIsSentToClients(TestContext context) {
 		MinecraftServer server = context.getWorld().getServer();
 		Restore restore = Restore.save(context);
-		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
+		RecordingConnection connection = new RecordingConnection();
+		ServerPlayerEntity player = joinPlayer(context, 2, 2, connection);
 		restore.players.add(player);
 		guard(context, restore, () -> {
-			RecordingHandler handler = new RecordingHandler(server, player);
 			MoonNightManager.forceStart(server, MoonNight.BLOOD_NEW_MOON);
-			context.assertTrue(handler.moonNights().equals(List.of(MoonNight.BLOOD_NEW_MOON)),
-					"after start, sent " + handler.moonNights());
+			context.assertTrue(connection.moonNights().equals(List.of(MoonNight.NONE, MoonNight.BLOOD_NEW_MOON)),
+					"after start, sent " + connection.moonNights());
 			MoonNightManager.forceStop(server);
-			context.assertTrue(handler.moonNights().equals(List.of(MoonNight.BLOOD_NEW_MOON, MoonNight.NONE)),
-					"after stop, sent " + handler.moonNights());
+			context.assertTrue(connection.moonNights().equals(List.of(MoonNight.NONE, MoonNight.BLOOD_NEW_MOON, MoonNight.NONE)),
+					"after stop, sent " + connection.moonNights());
 			finish(context, restore);
 		});
+	}
+
+	/**
+	 * A zombie that targets a player 30 blocks away and then loses sight of them behind a wall keeps the target for
+	 * 100 ticks on a full moon. On an ordinary night vanilla drops it (60 ticks unseen). The zombie cannot move
+	 * (speed 0), so only targeting is tested.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "moon_target_full", tickLimit = 400)
+	public void fullMoonZombieKeepsUnseenTarget(TestContext context) {
+		testTargetBehindWall(context, true);
+	}
+
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "moon_target_ordinary", tickLimit = 400)
+	public void ordinaryNightZombieLosesUnseenTarget(TestContext context) {
+		testTargetBehindWall(context, false);
+	}
+
+	private static void testTargetBehindWall(TestContext context, boolean fullMoon) {
+		MinecraftServer server = context.getWorld().getServer();
+		Restore restore = Restore.save(context);
+		server.setDifficulty(Difficulty.NORMAL, true);
+		// A real player: the mock players count as creative, and hostiles never target creative players.
+		ServerPlayerEntity player = joinPlayer(context, 2, 32, new RecordingConnection());
+		restore.players.add(player);
+		ZombieEntity[] zombie = new ZombieEntity[1];
+		guard(context, restore, () -> {
+			if (fullMoon) {
+				MoonNightManager.forceStart(server, MoonNight.FULL_MOON);
+			} else {
+				context.getWorld().setTimeOfDay(18_000);
+			}
+			for (int x = 0; x <= 4; x++) {
+				for (int z = 0; z <= 4; z++) {
+					context.setBlockState(x, 0, z, Blocks.STONE);
+				}
+			}
+			zombie[0] = context.spawnMob(EntityType.ZOMBIE, 2, 1, 2);
+			zombie[0].getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).setBaseValue(0);
+		});
+		awaitTarget(context, restore, zombie, player, 0, () -> {
+			// Out of sight: a wall between them.
+			for (int x = 0; x <= 4; x++) {
+				for (int y = 1; y <= 4; y++) {
+					context.setBlockState(x, y, 5, Blocks.STONE);
+				}
+			}
+			context.assertTrue(!zombie[0].canSee(player), "the zombie still sees the player through the wall");
+			context.waitAndRun(100, () -> guard(context, restore, () -> {
+				if (fullMoon) {
+					context.assertTrue(zombie[0].getTarget() == player,
+							"full moon: target lost behind the wall (" + zombie[0].getTarget() + ")");
+				} else {
+					context.assertTrue(zombie[0].getTarget() == null,
+							"ordinary night: target kept behind the wall (" + zombie[0].getTarget() + ")");
+				}
+				finish(context, restore);
+			}));
+		});
+	}
+
+	/** Waits (up to 200 ticks) until the zombie targets the player, then runs {@code then}. */
+	private static void awaitTarget(TestContext context, Restore restore, ZombieEntity[] zombie, ServerPlayerEntity player,
+			int waited, Runnable then) {
+		context.waitAndRun(1, () -> guard(context, restore, () -> {
+			if (zombie[0].getTarget() == player) {
+				then.run();
+				return;
+			}
+			context.assertTrue(waited < 200, "the zombie never targeted the player 30 blocks away (follow range "
+					+ zombie[0].getAttributeValue(EntityAttributes.GENERIC_FOLLOW_RANGE) + ")");
+			awaitTarget(context, restore, zombie, player, waited + 1, then);
+		}));
+	}
+
+	/** The night is sent to a player who joins during it, respawns, goes to the Nether and comes back. */
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "moon_sync_events", tickLimit = 100)
+	public void nightIsSentOnJoinRespawnAndDimensionChange(TestContext context) {
+		MinecraftServer server = context.getWorld().getServer();
+		Restore restore = Restore.save(context);
+		RecordingConnection connection = new RecordingConnection();
+		guard(context, restore, () -> {
+			MoonNightManager.forceStart(server, MoonNight.BLOOD_NEW_MOON);
+			ServerPlayerEntity player = joinPlayer(context, 2, 2, connection);
+			restore.players.add(player);
+			assertSent(context, connection, 1, "join");
+
+			player.kill();
+			player = respawn(restore, player);
+			assertSent(context, connection, 2, "respawn");
+
+			player.teleport(server.getWorld(World.NETHER), 0.5, 100, 0.5, 0, 0);
+			context.assertTrue(player.getWorld().getRegistryKey() == World.NETHER, "player not in the Nether");
+			assertSent(context, connection, 3, "entering the Nether");
+
+			Vec3d back = context.getAbsolute(new Vec3d(2.5, 1, 2.5));
+			player.teleport(context.getWorld(), back.x, back.y, back.z, 0, 0);
+			assertSent(context, connection, 4, "returning to the overworld");
+			finish(context, restore);
+		});
+	}
+
+	private static void assertSent(TestContext context, RecordingConnection connection, int count, String when) {
+		List<MoonNight> sent = connection.moonNights();
+		context.assertTrue(sent.size() == count && sent.stream().allMatch(night -> night == MoonNight.BLOOD_NEW_MOON),
+				"after " + when + ", sent " + sent + " (expected " + count + "× blood_new_moon)");
+	}
+
+	/**
+	 * A survival player that joins through the real player manager on {@code connection} and stands at relative
+	 * {@code (x, 1, z)} on a 3×3 stone floor. Unlike the mock players it is not creative.
+	 */
+	private static ServerPlayerEntity joinPlayer(TestContext context, int x, int z, ClientConnection connection) {
+		for (int dx = -1; dx <= 1; dx++) {
+			for (int dz = -1; dz <= 1; dz++) {
+				context.setBlockState(x + dx, 0, z + dz, Blocks.STONE);
+			}
+		}
+		MinecraftServer server = context.getWorld().getServer();
+		ServerPlayerEntity player = new ServerPlayerEntity(server, context.getWorld(),
+				new GameProfile(UUID.randomUUID(), "moon-test-player"));
+		server.getPlayerManager().onPlayerConnect(connection, player);
+		player.changeGameMode(GameMode.SURVIVAL);
+		Vec3d pos = context.getAbsolute(Vec3d.ofBottomCenter(new BlockPos(x, 1, z)));
+		player.teleport(context.getWorld(), pos.x, pos.y, pos.z, 0, 0);
+		return player;
 	}
 
 	/** Respawns a player who died (a hit that did not kill, e.g. with PvP off, leaves them as they are). */
@@ -308,29 +440,27 @@ public final class MoonTests implements FabricGameTest {
 		}
 	}
 
-	/** Replaces a player's network handler and records the custom payloads sent to it. */
-	private static final class RecordingHandler extends ServerPlayNetworkHandler {
-		private final List<CustomPayloadS2CPacket> payloads = new ArrayList<>();
+	/** A connection that records the moon nights sent to it instead of sending anything. */
+	private static final class RecordingConnection extends ClientConnection {
+		private final List<MoonNight> nights = new ArrayList<>();
 
-		RecordingHandler(MinecraftServer server, ServerPlayerEntity player) {
-			// The constructor makes this the player's handler.
-			super(server, new ClientConnection(NetworkSide.SERVERBOUND), player);
+		RecordingConnection() {
+			super(NetworkSide.SERVERBOUND);
 		}
 
 		@Override
-		public void sendPacket(Packet<?> packet, @Nullable PacketCallbacks callbacks) {
-			if (packet instanceof CustomPayloadS2CPacket payload) {
-				payloads.add(payload);
+		public void send(Packet<?> packet) {
+			send(packet, null);
+		}
+
+		@Override
+		public void send(Packet<?> packet, @Nullable PacketCallbacks callbacks) {
+			if (packet instanceof CustomPayloadS2CPacket payload && payload.getChannel().equals(MoonSync.PACKET)) {
+				nights.add(MoonNight.byOrdinal(new PacketByteBuf(payload.getData().copy()).readVarInt()));
 			}
 		}
 
 		List<MoonNight> moonNights() {
-			List<MoonNight> nights = new ArrayList<>();
-			for (CustomPayloadS2CPacket payload : payloads) {
-				if (payload.getChannel().equals(MoonSync.PACKET)) {
-					nights.add(MoonNight.byOrdinal(new PacketByteBuf(payload.getData().copy()).readVarInt()));
-				}
-			}
 			return nights;
 		}
 	}
