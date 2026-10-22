@@ -222,7 +222,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 9.5 | **Realm 1 blocks and ores** | 9.3, 11.1 | done (GameTest + server check; textures and particles not seen) |
 | 9.6 | **Landing plaza, roads, milestones, outposts** | 9.2, 9.4 | done (GameTest + server check; roads on steep ground and looks not seen) |
 | 9.7 | **Minor structures per zone** | 9.2, 9.5, chest ids | done (GameTest + server check; ruin looks not seen) |
-| 9.8 | **Necropolis crypt jigsaw + water** | 9.7 | todo |
+| 9.8 | **Necropolis crypt jigsaw + water** | 9.7 | done (GameTest + server check; crypt and pool looks not seen) |
 | 9.9 | **World edge** | 9.4 | todo |
 
 - **9.1 Fog API.** Client mixin on `BackgroundRenderer` with a small API (client side, e.g.
