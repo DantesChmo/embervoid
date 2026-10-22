@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Boots a dedicated server with the mod, makes it generate the worldgen a player would hit first, and scans the log.
 
-Run from the repository root: python3 tools/server_check.py [--accept-eula] [--keep-world]
+Run from the repository root: python3 tools/server_check.py [--accept-eula] [--keep-world] [--perf [--profile]]
 
 What it does:
 1. Starts `./gradlew runServerCheck` (run dir run/server-check, a fresh world each time unless --keep-world) with
@@ -17,11 +17,22 @@ What it does:
 3. Scans the whole output (build + server log) for crashes, mixin failures, ERROR lines and datapack load errors.
    Exit code 0 only if there are none. WARN lines are listed but do not fail the check.
 
+With --perf (PLAN R40.4b) step 2 measures instead, on a fresh world with default config. Phase 1, no players: for
+each area (vanilla overworld far from spawn for reference, realm landing, the three zone arenas, a minor structure of each zone and a crypt, depths landing, depths
+arena, the Smoldering Citadel) the time from `forceload add` until all its chunks tick entities, then its tick time
+over the last 100 ticks (`/embervoid perf ticks`) and its entities (`/embervoid perf entities`). Phase 2: three
+headless bot players (`Bot`) join; one at a time goes to each area, the time until its surroundings tick ("arrival",
+which includes generating its view distance) is taken, then the same readings. Phase 3: every area at once, with
+three bots in three places. Results go to run/server-check/perf.json and a table. --profile also records a Java
+Flight Recorder profile of the server (run/server-check/perf.jfr) and prints the mod's methods with the most samples.
+
 The dedicated server never loads client mixins or client classes: this catches common-code problems only.
 The first run needs --accept-eula (Minecraft EULA, https://aka.ms/MinecraftEULA); it is remembered in the run dir.
 """
 import argparse
+import json
 import os
+import platform
 import re
 import secrets
 import shutil
@@ -29,6 +40,7 @@ import socket
 import struct
 import subprocess
 import sys
+import threading
 import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -39,6 +51,17 @@ RCON_PORT = 25598
 BOOT_TIMEOUT = 600
 GENERATION_WAIT = 20
 STOP_TIMEOUT = 120
+PERF_OUTPUT = os.path.join(RUN_DIR, "perf.json")
+PERF_JFR = os.path.join(RUN_DIR, "perf.jfr")
+# Seconds to let an area settle (mobs placed, lighting done) before its tick time is read; the reading covers the
+# last 100 ticks (5 s), so this must be longer.
+PERF_SETTLE = 10
+# Bots joining at spawn: let their chunks load before the idle reading.
+PERF_PLAYER_SETTLE = 20
+PERF_GEN_TIMEOUT = 300
+PERF_ARRIVAL_TIMEOUT = 120
+# How long a boss fights the bot before the reading.
+PERF_FIGHT = 15
 
 # A problem anywhere in the output fails the check.
 PROBLEMS = [
@@ -99,6 +122,135 @@ class Rcon:
         self.sock.close()
 
 
+class Bot:
+    """A headless offline-mode player for --perf (protocol 763, Minecraft 1.20.1): logs in, answers keep-alives and
+    teleports, reads and drops everything else, so the server ticks it like a real player (chunks, mob targets, natural
+    spawning). It never moves on its own; RCON places it. The server runs without compression in perf mode."""
+
+    PROTOCOL = 763
+    KEEP_ALIVE_IN, SYNC_POSITION_IN, DISCONNECT_IN = 0x23, 0x3C, 0x1A
+    CONFIRM_TELEPORT_OUT, CLIENT_COMMAND_OUT, KEEP_ALIVE_OUT, POSITION_OUT = 0x00, 0x07, 0x12, 0x14
+    # A client reports its position at least once a second; the server moves its chunk tickets only then, not on a
+    # teleport alone.
+    POSITION_INTERVAL = 1.0
+
+    def __init__(self, name, port):
+        self.name = name
+        self.reason = None
+        self.sock = socket.create_connection(("127.0.0.1", port), timeout=60)
+        self.lock = threading.Lock()
+        self._send(0x00, self._varint(self.PROTOCOL) + self._string("127.0.0.1") + struct.pack(">H", port) + self._varint(2))
+        self._send(0x00, self._string(name) + b"\x00")
+        while True:
+            packet_id, data = self._read_packet()
+            if packet_id == 0x02:  # login success
+                break
+            if packet_id == 0x04:  # login plugin request (Fabric's early registration query): not understood
+                message_id, _ = self._read_varint(data, 0)
+                self._send(0x02, self._varint(message_id) + b"\x00")
+            elif packet_id in (0x00, 0x01, 0x03):
+                raise RuntimeError(f"bot {name}: login answered with packet {packet_id:#x} {data[:200]!r}")
+        self.sock.settimeout(None)
+        self.pos = None
+        threading.Thread(target=self._play, daemon=True).start()
+        threading.Thread(target=self._report_position, daemon=True).start()
+
+    def _play(self):
+        try:
+            while True:
+                packet_id, data = self._read_packet()
+                if packet_id == self.KEEP_ALIVE_IN:
+                    self._send(self.KEEP_ALIVE_OUT, data[:8])
+                elif packet_id == self.SYNC_POSITION_IN:
+                    x, y, z = struct.unpack(">ddd", data[:24])
+                    flags = data[32]
+                    if self.pos is not None:
+                        # Bits 0-2: x, y, z relative to the current position.
+                        x, y, z = (v + (old if flags & bit else 0) for v, old, bit in zip((x, y, z), self.pos, (1, 2, 4)))
+                    self.pos = (x, y, z)
+                    teleport_id, _ = self._read_varint(data, 8 * 3 + 4 * 2 + 1)
+                    self._send(self.CONFIRM_TELEPORT_OUT, self._varint(teleport_id))
+                    self._send_position()
+                elif packet_id == self.DISCONNECT_IN:
+                    self.reason = data.decode("utf-8", "replace")
+                    return
+        except (OSError, RuntimeError) as e:
+            self.reason = self.reason or str(e)
+
+    def _send_position(self):
+        if self.pos is not None:
+            self._send(self.POSITION_OUT, struct.pack(">ddd?", *self.pos, True))
+
+    def _report_position(self):
+        while self.reason is None:
+            time.sleep(self.POSITION_INTERVAL)
+            try:
+                self._send_position()
+            except OSError:
+                return
+
+    def respawn(self):
+        self._send(self.CLIENT_COMMAND_OUT, self._varint(0))
+
+    def close(self):
+        try:
+            self.sock.close()
+        except OSError:
+            pass
+
+    def _send(self, packet_id, data):
+        body = self._varint(packet_id) + data
+        with self.lock:
+            self.sock.sendall(self._varint(len(body)) + body)
+
+    def _read_packet(self):
+        length = 0
+        for shift in range(0, 35, 7):
+            byte = self._read(1)[0]
+            length |= (byte & 0x7F) << shift
+            if not byte & 0x80:
+                break
+        data = self._read(length)
+        packet_id, offset = self._read_varint(data, 0)
+        return packet_id, data[offset:]
+
+    def _read(self, count):
+        data = b""
+        while len(data) < count:
+            chunk = self.sock.recv(count - len(data))
+            if not chunk:
+                raise RuntimeError("connection closed")
+            data += chunk
+        return data
+
+    @staticmethod
+    def _read_varint(data, offset):
+        value = 0
+        for shift in range(0, 35, 7):
+            byte = data[offset]
+            offset += 1
+            value |= (byte & 0x7F) << shift
+            if not byte & 0x80:
+                break
+        return value, offset
+
+    @staticmethod
+    def _varint(value):
+        out = b""
+        value &= 0xFFFFFFFF
+        while True:
+            byte = value & 0x7F
+            value >>= 7
+            out += bytes([byte | (0x80 if value else 0)])
+            if not value:
+                return out
+
+    @classmethod
+    def _string(cls, text):
+        raw = text.encode("utf-8")
+        return cls._varint(len(raw)) + raw
+
+
 def prepare(accept_eula, keep_world):
     os.makedirs(RUN_DIR, exist_ok=True)
     eula = os.path.join(RUN_DIR, "eula.txt")
@@ -110,6 +262,10 @@ def prepare(accept_eula, keep_world):
                  "again with --accept-eula.")
     if not keep_world:
         shutil.rmtree(os.path.join(RUN_DIR, "world"), ignore_errors=True)
+        # A fresh world gets the default config too (an old file keeps old defaults, e.g. depths closed).
+        config = os.path.join(RUN_DIR, "config", "embervoid.json")
+        if os.path.exists(config):
+            os.remove(config)
     password = secrets.token_hex(12)
     with open(os.path.join(RUN_DIR, "server.properties"), "w") as f:
         f.write("\n".join([
@@ -121,6 +277,9 @@ def prepare(accept_eula, keep_world):
             "online-mode=false",
             "spawn-protection=0",
             "level-name=world",
+            # The perf bots speak the protocol without compression, and never fall: no flying kick for them.
+            "network-compression-threshold=-1",
+            "allow-flight=true",
             "",
         ]))
     return password
@@ -239,6 +398,279 @@ def exercise(rcon):
     return log
 
 
+def perf_areas(rcon, log):
+    """The areas to measure: (label, dimension, (x1, z1, x2, z2)), located on this world's seed."""
+    def run(label, command):
+        response = rcon.command(command)
+        log.append((label, command, response.strip()))
+        return response
+
+    def around(pos, radius):
+        return (pos[0] - radius, pos[1] - radius, pos[0] + radius, pos[1] + radius)
+
+    reach, depths = "embervoid:ashen_reach", "embervoid:ashen_reach_depths"
+    # Vanilla terrain far from spawn, as a reference for the generation times.
+    areas = [("Overworld (vanilla)", "minecraft:overworld", around((4000, 4000), 48)),
+             ("Realm landing", reach, around((0, 0), 48))]
+    for arena, zone in (("a", "Fields"), ("b", "Woods"), ("c", "Necropolis")):
+        pos = located(run(f"Locate arena {arena.upper()}", f"execute in {reach} run locate structure "
+                          f"embervoid:ashen_reach_arena_{arena}"))
+        if pos:
+            areas.append((f"{zone} arena", reach, around(pos, 48)))
+        else:
+            FAILED_EXPECTATIONS.append(f"Arena {arena.upper()}: not located")
+    for structure in ("fields/barn", "woods/hanging_cages", "necropolis/chapel", "necropolis/crypt"):
+        pos = located(run(f"Locate {structure}", f"execute in {reach} run locate structure embervoid:ashen_reach/{structure}"))
+        if pos:
+            areas.append((f"Minor {structure}", reach, around(pos, 32)))
+        else:
+            FAILED_EXPECTATIONS.append(f"Minor {structure}: not located")
+    areas.append(("Depths landing", depths, around((0, 0), 48)))
+    pos = located(run("Locate depths arena", f"execute in {depths} run locate structure embervoid:ashen_reach_depths_arena"))
+    if pos:
+        areas.append(("Depths arena", depths, around(pos, 48)))
+    areas.append(("Smoldering Citadel", depths, (-76, -272, 76, -30)))
+    return areas
+
+
+def parse_numbers(pattern, response):
+    match = re.search(pattern, response)
+    return [float(g) for g in match.groups()] if match else None
+
+
+def exercise_perf(rcon):
+    """Measures generation and tick time per area (see the module doc); returns (log, results)."""
+    log, results = [], []
+
+    def ticks(label):
+        response = rcon.command("embervoid perf ticks")
+        log.append((label, "embervoid perf ticks", response.strip()))
+        numbers = parse_numbers(r"mean ([\d.]+) ms, p95 ([\d.]+) ms, max ([\d.]+) ms, chunks (\d+)", response)
+        if numbers is None:
+            FAILED_EXPECTATIONS.append(f"{label}: no tick times in {response.strip()!r}")
+            return {}
+        return {"mspt_mean": numbers[0], "mspt_p95": numbers[1], "mspt_max": numbers[2], "loaded_chunks": int(numbers[3])}
+
+    def entities(label, dimension, box):
+        x1, z1, x2, z2 = box
+        command = f"execute in {dimension} run embervoid perf entities {x1} {z1} {x2} {z2}"
+        response = rcon.command(command).strip()
+        log.append((label, command, response))
+        match = re.search(r"entities (\d+), mobs (\d+), placed (\d+)(?:: (.*))?", response)
+        if not match:
+            FAILED_EXPECTATIONS.append(f"{label}: no entity count in {response!r}")
+            return {}
+        return {"entities": int(match.group(1)), "mobs": int(match.group(2)), "placed": int(match.group(3)),
+                "types": match.group(4) or ""}
+
+    def load(label, dimension, box):
+        """Force-loads the box; seconds until every chunk in it ticks entities, or None on a timeout."""
+        x1, z1, x2, z2 = box
+        started = time.time()
+        rcon.command(f"execute in {dimension} run forceload add {x1} {z1} {x2} {z2}")
+        command = f"execute in {dimension} run embervoid perf chunks {x1} {z1} {x2} {z2}"
+        while time.time() - started < PERF_GEN_TIMEOUT:
+            response = rcon.command(command)
+            numbers = parse_numbers(r"chunks (\d+)/(\d+) loaded, (\d+) ticking", response)
+            if numbers and numbers[2] == numbers[1]:
+                elapsed = time.time() - started
+                log.append((label, command, f"{response.strip()} after {elapsed:.1f} s"))
+                return elapsed, int(numbers[1])
+            time.sleep(0.25)
+        FAILED_EXPECTATIONS.append(f"{label}: chunks not ticking after {PERF_GEN_TIMEOUT} s")
+        return None, 0
+
+    def center(box):
+        return (box[0] + box[2]) // 2, (box[1] + box[3]) // 2
+
+    def place(bot, dimension, box):
+        """Puts the bot on the ground in the middle of the box, alive and unhurtable (mobs still go for it)."""
+        if bot.reason:
+            FAILED_EXPECTATIONS.append(f"bot {bot.name} disconnected: {bot.reason}")
+            return False
+        health = rcon.command(f"data get entity {bot.name} Health")
+        if "Health: 0.0f" in health or "No entity" in health:
+            bot.respawn()
+            time.sleep(1)
+        x, z = center(box)
+        response = rcon.command(f"execute in {dimension} run spreadplayers {x} {z} 0 8 false {bot.name}")
+        log.append((f"Bot {bot.name}", "spreadplayers", response.strip()))
+        for effect in ("resistance", "regeneration", "fire_resistance", "water_breathing", "saturation"):
+            rcon.command(f"effect give {bot.name} minecraft:{effect} infinite 4 true")
+        return "Spread" in response
+
+    def surroundings_ready(placed):
+        """Seconds until the chunks within 8 chunks of each placed bot tick (loaded and generated)."""
+        started = time.time()
+        pending = list(placed)
+        while pending and time.time() - started < PERF_ARRIVAL_TIMEOUT:
+            dimension, box = pending[0]
+            x, z = center(box)
+            response = rcon.command(f"execute in {dimension} run embervoid perf chunks {x - 128} {z - 128} {x + 128} {z + 128}")
+            numbers = parse_numbers(r"chunks (\d+)/(\d+) loaded, (\d+) ticking", response)
+            if numbers and numbers[2] == numbers[1]:
+                pending.pop(0)
+            else:
+                time.sleep(0.5)
+        if pending:
+            FAILED_EXPECTATIONS.append(f"player surroundings not ticking after {PERF_ARRIVAL_TIMEOUT} s")
+        return time.time() - started
+
+    # Phase 1, no players: each area generated alone, then its tick time and entities.
+    time.sleep(PERF_SETTLE)
+    results.append({"area": "Idle (spawn chunks only)", "load_average": os.getloadavg(), **ticks("Idle")})
+    areas = perf_areas(rcon, log)
+    by_area = {}
+    for label, dimension, box in areas:
+        seconds, chunks = load(label, dimension, box)
+        time.sleep(PERF_SETTLE)
+        result = {"area": label, "dimension": dimension, "box": box, "chunks": chunks, "generate_s": seconds,
+                  **ticks(label), **entities(label, dimension, box)}
+        results.append(result)
+        by_area[label] = result
+        x1, z1, x2, z2 = box
+        rcon.command(f"execute in {dimension} run forceload remove {x1} {z1} {x2} {z2}")
+        time.sleep(3)
+
+    # Phase 2, one player at a time: it arrives, its view distance loads (and generates), then the reading.
+    bots = []
+    try:
+        for i in range(3):
+            bots.append(Bot(f"perf_bot{i + 1}", SERVER_PORT))
+        time.sleep(3)
+        for bot in bots:
+            rcon.command(f"gamemode survival {bot.name}")
+    except (OSError, RuntimeError) as e:
+        FAILED_EXPECTATIONS.append(f"bots: {e}")
+    time.sleep(PERF_PLAYER_SETTLE)
+    results.append({"area": f"Idle, {len(bots)} players at spawn", **ticks("Idle + players")})
+    for label, dimension, box in areas:
+        if not bots or not place(bots[0], dimension, box):
+            continue
+        arrival = surroundings_ready([(dimension, box)])
+        time.sleep(PERF_SETTLE)
+        by_area[label]["with_player"] = {"arrival_s": arrival, **ticks(label + " + player"),
+                                         **entities(label + " + player", dimension, box)}
+    # Phase 3: everything force-loaded, three players in three places.
+    started = time.time()
+    total = 0
+    for label, dimension, box in areas:
+        total += load(label, dimension, box)[1]
+    loaded = time.time() - started
+    time.sleep(PERF_SETTLE)
+    everything = {"area": "All areas at once", "chunks": total, "load_s": loaded, **ticks("All areas")}
+    counts = [entities(label, dimension, box) for label, dimension, box in areas]
+    for key in ("entities", "mobs", "placed"):
+        everything[key] = sum(c.get(key, 0) for c in counts)
+    if len(bots) == 3:
+        spots = [areas[1], next(a for a in areas if a[0] == "Minor necropolis/crypt"), areas[-1]]
+        if all(place(bot, dimension, box) for bot, (_, dimension, box) in zip(bots, spots)):
+            arrival = surroundings_ready([(dimension, box) for _, dimension, box in spots])
+            time.sleep(PERF_SETTLE)
+            everything["with_players"] = {"players": [spot[0] for spot in spots], "arrival_s": arrival,
+                                          **ticks("All areas + 3 players")}
+    everything["load_average"] = os.getloadavg()
+    results.append(everything)
+    for label, dimension, box in areas:
+        x1, z1, x2, z2 = box
+        rcon.command(f"execute in {dimension} run forceload remove {x1} {z1} {x2} {z2}")
+    # Phase 4: a real boss fight in each arena, one player fighting (the bot cannot be hurt and never hits back).
+    if bots:
+        bot = bots[0]
+        for dimension in ("embervoid:ashen_reach", "embervoid:ashen_reach_depths"):
+            if not place(bot, dimension, (-8, -8, 8, 8)):
+                continue
+            listing = rcon.command(f"execute as {bot.name} run embervoid realm arenas")
+            # RCON joins the command's lines without a separator.
+            for boss, x, z in re.findall(r"([a-z0-9_.-]+:[a-z0-9_./-]+) at (-?\d+), (-?\d+) \(level", listing):
+                results.append(boss_fight(rcon, bot, dimension, boss, int(x), int(z), place, surroundings_ready, ticks,
+                                          entities, log))
+            place(bot, dimension, (-8, -8, 8, 8))
+    for bot in bots:
+        bot.close()
+    run_save = rcon.command("save-all flush")
+    log.append(("Save", "save-all flush", run_save.strip()))
+    return log, results
+
+
+def boss_fight(rcon, bot, dimension, boss, x, z, place, surroundings_ready, ticks, entities, log):
+    """The bot steps into the arena at (x, z); once the fight runs, tick time and the arena's entities mid-fight."""
+    label = f"Fight {boss}"
+    box = (x - 48, z - 48, x + 48, z + 48)
+    result = {"area": label, "dimension": dimension, "box": box}
+    if not place(bot, dimension, (x - 2, z - 2, x + 2, z + 2)):
+        return result
+    surroundings_ready([(dimension, box)])
+    deadline = time.time() + 30
+    while time.time() < deadline and "1 fight(s)" not in rcon.command("embervoid boss fights"):
+        time.sleep(0.5)
+    fights = rcon.command("embervoid boss fights").strip()
+    log.append((label, "embervoid boss fights", fights))
+    if "1 fight(s)" not in fights:
+        FAILED_EXPECTATIONS.append(f"{label}: no fight started for a player in the arena ({fights!r})")
+        return result
+    time.sleep(PERF_FIGHT)
+    result.update({**ticks(label), **entities(label, dimension, box), "fight": fights.splitlines()[0]})
+    return result
+
+
+def print_perf(results):
+    print(f"\n  {'Area (gen s: generation; + player: arrival)':42} chunks   gen s   MSPT mean   p95    max   entities  mobs  placed")
+    for r in results:
+        gen = r.get("generate_s", r.get("load_s"))
+        print(f"  {r['area'][:42]:42} {r.get('chunks', ''):>6} {'' if gen is None else f'{gen:7.1f}':>7}"
+              f" {r.get('mspt_mean', 0):9.2f} {r.get('mspt_p95', 0):6.2f} {r.get('mspt_max', 0):6.2f}"
+              f" {r.get('entities', ''):>9} {r.get('mobs', ''):>5} {r.get('placed', ''):>6}")
+        for key in ("with_player", "with_players"):
+            w = r.get(key)
+            if w:
+                arrival = w.get("arrival_s")
+                print(f"    {'+ player' if key == 'with_player' else '+ 3 players':40} {'':>6} {'' if arrival is None else f'{arrival:7.1f}':>7}"
+                      f" {w.get('mspt_mean', 0):9.2f} {w.get('mspt_p95', 0):6.2f} {w.get('mspt_max', 0):6.2f}"
+                      f" {w.get('entities', ''):>9} {w.get('mobs', ''):>5} {w.get('placed', ''):>6}")
+        if r.get("types"):
+            print(f"      {r['types']}")
+
+
+def server_pid():
+    """Pid of the dedicated server java process running in RUN_DIR (the gradle task forks it), or None."""
+    try:
+        listing = subprocess.run(["jcmd", "-l"], capture_output=True, text=True, timeout=30).stdout
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    for line in listing.splitlines():
+        pid = line.split(" ", 1)[0]
+        if "devlaunchinjector" not in line or not pid.isdigit():
+            continue
+        cwd = subprocess.run(["lsof", "-a", "-p", pid, "-d", "cwd", "-Fn"], capture_output=True, text=True).stdout
+        if any(l[1:] == os.path.realpath(RUN_DIR) for l in cwd.splitlines() if l.startswith("n")):
+            return pid
+    return None
+
+
+def profile_hot_spots(limit=25):
+    """The mod's methods with the most JFR execution samples: (self, total, method) by thread kind."""
+    output = subprocess.run(["jfr", "print", "--events", "jdk.ExecutionSample", "--stack-depth", "64", PERF_JFR],
+                            capture_output=True, text=True).stdout
+    summary = {}
+    for event in output.split("jdk.ExecutionSample")[1:]:
+        thread = re.search(r'sampledThread = "([^"]+)"', event)
+        kind = "server thread" if thread and thread.group(1) == "Server thread" else "workers"
+        frames = re.findall(r"^\s+([\w.$]+)\(", event, re.MULTILINE)
+        stats = summary.setdefault(kind, {"samples": 0, "self": {}, "total": {}})
+        stats["samples"] += 1
+        if frames and frames[0].startswith("com.embervoid"):
+            stats["self"][frames[0]] = stats["self"].get(frames[0], 0) + 1
+        for frame in set(f for f in frames if f.startswith("com.embervoid")):
+            stats["total"][frame] = stats["total"].get(frame, 0) + 1
+    lines = []
+    for kind, stats in summary.items():
+        lines.append(f"{kind}: {stats['samples']} samples")
+        for frame, count in sorted(stats["total"].items(), key=lambda e: -e[1])[:limit]:
+            lines.append(f"  {100 * count / stats['samples']:5.1f} % total {100 * stats['self'].get(frame, 0) / stats['samples']:5.1f} % self  {frame}")
+    return lines
+
+
 def scan():
     problems, warnings = [], []
     with open(OUTPUT, errors="replace") as f:
@@ -257,6 +689,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--accept-eula", action="store_true", help="accept the Minecraft EULA for run/server-check")
     parser.add_argument("--keep-world", action="store_true", help="reuse the previous world instead of a fresh one")
+    parser.add_argument("--perf", action="store_true", help="measure generation and tick times instead of the check")
+    parser.add_argument("--profile", action="store_true", help="with --perf: record a JFR profile of the server")
     args = parser.parse_args()
 
     password = prepare(args.accept_eula, args.keep_world)
@@ -264,18 +698,31 @@ def main():
     with open(OUTPUT, "w") as out:
         process = subprocess.Popen([os.path.join(ROOT, "gradlew"), "runServerCheck", "--console=plain"], cwd=ROOT,
                                    stdout=out, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL)
-    commands = []
+    commands, results, hot_spots = [], None, []
     done = wait_for(re.compile(r"Done \(([\d.]+)s\)!"), process, BOOT_TIMEOUT)
     if done:
+        pid = server_pid() if args.profile else None
+        if args.profile and pid is None:
+            commands.append(("Profile", "", "server process not found, no profile"))
+        if pid:
+            subprocess.run(["jcmd", pid, "JFR.start", "name=embervoid", "settings=profile", f"filename={PERF_JFR}"],
+                           capture_output=True)
         try:
             rcon = Rcon(RCON_PORT, password)
             try:
-                commands = exercise(rcon)
+                if args.perf:
+                    commands, results = exercise_perf(rcon)
+                else:
+                    commands = exercise(rcon)
+                if pid:
+                    subprocess.run(["jcmd", pid, "JFR.stop", "name=embervoid"], capture_output=True)
                 rcon.command("stop")
             finally:
                 rcon.close()
         except (OSError, RuntimeError) as e:
             commands.append(("RCON", "", f"failed: {e}"))
+        if pid and os.path.exists(PERF_JFR):
+            hot_spots = profile_hot_spots()
     try:
         process.wait(STOP_TIMEOUT)
     except subprocess.TimeoutExpired:
@@ -291,6 +738,17 @@ def main():
         print(f"Boot: Done in {done.group(1)} s")
     for label, command, response in commands:
         print(f"  {label}: {response or '(no answer)'}")
+    if results is not None:
+        with open(PERF_OUTPUT, "w") as f:
+            json.dump({"boot_s": float(done.group(1)), "machine": machine(), "load_average_end": os.getloadavg(),
+                       "areas": results}, f, indent=2)
+        print(f"Load average (1, 5, 15 min) at the end: {', '.join(f'{v:.1f}' for v in os.getloadavg())}")
+        print_perf(results)
+        print(f"Results: {os.path.relpath(PERF_OUTPUT, ROOT)}")
+    if hot_spots:
+        print(f"\nHot spots (JFR execution samples, {os.path.relpath(PERF_JFR, ROOT)}):")
+        for line in hot_spots:
+            print("  " + line)
     if warnings:
         print(f"\nWarnings ({len(warnings)}):")
         for line in warnings[:40]:
@@ -301,6 +759,18 @@ def main():
             print("  " + problem)
         sys.exit(1)
     print("\nPASS: no errors, crashes or mixin failures in the log")
+
+
+def machine():
+    """CPU, cores and memory of this machine, for the perf write-up."""
+    def sysctl(name):
+        try:
+            return subprocess.run(["sysctl", "-n", name], capture_output=True, text=True).stdout.strip()
+        except OSError:
+            return ""
+    memory = sysctl("hw.memsize")
+    return {"cpu": sysctl("machdep.cpu.brand_string") or platform.processor(), "cores": os.cpu_count(),
+            "memory_gb": round(int(memory) / 2 ** 30) if memory.isdigit() else None, "os": platform.platform()}
 
 
 if __name__ == "__main__":
