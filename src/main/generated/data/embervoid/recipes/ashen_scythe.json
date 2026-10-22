@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "embervoid:ash_colossus_soul"
+    },
+    {
+      "item": "embervoid:smoldering_ingot"
+    },
+    {
+      "item": "embervoid:smoldering_ingot"
+    },
+    {
+      "item": "minecraft:iron_hoe"
+    }
+  ],
+  "result": {
+    "item": "embervoid:ashen_scythe"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "embervoid:smoldering_lord_soul"
+    },
+    {
+      "item": "embervoid:smoldering_ingot"
+    },
+    {
+      "item": "embervoid:smoldering_ingot"
+    },
+    {
+      "item": "minecraft:golden_sword"
+    }
+  ],
+  "result": {
+    "item": "embervoid:royal_ash_rapier"
+  }
+}

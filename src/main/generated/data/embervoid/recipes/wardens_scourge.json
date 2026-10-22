@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "embervoid:crypt_keeper_soul"
+    },
+    {
+      "item": "embervoid:smoldering_ingot"
+    },
+    {
+      "item": "embervoid:smoldering_ingot"
+    },
+    {
+      "item": "minecraft:chain"
+    }
+  ],
+  "result": {
+    "item": "embervoid:wardens_scourge"
+  }
+}

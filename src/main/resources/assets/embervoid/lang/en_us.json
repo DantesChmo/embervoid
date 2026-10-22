@@ -305,5 +305,14 @@
 	"embervoid.gear.furnace_heart_cuirass.piece": "Below 30% health: a fire nova burns and throws back foes around you (once per 60 s)",
 	"death.attack.embervoid.ember": "%1$s was burned to ash by %2$s",
 	"death.attack.embervoid.ember.item": "%1$s was burned to ash by %2$s using %3$s",
-	"death.attack.embervoid.ember.player": "%1$s was burned to ash fighting %2$s"
+	"death.attack.embervoid.ember.player": "%1$s was burned to ash fighting %2$s",
+	"item.embervoid.ashen_scythe": "Ashen Scythe",
+	"item.embervoid.ashen_scythe.passive": "Sweeps foes around the target; a fully charged swing sends an ash wave forward",
+	"item.embervoid.wardens_scourge": "Warden's Scourge",
+	"item.embervoid.wardens_scourge.passive": "Reach 6, one target; each hit adds Bleeding",
+	"item.embervoid.royal_ash_rapier": "Royal Ash Rapier",
+	"item.embervoid.royal_ash_rapier.passive": "Reach 2.5; each hit adds Bleeding and sets the target on fire",
+	"embervoid.ability.harvest": "Harvest",
+	"embervoid.ability.lash": "Lash",
+	"embervoid.ability.lunge": "Lunge"
 }

@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_smoldering_lord_soul": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "embervoid:smoldering_lord_soul"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "embervoid:royal_ash_rapier"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_smoldering_lord_soul",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "embervoid:royal_ash_rapier"
+    ]
+  },
+  "sends_telemetry_event": false
+}
