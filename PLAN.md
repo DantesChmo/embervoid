@@ -254,9 +254,9 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | ID  | Task | Depends on | Status |
 |-----|------|------------|--------|
 | 10.1 | **Greybox pipeline + shared mob base + spawns** | — | done (GameTest; models and animations not seen) |
-| 10.2 | **Cinder Husk, Ash Stalker** | 10.1 | todo |
-| 10.3 | **Ashen Carrion** | 10.1 | todo |
-| 10.4 | **Withered Thrall (+ hanging cage), Lantern Hag** | 10.1 | todo |
+| 10.2 | **Cinder Husk, Ash Stalker** | 10.1 | done (GameTest; models not seen) |
+| 10.3 | **Ashen Carrion** | 10.1 | done (GameTest; models not seen) |
+| 10.4 | **Withered Thrall (+ hanging cage), Lantern Hag** | 10.1 | done (GameTest; models not seen) |
 | 10.5 | **Bark Hollow** | 10.1 | todo |
 | 10.6 | **Restless Bones, Crypt Moth** | 10.1 | todo |
 | 10.7 | **Hollow Sentinel, Grave Warden** | 10.6 | todo |
@@ -280,7 +280,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 11.3 | **Smoldering Plate + Template** | reach-gear | 11.1 | done (GameTest; armor textures not seen) |
 | 11.4 | **Mob-drop sets + unique pieces** | reach-gear | 11.1 | done (GameTest; textures not seen) |
 | 11.5 | **Ashen Scythe, Warden's Scourge, Royal Ash Rapier** | reach-gear | 11.1, 11.2 | done (GameTest; textures and reach feel not seen) |
-| 11.6 | **Huntsman's Crossbow** | reach-gear | 11.1 | todo |
+| 11.6 | **Huntsman's Crossbow** | reach-gear | 11.1 | done (GameTest; held like a normal item when charged, textures not seen) |
 | 11.7 | **Consumables + Flask Ember** | reach-gear | 11.1, 11.2 | todo |
 | 11.8 | **Chest loot + realm loot on mobs** | reach-gear | 11.3–11.7 | todo |
 | 11.9 | **Reliquary: data, sync, screen** | reliquary | — | done (GameTest; screen look and button position not seen) |
