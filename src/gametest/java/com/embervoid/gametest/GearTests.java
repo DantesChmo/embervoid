@@ -1,16 +1,21 @@
 package com.embervoid.gametest;
 
 import com.embervoid.Embervoid;
+import com.embervoid.item.HealingFlaskItem;
+import com.embervoid.reach.gear.AshBombEntity;
 import com.embervoid.reach.gear.Bleeding;
 import com.embervoid.reach.gear.GearAbilities;
 import com.embervoid.reach.gear.GearArmor;
 import com.embervoid.reach.gear.GearConfig;
+import com.embervoid.reach.gear.GearConsumables;
 import com.embervoid.reach.gear.GearDamage;
 import com.embervoid.reach.gear.GearItems;
 import com.embervoid.reach.gear.GearLootTables;
 import com.embervoid.reach.gear.GearReach;
 import com.embervoid.reach.gear.GearWeapons;
+import com.embervoid.registry.ModBlocks;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
@@ -20,6 +25,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.HuskEntity;
 import net.minecraft.entity.projectile.ArrowEntity;
@@ -44,6 +50,7 @@ import net.minecraft.test.TestContext;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.List;
 
@@ -365,6 +372,88 @@ public final class GearTests implements FabricGameTest {
 			context.assertTrue(bolt.getPunch() == 3 && bolt.getPierceLevel() == 1,
 					"punch " + bolt.getPunch() + ", pierce " + bolt.getPierceLevel());
 			bolt.discard();
+		}, player);
+		TestPlayers.complete(context, player);
+	}
+
+	/** The Ash Bomb's burst burns and scorches mobs within 2 blocks, not further. */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 100)
+	public void ashBombBurst(TestContext context) {
+		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
+		withPlayers(context, () -> {
+			HuskEntity near = husk(context, 5, 5);
+			HuskEntity far = husk(context, 5, 9);
+			AshBombEntity bomb = new AshBombEntity(context.getWorld(), player);
+			Vec3d at = near.getPos().add(0.5, 0, 0);
+			bomb.setPosition(at.x, at.y, at.z);
+			bomb.burst();
+			context.assertTrue(near.getHealth() < near.getMaxHealth() && near.isOnFire(), "the bomb missed the mob beside it");
+			context.assertTrue(far.getHealth() == far.getMaxHealth() && !far.isOnFire(), "the bomb hit a mob 4 blocks away");
+		}, player);
+		TestPlayers.complete(context, player);
+	}
+
+	/**
+	 * Resin makes a weapon's hits ignite; Amber Balm cures Bleeding and Poison; oil lights a lantern in the offhand
+	 * (Night Vision); a Whetstone repairs a quarter of a realm weapon; Cinder Shards burn like two coal.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 100)
+	public void consumablesWork(TestContext context) {
+		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
+		ServerWorld world = context.getWorld();
+		withPlayers(context, () -> {
+			player.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.IRON_SWORD));
+			player.setStackInHand(Hand.OFF_HAND, new ItemStack(GearConsumables.SMOLDERING_RESIN));
+			player.getOffHandStack().use(world, player, Hand.OFF_HAND);
+			context.assertTrue(player.getOffHandStack().isEmpty(), "resin not used up");
+			HuskEntity husk = husk(context, 2, 4);
+			player.attack(husk);
+			context.assertTrue(husk.isOnFire(), "a resin-coated sword did not ignite");
+
+			Bleeding.apply(player, 2, null);
+			player.addStatusEffect(new StatusEffectInstance(StatusEffects.POISON, 200));
+			ItemStack balm = new ItemStack(GearConsumables.AMBER_BALM);
+			ItemStack left = balm.finishUsing(world, player);
+			context.assertTrue(!player.hasStatusEffect(Bleeding.BLEEDING) && !player.hasStatusEffect(StatusEffects.POISON)
+					&& player.hasStatusEffect(StatusEffects.REGENERATION), "balm did not cure and regenerate");
+			context.assertTrue(left.isOf(Items.GLASS_BOTTLE), "balm left " + left);
+
+			player.setStackInHand(Hand.OFF_HAND, new ItemStack(ModBlocks.EMBER_LANTERN));
+			player.setStackInHand(Hand.MAIN_HAND, new ItemStack(GearConsumables.AMBER_LANTERN_OIL));
+			player.getMainHandStack().use(world, player, Hand.MAIN_HAND);
+			context.assertTrue(GearConsumables.carriesLitLantern(player), "the lantern did not light");
+			GearConsumables.tickLanternForTest(player);
+			context.assertTrue(player.hasStatusEffect(StatusEffects.NIGHT_VISION), "a lit lantern gave no night vision");
+
+			ItemStack scythe = new ItemStack(GearWeapons.ASHEN_SCYTHE);
+			scythe.setDamage(1000);
+			player.setStackInHand(Hand.MAIN_HAND, scythe);
+			player.setStackInHand(Hand.OFF_HAND, new ItemStack(GearConsumables.WHETSTONE));
+			player.getOffHandStack().use(world, player, Hand.OFF_HAND);
+			context.assertTrue(scythe.getDamage() == 550, "whetstone left damage " + scythe.getDamage() + ", expected 550");
+
+			Integer fuel = FuelRegistry.INSTANCE.get(GearItems.CINDER_SHARD);
+			context.assertTrue(fuel != null && fuel == 3200, "cinder fuel " + fuel);
+			assertRecipe(context, "ash_bomb", GearConsumables.ASH_BOMB);
+			assertRecipe(context, "whetstone", GearConsumables.WHETSTONE);
+		}, player);
+		TestPlayers.complete(context, player);
+	}
+
+	/** The Flask Ember raises flask healing by 15 % once; a second one is refused. */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 100)
+	public void flaskEmberOnce(TestContext context) {
+		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
+		withPlayers(context, () -> {
+			float before = HealingFlaskItem.healAmount(player);
+			player.setStackInHand(Hand.MAIN_HAND, new ItemStack(GearItems.FLASK_EMBER, 2));
+			player.getMainHandStack().use(context.getWorld(), player, Hand.MAIN_HAND);
+			float after = HealingFlaskItem.healAmount(player);
+			context.assertTrue(Math.abs(after - before * 1.15f) < 1e-4, "heal " + before + " -> " + after);
+			context.assertTrue(player.getMainHandStack().getCount() == 1, "the ember was not used up");
+			player.getMainHandStack().use(context.getWorld(), player, Hand.MAIN_HAND);
+			context.assertTrue(player.getMainHandStack().getCount() == 1, "a second ember was used");
+			context.assertTrue(Math.abs(HealingFlaskItem.healAmount(player) - after) < 1e-4, "a second ember changed healing");
 		}, player);
 		TestPlayers.complete(context, player);
 	}

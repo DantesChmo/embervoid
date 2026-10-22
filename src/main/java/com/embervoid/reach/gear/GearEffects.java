@@ -5,11 +5,14 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -56,11 +59,17 @@ public final class GearEffects {
 	}
 
 	/**
-	 * Called from {@code GearLivingEntityMixin} after {@code LivingEntity.damage} hurt the entity. Furnace Heart
-	 * Cuirass: below 30 % health a fire nova throws back and burns everything around, then the cuirass cools down (the
-	 * vanilla item cooldown, shown on the chestplate).
+	 * Called from {@code GearLivingEntityMixin} after {@code LivingEntity.damage} hurt the entity. Smoldering Resin:
+	 * a melee hit with a coated weapon sets the target on fire. Furnace Heart Cuirass: below 30 % health a fire nova
+	 * throws back and burns everything around, then the cuirass cools down (the vanilla item cooldown, shown on the
+	 * chestplate).
 	 */
-	public static void afterDamage(LivingEntity entity) {
+	public static void afterDamage(LivingEntity entity, DamageSource source) {
+		if (source.isOf(DamageTypes.PLAYER_ATTACK) && source.getAttacker() instanceof PlayerEntity attacker
+				&& source.getSource() == attacker
+				&& GearConsumables.resinBurning(attacker.getMainHandStack(), attacker.getWorld().getTime())) {
+			entity.setOnFireFor(GearConfig.get().consumables().resinFireSeconds());
+		}
 		if (!(entity instanceof ServerPlayerEntity player) || !player.isAlive()
 				|| !GearArmor.wears(player, GearArmor.FURNACE_HEART_CUIRASS)) {
 			return;

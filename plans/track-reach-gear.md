@@ -101,5 +101,25 @@ textures). Config section `gear`. Tests: `GearTests` (GameTests), JUnit under `s
   - Not done (visual, client-only, unverifiable here): third-person "hold a charged crossbow" pose and the
     first-person crossbow placement are keyed to `Items.CROSSBOW` in vanilla renderers, so this one is held like an
     ordinary item when charged. Textures placeholders, not seen.
-- [ ] **11.7 Consumables + Flask Ember.**
+- [x] **11.7 Consumables + Flask Ember.** (config `gear.consumables`)
+  - Hook commit `ed8e17b` in `item.HealingFlaskItem` (player-core's): `addHealMultiplier(ToDoubleFunction<PlayerEntity>)`,
+    multiplied on top of the stats multiplier.
+  - `flask_ember` (`FlaskEmberItem`): right-click once per player → +15 % flask healing for good; own attachment
+    `embervoid:flask_ember` (persistent, copied on death), synced to the owner (join, respawn, world change) only for
+    the flask tooltip; a second one is refused with a message.
+  - `ash_bomb` (thrown, entity `embervoid:ash_bomb`, `FlyingItemEntityRenderer`): bursts on impact, 4 ember damage
+    and 3 s fire to mobs within r 2, flame-ring particles. Decided: no fire blocks (no griefing, no spreading fires).
+  - `smoldering_resin`: coats the weapon in the other hand (swords, axes, tridents, realm weapons; NBT
+    `EmbervoidResinUntil`), for 60 s its landed melee hits ignite for 4 s (`GearEffects.afterDamage`).
+  - Cinder fuel: the Cinder Shard itself burns 3200 ticks (= 2 coal) — no extra item.
+  - `amber_balm` (drink, 32 ticks, leaves the bottle): cures Bleeding and Poison, Regeneration I 8 s.
+  - `amber_lantern_oil`: poured into an Ember Lantern held in the offhand (NBT `EmbervoidOilUntil`) it burns 10 min;
+    a lit offhand lantern gives Night Vision (refreshed every second). No dynamic light (vanilla has none; placing
+    light blocks was judged too risky). `GearConsumables.carriesLitLantern(player)` for the Crypt Keeper / Crypt Moths.
+  - `whetstone`: repairs 25 % of a realm weapon (melee or the crossbow) in the other hand. Realm weapons also repair
+    on an anvil with a Smoldering Ingot (since 11.5).
+  - Recipes (shapeless): bomb 2 Cinder + gunpowder → 2; resin 2 Cinder + charcoal; balm 2 Amber + bottle; oil Amber +
+    bottle + coal/charcoal; whetstone Grave Iron Ingot + 2 cobbled ash stone → 2.
+  - Client (`GearClient`): bomb renderer, Flask Ember sync receiver, tooltip lines for burning resin / oil.
+  - Textures placeholders, not seen; bomb flight and burst not seen.
 - [ ] **11.8 Chest loot + realm loot on mobs.**
