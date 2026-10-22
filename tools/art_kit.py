@@ -310,6 +310,29 @@ def pack(bones, tex_w):
     return y + row_h
 
 
+def twin_planes(box, tex, glow):
+    """A box with no thickness has two coincident faces and in game the one drawn later shows from both sides
+    (GeckoLib draws west, east, north, south, up, down; Minecraft's depth test passes on equal depth). Copies the
+    first face onto the later one so both look the same in the world: front onto back and left onto right
+    mirrored left-right, top onto bottom mirrored top-bottom."""
+    w, h, d = box.dims()
+    f = box.faces()
+    pairs = []
+    if d == 0:
+        pairs.append((f["front"], f["back"], "x"))
+    if w == 0:
+        pairs.append((f["left"], f["right"], "x"))
+    if h == 0:
+        pairs.append((f["top"], f["bottom"], "y"))
+    for (sx, sy, sw, sh), (dx, dy, _, _), flip in pairs:
+        for canvas in (tex, glow):
+            src = [[canvas.get(sx + x, sy + y) for x in range(sw)] for y in range(sh)]
+            for y in range(sh):
+                for x in range(sw):
+                    c = src[y][sw - 1 - x] if flip == "x" else src[sh - 1 - y][x]
+                    canvas.set(dx + x, dy + y, c)
+
+
 def next_pow2(n):
     return 1 << max(0, (n - 1).bit_length())
 
@@ -333,11 +356,13 @@ def write_model(name, bones, animations, bounds, tex_w=64, seed=None, glow_extra
                 if rect[2] <= 0 or rect[3] <= 0:
                     continue
                 face = Face(tex, glow, face_name, rect, box)
-                fseed = (hash(name) & 0xFFFF) + i * 131 + j * 17 + list(box.faces()).index(face_name) * 3
+                # A stable seed (str hash() is salted per process): reruns give the same texture.
+                fseed = (zlib.crc32(name.encode()) & 0xFFFF) + i * 131 + j * 17 + list(box.faces()).index(face_name) * 3
                 box.mat.paint(face, rng, fseed)
                 for key, fn in box.decals.items():
                     if key == face_name or key == "all" or (key == "sides" and face.side()):
                         fn(face, rng)
+            twin_planes(box, tex, glow)
     if glow_extra:
         glow_extra(tex, glow, bones)
     out = []

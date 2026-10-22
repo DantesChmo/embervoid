@@ -9,7 +9,7 @@ Track branch `claude/release-art-4ffe4e`. Owns `tools/model_preview.py`, the `to
 |---|---|---|
 | R40.2a Offline model preview | done | `tools/model_preview.py` |
 | R40.2b Zone mobs art | done | `tools/reach_mob_art.py` (+ `tools/art_kit.py`) |
-| R40.2c Citadel mobs, bosses, small entities | todo | |
+| R40.2c Citadel mobs, bosses, small entities | done | `tools/reach_mob_art.py`, `tools/reach_boss_art.py`, `tools/reach_item_art.py` |
 | R40.2d Texture consistency (items, armor, blocks, Reliquary GUI) | todo | |
 
 ## R40.2a — model preview
@@ -71,6 +71,34 @@ noose, lantern, bell, skirt, crown, walk bob); Hollow Sentinel thrust drives the
 raised it upright) and the bash swings the shield forward and across instead of lifting it flat; Bark Hollow idle
 no longer animates a `head` bone it does not have; Ash Stalker claws reach up while it emerges.
 
+## R40.2c — Citadel mobs, bosses, small entities
+
+Citadel mobs in `tools/reach_mob_art.py`, bosses in `tools/reach_boss_art.py` (replaces the deleted
+`tools/boss_placeholders.py`; the Realm 1 part of `tools/mob_placeholders.py` is gone, so no greybox script can
+overwrite final art).
+
+- Cinder Hound: charred hide with glowing rib seams, ash-spike mane, glowing mouth, ember-tipped tail.
+- Sparking Marksman: quilted soot-red gambeson, mail coif under a kettle hat, scarf, bolts; spark bone on the tip.
+- Furnace Golem: riveted cast iron, glowing chest grate, chimney with embers; the heat bone lights only the seams.
+- Smoldering Knight: blackened plate with ember seams, crimson surcoat with the king's gold crown, crested helm and
+  plume, greatsword with a glowing edge.
+- Crypt Keeper: grave-blue robe wrapped in a chain, faceless hood with cold eyes, mantle and pauldrons of bones,
+  skull trophies and keys, crescent halberd, cold-flame lantern (the lantern bone).
+- Ash Colossus: fused ash stone with ash drifts, magma seams and patches of granary brick, glowing brow eyes;
+  chained stone plates over a cavity with the ember core (plates / core bones).
+- Grieving Tree: dead oak with moss, weeping face with amber sap tears, the king's iron crown band, a withered
+  canopy with a weeping fringe, 4 animated limbs + 4 fixed ones with frayed ropes; roots bone spread around.
+- Smoldering Lord: black-and-gold royal plate (armor bone) over a burning body, half-melted crown, ash beard,
+  burning crimson cape, flamberge with a glowing wavy edge and an ember in the guard.
+- Small entities: the fire flask flies as its own sprite (`textures/item/fire_flask.png` through an extra item
+  model, `client.reach.mob.FireFlaskRenderer`, full bright); the tree lanterns are the realm's hanging Ember
+  Lantern (`TreeLanternRenderer`); new Ash Bomb texture (thrown and item). The two Java hooks are separate commits.
+
+Animation changes: none in timing; Smoldering Lord's greatsword now hangs point-down from the hand, tilted 40°
+forward by the bone's rest rotation (the greybox held it pointing up past the shoulder, so swings pointed it
+backward): low guard at idle, over the shoulder in the slam windup, forward in the lunge. Some idle/walk secondary
+motion (head, crown, branches, walk bob).
+
 ## Decisions
 
 - Preview PNGs are never committed; merge notes point at the scratchpad copies.
@@ -78,3 +106,12 @@ no longer animates a `head` bone it does not have; Ash Stalker claws reach up wh
 - Moth glow bones: only the wing pattern glows (the rest of the overlay is transparent).
 - Shapes may grow by a few pixels where details stick out (hat brim, spear tip, crown twigs); the check keeps them
   inside the tolerances, and hitboxes are code (unchanged).
+- Grieving Tree canopy and limbs reach ~80 px (5 blocks) out so the lanterns (spawned 5.5 blocks out, 7-8.5 up)
+  hang at the weeping fringe instead of in the air; width/depth recorded anew in `tools/model_bounds.json`
+  (height unchanged). Its hitbox is still 3×10 (code), so frustum culling follows the trunk as before.
+- Smoldering Lord depth grew (sword tilted forward); recorded anew.
+- Zero-thickness planes (tabards, surcoats, cape, moth wings, antennae): in game the later-drawn of the two
+  coincident faces shows (GeckoLib order west, east, north, south, up, down; depth test LEQUAL), so `art_kit`
+  copies each plane's first face onto its twin, mirrored to look the same in the world; the preview draws the
+  same way.
+- Texture noise is seeded by a CRC of the model name (Python's `hash()` is salted per run): reruns are identical.
