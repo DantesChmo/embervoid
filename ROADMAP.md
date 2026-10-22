@@ -238,6 +238,8 @@ Per the Realm 1 content doc. Starting point from the old plan:
 
 ## Later (ideas, not committed)
 
+First-round variants and where each discussion stopped: [BACKLOG.md](BACKLOG.md).
+
 - Realms 2–4 (*Mire of Rot*, *Cathedral Ward*, *The Void*), each with its own design pass
 - Ember Moon night event
 - Respec consumable, Maiden as merchant
