@@ -22,7 +22,8 @@ public record ReachMobConfig(Map<String, Spawn> spawns) {
 			"withered_thrall", new Spawn(100, 1, 2),
 			"lantern_hag", new Spawn(40, 1, 1),
 			"restless_bones", new Spawn(100, 2, 3),
-			"crypt_moth", new Spawn(50, 1, 3)));
+			"crypt_moth", new Spawn(50, 1, 3),
+			"cinder_hound", new Spawn(100, 3, 5)));
 
 	/** A biome spawn entry: weight among the zone's monsters, group size. */
 	public record Spawn(int weight, int minGroup, int maxGroup) {}

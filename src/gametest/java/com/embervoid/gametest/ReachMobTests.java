@@ -1,8 +1,14 @@
 package com.embervoid.gametest;
 
+import com.embervoid.reach.mob.AshStalkerEntity;
+import com.embervoid.reach.mob.AshenCarrionEntity;
+import com.embervoid.reach.mob.BarkHollowEntity;
 import com.embervoid.reach.mob.ReachMob;
 import com.embervoid.reach.mob.ReachMobs;
+import com.embervoid.reach.mob.WitheredThrallEntity;
+import com.embervoid.realm.placed.PlacedEnemies;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.mob.MobEntity;
@@ -15,8 +21,10 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -95,8 +103,43 @@ public final class ReachMobTests implements FabricGameTest {
 	}
 
 	/**
-	 * Natural spawns: fodder, ranged and the Carrion in their own zone biome only; tanks and elites nowhere; no
-	 * Realm 1 mob in an overworld biome.
+	 * Through track reach-world's placed-enemy spawn (PLAN 9.2), the way structures place them: every Realm 1 mob
+	 * comes out placed and persistent, and the ones with a placed pose take it (stalker buried, carrion perched, Bark
+	 * Hollow dormant, cage thrall hanging).
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 40, batchId = "reach_placed_contract")
+	public void placedEnemiesTakeTheirPlacedState(TestContext context) {
+		List<EntityType<? extends ReachMob>> types = List.of(ReachMobs.CINDER_HUSK, ReachMobs.ASH_STALKER,
+				ReachMobs.ASHEN_CARRION, ReachMobs.WITHERED_THRALL, ReachMobs.LANTERN_HAG, ReachMobs.BARK_HOLLOW,
+				ReachMobs.RESTLESS_BONES, ReachMobs.CRYPT_MOTH, ReachMobs.HOLLOW_SENTINEL, ReachMobs.GRAVE_WARDEN,
+				ReachMobs.CINDER_HOUND, ReachMobs.SPARKING_MARKSMAN, ReachMobs.FURNACE_GOLEM, ReachMobs.SMOLDERING_KNIGHT);
+		List<ReachMob> placed = new ArrayList<>();
+		int x = 1;
+		for (EntityType<? extends ReachMob> type : types) {
+			boolean caged = type == ReachMobs.WITHERED_THRALL;
+			BlockPos pos = context.getAbsolutePos(new BlockPos(x, caged ? 4 : 0, 2));
+			NbtCompound marker = PlacedEnemies.markerNbt(EntityType.getId(type), null,
+					caged ? List.of(WitheredThrallEntity.CAGE_TAG) : List.of());
+			Entity entity = PlacedEnemies.spawn(context.getWorld(), pos, 0, marker);
+			context.assertTrue(entity instanceof ReachMob, "nothing placed for " + EntityType.getId(type));
+			placed.add(ReachTests.own(context, (ReachMob) entity));
+			x += 3;
+		}
+		context.waitAndRun(3, ReachTests.guard(context, () -> {
+			for (ReachMob mob : placed) {
+				context.assertTrue(mob.isPlaced() && mob.isPersistent(), EntityType.getId(mob.getType()) + " not placed");
+			}
+			context.assertTrue(((AshStalkerEntity) placed.get(1)).isBuried(), "placed stalker not buried");
+			context.assertTrue(((AshenCarrionEntity) placed.get(2)).isPerched(), "placed carrion not perched");
+			context.assertTrue(((WitheredThrallEntity) placed.get(3)).isHanging(), "cage thrall not hanging");
+			context.assertTrue(((BarkHollowEntity) placed.get(5)).isDormant(), "placed Bark Hollow not dormant");
+			ReachTests.finish(context);
+		}));
+	}
+
+	/**
+	 * Natural spawns: fodder, ranged and the Carrion in their own zone biome only, Cinder Hounds in the depths; tanks
+	 * and elites nowhere; no Realm 1 mob in an overworld biome.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE)
 	public void naturalSpawnsOnlyInTheirZone(TestContext context) {
@@ -104,9 +147,11 @@ public final class ReachMobTests implements FabricGameTest {
 		Map<RegistryKey<Biome>, Set<EntityType<?>>> expected = Map.of(
 				ReachMobs.FIELDS, Set.of(ReachMobs.CINDER_HUSK, ReachMobs.ASH_STALKER, ReachMobs.ASHEN_CARRION),
 				ReachMobs.WOODS, Set.of(ReachMobs.WITHERED_THRALL, ReachMobs.LANTERN_HAG),
-				ReachMobs.NECROPOLIS, Set.of(ReachMobs.RESTLESS_BONES, ReachMobs.CRYPT_MOTH));
+				ReachMobs.NECROPOLIS, Set.of(ReachMobs.RESTLESS_BONES, ReachMobs.CRYPT_MOTH),
+				ReachMobs.DEPTHS, Set.of(ReachMobs.CINDER_HOUND));
 		Set<EntityType<?>> realmMobs = expected.values().stream().flatMap(Set::stream).collect(Collectors.toCollection(HashSet::new));
-		realmMobs.addAll(List.of(ReachMobs.BARK_HOLLOW, ReachMobs.HOLLOW_SENTINEL, ReachMobs.GRAVE_WARDEN));
+		realmMobs.addAll(List.of(ReachMobs.BARK_HOLLOW, ReachMobs.HOLLOW_SENTINEL, ReachMobs.GRAVE_WARDEN,
+				ReachMobs.SPARKING_MARKSMAN, ReachMobs.FURNACE_GOLEM, ReachMobs.SMOLDERING_KNIGHT));
 		for (var entry : biomes.getEntrySet()) {
 			Set<EntityType<?>> monsters = entry.getValue().getSpawnSettings().getSpawnEntries(SpawnGroup.MONSTER).getEntries()
 					.stream().map(spawn -> (EntityType<?>) spawn.type).collect(Collectors.toSet());
@@ -124,7 +169,8 @@ public final class ReachMobTests implements FabricGameTest {
 	public void everyMobHasBasicDrops(TestContext context) {
 		for (EntityType<?> type : List.of(ReachMobs.CINDER_HUSK, ReachMobs.ASH_STALKER, ReachMobs.ASHEN_CARRION,
 				ReachMobs.WITHERED_THRALL, ReachMobs.LANTERN_HAG, ReachMobs.BARK_HOLLOW, ReachMobs.RESTLESS_BONES,
-				ReachMobs.CRYPT_MOTH, ReachMobs.HOLLOW_SENTINEL, ReachMobs.GRAVE_WARDEN)) {
+				ReachMobs.CRYPT_MOTH, ReachMobs.HOLLOW_SENTINEL, ReachMobs.GRAVE_WARDEN, ReachMobs.CINDER_HOUND,
+				ReachMobs.SPARKING_MARKSMAN, ReachMobs.FURNACE_GOLEM, ReachMobs.SMOLDERING_KNIGHT)) {
 			Identifier table = type.getLootTableId();
 			LootTable loot = context.getWorld().getServer().getLootManager().getLootTable(table);
 			context.assertTrue(loot != LootTable.EMPTY, "no loot table " + table);
