@@ -59,8 +59,8 @@ Design: DESIGN §4.5 "Loot" (Artifacts, Rings, Reliquary). Owns `com.embervoid.r
 - **Reliquary side:** `ArtifactItem` (stat points, tooltip), `ReliquaryEffects` registers the bonus source (worn
   artifacts), `StatEffects.apply` on `ReliquaryManager.CHANGED`, and the Reliquary as stash `embervoid:reliquary`
   (index = slot order, a recovered accessory goes back into its old slot when free).
-- Not done (follow-up): the Maiden's level-up screen still shows own stat values; derived numbers there include
-  artifact points.
+- Maiden's level-up screen (separate commit in `sanctum`, after 11.13): `StatSheet.Stat.bonus` carries the bonus
+  points; the screen shows them in green left of the own value ("+3 10"). Not seen.
 - **Tests:** accessories into the remnant and back (also through remnant NBT), accessories alone leave a remnant,
   taken slot → inventory, keepInventory keeps them, bonus points change max health but not stat value, level or
   cost (test-only bonus source; real artifacts in 11.11).
