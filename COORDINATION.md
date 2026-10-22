@@ -43,7 +43,7 @@ against a small local stub with the same signatures and replace it after syncing
 ## How a track works
 
 - Work task by task, one commit per task, on the track branch. `./gradlew build` must pass on every commit; `./gradlew runDatagen` when assets or data change. Pure logic gets JUnit tests.
-- **Do not launch the game:** no `runClient`, `runServer` or `runGametest` in a track. In-game checks go through the coordinator's queue (below).
+- **Do not launch a client:** no `runClient` and no `tools/client_check.py` (it crashes the Claude app). A track may run `./gradlew runGametest` and `python3 tools/server_check.py` (headless servers). The user does not play-test: a behaviour is checked by a GameTest or the server check, written by the track that built it.
 - Open questions in DESIGN.md §10: build the recommended answer, keep it easy to change.
 - To get other tracks' merged work: sync the worktree with `main` (the app's `sync_with_base_branch`), never merge another track's branch directly.
 - Do not push, do not open PRs. The coordinator merges.
