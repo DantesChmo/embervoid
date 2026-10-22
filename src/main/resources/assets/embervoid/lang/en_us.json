@@ -146,5 +146,7 @@
 	"embervoid.derived.fire_reduction": "Fire damage reduction",
 	"embervoid.derived.luck": "Luck",
 	"entity.embervoid.ashen_zombie": "Ashen Zombie",
-	"item.embervoid.ashen_zombie_spawn_egg": "Ashen Zombie Spawn Egg"
+	"item.embervoid.ashen_zombie_spawn_egg": "Ashen Zombie Spawn Egg",
+	"entity.embervoid.ghost": "Ghost",
+	"item.embervoid.ghost_spawn_egg": "Ghost Spawn Egg"
 }

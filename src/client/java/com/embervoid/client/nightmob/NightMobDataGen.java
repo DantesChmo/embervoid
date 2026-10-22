@@ -39,6 +39,8 @@ public final class NightMobDataGen {
 			exporter.accept(NightMobs.ASHEN_ZOMBIE.getLootTableId(), LootTable.builder()
 					.pool(drop(Items.ROTTEN_FLESH, 0, 2))
 					.pool(drop(Items.CHARCOAL, 0, 1)));
+			exporter.accept(NightMobs.GHOST.getLootTableId(), LootTable.builder()
+					.pool(drop(Items.PHANTOM_MEMBRANE, 0, 1)));
 		}
 
 		/** min–max of an item, +0–1 per Looting level. */

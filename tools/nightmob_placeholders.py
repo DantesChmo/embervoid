@@ -74,6 +74,67 @@ def ashen_zombie():
     write_mob("ashen_zombie", bones, 64, [2, 2.5], animations, paint)
 
 
+# --- Ghost: pale hooded torso trailing into a wisp, long arms reaching forward, cold glowing eyes -------------------
+
+def ghost():
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("body", [0, 14, 0], "root", [10, 0, 0], [Cube([-4, 14, -2], [8, 11, 4], "body")]),
+        Bone("tail", [0, 14, 0], "body", None, [Cube([-3, 8, -1.5], [6, 6, 3], "body")]),
+        Bone("wisp", [0, 8, 0], "tail", None, [Cube([-1.5, 3, -1], [3, 5, 2], "wisp")]),
+        Bone("head", [0, 25, -1], "root", None, [
+            Cube([-3.5, 25, -4.5], [7, 7, 7], "head"),
+            Cube([-4, 25.5, -5], [8, 7.5, 8], "hood"),
+        ]),
+        Bone("right_arm", [-5, 24, -1], "root", [-70, 0, 0], [Cube([-7, 12, -2], [3, 12, 3], "body")]),
+        Bone("left_arm", [5, 24, -1], "root", [-70, 0, 0], [Cube([4, 12, -2], [3, 12, 3], "body")]),
+    ]
+    zero = [0, 0, 0]
+
+    def hover(length, bob, sway):
+        return anim(length, {
+            "root": {"position": keys(0, zero, length / 2, [0, bob, 0], length, zero)},
+            "tail": {"rotation": keys(0, [sway, 0, 0], length / 2, [-sway, 0, 0], length, [sway, 0, 0])},
+            "wisp": {"rotation": keys(0, [-sway, 0, 0], length / 2, [sway, 0, 0], length, [-sway, 0, 0])},
+            "right_arm": {"rotation": keys(0, zero, length / 2, [-6, 0, 3], length, zero)},
+            "left_arm": {"rotation": keys(0, zero, length / 2, [-6, 0, -3], length, zero)},
+        })
+
+    animations = {
+        "misc.idle": hover(3.0, 1, 8),
+        "move.fly": hover(1.5, 1.5, 18),
+        "attack.swing": anim(0.5, {
+            "right_arm": {"rotation": keys(0, zero, 0.15, [-50, 0, 15], 0.3, [40, 0, -10], 0.5, zero)},
+            "left_arm": {"rotation": keys(0, zero, 0.15, [-50, 0, -15], 0.3, [40, 0, 10], 0.5, zero)},
+            "head": {"rotation": keys(0, zero, 0.3, [15, 0, 0], 0.5, zero)},
+        }, loop=False),
+    }
+    pale = (190, 205, 220, 170)
+    hood = (120, 135, 160, 190)
+    wisp = (170, 200, 230, 90)
+    eye = (120, 230, 255, 255)
+
+    def paint(tex, glow, bone, cube, rng):
+        color = {"hood": hood, "wisp": wisp}.get(cube.tag, pale)
+        paint_box(tex, cube, color, rng, 14)
+        faces = cube.faces()
+        if cube.tag == "hood":
+            # Open front and bottom: the face shows through.
+            x, y, w, h = faces["front"]
+            tex.rect(x + 1, y + 1, w - 2, h - 1, (0, 0, 0, 0))
+            x, y, w, h = faces["bottom"]
+            tex.rect(x, y, w, h, (0, 0, 0, 0))
+        if cube.tag == "head":
+            x, y, w, h = faces["front"]
+            tex.rect(x, y, w, h, (30, 34, 48, 220))  # dark face in the hood
+            for ex in (x + 1, x + w - 3):
+                tex.rect(ex, y + 3, 2, 1, eye)
+                glow.rect(ex, y + 3, 2, 1, eye)
+
+    write_mob("ghost", bones, 64, [2, 3], animations, paint)
+
+
 if __name__ == "__main__":
     ashen_zombie()
+    ghost()
     print("Wrote placeholder night mob assets under", ROOT)

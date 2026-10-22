@@ -22,12 +22,21 @@ public final class NightMobs {
 					.trackRangeBlocks(64)
 					.build());
 
+	public static final EntityType<GhostEntity> GHOST = ModEntities.register("ghost",
+			FabricEntityTypeBuilder.<GhostEntity>create(SpawnGroup.MONSTER, GhostEntity::new)
+					.dimensions(EntityDimensions.fixed(0.7f, 1.8f))
+					.trackRangeBlocks(64)
+					.build());
+
 	public static final Item ASHEN_ZOMBIE_SPAWN_EGG = ModItems.register("ashen_zombie_spawn_egg",
 			new SpawnEggItem(ASHEN_ZOMBIE, 0x3d3a37, 0xb5462a, new Item.Settings()));
+	public static final Item GHOST_SPAWN_EGG = ModItems.register("ghost_spawn_egg",
+			new SpawnEggItem(GHOST, 0xb8c8d8, 0x6fd6ff, new Item.Settings()));
 
 	public static void register() {
 		Embervoid.LOGGER.debug("Night mob config section: {}", NightMobConfig.SECTION.name());
 		FabricDefaultAttributeRegistry.register(ASHEN_ZOMBIE, AshenZombieEntity.createAttributes());
+		FabricDefaultAttributeRegistry.register(GHOST, GhostEntity.createAttributes());
 	}
 
 	private NightMobs() {}
