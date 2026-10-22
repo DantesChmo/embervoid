@@ -16,6 +16,7 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.GameTestException;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.Identifier;
@@ -28,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
 
@@ -45,7 +47,7 @@ final class BossArena {
 	private final Difficulty difficulty;
 	private final List<ServerPlayerEntity> players = new ArrayList<>();
 	private final List<BossFight> fights = new ArrayList<>();
-	private final List<ChunkPos> forced = new ArrayList<>();
+	private final List<Map.Entry<ServerWorld, ChunkPos>> forced = new ArrayList<>();
 
 	/** {@code configJson}: a config to use for the test (e.g. {@code {"boss": {...}}}), or null for the local one. */
 	BossArena(TestContext context, @Nullable String configJson) {
@@ -100,14 +102,23 @@ final class BossArena {
 	 * Released when the test ends.
 	 */
 	void forceChunks(BlockPos center, int radius) {
+		forceChunks(context.getWorld(), center, radius);
+	}
+
+	void forceChunks(ServerWorld world, BlockPos center, int radius) {
 		ChunkPos min = new ChunkPos(center.add(-radius, 0, -radius));
 		ChunkPos max = new ChunkPos(center.add(radius, 0, radius));
 		for (int x = min.x; x <= max.x; x++) {
 			for (int z = min.z; z <= max.z; z++) {
-				context.getWorld().setChunkForced(x, z, true);
-				forced.add(new ChunkPos(x, z));
+				world.setChunkForced(x, z, true);
+				forced.add(Map.entry(world, new ChunkPos(x, z)));
 			}
 		}
+	}
+
+	/** A fight started some other way (the summon rule), ended with the test like the arena's own. */
+	void track(BossFight fight) {
+		fights.add(fight);
 	}
 
 	/** Starts a fight at an absolute arena centre (the floor block). */
@@ -180,8 +191,8 @@ final class BossArena {
 				server.getPlayerManager().remove(player);
 			}
 		}
-		for (ChunkPos chunk : forced) {
-			context.getWorld().setChunkForced(chunk.x, chunk.z, false);
+		for (Map.Entry<ServerWorld, ChunkPos> chunk : forced) {
+			chunk.getKey().setChunkForced(chunk.getValue().x, chunk.getValue().z, false);
 		}
 		forced.clear();
 		EmbervoidConfig.useLocal();

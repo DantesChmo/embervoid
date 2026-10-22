@@ -365,5 +365,8 @@
 	"entity.embervoid.grieving_tree": "Grieving Tree",
 	"entity.embervoid.tree_lantern": "Hanged Lantern",
 	"embervoid.boss.first_kill.items": "%s has fallen. Yours: %s",
-	"embervoid.boss.repeat_soul": "%s has fallen. Its soul answers you once more: %s"
+	"embervoid.boss.repeat_soul": "%s has fallen. Its soul answers you once more: %s",
+	"embervoid.rematch.ready": "The ash stirs. Step into the arena within a minute to face %s again",
+	"embervoid.rematch.unbeaten": "%s has not fallen to you yet: the ash does not answer",
+	"embervoid.rematch.busy": "The arena is already stirring"
 }

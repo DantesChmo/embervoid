@@ -30,6 +30,10 @@ public final class ArenaManager {
 	private record ArenaKey(RegistryKey<World> world, BlockPos center) {}
 
 	private static final Map<ArenaKey, BossFight> FIGHTS = new HashMap<>();
+	/** Arenas primed for a rematch (Ash of Rematch, PLAN 12.7): game time until which the next visitor summons the boss. */
+	private static final Map<ArenaKey, Long> REMATCHES = new HashMap<>();
+	/** How long a primed rematch waits for someone to step in, in ticks. */
+	public static final int REMATCH_TICKS = 1200;
 	/** How often players are checked for entering an arena, in ticks. */
 	private static final int ENTER_CHECK_INTERVAL = 5;
 
@@ -56,6 +60,7 @@ public final class ArenaManager {
 		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
 			FIGHTS.values().forEach(BossFight::reset);
 			FIGHTS.clear();
+			REMATCHES.clear();
 		});
 		// DESIGN §10.8: an arena's shrine stays dormant for players who have not beaten its boss.
 		ShrineHooks.ALLOW_REST.register((player, world, pos) -> {
@@ -101,11 +106,37 @@ public final class ArenaManager {
 		BlockPos center = feature.piece().center();
 		double dx = player.getX() - (center.getX() + 0.5);
 		double dz = player.getZ() - (center.getZ() + 0.5);
-		if (dx * dx + dz * dz > (spec.radius() - 1) * (spec.radius() - 1) || fightAt(world, center) != null
-				|| ProgressManager.hasBeatenBoss(player, spec.bossId())) {
+		if (dx * dx + dz * dz > (spec.radius() - 1) * (spec.radius() - 1) || fightAt(world, center) != null) {
 			return;
 		}
-		start(world, spec, center);
+		ArenaKey key = new ArenaKey(world.getRegistryKey(), center);
+		Long primed = REMATCHES.get(key);
+		boolean rematch = primed != null && world.getTime() <= primed;
+		if (primed != null && !rematch) {
+			REMATCHES.remove(key);
+		}
+		if (!rematch && ProgressManager.hasBeatenBoss(player, spec.bossId())) {
+			return;
+		}
+		BossFight fight = start(world, spec, center);
+		if (fight != null && rematch) {
+			REMATCHES.remove(key);
+			fight.setRematch(true);
+		}
+	}
+
+	/**
+	 * Primes an arena for a rematch (Ash of Rematch, PLAN 12.7): for {@link #REMATCH_TICKS} the next player to step in
+	 * summons its boss even if everyone has beaten it; that fight {@link BossFight#isRematch is a rematch}.
+	 */
+	public static void primeRematch(ServerWorld world, BlockPos center) {
+		REMATCHES.put(new ArenaKey(world.getRegistryKey(), center.toImmutable()), world.getTime() + REMATCH_TICKS);
+	}
+
+	/** Whether an arena is primed for a rematch now. */
+	public static boolean isRematchPrimed(ServerWorld world, BlockPos center) {
+		Long primed = REMATCHES.get(new ArenaKey(world.getRegistryKey(), center));
+		return primed != null && world.getTime() <= primed;
 	}
 
 	/**

@@ -18,6 +18,7 @@ public final class ReachBosses {
 
 	public static void register() {
 		ReachBossEntities.register();
+		AshOfRematch.register();
 		// PLAN 12.6: a zone boss's first kill gives its soul and a Flask Shard (+1 flask charge; three in the realm).
 		BossReward.register(FIELDS, new BossReward(GearItems.ASH_COLOSSUS_SOUL, List.of(new ItemStack(SanctumItems.FLASK_SHARD))));
 		BossReward.register(WOODS, new BossReward(GearItems.GRIEVING_TREE_SOUL, List.of(new ItemStack(SanctumItems.FLASK_SHARD))));
