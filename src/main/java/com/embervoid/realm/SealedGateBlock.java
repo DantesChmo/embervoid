@@ -34,7 +34,9 @@ public class SealedGateBlock extends Block {
 				RealmTeleports.toLanding(serverPlayer, realm.world());
 			} else {
 				long remaining = remainingZoneBosses(serverPlayer, realm);
-				if (remaining == 0) {
+				if (remaining == 0 && !RealmConfig.get().depthsOpen()) {
+					serverPlayer.sendMessage(Text.translatable("embervoid.realm.gate.forming"), true);
+				} else if (remaining == 0) {
 					serverPlayer.sendMessage(Text.translatable("embervoid.realm.gate.open"), true);
 					RealmTeleports.toLanding(serverPlayer, realm.depths());
 				} else {

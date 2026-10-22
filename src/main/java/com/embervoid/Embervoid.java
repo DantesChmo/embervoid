@@ -6,6 +6,7 @@ import com.embervoid.config.EmbervoidConfig;
 import com.embervoid.entity.mob.MobEntities;
 import com.embervoid.mob.MobLevels;
 import com.embervoid.moon.MoonInit;
+import com.embervoid.nightmob.NightMobs;
 import com.embervoid.player.FlaskKeeper;
 import com.embervoid.player.FlaskRefill;
 import com.embervoid.player.PlayerDataManager;
@@ -46,6 +47,7 @@ public class Embervoid implements ModInitializer {
 		ModEntities.register();
 		MobEntities.register();
 		MobLevels.register();
+		NightMobs.register();
 		ModItemGroups.register();
 		ModStructures.register();
 		ConfigSync.register();
