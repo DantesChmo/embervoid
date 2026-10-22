@@ -1,0 +1,8 @@
+{
+  "feature": "embervoid:ashen_reach/sinkhole_pools",
+  "placement": [
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}

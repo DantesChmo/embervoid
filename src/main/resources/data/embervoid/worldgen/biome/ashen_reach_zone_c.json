@@ -40,7 +40,9 @@
   "carvers": {},
   "features": [
     [],
-    [],
+    [
+      "embervoid:ashen_reach/sinkhole_pools"
+    ],
     [],
     [],
     [

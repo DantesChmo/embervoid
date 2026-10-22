@@ -176,8 +176,8 @@ def exercise(rcon):
     roads = run("Roads", "execute in embervoid:ashen_reach run embervoid realm roads")
     for kind, x, z in re.findall(r"(toll_gate|watchtower) at (-?\d+) (-?\d+)", roads):
         generate_around(f"Outpost {kind}", "embervoid:ashen_reach", (int(x), int(z)), 24)
-    # Minor structures (PLAN 9.7): one per zone, located and generated.
-    for structure in ("fields/barn", "woods/hanging_cages", "necropolis/chapel"):
+    # Minor structures (PLAN 9.7): one per zone, and a Necropolis crypt (9.8), located and generated.
+    for structure in ("fields/barn", "woods/hanging_cages", "necropolis/chapel", "necropolis/crypt"):
         pos = located(run(f"Minor {structure}", "execute in embervoid:ashen_reach run locate structure "
                           f"embervoid:ashen_reach/{structure}"))
         if pos:
