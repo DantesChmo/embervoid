@@ -60,7 +60,7 @@ public final class ReachBossSounds {
 
 	public static final SoundEvent ASH_OF_REMATCH_USE = ModSounds.register("item.ash_of_rematch.use");
 
-	/** Boss music (R40.3b): the shared zone-boss theme and the Smoldering Lord's; vanilla tracks until licensed ones are approved. */
+	/** Boss music (R40.3b): the shared zone-boss theme and the Smoldering Lord's (CC BY 4.0 tracks, CREDITS.md). */
 	public static final SoundEvent ZONE_BOSS_MUSIC = ModSounds.register("music.zone_boss");
 	public static final SoundEvent SMOLDERING_LORD_MUSIC = ModSounds.register("music.smoldering_lord");
 
