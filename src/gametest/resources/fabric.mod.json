@@ -16,6 +16,9 @@
 			"com.embervoid.gametest.VampireTests"
 		]
 	},
+	"mixins": [
+		"embervoid-gametest.mixins.json"
+	],
 	"depends": {
 		"embervoid": "*",
 		"fabric-gametest-api-v1": "*"

@@ -67,23 +67,29 @@ affected. Test with `/embervoid moon start blood | stop | status`.
 
 ## Automated checks (instead of in-game QA)
 
-- **GameTests** `src/gametest/.../VampireTests.java`, one batch per test (the night is global), every step guarded
-  (a failure stops the night and removes the player first). The test world has no `vampire_arena`, so the boss
-  fights in the overworld fallback there (its ERROR line in the gametest log is expected):
-  `bloodMoonBringsFriendlyVampires`, `playerHitTurnsVampireIntoBoss` (incl. moon stop mid-fight → no credit),
-  `unprovokedVampireTurnsAfterTimeout` (provokeMinutes 0.1), `killGivesPersonalLootAndEndsNight` (first + repeat
-  kill, GOAL_MET), `everyoneDeadEndsNight`, `noPlayersNoVampiresNoHold`.
-- **Server check** (`tools/server_check.py`, real dedicated server with the arena dimension):
-  `/embervoid vampire arena open | check | close` — the arena builds whole, its chunks are forced while open and
-  released after closing; blood moon with no players → no Vampires, no hold. Commands with an expected answer now fail
-  the check on a mismatch.
-- Not covered automatically: pulling a real player into the arena, return, death-stays-out, remnant moved (needs a
-  player in a world that has the dimension), and anything visual (models, animations, telegraph readability, red fog).
+- **GameTests** `src/gametest/.../VampireTests.java`, one batch per test (the night is global), every step through
+  `Fight.step` (a failure stops the night and removes the test's players first), waits by condition (`Fight.await`)
+  because the test server outruns the async chunk-entity loading of the freshly forced arena.
+  The test world now has the datapack dimensions: vanilla's `TestServer` builds them from an empty registry, the
+  gametest-only `TestServerDimensionsMixin` (MixinExtras `@WrapOperation`, in the `embervoid-gametest` mod) passes
+  the datapack's dimension registry instead. So the arena runs for real in the tests:
+  `bloodMoonBringsFriendlyVampires`, `playerHitTurnsVampireIntoBoss` (moon stop mid-fight → sent back, no credit),
+  `unprovokedVampireTurnsAfterTimeout`, `killGivesPersonalLootAndEndsNight` (first + repeat kill, GOAL_MET after
+  closing), `everyoneDeadEndsNight`, `arenaPullsInAndReturnsAfterKill` (return point, chunks forced, closes after
+  CLOSE_TICKS, back at the return point), `arenaDeathStaysOutAndRemnantMovesHome` (dies inside → remnant in the arena,
+  respawns outside and stays out, survivor credited, remnant with items at the return point), `noPlayersNoVampiresNoHold`.
+  Test players get `onTeleportationDone()` after the pull, as a real client's teleport confirm.
+- **Server check** (`tools/server_check.py`): `/embervoid vampire arena open | check | close` — builds whole, chunks
+  forced while open and released after; blood moon with no players → no Vampires, no hold. Commands with an expected
+  answer fail the check on a mismatch.
+- Not covered automatically: anything visual (models, animations, telegraph readability, red fog) and the boss's moves
+  against a real fighter.
 
 ## Notes
 
 - A blood moon with nobody in the overworld outside a core spawns no Vampires and takes no hold (found by the checks:
   it used to hold the night until the 30-minute fallback).
 - Debug: `/embervoid vampire arena open | close | check` (refused while a fight runs).
+- Closing the arena only carries living players out; one lying dead there respawns the usual way.
 
 - Players joining the overworld later in the night get no Vampires of their own (the groups form at dusk).

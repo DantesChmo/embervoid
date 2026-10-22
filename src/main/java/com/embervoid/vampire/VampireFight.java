@@ -71,8 +71,8 @@ public final class VampireFight {
 	private static final Set<UUID> FIGHTERS = new LinkedHashSet<>();
 	/** Where fighters died, so what they dropped follows them home when the arena closes. */
 	private static final Map<UUID, Vec3d> DEATHS = new HashMap<>();
-	/** Seconds between the kill and the arena closing (time to pick up the XP). */
-	private static final int CLOSE_TICKS = 200;
+	/** Ticks between the kill and the arena closing (time to pick up the XP). */
+	public static final int CLOSE_TICKS = 200;
 	private static int emptyTicks;
 
 	public static void register() {

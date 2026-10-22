@@ -82,7 +82,7 @@ public final class VampireArena {
 	}
 
 	@Nullable
-	static ServerWorld world(MinecraftServer server) {
+	public static ServerWorld world(MinecraftServer server) {
 		return server.getWorld(KEY);
 	}
 
@@ -188,7 +188,10 @@ public final class VampireArena {
 		ServerWorld arena = world(server);
 		if (arena != null) {
 			for (ServerPlayerEntity player : List.copyOf(arena.getPlayers())) {
-				sendBack(player, state);
+				// A player lying dead here respawns the usual way; only the living are carried out.
+				if (player.isAlive()) {
+					sendBack(player, state);
+				}
 			}
 			List<Entity> leftovers = new ArrayList<>();
 			arena.iterateEntities().forEach(leftovers::add);
@@ -288,7 +291,7 @@ public final class VampireArena {
 	}
 
 	/** Whether the arena's chunks are force-loaded (open). */
-	static boolean isForced(ServerWorld world) {
+	public static boolean isForced(ServerWorld world) {
 		return world.getForcedChunks().contains(ChunkPos.toLong(0, 0));
 	}
 
