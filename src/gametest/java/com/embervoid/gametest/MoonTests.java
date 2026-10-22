@@ -15,6 +15,8 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.enums.BedPart;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.ClientConnection;
@@ -275,10 +277,14 @@ public final class MoonTests implements FabricGameTest {
 		// A real player: the mock players count as creative, and hostiles never target creative players.
 		ServerPlayerEntity player = joinPlayer(context, 2, 32, new RecordingConnection());
 		restore.players.add(player);
+		// The full moon sends a Ghost wave at the player (night-mobs); it must not kill them during the test.
+		player.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 1_000, 4, false, false));
 		ZombieEntity[] zombie = new ZombieEntity[1];
 		guard(context, restore, () -> {
 			if (fullMoon) {
 				MoonNightManager.forceStart(server, MoonNight.FULL_MOON);
+				// Nor may the wave end the night early (cleared waves release their holds).
+				MoonNights.hold(server, TEST_HOLD);
 			} else {
 				context.getWorld().setTimeOfDay(18_000);
 			}
@@ -299,7 +305,9 @@ public final class MoonTests implements FabricGameTest {
 			}
 			context.assertTrue(!zombie[0].canSee(player), "the zombie still sees the player through the wall");
 			context.waitAndRun(100, () -> guard(context, restore, () -> {
+				context.assertTrue(player.isAlive(), "the player died during the test");
 				if (fullMoon) {
+					context.assertTrue(MoonNights.current(server) == MoonNight.FULL_MOON, "the full moon ended during the test");
 					context.assertTrue(zombie[0].getTarget() == player,
 							"full moon: target lost behind the wall (" + zombie[0].getTarget() + ")");
 				} else {
