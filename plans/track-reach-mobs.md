@@ -8,10 +8,10 @@ Scope: PLAN 10.1–10.7, then 13.3 (Realm 1 bestiary, DESIGN §4.5). Branch `cla
 | 10.2 | Cinder Husk, Ash Stalker | merged |
 | 10.3 | Ashen Carrion | merged |
 | 10.4 | Withered Thrall (+ hanging cage), Lantern Hag | merged |
-| 10.5 | Bark Hollow | done |
-| 10.6 | Restless Bones, Crypt Moth | done |
-| 10.7 | Hollow Sentinel, Grave Warden | done |
-| 13.3 | Cinder Hound, Sparking Marksman, Furnace Golem, Smoldering Knight | done |
+| 10.5 | Bark Hollow | done, merge requested |
+| 10.6 | Restless Bones, Crypt Moth | done, merge requested |
+| 10.7 | Hollow Sentinel, Grave Warden | done, merge requested |
+| 13.3 | Cinder Hound, Sparking Marksman, Furnace Golem, Smoldering Knight | done, merge requested |
 
 ## Layout
 
