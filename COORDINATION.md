@@ -36,7 +36,7 @@ instead of an error, or a vanilla stand-in behind one constant).
 | Contract | Owner | Used by | Contents |
 |---|---|---|---|
 | Fog API (PLAN 9.1, merged) | reach-world | reach-bosses (arena fog), reliquary (Fog Stalker ring) | `client.realm.RealmFog`: `push(source, density 0–1, rgb[, clearable])`, `clear`, `has`, `setClearing(source, factor)` (clearable layers only; arena fog pushes `clearable=false`), `reset` on disconnect; strongest wins, eased; per-zone fog is source `embervoid:zone` |
-| Placed enemies (PLAN 9.2) | reach-world | reach-mobs (placed behaviour), reach-bosses (arena guards if any) | Template marker + processor spawning an entity id at worldgen, persistent, never respawns, zone-band level; a way for the mob to know it was placed |
+| Placed enemies (PLAN 9.2) | reach-world | reach-mobs (placed behaviour), reach-bosses (arena guards if any) | Template marker + processor spawning an entity id at worldgen, persistent, never respawns, zone-band level. A placed mob gets the command tag `embervoid.placed` (cage Thralls also `embervoid.placed.cage`), read by `reach.mob.ReachMob` (proposed by reach-mobs, 10.1 merged) |
 | Items and chest stubs (PLAN 11.1, merged: `reach.gear.GearItems`, `reach.gear.GearLootTables`) | reach-gear | reach-world (ore drops, chests), reach-bosses (souls, rematch, Flask Ember), reliquary (chest injection) | Item ids and empty chest tables from PLAN.md |
 | `embervoid:realm_ores` | reach-world | reliquary (Delver's Ring) | Block tag of the three realm ores |
 | Mob ids | reach-mobs | reach-world (markers), reach-bosses (adds), reach-gear / reliquary (loot injection) | Entity ids from PLAN.md |
