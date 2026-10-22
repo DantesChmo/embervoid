@@ -138,7 +138,14 @@ public final class RealmTeleports {
 	@Nullable
 	public static ServerPlayerEntity teleport(ServerPlayerEntity player, ServerWorld world, Vec3d pos, float yaw) {
 		player.fallDistance = 0;
-		return FabricDimensions.teleport(player, world, new TeleportTarget(pos, Vec3d.ZERO, yaw, 0));
+		ServerPlayerEntity moved = FabricDimensions.teleport(player, world, new TeleportTarget(pos, Vec3d.ZERO, yaw, 0));
+		// During a respawn (AFTER_RESPAWN) the network handler still holds the dead player, so the teleport moved that
+		// one and the new player would stay at the overworld spawn's coordinates until the client confirms.
+		if (moved != null && moved.networkHandler.player != moved) {
+			moved.refreshPositionAndAngles(pos.x, pos.y, pos.z, yaw, 0);
+			world.getChunkManager().updatePosition(moved);
+		}
+		return moved;
 	}
 
 	private RealmTeleports() {}
