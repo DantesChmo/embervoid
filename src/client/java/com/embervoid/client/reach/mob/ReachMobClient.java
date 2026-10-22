@@ -1,9 +1,13 @@
 package com.embervoid.client.reach.mob;
 
 import com.embervoid.Embervoid;
+import com.embervoid.reach.mob.FireFlaskEntity;
 import com.embervoid.reach.mob.ReachMob;
 import com.embervoid.reach.mob.ReachMobs;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.entity.FlyingItemEntityRenderer;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EntityType;
 import net.minecraft.registry.Registries;
 import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
@@ -29,6 +33,16 @@ public final class ReachMobClient {
 		renderer(ReachMobs.CRYPT_MOTH, true);
 		renderer(ReachMobs.HOLLOW_SENTINEL, true);
 		renderer(ReachMobs.GRAVE_WARDEN, true);
+		// The flask flies as an item; once it is a fire patch it is invisible and only its particles show.
+		EntityRendererRegistry.register(ReachMobs.FIRE_FLASK, context -> new FlyingItemEntityRenderer<FireFlaskEntity>(context) {
+			@Override
+			public void render(FireFlaskEntity flask, float yaw, float tickDelta, MatrixStack matrices,
+					VertexConsumerProvider vertices, int light) {
+				if (!flask.isInvisible()) {
+					super.render(flask, yaw, tickDelta, matrices, vertices, light);
+				}
+			}
+		});
 	}
 
 	/** A GeckoLib renderer with the glowmask layer; {@code turnsHead}: the {@code head} bone follows the look. */

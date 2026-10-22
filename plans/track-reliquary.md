@@ -9,10 +9,10 @@ Design: DESIGN §4.5 "Loot" (Artifacts, Rings, Reliquary). Owns `com.embervoid.r
 | Task | Status | Commit |
 |---|---|---|
 | 11.9 Reliquary: data, sync, screen | merged | 3aa4b5a |
-| 11.10 Remnant + stat points (hooks in `player`, `stats`) | merge requested | da98386 |
-| 11.11 8 artifacts | merge requested | 2ff719e |
-| 11.12 6 rings | done | see git log |
-| 11.13 Accessory drops | todo | |
+| 11.10 Remnant + stat points (hooks in `player`, `stats`) | merged | da98386 |
+| 11.11 8 artifacts | merged | 2ff719e |
+| 11.12 6 rings | merged | 1f53184 |
+| 11.13 Accessory drops | done | see git log |
 
 ## 11.9 — data, sync, screen
 
@@ -59,8 +59,8 @@ Design: DESIGN §4.5 "Loot" (Artifacts, Rings, Reliquary). Owns `com.embervoid.r
 - **Reliquary side:** `ArtifactItem` (stat points, tooltip), `ReliquaryEffects` registers the bonus source (worn
   artifacts), `StatEffects.apply` on `ReliquaryManager.CHANGED`, and the Reliquary as stash `embervoid:reliquary`
   (index = slot order, a recovered accessory goes back into its old slot when free).
-- Not done (follow-up): the Maiden's level-up screen still shows own stat values; derived numbers there include
-  artifact points.
+- Maiden's level-up screen (separate commit in `sanctum`, after 11.13): `StatSheet.Stat.bonus` carries the bonus
+  points; the screen shows them in green left of the own value ("+3 10"). Not seen.
 - **Tests:** accessories into the remnant and back (also through remnant NBT), accessories alone leave a remnant,
   taken slot → inventory, keepInventory keeps them, bonus points change max health but not stat value, level or
   cost (test-only bonus source; real artifacts in 11.11).
@@ -99,3 +99,18 @@ player), mixins `ReliquaryLivingEntityMixin` / `ReliquaryPlayerEntityMixin`, num
   Feathers fall damage (7.9 free, 10 → 2) and the fall cap rules; Fog Stalker factor; Delver's ×1.2 on a realm ore,
   not on stone; Drowned Man's air under water (base ticks run by the test); Ring of Embers ignites on melee.
 - **Not seen:** the slow fall feel, the fog clearing on screen.
+
+## 11.13 — drops
+
+- `reliquary.ReliquaryLoot`: `LootTableEvents.MODIFY` (built-in tables only, not datapack replacements) adds two
+  pools — one artifact, one ring, equal weights within the zone — to:
+  - treasure chests `embervoid:chests/ashen_reach/<zone>_treasure` (fields, woods, necropolis, citadel): 8 % / 5 %;
+  - elite mob tables `embervoid:entities/<mob>`: 2 % / 1 %, `killed_by_player`.
+- Decisions: each zone drops only its own accessories (DESIGN "why each zone is worth doing"); elites are the
+  bestiary's elite role — Ashen Carrion (Fields), Grave Warden (Necropolis), Smoldering Knight (Citadel). The Woods
+  have no elite, so their accessories come from the hunting lodge chest only. Plain chance (FOR's extra drop already
+  rerolls mob loot).
+- Chances in config `reliquary.drops`.
+- **Tests:** 4000 rolls of every treasure chest table (real tables): rates within 5σ, only the zone's items; 10 000
+  rolls of each elite table (real tables for Carrion and Warden, the injection on an empty table for the Knight,
+  which does not exist yet) with a player kill, none without.

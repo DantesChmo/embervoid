@@ -216,9 +216,9 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | ID  | Task | Depends on | Status |
 |-----|------|------------|--------|
 | 9.1 | **Fog API + per-zone fog** (contract, first) | — | done – not verified in game (fog look not seen) |
-| 9.2 | **Placed enemies** (contract) | — | todo |
-| 9.3 | **Zones renamed, eternal dusk, zone looks** | — | todo |
-| 9.4 | **Zone terrain density + arena sites** | 9.3 | todo |
+| 9.2 | **Placed enemies** (contract) | — | done (GameTest) |
+| 9.3 | **Zones renamed, eternal dusk, zone looks** | — | done (GameTest + server check; zone looks and title not seen) |
+| 9.4 | **Zone terrain density + arena sites** | 9.3 | done (GameTest + server check; terrain shapes not seen) |
 | 9.5 | **Realm 1 blocks and ores** | 9.3, 11.1 | todo |
 | 9.6 | **Landing plaza, roads, milestones, outposts** | 9.2, 9.4 | todo |
 | 9.7 | **Minor structures per zone** | 9.2, 9.5, chest ids | todo |
@@ -254,9 +254,9 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | ID  | Task | Depends on | Status |
 |-----|------|------------|--------|
 | 10.1 | **Greybox pipeline + shared mob base + spawns** | — | done (GameTest; models and animations not seen) |
-| 10.2 | **Cinder Husk, Ash Stalker** | 10.1 | todo |
-| 10.3 | **Ashen Carrion** | 10.1 | todo |
-| 10.4 | **Withered Thrall (+ hanging cage), Lantern Hag** | 10.1 | todo |
+| 10.2 | **Cinder Husk, Ash Stalker** | 10.1 | done (GameTest; models not seen) |
+| 10.3 | **Ashen Carrion** | 10.1 | done (GameTest; models not seen) |
+| 10.4 | **Withered Thrall (+ hanging cage), Lantern Hag** | 10.1 | done (GameTest; models not seen) |
 | 10.5 | **Bark Hollow** | 10.1 | todo |
 | 10.6 | **Restless Bones, Crypt Moth** | 10.1 | todo |
 | 10.7 | **Hollow Sentinel, Grave Warden** | 10.6 | todo |
@@ -278,16 +278,16 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 11.1 | **Materials, boss items, chest table stubs** (contract, first) | reach-gear | — | done (GameTest; item textures not seen) |
 | 11.2 | **Bleeding + `bleed_immune`** | reach-gear | — | done (GameTest) |
 | 11.3 | **Smoldering Plate + Template** | reach-gear | 11.1 | done (GameTest; armor textures not seen) |
-| 11.4 | **Mob-drop sets + unique pieces** | reach-gear | 11.1 | todo |
-| 11.5 | **Ashen Scythe, Warden's Scourge, Royal Ash Rapier** | reach-gear | 11.1, 11.2 | todo |
-| 11.6 | **Huntsman's Crossbow** | reach-gear | 11.1 | todo |
+| 11.4 | **Mob-drop sets + unique pieces** | reach-gear | 11.1 | done (GameTest; textures not seen) |
+| 11.5 | **Ashen Scythe, Warden's Scourge, Royal Ash Rapier** | reach-gear | 11.1, 11.2 | done (GameTest; textures and reach feel not seen) |
+| 11.6 | **Huntsman's Crossbow** | reach-gear | 11.1 | done (GameTest; held like a normal item when charged, textures not seen) |
 | 11.7 | **Consumables + Flask Ember** | reach-gear | 11.1, 11.2 | todo |
 | 11.8 | **Chest loot + realm loot on mobs** | reach-gear | 11.3–11.7 | todo |
 | 11.9 | **Reliquary: data, sync, screen** | reliquary | — | done (GameTest; screen look and button position not seen) |
 | 11.10 | **Reliquary: remnant, stat points** | reliquary | 11.9 | done (GameTest) |
 | 11.11 | **8 artifacts** | reliquary | 11.10 | done (GameTest; textures and tooltips not seen) |
 | 11.12 | **6 rings** | reliquary | 11.9, 9.1 | done (GameTest; slow-fall feel, fog clearing and textures not seen) |
-| 11.13 | **Accessory drops** | reliquary | 11.11, 11.12 | todo |
+| 11.13 | **Accessory drops** | reliquary | 11.11, 11.12 | done (GameTest) |
 
 - **11.1** Items and recipes for the materials (Smoldering Ingot shapeless, Grave Iron smelting), the four boss
   souls, Ash of Rematch (item and recipe; its use is 12.7), Flask Ember (item only; its effect is 11.7), and empty
@@ -320,7 +320,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | ID  | Task | Depends on | Status |
 |-----|------|------------|--------|
 | 12.1 | **Boss framework additions** | 9.1 | done (GameTest; telegraph particles and arena fog not seen) |
-| 12.2 | **Three arenas built** | 9.4 | todo |
+| 12.2 | **Three arenas built** | 9.4 | done (GameTest on the templates; used in the world once 9.4 lands; looks not seen) |
 | 12.3 | **Crypt Keeper** (first: riskiest) | 12.1, 12.2 | todo |
 | 12.4 | **Ash Colossus** | 12.1, 12.2 | todo |
 | 12.5 | **Grieving Tree** | 12.1, 12.2 | todo |
@@ -374,9 +374,8 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 
 ## Open follow-ups
 
-- **Maiden screen and artifact points:** the level-up screen shows a player's own stat values while its derived
-  numbers include artifact bonus points (`PlayerStats.bonus`); show the bonus as "(+3)" next to the value (small
-  `sanctum` change, after 11.11).
+- **Realm weapons and enchantments:** Sharpness, Smite etc. cannot go on the Scythe, Scourge and Rapier (vanilla's
+  weapon enchantment target is swords only); Unbreaking and Mending work. Decide in the R40.1 balance pass.
 - **In-game checks not run yet:** QA #7f (Sanctum casing gaps, next batch); QA #8 step 9 (second and third
   player: personal Ember Heart, fog wall pushing back an outsider, independent progress); Hollow wind-up timing
   and dodge, guard block/break sounds; stamina HUD bar and debug weapon (2.5, 2.6); sounds and boss music.

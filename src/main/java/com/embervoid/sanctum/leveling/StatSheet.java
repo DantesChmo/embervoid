@@ -18,9 +18,14 @@ public record StatSheet(int level, int cost, int xpPoints, List<Stat> stats) {
 	 * @param id      stat id sent back in level-up requests (e.g. "vitality"); its name is {@code embervoid.stat.<id>}
 	 * @param value   current value
 	 * @param max     cap; no level-up past it
-	 * @param derived what this stat drives now and after one more point
+	 * @param derived what this stat drives now and after one more point (bonus points included)
+	 * @param bonus   points on top of {@code value} that do not count in the level (worn artifacts)
 	 */
-	public record Stat(String id, int value, int max, List<Derived> derived) {}
+	public record Stat(String id, int value, int max, List<Derived> derived, int bonus) {
+		public Stat(String id, int value, int max, List<Derived> derived) {
+			this(id, value, max, derived, 0);
+		}
+	}
 
 	/**
 	 * One derived value, e.g. max health.
@@ -48,12 +53,13 @@ public record StatSheet(int level, int cost, int xpPoints, List<Stat> stats) {
 				d.writeString(derived.current);
 				d.writeString(derived.next);
 			});
+			b.writeVarInt(stat.bonus);
 		});
 	}
 
 	public static StatSheet read(PacketByteBuf buf) {
 		return new StatSheet(buf.readVarInt(), buf.readVarInt(), buf.readVarInt(),
 				buf.readList(b -> new Stat(b.readString(), b.readVarInt(), b.readVarInt(),
-						b.readList(d -> new Derived(d.readString(), d.readString(), d.readString())))));
+						b.readList(d -> new Derived(d.readString(), d.readString(), d.readString())), b.readVarInt())));
 	}
 }

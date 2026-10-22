@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "embervoid:block/burnt_straw",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "embervoid:block/burnt_straw"
+    },
+    "axis=z": {
+      "model": "embervoid:block/burnt_straw",
+      "x": 90
+    }
+  }
+}

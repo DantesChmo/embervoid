@@ -15,10 +15,11 @@ Smoldering Citadel (milestone 13).
 | A | `track-reach-world` | PLAN 9.1–9.9, 13.1–13.2: fog API, placed enemies, zones, terrain, blocks and ores, landing and roads, minor structures, crypt, world edge; depths dimension and Citadel jigsaw | `com.embervoid.realm` (incl. `realm.worldgen`), `com.embervoid.reach.world`, `com.embervoid.client.realm` / `client.reach.world`; realm `dimension*` / `worldgen/**` JSON; `structures/ashen_reach/**` except arena contents; its blocks' assets |
 | B | `track-reach-mobs` | PLAN 10.1–10.7, 13.3: greybox pipeline, the 10 zone mobs, then the 4 Citadel mobs | `com.embervoid.reach.mob`, `com.embervoid.client.reach.mob`, their assets and entity loot tables, `tools/mob_placeholders.py` |
 | C | `track-reach-gear` | PLAN 11.1–11.8: materials and boss items, Bleeding, Smoldering Plate, mob sets and uniques, weapons, consumables, chest loot and realm loot on mobs | `com.embervoid.reach.gear`, `com.embervoid.client.reach.gear`, `loot_tables/chests/ashen_reach/**`, its recipes, tags and assets |
-| D | `track-reliquary` | PLAN 11.9–11.13: Reliquary screen and slots, remnant and stat hooks, 8 artifacts, 6 rings, their drops | `com.embervoid.reliquary`, `com.embervoid.client.reliquary`, its tags and assets |
+| D | `track-reliquary` (done) | PLAN 11.9–11.13 (all merged, plus the Maiden screen's bonus points): Reliquary screen and slots, remnant and stat hooks, 8 artifacts, 6 rings, their drops | `com.embervoid.reliquary`, `com.embervoid.client.reliquary`, its tags and assets |
 | E | `track-reach-bosses` | PLAN 12.1–12.7, 13.4: boss framework additions, three arenas, Crypt Keeper, Ash Colossus, Grieving Tree, souls, Ash of Rematch; then the Smoldering Lord | `com.embervoid.boss`, `com.embervoid.reach.boss`, `com.embervoid.client.reach.boss`, arena contents (`structures/ashen_reach/arena_*`, the Citadel courtyard piece), boss assets and loot |
 
-Coordinator: PLAN 13.5 and the 0.4.0 release tasks. Earlier tracks (0.2.0: `track-player-core`, `track-mobs`,
+At most **4 track sessions run at once**; a new track starts only when another is done, and a finished track's
+session is deleted. Coordinator: PLAN 13.5 and the 0.4.0 release tasks. Earlier tracks (0.2.0: `track-player-core`, `track-mobs`,
 `track-sanctum`, `track-realms`; 0.3.0: `track-moon`, `track-night-mobs`, `track-vampire`) are done and merged.
 Packages not owned by a 0.4.0 track (`player`, `stats`, `mob`, `entity/mob`, `progress`, `sanctum`, `moon`,
 `nightmob`, `vampire`): a track that needs a small hook there (e.g. Flask Ember in the flask, artifact points in
@@ -36,7 +37,7 @@ instead of an error, or a vanilla stand-in behind one constant).
 | Contract | Owner | Used by | Contents |
 |---|---|---|---|
 | Fog API (PLAN 9.1, merged) | reach-world | reach-bosses (arena fog), reliquary (Fog Stalker ring) | `client.realm.RealmFog`: `push(source, density 0–1, rgb[, clearable])`, `clear`, `has`, `setClearing(source, factor)` (clearable layers only; arena fog pushes `clearable=false`), `reset` on disconnect; strongest wins, eased; per-zone fog is source `embervoid:zone` |
-| Placed enemies (PLAN 9.2) | reach-world | reach-mobs (placed behaviour), reach-bosses (arena guards if any) | Template marker + processor spawning an entity id at worldgen, persistent, never respawns, zone-band level. A placed mob gets the command tag `embervoid.placed` (cage Thralls also `embervoid.placed.cage`), read by `reach.mob.ReachMob` (proposed by reach-mobs, 10.1 merged) |
+| Placed enemies (PLAN 9.2, merged: marker `embervoid:placed_enemy`, `PlacedEnemies.markerNbt`, processor `embervoid:placed_enemies`) | reach-world | reach-mobs (placed behaviour), reach-bosses (arena guards if any) | Template marker + processor spawning an entity id at worldgen, persistent, never respawns, zone-band level. A placed mob gets the command tag `embervoid.placed` (cage Thralls also `embervoid.placed.cage`), read by `reach.mob.ReachMob` (proposed by reach-mobs, 10.1 merged) |
 | Items and chest stubs (PLAN 11.1, merged: `reach.gear.GearItems`, `reach.gear.GearLootTables`) | reach-gear | reach-world (ore drops, chests), reach-bosses (souls, rematch, Flask Ember), reliquary (chest injection) | Item ids and empty chest tables from PLAN.md |
 | `embervoid:realm_ores` | reach-world | reliquary (Delver's Ring) | Block tag of the three realm ores |
 | Mob ids | reach-mobs | reach-world (markers), reach-bosses (adds), reach-gear / reliquary (loot injection) | Entity ids from PLAN.md |
@@ -106,6 +107,13 @@ pass. None of them needs a game account or a window.
   The test world gets the mod's dimensions (realms, Vampire arena) through a gametest-only mixin
   (`gametest.mixin.TestServerDimensionsMixin`). Use the real (non-creative) player join from `MoonTests` when mobs
   must target a player, and one `batchId` per test that touches the global moon state.
+  Mock players from `TestContext.createMockCreativeServerPlayerInWorld` always answer `isCreative()` true (even
+  after `changeGameMode(SURVIVAL)`): code that tests must cover checks `getAbilities().creativeMode`. They have no
+  connection, so `playerTick()` (equipment changes, attack cooldown, item use) runs only when a test calls it.
+  `TestContext.spawnMob` clears a mob's goals; test areas are reused by later batches and entities outlive their
+  test, so remove everything a test spawns. `./gradlew build` does not compile `src/gametest` (`runGametest` does).
+  The test world does not generate structures or bring far realm chunks to entity tracking: place structure
+  starts by hand.
 - `python3 tools/server_check.py` — a real dedicated server (`runServerCheck`, run dir `run/server-check`, fresh
   world each time): boots to Done, generates a real Sanctum, the Ashen Reach landing, the three zone arenas and the
   depths over RCON, then fails on any crash, mixin failure, ERROR line or datapack load error in the log. Client

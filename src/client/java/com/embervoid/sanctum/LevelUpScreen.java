@@ -153,6 +153,12 @@ public class LevelUpScreen extends Screen {
 			String value = Integer.toString(stat.value());
 			context.drawTextWithShadow(textRenderer, value, left + 116 - textRenderer.getWidth(value), y,
 					stat.value() >= stat.max() ? GOLD : TEXT);
+			// Bonus points (artifacts) count in the effects but not in the level: shown beside the own value.
+			if (stat.bonus() != 0) {
+				String bonus = (stat.bonus() > 0 ? "+" : "") + stat.bonus();
+				context.drawTextWithShadow(textRenderer, bonus,
+						left + 116 - textRenderer.getWidth(value) - 3 - textRenderer.getWidth(bonus), y, GREEN);
+			}
 		}
 		context.fill(left + 148, top + ROWS_TOP - 4, left + 149, top + ROWS_TOP + 7 * ROW_HEIGHT - 6, 0x40FFFFFF);
 		renderPreview(context, left + 156, top + ROWS_TOP);

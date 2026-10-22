@@ -1,0 +1,31 @@
+{
+  "feature": "embervoid:ashen_reach/dead_tree_pole",
+  "placement": [
+    {
+      "type": "minecraft:block_predicate_filter",
+      "predicate": {
+        "type": "minecraft:all_of",
+        "predicates": [
+          {
+            "type": "minecraft:matching_blocks",
+            "offset": [
+              0,
+              -1,
+              0
+            ],
+            "blocks": [
+              "minecraft:podzol",
+              "minecraft:coarse_dirt",
+              "minecraft:moss_block",
+              "minecraft:dirt"
+            ]
+          },
+          {
+            "type": "minecraft:matching_blocks",
+            "blocks": "minecraft:air"
+          }
+        ]
+      }
+    }
+  ]
+}
