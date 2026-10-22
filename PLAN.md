@@ -257,9 +257,9 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 10.2 | **Cinder Husk, Ash Stalker** | 10.1 | done (GameTest; models not seen) |
 | 10.3 | **Ashen Carrion** | 10.1 | done (GameTest; models not seen) |
 | 10.4 | **Withered Thrall (+ hanging cage), Lantern Hag** | 10.1 | done (GameTest; models not seen) |
-| 10.5 | **Bark Hollow** | 10.1 | todo |
-| 10.6 | **Restless Bones, Crypt Moth** | 10.1 | todo |
-| 10.7 | **Hollow Sentinel, Grave Warden** | 10.6 | todo |
+| 10.5 | **Bark Hollow** | 10.1 | done (GameTest; models not seen) |
+| 10.6 | **Restless Bones, Crypt Moth** | 10.1 | done (GameTest; models not seen) |
+| 10.7 | **Hollow Sentinel, Grave Warden** | 10.6 | done (GameTest; models not seen) |
 
 - **10.1 Pipeline.** Greybox GeckoLib models at final size with draft animations under final names (extend
   `tools/mob_placeholders.py`); a shared base for windup telegraphs (DESIGN §4.5 ticks) and the "placed" state;
@@ -322,7 +322,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 12.1 | **Boss framework additions** | 9.1 | done (GameTest; telegraph particles and arena fog not seen) |
 | 12.2 | **Three arenas built** | 9.4 | done (GameTest on the templates; used in the world once 9.4 lands; looks not seen) |
 | 12.3 | **Crypt Keeper** (first: riskiest) | 12.1, 12.2 | done (GameTest + server check; model, telegraphs, darkness and flood looks not seen) |
-| 12.4 | **Ash Colossus** | 12.1, 12.2 | todo |
+| 12.4 | **Ash Colossus** | 12.1, 12.2 | done (GameTest + server check; model, storm and cinders not seen) |
 | 12.5 | **Grieving Tree** | 12.1, 12.2 | todo |
 | 12.6 | **Souls and Flask Shards** | 11.1 | todo |
 | 12.7 | **Ash of Rematch** (DESIGN §10.11 as recommended) | 11.1, 12.6 | todo |
@@ -348,7 +348,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 |-----|------|-------|------------|--------|
 | 13.1 | **Depths "Burning City": dimension type, terrain** | reach-world | 9.4, 9.5 | todo |
 | 13.2 | **Citadel jigsaw (~10–12 pieces)** | reach-world | 13.1, 9.2 | todo |
-| 13.3 | **Cinder Hound, Sparking Marksman, Furnace Golem, Smoldering Knight** | reach-mobs | 10.1 | todo |
+| 13.3 | **Cinder Hound, Sparking Marksman, Furnace Golem, Smoldering Knight** | reach-mobs | 10.1 | done (GameTest; models not seen) |
 | 13.4 | **Smoldering Lord** | reach-bosses | 12.3–12.5, 13.2 | todo |
 | 13.5 | **Realm completion, Realm 2 obelisk lit, depths open** | coordinator | 13.4 | todo |
 
@@ -374,8 +374,6 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 
 ## Open follow-ups
 
-- **Flaky GameTest:** `NightMobTests.uncursedPlayerGetsGhostsAndAShard` (and `killingTheWaveEndsTheNight`) fail in
-  some full runs; track reach-gear is fixing it.
 - **Realm weapons and enchantments:** Sharpness, Smite etc. cannot go on the Scythe, Scourge and Rapier (vanilla's
   weapon enchantment target is swords only); Unbreaking and Mending work. Decide in the R40.1 balance pass.
 - **In-game checks not run yet:** QA #7f (Sanctum casing gaps, next batch); QA #8 step 9 (second and third
