@@ -207,5 +207,11 @@
 	"item.embervoid.ash_of_rematch": "Пепел реванша",
 	"item.embervoid.ash_of_rematch.tooltip": "Рассыпанный у святилища павшего стража, зовёт его обратно. Душа не возвращается",
 	"item.embervoid.flask_ember": "Уголёк фляги",
-	"item.embervoid.flask_ember.tooltip": "Искра присвоенного королём пламени. Отданная фляге, усиливает каждый глоток"
+	"item.embervoid.flask_ember.tooltip": "Искра присвоенного королём пламени. Отданная фляге, усиливает каждый глоток",
+	"key.categories.embervoid": "Embervoid",
+	"key.embervoid.reliquary": "Открыть реликварий",
+	"embervoid.reliquary.title": "Реликварий",
+	"embervoid.reliquary.button": "Реликварий (%s)",
+	"embervoid.reliquary.slot.artifact": "Артефакт",
+	"embervoid.reliquary.slot.ring": "Кольцо"
 }
