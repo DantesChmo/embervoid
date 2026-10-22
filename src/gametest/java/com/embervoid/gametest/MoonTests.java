@@ -257,12 +257,16 @@ public final class MoonTests implements FabricGameTest {
 		return respawned;
 	}
 
-	/** Runs {@code body}; on failure cleans up first so the next moon test starts from a clean state. */
+	/**
+	 * Runs {@code body}; on failure first stops the night, restores the clock and difficulty and removes the players,
+	 * so the next test starts from a clean state.
+	 */
 	private static void guard(TestContext context, Restore restore, Runnable body) {
 		try {
 			body.run();
 		} catch (RuntimeException | Error e) {
 			restore.run(context);
+			restore.removePlayers();
 			throw e;
 		}
 	}
@@ -286,6 +290,14 @@ public final class MoonTests implements FabricGameTest {
 		static Restore save(TestContext context) {
 			MinecraftServer server = context.getWorld().getServer();
 			return new Restore(context.getWorld().getTimeOfDay(), server.getSaveProperties().getDifficulty());
+		}
+
+		void removePlayers() {
+			for (ServerPlayerEntity player : players) {
+				if (player.getServer().getPlayerManager().getPlayer(player.getUuid()) == player) {
+					player.getServer().getPlayerManager().remove(player);
+				}
+			}
 		}
 
 		void run(TestContext context) {
