@@ -1,6 +1,7 @@
 package com.embervoid.gametest;
 
 import com.embervoid.entity.AshRemnantEntity;
+import com.embervoid.gametest.mixin.ServerPlayerEntityAccessor;
 import com.embervoid.player.XpUtil;
 import com.embervoid.registry.ModEntities;
 import com.embervoid.reliquary.ArtifactItem;
@@ -9,15 +10,20 @@ import com.embervoid.reliquary.ReliquaryConfig;
 import com.embervoid.reliquary.ReliquaryItems;
 import com.embervoid.reliquary.ReliquaryManager;
 import com.embervoid.reliquary.ReliquaryScreenHandler;
+import com.embervoid.reliquary.RingEffects;
+import com.embervoid.reliquary.RingItem;
 import com.embervoid.reliquary.SlotKinds;
 import com.embervoid.stats.PlayerStats;
 import com.embervoid.stats.Stat;
 import com.embervoid.stats.StatEffects;
 import com.mojang.authlib.GameProfile;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.passive.CowEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -305,6 +311,142 @@ public final class ReliquaryTests implements FabricGameTest {
 		ReliquaryManager.setStack(player, SlotKinds.ARTIFACT, 1, ItemStack.EMPTY);
 		context.assertTrue(player.getMaxHealth() == health, "max health not back: " + player.getMaxHealth());
 		context.assertTrue(player.getAttributeValue(EntityAttributes.GENERIC_LUCK) == luck, "luck not back");
+		TestPlayers.complete(context, player);
+	}
+
+	/** Every ring (PLAN 11.12) is a ring-slot item only. */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void ringsFitRingSlotsOnly(TestContext context) {
+		context.assertTrue(ReliquaryItems.RINGS.size() == 6, "expected 6 rings");
+		for (RingItem ring : ReliquaryItems.RINGS) {
+			context.assertTrue(SlotKinds.RING.accepts(new ItemStack(ring)), ring + " is not in #embervoid:rings");
+			context.assertFalse(SlotKinds.ARTIFACT.accepts(new ItemStack(ring)), ring + " fits an artifact slot");
+		}
+		context.complete();
+	}
+
+	/** Courier's Ring: sprinting is 15 % faster; walking, or sprinting without the ring, is not. */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void couriersRingSpeedsUpSprinting(TestContext context) {
+		ServerPlayerEntity player = joinPlayer(context, new RecordingConnection());
+		player.setSprinting(true);
+		double sprint = player.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
+		ReliquaryManager.setStack(player, SlotKinds.RING, 0, new ItemStack(ReliquaryItems.COURIERS_RING));
+		double withRing = player.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
+		float bonus = ReliquaryConfig.get().rings().courierSprintBonus();
+		context.assertTrue(Math.abs(withRing - sprint * (1 + bonus)) < 1e-6, "sprint " + sprint + " -> " + withRing);
+		player.setSprinting(false);
+		double walk = player.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
+		context.assertTrue(Math.abs(walk - player.getAttributeBaseValue(EntityAttributes.GENERIC_MOVEMENT_SPEED)) < 1e-6,
+				"walking speed with the ring " + walk);
+		player.setSprinting(true);
+		ReliquaryManager.setStack(player, SlotKinds.RING, 0, ItemStack.EMPTY);
+		context.assertTrue(Math.abs(player.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED) - sprint) < 1e-6,
+				"ring taken off while sprinting: " + player.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED));
+		TestPlayers.complete(context, player);
+	}
+
+	/** Ring of Ash Feathers: no fall damage up to 8 blocks, less beyond; a capped fall speed unless sneaking. */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void ashFeathersSoftenFalls(TestContext context) {
+		ServerPlayerEntity player = joinPlayer(context, new RecordingConnection());
+		((ServerPlayerEntityAccessor) player).embervoid$setJoinInvulnerabilityTicks(0);
+		float health = player.getHealth();
+		player.handleFallDamage(7, 1, player.getDamageSources().fall());
+		context.assertTrue(player.getHealth() < health, "a 7-block fall without the ring did no damage");
+		player.setHealth(player.getMaxHealth());
+		player.timeUntilRegen = 0;
+		health = player.getHealth();
+
+		ReliquaryManager.setStack(player, SlotKinds.RING, 1, new ItemStack(ReliquaryItems.RING_OF_ASH_FEATHERS));
+		player.handleFallDamage(7.9f, 1, player.getDamageSources().fall());
+		context.assertTrue(player.getHealth() == health, "a 7.9-block fall hurt with the ring: " + player.getHealth());
+		player.handleFallDamage(10, 1, player.getDamageSources().fall());
+		float taken = health - player.getHealth();
+		context.assertTrue(taken > 0 && taken <= 2.01f, "a 10-block fall with the ring took " + taken + ", expected 2");
+
+		player.setOnGround(false);
+		context.assertTrue(RingEffects.maxFallSpeed(player) == ReliquaryConfig.get().rings().featherMaxFallSpeed(),
+				"no fall speed cap in the air");
+		player.setSneaking(true);
+		context.assertTrue(RingEffects.maxFallSpeed(player) == 0, "fall speed capped while sneaking");
+		TestPlayers.complete(context, player);
+	}
+
+	/** Ring of the Fog Stalker: the fog API clearing factor is 2 with the ring, 1 without. */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void fogStalkerClearsFog(TestContext context) {
+		ServerPlayerEntity player = joinPlayer(context, new RecordingConnection());
+		context.assertTrue(RingEffects.fogClearing(player) == 1, "fog cleared without the ring");
+		ReliquaryManager.setStack(player, SlotKinds.RING, 0, new ItemStack(ReliquaryItems.RING_OF_THE_FOG_STALKER));
+		context.assertTrue(RingEffects.fogClearing(player) == 2, "clearing " + RingEffects.fogClearing(player));
+		TestPlayers.complete(context, player);
+	}
+
+	/**
+	 * Delver's Ring: Haste I (×1.2) mining realm ores, nothing on other blocks. The gametest mod tags iron ore as a
+	 * realm ore until track reach-world adds the real ones.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void delversRingHastesRealmOres(TestContext context) {
+		ServerPlayerEntity player = joinPlayer(context, new RecordingConnection());
+		BlockState ore = Blocks.IRON_ORE.getDefaultState();
+		BlockState stone = Blocks.STONE.getDefaultState();
+		context.assertTrue(ore.isIn(RingEffects.REALM_ORES), "iron ore not tagged as a realm ore in the test pack");
+		float oreSpeed = player.getBlockBreakingSpeed(ore);
+		float stoneSpeed = player.getBlockBreakingSpeed(stone);
+		ReliquaryManager.setStack(player, SlotKinds.RING, 0, new ItemStack(ReliquaryItems.DELVERS_RING));
+		context.assertTrue(Math.abs(player.getBlockBreakingSpeed(ore) - oreSpeed * 1.2f) < 1e-4,
+				"ore speed " + oreSpeed + " -> " + player.getBlockBreakingSpeed(ore));
+		context.assertTrue(player.getBlockBreakingSpeed(stone) == stoneSpeed, "stone sped up");
+		TestPlayers.complete(context, player);
+	}
+
+	/**
+	 * Drowned Man's Ring: the wearer keeps full air under water. Test players are not ticked by a connection, so the
+	 * test runs their base tick (where air is counted) itself.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void drownedMansRingBreathesUnderwater(TestContext context) {
+		ServerPlayerEntity player = joinPlayer(context, new RecordingConnection());
+		for (int y = 1; y <= 3; y++) {
+			context.setBlockState(2, y, 2, Blocks.WATER);
+		}
+		Vec3d pos = context.getAbsolute(new Vec3d(2.5, 1, 2.5));
+		player.teleport(context.getWorld(), pos.x, pos.y, pos.z, 0, 0);
+		context.assertFalse(player.canBreatheInWater(), "breathes under water without the ring");
+		for (int i = 0; i < 20; i++) {
+			player.baseTick();
+		}
+		context.assertTrue(player.isSubmergedInWater(), "player not under water");
+		context.assertTrue(player.getAir() < player.getMaxAir(), "no air lost without the ring");
+
+		player.setAir(player.getMaxAir());
+		ReliquaryManager.setStack(player, SlotKinds.RING, 0, new ItemStack(ReliquaryItems.DROWNED_MANS_RING));
+		context.assertTrue(player.canBreatheInWater(), "ring does not give water breathing");
+		for (int i = 0; i < 20; i++) {
+			player.baseTick();
+		}
+		context.assertTrue(player.getAir() == player.getMaxAir(), "air " + player.getAir() + " under water with the ring");
+		TestPlayers.complete(context, player);
+	}
+
+	/** Ring of Embers: the wearer's melee hits set the target on fire; without it they do not. */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void ringOfEmbersIgnites(TestContext context) {
+		ServerPlayerEntity player = joinPlayer(context, new RecordingConnection());
+		CowEntity plain = context.spawnEntity(EntityType.COW, 4, 1, 2);
+		player.attack(plain);
+		context.assertFalse(plain.isOnFire(), "set on fire without the ring");
+
+		ReliquaryManager.setStack(player, SlotKinds.RING, 0, new ItemStack(ReliquaryItems.RING_OF_EMBERS));
+		CowEntity target = context.spawnEntity(EntityType.COW, 4, 1, 4);
+		player.attack(target);
+		context.assertTrue(target.isOnFire(), "melee hit did not ignite");
+		context.assertTrue(target.getFireTicks() <= ReliquaryConfig.get().rings().embersFireSeconds() * 20,
+				"burns too long: " + target.getFireTicks());
+		plain.discard();
+		target.discard();
 		TestPlayers.complete(context, player);
 	}
 
