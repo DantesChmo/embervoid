@@ -1,6 +1,7 @@
 package com.embervoid.entity;
 
 import com.embervoid.config.EmbervoidConfig;
+import com.embervoid.player.DeathStashes;
 import com.embervoid.player.FlaskKeeper;
 import com.embervoid.player.PlayerData;
 import com.embervoid.player.PlayerDataManager;
@@ -15,6 +16,8 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -24,17 +27,21 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
- * What a player leaves behind on death: their items (by inventory slot) and XP points. It does not move, cannot be
+ * What a player leaves behind on death: their items (by inventory slot, plus {@link DeathStashes} such as worn
+ * accessories, by stash and index) and XP points. It does not move, cannot be
  * hurt, killed, blown up or lost to the void, and is saved with the chunk like any entity. Only its owner can reclaim
  * it, by right-clicking it.
  *
@@ -45,6 +52,8 @@ import java.util.UUID;
  */
 public class AshRemnantEntity extends Entity {
 	private DefaultedList<ItemStack> items = DefaultedList.of();
+	/** Items from {@link DeathStashes}, by stash id and index within the stash. */
+	private Map<Identifier, List<ItemStack>> stashes = new LinkedHashMap<>();
 	private int experience;
 	@Nullable
 	private UUID owner;
@@ -80,6 +89,7 @@ public class AshRemnantEntity extends Entity {
 					remnant.items.set(i, inventory.removeStack(i));
 				}
 			}
+			remnant.stashes = DeathStashes.takeAll(player);
 		}
 		if (takeExperience) {
 			remnant.experience = XpUtil.getPoints(player);
@@ -144,8 +154,9 @@ public class AshRemnantEntity extends Entity {
 	}
 
 	/**
-	 * Returns items to their original slots where those are free, then the rest to any free slot or the ground
-	 * (two passes, so an overflowing item never takes the slot of one still waiting), then XP.
+	 * Returns items to their original slots where those are free and stash items to their stashes, then the rest to
+	 * any free slot or the ground (two passes, so an overflowing item never takes the slot of one still waiting),
+	 * then XP.
 	 */
 	private void giveBack(ServerPlayerEntity player) {
 		PlayerInventory inventory = player.getInventory();
@@ -161,8 +172,21 @@ public class AshRemnantEntity extends Entity {
 				overflow.add(stack);
 			}
 		}
+		stashes.forEach((id, stacks) -> {
+			DeathStashes.Stash stash = DeathStashes.get(id);
+			for (int i = 0; i < stacks.size(); i++) {
+				ItemStack stack = stacks.get(i);
+				if (!stack.isEmpty()) {
+					ItemStack rest = stash != null ? stash.restore(player, i, stack) : stack;
+					if (!rest.isEmpty()) {
+						overflow.add(rest);
+					}
+				}
+			}
+		});
 		overflow.forEach(inventory::offerOrDrop);
 		items.clear();
+		stashes.clear();
 		XpUtil.addPoints(player, experience);
 		experience = 0;
 
@@ -194,7 +218,8 @@ public class AshRemnantEntity extends Entity {
 	}
 
 	private boolean isEmptyOfItems() {
-		return items.stream().allMatch(ItemStack::isEmpty);
+		return items.stream().allMatch(ItemStack::isEmpty)
+				&& stashes.values().stream().flatMap(List::stream).allMatch(ItemStack::isEmpty);
 	}
 
 	/** Destroys the remnant and everything in it. */
@@ -204,6 +229,7 @@ public class AshRemnantEntity extends Entity {
 			world.playSound(null, getX(), getY(), getZ(), SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.BLOCKS, 0.8f, 0.6f);
 		}
 		items.clear();
+		stashes.clear();
 		experience = 0;
 		discard();
 	}
@@ -287,6 +313,24 @@ public class AshRemnantEntity extends Entity {
 	protected void readCustomDataFromNbt(NbtCompound nbt) {
 		items = DefaultedList.ofSize(nbt.getInt("Size"), ItemStack.EMPTY);
 		Inventories.readNbt(nbt, items);
+		stashes = new LinkedHashMap<>();
+		NbtCompound stashNbt = nbt.getCompound("Stashes");
+		for (String key : stashNbt.getKeys()) {
+			Identifier id = Identifier.tryParse(key);
+			if (id == null) {
+				continue;
+			}
+			List<ItemStack> stacks = new ArrayList<>();
+			for (NbtElement element : stashNbt.getList(key, NbtElement.COMPOUND_TYPE)) {
+				NbtCompound entry = (NbtCompound) element;
+				int index = entry.getInt("Index");
+				while (stacks.size() <= index) {
+					stacks.add(ItemStack.EMPTY);
+				}
+				stacks.set(index, ItemStack.fromNbt(entry));
+			}
+			stashes.put(id, stacks);
+		}
 		experience = nbt.getInt("Experience");
 		owner = nbt.containsUuid("Owner") ? nbt.getUuid("Owner") : null;
 		ownerName = nbt.getString("OwnerName");
@@ -297,6 +341,19 @@ public class AshRemnantEntity extends Entity {
 	protected void writeCustomDataToNbt(NbtCompound nbt) {
 		nbt.putInt("Size", items.size());
 		Inventories.writeNbt(nbt, items);
+		NbtCompound stashNbt = new NbtCompound();
+		stashes.forEach((id, stacks) -> {
+			NbtList list = new NbtList();
+			for (int i = 0; i < stacks.size(); i++) {
+				if (!stacks.get(i).isEmpty()) {
+					NbtCompound entry = stacks.get(i).writeNbt(new NbtCompound());
+					entry.putInt("Index", i);
+					list.add(entry);
+				}
+			}
+			stashNbt.put(id.toString(), list);
+		});
+		nbt.put("Stashes", stashNbt);
 		nbt.putInt("Experience", experience);
 		if (owner != null) {
 			nbt.putUuid("Owner", owner);

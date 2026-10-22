@@ -8,6 +8,7 @@ public final class ReliquaryInit {
 		Objects.requireNonNull(ReliquaryConfig.SECTION);
 		Objects.requireNonNull(ReliquaryScreenHandler.TYPE);
 		ReliquaryManager.register();
+		ReliquaryEffects.register();
 		ReliquaryCommands.register();
 	}
 

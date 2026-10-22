@@ -1,12 +1,19 @@
 package com.embervoid.gametest;
 
+import com.embervoid.entity.AshRemnantEntity;
+import com.embervoid.player.XpUtil;
+import com.embervoid.registry.ModEntities;
 import com.embervoid.reliquary.Reliquary;
 import com.embervoid.reliquary.ReliquaryManager;
 import com.embervoid.reliquary.ReliquaryScreenHandler;
 import com.embervoid.reliquary.SlotKinds;
+import com.embervoid.stats.PlayerStats;
+import com.embervoid.stats.Stat;
+import com.embervoid.stats.StatEffects;
 import com.mojang.authlib.GameProfile;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -22,14 +29,18 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
+import net.minecraft.world.GameRules;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The Reliquary (PLAN 11.9–11.13) on real server players. The gametest mod tags vanilla stand-ins as accessories
@@ -126,6 +137,130 @@ public final class ReliquaryTests implements FabricGameTest {
 		context.assertTrue(ReliquaryManager.get(player).get(SlotKinds.ARTIFACT, SlotKinds.ARTIFACT.count() + 3).isEmpty(),
 				"leftover still in the Reliquary");
 		TestPlayers.complete(context, player);
+	}
+
+	/**
+	 * Death moves worn accessories into the Ash Remnant with the inventory (they survive the remnant being saved and
+	 * loaded); reclaiming it puts them back into their slots.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void accessoriesGoIntoRemnantAndBack(TestContext context) {
+		ServerPlayerEntity player = joinPlayer(context, new RecordingConnection());
+		ReliquaryManager.setStack(player, SlotKinds.ARTIFACT, 1, new ItemStack(ARTIFACT));
+		ReliquaryManager.setStack(player, SlotKinds.RING, 0, new ItemStack(RING));
+		player.getInventory().setStack(5, new ItemStack(Items.DIAMOND));
+
+		player.kill();
+		context.assertTrue(ReliquaryManager.get(player).isEmpty(), "accessories still worn after death");
+		List<? extends AshRemnantEntity> remnants = remnantsOf(context, player);
+		context.assertTrue(remnants.size() == 1, "expected one remnant, found " + remnants.size());
+		context.assertTrue(context.getWorld().getEntitiesByClass(ItemEntity.class, player.getBoundingBox().expand(8),
+				item -> true).isEmpty(), "items dropped on the ground");
+
+		// Through NBT, as when the chunk is saved and loaded.
+		AshRemnantEntity original = remnants.get(0);
+		AshRemnantEntity loaded = new AshRemnantEntity(ModEntities.ASH_REMNANT, context.getWorld());
+		loaded.readNbt(original.writeNbt(new NbtCompound()));
+		original.discard();
+
+		ServerPlayerEntity respawned = TestPlayers.respawn(player);
+		context.assertTrue(ReliquaryManager.get(respawned).isEmpty(), "accessories kept through death");
+		loaded.interact(respawned, Hand.MAIN_HAND);
+		context.assertTrue(ReliquaryManager.get(respawned).get(SlotKinds.ARTIFACT, 1).isOf(ARTIFACT), "artifact not back in its slot");
+		context.assertTrue(ReliquaryManager.get(respawned).get(SlotKinds.RING, 0).isOf(RING), "ring not back in its slot");
+		context.assertTrue(respawned.getInventory().getStack(5).isOf(Items.DIAMOND), "inventory not back");
+		TestPlayers.complete(context, respawned);
+	}
+
+	/** A death with only accessories (the flask stays with the player) still leaves a remnant with them. */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void accessoriesAloneLeaveARemnant(TestContext context) {
+		ServerPlayerEntity player = joinPlayer(context, new RecordingConnection());
+		player.getInventory().clear();
+		XpUtil.setPoints(player, 0);
+		ReliquaryManager.setStack(player, SlotKinds.RING, 0, new ItemStack(RING));
+
+		player.kill();
+		List<? extends AshRemnantEntity> remnants = remnantsOf(context, player);
+		context.assertTrue(remnants.size() == 1, "expected one remnant, found " + remnants.size());
+		ServerPlayerEntity respawned = TestPlayers.respawn(player);
+		remnants.get(0).interact(respawned, Hand.MAIN_HAND);
+		context.assertTrue(ReliquaryManager.has(respawned, RING), "ring not back");
+		TestPlayers.complete(context, respawned);
+	}
+
+	/** An accessory whose slot is taken again by recovery time goes to the inventory instead. */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void recoveredAccessoryIntoTakenSlotGoesToInventory(TestContext context) {
+		ServerPlayerEntity player = joinPlayer(context, new RecordingConnection());
+		ReliquaryManager.setStack(player, SlotKinds.ARTIFACT, 0, new ItemStack(ARTIFACT));
+		player.kill();
+		AshRemnantEntity remnant = remnantsOf(context, player).get(0);
+		ServerPlayerEntity respawned = TestPlayers.respawn(player);
+		ReliquaryManager.setStack(respawned, SlotKinds.ARTIFACT, 0, new ItemStack(OTHER_ARTIFACT));
+
+		remnant.interact(respawned, Hand.MAIN_HAND);
+		context.assertTrue(ReliquaryManager.get(respawned).get(SlotKinds.ARTIFACT, 0).isOf(OTHER_ARTIFACT), "slot overwritten");
+		context.assertTrue(respawned.getInventory().count(ARTIFACT) == 1, "artifact not in the inventory");
+		TestPlayers.complete(context, respawned);
+	}
+
+	/** Under keepInventory the accessories stay worn through death. */
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "reliquary_keep_inventory")
+	public void keepInventoryKeepsAccessories(TestContext context) {
+		GameRules.BooleanRule rule = context.getWorld().getGameRules().get(GameRules.KEEP_INVENTORY);
+		boolean before = rule.get();
+		rule.set(true, context.getWorld().getServer());
+		try {
+			ServerPlayerEntity player = joinPlayer(context, new RecordingConnection());
+			ReliquaryManager.setStack(player, SlotKinds.RING, 0, new ItemStack(RING));
+			player.kill();
+			ServerPlayerEntity respawned = TestPlayers.respawn(player);
+			context.assertTrue(ReliquaryManager.has(respawned, RING), "ring lost under keepInventory");
+			context.assertTrue(remnantsOf(context, player).isEmpty(), "remnant under keepInventory");
+			TestPlayers.complete(context, respawned);
+		} finally {
+			rule.set(before, context.getWorld().getServer());
+		}
+	}
+
+	/**
+	 * Bonus points (here from a test source standing in for artifacts) count in stat effects, not in the stat value,
+	 * the level or the level cost.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void bonusPointsSkipLevelAndCost(TestContext context) {
+		ServerPlayerEntity player = joinPlayer(context, new RecordingConnection());
+		int level = PlayerStats.level(player);
+		int cost = PlayerStats.levelUpCost(player);
+		float health = player.getMaxHealth();
+
+		TEST_BONUS.put(player.getUuid(), 3);
+		StatEffects.apply(player);
+		context.assertTrue(PlayerStats.get(player, Stat.VITALITY) == Stat.BASE, "own VIT changed");
+		context.assertTrue(PlayerStats.effective(player, Stat.VITALITY) == Stat.BASE + 3, "effective VIT "
+				+ PlayerStats.effective(player, Stat.VITALITY));
+		context.assertTrue(player.getMaxHealth() == health + 3, "max health " + player.getMaxHealth() + ", expected " + (health + 3));
+		context.assertTrue(PlayerStats.level(player) == level, "level changed: " + PlayerStats.level(player));
+		context.assertTrue(PlayerStats.levelUpCost(player) == cost, "level cost changed: " + PlayerStats.levelUpCost(player));
+
+		TEST_BONUS.remove(player.getUuid());
+		StatEffects.apply(player);
+		context.assertTrue(player.getMaxHealth() == health, "max health not back: " + player.getMaxHealth());
+		TestPlayers.complete(context, player);
+	}
+
+	/** VIT bonus per test player, read by a bonus source registered once for these tests. */
+	private static final Map<UUID, Integer> TEST_BONUS = new ConcurrentHashMap<>();
+
+	static {
+		PlayerStats.registerBonusSource((player, bonus) ->
+				bonus[Stat.VITALITY.ordinal()] += TEST_BONUS.getOrDefault(player.getUuid(), 0));
+	}
+
+	static List<? extends AshRemnantEntity> remnantsOf(TestContext context, ServerPlayerEntity player) {
+		return context.getWorld().getEntitiesByType(ModEntities.ASH_REMNANT,
+				remnant -> player.getUuid().equals(remnant.getOwner()));
 	}
 
 	// --- helpers -----------------------------------------------------------------------------------------------
