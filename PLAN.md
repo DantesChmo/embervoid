@@ -287,7 +287,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 11.10 | **Reliquary: remnant, stat points** | reliquary | 11.9 | done (GameTest) |
 | 11.11 | **8 artifacts** | reliquary | 11.10 | done (GameTest; textures and tooltips not seen) |
 | 11.12 | **6 rings** | reliquary | 11.9, 9.1 | done (GameTest; slow-fall feel, fog clearing and textures not seen) |
-| 11.13 | **Accessory drops** | reliquary | 11.11, 11.12 | todo |
+| 11.13 | **Accessory drops** | reliquary | 11.11, 11.12 | done (GameTest) |
 
 - **11.1** Items and recipes for the materials (Smoldering Ingot shapeless, Grave Iron smelting), the four boss
   souls, Ash of Rematch (item and recipe; its use is 12.7), Flask Ember (item only; its effect is 11.7), and empty
@@ -374,9 +374,6 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 
 ## Open follow-ups
 
-- **Maiden screen and artifact points:** the level-up screen shows a player's own stat values while its derived
-  numbers include artifact bonus points (`PlayerStats.bonus`); show the bonus as "(+3)" next to the value (small
-  `sanctum` change, after 11.11).
 - **In-game checks not run yet:** QA #7f (Sanctum casing gaps, next batch); QA #8 step 9 (second and third
   player: personal Ember Heart, fog wall pushing back an outsider, independent progress); Hollow wind-up timing
   and dodge, guard block/break sounds; stamina HUD bar and debug weapon (2.5, 2.6); sounds and boss music.
