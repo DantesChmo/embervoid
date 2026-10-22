@@ -47,38 +47,23 @@
       "argument2": {
         "type": "minecraft:add",
         "argument1": {
-          "type": "minecraft:add",
-          "argument1": -0.05,
+          "type": "minecraft:mul",
+          "argument1": 0.5,
           "argument2": {
-            "type": "embervoid:radial_falloff",
-            "inner": 45,
-            "outer": 170,
-            "strength": 0.4,
-            "center_x": 0.0,
-            "center_z": -200.0
+            "type": "minecraft:noise",
+            "noise": "embervoid:realm_hills",
+            "xz_scale": 1.0,
+            "y_scale": 0.0
           }
         },
         "argument2": {
-          "type": "minecraft:add",
-          "argument1": {
-            "type": "minecraft:mul",
-            "argument1": 0.15,
-            "argument2": {
-              "type": "minecraft:noise",
-              "noise": "embervoid:realm_hills",
-              "xz_scale": 1.0,
-              "y_scale": 0.0
-            }
-          },
+          "type": "minecraft:mul",
+          "argument1": 0.12,
           "argument2": {
-            "type": "minecraft:mul",
-            "argument1": 0.06,
-            "argument2": {
-              "type": "minecraft:noise",
-              "noise": "embervoid:realm_roughness",
-              "xz_scale": 1.0,
-              "y_scale": 1.0
-            }
+            "type": "minecraft:noise",
+            "noise": "embervoid:realm_roughness",
+            "xz_scale": 1.0,
+            "y_scale": 1.0
           }
         }
       }
@@ -99,38 +84,23 @@
           "argument2": {
             "type": "minecraft:add",
             "argument1": {
-              "type": "minecraft:add",
-              "argument1": -0.05,
+              "type": "minecraft:mul",
+              "argument1": 0.5,
               "argument2": {
-                "type": "embervoid:radial_falloff",
-                "inner": 45,
-                "outer": 170,
-                "strength": 0.4,
-                "center_x": 0.0,
-                "center_z": -200.0
+                "type": "minecraft:noise",
+                "noise": "embervoid:realm_hills",
+                "xz_scale": 1.0,
+                "y_scale": 0.0
               }
             },
             "argument2": {
-              "type": "minecraft:add",
-              "argument1": {
-                "type": "minecraft:mul",
-                "argument1": 0.15,
-                "argument2": {
-                  "type": "minecraft:noise",
-                  "noise": "embervoid:realm_hills",
-                  "xz_scale": 1.0,
-                  "y_scale": 0.0
-                }
-              },
+              "type": "minecraft:mul",
+              "argument1": 0.12,
               "argument2": {
-                "type": "minecraft:mul",
-                "argument1": 0.06,
-                "argument2": {
-                  "type": "minecraft:noise",
-                  "noise": "embervoid:realm_roughness",
-                  "xz_scale": 1.0,
-                  "y_scale": 1.0
-                }
+                "type": "minecraft:noise",
+                "noise": "embervoid:realm_roughness",
+                "xz_scale": 1.0,
+                "y_scale": 1.0
               }
             }
           }
@@ -166,52 +136,16 @@
             {
               "type": "minecraft:condition",
               "if_true": {
-                "type": "minecraft:noise_threshold",
-                "noise": "minecraft:surface",
-                "min_threshold": 0.6,
-                "max_threshold": 1.7976931348623157e+308
+                "type": "minecraft:biome",
+                "biome_is": [
+                  "embervoid:ashen_reach_depths"
+                ]
               },
               "then_run": {
                 "type": "minecraft:block",
                 "result_state": {
-                  "Name": "embervoid:ember_crack"
+                  "Name": "minecraft:blackstone"
                 }
-              }
-            },
-            {
-              "type": "minecraft:condition",
-              "if_true": {
-                "type": "minecraft:noise_threshold",
-                "noise": "minecraft:patch",
-                "min_threshold": 0.3,
-                "max_threshold": 1.7976931348623157e+308
-              },
-              "then_run": {
-                "type": "minecraft:block",
-                "result_state": {
-                  "Name": "embervoid:cobbled_ash_stone"
-                }
-              }
-            },
-            {
-              "type": "minecraft:condition",
-              "if_true": {
-                "type": "minecraft:noise_threshold",
-                "noise": "minecraft:surface",
-                "min_threshold": -1.7976931348623157e+308,
-                "max_threshold": -0.4
-              },
-              "then_run": {
-                "type": "minecraft:block",
-                "result_state": {
-                  "Name": "embervoid:ash_soil"
-                }
-              }
-            },
-            {
-              "type": "minecraft:block",
-              "result_state": {
-                "Name": "minecraft:blackstone"
               }
             }
           ]
@@ -232,22 +166,16 @@
             {
               "type": "minecraft:condition",
               "if_true": {
-                "type": "minecraft:noise_threshold",
-                "noise": "minecraft:surface",
-                "min_threshold": 0.6,
-                "max_threshold": 1.7976931348623157e+308
+                "type": "minecraft:biome",
+                "biome_is": [
+                  "embervoid:ashen_reach_depths"
+                ]
               },
               "then_run": {
                 "type": "minecraft:block",
                 "result_state": {
-                  "Name": "minecraft:magma_block"
+                  "Name": "minecraft:blackstone"
                 }
-              }
-            },
-            {
-              "type": "minecraft:block",
-              "result_state": {
-                "Name": "minecraft:blackstone"
               }
             }
           ]

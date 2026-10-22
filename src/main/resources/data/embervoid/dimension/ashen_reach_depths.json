@@ -1,5 +1,5 @@
 {
-  "type": "embervoid:realm_depths",
+  "type": "embervoid:realm",
   "generator": {
     "type": "minecraft:noise",
     "settings": "embervoid:ashen_reach_depths",
