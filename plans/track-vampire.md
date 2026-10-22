@@ -8,10 +8,10 @@ Config section `vampire` (`VampireConfig`; PLAN writes the keys as `moon.blood.*
 
 ## Moon API
 
-`moon.api.MoonNights` is not on `main` yet. Until it is, `vampire.moonstub` has a stand-in with the same calls
-(`current`, `NIGHT_STARTED`, `NIGHT_ENDED`, `hold`, `release`) and a debug command
-`/embervoid vampire stubnight start blood|full | stop | status` (the last released hold ends the night at once, as 8.2
-says). After syncing with `main`: switch the imports to `moon.api`, delete `vampire.moonstub`.
+Uses `moon.api.MoonNights` from `main`: `NIGHT_STARTED` / `NIGHT_ENDED`, `hold` / `release(server, embervoid:vampire)`
+(releasing the last hold ends the night with `GOAL_MET`). Holds are saved with the world, so `resume` re-holding is
+harmless. Moon's vampirism (8.6) is overworld-only and skips `ArenaBoss`, so neither the arena nor the boss is
+affected. Test with `/embervoid moon start blood | stop | status`.
 
 ## Tasks
 

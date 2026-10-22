@@ -10,7 +10,7 @@ import com.embervoid.realm.Realms;
 import com.embervoid.sanctum.SanctumItems;
 import com.embervoid.stats.PlayerStats;
 import com.embervoid.vampire.VampireState.Stage;
-import com.embervoid.vampire.moonstub.MoonNights;
+import com.embervoid.moon.api.MoonNights;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.entity.Entity;
