@@ -136,6 +136,12 @@ public class GhostEntity extends HostileEntity implements GeoEntity {
 	protected void fall(double heightDifference, boolean onGround, BlockState state, BlockPos landedPosition) {
 	}
 
+	/** A wave mob must stay in the overworld, where its wave is counted. */
+	@Override
+	public boolean canUsePortals() {
+		return false;
+	}
+
 	@Override
 	public EntityGroup getGroup() {
 		return EntityGroup.UNDEAD;

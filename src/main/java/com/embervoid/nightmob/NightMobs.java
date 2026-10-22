@@ -37,6 +37,7 @@ public final class NightMobs {
 		Embervoid.LOGGER.debug("Night mob config section: {}", NightMobConfig.SECTION.name());
 		FabricDefaultAttributeRegistry.register(ASHEN_ZOMBIE, AshenZombieEntity.createAttributes());
 		FabricDefaultAttributeRegistry.register(GHOST, GhostEntity.createAttributes());
+		NightWaves.register();
 	}
 
 	private NightMobs() {}

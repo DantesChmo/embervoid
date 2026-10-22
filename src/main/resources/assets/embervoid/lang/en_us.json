@@ -160,5 +160,9 @@
 	"embervoid.moon.ended.blood_new_moon": "The blood new moon fades.",
 	"embervoid.moon.ended.timeout": "The night could not hold any longer. %s",
 	"embervoid.moon.no_sleep": "You cannot sleep on a moon night",
-	"embervoid.moon.curse.stack": "The Curse of the Night deepens (%s). It lifts when the full moon sets."
+	"embervoid.moon.curse.stack": "The Curse of the Night deepens (%s). It lifts when the full moon sets.",
+	"embervoid.wave.zombies": "The full moon raises %s Ashen Zombies for your curse",
+	"embervoid.wave.ghosts": "No curse on you: %s Ghosts come instead",
+	"embervoid.wave.cleared": "Your full moon wave is beaten",
+	"embervoid.wave.shard": "The ghosts leave a Flask Shard behind"
 }

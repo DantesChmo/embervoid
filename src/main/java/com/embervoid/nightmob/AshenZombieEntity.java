@@ -69,6 +69,12 @@ public class AshenZombieEntity extends HostileEntity implements GeoEntity {
 		}
 	}
 
+	/** A wave mob must stay in the overworld, where its wave is counted. */
+	@Override
+	public boolean canUsePortals() {
+		return false;
+	}
+
 	@Override
 	public EntityGroup getGroup() {
 		return EntityGroup.UNDEAD;

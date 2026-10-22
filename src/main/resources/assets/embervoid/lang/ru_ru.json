@@ -160,5 +160,9 @@
 	"embervoid.moon.ended.blood_new_moon": "Кровавое новолуние угасает.",
 	"embervoid.moon.ended.timeout": "Ночь больше не может длиться. %s",
 	"embervoid.moon.no_sleep": "В лунную ночь не уснуть",
-	"embervoid.moon.curse.stack": "Проклятие ночи крепнет (%s). Оно спадёт, когда зайдёт полная луна."
+	"embervoid.moon.curse.stack": "Проклятие ночи крепнет (%s). Оно спадёт, когда зайдёт полная луна.",
+	"embervoid.wave.zombies": "Полная луна поднимает за ваше проклятие пепельных зомби: %s",
+	"embervoid.wave.ghosts": "На вас нет проклятия — вместо зомби идут призраки: %s",
+	"embervoid.wave.cleared": "Ваша волна полной луны побеждена",
+	"embervoid.wave.shard": "Призраки оставили осколок фляги"
 }

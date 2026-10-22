@@ -6,7 +6,7 @@ Scope: PLAN 8.7–8.9 (Ashen Zombie, Ghost, full moon waves). Branch `claude/tra
 |---|---|---|
 | 8.7 | Ashen Zombie | done, merge requested |
 | 8.8 | Ghost | done, merge requested |
-| 8.9 | Full moon waves | todo |
+| 8.9 | Full moon waves | done on the real `moon.api`, merge requested |
 
 ## Layout
 
@@ -19,10 +19,12 @@ Scope: PLAN 8.7–8.9 (Ashen Zombie, Ghost, full moon waves). Branch `claude/tra
 ## Config
 
 PLAN names the keys `moon.fullMoon.*`, but a config file holds one section per top-level name and `moon` belongs to
-track-moon, so this track has its own section `nightMobs` (sent to the coordinator as a QUESTION). Keys:
+track-moon, so this track has its own section `nightMobs` (approved by the coordinator). Keys:
 
 - `zombieLevelBonus` 5 — Ashen Zombie of a wave: spot level + this.
 - `ghostMissChance` 0.15 — share of attacks on a Ghost that pass through it.
+- `maxZombies` 10, `ghostCount` 5 — wave size.
+- `spawnMinDistance` 16, `spawnMaxDistance` 32 — ring around the player where a wave spawns.
 
 ## Ashen Zombie (8.7)
 
@@ -44,3 +46,29 @@ track-moon, so this track has its own section `nightMobs` (sent to the coordinat
   off.
 - Translucent placeholder, lit at least to block light 8, glowing eyes. Loot: 0–1 phantom membrane (+Looting).
 - Known: a ghost inside a wall can hit you while your crosshair hits the wall (like a vex). It comes out to chase.
+
+## Full moon waves (8.9)
+
+- Built first on a local stub of `moon.api`, replaced by the real API after syncing with main.
+- `NightWaves` listens to `MoonNights.NIGHT_STARTED` / `NIGHT_ENDED` (FULL_MOON only). `WaveState` (overworld
+  `PersistentState` `embervoid_night_waves`): full moon night counter, living wave mobs per owner, who was served
+  this night, Flask Shards owed to offline owners.
+- Every second while the full moon is on, each overworld player (not spectators) who has not had a wave this
+  night gets one: `WaveRules.waveFor(CurseOfTheNight.stacks, maxZombies, ghostCount)`. This one check covers the
+  night's start, joining, returning from another dimension and respawning.
+- Placement: zombies on safe ground (vanilla on-ground spawn rules, empty box, loaded chunk) in the ring, within 8
+  blocks of the player's height (so cave players get cave zombies); then the ring 6–16; a mob that still finds no
+  spot is dropped with a warning in the log. Ghosts anywhere in the ring 2–5 blocks above the player's feet,
+  open air preferred. Wave mobs are persistent, cannot use portals, and start with the player as their target.
+- Level: `MobLevels.defaultLevel` at the spot + `zombieLevelBonus`, for Ghosts too (so they stay 2× a zombie);
+  set after spawning, so it replaces the full moon's +3 from 8.4. They still get 8.4's follow range and target keeping.
+- A wave mob carries a persistent attachment `embervoid:wave_night` (the night counter). Killed or discarded
+  (removal reason that destroys) → leaves its wave; the last one clears the wave: chat line, hold
+  `embervoid:wave/<uuid>` released, and for a Ghost wave whose last mob was killed a Flask Shard (inventory or
+  dropped; later if the owner is offline).
+- `NIGHT_ENDED`: waves forgotten, loaded wave mobs vanish with smoke; unloaded ones vanish when their chunk loads
+  (attachment from another night, or not in any wave). After a restart with no full moon on, leftover waves are
+  cleared the same way; with one on, the holds are re-opened.
+- Debug (op): `/embervoid wave status`, `/embervoid wave spawn <players>` (a wave now, full moon or not; it holds
+  the night only when one is on), `/embervoid wave clear <players>`.
+- Known: a wave owner who logs off leaves the night held until their wave dies or the 30-minute fallback.
