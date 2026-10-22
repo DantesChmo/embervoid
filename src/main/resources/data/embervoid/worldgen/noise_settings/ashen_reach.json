@@ -45,10 +45,21 @@
         "to_value": -1.5
       },
       "argument2": {
-        "type": "minecraft:add",
-        "argument1": {
+        "type": "embervoid:zone_blend",
+        "warp": {
+          "type": "minecraft:noise",
+          "noise": "embervoid:realm_warp",
+          "xz_scale": 1.0,
+          "y_scale": 0.0
+        },
+        "warp_degrees": 20.0,
+        "start_angle": -90.0,
+        "landing_radius": 48.0,
+        "landing_blend": 40.0,
+        "blend": 48.0,
+        "landing": {
           "type": "minecraft:mul",
-          "argument1": 0.5,
+          "argument1": 0.05,
           "argument2": {
             "type": "minecraft:noise",
             "noise": "embervoid:realm_hills",
@@ -56,16 +67,140 @@
             "y_scale": 0.0
           }
         },
-        "argument2": {
-          "type": "minecraft:mul",
-          "argument1": 0.12,
-          "argument2": {
-            "type": "minecraft:noise",
-            "noise": "embervoid:realm_roughness",
-            "xz_scale": 1.0,
-            "y_scale": 1.0
+        "zones": [
+          {
+            "type": "minecraft:add",
+            "argument1": -0.04,
+            "argument2": {
+              "type": "minecraft:add",
+              "argument1": {
+                "type": "minecraft:mul",
+                "argument1": 0.2,
+                "argument2": {
+                  "type": "minecraft:noise",
+                  "noise": "embervoid:realm_hills",
+                  "xz_scale": 1.0,
+                  "y_scale": 0.0
+                }
+              },
+              "argument2": {
+                "type": "minecraft:mul",
+                "argument1": 0.05,
+                "argument2": {
+                  "type": "minecraft:noise",
+                  "noise": "embervoid:realm_roughness",
+                  "xz_scale": 1.0,
+                  "y_scale": 1.0
+                }
+              }
+            }
+          },
+          {
+            "type": "minecraft:add",
+            "argument1": {
+              "type": "minecraft:mul",
+              "argument1": 0.55,
+              "argument2": {
+                "type": "minecraft:noise",
+                "noise": "embervoid:realm_hills",
+                "xz_scale": 1.0,
+                "y_scale": 0.0
+              }
+            },
+            "argument2": {
+              "type": "minecraft:add",
+              "argument1": {
+                "type": "minecraft:mul",
+                "argument1": 0.12,
+                "argument2": {
+                  "type": "minecraft:noise",
+                  "noise": "embervoid:realm_roughness",
+                  "xz_scale": 1.0,
+                  "y_scale": 1.0
+                }
+              },
+              "argument2": {
+                "type": "minecraft:mul",
+                "argument1": -0.55,
+                "argument2": {
+                  "type": "minecraft:clamp",
+                  "input": {
+                    "type": "minecraft:add",
+                    "argument1": 1.0,
+                    "argument2": {
+                      "type": "minecraft:mul",
+                      "argument1": -12.0,
+                      "argument2": {
+                        "type": "minecraft:abs",
+                        "argument": {
+                          "type": "minecraft:noise",
+                          "noise": "embervoid:realm_ravines",
+                          "xz_scale": 1.0,
+                          "y_scale": 0.0
+                        }
+                      }
+                    }
+                  },
+                  "min": 0.0,
+                  "max": 1.0
+                }
+              }
+            }
+          },
+          {
+            "type": "minecraft:add",
+            "argument1": -0.3,
+            "argument2": {
+              "type": "minecraft:add",
+              "argument1": {
+                "type": "minecraft:mul",
+                "argument1": 0.25,
+                "argument2": {
+                  "type": "minecraft:noise",
+                  "noise": "embervoid:realm_hills",
+                  "xz_scale": 1.0,
+                  "y_scale": 0.0
+                }
+              },
+              "argument2": {
+                "type": "minecraft:add",
+                "argument1": {
+                  "type": "minecraft:mul",
+                  "argument1": 0.08,
+                  "argument2": {
+                    "type": "minecraft:noise",
+                    "noise": "embervoid:realm_roughness",
+                    "xz_scale": 1.0,
+                    "y_scale": 1.0
+                  }
+                },
+                "argument2": {
+                  "type": "minecraft:mul",
+                  "argument1": -0.8,
+                  "argument2": {
+                    "type": "minecraft:clamp",
+                    "input": {
+                      "type": "minecraft:add",
+                      "argument1": {
+                        "type": "minecraft:mul",
+                        "argument1": 5.0,
+                        "argument2": {
+                          "type": "minecraft:noise",
+                          "noise": "embervoid:realm_sinkholes",
+                          "xz_scale": 1.0,
+                          "y_scale": 0.0
+                        }
+                      },
+                      "argument2": -2.75
+                    },
+                    "min": 0.0,
+                    "max": 1.0
+                  }
+                }
+              }
+            }
           }
-        }
+        ]
       }
     },
     "final_density": {
@@ -82,10 +217,21 @@
             "to_value": -1.5
           },
           "argument2": {
-            "type": "minecraft:add",
-            "argument1": {
+            "type": "embervoid:zone_blend",
+            "warp": {
+              "type": "minecraft:noise",
+              "noise": "embervoid:realm_warp",
+              "xz_scale": 1.0,
+              "y_scale": 0.0
+            },
+            "warp_degrees": 20.0,
+            "start_angle": -90.0,
+            "landing_radius": 48.0,
+            "landing_blend": 40.0,
+            "blend": 48.0,
+            "landing": {
               "type": "minecraft:mul",
-              "argument1": 0.5,
+              "argument1": 0.05,
               "argument2": {
                 "type": "minecraft:noise",
                 "noise": "embervoid:realm_hills",
@@ -93,16 +239,140 @@
                 "y_scale": 0.0
               }
             },
-            "argument2": {
-              "type": "minecraft:mul",
-              "argument1": 0.12,
-              "argument2": {
-                "type": "minecraft:noise",
-                "noise": "embervoid:realm_roughness",
-                "xz_scale": 1.0,
-                "y_scale": 1.0
+            "zones": [
+              {
+                "type": "minecraft:add",
+                "argument1": -0.04,
+                "argument2": {
+                  "type": "minecraft:add",
+                  "argument1": {
+                    "type": "minecraft:mul",
+                    "argument1": 0.2,
+                    "argument2": {
+                      "type": "minecraft:noise",
+                      "noise": "embervoid:realm_hills",
+                      "xz_scale": 1.0,
+                      "y_scale": 0.0
+                    }
+                  },
+                  "argument2": {
+                    "type": "minecraft:mul",
+                    "argument1": 0.05,
+                    "argument2": {
+                      "type": "minecraft:noise",
+                      "noise": "embervoid:realm_roughness",
+                      "xz_scale": 1.0,
+                      "y_scale": 1.0
+                    }
+                  }
+                }
+              },
+              {
+                "type": "minecraft:add",
+                "argument1": {
+                  "type": "minecraft:mul",
+                  "argument1": 0.55,
+                  "argument2": {
+                    "type": "minecraft:noise",
+                    "noise": "embervoid:realm_hills",
+                    "xz_scale": 1.0,
+                    "y_scale": 0.0
+                  }
+                },
+                "argument2": {
+                  "type": "minecraft:add",
+                  "argument1": {
+                    "type": "minecraft:mul",
+                    "argument1": 0.12,
+                    "argument2": {
+                      "type": "minecraft:noise",
+                      "noise": "embervoid:realm_roughness",
+                      "xz_scale": 1.0,
+                      "y_scale": 1.0
+                    }
+                  },
+                  "argument2": {
+                    "type": "minecraft:mul",
+                    "argument1": -0.55,
+                    "argument2": {
+                      "type": "minecraft:clamp",
+                      "input": {
+                        "type": "minecraft:add",
+                        "argument1": 1.0,
+                        "argument2": {
+                          "type": "minecraft:mul",
+                          "argument1": -12.0,
+                          "argument2": {
+                            "type": "minecraft:abs",
+                            "argument": {
+                              "type": "minecraft:noise",
+                              "noise": "embervoid:realm_ravines",
+                              "xz_scale": 1.0,
+                              "y_scale": 0.0
+                            }
+                          }
+                        }
+                      },
+                      "min": 0.0,
+                      "max": 1.0
+                    }
+                  }
+                }
+              },
+              {
+                "type": "minecraft:add",
+                "argument1": -0.3,
+                "argument2": {
+                  "type": "minecraft:add",
+                  "argument1": {
+                    "type": "minecraft:mul",
+                    "argument1": 0.25,
+                    "argument2": {
+                      "type": "minecraft:noise",
+                      "noise": "embervoid:realm_hills",
+                      "xz_scale": 1.0,
+                      "y_scale": 0.0
+                    }
+                  },
+                  "argument2": {
+                    "type": "minecraft:add",
+                    "argument1": {
+                      "type": "minecraft:mul",
+                      "argument1": 0.08,
+                      "argument2": {
+                        "type": "minecraft:noise",
+                        "noise": "embervoid:realm_roughness",
+                        "xz_scale": 1.0,
+                        "y_scale": 1.0
+                      }
+                    },
+                    "argument2": {
+                      "type": "minecraft:mul",
+                      "argument1": -0.8,
+                      "argument2": {
+                        "type": "minecraft:clamp",
+                        "input": {
+                          "type": "minecraft:add",
+                          "argument1": {
+                            "type": "minecraft:mul",
+                            "argument1": 5.0,
+                            "argument2": {
+                              "type": "minecraft:noise",
+                              "noise": "embervoid:realm_sinkholes",
+                              "xz_scale": 1.0,
+                              "y_scale": 0.0
+                            }
+                          },
+                          "argument2": -2.75
+                        },
+                        "min": 0.0,
+                        "max": 1.0
+                      }
+                    }
+                  }
+                }
               }
-            }
+            ]
           }
         }
       },

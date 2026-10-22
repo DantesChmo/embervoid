@@ -1,14 +1,18 @@
 package com.embervoid.gametest;
 
+import com.embervoid.Embervoid;
 import com.embervoid.mob.MobLevels;
 import com.embervoid.reach.world.ReachZones;
 import com.embervoid.reach.world.ZoneTitles;
+import com.embervoid.realm.RealmArenas;
 import com.embervoid.realm.RealmDefinition;
 import com.embervoid.realm.RealmMobLevels;
 import com.embervoid.realm.Realms;
 import com.embervoid.realm.placed.PlacedEnemies;
 import com.embervoid.realm.placed.PlacedEnemyMarkerBlock;
 import com.embervoid.realm.placed.PlacedEnemyProcessor;
+import com.embervoid.realm.worldgen.ArenaSite;
+import com.embervoid.realm.worldgen.RealmFeaturePiece;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.SharedConstants;
 import net.minecraft.block.BlockState;
@@ -27,6 +31,7 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructurePlacementData;
+import net.minecraft.structure.StructureStart;
 import net.minecraft.structure.StructureTemplate;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
@@ -35,10 +40,13 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.SpawnSettings;
+import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.gen.structure.Structure;
 
 import java.util.List;
 
@@ -192,5 +200,56 @@ public final class ReachWorldTests implements FabricGameTest {
 				TestPlayers.complete(context, player);
 			});
 		});
+	}
+	/**
+	 * Each arena site (PLAN 9.4) generates flat at its floor height, open to the sky. The test world does not generate
+	 * structures by itself, so each arena start is made and placed the way worldgen does, at its real position.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 2400)
+	public void arenaSitesAreFlatAndOpen(TestContext context) {
+		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
+		Registry<Structure> structures = realm.getRegistryManager().get(RegistryKeys.STRUCTURE);
+		ChunkGenerator generator = realm.getChunkManager().getChunkGenerator();
+		List<RealmArenas.Location> arenas = RealmArenas.all(realm);
+		context.assertTrue(arenas.size() == 3, "expected 3 zone arenas, found " + arenas.size());
+		for (String zone : List.of("a", "b", "c")) {
+			String name = "ashen_reach_arena_" + zone;
+			Structure structure = structures.get(Embervoid.id(name));
+			RealmArenas.Location arena = arenas.stream()
+					.filter(a -> a.spec().bossId().getPath().endsWith("zone_" + zone)).findFirst().orElseThrow();
+			ChunkPos chunk = new ChunkPos(arena.pos());
+			StructureStart start = structure.createStructureStart(realm.getRegistryManager(), generator,
+					generator.getBiomeSource(), realm.getChunkManager().getNoiseConfig(), realm.getStructureTemplateManager(),
+					realm.getSeed(), chunk, 0, realm, biome -> true);
+			context.assertTrue(start.hasChildren(), name + ": no pieces at " + chunk);
+			RealmFeaturePiece piece = (RealmFeaturePiece) start.getChildren().get(0);
+			ArenaSite site = piece.site();
+			context.assertTrue(site != null, name + ": the arena has no site");
+			BlockPos center = piece.center();
+			BlockBox box = start.getBoundingBox();
+			ChunkPos.stream(new ChunkPos(box.getMinX() >> 4, box.getMinZ() >> 4), new ChunkPos(box.getMaxX() >> 4, box.getMaxZ() >> 4))
+					.forEach(c -> start.place(realm, realm.getStructureAccessor(), generator, realm.getRandom(),
+							new BlockBox(c.getStartX(), realm.getBottomY(), c.getStartZ(), c.getEndX(), realm.getTopY(), c.getEndZ()), c));
+			int checked = 0;
+			for (int dx = -site.radius() + 1; dx < site.radius(); dx += 3) {
+				for (int dz = -site.radius() + 1; dz < site.radius(); dz += 3) {
+					double d = Math.sqrt(dx * dx + dz * dz);
+					if (d > site.radius() - 1) {
+						continue;
+					}
+					BlockPos floor = center.add(dx, 0, dz);
+					context.assertTrue(!realm.getBlockState(floor).isAir(), name + ": hole in the floor at " + floor);
+					// The placeholder's pillars and shrine path stand on the floor; everything else is open sky.
+					boolean placeholderBuild = (d >= piece.radius() - 4 && d <= piece.radius() - 2) || d >= piece.radius() - 1;
+					for (int dy = 1; dy <= 12 && !placeholderBuild; dy++) {
+						context.assertTrue(realm.getBlockState(floor.up(dy)).isAir(),
+								name + ": the site is not open above " + floor + " (" + realm.getBlockState(floor.up(dy)) + " at +" + dy + ")");
+					}
+					checked++;
+				}
+			}
+			context.assertTrue(checked > 100, name + ": only " + checked + " floor columns checked");
+		}
+		context.complete();
 	}
 }

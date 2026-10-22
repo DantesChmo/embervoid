@@ -103,4 +103,31 @@ class RealmLayoutTest {
 		// 3 rings of 8, 16 and 24 cells, each at 3 heights.
 		assertEquals((8 + 16 + 24) * 3, candidates.size());
 	}
+	@Test
+	void zoneWeightsBlendAcrossBorders() {
+		double start = Math.toRadians(-90);
+		double width = RealmLayout.sectorWidth(3);
+		// Middle of zone 1: all of it.
+		double[] middle = RealmLayout.zoneWeights(start + 1.5 * width, 3, start, 500, 48);
+		assertEquals(1, middle[1], 1e-9);
+		// On the border between zone 0 and zone 1: half and half.
+		double[] border = RealmLayout.zoneWeights(start + width, 3, start, 500, 48);
+		assertEquals(0.5, border[0], 1e-9);
+		assertEquals(0.5, border[1], 1e-9);
+		// Across the wrap-around border (zone 2 → zone 0) the weights still sum to 1.
+		double[] wrap = RealmLayout.zoneWeights(start + 3 * width - 0.01, 3, start, 500, 48);
+		assertEquals(1, wrap[0] + wrap[2], 1e-9);
+		assertTrue(wrap[0] > 0 && wrap[2] > wrap[0]);
+		for (double a = 0; a < RealmLayout.TAU; a += 0.01) {
+			double[] w = RealmLayout.zoneWeights(a, 3, start, 300, 48);
+			assertEquals(1, w[0] + w[1] + w[2], 1e-9);
+		}
+	}
+
+	@Test
+	void landingWeightFadesOut() {
+		assertEquals(1, RealmLayout.landingWeight(10, 48, 32), 1e-9);
+		assertEquals(0.5, RealmLayout.landingWeight(64, 48, 32), 1e-9);
+		assertEquals(0, RealmLayout.landingWeight(80, 48, 32), 1e-9);
+	}
 }

@@ -12,7 +12,7 @@ Owns `com.embervoid.realm` (incl. `realm.worldgen`, `realm.fog`), `com.embervoid
 - [x] 9.1 Fog API + per-zone fog
 - [x] 9.2 Placed enemies
 - [x] 9.3 Zones renamed, eternal dusk, zone looks
-- [ ] 9.4 Zone terrain density + arena sites
+- [x] 9.4 Zone terrain density + arena sites
 - [ ] 9.5 Realm 1 blocks and ores
 - [ ] 9.6 Landing plaza, roads, milestones, outposts
 - [ ] 9.7 Minor structures per zone
@@ -71,3 +71,25 @@ Owns `com.embervoid.realm` (incl. `realm.worldgen`, `realm.fog`), `com.embervoid
 - Vanilla `spawners` removed from every realm biome (reach-mobs adds spawns in code).
 - GameTests: fixed time 13500, no vanilla spawns in the realm biomes, the zone title follows a player from a zone to
   the landing. Not seen: the looks (colours, particles, sounds, trees).
+
+## 9.4 Terrain and arena sites
+
+- Density function `embervoid:zone_blend` (`realm.worldgen.ZoneBlend`): a terrain shape per zone (JSON density
+  functions) chosen by the same angle sectors and warp noise as the biome source, blended over ±48 blocks of arc at the
+  borders (at most a third of a sector) and over 40 blocks outside the landing disc. Weights in pure
+  `RealmLayout.zoneWeights` / `landingWeight` (JUnit).
+- Shapes (`noise_settings/ashen_reach.json`): landing nearly flat; Fields a low rolling plain (0.2 × hills);
+  Woods hills (0.55 × hills) cut by ravines (new noise `realm_ravines`, up to ~26 blocks deep); Necropolis a basin
+  ~14 blocks lower with sinkholes (new noise `realm_sinkholes`, up to ~38 deep). Sea level stays at the bottom: dry
+  everywhere; Necropolis water comes from structures/features (9.8).
+- Arena sites: optional `site` in the arena structure JSON (`realm.worldgen.ArenaSite`: radius, height offset,
+  ground block, template). The floor height is the median of the ground at the centre and 8 points at ⅔ of the site
+  radius, plus the offset; the piece fills the site down to the terrain, clears it to the sky (64 up) and terrain
+  adaptation (`beard_box` for the sunken ones) blends the slopes. Fields r 44, −8 (crater); Woods r 52, 0; Necropolis
+  r 36, −18 (sinkhole).
+- Arena template hand-over (track reach-bosses): `embervoid:ashen_reach/arena_fields|arena_woods|arena_necropolis`
+  under `data/embervoid/structures/`; placed centred on the site, its y = 0 layer at the floor, its north (−Z) side
+  turned towards the landing, with the placed-enemy processor. The code shrine still goes to `shrinePos()` (fog radius
+  + 4 towards the landing). Without a template the placeholder disc stands on the site.
+- GameTest: each arena start made and placed at its real position (the test world does not generate structures); the
+  site is solid at the floor and open for 12 blocks above. Server check passes (realm, arenas, depths generate).
