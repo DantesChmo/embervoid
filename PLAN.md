@@ -185,8 +185,8 @@ notes in `plans/<track>.md`. Config: track-moon owns the `moon` section; night-m
 | ID  | Task | Who | Status |
 |-----|------|-----|--------|
 | R30.1 | **Sealed Gate placeholder**: in 0.3.0 the gate shows "the depths are still forming" instead of opening (config `realm.depthsOpen`, default false) | coordinator | done – not verified in game |
-| R30.2 | Balance pass on the moon nights | coordinator | todo |
-| R30.3 | Multiplayer and performance test | coordinator | todo |
+| R30.2 | Balance pass on the moon nights | release-balance (R40.1c) | todo |
+| R30.3 | Multiplayer and performance test | release-mp (R40.4) | todo |
 | R30.4 | Release 0.3.0 | coordinator | todo |
 
 ## 0.4.0 "Ashen Reach" — milestones 9–13
@@ -364,13 +364,44 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 
 ## 0.4.0 release tasks
 
-| ID  | Task | Who | Status |
-|-----|------|-----|--------|
-| R40.1 | Balance: zone bands vs player level, boss difficulty, XP yield, loot rates | coordinator | todo |
-| R40.2 | Art pass: realm mobs and bosses from greybox to final models; textures consistency | coordinator | todo |
-| R40.3 | Sounds and music: shared zone-boss theme, Smoldering Lord theme (`CREDITS.md`) | coordinator | todo |
-| R40.4 | Multiplayer and performance test (realm worldgen time, entity counts, placed enemies) | coordinator | todo |
-| R40.5 | Release 0.4.0 | coordinator | todo |
+Four release tracks (COORDINATION.md), then the release itself by the coordinator. The user does not play-test:
+every task proves its result with GameTests, the server check, JUnit or rendered previews, and lists what still
+needs eyes or ears in its merge notes. 0.3.0's leftovers (R30.2 moon-night balance, R30.3 multiplayer and
+performance) are done here with them.
+
+| ID  | Task | Track | Depends on | Status |
+|-----|------|-------|------------|--------|
+| R40.1a | **Balance model**: expected player level, stats and gear at each stage; mob and boss numbers against it | release-balance | — | todo |
+| R40.1b | **In-engine fight checks**: GameTests that measure hits-to-kill both ways for every mob and boss | release-balance | R40.1a | todo |
+| R40.1c | **Tuning**: zone bands, boss base values, XP yield vs level cost, loot rates, moon nights (R30.2) | release-balance | R40.1b | todo |
+| R40.2a | **Offline model preview**: render GeckoLib models + textures (and item/block textures) to PNG without a client | release-art | — | todo |
+| R40.2b | **Zone mobs art**: the 10 Realm 1 zone mobs from greybox to final models, textures, animations | release-art | R40.2a | todo |
+| R40.2c | **Citadel mobs and bosses art**: 4 Citadel mobs, 4 bosses (+ tree lantern, fire flask, ash bomb) | release-art | R40.2a | todo |
+| R40.2d | **Texture consistency**: Realm 1 items, armor layers, blocks, GUI (Reliquary) in one style | release-art | R40.2a | todo |
+| R40.3a | **Sound events**: every Realm 1 mob, boss, weapon, consumable and block gets its sounds (vanilla sound files, own events, subtitles in both languages) | release-audio | — | todo |
+| R40.3b | **Boss music**: shared zone-boss theme and the Smoldering Lord theme as sound events; placeholder until licensed tracks are approved; `CREDITS.md` | release-audio | R40.3a | todo |
+| R40.4a | **Multiplayer GameTests**: 2–3 players through realm progress, boss scaling and adds, personal loot, fog wall, rematch, remnants, accessory sync | release-mp | — | todo |
+| R40.4b | **Performance on a dedicated server**: generation time of the realm, depths and Citadel; tick time and entity counts with placed enemies loaded; fix hot spots | release-mp | — | todo |
+| R40.5 | **Release 0.4.0**: version, changelog, README, CORE, release build | coordinator | R40.1–R40.4 | todo |
+
+- **R40.1a** A pure balance calculator (JUnit) on the real formulas (stat curve, level cost, mob levels, difficulty
+  factors, armor): the player expected at each stage (Sanctum, each zone in either order, depths) by XP earned so
+  far and the gear available there; damage per hit both ways and hits to kill for every Realm 1 mob and boss, solo
+  and with 2–3 players. Written up in `docs/balance-0.4.0.md` with the targets from DESIGN §4.5 (light hits ~4–6,
+  heavy ~8–12, unblockable ~12–17 against full diamond on Normal).
+- **R40.1b** GameTests with a real player at the expected level and gear against each mob and boss (fixed seeds):
+  measured numbers next to the model's; differences explained or fixed.
+- **R40.1c** Changes only through config defaults and base values, each with its reason in the write-up; zone
+  order freedom kept (any zone first must be survivable at its band's bottom). Moon nights: levels, curse stacks,
+  Ghost waves, Vampire boss against the same model.
+- **R40.2a** A Python tool (`tools/model_preview.py`) that renders `.geo.json` + texture (and item/block textures)
+  to PNG from several angles, plus animation key poses, so models can be reviewed by reading the images.
+- **R40.2b–d** Models at the same size and with the same animation names as the greybox (code relies on them);
+  every change checked through the preview; textures 16× style consistent with the building blocks.
+- **R40.3a/b** No downloads without the user's approval: vanilla sound files remapped (pitch, volume, variants) for
+  effects; for music, a short list of CC-licensed candidates goes to the coordinator, who asks the user; until then
+  vanilla music stands in.
+- **R40.4a/b** Folds in R30.3. Fixes go into the owning package as separate commits named in the merge request.
 
 ## Open follow-ups
 

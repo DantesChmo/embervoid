@@ -5,7 +5,23 @@ by track sessions at once. Each track has its own git worktree and branch. The *
 main checkout; the session that started the tracks, `startedBy` in the session list) merges tracks into `main`,
 owns the docs, and is the only place where the game is launched.
 
-## Tracks — 0.4.0 (milestones 9–13, Realm 1 "Ashen Reach")
+## Tracks — 0.4.0 release
+
+Tasks in PLAN.md "0.4.0 release tasks". At most 4 track sessions at once: release-audio starts when the last
+milestone track (`track-reach-bosses`) is done.
+
+| Track | Session name | Scope | Owns |
+|---|---|---|---|
+| R1 | `release-balance` | R40.1a–c (+ R30.2) | `docs/balance-0.4.0.md`, `com.embervoid.balance` (calculator, tests); number changes in any package (config defaults, base attributes), each a small commit |
+| R2 | `release-art` | R40.2a–d | `tools/model_preview.py`, `tools/*_placeholders.py`, `assets/embervoid/geo/**`, `animations/**`, `textures/**` |
+| R3 | `release-audio` | R40.3a–b | `assets/embervoid/sounds.json`, `assets/embervoid/sounds/**`, `registry/ModSounds` + per-package sound classes, `CREDITS.md`; sound hooks in entity/item classes as small separate commits |
+| R4 | `release-mp` | R40.4a–b (+ R30.3) | multiplayer GameTests, `tools/server_check.py` perf options; fixes in the owning package as separate commits |
+
+Overlaps: release-balance and release-audio both touch entity classes (numbers vs. sound hooks) — keep each edit
+small and in its own commit; the coordinator resolves conflicts. Models keep their size, bone names and animation
+names (code and hitboxes rely on them).
+
+## Tracks — 0.4.0 (milestones 9–13, Realm 1 "Ashen Reach") — done
 
 Tasks in PLAN.md "0.4.0"; design in DESIGN §4.5. Each track does its zone tasks first, then its layer of the
 Smoldering Citadel (milestone 13).
