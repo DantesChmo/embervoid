@@ -1,6 +1,7 @@
 package com.embervoid.client.boss;
 
 import com.embervoid.boss.ArenaFog;
+import com.embervoid.client.realm.RealmFog;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.util.Identifier;
@@ -33,12 +34,12 @@ public final class ArenaFogClient {
 
 	private static void push(Identifier source, float density, int color) {
 		PUSHED.add(source);
-		// Stub until the fog API (PLAN 9.1) is on main: RealmFog.push(source, density, color, false).
+		RealmFog.push(source, density, color, false);
 	}
 
 	private static void clear(Identifier source) {
 		PUSHED.remove(source);
-		// Stub until the fog API (PLAN 9.1) is on main: RealmFog.clear(source).
+		RealmFog.clear(source);
 	}
 
 	private ArenaFogClient() {}

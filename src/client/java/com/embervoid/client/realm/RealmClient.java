@@ -1,8 +1,10 @@
 package com.embervoid.client.realm;
 
 import com.embervoid.boss.BossEntities;
+import com.embervoid.client.reach.world.ZoneFog;
 import com.embervoid.realm.EmberLodestarItem;
 import com.embervoid.realm.RealmItems;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
 import net.minecraft.client.item.CompassAnglePredicateProvider;
@@ -21,6 +23,10 @@ public final class RealmClient {
 		// The test boss borrows the zombie model.
 		EntityRendererRegistry.register(BossEntities.TEST_BOSS, context -> (EntityRenderer) new ZombieEntityRenderer(context));
 		BossMusicClient.register();
+
+		// Realm fog (PLAN 9.1): the zone fog, and nothing carried over to the next server.
+		ZoneFog.register();
+		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> client.execute(RealmFog::reset));
 	}
 
 	private RealmClient() {}

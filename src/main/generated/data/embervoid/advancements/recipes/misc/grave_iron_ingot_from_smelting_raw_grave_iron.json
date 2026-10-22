@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_raw_grave_iron": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "embervoid:raw_grave_iron"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "minecraft:grave_iron_ingot_from_smelting_raw_grave_iron"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_raw_grave_iron",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "minecraft:grave_iron_ingot_from_smelting_raw_grave_iron"
+    ]
+  },
+  "sends_telemetry_event": false
+}

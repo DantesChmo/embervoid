@@ -12,6 +12,7 @@ import com.embervoid.player.FlaskRefill;
 import com.embervoid.player.PlayerDataManager;
 import com.embervoid.player.RemnantDeathHandler;
 import com.embervoid.player.StaminaManager;
+import com.embervoid.reach.gear.ReachGear;
 import com.embervoid.realm.RealmInit;
 import com.embervoid.registry.DebugItems;
 import com.embervoid.registry.ModBlocks;
@@ -20,6 +21,7 @@ import com.embervoid.registry.ModItemGroups;
 import com.embervoid.registry.ModItems;
 import com.embervoid.registry.ModSounds;
 import com.embervoid.registry.ModStructures;
+import com.embervoid.reliquary.ReliquaryInit;
 import com.embervoid.sanctum.Sanctum;
 import com.embervoid.stats.StatEffects;
 import com.embervoid.vampire.VampireInit;
@@ -64,6 +66,8 @@ public class Embervoid implements ModInitializer {
 		Sanctum.register();
 		MoonInit.register();
 		VampireInit.register();
+		ReachGear.register();
+		ReliquaryInit.register();
 
 		LOGGER.info("Embervoid: the embers stir...");
 	}
