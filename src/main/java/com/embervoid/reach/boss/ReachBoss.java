@@ -50,8 +50,8 @@ import java.util.List;
 public abstract class ReachBoss extends HostileEntity implements ArenaBoss, GeoEntity {
 	/** The controller of one-shot move animations. */
 	public static final String ACTION = "action";
-	/** Placeholder for the shared zone-boss theme (real music is a release task, R40.3). */
-	public static final Identifier ZONE_BOSS_MUSIC = new Identifier("music.nether.basalt_deltas");
+	/** The shared zone-boss theme (Ash Colossus, Grieving Tree, Crypt Keeper), {@link ReachBossSounds#ZONE_BOSS_MUSIC}. */
+	public static final Identifier ZONE_BOSS_MUSIC = ReachBossSounds.ZONE_BOSS_MUSIC.getId();
 
 	private static final TrackedData<Byte> PHASE = DataTracker.registerData(ReachBoss.class, TrackedDataHandlerRegistry.BYTE);
 

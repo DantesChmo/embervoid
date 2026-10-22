@@ -184,7 +184,10 @@ public final class SoundTests implements FabricGameTest {
 		expect(context, mob, mobCase.hurt(), name + " hurt", problems);
 	}
 
-	/** The bosses' voices and a telegraph or two each (outside a fight a boss leaves on its next tick: all checks run now). */
+	/**
+	 * The bosses' voices, a telegraph or two each and their music (outside a fight a boss leaves on its next tick: all
+	 * checks run now).
+	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "sounds")
 	public void bossesPlayTheirOwnSounds(TestContext context) {
 		LivingEntity target = ReachTests.dummy(context, 2, 20);
@@ -219,6 +222,15 @@ public final class SoundTests implements FabricGameTest {
 		expect(context, lord, ReachBossSounds.SMOLDERING_LORD_SWING, "lord swing", problems);
 		lord.onPhaseChange(1); // off the wall (outside a fight only the phase changes), so a hit lands
 		voice(context, lord, ReachBossSounds.SMOLDERING_LORD_AMBIENT, ReachBossSounds.SMOLDERING_LORD_HURT, problems);
+
+		for (ReachBoss zoneBoss : List.of(colossus, tree, keeper)) {
+			if (!ReachBossSounds.ZONE_BOSS_MUSIC.getId().equals(zoneBoss.music())) {
+				problems.add(zoneBoss.getType().getUntranslatedName() + " music: " + zoneBoss.music());
+			}
+		}
+		if (!ReachBossSounds.SMOLDERING_LORD_MUSIC.getId().equals(lord.music())) {
+			problems.add("lord music: " + lord.music());
+		}
 
 		context.assertTrue(problems.isEmpty(), String.join("; ", problems));
 		ReachTests.finish(context);
