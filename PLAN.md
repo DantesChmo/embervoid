@@ -275,7 +275,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 
 | ID  | Task | Track | Depends on | Status |
 |-----|------|-------|------------|--------|
-| 11.1 | **Materials, boss items, chest table stubs** (contract, first) | reach-gear | — | todo |
+| 11.1 | **Materials, boss items, chest table stubs** (contract, first) | reach-gear | — | done (GameTest; item textures not seen) |
 | 11.2 | **Bleeding + `bleed_immune`** | reach-gear | — | todo |
 | 11.3 | **Smoldering Plate + Template** | reach-gear | 11.1 | todo |
 | 11.4 | **Mob-drop sets + unique pieces** | reach-gear | 11.1 | todo |
