@@ -2,11 +2,14 @@ package com.embervoid.client;
 
 import com.embervoid.Embervoid;
 import com.embervoid.config.ConfigSync;
+import com.embervoid.client.boss.ArenaFogClient;
 import com.embervoid.client.mob.MobLevelClient;
 import com.embervoid.client.mob.MobRenderers;
 import com.embervoid.client.nightmob.NightMobClient;
 import com.embervoid.client.moon.MoonClient;
+import com.embervoid.client.reach.mob.ReachMobClient;
 import com.embervoid.client.realm.RealmClient;
+import com.embervoid.client.reliquary.ReliquaryClient;
 import com.embervoid.client.vampire.VampireClient;
 import com.embervoid.config.EmbervoidClientConfig;
 import com.embervoid.config.EmbervoidConfig;
@@ -42,11 +45,14 @@ public class EmbervoidClient implements ClientModInitializer {
 		MobRenderers.register();
 		MobLevelClient.register();
 		NightMobClient.register();
+		ReachMobClient.register();
 		RealmClient.register();
 		MoonClient.register();
 		// Also registers the progress sync receiver.
 		SanctumClient.register();
 		VampireClient.register();
+		ReliquaryClient.register();
+		ArenaFogClient.register();
 		// Particles and the name label only; a model comes with the art pass.
 		EntityRendererRegistry.register(ModEntities.ASH_REMNANT, EmptyEntityRenderer::new);
 		FabricModelPredicateProviderRegistry.register(ModItems.HEALING_FLASK, Embervoid.id("empty"),

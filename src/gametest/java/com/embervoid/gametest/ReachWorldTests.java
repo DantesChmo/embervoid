@@ -13,6 +13,7 @@ import com.embervoid.realm.placed.PlacedEnemyMarkerBlock;
 import com.embervoid.realm.placed.PlacedEnemyProcessor;
 import com.embervoid.realm.worldgen.ArenaSite;
 import com.embervoid.realm.worldgen.RealmFeaturePiece;
+import com.embervoid.sanctum.SanctumBlocks;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.SharedConstants;
 import net.minecraft.block.BlockState;
@@ -202,7 +203,7 @@ public final class ReachWorldTests implements FabricGameTest {
 		});
 	}
 	/**
-	 * Each arena site (PLAN 9.4) generates flat at its floor height, open to the sky. The test world does not generate
+	 * Each arena site (PLAN 9.4) generates solid at its floor height, open to the sky above its contents, with the shrine. The test world does not generate
 	 * structures by itself, so each arena start is made and placed the way worldgen does, at its real position.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 2400)
@@ -230,24 +231,27 @@ public final class ReachWorldTests implements FabricGameTest {
 			ChunkPos.stream(new ChunkPos(box.getMinX() >> 4, box.getMinZ() >> 4), new ChunkPos(box.getMaxX() >> 4, box.getMaxZ() >> 4))
 					.forEach(c -> start.place(realm, realm.getStructureAccessor(), generator, realm.getRandom(),
 							new BlockBox(c.getStartX(), realm.getBottomY(), c.getStartZ(), c.getEndX(), realm.getTopY(), c.getEndZ()), c));
+			// Arena contents (the template, or the placeholder's pillars and path) stand on the floor; above their
+			// height the site is open sky.
+			int contents = site.template().flatMap(id -> realm.getStructureTemplateManager().getTemplate(id))
+					.map(template -> template.getSize().getY()).orElse(6);
 			int checked = 0;
 			for (int dx = -site.radius() + 1; dx < site.radius(); dx += 3) {
 				for (int dz = -site.radius() + 1; dz < site.radius(); dz += 3) {
-					double d = Math.sqrt(dx * dx + dz * dz);
-					if (d > site.radius() - 1) {
+					if (Math.sqrt(dx * dx + dz * dz) > site.radius() - 1) {
 						continue;
 					}
 					BlockPos floor = center.add(dx, 0, dz);
 					context.assertTrue(!realm.getBlockState(floor).isAir(), name + ": hole in the floor at " + floor);
-					// The placeholder's pillars and shrine path stand on the floor; everything else is open sky.
-					boolean placeholderBuild = (d >= piece.radius() - 4 && d <= piece.radius() - 2) || d >= piece.radius() - 1;
-					for (int dy = 1; dy <= 12 && !placeholderBuild; dy++) {
+					for (int dy = contents + 1; dy <= contents + 6; dy++) {
 						context.assertTrue(realm.getBlockState(floor.up(dy)).isAir(),
 								name + ": the site is not open above " + floor + " (" + realm.getBlockState(floor.up(dy)) + " at +" + dy + ")");
 					}
 					checked++;
 				}
 			}
+			context.assertTrue(realm.getBlockState(piece.shrinePos()).isOf(SanctumBlocks.EMBER_SHRINE),
+					name + ": no shrine at " + piece.shrinePos());
 			context.assertTrue(checked > 100, name + ": only " + checked + " floor columns checked");
 		}
 		context.complete();

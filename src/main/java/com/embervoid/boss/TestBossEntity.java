@@ -6,6 +6,7 @@ import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.ZombieAttackGoal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -19,7 +20,8 @@ import net.minecraft.world.World;
 
 /**
  * Placeholder boss that proves the framework: zombie model, two phases (enrages at half health), and a telegraphed
- * ground slam. Repeat kills drop {@code embervoid:entities/test_boss}. Real bosses come with the Realm 1 content.
+ * ground slam. Repeat kills drop {@code embervoid:entities/test_boss}. Brings a zombie per extra fighter. GameTests
+ * give it scripted phases ({@link #setScriptedPhases}) to test them.
  */
 public class TestBossEntity extends ZombieEntity implements ArenaBoss {
 	private static final int SLAM_WINDUP = 25;
@@ -28,6 +30,8 @@ public class TestBossEntity extends ZombieEntity implements ArenaBoss {
 
 	private int slamCooldown = 80;
 	private boolean enraged;
+	private int scriptedPhases;
+	private int lastPhase;
 
 	public TestBossEntity(EntityType<? extends ZombieEntity> type, World world) {
 		super(type, world);
@@ -90,8 +94,29 @@ public class TestBossEntity extends ZombieEntity implements ArenaBoss {
 	}
 
 	@Override
+	public int scriptedPhases() {
+		return scriptedPhases;
+	}
+
+	/** Test hook: the first {@code count} phases end only by {@code BossFight.advancePhase}. */
+	public void setScriptedPhases(int count) {
+		scriptedPhases = count;
+	}
+
+	/** The last phase started (tests). */
+	public int lastPhase() {
+		return lastPhase;
+	}
+
+	@Override
+	public EntityType<? extends MobEntity> scalingAdd() {
+		return EntityType.ZOMBIE;
+	}
+
+	@Override
 	public void onPhaseChange(int phase) {
-		if (phase == 1) {
+		lastPhase = phase;
+		if (phase == scriptedPhases + 1) {
 			enraged = true;
 			getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).setBaseValue(0.32);
 			getWorld().playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_WITHER_AMBIENT, SoundCategory.HOSTILE, 2.0f, 0.6f);

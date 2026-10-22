@@ -18,8 +18,8 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Death flow for Ash Remnants: called from {@code PlayerEntityMixin} when a player's inventory is about to drop.
- * Retires the previous remnant (per {@code remnant.secondDeath}), moves items and/or XP (per {@code remnant.mode})
- * into a new one at the last spot the player stood on solid ground, and tells the player where it is. The mixin
+ * Retires the previous remnant (per {@code remnant.secondDeath}), moves items (with {@link DeathStashes}) and/or XP
+ * (per {@code remnant.mode}) into a new one at the last spot the player stood on solid ground, and tells the player where it is. The mixin
  * skips it under {@code keepInventory}; with mode {@code off} nothing changes either.
  */
 public final class RemnantDeathHandler {
@@ -29,6 +29,10 @@ public final class RemnantDeathHandler {
 	public static void onDeath(ServerPlayerEntity player) {
 		EmbervoidConfig.RemnantMode mode = EmbervoidConfig.get().remnant().mode();
 		ServerWorld world = player.getServerWorld();
+		// Items kept outside the inventory (accessories) drop with it when the remnant does not take items.
+		if (mode != EmbervoidConfig.RemnantMode.XP_AND_ITEMS) {
+			DeathStashes.dropAll(player);
+		}
 		if (mode == EmbervoidConfig.RemnantMode.OFF) {
 			return;
 		}
@@ -40,7 +44,8 @@ public final class RemnantDeathHandler {
 			}
 		}
 
-		boolean takeItems = mode == EmbervoidConfig.RemnantMode.XP_AND_ITEMS && !player.getInventory().isEmpty();
+		boolean takeItems = mode == EmbervoidConfig.RemnantMode.XP_AND_ITEMS
+				&& (!player.getInventory().isEmpty() || DeathStashes.anyItems(player));
 		boolean takeExperience = XpUtil.getPoints(player) > 0;
 		if (!takeItems && !takeExperience) {
 			return;

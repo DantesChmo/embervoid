@@ -3,7 +3,8 @@
 	"package": "com.embervoid.gametest.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
-		"TestServerDimensionsMixin"
+		"TestServerDimensionsMixin",
+		"ServerPlayerEntityAccessor"
 	],
 	"injectors": {
 		"defaultRequire": 1

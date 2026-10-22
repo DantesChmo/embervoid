@@ -2,7 +2,11 @@ package com.embervoid.client;
 
 import com.embervoid.Embervoid;
 import com.embervoid.client.mob.MobDataGen;
+import com.embervoid.client.reach.boss.datagen.ArenaTemplateProvider;
 import com.embervoid.client.nightmob.NightMobDataGen;
+import com.embervoid.client.reach.mob.ReachMobDataGen;
+import com.embervoid.client.reliquary.ReliquaryDataGen;
+import com.embervoid.client.reach.gear.GearDataGen;
 import com.embervoid.sanctum.datagen.SanctumTemplateProvider;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
@@ -54,7 +58,11 @@ public class EmbervoidDataGenerator implements DataGeneratorEntrypoint {
 		pack.addProvider(Recipes::new);
 		MobDataGen.addProviders(pack);
 		NightMobDataGen.addProviders(pack);
+		ReachMobDataGen.addProviders(pack);
 		pack.addProvider(SanctumTemplateProvider::new);
+		pack.addProvider(ArenaTemplateProvider::new);
+		GearDataGen.addProviders(pack);
+		ReliquaryDataGen.addProviders(pack);
 	}
 
 	private static class Models extends FabricModelProvider {

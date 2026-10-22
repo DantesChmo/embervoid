@@ -215,7 +215,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 
 | ID  | Task | Depends on | Status |
 |-----|------|------------|--------|
-| 9.1 | **Fog API + per-zone fog** (contract, first) | — | todo |
+| 9.1 | **Fog API + per-zone fog** (contract, first) | — | done – not verified in game (fog look not seen) |
 | 9.2 | **Placed enemies** (contract) | — | todo |
 | 9.3 | **Zones renamed, eternal dusk, zone looks** | — | todo |
 | 9.4 | **Zone terrain density + arena sites** | 9.3 | todo |
@@ -253,7 +253,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 
 | ID  | Task | Depends on | Status |
 |-----|------|------------|--------|
-| 10.1 | **Greybox pipeline + shared mob base + spawns** | — | todo |
+| 10.1 | **Greybox pipeline + shared mob base + spawns** | — | done (GameTest; models and animations not seen) |
 | 10.2 | **Cinder Husk, Ash Stalker** | 10.1 | todo |
 | 10.3 | **Ashen Carrion** | 10.1 | todo |
 | 10.4 | **Withered Thrall (+ hanging cage), Lantern Hag** | 10.1 | todo |
@@ -275,19 +275,19 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 
 | ID  | Task | Track | Depends on | Status |
 |-----|------|-------|------------|--------|
-| 11.1 | **Materials, boss items, chest table stubs** (contract, first) | reach-gear | — | todo |
-| 11.2 | **Bleeding + `bleed_immune`** | reach-gear | — | todo |
-| 11.3 | **Smoldering Plate + Template** | reach-gear | 11.1 | todo |
-| 11.4 | **Mob-drop sets + unique pieces** | reach-gear | 11.1 | todo |
+| 11.1 | **Materials, boss items, chest table stubs** (contract, first) | reach-gear | — | done (GameTest; item textures not seen) |
+| 11.2 | **Bleeding + `bleed_immune`** | reach-gear | — | done (GameTest) |
+| 11.3 | **Smoldering Plate + Template** | reach-gear | 11.1 | done (GameTest; armor textures not seen) |
+| 11.4 | **Mob-drop sets + unique pieces** | reach-gear | 11.1 | done (GameTest; textures not seen) |
 | 11.5 | **Ashen Scythe, Warden's Scourge, Royal Ash Rapier** | reach-gear | 11.1, 11.2 | todo |
 | 11.6 | **Huntsman's Crossbow** | reach-gear | 11.1 | todo |
 | 11.7 | **Consumables + Flask Ember** | reach-gear | 11.1, 11.2 | todo |
 | 11.8 | **Chest loot + realm loot on mobs** | reach-gear | 11.3–11.7 | todo |
-| 11.9 | **Reliquary: data, sync, screen** | reliquary | — | todo |
-| 11.10 | **Reliquary: remnant, stat points** | reliquary | 11.9 | todo |
-| 11.11 | **8 artifacts** | reliquary | 11.10 | todo |
-| 11.12 | **6 rings** | reliquary | 11.9, 9.1 | todo |
-| 11.13 | **Accessory drops** | reliquary | 11.11, 11.12 | todo |
+| 11.9 | **Reliquary: data, sync, screen** | reliquary | — | done (GameTest; screen look and button position not seen) |
+| 11.10 | **Reliquary: remnant, stat points** | reliquary | 11.9 | done (GameTest) |
+| 11.11 | **8 artifacts** | reliquary | 11.10 | done (GameTest; textures and tooltips not seen) |
+| 11.12 | **6 rings** | reliquary | 11.9, 9.1 | done (GameTest; slow-fall feel, fog clearing and textures not seen) |
+| 11.13 | **Accessory drops** | reliquary | 11.11, 11.12 | done (GameTest) |
 
 - **11.1** Items and recipes for the materials (Smoldering Ingot shapeless, Grave Iron smelting), the four boss
   souls, Ash of Rematch (item and recipe; its use is 12.7), Flask Ember (item only; its effect is 11.7), and empty
@@ -319,7 +319,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 
 | ID  | Task | Depends on | Status |
 |-----|------|------------|--------|
-| 12.1 | **Boss framework additions** | 9.1 | todo |
+| 12.1 | **Boss framework additions** | 9.1 | done (GameTest; telegraph particles and arena fog not seen) |
 | 12.2 | **Three arenas built** | 9.4 | todo |
 | 12.3 | **Crypt Keeper** (first: riskiest) | 12.1, 12.2 | todo |
 | 12.4 | **Ash Colossus** | 12.1, 12.2 | todo |
