@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "embervoid:cinder_shard"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "S": {
+      "item": "embervoid:ash_stone"
+    }
+  },
+  "pattern": [
+    "CSC",
+    "CDC",
+    "CSC"
+  ],
+  "result": {
+    "item": "embervoid:smoldering_template"
+  },
+  "show_notification": true
+}

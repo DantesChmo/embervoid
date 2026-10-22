@@ -9,15 +9,19 @@ import com.google.gson.JsonObject;
  * {@code gear.*} in {@code config/embervoid.json}: Ashen Reach gear (DESIGN §4.5 "Loot", PLAN 11.1–11.8). Numbers are
  * starting values for the balance pass.
  *
- * @param bleeding the Bleeding status effect
+ * @param bleeding   the Bleeding status effect
+ * @param smoldering the Smoldering Plate
  */
-public record GearConfig(Bleeding bleeding) {
-	private static final GearConfig DEFAULTS = new GearConfig(Bleeding.DEFAULTS);
+public record GearConfig(Bleeding bleeding, Smoldering smoldering) {
+	private static final GearConfig DEFAULTS = new GearConfig(Bleeding.DEFAULTS, Smoldering.DEFAULTS);
 
 	public static final ConfigSection<GearConfig> SECTION = EmbervoidConfig.register(ConfigSection.of(
 			"gear", DEFAULTS,
-			in -> new GearConfig(Bleeding.read(in.section("bleeding"))),
-			(value, out) -> out.add("bleeding", value.bleeding.write())));
+			in -> new GearConfig(Bleeding.read(in.section("bleeding")), Smoldering.read(in.section("smoldering"))),
+			(value, out) -> {
+				out.add("bleeding", value.bleeding.write());
+				out.add("smoldering", value.smoldering.write());
+			}));
 
 	public static GearConfig get() {
 		return EmbervoidConfig.get().section(SECTION);
@@ -43,6 +47,21 @@ public record GearConfig(Bleeding bleeding) {
 			out.addProperty("durationTicks", durationTicks);
 			out.addProperty("maxLevel", maxLevel);
 			out.addProperty("damagePerLevel", damagePerLevel);
+			return out;
+		}
+	}
+
+	/** @param fireReductionPerPiece share of fire damage each worn piece takes away */
+	public record Smoldering(float fireReductionPerPiece) {
+		static final Smoldering DEFAULTS = new Smoldering(0.08f);
+
+		static Smoldering read(SectionReader in) {
+			return new Smoldering(in.readFloat("fireReductionPerPiece", DEFAULTS.fireReductionPerPiece, 0, 0.25f));
+		}
+
+		JsonObject write() {
+			JsonObject out = new JsonObject();
+			out.addProperty("fireReductionPerPiece", fireReductionPerPiece);
 			return out;
 		}
 	}

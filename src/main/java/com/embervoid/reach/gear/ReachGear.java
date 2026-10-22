@@ -8,6 +8,8 @@ public final class ReachGear {
 		Embervoid.LOGGER.debug("Gear config section: {}", GearConfig.SECTION.name());
 		GearItems.register();
 		Bleeding.register();
+		GearArmor.register();
+		GearDamage.register();
 		GearCommands.register();
 	}
 

@@ -197,6 +197,112 @@ EMBER = [
 ]
 
 
+HELMET = [
+    "................",
+    "................",
+    "................",
+    "....oooooooo....",
+    "...oLLLLLLLMo...",
+    "..oLLMMMMMMMDo..",
+    "..oLMMMMMMMMDo..",
+    "..oLMMMMMMMMDo..",
+    "..oLMooooooDMo..",
+    "..oLMo....oDMo..",
+    "..oMDo....oDDo..",
+    "...oo......oo...",
+    "................",
+    "................",
+    "................",
+    "................",
+]
+
+CHESTPLATE = [
+    "................",
+    "..ooo......ooo..",
+    ".oLLLoooooooLMo.",
+    ".oLMMLLLLLLMMDo.",
+    ".oLMMMMEEMMMMDo.",
+    "..ooLMMEEMMMoo..",
+    "....oLMMMMDo....",
+    "....oLMMMMDo....",
+    "....oLMMMMDo....",
+    "....oLMMMMDo....",
+    "....oMMMMMDo....",
+    "....oMMMMDDo....",
+    "....oDDDDDDo....",
+    ".....oooooo.....",
+    "................",
+    "................",
+]
+
+LEGGINGS = [
+    "................",
+    "................",
+    "...oooooooooo...",
+    "...oLLLLLLLMo...",
+    "...oLMMEEMMDo...",
+    "...oLMMooMMDo...",
+    "...oLMDooLMDo...",
+    "...oLMDooLMDo...",
+    "...oLMDooLMDo...",
+    "...oLMDooLMDo...",
+    "...oLMDooLMDo...",
+    "...oMDDooMDDo...",
+    "...ooooooooooo..",
+    "................",
+    "................",
+    "................",
+]
+
+BOOTS = [
+    "................",
+    "................",
+    "................",
+    "................",
+    "................",
+    "...oooo..oooo...",
+    "...oLMo..oLMo...",
+    "...oLMo..oLMo...",
+    "...oLMo..oLMo...",
+    "...oLMo..oLMo...",
+    "..oLMMo..oLMMo..",
+    ".oLMMDo..oLMMDo.",
+    ".oMDDDo..oMDDDo.",
+    ".oooooo..oooooo.",
+    "................",
+    "................",
+]
+
+
+def armor(name, colours, rng_seed=1):
+    """Item icons <name>_helmet|chestplate|leggings|boots and the worn layers (minecraft namespace, see
+    GearArmorMaterial): a plain suit in the set's colours, one accent band."""
+    import random
+    for piece, rows in (("helmet", HELMET), ("chestplate", CHESTPLATE), ("leggings", LEGGINGS), ("boots", BOOTS)):
+        icon(name + "_" + piece, rows, palette(*colours))
+    light, mid, dark, accent = colours
+    rng = random.Random(rng_seed)
+    layer_dir = os.path.join("src", "main", "resources", "assets", "minecraft", "textures", "models", "armor")
+    one = Canvas(64, 32)
+    one.rect(0, 0, 32, 16, mid, 10, rng)  # head
+    one.rect(8, 0, 16, 8, light, 10, rng)  # head top / front band
+    one.rect(16, 16, 24, 16, mid, 10, rng)  # body
+    one.rect(20, 20, 8, 3, accent)  # chest band
+    one.rect(40, 16, 16, 16, dark, 10, rng)  # arms
+    one.rect(0, 26, 16, 6, dark, 10, rng)  # boots: lower legs
+    one.rect(8, 16, 4, 4, dark)  # boot soles
+    one.save(os.path.join(layer_dir, "embervoid_" + name + "_layer_1.png"))
+    two = Canvas(64, 32)
+    two.rect(0, 16, 16, 16, mid, 10, rng)  # legs
+    two.rect(16, 16, 24, 16, dark, 10, rng)  # hips
+    two.rect(20, 26, 8, 2, accent)  # belt
+    two.save(os.path.join(layer_dir, "embervoid_" + name + "_layer_2.png"))
+
+
+def armor_sets():
+    armor("smoldering", ((104, 92, 90, 255), (64, 54, 54, 255), (38, 32, 34, 255), (246, 112, 36, 255)))
+
+
 def palette(light, mid, dark, extra=(255, 255, 255, 255)):
     return {"L": light, "M": mid, "D": dark, "E": extra}
 
@@ -258,4 +364,5 @@ if __name__ == "__main__":
     materials()
     boss_items()
     effects()
+    armor_sets()
     print("Wrote reach gear placeholder textures")
