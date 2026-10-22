@@ -154,5 +154,6 @@
 	"embervoid.moon.ended.full_moon": "Полная луна заходит.",
 	"embervoid.moon.ended.blood_new_moon": "Кровавое новолуние угасает.",
 	"embervoid.moon.ended.timeout": "Ночь больше не может длиться. %s",
-	"embervoid.moon.no_sleep": "В лунную ночь не уснуть"
+	"embervoid.moon.no_sleep": "В лунную ночь не уснуть",
+	"embervoid.moon.curse.stack": "Проклятие ночи крепнет (%s). Оно спадёт, когда зайдёт полная луна."
 }

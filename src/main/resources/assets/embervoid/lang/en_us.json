@@ -154,5 +154,6 @@
 	"embervoid.moon.ended.full_moon": "The full moon sets.",
 	"embervoid.moon.ended.blood_new_moon": "The blood new moon fades.",
 	"embervoid.moon.ended.timeout": "The night could not hold any longer. %s",
-	"embervoid.moon.no_sleep": "You cannot sleep on a moon night"
+	"embervoid.moon.no_sleep": "You cannot sleep on a moon night",
+	"embervoid.moon.curse.stack": "The Curse of the Night deepens (%s). It lifts when the full moon sets."
 }

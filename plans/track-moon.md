@@ -14,7 +14,8 @@ Packages owned: `com.embervoid.moon` (main), `com.embervoid.client.moon` (client
 | Config | `MoonConfig`: `enabled`, `cycleInterval` 3, `fallbackMinutes` 30, `fullMoon.{levelBonus 3, followRange 1.5, zombieLevelBonus 5, ghostMissChance 0.15}`, `blood.{vampirism 0.25, provokeMinutes 5}` — keys of all three tracks |
 | Sky sync | `MoonSync` S2C `embervoid:moon_night` (night ordinal) on join, respawn, dimension change, start/end. Client `client.moon.MoonClient` fades a tint 0→1 over 100 ticks on the blood new moon in the overworld; mixins `MoonSkyColorMixin` (`ClientWorld.getSkyColor`), `MoonFogColorMixin` (`BackgroundRenderer.render` before `clearColor`, not under water/lava), `MoonRenderMixin` (shader colour before the moon texture in `WorldRenderer.renderSky`) |
 | Full moon mobs | `FullMoonMobs`: `MobLevels` provider (overworld, full moon: default level + `levelBonus`, kept after the night); transient follow-range modifier (×`followRange`, MULTIPLY_TOTAL) on load and on all loaded overworld hostiles at start, removed at the end; `TrackTargetGoalMixin` keeps a player target within follow range when the goal would drop it (only while `mob.getTarget()` is still set, so deliberate clears like the Ember Wisp's flee stay) |
-| Debug | `/embervoid moon status | start full | start blood | stop | setcycle <n>` |
+| Curse | `CurseManager`: attachment `curse_of_the_night` {stacks, epoch} (persistent, copied on death); `AFTER_DEATH` of a player whose `source.getAttacker()` is a `Monster` or `ArenaBoss` (not a player) adds a stack + chat line. Stacks count at any time and reset when a full moon ends: the world's `curseEpoch` (in `MoonNightState`) goes up, older stacks read as 0 (works for offline players) |
+| Debug | `/embervoid moon status | start full | start blood | stop | setcycle <n> | curse <player> <stacks>` |
 
 Decisions made here (small, easy to change):
 - `hold` outside a moon night returns false and holds nothing; holds are cleared when a night ends.
@@ -32,5 +33,5 @@ Decisions made here (small, easy to change):
 - [x] 8.2 Night hold (time freeze), dawn on release, sleep block, fallback, announcements
 - [x] 8.3 Blood-red sky sync
 - [x] 8.4 Full moon mob modifiers
-- [ ] 8.5 Curse of the Night
+- [x] 8.5 Curse of the Night
 - [ ] 8.6 Vampirism

@@ -10,6 +10,7 @@ public final class MoonInit {
 		MoonSleep.register();
 		MoonSync.register();
 		FullMoonMobs.register();
+		CurseManager.register();
 		MoonCommands.register();
 	}
 
