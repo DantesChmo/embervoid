@@ -16,17 +16,19 @@ import com.google.gson.JsonObject;
  * @param weapons    the unique weapons' passives and special attacks (base damage, speed and reach are in code)
  * @param crossbow   Huntsman's Crossbow
  * @param consumables bombs, resin, balm, lantern oil, whetstone, fuel and the Flask Ember
+ * @param loot       realm loot on the realm's mobs (chest contents are datapack loot tables)
  */
 public record GearConfig(Bleeding bleeding, Smoldering smoldering, Sets sets, Uniques uniques, Weapons weapons,
-		Crossbow crossbow, Consumables consumables) {
+		Crossbow crossbow, Consumables consumables, Loot loot) {
 	private static final GearConfig DEFAULTS = new GearConfig(Bleeding.DEFAULTS, Smoldering.DEFAULTS, Sets.DEFAULTS,
-			Uniques.DEFAULTS, Weapons.DEFAULTS, Crossbow.DEFAULTS, Consumables.DEFAULTS);
+			Uniques.DEFAULTS, Weapons.DEFAULTS, Crossbow.DEFAULTS, Consumables.DEFAULTS, Loot.DEFAULTS);
 
 	public static final ConfigSection<GearConfig> SECTION = EmbervoidConfig.register(ConfigSection.of(
 			"gear", DEFAULTS,
 			in -> new GearConfig(Bleeding.read(in.section("bleeding")), Smoldering.read(in.section("smoldering")),
 					Sets.read(in.section("sets")), Uniques.read(in.section("uniques")), Weapons.read(in.section("weapons")),
-					Crossbow.read(in.section("crossbow")), Consumables.read(in.section("consumables"))),
+					Crossbow.read(in.section("crossbow")), Consumables.read(in.section("consumables")),
+					Loot.read(in.section("loot"))),
 			(value, out) -> {
 				out.add("bleeding", value.bleeding.write());
 				out.add("smoldering", value.smoldering.write());
@@ -35,6 +37,7 @@ public record GearConfig(Bleeding bleeding, Smoldering smoldering, Sets sets, Un
 				out.add("weapons", value.weapons.write());
 				out.add("crossbow", value.crossbow.write());
 				out.add("consumables", value.consumables.write());
+				out.add("loot", value.loot.write());
 			}));
 
 	public static GearConfig get() {
@@ -275,6 +278,45 @@ public record GearConfig(Bleeding bleeding, Smoldering smoldering, Sets sets, Un
 			out.addProperty("whetstoneShare", whetstoneShare);
 			out.addProperty("cinderFuelTicks", cinderFuelTicks);
 			out.addProperty("flaskEmberBonus", flaskEmberBonus);
+			return out;
+		}
+	}
+
+	/**
+	 * Chances are read when loot tables load (server start, {@code /reload}).
+	 *
+	 * @param fodderMaterial chance of the zone material from a natural mob
+	 * @param eliteMaterial  chance of 1–2 of the zone material from a placed tank or elite
+	 * @param fodderSet      chance of a set piece from a natural mob, player kills only
+	 * @param eliteSet       chance of a set piece from a placed tank or elite
+	 * @param fodderUnique   chance of the zone's unique piece from its mobs
+	 * @param eliteUnique    chance of the zone's unique piece from its elite
+	 * @param lootingBonus   added chance per Looting level (a quarter of it for unique pieces)
+	 */
+	public record Loot(float fodderMaterial, float eliteMaterial, float fodderSet, float eliteSet, float fodderUnique,
+			float eliteUnique, float lootingBonus) {
+		static final Loot DEFAULTS = new Loot(0.10f, 0.5f, 0.03f, 0.15f, 0.005f, 0.04f, 0.01f);
+
+		static Loot read(SectionReader in) {
+			return new Loot(
+					in.readFloat("fodderMaterial", DEFAULTS.fodderMaterial, 0, 1),
+					in.readFloat("eliteMaterial", DEFAULTS.eliteMaterial, 0, 1),
+					in.readFloat("fodderSet", DEFAULTS.fodderSet, 0, 1),
+					in.readFloat("eliteSet", DEFAULTS.eliteSet, 0, 1),
+					in.readFloat("fodderUnique", DEFAULTS.fodderUnique, 0, 1),
+					in.readFloat("eliteUnique", DEFAULTS.eliteUnique, 0, 1),
+					in.readFloat("lootingBonus", DEFAULTS.lootingBonus, 0, 1));
+		}
+
+		JsonObject write() {
+			JsonObject out = new JsonObject();
+			out.addProperty("fodderMaterial", fodderMaterial);
+			out.addProperty("eliteMaterial", eliteMaterial);
+			out.addProperty("fodderSet", fodderSet);
+			out.addProperty("eliteSet", eliteSet);
+			out.addProperty("fodderUnique", fodderUnique);
+			out.addProperty("eliteUnique", eliteUnique);
+			out.addProperty("lootingBonus", lootingBonus);
 			return out;
 		}
 	}

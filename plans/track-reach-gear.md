@@ -122,4 +122,16 @@ textures). Config section `gear`. Tests: `GearTests` (GameTests), JUnit under `s
     bottle + coal/charcoal; whetstone Grave Iron Ingot + 2 cobbled ash stone → 2.
   - Client (`GearClient`): bomb renderer, Flask Ember sync receiver, tooltip lines for burning resin / oil.
   - Textures placeholders, not seen; bomb flight and burst not seen.
-- [ ] **11.8 Chest loot + realm loot on mobs.**
+- [x] **11.8 Chest loot + realm loot on mobs.**
+  - Chest tables (datagen, `GearDataGen.ChestLoot`): common = 3–5 rolls of food, arrows, iron, gold, torches,
+    bones, string, Ash Bombs, Amber Balm + the zone material (Necropolis also lantern oil); treasure = 3–5 rolls of
+    gold, diamonds, emeralds, consumables, materials + Smoldering Ingot 12 %, template 25 %, a zone set piece 30 %, the
+    zone weapon 4 % (reliquary adds artifacts and rings); arena = a template, an Ash of Rematch, 2–3 zone consumables.
+    Citadel common = supplies + all three materials; Citadel treasure = ingot 30 %, template 35 %, any set piece 35 %,
+    the Rapier 4 %.
+  - `GearLoot` (`LootTableEvents.MODIFY`, built-in tables only, like `ReliquaryLoot`): per mob id the zone material
+    (10 % natural / 50 % ×1–2 placed), a set piece (3 % natural / 15 % placed tank or elite, player kills) and the
+    unique (0.5 % / 4 % from the zone's elite — Ashen Carrion, Grave Warden, and the Bark Hollow for the elite-less
+    Woods; Furnace Golem and Smoldering Knight 4 % for the Cuirass). Looting adds a little; Fortune's extra roll
+    covers these pools. Config `gear.loot`.
+  - Ash Stalker and Crypt Moth (not in any set's list) drop materials and the unique only.
