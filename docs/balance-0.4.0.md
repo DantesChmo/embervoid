@@ -141,13 +141,13 @@ and why:
   (`player.attack`); max health of the leveled mob and both hits must match the model within float rounding.
   One tick each, nothing random (a Ghost's dodged hit is retried).
 
-Result: **no gap**. Every hit, both ways, and every leveled max health matches the model to two decimals, at the
+Result: **no gap**, before and after tuning (171 GameTests pass on the merged branch). Every hit, both ways, and every leveled max health matches the model to two decimals, at the
 test server's difficulty (Normal). What the GameTests do not cover, and the model takes from code instead: the
 second-phase armor drops (Colossus 10 → 3, Lord 12 → 4), the Colossus's back and core factors, the Tree's stun,
 the Keeper's darkness (each has its own boss GameTest from PLAN 12–13), and anything about timing (attack
 intervals are the moves' cooldowns, checked above; who lands first is the model's assumption).
 
-<details><summary>Measured hits (build/gametest/balance-engine.md, before tuning)</summary>
+<details><summary>Measured hits after tuning (build/gametest/balance-engine.md)</summary>
 
 | Who | Lv | Player | Hit | Model | Engine |
 | --- | --- | --- | --- | --- | --- |
@@ -155,30 +155,30 @@ intervals are the moves' cooldowns, checked above; who lands first is the model'
 | Ashen Zombie | 9 | Lv 5 (VIT 12, DEX 12, END 10, RES 10), iron, iron sword | player's hit | 6.14 | 6.14 |
 | Ghost | 9 | Lv 5 (VIT 12, DEX 12, END 10, RES 10), iron, iron sword | touch (on player) | 9.52 | 9.52 |
 | Ghost | 9 | Lv 5 (VIT 12, DEX 12, END 10, RES 10), iron, iron sword | player's hit | 6.24 | 6.24 |
-| Vampire boss | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), iron, iron sword | claw (on player) | 10.32 | 10.32 |
-| Vampire boss | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), iron, iron sword | leap (on player) | 14.87 | 14.87 |
-| Vampire boss | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), iron, iron sword | blood nova (heals 25 %) (on player) | 17.42 | 17.42 |
+| Vampire boss | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), iron, iron sword | claw (on player) | 6.48 | 6.48 |
+| Vampire boss | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), iron, iron sword | leap (on player) | 10.32 | 10.32 |
+| Vampire boss | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), iron, iron sword | blood nova (heals 25 %) (on player) | 11.39 | 11.39 |
 | Vampire boss | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), iron, iron sword | player's hit (side) | 6.15 | 6.15 |
-| Cinder Hound | 25 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | bite (+2 s fire) (on player) | 2.24 | 2.24 |
-| Cinder Hound | 25 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | player's hit | 8.77 | 8.77 |
-| Cinder Hound | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | bite (+2 s fire) (on player) | 2.57 | 2.57 |
-| Cinder Hound | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | player's hit | 8.77 | 8.77 |
-| Sparking Marksman | 25 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | bolt (+fire) (on player) | 5.67 | 5.67 |
-| Sparking Marksman | 25 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | player's hit | 8.77 | 8.77 |
-| Sparking Marksman | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | bolt (+fire) (on player) | 6.61 | 6.61 |
-| Sparking Marksman | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | player's hit | 8.77 | 8.77 |
-| Furnace Golem | 25 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | slam (on player) | 10.28 | 10.28 |
-| Furnace Golem | 25 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | fire wave (on player) | 3.37 | 3.37 |
-| Furnace Golem | 25 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | player's hit | 6.10 | 6.10 |
-| Furnace Golem | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | slam (on player) | 12.12 | 12.12 |
-| Furnace Golem | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | fire wave (on player) | 3.90 | 3.90 |
-| Furnace Golem | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | player's hit | 6.10 | 6.10 |
-| Smoldering Knight | 25 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | combo hit (on player) | 8.61 | 8.61 |
-| Smoldering Knight | 25 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | lunge (on player) | 12.08 | 12.08 |
-| Smoldering Knight | 25 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | player's hit | 6.80 | 6.80 |
-| Smoldering Knight | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | combo hit (on player) | 10.12 | 10.12 |
-| Smoldering Knight | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | lunge (on player) | 14.28 | 14.28 |
-| Smoldering Knight | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | player's hit | 6.80 | 6.80 |
+| Cinder Hound | 25 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | bite (+2 s fire) (on player) | 2.25 | 2.25 |
+| Cinder Hound | 25 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | player's hit | 10.84 | 10.84 |
+| Cinder Hound | 30 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | bite (+2 s fire) (on player) | 2.58 | 2.58 |
+| Cinder Hound | 30 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | player's hit | 10.84 | 10.84 |
+| Sparking Marksman | 25 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | bolt (+fire) (on player) | 5.68 | 5.68 |
+| Sparking Marksman | 25 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | player's hit | 10.84 | 10.84 |
+| Sparking Marksman | 30 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | bolt (+fire) (on player) | 6.63 | 6.63 |
+| Sparking Marksman | 30 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | player's hit | 10.84 | 10.84 |
+| Furnace Golem | 25 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | slam (on player) | 10.31 | 10.31 |
+| Furnace Golem | 25 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | fire wave (on player) | 3.43 | 3.43 |
+| Furnace Golem | 25 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | player's hit | 7.99 | 7.99 |
+| Furnace Golem | 30 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | slam (on player) | 12.15 | 12.15 |
+| Furnace Golem | 30 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | fire wave (on player) | 3.96 | 3.96 |
+| Furnace Golem | 30 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | player's hit | 7.99 | 7.99 |
+| Smoldering Knight | 25 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | combo hit (on player) | 8.63 | 8.63 |
+| Smoldering Knight | 25 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | lunge (on player) | 12.11 | 12.11 |
+| Smoldering Knight | 25 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | player's hit | 8.85 | 8.85 |
+| Smoldering Knight | 30 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | combo hit (on player) | 10.15 | 10.15 |
+| Smoldering Knight | 30 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | lunge (on player) | 14.33 | 14.33 |
+| Smoldering Knight | 30 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | player's hit | 8.85 | 8.85 |
 | Cinder Husk | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | swing (on player) | 1.68 | 1.68 |
 | Cinder Husk | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | player's hit | 7.42 | 7.42 |
 | Ash Stalker | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | swing / leap (on player) | 2.42 | 2.42 |
@@ -224,14 +224,14 @@ intervals are the moves' cooldowns, checked above; who lands first is the model'
 | Crypt Keeper | 24 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | lantern throw (on player) | 4.48 | 4.48 |
 | Crypt Keeper | 24 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | fire pool, per 0.5 s (on player) | 1.35 | 1.35 |
 | Crypt Keeper | 24 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | player's hit (side) | 6.15 | 6.15 |
-| Smoldering Lord | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | greatsword swing (on player) | 12.12 | 12.12 |
-| Smoldering Lord | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | overhead slam (on player) | 19.09 | 19.09 |
-| Smoldering Lord | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | lunge (on player) | 16.61 | 16.61 |
-| Smoldering Lord | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | landing ring (on player) | 14.28 | 14.28 |
-| Smoldering Lord | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | mortar (P0) (on player) | 6.41 | 6.41 |
-| Smoldering Lord | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | flame line (P0) (on player) | 5.42 | 5.42 |
-| Smoldering Lord | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | fire trail, per 0.5 s (on player) | 0.94 | 0.94 |
-| Smoldering Lord | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | player's hit (side) | 6.10 | 6.10 |
+| Smoldering Lord | 30 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | greatsword swing (on player) | 10.15 | 10.15 |
+| Smoldering Lord | 30 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | overhead slam (on player) | 14.33 | 14.33 |
+| Smoldering Lord | 30 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | lunge (on player) | 10.15 | 10.15 |
+| Smoldering Lord | 30 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | landing ring (on player) | 10.15 | 10.15 |
+| Smoldering Lord | 30 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | mortar (P0) (on player) | 5.52 | 5.52 |
+| Smoldering Lord | 30 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | flame line (P0) (on player) | 5.52 | 5.52 |
+| Smoldering Lord | 30 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | fire trail, per 0.5 s (on player) | 0.95 | 0.95 |
+| Smoldering Lord | 30 | Lv 30 (VIT 21, DEX 21, END 14, RES 13), Smoldering Plate, Ashen Scythe | player's hit (side) | 7.99 | 7.99 |
 
 </details>
 
