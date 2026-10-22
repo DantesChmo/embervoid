@@ -320,7 +320,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | ID  | Task | Depends on | Status |
 |-----|------|------------|--------|
 | 12.1 | **Boss framework additions** | 9.1 | done (GameTest; telegraph particles and arena fog not seen) |
-| 12.2 | **Three arenas built** | 9.4 | todo |
+| 12.2 | **Three arenas built** | 9.4 | done (GameTest on the templates; used in the world once 9.4 lands; looks not seen) |
 | 12.3 | **Crypt Keeper** (first: riskiest) | 12.1, 12.2 | todo |
 | 12.4 | **Ash Colossus** | 12.1, 12.2 | todo |
 | 12.5 | **Grieving Tree** | 12.1, 12.2 | todo |
