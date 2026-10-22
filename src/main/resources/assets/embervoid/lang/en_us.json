@@ -86,6 +86,7 @@
 	"embervoid.realm.locked": "The flame has not reached this realm",
 	"embervoid.realm.gate.open": "The Sealed Gate yields to you",
 	"embervoid.realm.gate.sealed": "The gate is sealed. Guardians still standing: %s",
+	"embervoid.realm.gate.forming": "The gate yields, but the depths beyond are still forming",
 	"embervoid.realm.void": "The void pushes you back",
 	"embervoid.lodestar.cold": "The lodestar is cold outside the realms",
 	"embervoid.lodestar.none": "No guardian left to face here",

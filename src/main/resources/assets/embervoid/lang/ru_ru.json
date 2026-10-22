@@ -86,6 +86,7 @@
 	"embervoid.realm.locked": "Пламя ещё не достигло этого мира",
 	"embervoid.realm.gate.open": "Запечатанные врата поддаются",
 	"embervoid.realm.gate.sealed": "Врата запечатаны. Стражей осталось: %s",
+	"embervoid.realm.gate.forming": "Врата поддаются, но глубины за ними ещё не обрели форму",
 	"embervoid.realm.void": "Пустота отталкивает вас",
 	"embervoid.lodestar.cold": "Вне миров путеводный камень холоден",
 	"embervoid.lodestar.none": "Здесь не осталось стражей",

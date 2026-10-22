@@ -182,7 +182,7 @@ notes in `plans/<track>.md`. Config: track-moon owns the `moon` section; night-m
 
 | ID  | Task | Who | Status |
 |-----|------|-----|--------|
-| R30.1 | **Sealed Gate placeholder**: in 0.3.0 the gate shows "the depths are still forming" instead of opening (config `realm.depthsOpen`, default false) | coordinator | todo |
+| R30.1 | **Sealed Gate placeholder**: in 0.3.0 the gate shows "the depths are still forming" instead of opening (config `realm.depthsOpen`, default false) | coordinator | done – not verified in game |
 | R30.2 | Balance pass on the moon nights | coordinator | todo |
 | R30.3 | Multiplayer and performance test | coordinator | todo |
 | R30.4 | Release 0.3.0 | coordinator | todo |

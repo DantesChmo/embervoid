@@ -2,10 +2,12 @@ package com.embervoid.realm;
 
 import com.embervoid.boss.BossInit;
 import com.embervoid.realm.worldgen.RealmWorldgen;
+import java.util.Objects;
 
 /** Registers the realm framework; the one call from {@code Embervoid.onInitialize}. */
 public final class RealmInit {
 	public static void register() {
+		Objects.requireNonNull(RealmConfig.SECTION);
 		RealmWorldgen.register();
 		RealmBlocks.register();
 		RealmPlayerData.register();
