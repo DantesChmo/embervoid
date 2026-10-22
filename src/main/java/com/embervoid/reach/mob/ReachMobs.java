@@ -1,6 +1,7 @@
 package com.embervoid.reach.mob;
 
 import com.embervoid.Embervoid;
+import com.embervoid.reach.gear.GearArmor;
 import com.embervoid.registry.ModEntities;
 import com.embervoid.registry.ModItems;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
@@ -87,6 +88,9 @@ public final class ReachMobs {
 		naturalSpawn(LANTERN_HAG, WOODS, ReachMobs::canSpawnInRealm);
 		naturalSpawn(RESTLESS_BONES, NECROPOLIS, ReachMobs::canSpawnInRealm);
 		naturalSpawn(CRYPT_MOTH, NECROPOLIS, ReachMobs::canSpawnUnderCover);
+		// The Scarecrow's Mask (track reach-gear) hides its wearer from buried Ash Stalkers.
+		AshStalkerEntity.addAmbushImmunity(GearArmor::hiddenFromAmbush);
+
 		// Placed only, but spawners and commands still check a rule.
 		for (EntityType<? extends HostileEntity> placedOnly : java.util.List.of(BARK_HOLLOW, HOLLOW_SENTINEL, GRAVE_WARDEN)) {
 			SpawnRestriction.register(placedOnly, SpawnRestriction.Location.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,

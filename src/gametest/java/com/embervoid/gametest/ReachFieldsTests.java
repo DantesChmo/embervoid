@@ -1,11 +1,13 @@
 package com.embervoid.gametest;
 
+import com.embervoid.reach.gear.GearArmor;
 import com.embervoid.reach.mob.AshStalkerEntity;
 import com.embervoid.reach.mob.CinderHuskEntity;
 import com.embervoid.reach.mob.ReachMobs;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
-import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.passive.IronGolemEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
@@ -15,13 +17,6 @@ import net.minecraft.test.TestContext;
  * or chases a target run in a batch of their own, so no other test's player is around.
  */
 public final class ReachFieldsTests implements FabricGameTest {
-	/** Command tag the test's ambush immunity looks for (stands in for the Scarecrow's Mask). */
-	private static final String SCARECROW = "embervoid-gametest.scarecrow";
-
-	static {
-		AshStalkerEntity.addAmbushImmunity(player -> player.getCommandTags().contains(SCARECROW));
-	}
-
 	/** With its AI on, a Cinder Husk walks up to its target and the hit lands no sooner than 10 ticks after the swing starts. */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 120, batchId = "reach_husk_chase")
 	public void cinderHuskChasesAndHitsAfterTheWindup(TestContext context) {
@@ -74,28 +69,28 @@ public final class ReachFieldsTests implements FabricGameTest {
 		}, player));
 	}
 
-	/** A player with an ambush immunity (the Scarecrow's Mask) walks right past a buried Ash Stalker. */
+	/** A player wearing the Scarecrow's Mask walks right past a buried Ash Stalker. */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 80, batchId = "reach_stalker_immune")
-	public void ambushImmunityKeepsTheStalkerBuried(TestContext context) {
+	public void scarecrowMaskKeepsTheStalkerBuried(TestContext context) {
 		ServerPlayerEntity player = ReachTests.player(context, 2, 4);
-		player.addCommandTag(SCARECROW);
+		player.equipStack(EquipmentSlot.HEAD, new ItemStack(GearArmor.SCARECROW_MASK));
 		AshStalkerEntity stalker = ReachTests.mob(context, ReachMobs.ASH_STALKER, 2, 0, 2);
 		stalker.bury();
 		context.waitAndRun(40, ReachTests.guard(context, () -> {
-			context.assertTrue(stalker.isBuried() && !stalker.isBoiling(), "the stalker ambushed an immune player");
+			context.assertTrue(stalker.isBuried() && !stalker.isBoiling(), "the stalker ambushed a masked player");
 			TestPlayers.complete(context, player);
 		}, player));
 	}
 
 	/** Out of the ground with nothing to hunt, an Ash Stalker digs back in after 10 s. */
-	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 260)
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 260, batchId = "reach_stalker_rebury")
 	public void ashStalkerReburiesWhenAlone(TestContext context) {
-		AshStalkerEntity stalker = ReachTests.mob(context, ReachMobs.ASH_STALKER, 2, 0, 2);
-		// Nothing from neighbouring tests may catch its eye.
-		stalker.getAttributeInstance(EntityAttributes.GENERIC_FOLLOW_RANGE).setBaseValue(1);
+		// Its own batch (another test's player could set it off again) and no goals (nothing becomes its target).
+		AshStalkerEntity stalker = context.spawnMob(ReachMobs.ASH_STALKER, 2, 0, 2);
 		context.waitAndRun(150, () -> context.assertFalse(stalker.isBuried(), "buried too early"));
 		context.waitAndRun(215, () -> {
-			context.assertTrue(stalker.isBuried(), "still out after 10 s alone");
+			context.assertTrue(stalker.isBuried(), "still out after 10 s alone; target " + stalker.getTarget()
+					+ ", on ground " + stalker.isOnGround());
 			context.complete();
 		});
 	}
