@@ -103,7 +103,7 @@ Every `Monster` (vanilla and modded) gets a level once, when it first enters the
 - Default level = base by type + bonuses. Base: zombie, husk, drowned, spider 3 · skeleton, stray, slime 4 ·
   Ash Ghoul 5 · creeper, witch 6 · Ember Wisp 8 · enderman 12 · Hollow 15 · anything else 4.
   Bonuses: Nether +5, End +8; overworld only: +1 per 1000 blocks from spawn (max +5), +3 below y=0.
-- Per level above 1: HP +6 %, damage +5 % (melee, projectiles, explosions, potions), XP +10 %.
+- Per level above 1: HP +6 %, damage +5 % (melee, projectiles, explosions, potions), XP +6 %.
 - Excluded (`#embervoid:unleveled`): Ender Dragon, Wither, Warden, Elder Guardian.
 - Shown as "Name Lv. N" above the mob under the crosshair (client option `hud.showMobLevel`).
 - Config: `mobs.levels.*` (base levels per entity id, bonuses, per-level factors; modded ids can be added).

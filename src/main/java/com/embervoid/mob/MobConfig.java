@@ -53,7 +53,7 @@ public record MobConfig(Levels levels, Difficulty difficulty) {
 							Map.entry("embervoid:smoldering_knight", 25)),
 					1000, 5, 3,
 					Map.of("minecraft:the_nether", 5, "minecraft:the_end", 8),
-					0.06f, 0.05f, 0.10f),
+					0.06f, 0.05f, 0.06f),
 			new Difficulty(1.0f, 1.25f, 1.75f));
 
 	/**
