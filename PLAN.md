@@ -116,7 +116,8 @@ Split into tasks in the track plans, which keep each task's choices and notes. A
 ## Milestone 8 — Moon nights
 
 Design: [DESIGN.md](DESIGN.md) §3.3; §10.12 built as recommended. Three tracks (COORDINATION.md); each keeps its
-notes in `plans/<track>.md`. All numbers go into the `moon` config section.
+notes in `plans/<track>.md`. Config: track-moon owns the `moon` section; night-mobs uses `nightMobs`, vampire uses
+`vampire` (one class per top-level section). Keys written below as `moon.fullMoon.*` / `moon.blood.*` live there.
 
 | ID  | Task | Track | Depends on | Status |
 |-----|------|-------|------------|--------|
