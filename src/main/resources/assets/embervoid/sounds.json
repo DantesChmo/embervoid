@@ -1,0 +1,1418 @@
+{
+	"entity.cinder_husk.ambient": {
+		"subtitle": "subtitles.embervoid.entity.cinder_husk.ambient",
+		"sounds": [
+			{"name": "minecraft:mob/husk/idle1", "pitch": 0.8},
+			{"name": "minecraft:mob/husk/idle2", "pitch": 0.8},
+			{"name": "minecraft:mob/husk/idle3", "pitch": 0.8}
+		]
+	},
+	"entity.cinder_husk.hurt": {
+		"subtitle": "subtitles.embervoid.entity.cinder_husk.hurt",
+		"sounds": [
+			{"name": "minecraft:mob/husk/hurt1", "pitch": 0.85},
+			{"name": "minecraft:mob/husk/hurt2", "pitch": 0.85}
+		]
+	},
+	"entity.cinder_husk.death": {
+		"subtitle": "subtitles.embervoid.entity.cinder_husk.death",
+		"sounds": [
+			{"name": "minecraft:mob/husk/death1", "pitch": 0.8},
+			{"name": "minecraft:mob/husk/death2", "pitch": 0.8}
+		]
+	},
+	"entity.cinder_husk.step": {
+		"subtitle": "subtitles.block.generic.footsteps",
+		"sounds": [
+			{"name": "minecraft:mob/husk/step1", "volume": 0.8, "pitch": 0.9},
+			{"name": "minecraft:mob/husk/step2", "volume": 0.8, "pitch": 0.9},
+			{"name": "minecraft:mob/husk/step3", "volume": 0.8, "pitch": 0.9},
+			{"name": "minecraft:mob/husk/step4", "volume": 0.8, "pitch": 0.9},
+			{"name": "minecraft:mob/husk/step5", "volume": 0.8, "pitch": 0.9}
+		]
+	},
+	"entity.cinder_husk.windup": {
+		"subtitle": "subtitles.embervoid.entity.cinder_husk.windup",
+		"sounds": [
+			{"name": "minecraft:mob/zombie/say1", "pitch": 0.6},
+			{"name": "minecraft:mob/zombie/say2", "pitch": 0.6},
+			{"name": "minecraft:mob/zombie/say3", "pitch": 0.6}
+		]
+	},
+	"entity.ash_stalker.ambient": {
+		"subtitle": "subtitles.embervoid.entity.ash_stalker.ambient",
+		"sounds": [
+			{"name": "minecraft:mob/husk/idle1", "volume": 0.7, "pitch": 1.25},
+			{"name": "minecraft:mob/husk/idle2", "volume": 0.7, "pitch": 1.25},
+			{"name": "minecraft:mob/husk/idle3", "volume": 0.7, "pitch": 1.25}
+		]
+	},
+	"entity.ash_stalker.hurt": {
+		"subtitle": "subtitles.embervoid.entity.ash_stalker.hurt",
+		"sounds": [
+			{"name": "minecraft:mob/husk/hurt1", "pitch": 1.2},
+			{"name": "minecraft:mob/husk/hurt2", "pitch": 1.2}
+		]
+	},
+	"entity.ash_stalker.death": {
+		"subtitle": "subtitles.embervoid.entity.ash_stalker.death",
+		"sounds": [
+			{"name": "minecraft:mob/husk/death1", "pitch": 1.2},
+			{"name": "minecraft:mob/husk/death2", "pitch": 1.2}
+		]
+	},
+	"entity.ash_stalker.step": {
+		"subtitle": "subtitles.block.generic.footsteps",
+		"sounds": [
+			{"name": "minecraft:mob/husk/step1", "volume": 0.6, "pitch": 1.2},
+			{"name": "minecraft:mob/husk/step2", "volume": 0.6, "pitch": 1.2},
+			{"name": "minecraft:mob/husk/step3", "volume": 0.6, "pitch": 1.2},
+			{"name": "minecraft:mob/husk/step4", "volume": 0.6, "pitch": 1.2},
+			{"name": "minecraft:mob/husk/step5", "volume": 0.6, "pitch": 1.2}
+		]
+	},
+	"entity.ash_stalker.hiss": {
+		"subtitle": "subtitles.embervoid.entity.ash_stalker.hiss",
+		"sounds": [
+			{"name": "minecraft:mob/cat/hiss1", "pitch": 0.5},
+			{"name": "minecraft:mob/cat/hiss2", "pitch": 0.5},
+			{"name": "minecraft:mob/cat/hiss3", "pitch": 0.5}
+		]
+	},
+	"entity.ash_stalker.boil": {
+		"subtitle": "subtitles.embervoid.entity.ash_stalker.boil",
+		"sounds": [
+			{"name": "minecraft:dig/sand1", "pitch": 0.6},
+			{"name": "minecraft:dig/sand2", "pitch": 0.6},
+			{"name": "minecraft:dig/sand3", "pitch": 0.6},
+			{"name": "minecraft:dig/sand4", "pitch": 0.6}
+		]
+	},
+	"entity.ash_stalker.leap": {
+		"subtitle": "subtitles.embervoid.entity.ash_stalker.leap",
+		"sounds": [
+			{"name": "minecraft:mob/husk/idle1", "pitch": 1.6},
+			{"name": "minecraft:mob/husk/idle2", "pitch": 1.6},
+			{"name": "minecraft:mob/husk/idle3", "pitch": 1.6}
+		]
+	},
+	"entity.ash_stalker.windup": {
+		"subtitle": "subtitles.embervoid.entity.ash_stalker.windup",
+		"sounds": [
+			{"name": "minecraft:mob/zombie/say1", "pitch": 1.3},
+			{"name": "minecraft:mob/zombie/say2", "pitch": 1.3},
+			{"name": "minecraft:mob/zombie/say3", "pitch": 1.3}
+		]
+	},
+	"entity.ashen_carrion.ambient": {
+		"subtitle": "subtitles.embervoid.entity.ashen_carrion.ambient",
+		"sounds": [
+			{"name": "minecraft:mob/phantom/idle1", "volume": 0.8, "pitch": 0.7},
+			{"name": "minecraft:mob/phantom/idle2", "volume": 0.8, "pitch": 0.7},
+			{"name": "minecraft:mob/phantom/idle3", "volume": 0.8, "pitch": 0.7},
+			{"name": "minecraft:mob/phantom/idle4", "volume": 0.8, "pitch": 0.7},
+			{"name": "minecraft:mob/phantom/idle5", "volume": 0.8, "pitch": 0.7}
+		]
+	},
+	"entity.ashen_carrion.hurt": {
+		"subtitle": "subtitles.embervoid.entity.ashen_carrion.hurt",
+		"sounds": [
+			{"name": "minecraft:mob/phantom/hurt1", "volume": 0.8, "pitch": 0.8},
+			{"name": "minecraft:mob/phantom/hurt2", "volume": 0.8, "pitch": 0.8},
+			{"name": "minecraft:mob/phantom/hurt3", "volume": 0.8, "pitch": 0.8}
+		]
+	},
+	"entity.ashen_carrion.death": {
+		"subtitle": "subtitles.embervoid.entity.ashen_carrion.death",
+		"sounds": [
+			{"name": "minecraft:mob/phantom/death1", "pitch": 0.8},
+			{"name": "minecraft:mob/phantom/death2", "pitch": 0.8},
+			{"name": "minecraft:mob/phantom/death3", "pitch": 0.8}
+		]
+	},
+	"entity.ashen_carrion.flap": {
+		"subtitle": "subtitles.embervoid.entity.ashen_carrion.flap",
+		"sounds": [
+			{"name": "minecraft:mob/phantom/flap1", "volume": 0.9, "pitch": 0.7},
+			{"name": "minecraft:mob/phantom/flap2", "volume": 0.9, "pitch": 0.7},
+			{"name": "minecraft:mob/phantom/flap3", "volume": 0.9, "pitch": 0.7},
+			{"name": "minecraft:mob/phantom/flap4", "volume": 0.9, "pitch": 0.7},
+			{"name": "minecraft:mob/phantom/flap5", "volume": 0.9, "pitch": 0.7},
+			{"name": "minecraft:mob/phantom/flap6", "volume": 0.9, "pitch": 0.7}
+		]
+	},
+	"entity.ashen_carrion.shriek": {
+		"subtitle": "subtitles.embervoid.entity.ashen_carrion.shriek",
+		"sounds": [
+			{"name": "minecraft:mob/ghast/scream1", "volume": 0.9, "pitch": 1.6},
+			{"name": "minecraft:mob/ghast/scream2", "volume": 0.9, "pitch": 1.6},
+			{"name": "minecraft:mob/ghast/scream3", "volume": 0.9, "pitch": 1.6},
+			{"name": "minecraft:mob/ghast/scream4", "volume": 0.9, "pitch": 1.6},
+			{"name": "minecraft:mob/ghast/scream5", "volume": 0.9, "pitch": 1.6}
+		]
+	},
+	"entity.ashen_carrion.dive": {
+		"subtitle": "subtitles.embervoid.entity.ashen_carrion.dive",
+		"sounds": [
+			{"name": "minecraft:mob/phantom/swoop1", "volume": 0.8, "pitch": 0.8},
+			{"name": "minecraft:mob/phantom/swoop2", "volume": 0.8, "pitch": 0.8},
+			{"name": "minecraft:mob/phantom/swoop3", "volume": 0.8, "pitch": 0.8},
+			{"name": "minecraft:mob/phantom/swoop4", "volume": 0.8, "pitch": 0.8}
+		]
+	},
+	"entity.withered_thrall.ambient": {
+		"subtitle": "subtitles.embervoid.entity.withered_thrall.ambient",
+		"sounds": [
+			{"name": "minecraft:mob/zombie_villager/say1", "pitch": 0.7},
+			{"name": "minecraft:mob/zombie_villager/say2", "pitch": 0.7},
+			{"name": "minecraft:mob/zombie_villager/say3", "pitch": 0.7}
+		]
+	},
+	"entity.withered_thrall.hurt": {
+		"subtitle": "subtitles.embervoid.entity.withered_thrall.hurt",
+		"sounds": [
+			{"name": "minecraft:mob/zombie_villager/hurt1", "pitch": 0.75},
+			{"name": "minecraft:mob/zombie_villager/hurt2", "pitch": 0.75}
+		]
+	},
+	"entity.withered_thrall.death": {
+		"subtitle": "subtitles.embervoid.entity.withered_thrall.death",
+		"sounds": [
+			{"name": "minecraft:mob/zombie_villager/death", "pitch": 0.7}
+		]
+	},
+	"entity.withered_thrall.step": {
+		"subtitle": "subtitles.block.generic.footsteps",
+		"sounds": [
+			{"name": "minecraft:mob/zombie/step1", "volume": 0.6, "pitch": 0.8},
+			{"name": "minecraft:mob/zombie/step2", "volume": 0.6, "pitch": 0.8},
+			{"name": "minecraft:mob/zombie/step3", "volume": 0.6, "pitch": 0.8},
+			{"name": "minecraft:mob/zombie/step4", "volume": 0.6, "pitch": 0.8},
+			{"name": "minecraft:mob/zombie/step5", "volume": 0.6, "pitch": 0.8}
+		]
+	},
+	"entity.withered_thrall.rattle": {
+		"subtitle": "subtitles.embervoid.entity.withered_thrall.rattle",
+		"sounds": [
+			{"name": "minecraft:block/chain/step1", "pitch": 0.7},
+			{"name": "minecraft:block/chain/step2", "pitch": 0.7},
+			{"name": "minecraft:block/chain/step3", "pitch": 0.7},
+			{"name": "minecraft:block/chain/step4", "pitch": 0.7},
+			{"name": "minecraft:block/chain/step5", "pitch": 0.7},
+			{"name": "minecraft:block/chain/step6", "pitch": 0.7}
+		]
+	},
+	"entity.withered_thrall.drop": {
+		"subtitle": "subtitles.embervoid.entity.withered_thrall.drop",
+		"sounds": [
+			{"name": "minecraft:mob/zombie_villager/say1", "pitch": 0.55},
+			{"name": "minecraft:mob/zombie_villager/say2", "pitch": 0.55},
+			{"name": "minecraft:mob/zombie_villager/say3", "pitch": 0.55}
+		]
+	},
+	"entity.withered_thrall.windup": {
+		"subtitle": "subtitles.embervoid.entity.withered_thrall.windup",
+		"sounds": [
+			{"name": "minecraft:mob/zombie/say1", "pitch": 0.75},
+			{"name": "minecraft:mob/zombie/say2", "pitch": 0.75},
+			{"name": "minecraft:mob/zombie/say3", "pitch": 0.75}
+		]
+	},
+	"entity.lantern_hag.ambient": {
+		"subtitle": "subtitles.embervoid.entity.lantern_hag.ambient",
+		"sounds": [
+			{"name": "minecraft:entity/witch/ambient1", "pitch": 0.75},
+			{"name": "minecraft:entity/witch/ambient2", "pitch": 0.75},
+			{"name": "minecraft:entity/witch/ambient3", "pitch": 0.75},
+			{"name": "minecraft:entity/witch/ambient4", "pitch": 0.75},
+			{"name": "minecraft:entity/witch/ambient5", "pitch": 0.75}
+		]
+	},
+	"entity.lantern_hag.hurt": {
+		"subtitle": "subtitles.embervoid.entity.lantern_hag.hurt",
+		"sounds": [
+			{"name": "minecraft:entity/witch/hurt1", "pitch": 0.8},
+			{"name": "minecraft:entity/witch/hurt2", "pitch": 0.8},
+			{"name": "minecraft:entity/witch/hurt3", "pitch": 0.8}
+		]
+	},
+	"entity.lantern_hag.death": {
+		"subtitle": "subtitles.embervoid.entity.lantern_hag.death",
+		"sounds": [
+			{"name": "minecraft:entity/witch/death1", "pitch": 0.8},
+			{"name": "minecraft:entity/witch/death2", "pitch": 0.8},
+			{"name": "minecraft:entity/witch/death3", "pitch": 0.8}
+		]
+	},
+	"entity.lantern_hag.raise_lantern": {
+		"subtitle": "subtitles.embervoid.entity.lantern_hag.raise_lantern",
+		"sounds": [
+			{"name": "minecraft:entity/witch/celebrate", "pitch": 0.8},
+			{"name": "minecraft:block/lantern/place1", "pitch": 0.6},
+			{"name": "minecraft:block/lantern/place2", "pitch": 0.6},
+			{"name": "minecraft:block/lantern/place3", "pitch": 0.6}
+		]
+	},
+	"entity.lantern_hag.throw": {
+		"subtitle": "subtitles.embervoid.entity.lantern_hag.throw",
+		"sounds": [
+			{"name": "minecraft:entity/witch/throw1", "pitch": 0.8},
+			{"name": "minecraft:entity/witch/throw2", "pitch": 0.8},
+			{"name": "minecraft:entity/witch/throw3", "pitch": 0.8}
+		]
+	},
+	"entity.fire_flask.shatter": {
+		"subtitle": "subtitles.embervoid.entity.fire_flask.shatter",
+		"sounds": [
+			{"name": "minecraft:random/glass1", "pitch": 0.8},
+			{"name": "minecraft:random/glass2", "pitch": 0.8},
+			{"name": "minecraft:random/glass3", "pitch": 0.8}
+		]
+	},
+	"entity.fire_flask.ignite": {
+		"subtitle": "subtitles.embervoid.entity.fire_flask.ignite",
+		"sounds": [
+			{"name": "minecraft:mob/ghast/fireball4", "volume": 0.8, "pitch": 1.1}
+		]
+	},
+	"entity.bark_hollow.ambient": {
+		"subtitle": "subtitles.embervoid.entity.bark_hollow.ambient",
+		"sounds": [
+			{"name": "minecraft:block/wooden_trapdoor/open1", "volume": 0.5, "pitch": 0.5},
+			{"name": "minecraft:block/wooden_trapdoor/open2", "volume": 0.5, "pitch": 0.5},
+			{"name": "minecraft:block/wooden_trapdoor/open3", "volume": 0.5, "pitch": 0.5},
+			{"name": "minecraft:block/wooden_trapdoor/open4", "volume": 0.5, "pitch": 0.5},
+			{"name": "minecraft:block/wooden_trapdoor/open5", "volume": 0.5, "pitch": 0.5}
+		]
+	},
+	"entity.bark_hollow.hurt": {
+		"subtitle": "subtitles.embervoid.entity.bark_hollow.hurt",
+		"sounds": [
+			{"name": "minecraft:dig/wood1", "pitch": 0.7},
+			{"name": "minecraft:dig/wood2", "pitch": 0.7},
+			{"name": "minecraft:dig/wood3", "pitch": 0.7},
+			{"name": "minecraft:dig/wood4", "pitch": 0.7}
+		]
+	},
+	"entity.bark_hollow.death": {
+		"subtitle": "subtitles.embervoid.entity.bark_hollow.death",
+		"sounds": [
+			{"name": "minecraft:mob/zombie/woodbreak", "pitch": 0.6}
+		]
+	},
+	"entity.bark_hollow.step": {
+		"subtitle": "subtitles.block.generic.footsteps",
+		"sounds": [
+			{"name": "minecraft:step/wood1", "volume": 0.8, "pitch": 0.5},
+			{"name": "minecraft:step/wood2", "volume": 0.8, "pitch": 0.5},
+			{"name": "minecraft:step/wood3", "volume": 0.8, "pitch": 0.5},
+			{"name": "minecraft:step/wood4", "volume": 0.8, "pitch": 0.5},
+			{"name": "minecraft:step/wood5", "volume": 0.8, "pitch": 0.5},
+			{"name": "minecraft:step/wood6", "volume": 0.8, "pitch": 0.5}
+		]
+	},
+	"entity.bark_hollow.awaken": {
+		"subtitle": "subtitles.embervoid.entity.bark_hollow.awaken",
+		"sounds": [
+			{"name": "minecraft:block/wooden_door/open1", "pitch": 0.45},
+			{"name": "minecraft:block/wooden_door/open2", "pitch": 0.45}
+		]
+	},
+	"entity.bark_hollow.windup": {
+		"subtitle": "subtitles.embervoid.entity.bark_hollow.windup",
+		"sounds": [
+			{"name": "minecraft:mob/zombie/wood1", "pitch": 0.5},
+			{"name": "minecraft:mob/zombie/wood2", "pitch": 0.5},
+			{"name": "minecraft:mob/zombie/wood3", "pitch": 0.5},
+			{"name": "minecraft:mob/zombie/wood4", "pitch": 0.5}
+		]
+	},
+	"entity.restless_bones.ambient": {
+		"subtitle": "subtitles.embervoid.entity.restless_bones.ambient",
+		"sounds": [
+			{"name": "minecraft:mob/skeleton/say1", "pitch": 0.8},
+			{"name": "minecraft:mob/skeleton/say2", "pitch": 0.8},
+			{"name": "minecraft:mob/skeleton/say3", "pitch": 0.8}
+		]
+	},
+	"entity.restless_bones.hurt": {
+		"subtitle": "subtitles.embervoid.entity.restless_bones.hurt",
+		"sounds": [
+			{"name": "minecraft:mob/skeleton/hurt1", "pitch": 0.85},
+			{"name": "minecraft:mob/skeleton/hurt2", "pitch": 0.85},
+			{"name": "minecraft:mob/skeleton/hurt3", "pitch": 0.85},
+			{"name": "minecraft:mob/skeleton/hurt4", "pitch": 0.85}
+		]
+	},
+	"entity.restless_bones.death": {
+		"subtitle": "subtitles.embervoid.entity.restless_bones.death",
+		"sounds": [
+			{"name": "minecraft:mob/skeleton/death", "pitch": 0.8}
+		]
+	},
+	"entity.restless_bones.step": {
+		"subtitle": "subtitles.block.generic.footsteps",
+		"sounds": [
+			{"name": "minecraft:mob/skeleton/step1"},
+			{"name": "minecraft:mob/skeleton/step2"},
+			{"name": "minecraft:mob/skeleton/step3"},
+			{"name": "minecraft:mob/skeleton/step4"}
+		]
+	},
+	"entity.restless_bones.collapse": {
+		"subtitle": "subtitles.embervoid.entity.restless_bones.collapse",
+		"sounds": [
+			{"name": "minecraft:mob/skeleton/death", "pitch": 0.9},
+			{"name": "minecraft:block/bone_block/break1", "pitch": 0.8},
+			{"name": "minecraft:block/bone_block/break2", "pitch": 0.8},
+			{"name": "minecraft:block/bone_block/break3", "pitch": 0.8},
+			{"name": "minecraft:block/bone_block/break4", "pitch": 0.8},
+			{"name": "minecraft:block/bone_block/break5", "pitch": 0.8}
+		]
+	},
+	"entity.restless_bones.reform": {
+		"subtitle": "subtitles.embervoid.entity.restless_bones.reform",
+		"sounds": [
+			{"name": "minecraft:mob/skeleton/say1", "pitch": 0.5},
+			{"name": "minecraft:mob/skeleton/say2", "pitch": 0.5},
+			{"name": "minecraft:mob/skeleton/say3", "pitch": 0.5}
+		]
+	},
+	"entity.restless_bones.crumble": {
+		"subtitle": "subtitles.embervoid.entity.restless_bones.crumble",
+		"sounds": [
+			{"name": "minecraft:block/bone_block/break1", "pitch": 0.6},
+			{"name": "minecraft:block/bone_block/break2", "pitch": 0.6},
+			{"name": "minecraft:block/bone_block/break3", "pitch": 0.6},
+			{"name": "minecraft:block/bone_block/break4", "pitch": 0.6},
+			{"name": "minecraft:block/bone_block/break5", "pitch": 0.6}
+		]
+	},
+	"entity.restless_bones.windup": {
+		"subtitle": "subtitles.embervoid.entity.restless_bones.windup",
+		"sounds": [
+			{"name": "minecraft:mob/skeleton/say1", "pitch": 0.65},
+			{"name": "minecraft:mob/skeleton/say2", "pitch": 0.65},
+			{"name": "minecraft:mob/skeleton/say3", "pitch": 0.65}
+		]
+	},
+	"entity.crypt_moth.ambient": {
+		"subtitle": "subtitles.embervoid.entity.crypt_moth.ambient",
+		"sounds": [
+			{"name": "minecraft:mob/bat/idle1", "volume": 0.4, "pitch": 0.6},
+			{"name": "minecraft:mob/bat/idle2", "volume": 0.4, "pitch": 0.6},
+			{"name": "minecraft:mob/bat/idle3", "volume": 0.4, "pitch": 0.6},
+			{"name": "minecraft:mob/bat/idle4", "volume": 0.4, "pitch": 0.6}
+		]
+	},
+	"entity.crypt_moth.hurt": {
+		"subtitle": "subtitles.embervoid.entity.crypt_moth.hurt",
+		"sounds": [
+			{"name": "minecraft:mob/bat/hurt1", "volume": 0.8, "pitch": 0.7},
+			{"name": "minecraft:mob/bat/hurt2", "volume": 0.8, "pitch": 0.7},
+			{"name": "minecraft:mob/bat/hurt3", "volume": 0.8, "pitch": 0.7},
+			{"name": "minecraft:mob/bat/hurt4", "volume": 0.8, "pitch": 0.7}
+		]
+	},
+	"entity.crypt_moth.death": {
+		"subtitle": "subtitles.embervoid.entity.crypt_moth.death",
+		"sounds": [
+			{"name": "minecraft:mob/bat/death", "pitch": 0.7}
+		]
+	},
+	"entity.crypt_moth.glow": {
+		"subtitle": "subtitles.embervoid.entity.crypt_moth.glow",
+		"sounds": [
+			{"name": "minecraft:block/amethyst/shimmer", "volume": 0.8, "pitch": 0.6}
+		]
+	},
+	"entity.crypt_moth.burst": {
+		"subtitle": "subtitles.embervoid.entity.crypt_moth.burst",
+		"sounds": [
+			{"name": "minecraft:block/spore_blossom/break1", "pitch": 0.7},
+			{"name": "minecraft:block/spore_blossom/break2", "pitch": 0.7},
+			{"name": "minecraft:block/spore_blossom/break3", "pitch": 0.7},
+			{"name": "minecraft:block/spore_blossom/break4", "pitch": 0.7},
+			{"name": "minecraft:block/spore_blossom/break5", "pitch": 0.7}
+		]
+	},
+	"entity.crypt_moth.snuff": {
+		"subtitle": "subtitles.embervoid.entity.crypt_moth.snuff",
+		"sounds": [
+			{"name": "minecraft:block/candle/extinguish1", "pitch": 0.8},
+			{"name": "minecraft:block/candle/extinguish2", "pitch": 0.8},
+			{"name": "minecraft:block/candle/extinguish3", "pitch": 0.8}
+		]
+	},
+	"entity.hollow_sentinel.ambient": {
+		"subtitle": "subtitles.embervoid.entity.hollow_sentinel.ambient",
+		"sounds": [
+			{"name": "minecraft:mob/skeleton/say1", "pitch": 0.6},
+			{"name": "minecraft:mob/skeleton/say2", "pitch": 0.6},
+			{"name": "minecraft:mob/skeleton/say3", "pitch": 0.6}
+		]
+	},
+	"entity.hollow_sentinel.hurt": {
+		"subtitle": "subtitles.embervoid.entity.hollow_sentinel.hurt",
+		"sounds": [
+			{"name": "minecraft:mob/wither_skeleton/hurt1", "pitch": 0.8},
+			{"name": "minecraft:mob/wither_skeleton/hurt2", "pitch": 0.8},
+			{"name": "minecraft:mob/wither_skeleton/hurt3", "pitch": 0.8},
+			{"name": "minecraft:mob/wither_skeleton/hurt4", "pitch": 0.8}
+		]
+	},
+	"entity.hollow_sentinel.death": {
+		"subtitle": "subtitles.embervoid.entity.hollow_sentinel.death",
+		"sounds": [
+			{"name": "minecraft:mob/wither_skeleton/death1", "pitch": 0.8},
+			{"name": "minecraft:mob/wither_skeleton/death2", "pitch": 0.8}
+		]
+	},
+	"entity.hollow_sentinel.step": {
+		"subtitle": "subtitles.block.generic.footsteps",
+		"sounds": [
+			{"name": "minecraft:mob/wither_skeleton/step1", "pitch": 0.8},
+			{"name": "minecraft:mob/wither_skeleton/step2", "pitch": 0.8},
+			{"name": "minecraft:mob/wither_skeleton/step3", "pitch": 0.8},
+			{"name": "minecraft:mob/wither_skeleton/step4", "pitch": 0.8}
+		]
+	},
+	"entity.hollow_sentinel.draw_spear": {
+		"subtitle": "subtitles.embervoid.entity.hollow_sentinel.draw_spear",
+		"sounds": [
+			{"name": "minecraft:item/armor/equip_iron1", "pitch": 0.6},
+			{"name": "minecraft:item/armor/equip_iron2", "pitch": 0.6},
+			{"name": "minecraft:item/armor/equip_iron3", "pitch": 0.6},
+			{"name": "minecraft:item/armor/equip_iron4", "pitch": 0.6},
+			{"name": "minecraft:item/armor/equip_iron5", "pitch": 0.6},
+			{"name": "minecraft:item/armor/equip_iron6", "pitch": 0.6}
+		]
+	},
+	"entity.hollow_sentinel.plant_shield": {
+		"subtitle": "subtitles.embervoid.entity.hollow_sentinel.plant_shield",
+		"sounds": [
+			{"name": "minecraft:item/shield/block1", "pitch": 0.5},
+			{"name": "minecraft:item/shield/block2", "pitch": 0.5},
+			{"name": "minecraft:item/shield/block3", "pitch": 0.5},
+			{"name": "minecraft:item/shield/block4", "pitch": 0.5},
+			{"name": "minecraft:item/shield/block5", "pitch": 0.5}
+		]
+	},
+	"entity.hollow_sentinel.bash": {
+		"subtitle": "subtitles.embervoid.entity.hollow_sentinel.bash",
+		"sounds": [
+			{"name": "minecraft:mob/zombie/metal1", "pitch": 0.7},
+			{"name": "minecraft:mob/zombie/metal2", "pitch": 0.7},
+			{"name": "minecraft:mob/zombie/metal3", "pitch": 0.7}
+		]
+	},
+	"entity.hollow_sentinel.block": {
+		"subtitle": "subtitles.embervoid.entity.hollow_sentinel.block",
+		"sounds": [
+			{"name": "minecraft:item/shield/block1", "pitch": 0.7},
+			{"name": "minecraft:item/shield/block2", "pitch": 0.7},
+			{"name": "minecraft:item/shield/block3", "pitch": 0.7},
+			{"name": "minecraft:item/shield/block4", "pitch": 0.7},
+			{"name": "minecraft:item/shield/block5", "pitch": 0.7}
+		]
+	},
+	"entity.grave_warden.ambient": {
+		"subtitle": "subtitles.embervoid.entity.grave_warden.ambient",
+		"sounds": [
+			{"name": "minecraft:mob/wither_skeleton/idle1", "pitch": 0.6},
+			{"name": "minecraft:mob/wither_skeleton/idle2", "pitch": 0.6},
+			{"name": "minecraft:mob/wither_skeleton/idle3", "pitch": 0.6}
+		]
+	},
+	"entity.grave_warden.hurt": {
+		"subtitle": "subtitles.embervoid.entity.grave_warden.hurt",
+		"sounds": [
+			{"name": "minecraft:mob/wither_skeleton/hurt1", "pitch": 0.7},
+			{"name": "minecraft:mob/wither_skeleton/hurt2", "pitch": 0.7},
+			{"name": "minecraft:mob/wither_skeleton/hurt3", "pitch": 0.7},
+			{"name": "minecraft:mob/wither_skeleton/hurt4", "pitch": 0.7}
+		]
+	},
+	"entity.grave_warden.death": {
+		"subtitle": "subtitles.embervoid.entity.grave_warden.death",
+		"sounds": [
+			{"name": "minecraft:mob/wither_skeleton/death1", "pitch": 0.7},
+			{"name": "minecraft:mob/wither_skeleton/death2", "pitch": 0.7}
+		]
+	},
+	"entity.grave_warden.step": {
+		"subtitle": "subtitles.block.generic.footsteps",
+		"sounds": [
+			{"name": "minecraft:mob/wither_skeleton/step1", "pitch": 0.7},
+			{"name": "minecraft:mob/wither_skeleton/step2", "pitch": 0.7},
+			{"name": "minecraft:mob/wither_skeleton/step3", "pitch": 0.7},
+			{"name": "minecraft:mob/wither_skeleton/step4", "pitch": 0.7}
+		]
+	},
+	"entity.grave_warden.raise_bell": {
+		"subtitle": "subtitles.embervoid.entity.grave_warden.raise_bell",
+		"sounds": [
+			{"name": "minecraft:block/bell/resonate", "pitch": 0.6}
+		]
+	},
+	"entity.grave_warden.bell": {
+		"subtitle": "subtitles.embervoid.entity.grave_warden.bell",
+		"sounds": [
+			{"name": "minecraft:block/bell/bell_use01", "pitch": 0.5},
+			{"name": "minecraft:block/bell/bell_use02", "pitch": 0.5}
+		]
+	},
+	"entity.grave_warden.windup": {
+		"subtitle": "subtitles.embervoid.entity.grave_warden.windup",
+		"sounds": [
+			{"name": "minecraft:item/armor/equip_chain1", "pitch": 0.6},
+			{"name": "minecraft:item/armor/equip_chain2", "pitch": 0.6},
+			{"name": "minecraft:item/armor/equip_chain3", "pitch": 0.6},
+			{"name": "minecraft:item/armor/equip_chain4", "pitch": 0.6},
+			{"name": "minecraft:item/armor/equip_chain5", "pitch": 0.6},
+			{"name": "minecraft:item/armor/equip_chain6", "pitch": 0.6}
+		]
+	},
+	"entity.cinder_hound.ambient": {
+		"subtitle": "subtitles.embervoid.entity.cinder_hound.ambient",
+		"sounds": [
+			{"name": "minecraft:mob/wolf/growl1", "volume": 0.8, "pitch": 0.7},
+			{"name": "minecraft:mob/wolf/growl2", "volume": 0.8, "pitch": 0.7},
+			{"name": "minecraft:mob/wolf/growl3", "volume": 0.8, "pitch": 0.7}
+		]
+	},
+	"entity.cinder_hound.hurt": {
+		"subtitle": "subtitles.embervoid.entity.cinder_hound.hurt",
+		"sounds": [
+			{"name": "minecraft:mob/wolf/hurt1", "pitch": 0.75},
+			{"name": "minecraft:mob/wolf/hurt2", "pitch": 0.75},
+			{"name": "minecraft:mob/wolf/hurt3", "pitch": 0.75}
+		]
+	},
+	"entity.cinder_hound.death": {
+		"subtitle": "subtitles.embervoid.entity.cinder_hound.death",
+		"sounds": [
+			{"name": "minecraft:mob/wolf/death", "pitch": 0.7}
+		]
+	},
+	"entity.cinder_hound.step": {
+		"subtitle": "subtitles.block.generic.footsteps",
+		"sounds": [
+			{"name": "minecraft:mob/wolf/step1", "pitch": 0.9},
+			{"name": "minecraft:mob/wolf/step2", "pitch": 0.9},
+			{"name": "minecraft:mob/wolf/step3", "pitch": 0.9},
+			{"name": "minecraft:mob/wolf/step4", "pitch": 0.9},
+			{"name": "minecraft:mob/wolf/step5", "pitch": 0.9}
+		]
+	},
+	"entity.cinder_hound.howl": {
+		"subtitle": "subtitles.embervoid.entity.cinder_hound.howl",
+		"sounds": [
+			{"name": "minecraft:mob/wolf/howl1", "pitch": 0.6},
+			{"name": "minecraft:mob/wolf/howl2", "pitch": 0.6}
+		]
+	},
+	"entity.cinder_hound.snarl": {
+		"subtitle": "subtitles.embervoid.entity.cinder_hound.snarl",
+		"sounds": [
+			{"name": "minecraft:mob/wolf/bark1", "pitch": 0.7},
+			{"name": "minecraft:mob/wolf/bark2", "pitch": 0.7},
+			{"name": "minecraft:mob/wolf/bark3", "pitch": 0.7}
+		]
+	},
+	"entity.sparking_marksman.ambient": {
+		"subtitle": "subtitles.embervoid.entity.sparking_marksman.ambient",
+		"sounds": [
+			{"name": "minecraft:mob/pillager/idle1", "pitch": 0.8},
+			{"name": "minecraft:mob/pillager/idle2", "pitch": 0.8},
+			{"name": "minecraft:mob/pillager/idle3", "pitch": 0.8},
+			{"name": "minecraft:mob/pillager/idle4", "pitch": 0.8}
+		]
+	},
+	"entity.sparking_marksman.hurt": {
+		"subtitle": "subtitles.embervoid.entity.sparking_marksman.hurt",
+		"sounds": [
+			{"name": "minecraft:mob/pillager/hurt1", "pitch": 0.85},
+			{"name": "minecraft:mob/pillager/hurt2", "pitch": 0.85},
+			{"name": "minecraft:mob/pillager/hurt3", "pitch": 0.85}
+		]
+	},
+	"entity.sparking_marksman.death": {
+		"subtitle": "subtitles.embervoid.entity.sparking_marksman.death",
+		"sounds": [
+			{"name": "minecraft:mob/pillager/death1", "pitch": 0.85},
+			{"name": "minecraft:mob/pillager/death2", "pitch": 0.85}
+		]
+	},
+	"entity.sparking_marksman.spark": {
+		"subtitle": "subtitles.embervoid.entity.sparking_marksman.spark",
+		"sounds": [
+			{"name": "minecraft:fire/ignite", "pitch": 1.3},
+			{"name": "minecraft:item/crossbow/loading_middle1", "volume": 0.65, "pitch": 0.8},
+			{"name": "minecraft:item/crossbow/loading_middle2", "volume": 0.65, "pitch": 0.8},
+			{"name": "minecraft:item/crossbow/loading_middle3", "volume": 0.65, "pitch": 0.8},
+			{"name": "minecraft:item/crossbow/loading_middle4", "volume": 0.65, "pitch": 0.8}
+		]
+	},
+	"entity.sparking_marksman.shoot": {
+		"subtitle": "subtitles.embervoid.entity.sparking_marksman.shoot",
+		"sounds": [
+			{"name": "minecraft:item/crossbow/shoot1", "volume": 0.9, "pitch": 0.8},
+			{"name": "minecraft:item/crossbow/shoot2", "volume": 0.9, "pitch": 0.8},
+			{"name": "minecraft:item/crossbow/shoot3", "volume": 0.9, "pitch": 0.8}
+		]
+	},
+	"entity.furnace_golem.ambient": {
+		"subtitle": "subtitles.embervoid.entity.furnace_golem.ambient",
+		"sounds": [
+			{"name": "minecraft:block/furnace/fire_crackle1", "pitch": 0.8},
+			{"name": "minecraft:block/furnace/fire_crackle2", "pitch": 0.8},
+			{"name": "minecraft:block/furnace/fire_crackle3", "pitch": 0.8},
+			{"name": "minecraft:block/furnace/fire_crackle4", "pitch": 0.8},
+			{"name": "minecraft:block/furnace/fire_crackle5", "pitch": 0.8}
+		]
+	},
+	"entity.furnace_golem.hurt": {
+		"subtitle": "subtitles.embervoid.entity.furnace_golem.hurt",
+		"sounds": [
+			{"name": "minecraft:mob/irongolem/hit1", "pitch": 0.7},
+			{"name": "minecraft:mob/irongolem/hit2", "pitch": 0.7},
+			{"name": "minecraft:mob/irongolem/hit3", "pitch": 0.7},
+			{"name": "minecraft:mob/irongolem/hit4", "pitch": 0.7}
+		]
+	},
+	"entity.furnace_golem.death": {
+		"subtitle": "subtitles.embervoid.entity.furnace_golem.death",
+		"sounds": [
+			{"name": "minecraft:mob/irongolem/death", "pitch": 0.6}
+		]
+	},
+	"entity.furnace_golem.step": {
+		"subtitle": "subtitles.block.generic.footsteps",
+		"sounds": [
+			{"name": "minecraft:mob/irongolem/walk1", "pitch": 0.8},
+			{"name": "minecraft:mob/irongolem/walk2", "pitch": 0.8},
+			{"name": "minecraft:mob/irongolem/walk3", "pitch": 0.8},
+			{"name": "minecraft:mob/irongolem/walk4", "pitch": 0.8}
+		]
+	},
+	"entity.furnace_golem.windup": {
+		"subtitle": "subtitles.embervoid.entity.furnace_golem.windup",
+		"sounds": [
+			{"name": "minecraft:mob/irongolem/throw", "pitch": 0.6}
+		]
+	},
+	"entity.furnace_golem.heat": {
+		"subtitle": "subtitles.embervoid.entity.furnace_golem.heat",
+		"sounds": [
+			{"name": "minecraft:fire/fire", "pitch": 0.6},
+			{"name": "minecraft:block/blastfurnace/blastfurnace1", "pitch": 0.6},
+			{"name": "minecraft:block/blastfurnace/blastfurnace2", "pitch": 0.6},
+			{"name": "minecraft:block/blastfurnace/blastfurnace3", "pitch": 0.6},
+			{"name": "minecraft:block/blastfurnace/blastfurnace4", "pitch": 0.6},
+			{"name": "minecraft:block/blastfurnace/blastfurnace5", "pitch": 0.6}
+		]
+	},
+	"entity.furnace_golem.fire_wave": {
+		"subtitle": "subtitles.embervoid.entity.furnace_golem.fire_wave",
+		"sounds": [
+			{"name": "minecraft:mob/ghast/fireball4", "pitch": 0.5}
+		]
+	},
+	"entity.smoldering_knight.ambient": {
+		"subtitle": "subtitles.embervoid.entity.smoldering_knight.ambient",
+		"sounds": [
+			{"name": "minecraft:mob/wither_skeleton/idle1", "pitch": 0.85},
+			{"name": "minecraft:mob/wither_skeleton/idle2", "pitch": 0.85},
+			{"name": "minecraft:mob/wither_skeleton/idle3", "pitch": 0.85},
+			{"name": "minecraft:mob/blaze/breathe1", "volume": 0.6, "pitch": 0.7},
+			{"name": "minecraft:mob/blaze/breathe2", "volume": 0.6, "pitch": 0.7},
+			{"name": "minecraft:mob/blaze/breathe3", "volume": 0.6, "pitch": 0.7},
+			{"name": "minecraft:mob/blaze/breathe4", "volume": 0.6, "pitch": 0.7}
+		]
+	},
+	"entity.smoldering_knight.hurt": {
+		"subtitle": "subtitles.embervoid.entity.smoldering_knight.hurt",
+		"sounds": [
+			{"name": "minecraft:mob/wither_skeleton/hurt1", "pitch": 0.9},
+			{"name": "minecraft:mob/wither_skeleton/hurt2", "pitch": 0.9},
+			{"name": "minecraft:mob/wither_skeleton/hurt3", "pitch": 0.9},
+			{"name": "minecraft:mob/wither_skeleton/hurt4", "pitch": 0.9}
+		]
+	},
+	"entity.smoldering_knight.death": {
+		"subtitle": "subtitles.embervoid.entity.smoldering_knight.death",
+		"sounds": [
+			{"name": "minecraft:mob/wither_skeleton/death1", "pitch": 0.85},
+			{"name": "minecraft:mob/wither_skeleton/death2", "pitch": 0.85}
+		]
+	},
+	"entity.smoldering_knight.step": {
+		"subtitle": "subtitles.block.generic.footsteps",
+		"sounds": [
+			{"name": "minecraft:mob/wither_skeleton/step1", "pitch": 0.9},
+			{"name": "minecraft:mob/wither_skeleton/step2", "pitch": 0.9},
+			{"name": "minecraft:mob/wither_skeleton/step3", "pitch": 0.9},
+			{"name": "minecraft:mob/wither_skeleton/step4", "pitch": 0.9}
+		]
+	},
+	"entity.smoldering_knight.swing": {
+		"subtitle": "subtitles.embervoid.entity.smoldering_knight.swing",
+		"sounds": [
+			{"name": "minecraft:entity/player/attack/sweep1", "volume": 0.8, "pitch": 0.75},
+			{"name": "minecraft:entity/player/attack/sweep2", "volume": 0.8, "pitch": 0.75},
+			{"name": "minecraft:entity/player/attack/sweep3", "volume": 0.8, "pitch": 0.75},
+			{"name": "minecraft:entity/player/attack/sweep4", "volume": 0.8, "pitch": 0.75},
+			{"name": "minecraft:entity/player/attack/sweep5", "volume": 0.8, "pitch": 0.75},
+			{"name": "minecraft:entity/player/attack/sweep6", "volume": 0.8, "pitch": 0.75},
+			{"name": "minecraft:entity/player/attack/sweep7", "volume": 0.8, "pitch": 0.75}
+		]
+	},
+	"entity.smoldering_knight.heavy": {
+		"subtitle": "subtitles.embervoid.entity.smoldering_knight.heavy",
+		"sounds": [
+			{"name": "minecraft:entity/player/attack/strong1", "pitch": 0.6},
+			{"name": "minecraft:entity/player/attack/strong2", "pitch": 0.6},
+			{"name": "minecraft:entity/player/attack/strong3", "pitch": 0.6},
+			{"name": "minecraft:entity/player/attack/strong4", "pitch": 0.6},
+			{"name": "minecraft:entity/player/attack/strong5", "pitch": 0.6},
+			{"name": "minecraft:entity/player/attack/strong6", "pitch": 0.6}
+		]
+	},
+	"entity.smoldering_knight.crouch": {
+		"subtitle": "subtitles.embervoid.entity.smoldering_knight.crouch",
+		"sounds": [
+			{"name": "minecraft:fire/fire", "pitch": 0.5}
+		]
+	},
+	"entity.smoldering_knight.lunge": {
+		"subtitle": "subtitles.embervoid.entity.smoldering_knight.lunge",
+		"sounds": [
+			{"name": "minecraft:mob/ghast/fireball4", "pitch": 0.6}
+		]
+	},
+	"entity.ash_colossus.ambient": {
+		"subtitle": "subtitles.embervoid.entity.ash_colossus.ambient",
+		"sounds": [
+			{"name": "minecraft:mob/blaze/breathe1", "pitch": 0.4},
+			{"name": "minecraft:mob/blaze/breathe2", "pitch": 0.4},
+			{"name": "minecraft:mob/blaze/breathe3", "pitch": 0.4},
+			{"name": "minecraft:mob/blaze/breathe4", "pitch": 0.4}
+		]
+	},
+	"entity.ash_colossus.hurt": {
+		"subtitle": "subtitles.embervoid.entity.ash_colossus.hurt",
+		"sounds": [
+			{"name": "minecraft:mob/irongolem/hit1", "pitch": 0.5},
+			{"name": "minecraft:mob/irongolem/hit2", "pitch": 0.5},
+			{"name": "minecraft:mob/irongolem/hit3", "pitch": 0.5},
+			{"name": "minecraft:mob/irongolem/hit4", "pitch": 0.5}
+		]
+	},
+	"entity.ash_colossus.death": {
+		"subtitle": "subtitles.embervoid.entity.ash_colossus.death",
+		"sounds": [
+			{"name": "minecraft:mob/irongolem/death", "pitch": 0.4}
+		]
+	},
+	"entity.ash_colossus.step": {
+		"subtitle": "subtitles.block.generic.footsteps",
+		"sounds": [
+			{"name": "minecraft:mob/irongolem/walk1", "pitch": 0.5},
+			{"name": "minecraft:mob/irongolem/walk2", "pitch": 0.5},
+			{"name": "minecraft:mob/irongolem/walk3", "pitch": 0.5},
+			{"name": "minecraft:mob/irongolem/walk4", "pitch": 0.5}
+		]
+	},
+	"entity.ash_colossus.fist": {
+		"subtitle": "subtitles.embervoid.entity.ash_colossus.fist",
+		"sounds": [
+			{"name": "minecraft:mob/irongolem/throw", "pitch": 0.6}
+		]
+	},
+	"entity.ash_colossus.drag": {
+		"subtitle": "subtitles.embervoid.entity.ash_colossus.drag",
+		"sounds": [
+			{"name": "minecraft:dig/gravel1", "pitch": 0.6},
+			{"name": "minecraft:dig/gravel2", "pitch": 0.6},
+			{"name": "minecraft:dig/gravel3", "pitch": 0.6},
+			{"name": "minecraft:dig/gravel4", "pitch": 0.6}
+		]
+	},
+	"entity.ash_colossus.leap": {
+		"subtitle": "subtitles.embervoid.entity.ash_colossus.leap",
+		"sounds": [
+			{"name": "minecraft:mob/ravager/roar1", "pitch": 0.7},
+			{"name": "minecraft:mob/ravager/roar2", "pitch": 0.7},
+			{"name": "minecraft:mob/ravager/roar3", "pitch": 0.7},
+			{"name": "minecraft:mob/ravager/roar4", "pitch": 0.7}
+		]
+	},
+	"entity.ash_colossus.boulder": {
+		"subtitle": "subtitles.embervoid.entity.ash_colossus.boulder",
+		"sounds": [
+			{"name": "minecraft:dig/stone1", "pitch": 0.6},
+			{"name": "minecraft:dig/stone2", "pitch": 0.6},
+			{"name": "minecraft:dig/stone3", "pitch": 0.6},
+			{"name": "minecraft:dig/stone4", "pitch": 0.6}
+		]
+	},
+	"entity.ash_colossus.smash": {
+		"subtitle": "subtitles.embervoid.entity.ash_colossus.smash",
+		"sounds": [
+			{"name": "minecraft:mob/irongolem/throw", "pitch": 0.45}
+		]
+	},
+	"entity.ash_colossus.storm": {
+		"subtitle": "subtitles.embervoid.entity.ash_colossus.storm",
+		"sounds": [
+			{"name": "minecraft:mob/enderdragon/growl1", "pitch": 0.8},
+			{"name": "minecraft:mob/enderdragon/growl2", "pitch": 0.8},
+			{"name": "minecraft:mob/enderdragon/growl3", "pitch": 0.8},
+			{"name": "minecraft:mob/enderdragon/growl4", "pitch": 0.8}
+		]
+	},
+	"entity.ash_colossus.shed": {
+		"subtitle": "subtitles.embervoid.entity.ash_colossus.shed",
+		"sounds": [
+			{"name": "minecraft:mob/irongolem/damage1", "pitch": 0.5},
+			{"name": "minecraft:mob/irongolem/damage2", "pitch": 0.5}
+		]
+	},
+	"entity.grieving_tree.ambient": {
+		"subtitle": "subtitles.embervoid.entity.grieving_tree.ambient",
+		"sounds": [
+			{"name": "minecraft:block/wooden_door/open1", "volume": 0.8, "pitch": 0.3},
+			{"name": "minecraft:block/wooden_door/open2", "volume": 0.8, "pitch": 0.3}
+		]
+	},
+	"entity.grieving_tree.hurt": {
+		"subtitle": "subtitles.embervoid.entity.grieving_tree.hurt",
+		"sounds": [
+			{"name": "minecraft:dig/wood1", "pitch": 0.5},
+			{"name": "minecraft:dig/wood2", "pitch": 0.5},
+			{"name": "minecraft:dig/wood3", "pitch": 0.5},
+			{"name": "minecraft:dig/wood4", "pitch": 0.5}
+		]
+	},
+	"entity.grieving_tree.death": {
+		"subtitle": "subtitles.embervoid.entity.grieving_tree.death",
+		"sounds": [
+			{"name": "minecraft:mob/zombie/woodbreak", "pitch": 0.4}
+		]
+	},
+	"entity.grieving_tree.step": {
+		"subtitle": "subtitles.block.generic.footsteps",
+		"sounds": [
+			{"name": "minecraft:block/rooted_dirt/break1", "pitch": 0.5},
+			{"name": "minecraft:block/rooted_dirt/break2", "pitch": 0.5},
+			{"name": "minecraft:block/rooted_dirt/break3", "pitch": 0.5},
+			{"name": "minecraft:block/rooted_dirt/break4", "pitch": 0.5}
+		]
+	},
+	"entity.grieving_tree.root_lines": {
+		"subtitle": "subtitles.embervoid.entity.grieving_tree.root_lines",
+		"sounds": [
+			{"name": "minecraft:block/rooted_dirt/break1", "pitch": 0.6},
+			{"name": "minecraft:block/rooted_dirt/break2", "pitch": 0.6},
+			{"name": "minecraft:block/rooted_dirt/break3", "pitch": 0.6},
+			{"name": "minecraft:block/rooted_dirt/break4", "pitch": 0.6}
+		]
+	},
+	"entity.grieving_tree.branch_sweep": {
+		"subtitle": "subtitles.embervoid.entity.grieving_tree.branch_sweep",
+		"sounds": [
+			{"name": "minecraft:mob/zombie/wood1", "pitch": 0.45},
+			{"name": "minecraft:mob/zombie/wood2", "pitch": 0.45},
+			{"name": "minecraft:mob/zombie/wood3", "pitch": 0.45},
+			{"name": "minecraft:mob/zombie/wood4", "pitch": 0.45}
+		]
+	},
+	"entity.grieving_tree.root_cage": {
+		"subtitle": "subtitles.embervoid.entity.grieving_tree.root_cage",
+		"sounds": [
+			{"name": "minecraft:block/mangrove_roots/break1", "pitch": 0.7},
+			{"name": "minecraft:block/mangrove_roots/break2", "pitch": 0.7},
+			{"name": "minecraft:block/mangrove_roots/break3", "pitch": 0.7},
+			{"name": "minecraft:block/mangrove_roots/break4", "pitch": 0.7},
+			{"name": "minecraft:block/mangrove_roots/break5", "pitch": 0.7},
+			{"name": "minecraft:block/mangrove_roots/break6", "pitch": 0.7}
+		]
+	},
+	"entity.grieving_tree.uproot": {
+		"subtitle": "subtitles.embervoid.entity.grieving_tree.uproot",
+		"sounds": [
+			{"name": "minecraft:mob/ravager/roar1", "pitch": 0.4},
+			{"name": "minecraft:mob/ravager/roar2", "pitch": 0.4},
+			{"name": "minecraft:mob/ravager/roar3", "pitch": 0.4},
+			{"name": "minecraft:mob/ravager/roar4", "pitch": 0.4}
+		]
+	},
+	"entity.grieving_tree.stun": {
+		"subtitle": "subtitles.embervoid.entity.grieving_tree.stun",
+		"sounds": [
+			{"name": "minecraft:mob/warden/hurt_1", "pitch": 0.5},
+			{"name": "minecraft:mob/warden/hurt_2", "pitch": 0.5},
+			{"name": "minecraft:mob/warden/hurt_3", "pitch": 0.5},
+			{"name": "minecraft:mob/warden/hurt_4", "pitch": 0.5}
+		]
+	},
+	"entity.grieving_tree.thralls": {
+		"subtitle": "subtitles.embervoid.entity.grieving_tree.thralls",
+		"sounds": [
+			{"name": "minecraft:block/chain/break1", "pitch": 0.8},
+			{"name": "minecraft:block/chain/break2", "pitch": 0.8},
+			{"name": "minecraft:block/chain/break3", "pitch": 0.8},
+			{"name": "minecraft:block/chain/break4", "pitch": 0.8}
+		]
+	},
+	"entity.tree_lantern.shatter": {
+		"subtitle": "subtitles.embervoid.entity.tree_lantern.shatter",
+		"sounds": [
+			{"name": "minecraft:block/lantern/break1", "pitch": 0.8},
+			{"name": "minecraft:block/lantern/break2", "pitch": 0.8},
+			{"name": "minecraft:block/lantern/break3", "pitch": 0.8},
+			{"name": "minecraft:block/lantern/break4", "pitch": 0.8},
+			{"name": "minecraft:block/lantern/break5", "pitch": 0.8},
+			{"name": "minecraft:block/lantern/break6", "pitch": 0.8},
+			{"name": "minecraft:random/glass1", "pitch": 0.9},
+			{"name": "minecraft:random/glass2", "pitch": 0.9},
+			{"name": "minecraft:random/glass3", "pitch": 0.9}
+		]
+	},
+	"entity.crypt_keeper.ambient": {
+		"subtitle": "subtitles.embervoid.entity.crypt_keeper.ambient",
+		"sounds": [
+			{"name": "minecraft:mob/wither_skeleton/idle1", "pitch": 0.5},
+			{"name": "minecraft:mob/wither_skeleton/idle2", "pitch": 0.5},
+			{"name": "minecraft:mob/wither_skeleton/idle3", "pitch": 0.5}
+		]
+	},
+	"entity.crypt_keeper.hurt": {
+		"subtitle": "subtitles.embervoid.entity.crypt_keeper.hurt",
+		"sounds": [
+			{"name": "minecraft:mob/wither_skeleton/hurt1", "pitch": 0.6},
+			{"name": "minecraft:mob/wither_skeleton/hurt2", "pitch": 0.6},
+			{"name": "minecraft:mob/wither_skeleton/hurt3", "pitch": 0.6},
+			{"name": "minecraft:mob/wither_skeleton/hurt4", "pitch": 0.6}
+		]
+	},
+	"entity.crypt_keeper.death": {
+		"subtitle": "subtitles.embervoid.entity.crypt_keeper.death",
+		"sounds": [
+			{"name": "minecraft:mob/wither_skeleton/death1", "pitch": 0.5},
+			{"name": "minecraft:mob/wither_skeleton/death2", "pitch": 0.5}
+		]
+	},
+	"entity.crypt_keeper.step": {
+		"subtitle": "subtitles.block.generic.footsteps",
+		"sounds": [
+			{"name": "minecraft:mob/wither_skeleton/step1", "pitch": 0.6},
+			{"name": "minecraft:mob/wither_skeleton/step2", "pitch": 0.6},
+			{"name": "minecraft:mob/wither_skeleton/step3", "pitch": 0.6},
+			{"name": "minecraft:mob/wither_skeleton/step4", "pitch": 0.6}
+		]
+	},
+	"entity.crypt_keeper.swing": {
+		"subtitle": "subtitles.embervoid.entity.crypt_keeper.swing",
+		"sounds": [
+			{"name": "minecraft:item/armor/equip_chain1", "pitch": 0.6},
+			{"name": "minecraft:item/armor/equip_chain2", "pitch": 0.6},
+			{"name": "minecraft:item/armor/equip_chain3", "pitch": 0.6},
+			{"name": "minecraft:item/armor/equip_chain4", "pitch": 0.6},
+			{"name": "minecraft:item/armor/equip_chain5", "pitch": 0.6},
+			{"name": "minecraft:item/armor/equip_chain6", "pitch": 0.6}
+		]
+	},
+	"entity.crypt_keeper.overhead": {
+		"subtitle": "subtitles.embervoid.entity.crypt_keeper.overhead",
+		"sounds": [
+			{"name": "minecraft:mob/ravager/roar1", "pitch": 0.8},
+			{"name": "minecraft:mob/ravager/roar2", "pitch": 0.8},
+			{"name": "minecraft:mob/ravager/roar3", "pitch": 0.8},
+			{"name": "minecraft:mob/ravager/roar4", "pitch": 0.8}
+		]
+	},
+	"entity.crypt_keeper.sweep": {
+		"subtitle": "subtitles.embervoid.entity.crypt_keeper.sweep",
+		"sounds": [
+			{"name": "minecraft:mob/evocation_illager/prepare_attack1", "pitch": 0.6},
+			{"name": "minecraft:mob/evocation_illager/prepare_attack2", "pitch": 0.6}
+		]
+	},
+	"entity.crypt_keeper.lantern_throw": {
+		"subtitle": "subtitles.embervoid.entity.crypt_keeper.lantern_throw",
+		"sounds": [
+			{"name": "minecraft:mob/ghast/fireball4", "pitch": 0.7}
+		]
+	},
+	"entity.crypt_keeper.thrust": {
+		"subtitle": "subtitles.embervoid.entity.crypt_keeper.thrust",
+		"sounds": [
+			{"name": "minecraft:mob/ravager/bite1", "pitch": 0.7},
+			{"name": "minecraft:mob/ravager/bite2", "pitch": 0.7},
+			{"name": "minecraft:mob/ravager/bite3", "pitch": 0.7}
+		]
+	},
+	"entity.crypt_keeper.lantern_shatter": {
+		"subtitle": "subtitles.embervoid.entity.crypt_keeper.lantern_shatter",
+		"sounds": [
+			{"name": "minecraft:random/glass1", "pitch": 0.6},
+			{"name": "minecraft:random/glass2", "pitch": 0.6},
+			{"name": "minecraft:random/glass3", "pitch": 0.6}
+		]
+	},
+	"entity.crypt_keeper.raise_dead": {
+		"subtitle": "subtitles.embervoid.entity.crypt_keeper.raise_dead",
+		"sounds": [
+			{"name": "minecraft:mob/horse/skeleton/death", "pitch": 0.5}
+		]
+	},
+	"entity.smoldering_lord.ambient": {
+		"subtitle": "subtitles.embervoid.entity.smoldering_lord.ambient",
+		"sounds": [
+			{"name": "minecraft:mob/blaze/breathe1", "pitch": 0.6},
+			{"name": "minecraft:mob/blaze/breathe2", "pitch": 0.6},
+			{"name": "minecraft:mob/blaze/breathe3", "pitch": 0.6},
+			{"name": "minecraft:mob/blaze/breathe4", "pitch": 0.6}
+		]
+	},
+	"entity.smoldering_lord.hurt": {
+		"subtitle": "subtitles.embervoid.entity.smoldering_lord.hurt",
+		"sounds": [
+			{"name": "minecraft:mob/wither_skeleton/hurt1", "pitch": 0.65},
+			{"name": "minecraft:mob/wither_skeleton/hurt2", "pitch": 0.65},
+			{"name": "minecraft:mob/wither_skeleton/hurt3", "pitch": 0.65},
+			{"name": "minecraft:mob/wither_skeleton/hurt4", "pitch": 0.65}
+		]
+	},
+	"entity.smoldering_lord.death": {
+		"subtitle": "subtitles.embervoid.entity.smoldering_lord.death",
+		"sounds": [
+			{"name": "minecraft:mob/blaze/death", "pitch": 0.5}
+		]
+	},
+	"entity.smoldering_lord.step": {
+		"subtitle": "subtitles.block.generic.footsteps",
+		"sounds": [
+			{"name": "minecraft:mob/wither_skeleton/step1", "pitch": 0.7},
+			{"name": "minecraft:mob/wither_skeleton/step2", "pitch": 0.7},
+			{"name": "minecraft:mob/wither_skeleton/step3", "pitch": 0.7},
+			{"name": "minecraft:mob/wither_skeleton/step4", "pitch": 0.7}
+		]
+	},
+	"entity.smoldering_lord.mortar": {
+		"subtitle": "subtitles.embervoid.entity.smoldering_lord.mortar",
+		"sounds": [
+			{"name": "minecraft:mob/ghast/fireball4", "pitch": 0.6}
+		]
+	},
+	"entity.smoldering_lord.mortar_impact": {
+		"subtitle": "subtitles.embervoid.entity.smoldering_lord.mortar_impact",
+		"sounds": [
+			{"name": "minecraft:random/explode1", "volume": 0.8, "pitch": 1.1},
+			{"name": "minecraft:random/explode2", "volume": 0.8, "pitch": 1.1},
+			{"name": "minecraft:random/explode3", "volume": 0.8, "pitch": 1.1},
+			{"name": "minecraft:random/explode4", "volume": 0.8, "pitch": 1.1}
+		]
+	},
+	"entity.smoldering_lord.flame_line": {
+		"subtitle": "subtitles.embervoid.entity.smoldering_lord.flame_line",
+		"sounds": [
+			{"name": "minecraft:fire/fire", "pitch": 0.8}
+		]
+	},
+	"entity.smoldering_lord.swing": {
+		"subtitle": "subtitles.embervoid.entity.smoldering_lord.swing",
+		"sounds": [
+			{"name": "minecraft:item/armor/equip_netherite1", "pitch": 0.7},
+			{"name": "minecraft:item/armor/equip_netherite2", "pitch": 0.7},
+			{"name": "minecraft:item/armor/equip_netherite3", "pitch": 0.7},
+			{"name": "minecraft:item/armor/equip_netherite4", "pitch": 0.7}
+		]
+	},
+	"entity.smoldering_lord.slam": {
+		"subtitle": "subtitles.embervoid.entity.smoldering_lord.slam",
+		"sounds": [
+			{"name": "minecraft:mob/ravager/roar1", "pitch": 0.6},
+			{"name": "minecraft:mob/ravager/roar2", "pitch": 0.6},
+			{"name": "minecraft:mob/ravager/roar3", "pitch": 0.6},
+			{"name": "minecraft:mob/ravager/roar4", "pitch": 0.6}
+		]
+	},
+	"entity.smoldering_lord.lunge": {
+		"subtitle": "subtitles.embervoid.entity.smoldering_lord.lunge",
+		"sounds": [
+			{"name": "minecraft:mob/ravager/bite1", "pitch": 0.6},
+			{"name": "minecraft:mob/ravager/bite2", "pitch": 0.6},
+			{"name": "minecraft:mob/ravager/bite3", "pitch": 0.6}
+		]
+	},
+	"entity.smoldering_lord.descend": {
+		"subtitle": "subtitles.embervoid.entity.smoldering_lord.descend",
+		"sounds": [
+			{"name": "minecraft:mob/enderdragon/growl1", "pitch": 0.7},
+			{"name": "minecraft:mob/enderdragon/growl2", "pitch": 0.7},
+			{"name": "minecraft:mob/enderdragon/growl3", "pitch": 0.7},
+			{"name": "minecraft:mob/enderdragon/growl4", "pitch": 0.7}
+		]
+	},
+	"entity.smoldering_lord.shatter": {
+		"subtitle": "subtitles.embervoid.entity.smoldering_lord.shatter",
+		"sounds": [
+			{"name": "minecraft:random/break", "pitch": 0.5}
+		]
+	},
+	"entity.smoldering_lord.storm": {
+		"subtitle": "subtitles.embervoid.entity.smoldering_lord.storm",
+		"sounds": [
+			{"name": "minecraft:mob/enderdragon/growl1", "pitch": 0.9},
+			{"name": "minecraft:mob/enderdragon/growl2", "pitch": 0.9},
+			{"name": "minecraft:mob/enderdragon/growl3", "pitch": 0.9},
+			{"name": "minecraft:mob/enderdragon/growl4", "pitch": 0.9}
+		]
+	},
+	"entity.smoldering_lord.fog": {
+		"subtitle": "subtitles.embervoid.entity.smoldering_lord.fog",
+		"sounds": [
+			{"name": "minecraft:mob/ghast/moan1", "pitch": 0.6},
+			{"name": "minecraft:mob/ghast/moan2", "pitch": 0.6},
+			{"name": "minecraft:mob/ghast/moan3", "pitch": 0.6},
+			{"name": "minecraft:mob/ghast/moan4", "pitch": 0.6},
+			{"name": "minecraft:mob/ghast/moan5", "pitch": 0.6},
+			{"name": "minecraft:mob/ghast/moan6", "pitch": 0.6},
+			{"name": "minecraft:mob/ghast/moan7", "pitch": 0.6}
+		]
+	},
+	"entity.smoldering_lord.darkness": {
+		"subtitle": "subtitles.embervoid.entity.smoldering_lord.darkness",
+		"sounds": [
+			{"name": "minecraft:block/beacon/deactivate", "pitch": 0.6}
+		]
+	},
+	"item.ash_of_rematch.use": {
+		"subtitle": "subtitles.embervoid.item.ash_of_rematch.use",
+		"sounds": [
+			{"name": "minecraft:block/respawn_anchor/charge1", "pitch": 0.8},
+			{"name": "minecraft:block/respawn_anchor/charge2", "pitch": 0.8},
+			{"name": "minecraft:block/respawn_anchor/charge3", "pitch": 0.8}
+		]
+	},
+	"item.ashen_scythe.harvest": {
+		"subtitle": "subtitles.embervoid.item.ashen_scythe.harvest",
+		"sounds": [
+			{"name": "minecraft:entity/player/attack/sweep1", "pitch": 0.6},
+			{"name": "minecraft:entity/player/attack/sweep2", "pitch": 0.6},
+			{"name": "minecraft:entity/player/attack/sweep3", "pitch": 0.6},
+			{"name": "minecraft:entity/player/attack/sweep4", "pitch": 0.6},
+			{"name": "minecraft:entity/player/attack/sweep5", "pitch": 0.6},
+			{"name": "minecraft:entity/player/attack/sweep6", "pitch": 0.6},
+			{"name": "minecraft:entity/player/attack/sweep7", "pitch": 0.6}
+		]
+	},
+	"item.ashen_scythe.ash_wave": {
+		"subtitle": "subtitles.embervoid.item.ashen_scythe.ash_wave",
+		"sounds": [
+			{"name": "minecraft:mob/ghast/fireball4", "volume": 0.8, "pitch": 0.5},
+			{"name": "minecraft:dig/sand1", "pitch": 0.5},
+			{"name": "minecraft:dig/sand2", "pitch": 0.5},
+			{"name": "minecraft:dig/sand3", "pitch": 0.5},
+			{"name": "minecraft:dig/sand4", "pitch": 0.5}
+		]
+	},
+	"item.wardens_scourge.lash": {
+		"subtitle": "subtitles.embervoid.item.wardens_scourge.lash",
+		"sounds": [
+			{"name": "minecraft:entity/player/attack/crit1", "pitch": 1.4},
+			{"name": "minecraft:entity/player/attack/crit2", "pitch": 1.4},
+			{"name": "minecraft:entity/player/attack/crit3", "pitch": 1.4}
+		]
+	},
+	"item.royal_ash_rapier.lunge": {
+		"subtitle": "subtitles.embervoid.item.royal_ash_rapier.lunge",
+		"sounds": [
+			{"name": "minecraft:entity/player/attack/knockback1", "pitch": 1.4},
+			{"name": "minecraft:entity/player/attack/knockback2", "pitch": 1.4},
+			{"name": "minecraft:entity/player/attack/knockback3", "pitch": 1.4},
+			{"name": "minecraft:entity/player/attack/knockback4", "pitch": 1.4}
+		]
+	},
+	"item.furnace_heart_cuirass.nova": {
+		"subtitle": "subtitles.embervoid.item.furnace_heart_cuirass.nova",
+		"sounds": [
+			{"name": "minecraft:mob/ghast/fireball4", "pitch": 0.6}
+		]
+	},
+	"item.ash_bomb.throw": {
+		"subtitle": "subtitles.embervoid.item.ash_bomb.throw",
+		"sounds": [
+			{"name": "minecraft:random/bow", "volume": 0.5, "pitch": 0.6}
+		]
+	},
+	"entity.ash_bomb.burst": {
+		"subtitle": "subtitles.embervoid.entity.ash_bomb.burst",
+		"sounds": [
+			{"name": "minecraft:random/explode1", "volume": 0.6, "pitch": 1.6},
+			{"name": "minecraft:random/explode2", "volume": 0.6, "pitch": 1.6},
+			{"name": "minecraft:random/explode3", "volume": 0.6, "pitch": 1.6},
+			{"name": "minecraft:random/explode4", "volume": 0.6, "pitch": 1.6}
+		]
+	},
+	"item.amber_balm.drink": {
+		"subtitle": "subtitles.embervoid.item.amber_balm.drink",
+		"sounds": [
+			{"name": "minecraft:item/bottle/drink_honey1", "pitch": 0.9},
+			{"name": "minecraft:item/bottle/drink_honey2", "pitch": 0.9}
+		]
+	},
+	"item.amber_lantern_oil.use": {
+		"subtitle": "subtitles.embervoid.item.amber_lantern_oil.use",
+		"sounds": [
+			{"name": "minecraft:fire/ignite", "pitch": 1.2}
+		]
+	},
+	"item.whetstone.use": {
+		"subtitle": "subtitles.embervoid.item.whetstone.use",
+		"sounds": [
+			{"name": "minecraft:block/grindstone/grindstone1", "volume": 0.8, "pitch": 1.2},
+			{"name": "minecraft:block/grindstone/grindstone2", "volume": 0.8, "pitch": 1.2},
+			{"name": "minecraft:block/grindstone/grindstone3", "volume": 0.8, "pitch": 1.2}
+		]
+	},
+	"item.smoldering_resin.use": {
+		"subtitle": "subtitles.embervoid.item.smoldering_resin.use",
+		"sounds": [
+			{"name": "minecraft:liquid/lavapop", "pitch": 1.2},
+			{"name": "minecraft:fire/ignite", "pitch": 0.8}
+		]
+	},
+	"item.flask_ember.use": {
+		"subtitle": "subtitles.embervoid.item.flask_ember.use",
+		"sounds": [
+			{"name": "minecraft:block/amethyst/resonate1", "pitch": 0.8},
+			{"name": "minecraft:block/amethyst/resonate2", "pitch": 0.8},
+			{"name": "minecraft:block/amethyst/resonate3", "pitch": 0.8},
+			{"name": "minecraft:block/amethyst/resonate4", "pitch": 0.8}
+		]
+	},
+	"block.ember_crack.ambient": {
+		"subtitle": "subtitles.embervoid.block.ember_crack.ambient",
+		"sounds": [
+			{"name": "minecraft:liquid/lavapop", "volume": 0.5, "pitch": 0.8}
+		]
+	},
+	"block.smoldering_log.ambient": {
+		"subtitle": "subtitles.embervoid.block.smoldering_log.ambient",
+		"sounds": [
+			{"name": "minecraft:block/campfire/crackle1", "volume": 0.5, "pitch": 0.8},
+			{"name": "minecraft:block/campfire/crackle2", "volume": 0.5, "pitch": 0.8},
+			{"name": "minecraft:block/campfire/crackle3", "volume": 0.5, "pitch": 0.8},
+			{"name": "minecraft:block/campfire/crackle4", "volume": 0.5, "pitch": 0.8},
+			{"name": "minecraft:block/campfire/crackle5", "volume": 0.5, "pitch": 0.8},
+			{"name": "minecraft:block/campfire/crackle6", "volume": 0.5, "pitch": 0.8}
+		]
+	},
+	"block.wet_crypt_stone.drip": {
+		"subtitle": "subtitles.embervoid.block.wet_crypt_stone.drip",
+		"sounds": [
+			{"name": "minecraft:block/pointed_dripstone/drip_water1", "volume": 0.4},
+			{"name": "minecraft:block/pointed_dripstone/drip_water2", "volume": 0.4},
+			{"name": "minecraft:block/pointed_dripstone/drip_water3", "volume": 0.4},
+			{"name": "minecraft:block/pointed_dripstone/drip_water4", "volume": 0.4},
+			{"name": "minecraft:block/pointed_dripstone/drip_water5", "volume": 0.4},
+			{"name": "minecraft:block/pointed_dripstone/drip_water6", "volume": 0.4},
+			{"name": "minecraft:block/pointed_dripstone/drip_water7", "volume": 0.4},
+			{"name": "minecraft:block/pointed_dripstone/drip_water8", "volume": 0.4},
+			{"name": "minecraft:block/pointed_dripstone/drip_water9", "volume": 0.4},
+			{"name": "minecraft:block/pointed_dripstone/drip_water10", "volume": 0.4},
+			{"name": "minecraft:block/pointed_dripstone/drip_water11", "volume": 0.4},
+			{"name": "minecraft:block/pointed_dripstone/drip_water12", "volume": 0.4},
+			{"name": "minecraft:block/pointed_dripstone/drip_water13", "volume": 0.4},
+			{"name": "minecraft:block/pointed_dripstone/drip_water14", "volume": 0.4},
+			{"name": "minecraft:block/pointed_dripstone/drip_water15", "volume": 0.4}
+		]
+	},
+	"block.burnt_straw.break": {
+		"subtitle": "subtitles.block.generic.break",
+		"sounds": [
+			{"name": "minecraft:dig/grass1", "pitch": 0.7},
+			{"name": "minecraft:dig/grass2", "pitch": 0.7},
+			{"name": "minecraft:dig/grass3", "pitch": 0.7},
+			{"name": "minecraft:dig/grass4", "pitch": 0.7}
+		]
+	},
+	"block.burnt_straw.step": {
+		"subtitle": "subtitles.block.generic.footsteps",
+		"sounds": [
+			{"name": "minecraft:step/grass1", "pitch": 0.7},
+			{"name": "minecraft:step/grass2", "pitch": 0.7},
+			{"name": "minecraft:step/grass3", "pitch": 0.7},
+			{"name": "minecraft:step/grass4", "pitch": 0.7},
+			{"name": "minecraft:step/grass5", "pitch": 0.7},
+			{"name": "minecraft:step/grass6", "pitch": 0.7}
+		]
+	},
+	"block.burnt_straw.place": {
+		"subtitle": "subtitles.block.generic.place",
+		"sounds": [
+			{"name": "minecraft:dig/grass1", "pitch": 0.8},
+			{"name": "minecraft:dig/grass2", "pitch": 0.8},
+			{"name": "minecraft:dig/grass3", "pitch": 0.8},
+			{"name": "minecraft:dig/grass4", "pitch": 0.8}
+		]
+	},
+	"block.burnt_straw.hit": {
+		"subtitle": "subtitles.block.generic.hit",
+		"sounds": [
+			{"name": "minecraft:step/grass1", "volume": 0.5, "pitch": 0.6},
+			{"name": "minecraft:step/grass2", "volume": 0.5, "pitch": 0.6},
+			{"name": "minecraft:step/grass3", "volume": 0.5, "pitch": 0.6},
+			{"name": "minecraft:step/grass4", "volume": 0.5, "pitch": 0.6},
+			{"name": "minecraft:step/grass5", "volume": 0.5, "pitch": 0.6},
+			{"name": "minecraft:step/grass6", "volume": 0.5, "pitch": 0.6}
+		]
+	},
+	"block.cinder_ore.break": {
+		"subtitle": "subtitles.block.generic.break",
+		"sounds": [
+			{"name": "minecraft:block/nether_ore/break1", "pitch": 0.9},
+			{"name": "minecraft:block/nether_ore/break2", "pitch": 0.9},
+			{"name": "minecraft:block/nether_ore/break3", "pitch": 0.9},
+			{"name": "minecraft:block/nether_ore/break4", "pitch": 0.9}
+		]
+	},
+	"block.amber_vein.break": {
+		"subtitle": "subtitles.block.generic.break",
+		"sounds": [
+			{"name": "minecraft:block/amethyst/break1", "pitch": 0.8},
+			{"name": "minecraft:block/amethyst/break2", "pitch": 0.8},
+			{"name": "minecraft:block/amethyst/break3", "pitch": 0.8},
+			{"name": "minecraft:block/amethyst/break4", "pitch": 0.8}
+		]
+	},
+	"block.grave_iron_ore.break": {
+		"subtitle": "subtitles.block.generic.break",
+		"sounds": [
+			{"name": "minecraft:block/ancient_debris/break1", "pitch": 0.9},
+			{"name": "minecraft:block/ancient_debris/break2", "pitch": 0.9},
+			{"name": "minecraft:block/ancient_debris/break3", "pitch": 0.9},
+			{"name": "minecraft:block/ancient_debris/break4", "pitch": 0.9},
+			{"name": "minecraft:block/ancient_debris/break5", "pitch": 0.9}
+		]
+	},
+	"ui.reliquary.open": {
+		"subtitle": "subtitles.embervoid.ui.reliquary.open",
+		"sounds": [
+			{"name": "minecraft:block/enderchest/open", "volume": 0.6, "pitch": 1.2}
+		]
+	},
+	"ui.reliquary.equip": {
+		"subtitle": "subtitles.embervoid.ui.reliquary.equip",
+		"sounds": [
+			{"name": "minecraft:block/amethyst/resonate1", "volume": 0.6, "pitch": 1.3},
+			{"name": "minecraft:block/amethyst/resonate2", "volume": 0.6, "pitch": 1.3},
+			{"name": "minecraft:block/amethyst/resonate3", "volume": 0.6, "pitch": 1.3},
+			{"name": "minecraft:block/amethyst/resonate4", "volume": 0.6, "pitch": 1.3}
+		]
+	}
+}
