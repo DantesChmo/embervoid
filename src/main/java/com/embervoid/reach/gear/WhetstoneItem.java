@@ -3,7 +3,6 @@ package com.embervoid.reach.gear;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
@@ -35,7 +34,7 @@ public class WhetstoneItem extends LoreItem {
 		if (!world.isClient()) {
 			int repair = Math.round(weapon.getMaxDamage() * GearConfig.get().consumables().whetstoneShare());
 			weapon.setDamage(Math.max(0, weapon.getDamage() - repair));
-			world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.BLOCK_GRINDSTONE_USE, SoundCategory.PLAYERS, 0.8f, 1.2f);
+			world.playSound(null, user.getX(), user.getY(), user.getZ(), GearSounds.WHETSTONE_USE, SoundCategory.PLAYERS, 1.0f, 1.0f);
 			if (!user.getAbilities().creativeMode) {
 				whetstone.decrement(1);
 			}

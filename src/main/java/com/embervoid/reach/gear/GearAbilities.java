@@ -8,7 +8,6 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 
 /** The realm weapons' right-click special attacks (DESIGN §4.5, contract §8.1). Numbers in {@code gear.weapons}. */
@@ -44,8 +43,8 @@ public final class GearAbilities {
 				world.spawnParticles(ParticleTypes.SWEEP_ATTACK, player.getX() + Math.cos(angle) * radius * 0.6,
 						player.getBodyY(0.5), player.getZ() + Math.sin(angle) * radius * 0.6, 1, 0, 0, 0, 0);
 			}
-			world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP,
-					SoundCategory.PLAYERS, 1.2f, 0.6f);
+			world.playSound(null, player.getX(), player.getY(), player.getZ(), GearSounds.HARVEST,
+					SoundCategory.PLAYERS, 1.2f, 1.0f);
 		}
 	};
 
@@ -68,8 +67,8 @@ public final class GearAbilities {
 
 		@Override
 		public void perform(ServerWorld world, ServerPlayerEntity player, ItemStack stack) {
-			world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENTITY_FISHING_BOBBER_RETRIEVE,
-					SoundCategory.PLAYERS, 1.0f, 0.6f);
+			world.playSound(null, player.getX(), player.getY(), player.getZ(), GearSounds.LASH,
+					SoundCategory.PLAYERS, 1.0f, 1.0f);
 			double reach = stack.getItem() instanceof GearWeaponItem weapon && weapon.spec().reach() > 0
 					? weapon.spec().reach() : GearReach.VANILLA_REACH;
 			LivingEntity target = GearReach.raycast(player, reach);
@@ -119,8 +118,8 @@ public final class GearAbilities {
 			player.setVelocity(look.multiply(WeaponRules.slideSpeed(dash)).add(0, 0.1, 0));
 			player.velocityModified = true;
 			world.spawnParticles(ParticleTypes.CLOUD, player.getX(), player.getY() + 0.2, player.getZ(), 6, 0.3, 0.1, 0.3, 0.02);
-			world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENTITY_PLAYER_ATTACK_KNOCKBACK,
-					SoundCategory.PLAYERS, 1.0f, 1.4f);
+			world.playSound(null, player.getX(), player.getY(), player.getZ(), GearSounds.LUNGE,
+					SoundCategory.PLAYERS, 1.0f, 1.0f);
 			if (target == null) {
 				return;
 			}

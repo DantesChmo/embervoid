@@ -34,7 +34,7 @@ public class LanternOilItem extends LoreItem {
 			long ticks = GearConfig.get().consumables().oilMinutes() * 60L * 20L;
 			lantern.getOrCreateNbt().putLong(GearConsumables.OIL_KEY, world.getTime() + ticks);
 			world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.ITEM_BOTTLE_EMPTY, SoundCategory.PLAYERS, 0.8f, 1.0f);
-			world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.ITEM_FLINTANDSTEEL_USE, SoundCategory.PLAYERS, 0.6f, 1.2f);
+			world.playSound(null, user.getX(), user.getY(), user.getZ(), GearSounds.AMBER_LANTERN_OIL_USE, SoundCategory.PLAYERS, 0.8f, 1.0f);
 			if (!user.getAbilities().creativeMode) {
 				oil.decrement(1);
 			}
