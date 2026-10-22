@@ -11,7 +11,7 @@ Owns `com.embervoid.realm` (incl. `realm.worldgen`, `realm.fog`), `com.embervoid
 
 - [x] 9.1 Fog API + per-zone fog
 - [x] 9.2 Placed enemies
-- [ ] 9.3 Zones renamed, eternal dusk, zone looks
+- [x] 9.3 Zones renamed, eternal dusk, zone looks
 - [ ] 9.4 Zone terrain density + arena sites
 - [ ] 9.5 Realm 1 blocks and ores
 - [ ] 9.6 Landing plaza, roads, milestones, outposts
@@ -54,3 +54,20 @@ Owns `com.embervoid.realm` (incl. `realm.worldgen`, `realm.fog`), `com.embervoid
 - GameTests (`ReachWorldTests`): spawns once across chunk passes, persistent + tagged + marker gone, unknown id spawns
   nothing, facing follows a 90° rotation, the realm provider gives a placed mob its zone band. The test server never
   brings far realm chunks to entity tracking, so the last test checks `MobLevels.spawnLevel`, not the loaded level.
+
+## 9.3 Zones
+
+- Names (both languages): biomes and zone titles `embervoid.zone.ashen_reach.<landing|zone_a|zone_b|zone_c|depths>` —
+  The Crossroads / Ashen Fields / Royal Woods / Sunken Necropolis / Smoldering Citadel. Biome ids stay `zone_a/b/c`.
+- Zone title (`reach.world.ZoneTitles`): every 10 ticks, a player who crosses into another zone of a realm gets its
+  name as a grey subtitle (fade 15/50/25), like a Souls area name. Nothing past the abyss edge.
+- `fixed_time` 13500 in `dimension_type/realm.json` (also the depths until 13.1 gives them their own type).
+- Biome looks: colours, particles (Fields ash, Woods mycelium specks, Necropolis white ash), vanilla Nether ambient
+  additions as placeholders, no precipitation. Surface: Fields ash soil + burnt coarse-dirt patches; Woods podzol +
+  moss + bare coarse dirt; Necropolis gravel + tuff + broken cobbled ash stone (noise patches).
+- Vegetation (placed features `embervoid:ashen_reach/*`): Fields dead bushes on the coarse patches; Woods dead trees
+  (dead logs, branchy fancy trunks and bare poles, no leaves) + dead bushes / moss carpet / ferns; Necropolis candle
+  clusters (mostly lit). Every feature checks its ground block, so nothing grows on arena or landing stone.
+- Vanilla `spawners` removed from every realm biome (reach-mobs adds spawns in code).
+- GameTests: fixed time 13500, no vanilla spawns in the realm biomes, the zone title follows a player from a zone to
+  the landing. Not seen: the looks (colours, particles, sounds, trees).
