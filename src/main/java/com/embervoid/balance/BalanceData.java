@@ -189,7 +189,7 @@ public final class BalanceData {
 	public static final Mob ASHEN_ZOMBIE = new Mob("ashen_zombie", "Ashen Zombie", null, Role.FODDER, 24, 0, 2, 4, 20, false,
 			List.of(melee("swing", 4, 20)));
 	public static final Mob GHOST = new Mob("ghost", "Ghost", null, Role.FLYER, 48, 0, 0, 8, 40, false,
-			List.of(melee("touch", 8, 20)));
+			List.of(melee("touch", 8, 40)));
 	public static final Boss VAMPIRE = new Boss("vampire_boss", "Vampire boss", null, 15, 220, 4, 5, 200,
 			1, 1, "-", 0, 4, 1, 1, "-", List.of(
 					melee("claw", 5, 30),

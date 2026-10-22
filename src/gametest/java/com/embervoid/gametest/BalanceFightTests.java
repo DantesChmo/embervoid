@@ -97,6 +97,8 @@ public final class BalanceFightTests implements FabricGameTest {
 			}
 			entity.discard();
 		}
+		same(misses, "ghost attack interval", BalanceData.GHOST.mainHit().interval(),
+				constant(context, type("ghost"), "ATTACK_COOLDOWN_TICKS"));
 		same(misses, "smoldering_knight lunge", BalanceData.mob("smoldering_knight").hits().get(1).base(),
 				BalanceData.mob("smoldering_knight").attack() * constant(context, type("smoldering_knight"), "LUNGE_DAMAGE_FACTOR"));
 		List<Boss> bosses = new ArrayList<>(BalanceData.BOSSES);

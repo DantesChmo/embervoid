@@ -45,7 +45,8 @@ public class GhostEntity extends HostileEntity implements GeoEntity {
 	/** Speed factor of the move control: about 4.4 blocks/s chasing (a vex is 1.0, about 11 blocks/s). */
 	private static final double CHASE_SPEED = 0.4;
 	private static final double WANDER_SPEED = 0.2;
-	private static final int ATTACK_COOLDOWN_TICKS = 20;
+	/** One touch per 2 s (R40.1c: with one a second, three Ghosts out-traded any day-24 player). */
+	private static final int ATTACK_COOLDOWN_TICKS = 40;
 
 	private final AnimatableInstanceCache animations = GeckoLibUtil.createInstanceCache(this);
 
