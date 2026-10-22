@@ -15,7 +15,7 @@ milestone track (`track-reach-bosses`) is done.
 | R1 | `release-balance` (done) | R40.1a–c (+ R30.2) | `docs/balance-0.4.0.md`, `com.embervoid.balance` (calculator, tests); number changes in any package (config defaults, base attributes), each a small commit |
 | R2 | `release-art` (done) | R40.2a–d | `tools/model_preview.py`, `tools/*_placeholders.py`, `assets/embervoid/geo/**`, `animations/**`, `textures/**` |
 | R3 | `release-audio` | R40.3a–b | `assets/embervoid/sounds.json`, `assets/embervoid/sounds/**`, `registry/ModSounds` + per-package sound classes, `CREDITS.md`; sound hooks in entity/item classes as small separate commits |
-| R4 | `release-mp` | R40.4a–b (+ R30.3) | multiplayer GameTests, `tools/server_check.py` perf options; fixes in the owning package as separate commits |
+| R4 | `release-mp` (done) | R40.4a–b (+ R30.3) | multiplayer GameTests, `tools/server_check.py` perf options; fixes in the owning package as separate commits |
 
 Overlaps: release-balance and release-audio both touch entity classes (numbers vs. sound hooks) — keep each edit
 small and in its own commit; the coordinator resolves conflicts. Models keep their size, bone names and animation
@@ -135,6 +135,9 @@ pass. None of them needs a game account or a window.
   test, so remove everything a test spawns. `./gradlew build` does not compile `src/gametest` (`runGametest` does).
   The test world does not generate structures or bring far realm chunks to entity tracking: place structure
   starts by hand.
+  `shouldTickEntity(pos)` turns true before a chunk is loaded for `RealmFeatures.at`: wait for `isChunkLoaded` too.
+  `runGametest` starts from the default config (it deletes `build/gametest/config/embervoid.json`): read tunable
+  numbers from the config in tests instead of hardcoding them.
 - `python3 tools/server_check.py` — a real dedicated server (`runServerCheck`, run dir `run/server-check`, fresh
   world each time): boots to Done, generates a real Sanctum, the Ashen Reach landing, the three zone arenas and the
   depths over RCON, then fails on any crash, mixin failure, ERROR line or datapack load error in the log. Client
