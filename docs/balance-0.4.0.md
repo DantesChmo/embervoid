@@ -79,6 +79,116 @@ level 21; in iron the Fields' worst is the Ash Stalker at 40 %); the zone bosses
 Keeper's overhead 12.6 is the one unblockable); zone bosses fall in 33–70 hits; the loot covers the Smoldering
 Plate and a weapon from the route alone.
 
+## 6. Engine check (R40.1b)
+
+`BalanceFightTests` (GameTest, `./gradlew runGametest`) measures the model's numbers in the engine:
+
+- `modelNumbersAreTheEntities`: every Realm 1 mob and boss, the Ashen Zombie, Ghost and Vampire boss: base health,
+  armor, attack and XP of the live entity type; the melee move cooldown is the model's attack interval; every boss
+  move's base damage is the entity's own constant (read by reflection), so `BalanceData` cannot drift.
+- `gearNumbersAreTheItems`: armor and toughness of the iron, diamond, Warden and Smoldering sets on a player;
+  damage and speed of the vanilla swords and axe and the three realm melee weapons in hand.
+- `zoneMobsHitAsModelled`, `citadelMobsHitAsModelled`, `bossesHitAsModelled`, `moonNightsHitAsModelled`: a real
+  survival player at the model's stats (`PlayerStats.set`) and gear for the stage takes one hit of every mob and
+  boss move at a fixed level (the mob's own `tryAttack` for its melee, the move's damage source otherwise: mob
+  attack, the boss's fire, the storm's magic) and deals one fully charged, non-critical melee hit back
+  (`player.attack`); max health of the leveled mob and both hits must match the model within float rounding.
+  One tick each, nothing random (a Ghost's dodged hit is retried).
+
+Result: **no gap**. Every hit, both ways, and every leveled max health matches the model to two decimals, at the
+test server's difficulty (Normal). What the GameTests do not cover, and the model takes from code instead: the
+second-phase armor drops (Colossus 10 → 3, Lord 12 → 4), the Colossus's back and core factors, the Tree's stun,
+the Keeper's darkness (each has its own boss GameTest from PLAN 12–13), and anything about timing (attack
+intervals are the moves' cooldowns, checked above; who lands first is the model's assumption).
+
+<details><summary>Measured hits (build/gametest/balance-engine.md, before tuning)</summary>
+
+| Who | Lv | Player | Hit | Model | Engine |
+| --- | --- | --- | --- | --- | --- |
+| Ashen Zombie | 9 | Lv 5 (VIT 12, DEX 12, END 10, RES 10), iron, iron sword | swing (on player) | 3.78 | 3.78 |
+| Ashen Zombie | 9 | Lv 5 (VIT 12, DEX 12, END 10, RES 10), iron, iron sword | player's hit | 6.14 | 6.14 |
+| Ghost | 9 | Lv 5 (VIT 12, DEX 12, END 10, RES 10), iron, iron sword | touch (on player) | 9.52 | 9.52 |
+| Ghost | 9 | Lv 5 (VIT 12, DEX 12, END 10, RES 10), iron, iron sword | player's hit | 6.24 | 6.24 |
+| Vampire boss | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), iron, iron sword | claw (on player) | 10.32 | 10.32 |
+| Vampire boss | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), iron, iron sword | leap (on player) | 14.87 | 14.87 |
+| Vampire boss | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), iron, iron sword | blood nova (heals 25 %) (on player) | 17.42 | 17.42 |
+| Vampire boss | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), iron, iron sword | player's hit (side) | 6.15 | 6.15 |
+| Cinder Hound | 25 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | bite (+2 s fire) (on player) | 2.24 | 2.24 |
+| Cinder Hound | 25 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | player's hit | 8.77 | 8.77 |
+| Cinder Hound | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | bite (+2 s fire) (on player) | 2.57 | 2.57 |
+| Cinder Hound | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | player's hit | 8.77 | 8.77 |
+| Sparking Marksman | 25 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | bolt (+fire) (on player) | 5.67 | 5.67 |
+| Sparking Marksman | 25 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | player's hit | 8.77 | 8.77 |
+| Sparking Marksman | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | bolt (+fire) (on player) | 6.61 | 6.61 |
+| Sparking Marksman | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | player's hit | 8.77 | 8.77 |
+| Furnace Golem | 25 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | slam (on player) | 10.28 | 10.28 |
+| Furnace Golem | 25 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | fire wave (on player) | 3.37 | 3.37 |
+| Furnace Golem | 25 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | player's hit | 6.10 | 6.10 |
+| Furnace Golem | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | slam (on player) | 12.12 | 12.12 |
+| Furnace Golem | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | fire wave (on player) | 3.90 | 3.90 |
+| Furnace Golem | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | player's hit | 6.10 | 6.10 |
+| Smoldering Knight | 25 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | combo hit (on player) | 8.61 | 8.61 |
+| Smoldering Knight | 25 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | lunge (on player) | 12.08 | 12.08 |
+| Smoldering Knight | 25 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | player's hit | 6.80 | 6.80 |
+| Smoldering Knight | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | combo hit (on player) | 10.12 | 10.12 |
+| Smoldering Knight | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | lunge (on player) | 14.28 | 14.28 |
+| Smoldering Knight | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | player's hit | 6.80 | 6.80 |
+| Cinder Husk | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | swing (on player) | 1.68 | 1.68 |
+| Cinder Husk | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | player's hit | 7.42 | 7.42 |
+| Ash Stalker | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | swing / leap (on player) | 2.42 | 2.42 |
+| Ash Stalker | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | player's hit | 7.42 | 7.42 |
+| Ashen Carrion | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | dive (on player) | 2.42 | 2.42 |
+| Ashen Carrion | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | player's hit | 7.42 | 7.42 |
+| Withered Thrall | 18 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | swing (on player) | 2.27 | 2.27 |
+| Withered Thrall | 18 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | player's hit | 7.42 | 7.42 |
+| Lantern Hag | 18 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | fire flask (on player) | 2.70 | 2.70 |
+| Lantern Hag | 18 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | player's hit | 7.42 | 7.42 |
+| Bark Hollow | 18 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | sweep (on player) | 5.84 | 5.84 |
+| Bark Hollow | 18 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | player's hit | 6.15 | 6.15 |
+| Restless Bones | 21 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | swing (on player) | 2.99 | 2.99 |
+| Restless Bones | 21 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | player's hit | 7.42 | 7.42 |
+| Crypt Moth | 21 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | bite (on player) | 1.25 | 1.25 |
+| Crypt Moth | 21 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | player's hit | 7.42 | 7.42 |
+| Hollow Sentinel | 21 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | spear thrust (on player) | 6.54 | 6.54 |
+| Hollow Sentinel | 21 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | shield bash (on player) | 5.24 | 5.24 |
+| Hollow Sentinel | 21 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | player's hit | 5.55 | 5.55 |
+| Grave Warden | 21 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | swing (on player) | 7.98 | 7.98 |
+| Grave Warden | 21 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | player's hit | 6.15 | 6.15 |
+| Cinder Husk | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), iron, iron sword | swing (on player) | 3.35 | 3.35 |
+| Cinder Husk | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), iron, iron sword | player's hit | 6.36 | 6.36 |
+| Ash Stalker | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), iron, iron sword | swing / leap (on player) | 4.83 | 4.83 |
+| Ash Stalker | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), iron, iron sword | player's hit | 6.36 | 6.36 |
+| Ashen Carrion | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), iron, iron sword | dive (on player) | 4.83 | 4.83 |
+| Ashen Carrion | 15 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), iron, iron sword | player's hit | 6.36 | 6.36 |
+| Ash Colossus | 18 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | fist cone (on player) | 7.10 | 7.10 |
+| Ash Colossus | 18 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | leap ring (on player) | 8.47 | 8.47 |
+| Ash Colossus | 18 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | boulder (on player) | 5.84 | 5.84 |
+| Ash Colossus | 18 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | arm drag (on player) | 4.69 | 4.69 |
+| Ash Colossus | 18 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | falling cinder (P2) (on player) | 3.59 | 3.59 |
+| Ash Colossus | 18 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | ash storm, per s (magic) (on player) | 2.00 | 2.00 |
+| Ash Colossus | 18 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | player's hit (side) | 5.55 | 5.55 |
+| Grieving Tree | 21 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | branch sweep (on player) | 7.98 | 7.98 |
+| Grieving Tree | 21 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | root line (on player) | 6.54 | 6.54 |
+| Grieving Tree | 21 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | root cage (P2) (on player) | 2.99 | 2.99 |
+| Grieving Tree | 21 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | player's hit (side) | 1.79 | 1.79 |
+| Crypt Keeper | 24 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | halberd swing (on player) | 4.48 | 4.48 |
+| Crypt Keeper | 24 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | overhead (3rd hit) (on player) | 12.55 | 12.55 |
+| Crypt Keeper | 24 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | sweep ring (on player) | 7.28 | 7.28 |
+| Crypt Keeper | 24 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | thrust (on player) | 7.28 | 7.28 |
+| Crypt Keeper | 24 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | lantern throw (on player) | 4.48 | 4.48 |
+| Crypt Keeper | 24 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | fire pool, per 0.5 s (on player) | 1.35 | 1.35 |
+| Crypt Keeper | 24 | Lv 10 (VIT 14, DEX 13, END 11, RES 11), diamond, diamond sword | player's hit (side) | 6.15 | 6.15 |
+| Smoldering Lord | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | greatsword swing (on player) | 12.12 | 12.12 |
+| Smoldering Lord | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | overhead slam (on player) | 19.09 | 19.09 |
+| Smoldering Lord | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | lunge (on player) | 16.61 | 16.61 |
+| Smoldering Lord | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | landing ring (on player) | 14.28 | 14.28 |
+| Smoldering Lord | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | mortar (P0) (on player) | 6.41 | 6.41 |
+| Smoldering Lord | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | flame line (P0) (on player) | 5.42 | 5.42 |
+| Smoldering Lord | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | fire trail, per 0.5 s (on player) | 0.94 | 0.94 |
+| Smoldering Lord | 30 | Lv 37 (VIT 24, DEX 24, END 14, RES 14), Smoldering Plate, Ashen Scythe | player's hit (side) | 6.10 | 6.10 |
+
+</details>
+
 ## 5. Tables (before tuning)
 
 ### XP by zone (Playthrough[sanctumLevel=10, structuresPerZone=6, cryptsPerZone=1, naturalKillsPerZone=25, naturalKillsDepths=20])
