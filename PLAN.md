@@ -220,7 +220,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 9.3 | **Zones renamed, eternal dusk, zone looks** | — | done (GameTest + server check; zone looks and title not seen) |
 | 9.4 | **Zone terrain density + arena sites** | 9.3 | done (GameTest + server check; terrain shapes not seen) |
 | 9.5 | **Realm 1 blocks and ores** | 9.3, 11.1 | done (GameTest + server check; textures and particles not seen) |
-| 9.6 | **Landing plaza, roads, milestones, outposts** | 9.2, 9.4 | todo |
+| 9.6 | **Landing plaza, roads, milestones, outposts** | 9.2, 9.4 | done (GameTest + server check; roads on steep ground and looks not seen) |
 | 9.7 | **Minor structures per zone** | 9.2, 9.5, chest ids | todo |
 | 9.8 | **Necropolis crypt jigsaw + water** | 9.7 | todo |
 | 9.9 | **World edge** | 9.4 | todo |
@@ -280,7 +280,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 11.3 | **Smoldering Plate + Template** | reach-gear | 11.1 | done (GameTest; armor textures not seen) |
 | 11.4 | **Mob-drop sets + unique pieces** | reach-gear | 11.1 | done (GameTest; textures not seen) |
 | 11.5 | **Ashen Scythe, Warden's Scourge, Royal Ash Rapier** | reach-gear | 11.1, 11.2 | done (GameTest; textures and reach feel not seen) |
-| 11.6 | **Huntsman's Crossbow** | reach-gear | 11.1 | done (GameTest; held like a normal item when charged, textures not seen) |
+| 11.6 | **Huntsman's Crossbow** | reach-gear | 11.1 | done (GameTest; crossbow arm poses fixed by client mixins, not run on a client; textures not seen) |
 | 11.7 | **Consumables + Flask Ember** | reach-gear | 11.1, 11.2 | done (GameTest; Lantern Oil gives Night Vision, no dynamic light; textures and bomb visuals not seen) |
 | 11.8 | **Chest loot + realm loot on mobs** | reach-gear | 11.3–11.7 | done (GameTest) |
 | 11.9 | **Reliquary: data, sync, screen** | reliquary | — | done (GameTest; screen look and button position not seen) |
@@ -374,6 +374,8 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 
 ## Open follow-ups
 
+- **Flaky GameTest:** `NightMobTests.uncursedPlayerGetsGhostsAndAShard` (and `killingTheWaveEndsTheNight`) fail in
+  some full runs; track reach-gear is fixing it.
 - **Realm weapons and enchantments:** Sharpness, Smite etc. cannot go on the Scythe, Scourge and Rapier (vanilla's
   weapon enchantment target is swords only); Unbreaking and Mending work. Decide in the R40.1 balance pass.
 - **In-game checks not run yet:** QA #7f (Sanctum casing gaps, next batch); QA #8 step 9 (second and third
