@@ -5,12 +5,12 @@ Scope: PLAN 10.1–10.7, then 13.3 (Realm 1 bestiary, DESIGN §4.5). Branch `cla
 | # | Task | Status |
 |---|---|---|
 | 10.1 | Greybox pipeline, shared base, spawns, base levels, basic drops | merged |
-| 10.2 | Cinder Husk, Ash Stalker | done |
-| 10.3 | Ashen Carrion | done |
-| 10.4 | Withered Thrall (+ hanging cage), Lantern Hag | done |
-| 10.5 | Bark Hollow | todo |
-| 10.6 | Restless Bones, Crypt Moth | todo |
-| 10.7 | Hollow Sentinel, Grave Warden | todo |
+| 10.2 | Cinder Husk, Ash Stalker | done, merge requested |
+| 10.3 | Ashen Carrion | done, merge requested |
+| 10.4 | Withered Thrall (+ hanging cage), Lantern Hag | done, merge requested |
+| 10.5 | Bark Hollow | done |
+| 10.6 | Restless Bones, Crypt Moth | done |
+| 10.7 | Hollow Sentinel, Grave Warden | done |
 | 13.3 | Cinder Hound, Sparking Marksman, Furnace Golem, Smoldering Knight | todo |
 
 ## Layout
@@ -100,6 +100,42 @@ Scope: PLAN 10.1–10.7, then 13.3 (Realm 1 bestiary, DESIGN §4.5). Branch `cla
   entity, drawn as a splash potion item): 4 damage within 1.2 of the impact, then a 3 s fire patch r 1.5 (the same
   entity, invisible, flame particles) that sets everything standing in it alight, the hag excepted. No fire blocks.
 
+## Bark Hollow (10.5)
+
+- Every Bark Hollow starts **dormant** (placed, egg or not): no AI, not pushable, silent, eyes bone hidden. A
+  survival player within 6, or any hit, wakes it: **creak** (wooden-door sound, low wood break) and the awaken
+  animation for 20 ticks, eyes lit, then it hunts that player. Alone for 15 s at its spot (or anywhere, if not
+  placed) it goes dormant again.
+- **Sweep:** 20-tick windup with its feet planted, then every living thing (other Bark Hollows excepted) within
+  3 blocks of its edge in the 120° in front takes its melee hit.
+- **×1.5** from fire damage (`#is_fire`) and from a melee hit with an axe (direct hits only: an arrow shot by a
+  player holding an axe does not count). Applied before armor.
+
+## Restless Bones, Crypt Moth (10.6)
+
+- **Restless Bones:** a blow that would kill it (anything but damage that bypasses invulnerability, e.g.
+  `/kill`, the void) collapses it into a **bone pile**: 6/16 of its max health (6 HP at level 1), hitbox
+  0.8×0.5, no AI. After 5 s the pile stands up at half health. Killing the pile is a real death; so is **light**:
+  a pile at block light ≥ 8 crumbles at once, credited to whoever knocked it down (player kill for loot and XP).
+  `reform()` is public for the Grave Warden's bell. Base hook `ReachMob.onStateChanged` (both sides) resizes it.
+- **Crypt Moth:** drawn to the nearest light within 12 (block luminance ≥ 10, no fluids), rescanned every 2 s. With
+  `mobGriefing` it **snuffs** torches (broken, they drop) and lit candles within 1.8; other lights it just haunts.
+  A target within 4 draws it away from the light: **pollen burst** when within 3 (wings glow 15 ticks — the
+  `glow_left` / `glow_right` bones, shown through the synced state — then Blindness 3 s for players within 3,
+  100-tick cooldown), else a bite (6-tick windup). Natural spawns only under cover.
+
+## Hollow Sentinel, Grave Warden (10.7)
+
+- **Hollow Sentinel:** tower shield: melee (direct hits) and projectiles from the front 180° do nothing, axes
+  included (no shield break); magic, fire, explosions and shield-bypassing damage go through. Moves: **spear
+  thrust** (12-tick draw, 7 damage, reach 3 blocks past its edge) or, against a target within 2.5, **shield
+  bash** (shield planted 15 ticks, 6/7 of its attack damage + strong knockback). After a bash the shield hangs
+  **open for 30 ticks**: front hits land. Feet planted during windups. Guard pose while it has a target.
+- **Grave Warden:** cudgel swing (12-tick windup, 8 damage). In a fight it rings its bell 100 ticks after finding
+  a target, then every 240 ticks (12 s): bell raised **20 ticks** (feet planted), then every bone pile within 12
+  re-forms; if there are no Restless Bones within 12 it raises 2 (it keeps at most 4 of its own alive; saved with
+  it); players within 4 get Slowness IV for 2 s.
+
 ## GameTests (`ReachMobTests`, `ReachFieldsTests`, …)
 
 Test API traps: `TestContext.spawnMob` clears the mob's goals (AI tests use `ReachTests.mob`, i.e.
@@ -129,3 +165,15 @@ y 0 is the ground; a mob without AI spawned at y 1 floats.
 | `cagedThrallOpensTheTrapdoorUnderIt` | a trapdoor cage floor opens and the thrall falls through |
 | `lanternHagThrowsAFlaskThatBurns` | no flask during the 15-tick lantern raise, a flask after it; the target is hurt and set alight |
 | `lanternHagKeepsHerDistance` | a target 3 blocks away: she backs off to ≥ 6 |
+| `barkHollowWakesWhenAPlayerComesClose` | dormant (eyes off) with a player at ~10; at ~4 it stirs (eyes on), 20 ticks later it is up and targets the player |
+| `barkHollowTakesMoreFromAxesAndFire` | armor off: bare hand 4 → 4 lost, axe 4 → 6, fire 4 → 6 |
+| `barkHollowSweepsInFront` | nothing at 19 ticks; at 22 the dummies in front and front-left are hit, the one behind is not |
+| `restlessBonesCollapseAndReform` | lethal blow → pile at 6/16 health, under 1 block tall; still a pile at 95 ticks, standing at half health at 105 |
+| `finishedPileAndKillStayDead` | killing the pile is a death; `/kill` kills a standing one outright |
+| `litPileStaysDead` | a pile next to a torch crumbles within 5 ticks |
+| `cryptMothSnuffsTorches` / `…LeavesTorchesWithoutGriefing` | flies to a torch 5 blocks off and snuffs it; with `mobGriefing` off it hovers there and the torch stays |
+| `cryptMothPollenBurstBlinds` | wings glow during the 15-tick windup; then the player 2 blocks off is blind, the one 8 off is not |
+| `sentinelShieldStopsFrontHits` | front punch, axe and arrow do nothing; a hit from behind lands |
+| `sentinelBashOpensTheShield` | no damage before 15 ticks; then damage + knockback, shield open, a front hit lands; 30 ticks later front hits are blocked again |
+| `wardenBellReformsPilesAndStaggers` | a pile 8 blocks off re-forms at the ring (not before), a player 3 blocks off gets Slowness IV |
+| `wardenBellRaisesBonesUpToFour` | no bones around: a ring raises 2; again 2; a third ring raises none (cap 4) |

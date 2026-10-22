@@ -1,16 +1,26 @@
 package com.embervoid.gametest;
 
 import com.embervoid.reach.mob.CryptMothEntity;
+import com.embervoid.reach.mob.GraveWardenEntity;
+import com.embervoid.reach.mob.HollowSentinelEntity;
 import com.embervoid.reach.mob.ReachMobs;
 import com.embervoid.reach.mob.RestlessBonesEntity;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.passive.CowEntity;
+import net.minecraft.entity.projectile.ArrowEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameRules;
 
@@ -138,5 +148,119 @@ public final class ReachNecropolisTests implements FabricGameTest {
 			context.assertFalse(moth.showsBone("glow_left"), "wings still glowing");
 			ReachTests.finish(context);
 		});
+	}
+
+	/** A sentinel facing +z (yaw 0). */
+	private static HollowSentinelEntity sentinel(TestContext context, int x, int z) {
+		HollowSentinelEntity sentinel = ReachTests.still(context, ReachMobs.HOLLOW_SENTINEL, x, 0, z);
+		sentinel.setAiDisabled(true);
+		sentinel.setYaw(0);
+		sentinel.setBodyYaw(0);
+		sentinel.setHeadYaw(0);
+		return sentinel;
+	}
+
+	/** From the front, fists, axes and arrows do nothing; from behind a hit lands. */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void sentinelShieldStopsFrontHits(TestContext context) {
+		HollowSentinelEntity sentinel = sentinel(context, 4, 4);
+		ServerPlayerEntity front = ReachTests.mockPlayer(context, 4, 7);
+		ServerPlayerEntity back = ReachTests.mockPlayer(context, 4, 1);
+		var sources = context.getWorld().getDamageSources();
+		context.assertFalse(sentinel.damage(sources.playerAttack(front), 5), "a front punch landed");
+		front.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Items.DIAMOND_AXE));
+		context.assertFalse(sentinel.damage(sources.playerAttack(front), 5), "a front axe landed");
+		ArrowEntity arrow = new ArrowEntity(context.getWorld(), front);
+		arrow.setPosition(front.getEyePos());
+		context.assertFalse(sentinel.damage(sources.arrow(arrow, front), 5), "a front arrow landed");
+		context.assertTrue(sentinel.getHealth() == sentinel.getMaxHealth(), "hurt from the front");
+		context.assertTrue(sentinel.damage(sources.playerAttack(back), 5), "a hit from behind was blocked");
+		ReachTests.finish(context);
+	}
+
+	/** Shield planted 15 ticks, then a bash with knockback; for 30 ticks after it the front is open. */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 100)
+	public void sentinelBashOpensTheShield(TestContext context) {
+		HollowSentinelEntity sentinel = sentinel(context, 4, 2);
+		// No goals but its AI on, so knockback moves it (a mob without AI never moves).
+		CowEntity target = ReachTests.still(context, EntityType.COW, 4, 0, 4);
+		target.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(200);
+		target.setHealth(200);
+		sentinel.setTarget(target);
+		ServerPlayerEntity front = ReachTests.mockPlayer(context, 6, 6);
+		Vec3d start = target.getPos();
+		context.assertTrue(sentinel.startBash(), "the bash did not start");
+		context.waitAndRun(HollowSentinelEntity.BASH_WINDUP - 1, () -> context.assertTrue(target.getHealth() == 200, "bashed early"));
+		context.waitAndRun(HollowSentinelEntity.BASH_WINDUP + 4, () -> {
+			context.assertTrue(target.getHealth() < 200, "the bash did no damage");
+			context.assertTrue(target.getPos().distanceTo(start) > 0.5, "no knockback: moved " + target.getPos().distanceTo(start));
+			context.assertTrue(sentinel.isOpen(), "shield not open after the bash");
+			context.assertTrue(sentinel.damage(context.getWorld().getDamageSources().playerAttack(front), 5), "front hit blocked while open");
+		});
+		context.waitAndRun(HollowSentinelEntity.BASH_WINDUP + HollowSentinelEntity.OPEN_TICKS + 5, () -> {
+			context.assertFalse(sentinel.isOpen(), "still open after 30 ticks");
+			sentinel.timeUntilRegen = 0;
+			context.assertFalse(sentinel.damage(context.getWorld().getDamageSources().playerAttack(front), 5), "front hit landed after the window");
+			ReachTests.finish(context);
+		});
+	}
+
+	/** The bell re-forms piles within 12 and staggers players within 4 (Slowness IV). */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 60)
+	public void wardenBellReformsPilesAndStaggers(TestContext context) {
+		GraveWardenEntity warden = ReachTests.still(context, ReachMobs.GRAVE_WARDEN, 2, 0, 2);
+		warden.setAiDisabled(true);
+		RestlessBonesEntity bones = bones(context, 8, 8);
+		bones.damage(context.getWorld().getDamageSources().generic(), 1000);
+		ServerPlayerEntity near = ReachTests.mockPlayer(context, 2, 5);
+		context.assertTrue(warden.startBell(), "the bell did not start");
+		context.waitAndRun(GraveWardenEntity.BELL_WINDUP - 1, () -> context.assertTrue(bones.isPile(), "re-formed before the ring"));
+		context.waitAndRun(GraveWardenEntity.BELL_WINDUP + 2, () -> {
+			context.assertFalse(bones.isPile(), "the pile did not re-form at the bell");
+			StatusEffectInstance slow = near.getStatusEffect(StatusEffects.SLOWNESS);
+			context.assertTrue(slow != null && slow.getAmplifier() == 3, "no Slowness IV: " + slow);
+			ReachTests.finish(context);
+		});
+	}
+
+	/** With no bones around, each ring raises two; never more than four of its own alive. */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 120, batchId = "reach_warden_raise")
+	public void wardenBellRaisesBonesUpToFour(TestContext context) {
+		GraveWardenEntity warden = ReachTests.still(context, ReachMobs.GRAVE_WARDEN, 5, 0, 5);
+		warden.setAiDisabled(true);
+		// Its own batch, and only around the warden: no other test's bones counted.
+		Box area = warden.getBoundingBox().expand(8);
+		warden.startBell();
+		context.waitAndRun(GraveWardenEntity.BELL_WINDUP + 2, () -> {
+			context.assertTrue(count(context, area) == 2, "first ring raised " + count(context, area));
+			// Bones around now: the next ring would re-form them instead of raising. Send them away to test the cap.
+			context.getWorld().getEntitiesByClass(RestlessBonesEntity.class, area, b -> true)
+					.forEach(ReachNecropolisTests::sendAway);
+			warden.startBell();
+		});
+		context.waitAndRun(2 * GraveWardenEntity.BELL_WINDUP + 4, () -> {
+			context.assertTrue(count(context, area) == 2, "second ring raised " + count(context, area) + " near");
+			context.getWorld().getEntitiesByClass(RestlessBonesEntity.class, area, b -> true)
+					.forEach(ReachNecropolisTests::sendAway);
+			warden.startBell();
+		});
+		context.waitAndRun(3 * GraveWardenEntity.BELL_WINDUP + 6, () -> {
+			context.assertTrue(count(context, area) == 0, "a third ring raised past the cap of four");
+			// The raised bones are the warden's, not the test's: remove them too (own batch, so all are ours).
+			context.getWorld().getEntitiesByClass(RestlessBonesEntity.class, warden.getBoundingBox().expand(100), b -> true)
+					.forEach(RestlessBonesEntity::discard);
+			ReachTests.finish(context);
+		});
+	}
+
+	/** Out of the warden's reach and the counted area, still alive. */
+	private static void sendAway(RestlessBonesEntity bones) {
+		bones.setNoGravity(true);
+		bones.setAiDisabled(true);
+		bones.setPosition(bones.getX() + 60, bones.getY() + 5, bones.getZ());
+	}
+
+	private static int count(TestContext context, Box area) {
+		return context.getWorld().getEntitiesByClass(RestlessBonesEntity.class, area, b -> b.isAlive()).size();
 	}
 }
