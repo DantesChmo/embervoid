@@ -8,6 +8,7 @@ import com.embervoid.moon.api.MoonNight;
 import com.embervoid.moon.api.MoonNights;
 import com.embervoid.nightmob.AshenZombieEntity;
 import com.embervoid.nightmob.GhostEntity;
+import com.embervoid.nightmob.NightMobConfig;
 import com.embervoid.nightmob.NightMobs;
 import com.embervoid.nightmob.NightWaves;
 import com.embervoid.sanctum.SanctumItems;
@@ -84,13 +85,14 @@ public final class NightMobTests implements FabricGameTest {
 		}).run();
 	}
 
-	/** No curse: 5 Ghosts; killing them all gives a Flask Shard. */
+	/** No curse: {@code nightMobs.ghostCount} Ghosts; killing them all gives a Flask Shard. */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "nightmobs_ghost_wave", tickLimit = 100)
 	public void uncursedPlayerGetsGhostsAndAShard(TestContext context) {
 		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
 		safe(context, player, () -> {
 			List<MobEntity> wave = startFullMoon(context, player, 0);
-			context.assertTrue(wave.size() == 5, "expected 5 ghosts, got " + wave.size());
+			int ghosts = NightMobConfig.get().ghostCount();
+			context.assertTrue(wave.size() == ghosts, "expected " + ghosts + " ghosts, got " + wave.size());
 			for (MobEntity mob : wave) {
 				context.assertTrue(mob instanceof GhostEntity, "wave mob is " + mob.getType().getUntranslatedName());
 				assertInRing(context, player, mob);

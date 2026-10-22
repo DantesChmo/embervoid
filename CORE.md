@@ -144,7 +144,7 @@ Design: DESIGN §3.3, §10.12. All models are placeholders. Config sections `moo
 - **Full moon:** overworld hostiles spawn `moon.fullMoon.levelBonus` +3 levels, follow range ×1.5, keep their
   target in range. **Curse of the Night**: a death to a hostile mob (or its projectile, or an `ArenaBoss`) adds a
   stack, anywhere; reset when a full moon ends. Waves (`nightmob.NightWaves`): per overworld player
-  `min(stacks, 10)` **Ashen Zombies** (spot level + 5, don't burn, 20 XP) or, with no curse, 5 **Ghosts** (no-clip
+  `min(stacks, 10)` **Ashen Zombies** (spot level + 5, don't burn, 20 XP) or, with no curse, 3 **Ghosts** (no-clip
   flyers, 2× zombie HP/damage, 15 % of hits miss, 40 XP; clearing them gives a Flask Shard), 16–32 blocks away.
   Each wave holds the night (`embervoid:wave/<uuid>`); a player away from the overworld gets it on return.
 - **Blood new moon:** red sky, fog and moon (client, overworld only). Overworld hostiles heal 25 % of damage

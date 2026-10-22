@@ -37,7 +37,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.EnumSet;
 
 /**
- * The full moon's answer to a player with no curse (DESIGN §3.3): five of these come instead of Ashen Zombies.
+ * The full moon's answer to a player with no curse (DESIGN §3.3): three of these come instead of Ashen Zombies.
  * Twice an Ashen Zombie's HP and damage; it flies and drifts through blocks like a vex, sees through walls, and
  * {@link NightMobConfig#ghostMissChance} of the hits on it pass through it harmlessly.
  */
