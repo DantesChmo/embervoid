@@ -11,7 +11,7 @@ realm code (placed enemies, arena sites, `realm_feature` placement) without chan
 ## Tasks
 
 - [x] 13.1 Depths "Burning City": dimension type, terrain
-- [ ] 13.2 Citadel (~10–12 pieces)
+- [x] 13.2 Citadel (11 pieces + the courtyard)
 
 ## The plan of the Burning City
 
@@ -47,6 +47,40 @@ tests read them from there. The layout is fixed, as DESIGN §4 asks for key plac
   courtyard and pieces; ember cracks and smouldering logs in the depths and none in any zone; the courtyard is the one
   depths arena at (0, −192), r 36, level 30.
 - Not seen: how the sky, fog and hill look.
+
+## 13.2 Citadel
+
+- Structure type `embervoid:citadel` (`CitadelStructure`), structure `embervoid:ashen_reach_depths_citadel`, one start at
+  (0, −160) by reach-world's `realm_feature` placement (distance 160, angle spread 0). Its pieces (`CitadelPiece`, a
+  `SimpleStructurePiece` with reach-world's placed-enemy processor) are laid at the layout's fixed positions, unrotated.
+  **Not a vanilla jigsaw** (decided here): a jigsaw turns its start at random and reaches only 128 blocks, while this
+  route must meet a fixed arena site and the hill the terrain makes for it. Every piece is within 8 chunks of the start
+  chunk (a structure only generates there; JUnit checks it). Terrain adaptation none: the ground is shaped to the pieces.
+- Templates `embervoid:ashen_reach/citadel/<piece>` (datagen `client.reach.citadel.CitadelTemplates`, provider
+  `CitadelTemplateProvider`, helper `CityBuilder`); y = 0 of a template is 3 below the piece's floor (foundation, and
+  the stairs up from the piece before it).
+
+| Piece | Box (x, z) / floor | What | Placed mobs | Chests |
+|---|---|---|---|---|
+| outskirts | −16…16, −62…−30 / 67 | road between burnt shacks, broken "city limits" arch | — (hounds natural) | 1 |
+| street | −16…16, −95…−63 / 69 | burning street, two rows of burnt townhouses, one collapsed, fallen beams | — | 1 |
+| market | −24…24, −120…−96 / 71 | stalls, dry fountain glowing with magma, toppled statue of the king | — | 1 |
+| gatehouse | −12…12, −155…−121 / 74 | barbican towers, gate with raised portcullis, stair tunnel up 14 to the plateau, small plaza before the courtyard, roof level with the wall walk | 3 Marksmen on the roof | — |
+| wall_west / east | ±(13…64), −133…−128 / 88 | wall 5 thick, walk at +8, merlons, inner stair, a 2-wide breach | 2 Marksmen each | — |
+| tower_west / east | ±(65…76), −139…−128 / 88 | corner tower, floors 0 / 8 (walk level) / 15, roof 21, ladder | 1 Knight each (top floor) | 1 each |
+| inner_ring_west | −76…−38, −228…−140 / 88 | ring road along the courtyard, the royal foundry (blast furnaces, hearth, lava cauldrons), two burnt mansions | 3 Golems | 1 |
+| inner_ring_east | 38…76, −228…−140 / 88 | ring road, the barracks (bunks, weapon racks), two burnt mansions | 2 Golems | 1 |
+| keep | −28…28, −272…−229 / 88 | forecourt with braziers, keep 2-thick walls to +20, corner turrets, great hall with pillars and chained lanterns, the empty throne on a gilded dais, the treasury behind it | 2 Knights | treasure + 1 |
+
+- Totals: 7 Sparking Marksmen, 5 Furnace Golems, 4 Smoldering Knights; 7 `citadel_common` chests, 1 `citadel_treasure`.
+- GameTest `citadelBuildsAlongTheRoute`: one start at its fixed chunk, 11 pieces with full-size templates, the mobs each
+  template's markers name (per piece), the start placed as worldgen does: no marker left, 16 placed mobs spawned (then
+  removed), only Citadel chest tables, one treasure chest inside the keep, ≥ 7 common, and the route open at the
+  outskirts, market, gate, tunnel, plaza, keep forecourt and hall.
+- Server check: locates the Citadel at (0, −160), force-loads x −76…76, z −272…−30, then expects the keep's treasure
+  chest at (0, 89, −265) and 7 / 5 / 4 placed Marksmen / Golems / Knights.
+- Not seen: how any of it looks (no client). Lighting is campfires, ember lanterns, magma and ember cracks; no fire
+  blocks (fire would spread through the burnt planks).
 
 ## Agreed with reach-bosses (courtyard)
 
