@@ -1,6 +1,7 @@
 package com.embervoid.reach.mob;
 
 import com.embervoid.Embervoid;
+import com.embervoid.reach.gear.GearArmor;
 import com.embervoid.registry.ModEntities;
 import com.embervoid.registry.ModItems;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
@@ -54,6 +55,14 @@ public final class ReachMobs {
 	public static final EntityType<HollowSentinelEntity> HOLLOW_SENTINEL = register("hollow_sentinel", HollowSentinelEntity::new, 0.8f, 2.3f);
 	public static final EntityType<GraveWardenEntity> GRAVE_WARDEN = register("grave_warden", GraveWardenEntity::new, 0.9f, 2.4f);
 
+	/** The Lantern Hag's thrown fire flask (and the fire patch it leaves). */
+	public static final EntityType<FireFlaskEntity> FIRE_FLASK = ModEntities.register("fire_flask",
+			FabricEntityTypeBuilder.<FireFlaskEntity>create(SpawnGroup.MISC, FireFlaskEntity::new)
+					.dimensions(EntityDimensions.fixed(0.25f, 0.25f))
+					.trackRangeBlocks(64)
+					.trackedUpdateRate(10)
+					.build());
+
 	static {
 		egg(CINDER_HUSK, 0x403833, 0xe06a28);
 		egg(ASH_STALKER, 0x6e6862, 0xff7828);
@@ -87,6 +96,9 @@ public final class ReachMobs {
 		naturalSpawn(LANTERN_HAG, WOODS, ReachMobs::canSpawnInRealm);
 		naturalSpawn(RESTLESS_BONES, NECROPOLIS, ReachMobs::canSpawnInRealm);
 		naturalSpawn(CRYPT_MOTH, NECROPOLIS, ReachMobs::canSpawnUnderCover);
+		// The Scarecrow's Mask (track reach-gear) hides its wearer from buried Ash Stalkers.
+		AshStalkerEntity.addAmbushImmunity(GearArmor::hiddenFromAmbush);
+
 		// Placed only, but spawners and commands still check a rule.
 		for (EntityType<? extends HostileEntity> placedOnly : java.util.List.of(BARK_HOLLOW, HOLLOW_SENTINEL, GRAVE_WARDEN)) {
 			SpawnRestriction.register(placedOnly, SpawnRestriction.Location.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
