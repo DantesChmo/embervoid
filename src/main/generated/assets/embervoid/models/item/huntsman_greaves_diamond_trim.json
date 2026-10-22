@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "embervoid:item/huntsman_greaves",
+    "layer1": "minecraft:trims/items/leggings_trim_diamond"
+  }
+}

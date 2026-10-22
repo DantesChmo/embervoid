@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static com.embervoid.reach.gear.GearItems.*;
 
@@ -43,7 +44,8 @@ public final class GearDataGen {
 			SMOLDERING_LORD_SOUL, ASH_OF_REMATCH, FLASK_EMBER);
 
 	/** Armor pieces; icons and armor layers drawn by {@code tools/gear_placeholders.py}. */
-	static final List<Item> ARMOR = GearArmor.SMOLDERING_PLATE;
+	static final List<Item> ARMOR = Stream.of(GearArmor.SMOLDERING_PLATE, GearArmor.REAPERS_GARB,
+			GearArmor.HUNTSMANS_LEATHERS, GearArmor.NECROPOLIS_WARDEN, GearArmor.UNIQUES).flatMap(List::stream).toList();
 
 	public static void addProviders(FabricDataGenerator.Pack pack) {
 		pack.addProvider(ItemModels::new);

@@ -10,6 +10,7 @@ public final class ReachGear {
 		Bleeding.register();
 		GearArmor.register();
 		GearDamage.register();
+		GearEffects.register();
 		GearCommands.register();
 	}
 

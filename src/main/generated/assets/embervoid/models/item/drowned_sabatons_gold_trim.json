@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "embervoid:item/drowned_sabatons",
+    "layer1": "minecraft:trims/items/boots_trim_gold"
+  }
+}
