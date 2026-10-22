@@ -83,8 +83,8 @@ notes: <anything another track must know: new APIs, renamed classes, lang keys>
 
 ## Automated checks (before every QA batch)
 
-Run in the main checkout (or the QA worktree) on the commit that goes to QA; a batch goes to the user only when both
-pass. Neither needs a game account or a window.
+Run in the main checkout (or the QA worktree) on the commit that goes to QA; a batch goes to the user only when all
+pass. None of them needs a game account or a window.
 
 - `./gradlew runGametest` — Fabric GameTests in `src/gametest` (its own mod `embervoid-gametest`, never in the
   jar) on a headless superflat server: mob levels, starting flask, shrine rest, death → Ash Remnant → recovery,
@@ -93,7 +93,13 @@ pass. Neither needs a game account or a window.
 - `python3 tools/server_check.py` — a real dedicated server (`runServerCheck`, run dir `run/server-check`, fresh
   world each time): boots to Done, generates a real Sanctum, the Ashen Reach landing, the three zone arenas and the
   depths over RCON, then fails on any crash, mixin failure, ERROR line or datapack load error in the log. Client
-  mixins and rendering are not covered: that stays with in-game QA.
+  mixins and rendering are not covered here.
+- `python3 tools/client_check.py [scenario.txt]` — a real client, headless (HeadlessMc + the hmc-specifics mod, no
+  window, offline, game dir `run/hmc`): fresh world with cheats, then a scenario of hmc-specifics commands (chat
+  commands, `gui` screen dumps, `click-text <button>`, `wait <s>`), chat and screens printed, client log scanned.
+  Default scenario: stats, realm travel, death → death screen → Respawn → remnant. Covers client mixins, client
+  init and screens as data; nothing is rendered, so looks stay with in-game QA. Setup once: `headlessmc` on PATH,
+  `run/hmc/downloads/hmc-specifics-fabric-1.20.1-1.2.2.jar`; `tools/hmc.sh` runs HeadlessMc with these settings.
 
 A batch item that these checks cover (counts, messages, no-crash) is not sent to the user; QA keeps what has to be
 seen or felt in game.
