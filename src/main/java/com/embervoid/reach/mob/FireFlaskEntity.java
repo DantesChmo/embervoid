@@ -10,7 +10,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -61,8 +60,8 @@ public class FireFlaskEntity extends ThrownItemEntity {
 					entity -> entity.isAlive() && entity != owner)) {
 				victim.damage(getDamageSources().thrown(this, owner), DAMAGE);
 			}
-			world.playSound(null, at.x, at.y, at.z, SoundEvents.ENTITY_SPLASH_POTION_BREAK, SoundCategory.HOSTILE, 1.0f, 0.8f);
-			world.playSound(null, at.x, at.y, at.z, SoundEvents.ITEM_FIRECHARGE_USE, SoundCategory.HOSTILE, 1.0f, 1.0f);
+			world.playSound(null, at.x, at.y, at.z, ReachMobSounds.FIRE_FLASK_SHATTER, SoundCategory.HOSTILE, 1.0f, 1.0f);
+			world.playSound(null, at.x, at.y, at.z, ReachMobSounds.FIRE_FLASK_IGNITE, SoundCategory.HOSTILE, 1.0f, 1.0f);
 			world.spawnParticles(ParticleTypes.FLAME, at.x, at.y + 0.2, at.z, 30, 0.6, 0.2, 0.6, 0.05);
 			patchTicks = PATCH_TICKS;
 			setVelocity(Vec3d.ZERO);

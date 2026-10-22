@@ -17,7 +17,6 @@ import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LocalDifficulty;
@@ -40,7 +39,7 @@ import java.util.function.Predicate;
  * set it off.
  */
 public class AshStalkerEntity extends ReachMob {
-	static final Move MELEE = new Move("attack.swing", 8, 25, SoundEvents.ENTITY_HUSK_AMBIENT, 1.4f);
+	static final Move MELEE = new Move("attack.swing", 8, 25, ReachMobSounds.ASH_STALKER_WINDUP, 1.0f);
 	public static final double TRIGGER_RANGE = 5;
 	public static final int BOIL_TICKS = 20;
 	static final int REBURY_TICKS = 200;
@@ -140,8 +139,8 @@ public class AshStalkerEntity extends ReachMob {
 		setState(STATE_BOILING);
 		// From here it is seen rising out of the ash (the emerge animation), still invulnerable until it is out.
 		triggerAnim(ACTION, "misc.emerge");
-		playSound(SoundEvents.ENTITY_CAT_HISS, 1.0f, 0.5f);
-		playSound(SoundEvents.BLOCK_SAND_BREAK, 1.0f, 0.6f);
+		playSound(ReachMobSounds.ASH_STALKER_HISS, 1.0f, 1.0f);
+		playSound(ReachMobSounds.ASH_STALKER_BOIL, 1.0f, 1.0f);
 	}
 
 	private void boil() {
@@ -174,7 +173,7 @@ public class AshStalkerEntity extends ReachMob {
 		lookAtEntity(target, 360, 360);
 		leapTicks = LEAP_HIT_TICKS;
 		triggerAnim(ACTION, "attack.leap");
-		playSound(SoundEvents.ENTITY_HUSK_AMBIENT, 1.0f, 1.6f);
+		playSound(ReachMobSounds.ASH_STALKER_LEAP, 1.0f, 1.0f);
 		if (getWorld() instanceof ServerWorld world) {
 			world.spawnParticles(ParticleTypes.ASH, getX(), getY() + 0.2, getZ(), 40, 0.5, 0.3, 0.5, 0.05);
 		}
@@ -276,21 +275,21 @@ public class AshStalkerEntity extends ReachMob {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.ENTITY_HUSK_AMBIENT;
+		return ReachMobSounds.ASH_STALKER_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_HUSK_HURT;
+		return ReachMobSounds.ASH_STALKER_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_HUSK_DEATH;
+		return ReachMobSounds.ASH_STALKER_DEATH;
 	}
 
 	@Override
-	public float getSoundPitch() {
-		return super.getSoundPitch() * 1.3f;
+	protected SoundEvent stepSound() {
+		return ReachMobSounds.ASH_STALKER_STEP;
 	}
 }

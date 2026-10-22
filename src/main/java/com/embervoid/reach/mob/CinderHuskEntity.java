@@ -7,14 +7,13 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.world.World;
 
 import java.util.List;
 
 /** Fields fodder (DESIGN §4.5): a burnt peasant with a pitchfork. Plain melee with a 10-tick raised-arm windup. */
 public class CinderHuskEntity extends ReachMob {
-	static final Move MELEE = new Move("attack.swing", 10, 30, SoundEvents.ENTITY_HUSK_AMBIENT, 0.7f);
+	static final Move MELEE = new Move("attack.swing", 10, 30, ReachMobSounds.CINDER_HUSK_WINDUP, 1.0f);
 
 	public CinderHuskEntity(EntityType<? extends CinderHuskEntity> type, World world) {
 		super(type, world);
@@ -46,21 +45,21 @@ public class CinderHuskEntity extends ReachMob {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.ENTITY_HUSK_AMBIENT;
+		return ReachMobSounds.CINDER_HUSK_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_HUSK_HURT;
+		return ReachMobSounds.CINDER_HUSK_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_HUSK_DEATH;
+		return ReachMobSounds.CINDER_HUSK_DEATH;
 	}
 
 	@Override
-	public float getSoundPitch() {
-		return super.getSoundPitch() * 0.9f;
+	protected SoundEvent stepSound() {
+		return ReachMobSounds.CINDER_HUSK_STEP;
 	}
 }

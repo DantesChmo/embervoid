@@ -1,5 +1,6 @@
 package com.embervoid.reach.mob;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
@@ -227,6 +228,24 @@ public abstract class ReachMob extends HostileEntity implements GeoEntity {
 				}
 				tickWindup(move, moveTicksLeft);
 			}
+		}
+	}
+
+	// --- Sounds --------------------------------------------------------------------------------------------------
+
+	/** The mob's footsteps ({@link ReachMobSounds}), or null for the block's own step sound. */
+	@Nullable
+	protected SoundEvent stepSound() {
+		return null;
+	}
+
+	@Override
+	protected void playStepSound(BlockPos pos, BlockState state) {
+		SoundEvent step = stepSound();
+		if (step == null) {
+			super.playStepSound(pos, state);
+		} else {
+			playSound(step, 0.15f, 1.0f);
 		}
 	}
 

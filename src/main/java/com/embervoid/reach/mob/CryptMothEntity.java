@@ -17,7 +17,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameRules;
@@ -46,7 +45,7 @@ public class CryptMothEntity extends FlyingReachMob {
 	/** A target this close draws it away from the light. */
 	private static final double FIGHT_RANGE = 4;
 	static final Move BITE = new Move("attack.bite", 6, 25, null, 1.0f);
-	static final Move BURST = new Move("attack.burst", BURST_WINDUP, 100, SoundEvents.BLOCK_AZALEA_LEAVES_HIT, 0.6f);
+	static final Move BURST = new Move("attack.burst", BURST_WINDUP, 100, ReachMobSounds.CRYPT_MOTH_GLOW, 1.0f);
 	private static final byte STATE_GLOWING = 1;
 	private static final List<String> GLOW_BONES = List.of("glow_left", "glow_right");
 	private static final DustParticleEffect POLLEN = new DustParticleEffect(new Vector3f(0.86f, 1f, 0.63f), 1.2f);
@@ -124,7 +123,7 @@ public class CryptMothEntity extends FlyingReachMob {
 		} else {
 			getWorld().setBlockState(pos, state.with(AbstractCandleBlock.LIT, false));
 		}
-		playSound(SoundEvents.BLOCK_CANDLE_EXTINGUISH, 1.0f, 0.8f);
+		playSound(ReachMobSounds.CRYPT_MOTH_SNUFF, 1.0f, 1.0f);
 		light = null;
 		lightScan = 0;
 	}
@@ -150,7 +149,7 @@ public class CryptMothEntity extends FlyingReachMob {
 		if (getWorld() instanceof ServerWorld world) {
 			world.spawnParticles(POLLEN, getX(), getBodyY(0.5), getZ(), 60, BURST_RADIUS / 2, 1, BURST_RADIUS / 2, 0.02);
 		}
-		playSound(SoundEvents.BLOCK_SPORE_BLOSSOM_BREAK, 1.2f, 0.7f);
+		playSound(ReachMobSounds.CRYPT_MOTH_BURST, 1.2f, 1.0f);
 	}
 
 	@Override
@@ -189,22 +188,17 @@ public class CryptMothEntity extends FlyingReachMob {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.ENTITY_BAT_AMBIENT;
+		return ReachMobSounds.CRYPT_MOTH_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_BAT_HURT;
+		return ReachMobSounds.CRYPT_MOTH_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_BAT_DEATH;
-	}
-
-	@Override
-	public float getSoundPitch() {
-		return super.getSoundPitch() * 0.6f;
+		return ReachMobSounds.CRYPT_MOTH_DEATH;
 	}
 
 	/**

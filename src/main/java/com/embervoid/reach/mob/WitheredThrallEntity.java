@@ -36,7 +36,7 @@ public class WitheredThrallEntity extends ReachMob {
 	/** A player this close horizontally, anywhere below within {@link #DROP_HEIGHT}, is "under" the cage. */
 	public static final double UNDER_RADIUS = 1.5;
 	public static final double DROP_HEIGHT = 16;
-	static final Move MELEE = new Move("attack.swing", 10, 30, SoundEvents.ENTITY_ZOMBIE_VILLAGER_AMBIENT, 0.7f);
+	static final Move MELEE = new Move("attack.swing", 10, 30, ReachMobSounds.WITHERED_THRALL_WINDUP, 1.0f);
 	private static final byte STATE_HANGING = 1;
 	private static final byte STATE_RATTLING = 2;
 	private static final byte STATE_FALLING = 3;
@@ -99,7 +99,7 @@ public class WitheredThrallEntity extends ReachMob {
 		} else if (state == STATE_RATTLING) {
 			setVelocity(0, 0, 0);
 			if (rattleTicks % 3 == 0) {
-				playSound(SoundEvents.BLOCK_CHAIN_HIT, 1.0f, 0.6f + random.nextFloat() * 0.3f);
+				playSound(ReachMobSounds.WITHERED_THRALL_RATTLE, 1.0f, 0.9f + random.nextFloat() * 0.3f);
 			}
 			if (--rattleTicks <= 0) {
 				drop();
@@ -132,7 +132,7 @@ public class WitheredThrallEntity extends ReachMob {
 			playSound(SoundEvents.BLOCK_IRON_TRAPDOOR_OPEN, 1.0f, 0.8f);
 		}
 		triggerAnim(ACTION, "attack.drop");
-		playSound(SoundEvents.ENTITY_ZOMBIE_VILLAGER_AMBIENT, 1.0f, 0.6f);
+		playSound(ReachMobSounds.WITHERED_THRALL_DROP, 1.0f, 1.0f);
 	}
 
 	/** Shot or hit in its cage, it drops at once. */
@@ -211,21 +211,21 @@ public class WitheredThrallEntity extends ReachMob {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return isHanging() ? null : SoundEvents.ENTITY_ZOMBIE_VILLAGER_AMBIENT;
+		return isHanging() ? null : ReachMobSounds.WITHERED_THRALL_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_ZOMBIE_VILLAGER_HURT;
+		return ReachMobSounds.WITHERED_THRALL_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_ZOMBIE_VILLAGER_DEATH;
+		return ReachMobSounds.WITHERED_THRALL_DEATH;
 	}
 
 	@Override
-	public float getSoundPitch() {
-		return super.getSoundPitch() * 0.8f;
+	protected SoundEvent stepSound() {
+		return ReachMobSounds.WITHERED_THRALL_STEP;
 	}
 }

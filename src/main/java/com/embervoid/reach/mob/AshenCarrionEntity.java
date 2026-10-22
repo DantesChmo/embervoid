@@ -17,7 +17,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -43,7 +42,7 @@ public class AshenCarrionEntity extends FlyingReachMob {
 	public static final int DIVE_MAX_TICKS = 240;
 	/** A wounded target draws a dive at once, but no sooner than this after the last one. */
 	public static final int DIVE_SPACING_TICKS = 40;
-	static final Move SHRIEK = new Move("attack.shriek", SHRIEK_TICKS, 0, SoundEvents.ENTITY_GHAST_SCREAM, 1.6f);
+	static final Move SHRIEK = new Move("attack.shriek", SHRIEK_TICKS, 0, ReachMobSounds.ASHEN_CARRION_SHRIEK, 1.0f);
 	/** Longest dive before it gives up and climbs. */
 	private static final int DIVE_TICKS = 40;
 	/** Circles this far from the target, this high above it. */
@@ -139,7 +138,7 @@ public class AshenCarrionEntity extends FlyingReachMob {
 			if (target != null) {
 				setState(STATE_NONE);
 				setVelocity(0, 0.5, 0);
-				playSound(SoundEvents.ENTITY_PHANTOM_FLAP, 1.0f, 0.7f);
+				playSound(ReachMobSounds.ASHEN_CARRION_FLAP, 1.0f, 1.0f);
 			}
 			return;
 		}
@@ -235,7 +234,7 @@ public class AshenCarrionEntity extends FlyingReachMob {
 			setState(STATE_DIVING);
 			diveTicks = DIVE_TICKS;
 			sinceDive = 0;
-			playSound(SoundEvents.ENTITY_PHANTOM_SWOOP, 1.5f, 0.8f);
+			playSound(ReachMobSounds.ASHEN_CARRION_DIVE, 1.5f, 1.0f);
 		}
 	}
 
@@ -304,21 +303,16 @@ public class AshenCarrionEntity extends FlyingReachMob {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.ENTITY_PHANTOM_AMBIENT;
+		return ReachMobSounds.ASHEN_CARRION_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_PHANTOM_HURT;
+		return ReachMobSounds.ASHEN_CARRION_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_PHANTOM_DEATH;
-	}
-
-	@Override
-	public float getSoundPitch() {
-		return super.getSoundPitch() * 0.7f;
+		return ReachMobSounds.ASHEN_CARRION_DEATH;
 	}
 }

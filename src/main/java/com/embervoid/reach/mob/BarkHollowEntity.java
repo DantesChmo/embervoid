@@ -46,7 +46,7 @@ public class BarkHollowEntity extends ReachMob {
 	private static final double SWEEP_CONE_COS = 0.5;
 	public static final float WEAK_FACTOR = 1.5f;
 	static final int SETTLE_TICKS = 300;
-	static final Move SWEEP = new Move("attack.sweep", SWEEP_WINDUP, 50, SoundEvents.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR, 0.5f);
+	static final Move SWEEP = new Move("attack.sweep", SWEEP_WINDUP, 50, ReachMobSounds.BARK_HOLLOW_WINDUP, 1.0f);
 	private static final byte STATE_DORMANT = 1;
 	private static final byte STATE_AWAKENING = 2;
 	private static final RawAnimation DORMANT = RawAnimation.begin().thenLoop("misc.dormant");
@@ -110,7 +110,7 @@ public class BarkHollowEntity extends ReachMob {
 			setTarget(waker);
 		}
 		triggerAnim(ACTION, "misc.awaken");
-		playSound(SoundEvents.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR, 1.2f, 0.4f);
+		playSound(ReachMobSounds.BARK_HOLLOW_AWAKEN, 1.2f, 1.0f);
 		playSound(SoundEvents.BLOCK_WOOD_BREAK, 1.0f, 0.5f);
 	}
 
@@ -217,7 +217,7 @@ public class BarkHollowEntity extends ReachMob {
 
 	@Override
 	protected void playStepSound(BlockPos pos, BlockState state) {
-		playSound(SoundEvents.BLOCK_WOOD_STEP, 0.6f, 0.5f);
+		playSound(ReachMobSounds.BARK_HOLLOW_STEP, 0.6f, 1.0f);
 		if (getWorld() instanceof ServerWorld world && random.nextInt(4) == 0) {
 			world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), getX(), getY(), getZ(), 4, 0.4, 0, 0.4, 0);
 		}
@@ -266,21 +266,16 @@ public class BarkHollowEntity extends ReachMob {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.BLOCK_WOOD_HIT;
+		return ReachMobSounds.BARK_HOLLOW_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.BLOCK_WOOD_HIT;
+		return ReachMobSounds.BARK_HOLLOW_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.BLOCK_WOOD_BREAK;
-	}
-
-	@Override
-	public float getSoundPitch() {
-		return super.getSoundPitch() * 0.6f;
+		return ReachMobSounds.BARK_HOLLOW_DEATH;
 	}
 }
