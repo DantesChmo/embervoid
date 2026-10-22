@@ -216,9 +216,9 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | ID  | Task | Depends on | Status |
 |-----|------|------------|--------|
 | 9.1 | **Fog API + per-zone fog** (contract, first) | — | done – not verified in game (fog look not seen) |
-| 9.2 | **Placed enemies** (contract) | — | todo |
-| 9.3 | **Zones renamed, eternal dusk, zone looks** | — | todo |
-| 9.4 | **Zone terrain density + arena sites** | 9.3 | todo |
+| 9.2 | **Placed enemies** (contract) | — | done (GameTest) |
+| 9.3 | **Zones renamed, eternal dusk, zone looks** | — | done (GameTest + server check; zone looks and title not seen) |
+| 9.4 | **Zone terrain density + arena sites** | 9.3 | done (GameTest + server check; terrain shapes not seen) |
 | 9.5 | **Realm 1 blocks and ores** | 9.3, 11.1 | todo |
 | 9.6 | **Landing plaza, roads, milestones, outposts** | 9.2, 9.4 | todo |
 | 9.7 | **Minor structures per zone** | 9.2, 9.5, chest ids | todo |
