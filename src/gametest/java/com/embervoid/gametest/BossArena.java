@@ -124,8 +124,13 @@ final class BossArena {
 
 	/** Starts a fight of {@code entity} at relative {@code (x, 0, z)} (the floor block), level {@code level}. */
 	BossFight start(EntityType<?> entity, int x, int z, int radius, int level) {
+		return start(new Identifier("embervoid-gametest", "boss_" + fights.size()), entity, x, z, radius, level);
+	}
+
+	/** As {@link #start(EntityType, int, int, int, int)}, for the boss with progress id {@code bossId}. */
+	BossFight start(Identifier bossId, EntityType<?> entity, int x, int z, int radius, int level) {
 		BlockPos center = context.getAbsolutePos(new BlockPos(x, 0, z));
-		ArenaSpec spec = new ArenaSpec(new Identifier("embervoid-gametest", "boss_" + fights.size()), entity, level, radius);
+		ArenaSpec spec = new ArenaSpec(bossId, entity, level, radius);
 		BossFight fight = ArenaManager.start(context.getWorld(), spec, center);
 		context.assertTrue(fight != null, "the fight did not start");
 		fights.add(fight);
