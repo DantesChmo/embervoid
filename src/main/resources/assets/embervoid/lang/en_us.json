@@ -147,5 +147,9 @@
 	"entity.embervoid.ashen_zombie": "Ashen Zombie",
 	"item.embervoid.ashen_zombie_spawn_egg": "Ashen Zombie Spawn Egg",
 	"entity.embervoid.ghost": "Ghost",
-	"item.embervoid.ghost_spawn_egg": "Ghost Spawn Egg"
+	"item.embervoid.ghost_spawn_egg": "Ghost Spawn Egg",
+	"embervoid.wave.zombies": "The full moon raises %s Ashen Zombies for your curse",
+	"embervoid.wave.ghosts": "No curse on you: %s Ghosts come instead",
+	"embervoid.wave.cleared": "Your full moon wave is beaten",
+	"embervoid.wave.shard": "The ghosts leave a Flask Shard behind"
 }

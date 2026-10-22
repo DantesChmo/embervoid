@@ -147,5 +147,9 @@
 	"entity.embervoid.ashen_zombie": "Пепельный зомби",
 	"item.embervoid.ashen_zombie_spawn_egg": "Яйцо призыва пепельного зомби",
 	"entity.embervoid.ghost": "Призрак",
-	"item.embervoid.ghost_spawn_egg": "Яйцо призыва призрака"
+	"item.embervoid.ghost_spawn_egg": "Яйцо призыва призрака",
+	"embervoid.wave.zombies": "Полная луна поднимает за ваше проклятие пепельных зомби: %s",
+	"embervoid.wave.ghosts": "На вас нет проклятия — вместо зомби идут призраки: %s",
+	"embervoid.wave.cleared": "Ваша волна полной луны побеждена",
+	"embervoid.wave.shard": "Призраки оставили осколок фляги"
 }
