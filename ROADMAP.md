@@ -188,7 +188,7 @@ shrines).
 
 ## 8. Moon nights
 
-**Status:** Not started. Rewards and the conflicts in DESIGN §10.12 are open.
+**Status:** In progress (tracks `track-moon`, `track-night-mobs`, `track-vampire`; tasks PLAN 8.1–8.13). DESIGN §10.12 built as recommended.
 
 - [ ] World moon-night state: every third lunar cycle, first full moon skipped, no sleeping, 30-minute fallback, config
 - [ ] Full moon: +3 levels, longer follow range, Curse of the Night stacks, **Ashen Zombie** and **Ghost**

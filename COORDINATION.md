@@ -1,39 +1,34 @@
 # Embervoid — Parallel work
 
 The roadmap ([ROADMAP.md](ROADMAP.md), tasks in [PLAN.md](PLAN.md), design in [DESIGN.md](DESIGN.md)) is worked on
-by four track sessions at once. Each track has its own git worktree and branch. The **coordinator** session
-(`local_d941bf3c-26c0-4e51-b295-fe0ebfed6100`, in the main checkout) merges tracks into `main`, owns the docs,
-and is the only place where the game is launched.
+by track sessions at once. Each track has its own git worktree and branch. The **coordinator** session (in the
+main checkout; the session that started the tracks, `startedBy` in the session list) merges tracks into `main`,
+owns the docs, and is the only place where the game is launched.
 
-## Tracks
+## Tracks — 0.3.0 (milestone 8, moon nights)
 
 | Track | Session name | Scope | Owns (packages / files) |
 |---|---|---|---|
-| 1 | `track-player-core` | Bring Milestone 2 (already on `main`) in line with the current PLAN.md; then Milestone 3 tasks 3.1–3.4 (stats, stat effects, weapon scaling, leveling + commands) | `config`, `player`, `stats`, `item/ability`, `item/HealingFlaskItem`, `command/ModCommands`, client stamina/HUD |
-| 2 | `track-mobs` | Milestone 3 tasks 3.5–3.7 (mob levels, difficulty factors, level display); Milestone 4 (GeckoLib, Ash Ghoul, Hollow, Ember Wisp) | `mob` (levels, difficulty), `entity/mob`, `client/mob`; GeckoLib in `build.gradle`, `gradle.properties`, `fabric.mod.json` |
-| 3 | `track-sanctum` | Milestone 5 (Ember Sanctum): progression data, Ember Shrine, Void Obelisks, structure, core protection, attunement, Sanctum Map, loot; Ashen Maiden and level-up screen last | `progress`, `sanctum`, `registry/ModStructures`, `data/embervoid/worldgen/**` for the Sanctum, `data/embervoid/structures/sanctum/**` |
-| 4 | `track-realms` | Milestone 6 (realm framework) and Milestone 7 (boss framework), on placeholders | `realm`, `boss`, `data/embervoid/dimension*/**`, realm worldgen JSON |
+| A | `track-moon` | PLAN 8.1–8.6: moon-night state and `moon.api`, night hold, sleep block, fallback, red sky, full moon mob modifiers, Curse of the Night, vampirism | `com.embervoid.moon` (main), `com.embervoid.client.moon` (client) |
+| B | `track-night-mobs` | PLAN 8.7–8.9: Ashen Zombie, Ghost, full moon waves | `com.embervoid.nightmob` (main), `com.embervoid.client.nightmob` (client), their assets |
+| C | `track-vampire` | PLAN 8.10–8.12: Vampire NPC, Vampire boss, Vampire arena dimension | `com.embervoid.vampire` (main), `com.embervoid.client.vampire` (client), `data/embervoid/dimension*/vampire_arena*`, their assets |
 
-Not in any track yet: 0.2.0 release tasks, milestone 8 (moon nights, DESIGN §3.3) and 0.4.0 milestones 9–13 (DESIGN §4.5).
+Coordinator: PLAN R30.1 (Sealed Gate placeholder, in `realm`) and the release tasks.
+Milestones 4–7 tracks (`track-player-core`, `track-mobs`, `track-sanctum`, `track-realms`) are done and merged.
+Packages from them (`player`, `stats`, `mob`, `entity/mob`, `progress`, `sanctum`, `realm`, `boss`) are not owned
+by a 0.3.0 track: a track that needs a small hook there (e.g. a new event in `boss`) adds it as a separate commit
+and names it in its merge request.
 
 ## Contracts between tracks
 
-Built early by the owning track and sent for merge as soon as they compile, so the others can build on them:
-
 | Contract | Owner | Used by | Contents |
 |---|---|---|---|
-| Config sections | player-core | all | A way for a track to add its own section (`mobs.*`, `sanctum.*`, `realm.*`) without editing `EmbervoidConfig`'s body |
-| `XpUtil` | player-core | sanctum (level-up screen) | XP points ↔ level + progress (PLAN 2.3) |
-| `levelUp(player, stat)` + stat read API | player-core | sanctum (Maiden screen) | Server-side leveling, stat values and derived values for the preview |
-| `progress` API | sanctum | realms | Per-player attuned, unlocked realms, completed realms, beaten bosses; own data attachment |
-| GeckoLib dependency | mobs | sanctum (Maiden), realms (bosses later) | Dependency in the build + one working model pipeline |
-| Mob level API | mobs | realms (zone level bands) | Set or override an entity's level |
-| Hollow entity | mobs | sanctum (outer-hall guards) | Until merged, the Sanctum uses a vanilla placeholder |
-| `realm.api.ShrineHooks` | realms | sanctum (Ember Shrine block) | Fabric events `ALLOW_REST(player, world, pos) -> boolean` (dormant arena shrines, DESIGN §10.8) and `RESTED(player, world, pos)` (realm respawn point). The shrine calls `ALLOW_REST` before resting and `RESTED` after |
-| `realm.api.RealmTeleports` | realms | sanctum (Void Obelisk) | `enterRealm(player, realmId, toLastShrine)` remembers the Sanctum the player came from; `hasRestedShrine(player, realmId)` for the "landing or last shrine" choice |
+| `moon.api.MoonNights` | moon | night-mobs, vampire | `current(server)`; `NIGHT_STARTED` / `NIGHT_ENDED(reason)` events; `hold` / `release(server, Identifier)` |
+| `moon.api.CurseOfTheNight` | moon | night-mobs | `stacks(player)` |
+| Built APIs | — | all | `mob.MobLevels` (levels), `boss.ArenaBoss` / `BossFight` (boss framework), `progress.ProgressManager` (unlocked realms), `realm.RealmMobLevels` (bands), `sanctum` core check, Ash Remnant (`player`) — see CORE.md |
 
-A track that needs a contract before it lands writes against a small local stub and replaces it after the
-merge. It does not edit the owner's packages.
+`track-moon` sends 8.1 (the API) for merge first, as soon as it compiles. Until then the other tracks write
+against a small local stub with the same signatures and replace it after syncing with `main`.
 
 ## Shared files
 
@@ -42,7 +37,7 @@ merge. It does not edit the owner's packages.
 - **Commands:** each track registers its own `/embervoid <sub>` literals from its own class (Brigadier merges them).
 - **Datagen:** each track adds its own provider class and one `pack.addProvider` line in `EmbervoidDataGenerator`.
 - **Lang (`en_us.json`, `ru_ru.json`), mixin JSONs:** append your keys/entries as one contiguous block. The coordinator resolves merge conflicts there.
-- **Build files:** only track-mobs edits `build.gradle` / `gradle.properties` / `fabric.mod.json` (for GeckoLib). Anyone else who needs a change there asks the coordinator.
+- **Build files:** only the coordinator edits `build.gradle` / `gradle.properties` / `fabric.mod.json`. A track who needs a change there asks the coordinator.
 - **Docs:** `PLAN.md`, `ROADMAP.md`, `DESIGN.md`, `COORDINATION.md` are edited by the coordinator only. A track keeps its task breakdown and status in `plans/<track>.md` (its own file) and sends design questions to the coordinator.
 
 ## How a track works
@@ -55,7 +50,7 @@ merge. It does not edit the owner's packages.
 
 ## Messages to the coordinator
 
-Send with `SendMessage` to `local_d941bf3c-26c0-4e51-b295-fe0ebfed6100`. Keep working on the next task after sending, unless you are blocked.
+Send with `SendMessage` to the coordinator (the session that started you). Keep working on the next task after sending, unless you are blocked.
 
 **Check request** — the coordinator queues it, launches the game on that commit, and sends back the result:
 

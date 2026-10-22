@@ -156,12 +156,9 @@ anyway.
 - All vanilla hostiles get **vampirism**: they heal 25 % (*start*) of the damage they deal to a player.
 - The night ends when the Vampire boss is beaten.
 
-**Open (§10.12):** rewards; a player kill counting toward the curse; and four conflicts with built systems — a
-remnant left in an arena nobody can re-enter destroys the items (against §7); who is pulled into the arena (players
-in a realm boss fight, the Nether, the End, the Sanctum core); players far apart each meeting their own Vampires
-while one hit pulls everyone; one shared night held for everyone by the full moon's zombies. Cost: L (Ashen Zombie,
-Ghost, Vampire and its boss form, the curse, world moon-night state and sky sync, night hold, sleep block,
-vampirism, a field boss without a fog-wall arena).
+**§10.12** (rewards, player kills, the four conflicts with built systems): proposed answers built as recommended,
+see §10.12. Cost: L (Ashen Zombie, Ghost, Vampire and its boss form, the curse, world moon-night state and sky
+sync, night hold, sleep block, vampirism, a field boss without a fog-wall arena).
 
 ---
 
@@ -720,3 +717,17 @@ Each question names the milestone that cannot start without an answer.
     conflicts listed in §3.3 (remnant in the Vampire arena, who is pulled into it, Vampires in multiplayer, one
     shared night).
     *Needed by:* milestone 8.
+    **Proposed — built as recommended** (all numbers in the `moon` config section):
+    - *Rewards.* Ashen Zombie 20 XP, Ghost 40 XP (before level scaling). A player who clears a Ghost wave gets a
+      Flask Shard. Vampire boss, personal loot for every credited player: first kill 2 Flask Shards + a *Vampire
+      Fang* (trophy, a material for later); repeat kills 50 % one Flask Shard. Boss XP like a zone boss.
+    - *Player kills* do not add curse stacks; only a direct kill by a hostile mob (or its projectile) does.
+    - *Remnant in the arena.* When the arena closes, a remnant left there moves to its owner's return point (where
+      they were pulled from). Nothing is destroyed. A player killed there respawns as usual and stays out.
+    - *Who is pulled.* Every player in the overworld outside a Sanctum core. Players in realms, the Nether, the
+      End or a boss fight are not pulled and do not take part.
+    - *Vampires in multiplayer.* One Vampire group per cluster of overworld players (players within 64 blocks
+      share one). The first hit on any Vampire turns that one; all the others vanish.
+    - *One shared night.* The night is held while any overworld player's zombies or ghosts are alive. A player
+      outside the overworld gets their wave on return only while the night is still on. The 30-minute fallback
+      ends it for everyone.

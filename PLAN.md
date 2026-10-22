@@ -113,9 +113,82 @@ Split into tasks in the track plans, which keep each task's choices and notes. A
 | 6 — Realm framework | [plans/track-realms.md](plans/track-realms.md) R1–R7, R10 | done (QA #8–#8c); 2–3 players on one server not verified in game |
 | 7 — Boss framework | [plans/track-realms.md](plans/track-realms.md) R8–R9 | done (QA #8); a second player's personal Ember Heart, the fog wall pushing back an outsider, sounds and boss music not verified in game |
 
-## Milestones 8 and later
+## Milestone 8 — Moon nights
 
-Milestone 8 (moon nights, 0.3.0): design in DESIGN §3.3. 0.4.0 (milestones 9–13): design in DESIGN §4.5. Both are split into tasks before work starts.
+Design: [DESIGN.md](DESIGN.md) §3.3; §10.12 built as recommended. Three tracks (COORDINATION.md); each keeps its
+notes in `plans/<track>.md`. All numbers go into the `moon` config section.
+
+| ID  | Task | Track | Depends on | Status |
+|-----|------|-------|------------|--------|
+| 8.1 | **Moon-night state + `moon.api`** | moon | — | todo |
+| 8.2 | **Night hold, sleep block, fallback, announcements** | moon | 8.1 | todo |
+| 8.3 | **Blood-red sky sync** | moon | 8.1 | todo |
+| 8.4 | **Full moon mob modifiers** | moon | 8.1 | todo |
+| 8.5 | **Curse of the Night** | moon | 8.1 | todo |
+| 8.6 | **Vampirism** | moon | 8.1 | todo |
+| 8.7 | **Ashen Zombie** | night-mobs | — | todo |
+| 8.8 | **Ghost** | night-mobs | 8.7 | todo |
+| 8.9 | **Full moon waves** | night-mobs | 8.1, 8.5, 8.7, 8.8 | todo |
+| 8.10 | **Vampire NPC + provoking** | vampire | 8.1 | todo |
+| 8.11 | **Vampire boss** | vampire | 8.10 | todo |
+| 8.12 | **Vampire arena dimension** | vampire | 8.11 | todo |
+| 8.13 | **Milestone 8 check** | coordinator | 8.1–8.12 | todo |
+
+- **8.1 Moon-night state + `moon.api`.** World state on the overworld (`PersistentState`): lunar cycle
+  `c = day / 8`; events in cycles `c ≥ 1` with `c % moon.cycleInterval == 0` (default 3), so the first full moon
+  (day 0) never counts and the first event is the full moon of day 24, the blood new moon on day 28. A night runs
+  from dusk to dawn. Contract `moon.api.MoonNights`: `current(server)` → `NONE` / `FULL_MOON` / `BLOOD_NEW_MOON`;
+  events `NIGHT_STARTED(server, type)` and `NIGHT_ENDED(server, type, reason)` (`DAWN`, `GOAL_MET`, `TIMEOUT`,
+  `COMMAND`); `hold(server, Identifier)` / `release(server, Identifier)` keeps the night going while any hold is
+  open. Debug: `/embervoid moon status|start full|start blood|stop|setcycle`. Sent for merge as soon as it compiles.
+  *Done when:* the schedule is JUnit-tested (days 0, 8, 16, 24, 28, 48, 72); state survives a restart.
+- **8.2 Night hold, sleep block, fallback.** While a hold is open, time stops just before dawn; when the last hold
+  is released, dawn comes. `moon.fallbackMinutes` 30 real-time minutes ends the night (`TIMEOUT`). Beds refuse on
+  a moon night with a message. Title + chat line at the start and end, in both languages.
+- **8.3 Blood-red sky.** S2C packet with the current night on join, dimension change and start/end; client tints
+  sky, fog and the moon red on the blood new moon in the overworld only.
+- **8.4 Full moon mob modifiers.** Through `MobLevels.registerProvider`: overworld hostiles spawning on a full
+  moon get `moon.fullMoon.levelBonus` (3). Follow range ×`moon.fullMoon.followRange` (1.5); a mob with a player
+  target in range keeps it. Reverted for mobs still alive at the end (follow range only).
+- **8.5 Curse of the Night.** Own player attachment (stacks). A death adds a stack when the killer is a hostile
+  mob or its projectile's owner: anywhere, realms and bosses included; not players, falls, drowning,
+  suffocation, lava, the void. Reset when the full moon ends. API `CurseOfTheNight.stacks(player)`. Shown in
+  `/embervoid moon status` and a chat line on each new stack.
+- **8.6 Vampirism.** On the blood new moon, a hostile mob that damages a player heals `moon.blood.vampirism`
+  (25 %) of the damage dealt, with a red particle.
+- **8.7 Ashen Zombie.** GeckoLib mob (placeholder model via `tools/mob_placeholders.py`), zombie-like melee, does
+  not burn in daylight, 20 XP. Level set on spawn by the wave (spot level + `moon.fullMoon.zombieLevelBonus` 5).
+- **8.8 Ghost.** GeckoLib flyer, passes through blocks (no clip), 2× Ashen Zombie HP and damage,
+  `moon.fullMoon.ghostMissChance` 15 % of hits on it miss, 40 XP.
+- **8.9 Full moon waves.** On `NIGHT_STARTED(FULL_MOON)`: per overworld player, `min(stacks, 10)` Ashen Zombies,
+  or 5 Ghosts with no stacks, spawned 16–32 blocks away on safe ground. Each player's wave holds the night
+  (`hold(server, embervoid:wave/<uuid>)`) until all of it is dead. A player outside the overworld gets the wave
+  on return while the night is on. Wave mobs despawn on `NIGHT_ENDED`. Flask Shard for clearing a Ghost wave.
+- **8.10 Vampire NPC + provoking.** On `NIGHT_STARTED(BLOOD_NEW_MOON)`: 1–3 friendly Vampires (GeckoLib
+  placeholder) near each cluster of overworld players (64 blocks). The first hit on any Vampire turns it (visual
+  transformation); all others vanish. After `moon.blood.provokeMinutes` 5 the one nearest to a player turns.
+  Holds the night until the boss is beaten.
+- **8.11 Vampire boss.** Boss form as an `ArenaBoss` with phases and telegraphs. Level: highest participant
+  level, at least 15, capped at the top of the band of the highest realm any participant has unlocked. Shared
+  boss bar; loot per §10.12 (first kill / repeat, personal).
+- **8.12 Vampire arena dimension.** Own dimension (small void-floored arena, red sky). When the boss forms, every
+  overworld player outside a Sanctum core is teleported in, return point remembered, and sent back after the kill.
+  A player who dies there respawns as usual and cannot re-enter; their remnant moves to their return point when
+  the arena closes. Everyone dead → `NIGHT_ENDED`. The arena resets for the next blood moon.
+- **8.13 Milestone 8 check.** GameTests / server check for the schedule, the hold and waves; one QA batch in game.
+
+## 0.3.0 release tasks
+
+| ID  | Task | Who | Status |
+|-----|------|-----|--------|
+| R30.1 | **Sealed Gate placeholder**: in 0.3.0 the gate shows "the depths are still forming" instead of opening (config `realm.depthsOpen`, default false) | coordinator | todo |
+| R30.2 | Balance pass on the moon nights | coordinator | todo |
+| R30.3 | Multiplayer and performance test | coordinator | todo |
+| R30.4 | Release 0.3.0 | coordinator | todo |
+
+## Milestones 9 and later
+
+0.4.0 (milestones 9–13): design in DESIGN §4.5. Split into tasks before work starts.
 Checklists in [ROADMAP.md](ROADMAP.md) are the starting point.
 
 ## Open follow-ups
