@@ -77,6 +77,8 @@ public class AshColossusEntity extends ReachBoss {
 	private static final float DRAG_DAMAGE = 6;
 	private static final float CINDER_DAMAGE = 5;
 	private static final double LEAP_RADIUS = 4.5;
+	/** Ticks a leap takes from take-off to over its mark. */
+	private static final int LEAP_FLIGHT_TICKS = 14;
 	private static final double BOULDER_RADIUS = 2.5;
 	private static final double CINDER_RADIUS = 2;
 	private static final int CINDER_INTERVAL = 50;
@@ -245,7 +247,7 @@ public class AshColossusEntity extends ReachBoss {
 		TelegraphShape ring = TelegraphShape.ring(landing, LEAP_RADIUS);
 		Telegraph.windup(this, ring, 22, LEAP, SoundEvents.ENTITY_RAVAGER_ROAR, ParticleTypes.FLAME, () -> {
 			Vec3d delta = landing.subtract(getPos());
-			setVelocity(delta.x / 14, 0.9 + Math.max(0, delta.y) * 0.08, delta.z / 14);
+			setVelocity(delta.x / LEAP_FLIGHT_TICKS, 0.9 + Math.max(0, delta.y) * 0.08, delta.z / LEAP_FLIGHT_TICKS);
 			velocityModified = true;
 			leapTarget = landing;
 			leapAirTicks = 0;
@@ -254,6 +256,15 @@ public class AshColossusEntity extends ReachBoss {
 
 	private void tickLeap(ServerWorld world) {
 		leapAirTicks++;
+		// Steered through the air so it comes down on the ring it marked (drag would leave it short).
+		int left = LEAP_FLIGHT_TICKS - leapAirTicks;
+		if (left > 0) {
+			setVelocity((leapTarget.x - getX()) / left, getVelocity().y, (leapTarget.z - getZ()) / left);
+			velocityModified = true;
+		} else if (!isOnGround()) {
+			setVelocity(0, getVelocity().y, 0);
+			velocityModified = true;
+		}
 		if (leapAirTicks % 3 == 0) {
 			TelegraphShape.ring(leapTarget, LEAP_RADIUS).draw(world, ParticleTypes.FLAME, 1);
 		}

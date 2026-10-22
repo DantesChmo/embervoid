@@ -92,8 +92,8 @@ bones). Greybox assets: `python3 tools/boss_placeholders.py [name]` (helpers fro
 - P3 (30 %): water to 2 blocks; 3 Restless Bones (+1 per extra fighter) rise on the floor.
 - Adds: Restless Bones per extra fighter at summon.
 - Braziers are found at summon (every campfire in the arena) and remembered, so a reset or kill leaves them unlit.
-- Gear interplay (not built here): Amber Lantern Oil's offhand lantern (11.7) is not block light; if it should light
-  the Keeper, reach-gear can tell me and `isLit` takes a held-light check.
+- Amber Lantern Oil (coordinator's decision): a player within 4 blocks carrying a lit Ember Lantern
+  (`GearConsumables.carriesLitLantern`) lights it up too (full damage). GameTest `litLanternCountsAsLight`.
 
 ## 12.4 Ash Colossus
 
@@ -104,7 +104,7 @@ bones). Greybox assets: `python3 tools/boss_placeholders.py [name]` (helpers fro
 |---|---|---|
 | Fist | cone r 5.5 ±45°, 18 ticks; knockback | 8 |
 | Arm drag | cone r 6 ±70°, 16 ticks; pulls players in | 6 |
-| Leap (target 8–22 away) | ring r 4.5 at the target's spot, 22-tick crouch, then the leap; hits on landing | 9 |
+| Leap (target 8–22 away) | ring r 4.5 at the target's spot, 22-tick crouch, then a 14-tick flight steered onto the mark; hits on landing | 9 |
 | Boulder | falling shadow r 2.5 at the target, 30 ticks | 7 |
 | Pillar smash | cone at the pillar, 20 ticks; every block within 2 of the hit column, floor + 1 to + 10, goes (back after the fight) | 8 to players in the cone |
 | Ash storm (every 20 s, first after 10 s) | 30-tick roar, then 6 s: 2 HP/s magic (flat, not level-scaled) + Blindness to every fighter it can see | — |

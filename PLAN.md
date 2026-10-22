@@ -374,8 +374,8 @@ performance) are done here with them.
 | R40.1a | **Balance model**: expected player level, stats and gear at each stage; mob and boss numbers against it | release-balance | — | todo |
 | R40.1b | **In-engine fight checks**: GameTests that measure hits-to-kill both ways for every mob and boss | release-balance | R40.1a | todo |
 | R40.1c | **Tuning**: zone bands, boss base values, XP yield vs level cost, loot rates, moon nights (R30.2) | release-balance | R40.1b | todo |
-| R40.2a | **Offline model preview**: render GeckoLib models + textures (and item/block textures) to PNG without a client | release-art | — | todo |
-| R40.2b | **Zone mobs art**: the 10 Realm 1 zone mobs from greybox to final models, textures, animations | release-art | R40.2a | todo |
+| R40.2a | **Offline model preview**: render GeckoLib models + textures (and item/block textures) to PNG without a client | release-art | — | done (`tools/model_preview.py`) |
+| R40.2b | **Zone mobs art**: the 10 Realm 1 zone mobs from greybox to final models, textures, animations | release-art | R40.2a | done (checked by preview; not seen in game) |
 | R40.2c | **Citadel mobs and bosses art**: 4 Citadel mobs, 4 bosses (+ tree lantern, fire flask, ash bomb) | release-art | R40.2a | todo |
 | R40.2d | **Texture consistency**: Realm 1 items, armor layers, blocks, GUI (Reliquary) in one style | release-art | R40.2a | todo |
 | R40.3a | **Sound events**: every Realm 1 mob, boss, weapon, consumable and block gets its sounds (vanilla sound files, own events, subtitles in both languages) | release-audio | — | todo |
