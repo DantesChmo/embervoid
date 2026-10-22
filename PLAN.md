@@ -379,10 +379,10 @@ performance) are done here with them.
 | R40.2c | **Citadel mobs and bosses art**: 4 Citadel mobs, 4 bosses (+ tree lantern, fire flask, ash bomb) | release-art | R40.2a | done (checked by preview; not seen in game; two client renderer hooks not run on a client) |
 | R40.2d | **Texture consistency**: Realm 1 items, armor layers, blocks, GUI (Reliquary) in one style | release-art | R40.2a | done (checked by preview; Reliquary screen drawing not run on a client) |
 | R40.3a | **Sound events**: every Realm 1 mob, boss, weapon, consumable and block gets its sounds (vanilla sound files, own events, subtitles in both languages) | release-audio | — | done (GameTest; 169 events on vanilla files; not heard) |
-| R40.3b | **Boss music**: shared zone-boss theme and the Smoldering Lord theme as sound events; placeholder until licensed tracks are approved; `CREDITS.md` | release-audio | R40.3a | in progress (events wired, vanilla placeholders; licensed tracks wait for the user) |
+| R40.3b | **Boss music**: shared zone-boss theme and the Smoldering Lord theme as sound events; placeholder until licensed tracks are approved; `CREDITS.md` | release-audio | R40.3a | done (licensed tracks "For the Black Lord" and "Dark souls type boss theme", CC BY 4.0, `CREDITS.md`; not heard) |
 | R40.4a | **Multiplayer GameTests**: 2–3 players through realm progress, boss scaling and adds, personal loot, fog wall, rematch, remnants, accessory sync | release-mp | — | done (GameTest `MultiplayerTests`; found and fixed the realm respawn bug) |
 | R40.4b | **Performance on a dedicated server**: generation time of the realm, depths and Citadel; tick time and entity counts with placed enemies loaded; fix hot spots | release-mp | — | done (`docs/perf-0.4.0.md`: 4–9 ms mean tick everywhere, no hot spot) |
-| R40.5 | **Release 0.4.0**: version, changelog, README, CORE, release build | coordinator | R40.1–R40.4 | todo |
+| R40.5 | **Release 0.4.0**: version, changelog, README, CORE, release build | coordinator | R40.1–R40.4 | done locally (version 0.4.0, docs, all checks green); the jar is built by CI on the `v0.4.0` tag, which waits for the user to push |
 
 - **R40.1a** A pure balance calculator (JUnit) on the real formulas (stat curve, level cost, mob levels, difficulty
   factors, armor): the player expected at each stage (Sanctum, each zone in either order, depths) by XP earned so

@@ -2,7 +2,7 @@
 
 What the mod is: [DESIGN.md](DESIGN.md). What is built and how content plugs in: [CORE.md](CORE.md). Task breakdown of the next milestones: [PLAN.md](PLAN.md).
 
-Current version: **0.3.0** (0.2.0 release tasks are still open; 0.3.0 includes everything of 0.2.0).
+Current version: **0.4.0** (0.2.0 release tasks are still open; each release includes everything before it).
 Milestones are ordered by dependency. Releases group milestones so that every release is a playable loop.
 Every user-facing string ships in both `en_us` and `ru_ru`.
 
@@ -250,7 +250,7 @@ comes in the release pass.
 
 ## 12. Realm 1: zone bosses
 
-**Status:** Done except music (PLAN 12.1–12.7; GameTests; greybox models, moves not seen in game). Shared zone-boss theme is release task R40.3.
+**Status:** Done (PLAN 12.1–12.7; GameTests; greybox models, moves not seen in game).
 
 - [x] Boss framework additions: arena hazard layer (restored on reset), S2C arena fog, telegraph shapes (ring, line, cone, falling shadow), shield-breaking hit, fight-bound adds, non-HP phase, HP scaling HP ×(1 + 0.5·(n − 1)) + 1 add per extra fighter
 - [x] **Crypt Keeper** (first: riskiest) in the flooded ossuary: light, rising water, braziers, moths, Restless Bones
@@ -258,11 +258,11 @@ comes in the release pass.
 - [x] **Grieving Tree** in the Royal Grove: lanterns, arena fog, uproot phase
 - [x] Per-boss souls (first-kill personal drop, 25 % when helping), Flask Shard per zone boss
 - [x] Rematch item (*Ash of Rematch*) at a beaten boss's arena shrine
-- [ ] Shared zone-boss music theme
+- [x] Shared zone-boss music theme
 
 ## 13. Realm 1: Smoldering Citadel
 
-**Status:** Done except music (PLAN 13.1–13.5; GameTests + server check; greybox models, looks not seen in game). The Smoldering Lord theme is release task R40.3.
+**Status:** Done (PLAN 13.1–13.5; GameTests + server check; greybox models, looks not seen in game).
 
 - [x] Depths dimension "Burning City": own `dimension_type` (dark red sky, dusk), hill terrain, ember cracks and smouldering logs
 - [x] Citadel jigsaw (~10–12 pieces): outskirts → burning streets → wall and gatehouse → inner ring and towers → courtyard → keep
@@ -272,13 +272,13 @@ comes in the release pass.
 
 ## 0.4.0 release
 
-**Status:** Not started.
+**Status:** Done on `main` except publishing (tag `v0.4.0` + push; CI builds the jar). Nothing was played in game.
 
 - [x] Balance: zone level bands vs expected player level, boss difficulty, XP yield, loot rates — `docs/balance-0.4.0.md`
 - [x] Art pass: realm mobs and bosses from greybox to final models; textures consistency (script-generated, checked with `tools/model_preview.py`; not seen in game)
-- [ ] Sounds and music (`CREDITS.md` for licensed tracks) — sounds done on vanilla files; boss music on vanilla placeholders until licensed tracks are chosen
+- [x] Sounds and music (`CREDITS.md` for licensed tracks) — own sound events on vanilla files; two CC BY boss themes
 - [x] Multiplayer and performance test (realm worldgen time, entity counts, placed enemies) — `docs/perf-0.4.0.md`
-- [ ] Release 0.4.0
+- [ ] Release 0.4.0 (version, changelog and docs done, all checks green; publishing: push the `v0.4.0` tag, CI builds the jar — waits for the user)
 
 **Done when:** a fresh survival playthrough goes overworld → Sanctum → Realm 1 → Smoldering Lord without creative mode, feels fair, and breaks nothing on client or server.
 

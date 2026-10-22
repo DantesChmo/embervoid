@@ -14,7 +14,7 @@ milestone track (`track-reach-bosses`) is done.
 |---|---|---|---|
 | R1 | `release-balance` (done) | R40.1a–c (+ R30.2) | `docs/balance-0.4.0.md`, `com.embervoid.balance` (calculator, tests); number changes in any package (config defaults, base attributes), each a small commit |
 | R2 | `release-art` (done) | R40.2a–d | `tools/model_preview.py`, `tools/*_placeholders.py`, `assets/embervoid/geo/**`, `animations/**`, `textures/**` |
-| R3 | `release-audio` | R40.3a–b | `assets/embervoid/sounds.json`, `assets/embervoid/sounds/**`, `registry/ModSounds` + per-package sound classes, `CREDITS.md`; sound hooks in entity/item classes as small separate commits |
+| R3 | `release-audio` (done) | R40.3a–b | `assets/embervoid/sounds.json`, `assets/embervoid/sounds/**`, `registry/ModSounds` + per-package sound classes, `CREDITS.md`; sound hooks in entity/item classes as small separate commits |
 | R4 | `release-mp` (done) | R40.4a–b (+ R30.3) | multiplayer GameTests, `tools/server_check.py` perf options; fixes in the owning package as separate commits |
 
 Overlaps: release-balance and release-audio both touch entity classes (numbers vs. sound hooks) — keep each edit
@@ -83,6 +83,7 @@ ids) and replace it after syncing with `main`.
 
 ## How a track works
 
+- Never run `./gradlew clean`: it deletes the tracked datagen output `src/main/generated`.
 - Work task by task, one commit per task, on the track branch. `./gradlew build` must pass on every commit; `./gradlew runDatagen` when assets or data change. Pure logic gets JUnit tests.
 - **Do not launch a client:** no `runClient` and no `tools/client_check.py` (it crashes the Claude app). A track may run `./gradlew runGametest` and `python3 tools/server_check.py` (headless servers). The user does not play-test: a behaviour is checked by a GameTest or the server check, written by the track that built it.
 - Open questions in DESIGN.md §10: build the recommended answer, keep it easy to change.
