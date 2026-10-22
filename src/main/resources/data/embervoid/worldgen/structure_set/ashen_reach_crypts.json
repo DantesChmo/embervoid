@@ -1,0 +1,15 @@
+{
+  "structures": [
+    {
+      "structure": "embervoid:ashen_reach/necropolis/crypt",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "embervoid:realm_scatter",
+    "salt": 551219,
+    "spacing": 28,
+    "separation": 10,
+    "clearance": 24
+  }
+}

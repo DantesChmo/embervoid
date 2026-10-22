@@ -16,7 +16,7 @@ Owns `com.embervoid.realm` (incl. `realm.worldgen`, `realm.fog`), `com.embervoid
 - [x] 9.5 Realm 1 blocks and ores
 - [x] 9.6 Landing plaza, roads, milestones, outposts
 - [x] 9.7 Minor structures per zone
-- [ ] 9.8 Necropolis crypt jigsaw + water
+- [x] 9.8 Necropolis crypt jigsaw + water
 - [ ] 9.9 World edge
 - [ ] 13.1 Depths "Burning City"
 - [ ] 13.2 Citadel jigsaw
@@ -162,3 +162,20 @@ Owns `com.embervoid.realm` (incl. `realm.worldgen`, `realm.fog`), `com.embervoid
   starts within 1200 blocks of the landing (≥ 150) never near a road, site or the plaza. Server check locates and
   generates a barn, hanging cages and a chapel.
 - Not seen: how the ruins look.
+
+## 9.8 Crypt and water
+
+- Crypt jigsaw `embervoid:ashen_reach/necropolis/crypt` (structure in the `underground_structures` step, size 7, no
+  terrain adaptation, its own structure set: `realm_scatter` spacing 28 / separation 10, ~5 crypts in the Necropolis).
+  Templates (`client.reach.world.CryptTemplates`): entrance (porch on the ground, stairs 9 down), junction (sides →
+  halls, far door → descent), halls pool (corridor 4, burial hall 3 with a Sentinel and a common chest, flooded hall 3,
+  warden chamber 2 with a Grave Warden and bell, dead end 1), descent (6 down), lower crypt (water channels,
+  sarcophagi, Grave Warden + 2 Sentinels, `necropolis_treasure`). Doors 3 wide; jigsaw names `embervoid:crypt_in`
+  (entered through) and `embervoid:crypt_out`; every pool falls back to the dead end.
+- Water only in the Necropolis: the flooded hall (a foot over the floor), the lower crypt's channels, and the
+  `embervoid:sinkhole_pool` feature (`lakes` step, Necropolis biome only): when a chunk's lowest ground is a sinkhole
+  bottom (below y 50) and the hollow around it is closed within the chunk and its neighbours, it fills 2 deep. Flood
+  fill in pure `reach.world.Hollows` (JUnit).
+- GameTest: three crypts built at Necropolis spots with different seeds: ≥ 4 pieces, always a lower crypt, the treasure
+  chest, water, no marker left. Server check locates and generates a crypt.
+- Not seen: crypt looks, how the pools look in the sinkholes.
