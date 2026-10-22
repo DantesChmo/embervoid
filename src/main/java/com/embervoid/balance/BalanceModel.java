@@ -76,9 +76,9 @@ public final class BalanceModel {
 	/** Sharpness V adds 3 (vanilla 0.5 + 0.5 per level). */
 	public static final Weapon NETHERITE_SWORD_SHARP_V = new Weapon("netherite sword, Sharpness V", 11, 1.6, WeaponScaling.Scaling.DEXTERITY, 0);
 	public static final Weapon DIAMOND_AXE = new Weapon("diamond axe", 9, 1.0, WeaponScaling.Scaling.STRENGTH, 0);
-	/** {@code reach.gear.GearWeapons}: 8 damage, speed 1.1, STR 0.6 / DEX 0.4. */
-	public static final Weapon ASHEN_SCYTHE = new Weapon("Ashen Scythe", 8, 1.1, new WeaponScaling.Scaling(0.6f, 0.4f), 0);
-	public static final Weapon WARDENS_SCOURGE = new Weapon("Warden's Scourge", 8, 0.9, WeaponScaling.Scaling.DEXTERITY, 0);
+	/** {@code reach.gear.GearWeapons}: 10 damage, speed 1.1, STR 0.6 / DEX 0.4. */
+	public static final Weapon ASHEN_SCYTHE = new Weapon("Ashen Scythe", 10, 1.1, new WeaponScaling.Scaling(0.6f, 0.4f), 0);
+	public static final Weapon WARDENS_SCOURGE = new Weapon("Warden's Scourge", 9, 0.9, WeaponScaling.Scaling.DEXTERITY, 0);
 	public static final Weapon ROYAL_ASH_RAPIER = new Weapon("Royal Ash Rapier", 6, 2.0, new WeaponScaling.Scaling(0, 0.7f), 0.3f);
 
 	// --- The player ----------------------------------------------------------------------------------------------

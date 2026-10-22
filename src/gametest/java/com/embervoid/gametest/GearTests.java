@@ -273,7 +273,8 @@ public final class GearTests implements FabricGameTest {
 		assertRecipe(context, "ashen_scythe", GearWeapons.ASHEN_SCYTHE);
 		assertRecipe(context, "wardens_scourge", GearWeapons.WARDENS_SCOURGE);
 		assertRecipe(context, "royal_ash_rapier", GearWeapons.ROYAL_ASH_RAPIER);
-		float[][] numbers = {{8, 1.1f}, {8, 0.9f}, {6, 2.0f}};
+		// DESIGN §4.5, Scythe and Scourge raised in R40.1c.
+		float[][] numbers = {{10, 1.1f}, {9, 0.9f}, {6, 2.0f}};
 		for (int i = 0; i < GearWeapons.MELEE.size(); i++) {
 			ItemStack stack = new ItemStack(GearWeapons.MELEE.get(i));
 			double damage = 1 + modifier(stack, EntityAttributes.GENERIC_ATTACK_DAMAGE);
