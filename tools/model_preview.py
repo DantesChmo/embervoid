@@ -10,6 +10,8 @@ Run from the repository root. Pure Python (no numpy / PIL): a small software ras
     python3 tools/model_preview.py armor [materials]    armor layers on a mannequin
     python3 tools/model_preview.py gui [names]          GUI textures (4x)
     python3 tools/model_preview.py texture PATH...      any PNG, upscaled
+    python3 tools/model_preview.py check [names]        what code relies on: animations, toggled bones, head,
+                                                        windups, size against tools/model_bounds.json
 
 Output goes to build/model-preview/ unless --out is given. For an entity it writes
   <name>.png        rest pose from six angles with the hitbox (green wireframe, read from ReachMobs / ModEntities
@@ -61,7 +63,7 @@ class Texture:
         return d[i], d[i + 1], d[i + 2], d[i + 3]
 
     def first_frame(self):
-        """An animated (mcmeta) texture is a vertical strip of square frames."""
+        """An animated texture (one with a .mcmeta) is a vertical strip of square frames."""
         if self.height > self.width and self.height % self.width == 0:
             return Texture(self.width, self.width, self.data[:self.width * self.width * 4])
         return self
@@ -218,7 +220,10 @@ def texture(namespace, path):
     key = (namespace, path)
     if key not in _TEXTURES:
         data = resource(namespace, "textures/%s.png" % path)
-        _TEXTURES[key] = read_png(data).first_frame() if data else None
+        tex = read_png(data) if data else None
+        if tex and resource(namespace, "textures/%s.png.mcmeta" % path):
+            tex = tex.first_frame()
+        _TEXTURES[key] = tex
     return _TEXTURES[key]
 
 
@@ -912,6 +917,14 @@ def entity_sheet(name, out, hidden=(), anims="all", cell=250):
             sheet.text(x, y + 4, label)
             x += up.width + 10
     sheet.save(os.path.join(out, name + ".png"))
+    # Close-up: front-right and back-left large enough to read single texels, lit and at dusk.
+    big = [View(25, 12), View(-150, 15)]
+    cfit = fit_for([rest], big, 420, 520, None, 0.94)
+    close = Image(420 * 3, 520)
+    for i, view in enumerate(big):
+        close.blit(render_cell(rest, view, 420, 520, cfit, None, ground=False), i * 420, 0)
+    close.blit(render_cell(rest, big[0], 420, 520, cfit, None, DUSK_LIGHT, DUSK_BACKGROUND, False), 840, 0)
+    close.save(os.path.join(out, name + "_close.png"))
     if animations and anims:
         anim_sheet(name, model, tex, glow, animations, out, hidden, anims, hb)
 
@@ -1252,6 +1265,123 @@ def armor_sheet(materials, out, title="armor"):
     sheet.save(os.path.join(out, title + ".png"))
 
 
+# --- Asset check: what code relies on ------------------------------------------------------------------------------
+
+BOUNDS_FILE = os.path.join("tools", "model_bounds.json")
+DEFAULT_ANIMS = {"IDLE": "misc.idle", "LIVING": "misc.living", "WALK": "move.walk", "RUN": "move.run",
+                 "FLY": "move.fly", "SWIM": "move.swim", "ATTACK_SWING": "attack.swing", "ATTACK_SHOOT": "attack.shoot"}
+
+
+def java_sources():
+    out = {}
+    for path in glob.glob(os.path.join("src", "main", "java", "**", "*.java"), recursive=True):
+        with open(path, encoding="utf-8") as f:
+            out[os.path.basename(path)[:-5]] = f.read()
+    return out
+
+
+def entity_classes(sources):
+    """Entity id path -> its class name, from register("id", ... Class::new ...)."""
+    out = {}
+    for src in sources.values():
+        for m in re.finditer(r'register\(\s*"([a-z0-9_]+)"\s*,(.*?);', src, re.S):
+            c = re.search(r"([A-Z][A-Za-z0-9]*)::new", m.group(2))
+            if c:
+                out.setdefault(m.group(1), c.group(1))
+    return out
+
+
+def class_chain(name, sources):
+    chain = []
+    while name in sources and name not in chain:
+        chain.append(name)
+        m = re.search(r"class\s+%s\b[^{]*?extends\s+([A-Z][A-Za-z0-9]*)" % name, sources[name])
+        name = m.group(1) if m else None
+    return chain
+
+
+def int_constant(src, name):
+    m = re.search(r"\b%s\s*=\s*(\d+)\s*;" % re.escape(name), src)
+    return int(m.group(1)) if m else None
+
+
+def rest_bounds(model):
+    xs, ys, zs = [], [], []
+    for q in model.quads():
+        for p in (q.p0, (q.p0[0] + q.ea[0] + q.eb[0], q.p0[1] + q.ea[1] + q.eb[1], q.p0[2] + q.ea[2] + q.eb[2])):
+            xs.append(p[0])
+            ys.append(p[1])
+            zs.append(p[2])
+    return [round(max(xs) - min(xs), 2), round(max(ys) - min(ys), 2), round(max(zs) - min(zs), 2)]
+
+
+def check(names, write_bounds=False):
+    """Fails (exit 1) when a model lacks an animation its entity class plays, a bone the class toggles or the head
+    bone, an animation is shorter than its move's windup, or the rest pose drifted from the recorded size."""
+    sources = java_sources()
+    classes = entity_classes(sources)
+    try:
+        with open(BOUNDS_FILE) as f:
+            recorded = json.load(f)
+    except FileNotFoundError:
+        recorded = {}
+    problems = []
+    for name in names:
+        model, tex, glow, animations = load_entity(name)
+        bones = set(model.by_name)
+        cls = classes.get(name)
+        chain = class_chain(cls, sources) if cls else []
+        src = "\n".join(sources[c] for c in chain)
+        wanted = set(re.findall(r'"((?:attack|misc|move)\.[a-z0-9_]+)"', src))
+        # Default walk / idle / fly: from the classes up to the first that picks the movement animation.
+        for c in chain:
+            wanted |= {DEFAULT_ANIMS[k] for k in re.findall(r"DefaultAnimations\.([A-Z_]+)", sources[c])
+                       if k in DEFAULT_ANIMS}
+            if "movementAnimation(" in sources[c]:
+                break
+        for a in sorted(wanted - set(animations)):
+            problems.append("%s: animation %s is played by %s but missing" % (name, a, cls))
+        for m in re.finditer(r'new Move\("([a-z0-9_.]+)",\s*([A-Z0-9_]+)', src):
+            ticks = int(m.group(2)) if m.group(2).isdigit() else int_constant(src, m.group(2))
+            a = animations.get(m.group(1))
+            if a and ticks is not None and float(a.get("animation_length", 0)) + 1e-6 < ticks / 20:
+                problems.append("%s: %s is %.2fs, shorter than its %d-tick windup" % (name, m.group(1),
+                                                                                    a["animation_length"], ticks))
+        body = re.search(r"toggledBones\(\)\s*\{(.*?)\n\t\}", src, re.S)
+        toggled = set()
+        if body:
+            toggled |= set(re.findall(r'"([a-z0-9_]+)"', body.group(1)))
+            for const in re.findall(r"\b([A-Z][A-Z0-9_]+)\b", body.group(1)):
+                d = re.search(r"\b%s\s*=\s*List\.of\(([^)]*)\)" % const, src)
+                if d:
+                    toggled |= set(re.findall(r'"([a-z0-9_]+)"', d.group(1)))
+        for b in sorted(toggled - bones):
+            problems.append("%s: bone %s is toggled by %s but missing" % (name, b, cls))
+        if "head" not in bones:
+            print("note: %s has no head bone (it will not turn its head)" % name)
+        for an, a in animations.items():
+            for b in a.get("bones", {}):
+                if b not in bones:
+                    problems.append("%s: %s animates missing bone %s" % (name, an, b))
+        size = rest_bounds(model)
+        if write_bounds:
+            recorded[name] = size
+        elif name in recorded:
+            ref = recorded[name]
+            for axis, label, tol in ((1, "height", 0.12), (0, "width", 0.35), (2, "depth", 0.35)):
+                if abs(size[axis] - ref[axis]) > max(2.0, ref[axis] * tol):
+                    problems.append("%s: rest %s %.1f px, recorded %.1f px" % (name, label, size[axis], ref[axis]))
+        print("%-20s %-24s anims %2d  bones %2d  size %s" % (name, cls, len(animations), len(bones), size))
+    if write_bounds:
+        with open(BOUNDS_FILE, "w") as f:
+            json.dump(recorded, f, indent=1, sort_keys=True)
+            f.write("\n")
+        print("recorded", BOUNDS_FILE)
+    for p in problems:
+        print("PROBLEM", p)
+    return not problems
+
+
 # --- CLI -----------------------------------------------------------------------------------------------------------
 
 def entity_names():
@@ -1284,6 +1414,9 @@ def main(argv):
     elif cmd == "entities":
         for n in names or entity_names():
             entity_sheet(n, out, hidden, anims)
+    elif cmd in ("check", "record-bounds"):
+        if not check(names or entity_names(), cmd == "record-bounds"):
+            sys.exit(1)
     elif cmd == "items":
         names = names or mod_item_names()
         item_sheet(names, out, "items" if len(names) > 1 else "item_" + names[0])
