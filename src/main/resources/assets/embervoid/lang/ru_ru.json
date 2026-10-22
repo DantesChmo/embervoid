@@ -215,5 +215,21 @@
 	"embervoid.reliquary.slot.artifact": "Артефакт",
 	"embervoid.reliquary.slot.ring": "Кольцо",
 	"embervoid.reliquary.when_worn": "Если надето:",
-	"embervoid.reliquary.stat_points": "+%s %s"
+	"embervoid.reliquary.stat_points": "+%s %s",
+	"item.embervoid.last_harvest_grain": "Зерно последней жатвы",
+	"item.embervoid.last_harvest_grain.desc": "Последний сноп, утаённый, когда пламя забрали с алтарей.",
+	"item.embervoid.ploughmans_horseshoe": "Подкова пахаря",
+	"item.embervoid.ploughmans_horseshoe.desc": "Она ещё бороздила поле, когда пахарь уже стал пеплом.",
+	"item.embervoid.royal_hound_fang": "Клык королевской гончей",
+	"item.embervoid.royal_hound_fang.desc": "Из своры самого короля. Не выпускал добычу и после смерти.",
+	"item.embervoid.amber_tear": "Янтарная слеза",
+	"item.embervoid.amber_tear.desc": "Смола, которой старый дуб оплакивал горящий лес.",
+	"item.embervoid.gravestone_medallion": "Надгробный медальон",
+	"item.embervoid.gravestone_medallion.desc": "Отколот от надгробия без имени.",
+	"item.embervoid.ferrymans_coin": "Монета перевозчика",
+	"item.embervoid.ferrymans_coin.desc": "Плата за переправу, в которой отказали сожжённым.",
+	"item.embervoid.wardens_chain": "Цепь стража",
+	"item.embervoid.wardens_chain.desc": "Держала мёртвых в склепах. Теперь держит тебя.",
+	"item.embervoid.seal_of_the_ashen_king": "Печать Пепельного короля",
+	"item.embervoid.seal_of_the_ashen_king.desc": "Ею король запечатал Пламя. Сургуч всё ещё горит."
 }

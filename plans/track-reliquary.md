@@ -9,8 +9,8 @@ Design: DESIGN §4.5 "Loot" (Artifacts, Rings, Reliquary). Owns `com.embervoid.r
 | Task | Status | Commit |
 |---|---|---|
 | 11.9 Reliquary: data, sync, screen | merged | 3aa4b5a |
-| 11.10 Remnant + stat points (hooks in `player`, `stats`) | done | see git log |
-| 11.11 8 artifacts | todo | |
+| 11.10 Remnant + stat points (hooks in `player`, `stats`) | merge requested | da98386 |
+| 11.11 8 artifacts | done | see git log |
 | 11.12 6 rings | todo | |
 | 11.13 Accessory drops | todo | |
 
@@ -64,3 +64,15 @@ Design: DESIGN §4.5 "Loot" (Artifacts, Rings, Reliquary). Owns `com.embervoid.r
 - **Tests:** accessories into the remnant and back (also through remnant NBT), accessories alone leave a remnant,
   taken slot → inventory, keepInventory keeps them, bonus points change max health but not stat value, level or
   cost (test-only bonus source; real artifacts in 11.11).
+
+## 11.11 — artifacts
+
+- `reliquary.ReliquaryItems`: Last-Harvest Grain (VIT), Ploughman's Horseshoe (END) — Fields; Royal Hound Fang (DEX),
+  Amber Tear (KIN) — Woods; Gravestone Medallion (RES), Ferryman's Coin (FOR), Warden's Chain (STR) — Necropolis;
+  Seal of the Ashen King (every stat) — Citadel. Uncommon, the Seal epic; stack size 1.
+- Points from config `reliquary.artifacts.points` (3) and `sealPoints` (1), read live (`ArtifactItem` takes a supplier).
+- Tooltip: a flavour line (`item.embervoid.<id>.desc`, the Greedy King story), "When worn:" and "+3 Vitality".
+- Datagen `client.reliquary.ReliquaryDataGen`: item models, `#embervoid:artifacts`. Textures from
+  `tools/reliquary_placeholders.py`.
+- **Test:** every artifact is in the tag and only fits artifact slots; worn, it raises exactly its stats by the
+  config points (`effective`), own values, level and cost unchanged, max health / luck follow; two stack; off restores.

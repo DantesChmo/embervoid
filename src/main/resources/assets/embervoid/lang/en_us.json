@@ -215,5 +215,21 @@
 	"embervoid.reliquary.slot.artifact": "Artifact",
 	"embervoid.reliquary.slot.ring": "Ring",
 	"embervoid.reliquary.when_worn": "When worn:",
-	"embervoid.reliquary.stat_points": "+%s %s"
+	"embervoid.reliquary.stat_points": "+%s %s",
+	"item.embervoid.last_harvest_grain": "Last-Harvest Grain",
+	"item.embervoid.last_harvest_grain.desc": "The last sheaf, kept back when the flame was taken from the altars.",
+	"item.embervoid.ploughmans_horseshoe": "Ploughman's Horseshoe",
+	"item.embervoid.ploughmans_horseshoe.desc": "It kept turning furrows long after the ploughman was ash.",
+	"item.embervoid.royal_hound_fang": "Royal Hound Fang",
+	"item.embervoid.royal_hound_fang.desc": "From the king's own pack. It never let go of the hunt.",
+	"item.embervoid.amber_tear": "Amber Tear",
+	"item.embervoid.amber_tear.desc": "Sap the old oak wept for the burning woods.",
+	"item.embervoid.gravestone_medallion": "Gravestone Medallion",
+	"item.embervoid.gravestone_medallion.desc": "Chipped from a stone that names no one.",
+	"item.embervoid.ferrymans_coin": "Ferryman's Coin",
+	"item.embervoid.ferrymans_coin.desc": "Fare for a crossing the burned were never granted.",
+	"item.embervoid.wardens_chain": "Warden's Chain",
+	"item.embervoid.wardens_chain.desc": "It held the dead in their crypts. Now it holds you up.",
+	"item.embervoid.seal_of_the_ashen_king": "Seal of the Ashen King",
+	"item.embervoid.seal_of_the_ashen_king.desc": "He sealed the Ember away with it. The wax still burns."
 }
