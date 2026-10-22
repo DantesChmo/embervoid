@@ -17,7 +17,7 @@ Owns `com.embervoid.realm` (incl. `realm.worldgen`, `realm.fog`), `com.embervoid
 - [x] 9.6 Landing plaza, roads, milestones, outposts
 - [x] 9.7 Minor structures per zone
 - [x] 9.8 Necropolis crypt jigsaw + water
-- [ ] 9.9 World edge
+- [x] 9.9 World edge
 - [ ] 13.1 Depths "Burning City"
 - [ ] 13.2 Citadel jigsaw
 
@@ -179,3 +179,16 @@ Owns `com.embervoid.realm` (incl. `realm.worldgen`, `realm.fog`), `com.embervoid
 - GameTest: three crypts built at Necropolis spots with different seeds: ≥ 4 pieces, always a lower crypt, the treasure
   chest, water, no marker left. Server check locates and generates a crypt.
 - Not seen: crypt looks, how the pools look in the sinkholes.
+
+## 9.9 World edge
+
+- Feature `embervoid:realm_edge` (`reach.world.EdgeFeature`, in the zone and abyss biomes, after the roads): the
+  kingdom border, a broken wall on the ring r = radius − 95 (1105) — 8-block stretches fallen (30 %), low (1–2) or
+  standing (3–6), a 5-wide tower every 120 blocks of arc — and six collapsed bridges at seeded angles (at least 30°
+  apart) from r = radius − 58 running 25–45 blocks out over the abyss: 5 wide, brick middle, cobble edges with a broken
+  parapet, hanging pillar stumps every 12 blocks, the last 8 blocks crumbling. A bridge's deck height comes from the
+  noise at its root (`getHeightInGround`), so every chunk agrees. Pure layout in `realm.EdgeLayout` (JUnit).
+- Debug `/embervoid realm edge` (console-safe with `execute in`): wall radius and bridge positions. Server check
+  generates two bridges.
+- GameTest: three standing wall stretches have masonry; every bridge has its deck 6 blocks out.
+- Not seen: how the border and bridges look against the abyss.

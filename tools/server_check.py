@@ -9,9 +9,9 @@ What it does:
 2. Over RCON: locates the nearest Ember Sanctum and force-loads the chunks around it (so it is really generated in
    overworld terrain), force-loads the Ashen Reach landing and depths centre, locates the three zone arenas and the
    depths arena and force-loads them too, force-loads every road outpost and checks each got its chest, locates and
-   force-loads a minor structure of each zone, force-loads the Vampire arena, starts and stops a full moon and a blood
-   new moon, opens, checks and closes the Vampire arena, waits for generation, saves, stops the server. Commands with
-   an expected answer fail the check when the answer does not match.
+   force-loads a minor structure of each zone and a crypt, two bridges at the world edge, force-loads the Vampire
+   arena, starts and stops a full moon and a blood new moon, opens, checks and closes the Vampire arena, waits for
+   generation, saves, stops the server. Commands with an expected answer fail the check when the answer does not match.
 3. Scans the whole output (build + server log) for crashes, mixin failures, ERROR lines and datapack load errors.
    Exit code 0 only if there are none. WARN lines are listed but do not fail the check.
 
@@ -184,6 +184,10 @@ def exercise(rcon):
             generate_around(f"Minor {structure}", "embervoid:ashen_reach", pos, 24)
         else:
             FAILED_EXPECTATIONS.append(f"Minor {structure}: not located")
+    # World edge (PLAN 9.9): two of the broken bridges at the abyss cliffs.
+    edge = run("Edge", "execute in embervoid:ashen_reach run embervoid realm edge")
+    for x, z in re.findall(r"bridge at (-?\d+) (-?\d+)", edge)[:2]:
+        generate_around("Bridge", "embervoid:ashen_reach", (int(x), int(z)), 24)
     generate_around("Depths landing", "embervoid:ashen_reach_depths", (0, 0))
     pos = located(run("Depths arena", "execute in embervoid:ashen_reach_depths run locate structure "
                       "embervoid:ashen_reach_depths_arena"))
