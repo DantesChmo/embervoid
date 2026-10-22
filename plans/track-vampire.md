@@ -65,10 +65,25 @@ affected. Test with `/embervoid moon start blood | stop | status`.
     is kept for that). Restart while closing → closes at once.
   - Without the arena dimension (broken datapack) the fight stays in the overworld as in 8.11 (logged as an error).
 
+## Automated checks (instead of in-game QA)
+
+- **GameTests** `src/gametest/.../VampireTests.java`, one batch per test (the night is global), every step guarded
+  (a failure stops the night and removes the player first). The test world has no `vampire_arena`, so the boss
+  fights in the overworld fallback there (its ERROR line in the gametest log is expected):
+  `bloodMoonBringsFriendlyVampires`, `playerHitTurnsVampireIntoBoss` (incl. moon stop mid-fight → no credit),
+  `unprovokedVampireTurnsAfterTimeout` (provokeMinutes 0.1), `killGivesPersonalLootAndEndsNight` (first + repeat
+  kill, GOAL_MET), `everyoneDeadEndsNight`, `noPlayersNoVampiresNoHold`.
+- **Server check** (`tools/server_check.py`, real dedicated server with the arena dimension):
+  `/embervoid vampire arena open | check | close` — the arena builds whole, its chunks are forced while open and
+  released after closing; blood moon with no players → no Vampires, no hold. Commands with an expected answer now fail
+  the check on a mismatch.
+- Not covered automatically: pulling a real player into the arena, return, death-stays-out, remnant moved (needs a
+  player in a world that has the dimension), and anything visual (models, animations, telegraph readability, red fog).
+
 ## Notes
 
-- No GameTest yet: tracks don't run `runGametest`. Good candidates for 8.13: `VampireArena.open/close` round trip
-  (return point, remnant moved), level cap with an attuned player.
-- Server check: `execute in embervoid:vampire_arena run forceload add -16 -16 16 16` would prove the dimension loads.
+- A blood moon with nobody in the overworld outside a core spawns no Vampires and takes no hold (found by the checks:
+  it used to hold the night until the 30-minute fallback).
+- Debug: `/embervoid vampire arena open | close | check` (refused while a fight runs).
 
 - Players joining the overworld later in the night get no Vampires of their own (the groups form at dusk).

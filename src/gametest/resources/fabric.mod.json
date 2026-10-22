@@ -12,7 +12,8 @@
 			"com.embervoid.gametest.MoonTests",
 			"com.embervoid.gametest.PlayerTests",
 			"com.embervoid.gametest.SanctumTests",
-			"com.embervoid.gametest.NightMobTests"
+			"com.embervoid.gametest.NightMobTests",
+			"com.embervoid.gametest.VampireTests"
 		]
 	},
 	"depends": {

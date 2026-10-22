@@ -1,7 +1,13 @@
 package com.embervoid.vampire;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
+
+import java.util.List;
+import java.util.Map;
 
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -31,7 +37,47 @@ final class VampireCommands {
 							}
 							state.provokeTicks = 1;
 							return 1;
-						})))));
+						}))
+						// /embervoid vampire arena open|close|check: the arena without a fight (debug, server check).
+						.then(literal("arena")
+								.then(literal("open").executes(context -> {
+									MinecraftServer server = context.getSource().getServer();
+									VampireState state = VampireState.get(server);
+									if (state.stage == VampireState.Stage.FIGHT || state.stage == VampireState.Stage.CLOSING) {
+										context.getSource().sendError(Text.literal("A fight is running"));
+										return 0;
+									}
+									List<ServerPlayerEntity> pulled = VampireArena.open(server, state);
+									if (pulled == null) {
+										context.getSource().sendError(Text.literal("Vampire arena dimension missing"));
+										return 0;
+									}
+									context.getSource().sendFeedback(() -> Text.literal("Vampire arena open, " + pulled.size() + " player(s) pulled in"), true);
+									return 1;
+								}))
+								.then(literal("close").executes(context -> {
+									MinecraftServer server = context.getSource().getServer();
+									VampireState state = VampireState.get(server);
+									if (state.stage == VampireState.Stage.FIGHT || state.stage == VampireState.Stage.CLOSING) {
+										context.getSource().sendError(Text.literal("A fight is running"));
+										return 0;
+									}
+									VampireArena.close(server, state, Map.of());
+									context.getSource().sendFeedback(() -> Text.literal("Vampire arena closed"), true);
+									return 1;
+								}))
+								.then(literal("check").executes(context -> {
+									ServerWorld arena = VampireArena.world(context.getSource().getServer());
+									if (arena == null) {
+										context.getSource().sendError(Text.literal("Vampire arena dimension missing"));
+										return 0;
+									}
+									String wrong = VampireArena.verify(arena);
+									boolean open = VampireArena.isForced(arena);
+									context.getSource().sendFeedback(() -> Text.literal("Vampire arena " + (wrong == null ? "intact" : "broken: " + wrong)
+											+ ", chunks " + (open ? "forced" : "not forced")), false);
+									return wrong == null ? 1 : 0;
+								}))))));
 	}
 
 	private VampireCommands() {}

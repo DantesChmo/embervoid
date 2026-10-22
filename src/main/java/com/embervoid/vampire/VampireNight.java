@@ -30,7 +30,8 @@ import java.util.List;
  *
  * <ul>
  *   <li>When the night starts, each group of overworld players (within {@code vampire.groupRadius} of each other,
- *   players in a Sanctum core left out) gets 1–3 friendly Vampires nearby. The night is held from then on.</li>
+ *   players in a Sanctum core left out) gets 1–3 friendly Vampires nearby. The night is held from then on (not when
+ *   nobody was there to meet them).</li>
  *   <li>The first player hit on any Vampire turns that one; every other Vampire vanishes.</li>
  *   <li>If nobody provokes one within {@code vampire.provokeMinutes}, the Vampire nearest to a player turns.</li>
  *   <li>The turned Vampire becomes the boss ({@link VampireFight}); the hold is released when that fight is over.</li>
@@ -72,12 +73,17 @@ public final class VampireNight {
 		state.provokeTicks = Math.round(VampireConfig.get().provokeMinutes() * MINUTE);
 		state.turning = null;
 		state.markDirty();
-		MoonNights.hold(server, HOLD);
 		int spawned = 0;
 		List<ServerPlayerEntity> players = candidates(server);
 		List<double[]> positions = players.stream().map(p -> new double[]{p.getX(), p.getY(), p.getZ()}).toList();
 		for (List<Integer> group : VampireGroups.cluster(positions, VampireConfig.get().groupRadius())) {
 			spawned += spawnGroup(server.getOverworld(), group.stream().map(players::get).toList(), state.nightId);
+		}
+		if (spawned == 0) {
+			// Nobody in the overworld to meet them: no Vampires tonight, and nothing holds the night.
+			state.stage = Stage.NONE;
+		} else {
+			MoonNights.hold(server, HOLD);
 		}
 		Embervoid.LOGGER.info("Blood new moon: {} Vampire(s) near {} player(s)", spawned, players.size());
 	}
