@@ -1,0 +1,6 @@
+{
+	"parent": "embervoid:item/huntsmans_crossbow",
+	"textures": {
+		"layer0": "embervoid:item/huntsmans_crossbow_pulling_2"
+	}
+}

@@ -7,8 +7,8 @@
     "sky_color": 3807248,
     "water_color": 4147786,
     "water_fog_color": 1712160,
-    "grass_color": 7038544,
-    "foliage_color": 6051907,
+    "grass_color": 7232064,
+    "foliage_color": 6179376,
     "mood_sound": {
       "block_search_extent": 8,
       "offset": 2.0,
@@ -23,20 +23,7 @@
     }
   },
   "spawners": {
-    "monster": [
-      {
-        "type": "minecraft:wither_skeleton",
-        "weight": 60,
-        "minCount": 1,
-        "maxCount": 2
-      },
-      {
-        "type": "minecraft:skeleton",
-        "weight": 100,
-        "minCount": 2,
-        "maxCount": 3
-      }
-    ],
+    "monster": [],
     "creature": [],
     "ambient": [],
     "axolotls": [],

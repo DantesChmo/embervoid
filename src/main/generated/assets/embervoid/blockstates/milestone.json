@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "embervoid:block/milestone",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "embervoid:block/milestone"
+    },
+    "facing=south": {
+      "model": "embervoid:block/milestone",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "embervoid:block/milestone",
+      "y": 270
+    }
+  }
+}

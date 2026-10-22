@@ -7,7 +7,7 @@ import net.minecraft.util.Rarity;
 
 import java.util.List;
 
-/** The realm's unique weapons, one per boss soul (DESIGN §4.5 "Weapons"); the crossbow is in its own class. */
+/** The realm's unique weapons, one per boss soul (DESIGN §4.5 "Weapons"). */
 public final class GearWeapons {
 	private static final int DURABILITY = 1800;
 
@@ -23,12 +23,17 @@ public final class GearWeapons {
 
 	public static final List<Item> MELEE = List.of(ASHEN_SCYTHE, WARDENS_SCOURGE, ROYAL_ASH_RAPIER);
 
+	/** Charge 2.0 s, bolts ≈ 1.5×, Punch III knockback, pierce 1. DEX 0.5 / STR 0.5. */
+	public static final Item HUNTSMANS_CROSSBOW = ModItems.register("huntsmans_crossbow",
+			new HuntsmansCrossbowItem(new Item.Settings().maxDamage(1200).rarity(Rarity.EPIC).fireproof()));
+
 	private static Item.Settings settings() {
 		return new Item.Settings().maxDamage(DURABILITY).rarity(Rarity.EPIC).fireproof();
 	}
 
 	static void register() {
 		WeaponScaling.addMeleeRule(stack -> stack.getItem() instanceof GearWeaponItem weapon ? weapon.spec().scaling() : null);
+		WeaponScaling.addRangedRule(stack -> stack.getItem() instanceof HuntsmansCrossbowItem ? WeaponScaling.Scaling.HYBRID : null);
 	}
 
 	private GearWeapons() {}

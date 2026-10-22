@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "embervoid:block/gravestone",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "embervoid:block/gravestone"
+    },
+    "facing=south": {
+      "model": "embervoid:block/gravestone",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "embervoid:block/gravestone",
+      "y": 270
+    }
+  }
+}
