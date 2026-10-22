@@ -72,3 +72,21 @@ track-moon, so this track has its own section `nightMobs` (approved by the coord
 - Debug (op): `/embervoid wave status`, `/embervoid wave spawn <players>` (a wave now, full moon or not; it holds
   the night only when one is on), `/embervoid wave clear <players>`.
 - Known: a wave owner who logs off leaves the night held until their wave dies or the 30-minute fallback.
+
+## GameTests (`src/gametest/.../NightMobTests`)
+
+They replace the in-game check (the user does not play-test). The moon night is global, so each test that starts
+one has its own `batchId` (`nightmobs_*`): tests of one batch run at the same time, batches one after another. A
+failed assertion stops the night and removes the player before rethrowing, so it cannot leak into later batches.
+The curse is set with `/embervoid moon curse @s <n>` run as the player (a UUID selector is not a player selector).
+
+| Test | Checks |
+|---|---|
+| `cursedPlayerGetsZombieWave` | curse 3 + full moon → 3 Ashen Zombies 16–32 blocks out, level = spot + 5, hold `embervoid:wave/<uuid>` open |
+| `killingTheWaveEndsTheNight` | killing them → hold released, night over with `GOAL_MET` |
+| `uncursedPlayerGetsGhostsAndAShard` | curse 0 → 5 Ghosts in the ring; killing them → 1 Flask Shard, night over |
+| `stoppingTheNightRemovesTheWave` | moon stop → wave mobs removed, wave forgotten |
+| `playerAwayGetsTheWaveOnReturn` | in the Nether at the start → no wave; back in the overworld → 5 Ghosts |
+| `ghostDoesNotSuffocate` | a Ghost inside stone for 3 s keeps full health |
+| `ghostMissChance` | `ghostMissChance` 1 → 20 player hits do nothing; 0 → the hit lands |
+| `ashenZombieDoesNotBurnInDaylight` | noon, open sky: a vanilla zombie (control) burns, the Ashen Zombie does not |

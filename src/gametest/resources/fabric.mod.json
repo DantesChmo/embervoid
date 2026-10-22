@@ -10,7 +10,8 @@
 		"fabric-gametest": [
 			"com.embervoid.gametest.MobLevelTests",
 			"com.embervoid.gametest.PlayerTests",
-			"com.embervoid.gametest.SanctumTests"
+			"com.embervoid.gametest.SanctumTests",
+			"com.embervoid.gametest.NightMobTests"
 		]
 	},
 	"depends": {

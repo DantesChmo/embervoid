@@ -35,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalInt;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -85,6 +86,12 @@ public final class NightWaves {
 		ServerEntityEvents.ENTITY_LOAD.register(NightWaves::onLoad);
 		ServerEntityEvents.ENTITY_UNLOAD.register(NightWaves::onUnload);
 		WaveCommands.register();
+	}
+
+	/** The UUIDs of the living mobs of {@code owner}'s wave (empty without one). For tests and debugging. */
+	public static Set<UUID> waveOf(MinecraftServer server, UUID owner) {
+		WaveState.Wave wave = WaveState.get(server).waves.get(owner);
+		return wave == null ? Set.of() : Set.copyOf(wave.mobs);
 	}
 
 	/** The hold id of a player's wave. */
