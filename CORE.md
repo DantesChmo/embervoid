@@ -131,6 +131,31 @@ ru_ru, base level in `MobConfig`. `tools/mob_placeholders.py` writes placeholder
 
 ---
 
+### 3.4 Moon nights (overworld)
+Design: DESIGN §3.3, §10.12. All models are placeholders. Config sections `moon`, `nightMobs`, `vampire`.
+
+- **Schedule** (`moon.MoonSchedule`): lunar cycle `c = day / 8`; events in cycles `c ≥ 1` with
+  `c % moon.cycleInterval == 0` (3): full moon on day 24, blood new moon on day 28, then every 24 days. Dusk to
+  dawn; no sleeping from 12000 on an event day. Title + chat at start and end. Fallback `moon.fallbackMinutes` 30.
+- **API** (`moon.api`): `MoonNights.current(server)`, events `NIGHT_STARTED` / `NIGHT_ENDED(reason)`,
+  `hold` / `release(server, id)`: while a hold is open the clock stops just before dawn; the last release brings
+  dawn (`GOAL_MET`). `CurseOfTheNight.stacks(player)`. A new night goal takes a hold on `NIGHT_STARTED` and
+  releases it when met.
+- **Full moon:** overworld hostiles spawn `moon.fullMoon.levelBonus` +3 levels, follow range ×1.5, keep their
+  target in range. **Curse of the Night**: a death to a hostile mob (or its projectile, or an `ArenaBoss`) adds a
+  stack, anywhere; reset when a full moon ends. Waves (`nightmob.NightWaves`): per overworld player
+  `min(stacks, 10)` **Ashen Zombies** (spot level + 5, don't burn, 20 XP) or, with no curse, 5 **Ghosts** (no-clip
+  flyers, 2× zombie HP/damage, 15 % of hits miss, 40 XP; clearing them gives a Flask Shard), 16–32 blocks away.
+  Each wave holds the night (`embervoid:wave/<uuid>`); a player away from the overworld gets it on return.
+- **Blood new moon:** red sky, fog and moon (client, overworld only). Overworld hostiles heal 25 % of damage
+  dealt to players (`moon.blood.vampirism`, not `ArenaBoss`). 1–3 friendly **Vampires** per cluster of players
+  (64 blocks); the first hit turns one (others vanish), else the nearest turns after 5 min. Everyone in the
+  overworld outside a Sanctum core is pulled into `embervoid:vampire_arena` (void arena rebuilt each opening).
+  **Vampire boss** (`vampire.VampireBossEntity`, an `ArenaBoss` run by `vampire.VampireFight`, no fog wall): level
+  = highest participant, ≥ 15, ≤ top band of the highest unlocked realm (20 with none). Personal loot: first kill
+  2 Flask Shards + Vampire Fang, repeat 50 % a shard. A fighter who dies stays out; their remnant moves to their
+  return point when the arena closes. Kill → back after 10 s, dawn.
+
 ## 4. Ember Sanctum (hub)
 
 - Overworld structure, any land biome, `structure_set` spacing 48 / separation 16 (about one per 750 blocks;
@@ -255,6 +280,9 @@ the bar name, point the arena JSON's `boss.entity` at it, add its id to the real
 | `/embervoid progress <player> [attune|reset|unlock|complete|boss <id>]` | Progress flags |
 | `/embervoid realm enter <realm> [toShrine] | leave | where | arenas | data` | Realm travel and layout |
 | `/embervoid boss fights` | Running boss fights |
+| `/embervoid moon status | start full|blood | stop | setcycle <n> | curse <player> <stacks>` | Moon nights |
+| `/embervoid wave status | spawn <players> | clear <players>` | Full moon waves |
+| `/embervoid vampire status | provoke` | Blood new moon Vampires and fight |
 
 ## 10. Placeholders and gaps (what content has to fill)
 

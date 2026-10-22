@@ -20,8 +20,8 @@ Open questions in [DESIGN.md](DESIGN.md) §10 name the milestone they block. Dec
 is done; until then its tasks build the recommended answer and keep it easy to change.
 
 **Where things stand:** milestones 1–7 are built and on `main`; most of it was checked in game (single player).
-What was not checked in game is marked "(not verified in game: …)" on its line. Not started: the 0.2.0 and 0.3.0
-release tasks, the moon nights (milestone 8), the art pass, and 0.4.0 (milestones 9–13).
+What was not checked in game is marked "(not verified in game: …)" on its line. Milestone 8 (moon nights) is built and waits for its
+in-game check. Not started: the 0.2.0 release tasks, most 0.3.0 release tasks, the art pass, and 0.4.0 (milestones 9–13).
 
 ## Decisions
 
@@ -188,17 +188,17 @@ shrines).
 
 ## 8. Moon nights
 
-**Status:** In progress (tracks `track-moon`, `track-night-mobs`, `track-vampire`; tasks PLAN 8.1–8.13). DESIGN §10.12 built as recommended.
+**Status:** Built, not verified in game (QA batch for 0.3.0 pending; PLAN 8.13). DESIGN §10.12 built as recommended. Models are placeholders.
 
-- [ ] World moon-night state: every third lunar cycle, first full moon skipped, no sleeping, 30-minute fallback, config
-- [ ] Full moon: +3 levels, longer follow range, Curse of the Night stacks, **Ashen Zombie** and **Ghost**
-- [ ] Blood new moon: red sky sync, vampirism on vanilla hostiles, friendly **Vampires**, Vampire boss in its own arena dimension
+- [x] World moon-night state: every third lunar cycle, first full moon skipped, no sleeping, 30-minute fallback, config
+- [x] Full moon: +3 levels, longer follow range, Curse of the Night stacks, **Ashen Zombie** and **Ghost**
+- [x] Blood new moon: red sky sync, vampirism on vanilla hostiles, friendly **Vampires**, Vampire boss in its own arena dimension
 
 ## 0.3.0 release
 
-**Status:** Not started.
+**Status:** In progress.
 
-- [ ] Sealed Gate opens onto a placeholder ("the depths are still forming")
+- [x] Sealed Gate opens onto a placeholder ("the depths are still forming"; `realm.depthsOpen`)
 - [ ] Balance pass on the moon nights (levels, curse, Ghosts, Vampire boss)
 - [ ] Multiplayer and performance test (realm worldgen time, entity counts)
 - [ ] Release 0.3.0

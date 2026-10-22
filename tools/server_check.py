@@ -8,7 +8,8 @@ What it does:
    RCON on a local port, and waits for "Done".
 2. Over RCON: locates the nearest Ember Sanctum and force-loads the chunks around it (so it is really generated in
    overworld terrain), force-loads the Ashen Reach landing and depths centre, locates the three zone arenas and the
-   depths arena and force-loads them too, waits for generation, saves, stops the server.
+   depths arena and force-loads them too, force-loads the Vampire arena, starts and stops a full moon and a blood
+   new moon, waits for generation, saves, stops the server.
 3. Scans the whole output (build + server log) for crashes, mixin failures, ERROR lines and datapack load errors.
    Exit code 0 only if there are none. WARN lines are listed but do not fail the check.
 
@@ -166,6 +167,11 @@ def exercise(rcon):
                       "embervoid:ashen_reach_depths_arena"))
     if pos:
         generate_around("Depths arena", "embervoid:ashen_reach_depths", pos, 32)
+    generate_around("Vampire arena", "embervoid:vampire_arena", (0, 0), 16)
+    for night in ("full", "blood"):
+        run(f"Moon {night}", f"embervoid moon start {night}")
+        run(f"Moon {night} status", "embervoid moon status")
+        run(f"Moon {night} stop", "embervoid moon stop")
     time.sleep(GENERATION_WAIT)
     run("Save", "save-all flush")
     return log

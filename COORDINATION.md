@@ -13,7 +13,7 @@ owns the docs, and is the only place where the game is launched.
 | B | `track-night-mobs` | PLAN 8.7–8.9: Ashen Zombie, Ghost, full moon waves | `com.embervoid.nightmob` (main), `com.embervoid.client.nightmob` (client), their assets |
 | C | `track-vampire` | PLAN 8.10–8.12: Vampire NPC, Vampire boss, Vampire arena dimension | `com.embervoid.vampire` (main), `com.embervoid.client.vampire` (client), `data/embervoid/dimension*/vampire_arena*`, their assets |
 
-Coordinator: PLAN R30.1 (Sealed Gate placeholder, in `realm`) and the release tasks.
+All three tracks are merged into `main` (8.1–8.12). Coordinator: R30.1 done; the release tasks remain.
 Milestones 4–7 tracks (`track-player-core`, `track-mobs`, `track-sanctum`, `track-realms`) are done and merged.
 Packages from them (`player`, `stats`, `mob`, `entity/mob`, `progress`, `sanctum`, `realm`, `boss`) are not owned
 by a 0.3.0 track: a track that needs a small hook there (e.g. a new event in `boss`) adds it as a separate commit
