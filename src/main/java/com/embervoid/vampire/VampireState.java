@@ -85,6 +85,12 @@ public final class VampireState extends PersistentState {
 		return bossLevel;
 	}
 
+	/** Where the player was pulled into the arena from, or null. */
+	@Nullable
+	public ReturnPoint returnPoint(UUID player) {
+		return returnPoints.get(player);
+	}
+
 	/** The world the boss fights in, or null. */
 	@Nullable
 	public RegistryKey<World> fightWorld() {
