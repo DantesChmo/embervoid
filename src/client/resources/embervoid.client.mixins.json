@@ -8,7 +8,8 @@
 		"MoonSkyColorMixin",
 		"MoonFogColorMixin",
 		"MoonRenderMixin",
-		"RealmFogMixin"
+		"RealmFogMixin",
+		"DepthsSkyColorMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

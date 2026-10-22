@@ -18,7 +18,7 @@ Owns `com.embervoid.realm` (incl. `realm.worldgen`, `realm.fog`), `com.embervoid
 - [x] 9.7 Minor structures per zone
 - [x] 9.8 Necropolis crypt jigsaw + water
 - [x] 9.9 World edge
-- [ ] 13.1 Depths "Burning City"
+- [x] 13.1 Depths "Burning City"
 - [ ] 13.2 Citadel jigsaw
 
 ## 9.1 Fog API
@@ -192,3 +192,18 @@ Owns `com.embervoid.realm` (incl. `realm.worldgen`, `realm.fog`), `com.embervoid
   generates two bridges.
 - GameTest: three standing wall stretches have masonry; every bridge has its deck 6 blocks out.
 - Not seen: how the border and bridges look against the abyss.
+
+## 13.1 Depths "Burning City"
+
+- Own dimension type `embervoid:realm_depths` (as `realm`, fixed time 13500, ambient light 0.1); the open zones keep
+  `embervoid:realm`. Dark red sky: client `DepthsSkyColorMixin` pulls `ClientWorld.getSkyColor` 85 % towards a
+  smouldering red in a realm's depths (`client.reach.world.DepthsSky`); fog from the zone fog (depths layer).
+- Terrain (`noise_settings/ashen_reach_depths.json`): low city ground rising to the Citadel hill centred at (0, −200),
+  north of the landing (`radial_falloff` gained optional `center_x` / `center_z`: +0.4 within 45 blocks of the centre,
+  −0.4 from 170 on, ≈ 35 blocks of rise), light rolling and roughness, the radius-400 cliffs as before.
+- Surface: blackstone with cobbled ash and ash soil patches, ember cracks (magma below) in noise patches; fallen
+  smoldering beams (`embervoid:ashen_reach/fallen_beams`). Ember cracks and smoldering logs appear only here.
+  Biome: red-brown sky/fog colours, thicker ash, Nether-wastes ambient additions as placeholders. Levels 25–30 (already
+  `Realms.depthsLevels`), radius 400.
+- GameTest: depths dimension type and dusk, hill ≥ 15 above the outskirts, ember cracks and beams in the city chunks.
+- Not seen: the red sky, ember glow and smoke.

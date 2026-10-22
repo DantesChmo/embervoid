@@ -4,7 +4,7 @@
   "downfall": 0.0,
   "effects": {
     "fog_color": 4857360,
-    "sky_color": 3807248,
+    "sky_color": 3806216,
     "water_color": 4147786,
     "water_fog_color": 1712160,
     "grass_color": 7232064,
@@ -19,7 +19,11 @@
       "options": {
         "type": "minecraft:ash"
       },
-      "probability": 0.01
+      "probability": 0.025
+    },
+    "additions_sound": {
+      "sound": "minecraft:ambient.nether_wastes.additions",
+      "tick_chance": 0.006
     }
   },
   "spawners": {
@@ -44,7 +48,9 @@
     [],
     [],
     [],
-    [],
+    [
+      "embervoid:ashen_reach/fallen_beams"
+    ],
     []
   ]
 }

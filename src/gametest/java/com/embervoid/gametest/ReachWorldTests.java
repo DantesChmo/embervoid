@@ -580,4 +580,49 @@ public final class ReachWorldTests implements FabricGameTest {
 		}
 		context.complete();
 	}
+	/**
+	 * The depths, Burning City (PLAN 13.1): their own dimension type at dusk, the Citadel hill rising north of the
+	 * landing, ember cracks in the ground and smoldering beams.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 2400)
+	public void depthsAreTheBurningCity(TestContext context) {
+		ServerWorld depths = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.depths());
+		context.assertTrue(depths.getDimensionKey().getValue().equals(Embervoid.id("realm_depths")),
+				"depths use " + depths.getDimensionKey().getValue());
+		context.assertTrue(depths.getDimension().fixedTime().orElse(-1) == 13500, "depths are not at dusk");
+		int hill = averageGround(depths, 0, -200);
+		int outskirts = averageGround(depths, 0, 40);
+		context.assertTrue(hill > outskirts + 15, "Citadel hill at " + hill + ", outskirts at " + outskirts);
+		int cracks = 0;
+		int beams = 0;
+		for (int cx = -3; cx <= 3; cx++) {
+			for (int cz = -2; cz <= 2; cz++) {
+				WorldChunk chunk = depths.getChunk(cx, cz);
+				for (int x = 0; x < 16; x++) {
+					for (int z = 0; z < 16; z++) {
+						int top = chunk.sampleHeightmap(Heightmap.Type.WORLD_SURFACE, x, z);
+						for (int y = top; y > top - 3; y--) {
+							BlockState state = chunk.getBlockState(new BlockPos(x, y, z));
+							cracks += state.isOf(ReachBlocks.EMBER_CRACK) ? 1 : 0;
+							beams += state.isOf(ReachBlocks.SMOLDERING_LOG) ? 1 : 0;
+						}
+					}
+				}
+			}
+		}
+		context.assertTrue(cracks > 0 && beams > 0, "ember cracks " + cracks + ", smoldering beams " + beams);
+		context.complete();
+	}
+
+	/** Average ground height of the 5 × 5 columns around x, z (step 4). */
+	private static int averageGround(ServerWorld world, int x, int z) {
+		int sum = 0;
+		for (int dx = -8; dx <= 8; dx += 4) {
+			for (int dz = -8; dz <= 8; dz += 4) {
+				world.getChunk(new BlockPos(x + dx, 0, z + dz));
+				sum += world.getTopY(Heightmap.Type.OCEAN_FLOOR, x + dx, z + dz);
+			}
+		}
+		return sum / 25;
+	}
 }
