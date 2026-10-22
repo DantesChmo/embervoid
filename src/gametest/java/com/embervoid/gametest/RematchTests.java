@@ -69,7 +69,10 @@ public final class RematchTests implements FabricGameTest {
 	private static boolean arenaTicks(ServerWorld realm, RealmFeaturePiece piece) {
 		BlockPos c = piece.center();
 		int r = piece.radius();
-		return realm.shouldTickEntity(c.up()) && realm.shouldTickEntity(piece.shrinePos())
+		// shouldTickEntity turns true before the chunk is loaded for RealmFeatures.at; wait for both.
+		return realm.isChunkLoaded(ChunkPos.toLong(c.getX() >> 4, c.getZ() >> 4))
+				&& realm.isChunkLoaded(ChunkPos.toLong(piece.shrinePos().getX() >> 4, piece.shrinePos().getZ() >> 4))
+				&& realm.shouldTickEntity(c.up()) && realm.shouldTickEntity(piece.shrinePos())
 				&& realm.shouldTickEntity(c.add(r, 1, 0)) && realm.shouldTickEntity(c.add(-r, 1, 0))
 				&& realm.shouldTickEntity(c.add(0, 1, r)) && realm.shouldTickEntity(c.add(0, 1, -r));
 	}

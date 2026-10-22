@@ -176,7 +176,8 @@ public final class NightMobTests implements FabricGameTest {
 				player.teleport(context.getWorld(), home.x, home.y, home.z, 0, 0);
 				context.waitAndRun(25, safe(context, player, () -> {
 					int count = NightWaves.waveOf(server, player.getUuid()).size();
-					context.assertTrue(count == 5, "after returning: " + count + " wave mobs, expected 5 ghosts");
+					int ghosts = NightMobConfig.get().ghostCount();
+					context.assertTrue(count == ghosts, "after returning: " + count + " wave mobs, expected " + ghosts + " ghosts");
 					finish(context, player);
 				}));
 			}));

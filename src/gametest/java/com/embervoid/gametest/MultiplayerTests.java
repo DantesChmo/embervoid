@@ -13,6 +13,7 @@ import com.embervoid.moon.api.MoonNight;
 import com.embervoid.moon.api.MoonNights;
 import com.embervoid.nightmob.AshenZombieEntity;
 import com.embervoid.nightmob.GhostEntity;
+import com.embervoid.nightmob.NightMobConfig;
 import com.embervoid.nightmob.NightWaves;
 import com.embervoid.player.PlayerDataManager;
 import com.embervoid.player.XpUtil;
@@ -415,7 +416,7 @@ public final class MultiplayerTests implements FabricGameTest {
 			}
 			context.assertTrue(waves.get(0).size() == 2 && waves.get(0).stream().allMatch(m -> m instanceof AshenZombieEntity),
 					"cursed player's wave: " + types(waves.get(0)));
-			context.assertTrue(waves.get(1).size() == 5 && waves.get(1).stream().allMatch(m -> m instanceof GhostEntity),
+			context.assertTrue(waves.get(1).size() == NightMobConfig.get().ghostCount() && waves.get(1).stream().allMatch(m -> m instanceof GhostEntity),
 					"uncursed player's wave: " + types(waves.get(1)));
 			for (int i = 0; i < 2; i++) {
 				for (MobEntity mob : waves.get(i)) {

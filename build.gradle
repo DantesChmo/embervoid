@@ -64,10 +64,10 @@ loom {
 	}
 }
 
-// A fresh world for every run, so results never depend on the previous one.
+// A fresh world and default config for every run, so results never depend on the previous one.
 tasks.named('runGametest') {
 	doFirst {
-		delete "build/gametest/world", "build/gametest/junit.xml"
+		delete "build/gametest/world", "build/gametest/junit.xml", "build/gametest/config/embervoid.json"
 	}
 }
 
