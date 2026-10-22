@@ -18,7 +18,8 @@
 			"com.embervoid.gametest.GearTests",
 			"com.embervoid.gametest.ReliquaryTests",
 			"com.embervoid.gametest.BossFrameworkTests",
-			"com.embervoid.gametest.ArenaTemplateTests"
+			"com.embervoid.gametest.ArenaTemplateTests",
+			"com.embervoid.gametest.ReachWorldTests"
 		]
 	},
 	"mixins": [

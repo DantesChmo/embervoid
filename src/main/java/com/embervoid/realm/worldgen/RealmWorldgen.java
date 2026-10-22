@@ -19,6 +19,7 @@ public final class RealmWorldgen {
 	public static void register() {
 		Registry.register(Registries.BIOME_SOURCE, Embervoid.id("realm_zones"), RealmBiomeSource.CODEC);
 		Registry.register(Registries.DENSITY_FUNCTION_TYPE, Embervoid.id("radial_falloff"), RadialFalloff.CODEC.codec());
+		Registry.register(Registries.DENSITY_FUNCTION_TYPE, Embervoid.id("zone_blend"), ZoneBlend.CODEC.codec());
 	}
 
 	private RealmWorldgen() {}

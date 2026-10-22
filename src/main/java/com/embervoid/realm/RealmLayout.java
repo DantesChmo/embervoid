@@ -80,6 +80,53 @@ public final class RealmLayout {
 		return 1 - 2 * smooth;
 	}
 
+	/** Weight of the landing shape at {@code distance}: 1 inside the disc, fading to 0 over {@code blend} blocks. */
+	public static double landingWeight(double distance, double landingRadius, double blend) {
+		if (distance <= landingRadius) {
+			return 1;
+		}
+		if (blend <= 0 || distance >= landingRadius + blend) {
+			return 0;
+		}
+		return 1 - smoothstep((distance - landingRadius) / blend);
+	}
+
+	/**
+	 * Weight of each zone's terrain at a (warped) angle: 1 well inside a sector, sliding to the neighbour across a
+	 * border over {@code blendBlocks} on each side (in blocks of arc at {@code distance}; at most a third of the
+	 * sector, so only two zones ever mix). Weights sum to 1.
+	 */
+	public static double[] zoneWeights(double angle, int zoneCount, double startAngle, double distance, double blendBlocks) {
+		double[] weights = new double[zoneCount];
+		if (zoneCount == 1) {
+			weights[0] = 1;
+			return weights;
+		}
+		double width = sectorWidth(zoneCount);
+		double blend = Math.min(width / 3, blendBlocks / Math.max(1, distance));
+		double local = normalize(angle - startAngle);
+		int sector = Math.min((int) Math.floor(local / width), zoneCount - 1);
+		double into = local - sector * width;
+		if (into < blend) {
+			// Near the border with the previous sector: 0.5 / 0.5 on the border itself.
+			double t = smoothstep((into + blend) / (2 * blend));
+			weights[sector] = t;
+			weights[(sector + zoneCount - 1) % zoneCount] = 1 - t;
+		} else if (width - into < blend) {
+			double t = smoothstep((width - into + blend) / (2 * blend));
+			weights[sector] = t;
+			weights[(sector + 1) % zoneCount] = 1 - t;
+		} else {
+			weights[sector] = 1;
+		}
+		return weights;
+	}
+
+	private static double smoothstep(double t) {
+		double c = Math.max(0, Math.min(1, t));
+		return c * c * (3 - 2 * c);
+	}
+
 	/**
 	 * Block position (x, z) of a feature placed in one sector, derived from the seed only.
 	 *
