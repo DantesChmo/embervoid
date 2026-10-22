@@ -40,6 +40,9 @@ public final class ReliquaryDataGen {
 			for (Item item : ReliquaryItems.ARTIFACTS) {
 				gen.register(item, Models.GENERATED);
 			}
+			for (Item item : ReliquaryItems.RINGS) {
+				gen.register(item, Models.GENERATED);
+			}
 		}
 	}
 
@@ -57,6 +60,8 @@ public final class ReliquaryDataGen {
 		protected void configure(RegistryWrapper.WrapperLookup registries) {
 			var artifacts = getOrCreateTagBuilder(SlotKinds.ARTIFACT.tag());
 			ReliquaryItems.ARTIFACTS.forEach(artifacts::add);
+			var rings = getOrCreateTagBuilder(SlotKinds.RING.tag());
+			ReliquaryItems.RINGS.forEach(rings::add);
 		}
 	}
 

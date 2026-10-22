@@ -197,6 +197,129 @@ EMBER = [
 ]
 
 
+HELMET = [
+    "................",
+    "................",
+    "................",
+    "....oooooooo....",
+    "...oLLLLLLLMo...",
+    "..oLLMMMMMMMDo..",
+    "..oLMMMMMMMMDo..",
+    "..oLMMMMMMMMDo..",
+    "..oLMooooooDMo..",
+    "..oLMo....oDMo..",
+    "..oMDo....oDDo..",
+    "...oo......oo...",
+    "................",
+    "................",
+    "................",
+    "................",
+]
+
+CHESTPLATE = [
+    "................",
+    "..ooo......ooo..",
+    ".oLLLoooooooLMo.",
+    ".oLMMLLLLLLMMDo.",
+    ".oLMMMMEEMMMMDo.",
+    "..ooLMMEEMMMoo..",
+    "....oLMMMMDo....",
+    "....oLMMMMDo....",
+    "....oLMMMMDo....",
+    "....oLMMMMDo....",
+    "....oMMMMMDo....",
+    "....oMMMMDDo....",
+    "....oDDDDDDo....",
+    ".....oooooo.....",
+    "................",
+    "................",
+]
+
+LEGGINGS = [
+    "................",
+    "................",
+    "...oooooooooo...",
+    "...oLLLLLLLMo...",
+    "...oLMMEEMMDo...",
+    "...oLMMooMMDo...",
+    "...oLMDooLMDo...",
+    "...oLMDooLMDo...",
+    "...oLMDooLMDo...",
+    "...oLMDooLMDo...",
+    "...oLMDooLMDo...",
+    "...oMDDooMDDo...",
+    "...ooooooooooo..",
+    "................",
+    "................",
+    "................",
+]
+
+BOOTS = [
+    "................",
+    "................",
+    "................",
+    "................",
+    "................",
+    "...oooo..oooo...",
+    "...oLMo..oLMo...",
+    "...oLMo..oLMo...",
+    "...oLMo..oLMo...",
+    "...oLMo..oLMo...",
+    "..oLMMo..oLMMo..",
+    ".oLMMDo..oLMMDo.",
+    ".oMDDDo..oMDDDo.",
+    ".oooooo..oooooo.",
+    "................",
+    "................",
+]
+
+
+def armor(name, colours, rng_seed=1):
+    """Item icons <name>_helmet|chestplate|leggings|boots and the worn layers."""
+    for piece, rows in (("helmet", HELMET), ("chestplate", CHESTPLATE), ("leggings", LEGGINGS), ("boots", BOOTS)):
+        icon(name + "_" + piece, rows, palette(*colours))
+    layers(name, colours, rng_seed)
+
+
+def layers(name, colours, rng_seed=1):
+    """Worn armor layers (minecraft namespace, see GearArmorMaterial): a plain suit in the material's colours, one
+    accent band. The game only draws the parts of the slots the material has pieces for."""
+    import random
+    light, mid, dark, accent = colours
+    rng = random.Random(rng_seed)
+    layer_dir = os.path.join("src", "main", "resources", "assets", "minecraft", "textures", "models", "armor")
+    one = Canvas(64, 32)
+    one.rect(0, 0, 32, 16, mid, 10, rng)  # head
+    one.rect(8, 0, 16, 8, light, 10, rng)  # head top / front band
+    one.rect(16, 16, 24, 16, mid, 10, rng)  # body
+    one.rect(20, 20, 8, 3, accent)  # chest band
+    one.rect(40, 16, 16, 16, dark, 10, rng)  # arms
+    one.rect(0, 26, 16, 6, dark, 10, rng)  # boots: lower legs
+    one.rect(8, 16, 4, 4, dark)  # boot soles
+    one.save(os.path.join(layer_dir, "embervoid_" + name + "_layer_1.png"))
+    two = Canvas(64, 32)
+    two.rect(0, 16, 16, 16, mid, 10, rng)  # legs
+    two.rect(16, 16, 24, 16, dark, 10, rng)  # hips
+    two.rect(20, 26, 8, 2, accent)  # belt
+    two.save(os.path.join(layer_dir, "embervoid_" + name + "_layer_2.png"))
+
+
+def armor_sets():
+    armor("smoldering", ((104, 92, 90, 255), (64, 54, 54, 255), (38, 32, 34, 255), (246, 112, 36, 255)))
+    armor("reaper", ((170, 156, 128, 255), (118, 104, 82, 255), (72, 62, 50, 255), (196, 70, 40, 255)))
+    armor("huntsman", ((122, 140, 90, 255), (84, 100, 62, 255), (52, 62, 40, 255), (214, 160, 70, 255)))
+    armor("warden", ((150, 158, 176, 255), (98, 106, 124, 255), (58, 64, 80, 255), (180, 196, 230, 255)), 3)
+    uniques = (
+        ("scarecrow_mask", "scarecrow_mask", HELMET, ((214, 190, 120, 255), (160, 134, 74, 255), (96, 78, 44, 255), (40, 30, 24, 255))),
+        ("huntsman_greaves", "huntsman_greaves", LEGGINGS, ((150, 116, 76, 255), (108, 80, 50, 255), (66, 48, 30, 255), (226, 186, 90, 255))),
+        ("drowned_sabatons", "drowned_sabatons", BOOTS, ((110, 160, 150, 255), (64, 110, 104, 255), (34, 66, 64, 255), (170, 220, 210, 255))),
+        ("furnace_heart_cuirass", "furnace_heart", CHESTPLATE, ((120, 80, 70, 255), (76, 46, 40, 255), (44, 26, 24, 255), (255, 150, 40, 255))),
+    )
+    for item, material, rows, colours in uniques:
+        icon(item, rows, palette(*colours))
+        layers(material, colours, 7)
+
+
 def palette(light, mid, dark, extra=(255, 255, 255, 255)):
     return {"L": light, "M": mid, "D": dark, "E": extra}
 
@@ -225,7 +348,38 @@ def boss_items():
     icon("flask_ember", EMBER, palette((255, 210, 110, 255), (246, 128, 40, 255), (170, 52, 24, 255), (255, 246, 210, 255)))
 
 
+def effects():
+    """18x18 status effect icon: a red drop."""
+    c = Canvas(18, 18)
+    drop = ["........o.........",
+            ".......oLo........",
+            ".......oLo........",
+            "......oLLMo.......",
+            "......oLMMo.......",
+            ".....oLLMMMo......",
+            ".....oLMMMMo......",
+            "....oLLMMMMMo.....",
+            "....oLMMMMMMo.....",
+            "...oLMMMMMMMDo....",
+            "...oLMMMMMMMDo....",
+            "...oMMMMMMMDDo....",
+            "...oMMMMMMDDDo....",
+            "....oMMMMDDDo.....",
+            ".....ooDDDoo......",
+            ".......ooo........",
+            "..................",
+            ".................."]
+    colours = {"L": (236, 96, 96, 255), "M": (176, 20, 24, 255), "D": (104, 8, 12, 255)}
+    for y, row in enumerate(drop):
+        for x, ch in enumerate(row):
+            if ch != ".":
+                c.set(x + 1, y + 1, OUTLINE if ch == "o" else colours[ch])
+    c.save(os.path.join("src", "main", "resources", "assets", "embervoid", "textures", "mob_effect", "bleeding.png"))
+
+
 if __name__ == "__main__":
     materials()
     boss_items()
+    effects()
+    armor_sets()
     print("Wrote reach gear placeholder textures")

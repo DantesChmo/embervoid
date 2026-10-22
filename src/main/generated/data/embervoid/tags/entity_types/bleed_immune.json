@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "embervoid:restless_bones",
+      "required": false
+    },
+    {
+      "id": "embervoid:furnace_golem",
+      "required": false
+    },
+    {
+      "id": "embervoid:bark_hollow",
+      "required": false
+    },
+    {
+      "id": "embervoid:ash_colossus",
+      "required": false
+    },
+    {
+      "id": "embervoid:grieving_tree",
+      "required": false
+    }
+  ]
+}

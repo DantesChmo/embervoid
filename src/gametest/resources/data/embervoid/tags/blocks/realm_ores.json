@@ -1,0 +1,4 @@
+{
+	"replace": false,
+	"values": [{"id": "minecraft:iron_ore", "required": false}]
+}

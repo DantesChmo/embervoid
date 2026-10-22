@@ -10,6 +10,8 @@ public final class ReliquaryInit {
 		ReliquaryItems.register();
 		ReliquaryManager.register();
 		ReliquaryEffects.register();
+		RingEffects.register();
+		ReliquaryLoot.register();
 		ReliquaryCommands.register();
 	}
 

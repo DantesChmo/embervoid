@@ -23,6 +23,7 @@ final class LevelingBridge {
 	static StatSheet sheet(ServerPlayerEntity player) {
 		int statCap = EmbervoidConfig.get().section(StatsConfig.Leveling.SECTION).statCap();
 		DerivedStats now = PlayerStats.derived(player);
+		int[] bonus = PlayerStats.bonus(player);
 		List<StatSheet.Stat> stats = new ArrayList<>();
 		for (Stat stat : Stat.values()) {
 			int value = PlayerStats.get(player, stat);
@@ -36,7 +37,7 @@ final class LevelingBridge {
 					derived.add(new StatSheet.Derived(line.key, line.format.apply(now), line.format.apply(next)));
 				}
 			}
-			stats.add(new StatSheet.Stat(stat.id(), value, max, derived));
+			stats.add(new StatSheet.Stat(stat.id(), value, max, derived, bonus[stat.ordinal()]));
 		}
 		return new StatSheet(PlayerStats.level(player), PlayerStats.levelUpCost(player), XpUtil.getPoints(player), stats);
 	}
