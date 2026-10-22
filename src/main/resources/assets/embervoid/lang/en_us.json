@@ -353,6 +353,5 @@
 	"embervoid.gear.flask_ember.used": "The flask drinks the ember: every sip heals more",
 	"embervoid.gear.flask_ember.already": "Your flask already holds an ember",
 	"entity.embervoid.crypt_keeper": "Crypt Keeper",
-	"entity.embervoid.crypt_keeper": "Crypt Keeper",
 	"entity.embervoid.ash_colossus": "Ash Colossus"
 }
