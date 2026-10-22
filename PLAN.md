@@ -281,7 +281,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 11.4 | **Mob-drop sets + unique pieces** | reach-gear | 11.1 | done (GameTest; textures not seen) |
 | 11.5 | **Ashen Scythe, Warden's Scourge, Royal Ash Rapier** | reach-gear | 11.1, 11.2 | done (GameTest; textures and reach feel not seen) |
 | 11.6 | **Huntsman's Crossbow** | reach-gear | 11.1 | done (GameTest; held like a normal item when charged, textures not seen) |
-| 11.7 | **Consumables + Flask Ember** | reach-gear | 11.1, 11.2 | todo |
+| 11.7 | **Consumables + Flask Ember** | reach-gear | 11.1, 11.2 | done (GameTest; Lantern Oil gives Night Vision, no dynamic light; textures and bomb visuals not seen) |
 | 11.8 | **Chest loot + realm loot on mobs** | reach-gear | 11.3–11.7 | todo |
 | 11.9 | **Reliquary: data, sync, screen** | reliquary | — | done (GameTest; screen look and button position not seen) |
 | 11.10 | **Reliquary: remnant, stat points** | reliquary | 11.9 | done (GameTest) |
