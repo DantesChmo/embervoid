@@ -6,6 +6,8 @@ import com.embervoid.reach.gear.GearItems;
 import com.embervoid.reach.world.ReachBlocks;
 import com.embervoid.reach.world.ReachZones;
 import com.embervoid.reach.world.ZoneTitles;
+import com.embervoid.reach.world.EdgeFeature;
+import com.embervoid.realm.EdgeLayout;
 import com.embervoid.realm.RealmArenas;
 import com.embervoid.realm.RealmDefinition;
 import com.embervoid.realm.RealmMobLevels;
@@ -546,6 +548,35 @@ public final class ReachWorldTests implements FabricGameTest {
 			}
 			context.assertTrue(treasure, "no Necropolis treasure chest in the crypt " + pieces);
 			context.assertTrue(water, "no water in the crypt " + pieces);
+		}
+		context.complete();
+	}
+	/** The world edge (PLAN 9.9): a standing stretch of the border wall and the start of each broken bridge. */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 2400)
+	public void edgeHasWallAndBridges(TestContext context) {
+		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
+		RealmDefinition definition = Realms.ASHEN_REACH;
+		double wall = EdgeFeature.wallRadius(definition);
+		Set<Block> masonry = Set.of(ModBlocks.ASH_BRICKS, ModBlocks.CRACKED_ASH_BRICKS, ModBlocks.COBBLED_ASH_STONE,
+				ModBlocks.ASH_BRICK_WALL);
+		int standing = 0;
+		for (double a = 0.3; a < 6 && standing < 3; a += 0.37) {
+			if (EdgeLayout.wallHeight(realm.getSeed(), a, wall) < 3 || EdgeLayout.isTower(a, wall, 5)) {
+				continue;
+			}
+			BlockPos column = BlockPos.ofFloored(Math.cos(a) * wall, 0, Math.sin(a) * wall);
+			realm.getChunk(column);
+			context.assertTrue(columnHas(realm, column, state -> state.isOf(ModBlocks.ASH_BRICKS) || state.isOf(ModBlocks.CRACKED_ASH_BRICKS)),
+					"no border wall at " + column + " (angle " + a + ")");
+			standing++;
+		}
+		context.assertTrue(standing == 3, "found only " + standing + " standing wall stretches to check");
+		for (EdgeLayout.Bridge bridge : EdgeFeature.bridges(realm, definition)) {
+			double along = bridge.from() + 6;
+			BlockPos column = BlockPos.ofFloored(Math.cos(bridge.angle()) * along, 0, Math.sin(bridge.angle()) * along);
+			realm.getChunk(column);
+			context.assertTrue(columnHas(realm, column, state -> masonry.contains(state.getBlock())),
+					"no bridge deck at " + column + " (bridge at angle " + bridge.angle() + ")");
 		}
 		context.complete();
 	}
