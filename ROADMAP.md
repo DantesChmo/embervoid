@@ -213,16 +213,16 @@ comes in the release pass.
 
 ## 9. Realm 1: world
 
-**Status:** In progress (track reach-world).
+**Status:** Done (PLAN 9.1–9.9; GameTests + server check; looks not seen in game).
 
-- [ ] Zones renamed: **Ashen Fields**, **Royal Woods**, **Sunken Necropolis** (ids stay `zone_a/b/c`); eternal dusk (`fixed_time` ≈ 13500)
-- [ ] Zone-aware terrain density function (plain / hills and ravines / sinkhole basin), blended at borders
-- [ ] Per-zone fog density (client mixin on `BackgroundRenderer`, reused for arena fog)
-- [ ] New blocks (~6–8): burnt straw, milestone, gravestone, ember crack, smouldering log, wet crypt stone…
-- [ ] Ores: Cinder Ore (Fields), Amber Vein (Woods), Grave Iron Ore (Necropolis), each only in its zone
-- [ ] Landing as the crossroads plaza; roads to each arena with milestones and 2 outposts per road
-- [ ] Minor structures per zone (~20–25 `.nbt` pieces) and the Necropolis crypt jigsaw (5–7 pieces); water only in the Necropolis
-- [ ] World edge: broken walls and collapsed bridges at the abyss cliffs
+- [x] Zones renamed: **Ashen Fields**, **Royal Woods**, **Sunken Necropolis** (ids stay `zone_a/b/c`); eternal dusk (`fixed_time` ≈ 13500)
+- [x] Zone-aware terrain density function (plain / hills and ravines / sinkhole basin), blended at borders
+- [x] Per-zone fog density (client mixin on `BackgroundRenderer`, reused for arena fog)
+- [x] New blocks (~6–8): burnt straw, milestone, gravestone, ember crack, smouldering log, wet crypt stone…
+- [x] Ores: Cinder Ore (Fields), Amber Vein (Woods), Grave Iron Ore (Necropolis), each only in its zone
+- [x] Landing as the crossroads plaza; roads to each arena with milestones and 2 outposts per road
+- [x] Minor structures per zone (~20–25 `.nbt` pieces) and the Necropolis crypt jigsaw (5–7 pieces); water only in the Necropolis
+- [x] World edge: broken walls and collapsed bridges at the abyss cliffs
 
 ## 10. Realm 1: zone bestiary
 
