@@ -6,6 +6,8 @@ import com.embervoid.reach.gear.GearItems;
 import com.embervoid.reach.world.ReachBlocks;
 import com.embervoid.reach.world.ReachZones;
 import com.embervoid.reach.world.ZoneTitles;
+import com.embervoid.reach.world.EdgeFeature;
+import com.embervoid.realm.EdgeLayout;
 import com.embervoid.realm.RealmArenas;
 import com.embervoid.realm.RealmDefinition;
 import com.embervoid.realm.RealmMobLevels;
@@ -45,6 +47,7 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.structure.PoolStructurePiece;
 import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.StructureStart;
@@ -511,6 +514,70 @@ public final class ReachWorldTests implements FabricGameTest {
 			}
 		}
 		context.assertTrue(starts >= 150, "only " + starts + " minor structure starts in 1200 blocks around the landing");
+		context.complete();
+	}
+	/** The Necropolis crypt (PLAN 9.8): entrance, junction, halls, and always the lower crypt with the treasure. */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 2400)
+	public void cryptReachesTheLowerCrypt(TestContext context) {
+		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
+		Structure crypt = realm.getRegistryManager().get(RegistryKeys.STRUCTURE).get(Embervoid.id("ashen_reach/necropolis/crypt"));
+		ChunkGenerator generator = realm.getChunkManager().getChunkGenerator();
+		for (int attempt = 0; attempt < 3; attempt++) {
+			double angle = Math.toRadians(200 + attempt * 10);
+			ChunkPos chunk = new ChunkPos(BlockPos.ofFloored(Math.cos(angle) * 600, 0, Math.sin(angle) * 600));
+			StructureStart start = crypt.createStructureStart(realm.getRegistryManager(), generator,
+					generator.getBiomeSource(), realm.getChunkManager().getNoiseConfig(), realm.getStructureTemplateManager(),
+					realm.getSeed() + attempt, chunk, 0, realm, biome -> true);
+			List<String> pieces = start.getChildren().stream()
+					.map(piece -> piece instanceof PoolStructurePiece pool ? pool.getPoolElement().toString() : "?").toList();
+			context.assertTrue(pieces.size() >= 4, "crypt with only " + pieces);
+			context.assertTrue(pieces.stream().anyMatch(p -> p.contains("crypt/lower_crypt")), "no lower crypt in " + pieces);
+			BlockBox box = start.getBoundingBox();
+			ChunkPos.stream(new ChunkPos(box.getMinX() >> 4, box.getMinZ() >> 4), new ChunkPos(box.getMaxX() >> 4, box.getMaxZ() >> 4))
+					.forEach(c -> start.place(realm, realm.getStructureAccessor(), generator, realm.getRandom(),
+							new BlockBox(c.getStartX(), realm.getBottomY(), c.getStartZ(), c.getEndX(), realm.getTopY(), c.getEndZ()), c));
+			boolean treasure = false;
+			boolean water = false;
+			for (BlockPos pos : BlockPos.iterate(box.getMinX(), box.getMinY(), box.getMinZ(), box.getMaxX(), box.getMaxY(), box.getMaxZ())) {
+				BlockState state = realm.getBlockState(pos);
+				context.assertTrue(!state.isOf(PlacedEnemies.MARKER), "placed-enemy marker left in the crypt at " + pos);
+				water |= state.isOf(Blocks.WATER);
+				if (state.isOf(Blocks.CHEST) && realm.getBlockEntity(pos) instanceof LootableContainerBlockEntity chest) {
+					treasure |= chest.createNbt().getString("LootTable").equals("embervoid:chests/ashen_reach/necropolis_treasure");
+				}
+			}
+			context.assertTrue(treasure, "no Necropolis treasure chest in the crypt " + pieces);
+			context.assertTrue(water, "no water in the crypt " + pieces);
+		}
+		context.complete();
+	}
+	/** The world edge (PLAN 9.9): a standing stretch of the border wall and the start of each broken bridge. */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 2400)
+	public void edgeHasWallAndBridges(TestContext context) {
+		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
+		RealmDefinition definition = Realms.ASHEN_REACH;
+		double wall = EdgeFeature.wallRadius(definition);
+		Set<Block> masonry = Set.of(ModBlocks.ASH_BRICKS, ModBlocks.CRACKED_ASH_BRICKS, ModBlocks.COBBLED_ASH_STONE,
+				ModBlocks.ASH_BRICK_WALL);
+		int standing = 0;
+		for (double a = 0.3; a < 6 && standing < 3; a += 0.37) {
+			if (EdgeLayout.wallHeight(realm.getSeed(), a, wall) < 3 || EdgeLayout.isTower(a, wall, 5)) {
+				continue;
+			}
+			BlockPos column = BlockPos.ofFloored(Math.cos(a) * wall, 0, Math.sin(a) * wall);
+			realm.getChunk(column);
+			context.assertTrue(columnHas(realm, column, state -> state.isOf(ModBlocks.ASH_BRICKS) || state.isOf(ModBlocks.CRACKED_ASH_BRICKS)),
+					"no border wall at " + column + " (angle " + a + ")");
+			standing++;
+		}
+		context.assertTrue(standing == 3, "found only " + standing + " standing wall stretches to check");
+		for (EdgeLayout.Bridge bridge : EdgeFeature.bridges(realm, definition)) {
+			double along = bridge.from() + 6;
+			BlockPos column = BlockPos.ofFloored(Math.cos(bridge.angle()) * along, 0, Math.sin(bridge.angle()) * along);
+			realm.getChunk(column);
+			context.assertTrue(columnHas(realm, column, state -> masonry.contains(state.getBlock())),
+					"no bridge deck at " + column + " (bridge at angle " + bridge.angle() + ")");
+		}
 		context.complete();
 	}
 }

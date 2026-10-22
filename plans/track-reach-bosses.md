@@ -14,8 +14,8 @@ courtyard piece), boss assets and loot. Config section `boss`.
 - [x] **12.3 Crypt Keeper** (GameTests `CryptKeeperTests` in the real ossuary template)
 - [x] **12.4 Ash Colossus** (GameTests `AshColossusTests` in the real crater market template)
 - [x] **12.5 Grieving Tree** (GameTests `GrievingTreeTests` in the real Royal Grove template)
-- [ ] **12.6 Souls and Flask Shards**
-- [ ] **12.7 Ash of Rematch**
+- [x] **12.6 Souls and Flask Shards** (GameTests `BossRewardTests`)
+- [x] **12.7 Ash of Rematch** (GameTest `RematchTests` at the real Necropolis arena in the realm)
 - [ ] **13.4 Smoldering Lord**
 
 ## 12.1 Framework additions — design
@@ -137,6 +137,26 @@ bones). Greybox assets: `python3 tools/boss_placeholders.py [name]` (helpers fro
 
 - P2 (50 %): uproots (animation, dirt), old lanterns fall, 4 new ones on its own branches (5.5–7 up, 3.5 out) walk with
   it, thicker fog. Model bone `roots` shows only while rooted.
+
+## 12.6 Souls and Flask Shards
+
+- Framework: `boss.BossReward(soul, firstKill extras)` registered per boss progress id (`BossReward.register`); the
+  fight hands it out instead of the Ember Heart. First kill: soul + extras, message "%s has fallen. Yours: …". A credited
+  fighter who had already beaten the boss gets the soul at `boss.repeatSoulChance` (0.25), never in a rematch
+  (`BossFight.isRematch`). Bosses without a reward keep the Ember Heart (test boss, any later realm).
+- Realm 1 (`ReachBosses`): zone_a Ash Colossus soul, zone_b Grieving Tree soul, zone_c Crypt Keeper soul, each + 1 Flask
+  Shard. The Smoldering Lord's (soul + Flask Ember) comes with 13.4.
+
+## 12.7 Ash of Rematch
+
+- `reach.boss.AshOfRematch`: `UseBlockCallback` for reach-gear's `embervoid:ash_of_rematch` on a block, server side. On an
+  arena's shrine (`RealmFeatures.at` + `shrinePos`): refused with a message if the player has not beaten that boss or the
+  arena is busy / already primed; otherwise one ash is used up and the arena is primed for 60 s
+  (`ArenaManager.primeRematch`, `REMATCH_TICKS`). Any other block: PASS (the shrine's own use runs as usual).
+- Primed arena: the next player to step inside summons the boss even if every fighter has beaten it; the fight is a
+  rematch (`BossFight.isRematch`): loot table and XP as usual, no repeat soul; a fighter who had not beaten it still gets
+  the first-kill reward. An unused priming lapses after 60 s.
+- Source of the ash (recipe, arena-side chest) is reach-gear's (DESIGN §10.11).
 
 ## Status / notes
 

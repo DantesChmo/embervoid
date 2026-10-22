@@ -9,10 +9,15 @@ import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 public final class ReachWorld {
 	public static final RoadFeature ROADS = Registry.register(Registries.FEATURE, Embervoid.id("realm_roads"),
 			new RoadFeature(DefaultFeatureConfig.CODEC));
+	public static final SinkholePoolFeature SINKHOLE_POOL = Registry.register(Registries.FEATURE,
+			Embervoid.id("sinkhole_pool"), new SinkholePoolFeature(DefaultFeatureConfig.CODEC));
+	public static final EdgeFeature EDGE = Registry.register(Registries.FEATURE, Embervoid.id("realm_edge"),
+			new EdgeFeature(DefaultFeatureConfig.CODEC));
 
 	public static void register() {
 		ReachBlocks.register();
 		ZoneTitles.register();
+		ReachWorldCommands.register();
 	}
 
 	private ReachWorld() {}

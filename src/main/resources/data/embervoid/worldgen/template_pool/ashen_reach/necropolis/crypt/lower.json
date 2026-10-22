@@ -1,0 +1,15 @@
+{
+  "name": "embervoid:ashen_reach/necropolis/crypt/lower",
+  "fallback": "embervoid:ashen_reach/necropolis/crypt/ends",
+  "elements": [
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "embervoid:ashen_reach/necropolis/crypt/lower_crypt",
+        "processors": "embervoid:ashen_reach/minor",
+        "projection": "rigid"
+      }
+    }
+  ]
+}

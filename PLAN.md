@@ -222,8 +222,8 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 9.5 | **Realm 1 blocks and ores** | 9.3, 11.1 | done (GameTest + server check; textures and particles not seen) |
 | 9.6 | **Landing plaza, roads, milestones, outposts** | 9.2, 9.4 | done (GameTest + server check; roads on steep ground and looks not seen) |
 | 9.7 | **Minor structures per zone** | 9.2, 9.5, chest ids | done (GameTest + server check; ruin looks not seen) |
-| 9.8 | **Necropolis crypt jigsaw + water** | 9.7 | todo |
-| 9.9 | **World edge** | 9.4 | todo |
+| 9.8 | **Necropolis crypt jigsaw + water** | 9.7 | done (GameTest + server check; crypt and pool looks not seen) |
+| 9.9 | **World edge** | 9.4 | done (GameTest + server check; border and bridge looks not seen) |
 
 - **9.1 Fog API.** Client mixin on `BackgroundRenderer` with a small API (client side, e.g.
   `ReachFog.push(source, density, color)` / `clear(source)`, strongest wins, eased) so the boss arena fog (12.1)
@@ -323,9 +323,9 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 12.2 | **Three arenas built** | 9.4 | done (GameTest on the templates; used in the world once 9.4 lands; looks not seen) |
 | 12.3 | **Crypt Keeper** (first: riskiest) | 12.1, 12.2 | done (GameTest + server check; model, telegraphs, darkness and flood looks not seen) |
 | 12.4 | **Ash Colossus** | 12.1, 12.2 | done (GameTest + server check; model, storm and cinders not seen) |
-| 12.5 | **Grieving Tree** | 12.1, 12.2 | todo |
-| 12.6 | **Souls and Flask Shards** | 11.1 | todo |
-| 12.7 | **Ash of Rematch** (DESIGN §10.11 as recommended) | 11.1, 12.6 | todo |
+| 12.5 | **Grieving Tree** | 12.1, 12.2 | done (GameTest + server check; model, lanterns and grove fog not seen) |
+| 12.6 | **Souls and Flask Shards** | 11.1 | done (GameTest) |
+| 12.7 | **Ash of Rematch** (DESIGN §10.11 as recommended) | 11.1, 12.6 | done (GameTest) |
 
 - **12.1** Arena hazard layer (ticked by the fight, restored on reset; real blocks only for water), S2C arena fog
   through the 9.1 API, telegraph shapes (ring at a point, line, cone, falling shadow), shield-breaking hit,
@@ -346,7 +346,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 
 | ID  | Task | Track | Depends on | Status |
 |-----|------|-------|------------|--------|
-| 13.1 | **Depths "Burning City": dimension type, terrain** | citadel | 9.4, 9.5 | todo |
+| 13.1 | **Depths "Burning City": dimension type, terrain** | citadel | 9.4, 9.5 | done (GameTest + server check; sky, fog and hill looks not seen) |
 | 13.2 | **Citadel jigsaw (~10–12 pieces)** | citadel | 13.1, 9.2 | todo |
 | 13.3 | **Cinder Hound, Sparking Marksman, Furnace Golem, Smoldering Knight** | reach-mobs | 10.1 | done (GameTest; models not seen) |
 | 13.4 | **Smoldering Lord** | reach-bosses | 12.3–12.5, 13.2 | todo |
@@ -374,6 +374,8 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 
 ## Open follow-ups
 
+- **Flaky GameTest:** `RematchTests.ashOfRematchSummonsABeatenBoss` fails in about half of full runs; track
+  reach-bosses is fixing it.
 - **Realm weapons and enchantments:** Sharpness, Smite etc. cannot go on the Scythe, Scourge and Rapier (vanilla's
   weapon enchantment target is swords only); Unbreaking and Mending work. Decide in the R40.1 balance pass.
 - **In-game checks not run yet:** QA #7f (Sanctum casing gaps, next batch); QA #8 step 9 (second and third
