@@ -20,6 +20,8 @@ public final class ReachBossClient {
 	public static void register() {
 		renderer(ReachBossEntities.CRYPT_KEEPER);
 		renderer(ReachBossEntities.ASH_COLOSSUS);
+		renderer(ReachBossEntities.GRIEVING_TREE);
+		EntityRendererRegistry.register(ReachBossEntities.TREE_LANTERN, TreeLanternRenderer::new);
 	}
 
 	private static <T extends ReachBoss> void renderer(EntityType<T> type) {

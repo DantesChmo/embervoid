@@ -82,8 +82,12 @@ final class BossArena {
 
 	/** A survival player joined standing at an absolute position (in a placed arena). */
 	ServerPlayerEntity joinAt(Vec3d pos) {
+		return joinAt(pos, new FogRecorder());
+	}
+
+	ServerPlayerEntity joinAt(Vec3d pos, ClientConnection connection) {
 		ServerPlayerEntity player = new ServerPlayerEntity(server, context.getWorld(), new GameProfile(UUID.randomUUID(), "boss-test-player"));
-		server.getPlayerManager().onPlayerConnect(new FogRecorder(), player);
+		server.getPlayerManager().onPlayerConnect(connection, player);
 		player.changeGameMode(GameMode.SURVIVAL);
 		player.teleport(context.getWorld(), pos.x, pos.y, pos.z, 0, 0);
 		players.add(player);

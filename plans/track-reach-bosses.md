@@ -13,7 +13,7 @@ courtyard piece), boss assets and loot. Config section `boss`.
 - [x] **12.2 Three arenas built** (templates; placed by reach-world's arena site code, 9.4; GameTests `ArenaTemplateTests`)
 - [x] **12.3 Crypt Keeper** (GameTests `CryptKeeperTests` in the real ossuary template)
 - [x] **12.4 Ash Colossus** (GameTests `AshColossusTests` in the real crater market template)
-- [ ] **12.5 Grieving Tree**
+- [x] **12.5 Grieving Tree** (GameTests `GrievingTreeTests` in the real Royal Grove template)
 - [ ] **12.6 Souls and Flask Shards**
 - [ ] **12.7 Ash of Rematch**
 - [ ] **13.4 Smoldering Lord**
@@ -115,6 +115,28 @@ bones). Greybox assets: `python3 tools/boss_placeholders.py [name]` (helpers fro
 - Damage by direction (from the damage source's position, against its facing): front ±60° ×0.5, back beyond ±120° ×1.5
   (core covered, P1) / ×2 (core bare, P2), sides ×1.
 - Model bones `plates` (P1) and `core` (P2) toggle with the phase.
+
+## 12.5 Grieving Tree
+
+`embervoid:grieving_tree`, 3 × 10, base HP 170 (~374 at Lv 21), armor 6, KB res 1, rooted in P1 (speed 0), 0.12 in P2,
+280 XP before level scaling. Loot (every kill): 3–6 Royal Amber, 2–5 dead logs. Adds per extra fighter: Withered Thrall.
+
+- Lanterns: `embervoid:tree_lantern` (`TreeLanternEntity`, not saved, follows its tree at an angle/distance/height,
+  drawn as a lit hanging lantern with chain). 5 in P1 at 7–8.5 up, 5.5 out; any projectile breaks one (snowballs too); a
+  melee hit only while lowered (to 1.6 up for 3 s, the one nearest the end of a branch sweep). With fewer than 2 left, one
+  grows back every 30 s.
+- Broken lantern: stun 5 s (trunk ×1.5, no moves, windups cancelled), fog lifts 6 s. Unstunned trunk ×0.3 (both phases).
+- Fog: `fight.setFog(0.55, 0x3c4640)` at summon, 0.75 in P2.
+
+| Move | Telegraph | Base dmg |
+|---|---|---|
+| Root lines | a line 18 long, ±1 wide, from its base to every fighter, 26 ticks; Slowness III 2 s, tossed up | 7 |
+| Branch sweep | cone r 8 ±50°, 20 ticks; knockback; lowers a lantern | 8 |
+| Thralls | every 25 s (not while stunned): 2 Withered Thralls drop from 6 up as fight adds | — |
+| Root cage (P2) | ring r 2.5 at the target, 24 ticks; Slowness VI 3 s | 4 |
+
+- P2 (50 %): uproots (animation, dirt), old lanterns fall, 4 new ones on its own branches (5.5–7 up, 3.5 out) walk with
+  it, thicker fog. Model bone `roots` shows only while rooted.
 
 ## Status / notes
 

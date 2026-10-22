@@ -197,7 +197,74 @@ def ash_colossus():
     write_mob("ash_colossus", bones, 256, [5, 5.5], animations, paint)
 
 
-BOSSES = [("crypt_keeper", crypt_keeper), ("ash_colossus", ash_colossus)]
+# --- Grieving Tree: the king's oak, ~10 blocks, a weeping face in the bark, roots spread while it is rooted ---------
+
+def grieving_tree():
+    trunk_h = 104
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("roots", [0, 0, 0], "root", None, [
+            Cube([-24, 0, -4], [16, 6, 8], "bark"), Cube([8, 0, -4], [16, 6, 8], "bark"),
+            Cube([-4, 0, -24], [8, 6, 16], "bark"), Cube([-4, 0, 8], [8, 6, 16], "bark"),
+        ]),
+        Bone("right_root_leg", [-8, 20, 0], "root", None, [Cube([-14, 0, -6], [12, 20, 12], "bark")]),
+        Bone("left_root_leg", [8, 20, 0], "root", None, [Cube([2, 0, -6], [12, 20, 12], "bark")]),
+        Bone("trunk", [0, 20, 0], "root", None, [
+            Cube([-12, 20, -12], [24, trunk_h, 24], "bark"),
+            Cube([-6, 80, -13], [12, 10, 1], "face"),
+        ]),
+        Bone("crown", [0, 124, 0], "trunk", None, [Cube([-36, 124, -36], [72, 26, 72], "leaves", inflate=0)]),
+    ]
+    branches = [("branch_front", [0, 0, -1]), ("branch_back", [0, 0, 1]), ("branch_left", [1, 0, 0]), ("branch_right", [-1, 0, 0])]
+    for name, (dx, _, dz) in branches:
+        x0 = 10 if dx > 0 else (-50 if dx < 0 else -3)
+        z0 = 10 if dz > 0 else (-50 if dz < 0 else -3)
+        size = [40 if dx else 6, 6, 40 if dz else 6]
+        bones.append(Bone(name, [dx * 10, 104, dz * 10], "trunk", None, [Cube([x0, 104, z0], size, "bark")]))
+    roots, branch, cage = t(26), t(20), t(24)
+    animations = {
+        "misc.idle": anim(5.0, {
+            "trunk": rot(0, ZERO, 2.5, [1.5, 0, 1], 5.0, ZERO),
+            "crown": rot(0, ZERO, 2.5, [0, 3, 0], 5.0, ZERO),
+        }),
+        "move.walk": anim(2.4, {
+            "right_root_leg": rot(0, [15, 0, 0], 1.2, [-15, 0, 0], 2.4, [15, 0, 0]),
+            "left_root_leg": rot(0, [-15, 0, 0], 1.2, [15, 0, 0], 2.4, [-15, 0, 0]),
+            "trunk": rot(0, [0, 0, 3], 1.2, [0, 0, -3], 2.4, [0, 0, 3]),
+        }),
+        "attack.roots": anim(roots + 0.5, {
+            "trunk": rot(0, ZERO, roots, [-6, 0, 0], roots + 0.1, [4, 0, 0], roots + 0.5, ZERO),
+            "roots": pos(0, ZERO, roots, [0, -2, 0], roots + 0.1, [0, 2, 0], roots + 0.5, ZERO),
+        }, loop=False),
+        "attack.branch": anim(branch + 0.6, {
+            "branch_front": rot(0, ZERO, branch, [-40, -50, 0], branch + 0.15, [55, 40, 0], branch + 0.6, [55, 40, 0]),
+            "trunk": rot(0, ZERO, branch, [0, 15, 0], branch + 0.15, [6, -15, 0], branch + 0.6, ZERO),
+        }, loop=False),
+        "attack.cage": anim(cage + 0.5, {
+            "crown": rot(0, ZERO, cage, [-10, 0, 0], cage + 0.5, ZERO),
+            "trunk": rot(0, ZERO, cage, [8, 0, 0], cage + 0.1, [-4, 0, 0], cage + 0.5, ZERO),
+        }, loop=False),
+        "misc.thralls": anim(1.0, {
+            "crown": rot(0, ZERO, 0.3, [0, 0, 6], 0.6, [0, 0, -6], 1.0, ZERO),
+        }, loop=False),
+        "misc.stunned": anim(5.0, {
+            "trunk": rot(0, ZERO, 0.4, [12, 0, 0], 4.5, [12, 0, 0], 5.0, ZERO),
+            "crown": rot(0, ZERO, 0.4, [8, 0, 0], 4.5, [8, 0, 0], 5.0, ZERO),
+        }, loop=False),
+        "misc.uproot": anim(2.0, {
+            "root": pos(0, ZERO, 0.6, [0, -4, 0], 1.2, [0, 6, 0], 2.0, ZERO),
+            "trunk": rot(0, ZERO, 0.6, [0, 0, 8], 1.2, [0, 0, -8], 2.0, ZERO),
+        }, loop=False),
+    }
+    paint = painter({"default": (64, 54, 44, 255), "bark": (70, 58, 46, 255), "leaves": (58, 66, 50, 255),
+                     "face": (40, 32, 26, 255)},
+                    eye=(255, 200, 120, 255), eye_tags=("face",), eye_row=0.3, cracks=("bark",),
+                    crack_color=(120, 96, 60, 255))
+    write_mob("grieving_tree", bones, 512, [8, 11], animations, paint)
+
+
+BOSSES = [("crypt_keeper", crypt_keeper), ("ash_colossus", ash_colossus),
+          ("grieving_tree", grieving_tree)]
 
 
 if __name__ == "__main__":

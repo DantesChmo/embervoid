@@ -179,13 +179,15 @@ public abstract class ReachBoss extends HostileEntity implements ArenaBoss, GeoE
 	}
 
 	/** A windup marking {@code shape}; when it ends, {@code hit} runs for every player still inside. */
-	protected void telegraph(TelegraphShape shape, int ticks, String animation, @Nullable SoundEvent sound, ParticleEffect particle,
+	protected void telegraph(TelegraphShape shape, int ticks, @Nullable String animation, @Nullable SoundEvent sound, ParticleEffect particle,
 			HitAction hit) {
 		Telegraph.windup(this, shape, ticks, animation, sound, particle, () -> {
 			for (PlayerEntity player : Telegraph.playersIn(this, shape)) {
 				hit.hit(player);
 			}
-			afterStrike(animation);
+			if (animation != null) {
+				afterStrike(animation);
+			}
 		});
 	}
 

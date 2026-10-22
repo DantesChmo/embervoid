@@ -23,7 +23,8 @@
 			"com.embervoid.gametest.ArenaTemplateTests",
 			"com.embervoid.gametest.ReachWorldTests",
 			"com.embervoid.gametest.CryptKeeperTests",
-			"com.embervoid.gametest.AshColossusTests"
+			"com.embervoid.gametest.AshColossusTests",
+			"com.embervoid.gametest.GrievingTreeTests"
 		]
 	},
 	"mixins": [

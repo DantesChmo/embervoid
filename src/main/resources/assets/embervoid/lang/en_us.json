@@ -96,7 +96,7 @@
 	"embervoid.ember_heart.boss": "Taken from %s",
 	"entity.embervoid.test_boss": "Test Champion",
 	"boss.embervoid.ashen_reach.zone_a": "Ash Colossus",
-	"boss.embervoid.ashen_reach.zone_b": "Champion of Zone B",
+	"boss.embervoid.ashen_reach.zone_b": "Grieving Tree",
 	"boss.embervoid.ashen_reach.zone_c": "Crypt Keeper",
 	"boss.embervoid.ashen_reach.final": "Champion of the Depths",
 	"embervoid.boss.bar": "%s — Lv %s",
@@ -353,5 +353,7 @@
 	"embervoid.gear.flask_ember.used": "The flask drinks the ember: every sip heals more",
 	"embervoid.gear.flask_ember.already": "Your flask already holds an ember",
 	"entity.embervoid.crypt_keeper": "Crypt Keeper",
-	"entity.embervoid.ash_colossus": "Ash Colossus"
+	"entity.embervoid.ash_colossus": "Ash Colossus",
+	"entity.embervoid.grieving_tree": "Grieving Tree",
+	"entity.embervoid.tree_lantern": "Hanged Lantern"
 }
