@@ -275,7 +275,7 @@ comes in the release pass.
 **Status:** Not started.
 
 - [ ] Balance: zone level bands vs expected player level, boss difficulty, XP yield, loot rates
-- [ ] Art pass: realm mobs and bosses from greybox to final models; textures consistency
+- [x] Art pass: realm mobs and bosses from greybox to final models; textures consistency (script-generated, checked with `tools/model_preview.py`; not seen in game)
 - [ ] Sounds and music (`CREDITS.md` for licensed tracks)
 - [ ] Multiplayer and performance test (realm worldgen time, entity counts, placed enemies)
 - [ ] Release 0.4.0

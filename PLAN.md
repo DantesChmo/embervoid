@@ -377,7 +377,7 @@ performance) are done here with them.
 | R40.2a | **Offline model preview**: render GeckoLib models + textures (and item/block textures) to PNG without a client | release-art | — | done (`tools/model_preview.py`) |
 | R40.2b | **Zone mobs art**: the 10 Realm 1 zone mobs from greybox to final models, textures, animations | release-art | R40.2a | done (checked by preview; not seen in game) |
 | R40.2c | **Citadel mobs and bosses art**: 4 Citadel mobs, 4 bosses (+ tree lantern, fire flask, ash bomb) | release-art | R40.2a | done (checked by preview; not seen in game; two client renderer hooks not run on a client) |
-| R40.2d | **Texture consistency**: Realm 1 items, armor layers, blocks, GUI (Reliquary) in one style | release-art | R40.2a | todo |
+| R40.2d | **Texture consistency**: Realm 1 items, armor layers, blocks, GUI (Reliquary) in one style | release-art | R40.2a | done (checked by preview; Reliquary screen drawing not run on a client) |
 | R40.3a | **Sound events**: every Realm 1 mob, boss, weapon, consumable and block gets its sounds (vanilla sound files, own events, subtitles in both languages) | release-audio | — | todo |
 | R40.3b | **Boss music**: shared zone-boss theme and the Smoldering Lord theme as sound events; placeholder until licensed tracks are approved; `CREDITS.md` | release-audio | R40.3a | todo |
 | R40.4a | **Multiplayer GameTests**: 2–3 players through realm progress, boss scaling and adds, personal loot, fog wall, rematch, remnants, accessory sync | release-mp | — | todo |
