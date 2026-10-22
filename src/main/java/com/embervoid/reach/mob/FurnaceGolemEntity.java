@@ -37,12 +37,12 @@ public class FurnaceGolemEntity extends ReachMob {
 
 	public FurnaceGolemEntity(EntityType<? extends FurnaceGolemEntity> type, World world) {
 		super(type, world);
-		experiencePoints = 45;
+		experiencePoints = 30;
 	}
 
 	public static DefaultAttributeContainer.Builder createAttributes() {
 		return HostileEntity.createHostileAttributes()
-				.add(EntityAttributes.GENERIC_MAX_HEALTH, 90)
+				.add(EntityAttributes.GENERIC_MAX_HEALTH, 70)
 				.add(EntityAttributes.GENERIC_ARMOR, 12)
 				.add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, 0.9)
 				.add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 9)

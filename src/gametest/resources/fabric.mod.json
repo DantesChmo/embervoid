@@ -31,7 +31,8 @@
 			"com.embervoid.gametest.RematchTests",
 			"com.embervoid.gametest.CitadelWorldTests",
 			"com.embervoid.gametest.SmolderingLordTests",
-			"com.embervoid.gametest.RealmLoopTests"
+			"com.embervoid.gametest.RealmLoopTests",
+			"com.embervoid.gametest.BalanceFightTests"
 		]
 	},
 	"mixins": [

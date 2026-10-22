@@ -103,7 +103,7 @@ Every `Monster` (vanilla and modded) gets a level once, when it first enters the
 - Default level = base by type + bonuses. Base: zombie, husk, drowned, spider 3 · skeleton, stray, slime 4 ·
   Ash Ghoul 5 · creeper, witch 6 · Ember Wisp 8 · enderman 12 · Hollow 15 · anything else 4.
   Bonuses: Nether +5, End +8; overworld only: +1 per 1000 blocks from spawn (max +5), +3 below y=0.
-- Per level above 1: HP +6 %, damage +5 % (melee, projectiles, explosions, potions), XP +10 %.
+- Per level above 1: HP +6 %, damage +5 % (melee, projectiles, explosions, potions), XP +6 %.
 - Excluded (`#embervoid:unleveled`): Ender Dragon, Wither, Warden, Elder Guardian.
 - Shown as "Name Lv. N" above the mob under the crosshair (client option `hud.showMobLevel`).
 - Config: `mobs.levels.*` (base levels per entity id, bonuses, per-level factors; modded ids can be added).
@@ -144,7 +144,7 @@ Design: DESIGN §3.3, §10.12. All models are placeholders. Config sections `moo
 - **Full moon:** overworld hostiles spawn `moon.fullMoon.levelBonus` +3 levels, follow range ×1.5, keep their
   target in range. **Curse of the Night**: a death to a hostile mob (or its projectile, or an `ArenaBoss`) adds a
   stack, anywhere; reset when a full moon ends. Waves (`nightmob.NightWaves`): per overworld player
-  `min(stacks, 10)` **Ashen Zombies** (spot level + 5, don't burn, 20 XP) or, with no curse, 5 **Ghosts** (no-clip
+  `min(stacks, 10)` **Ashen Zombies** (spot level + 5, don't burn, 20 XP) or, with no curse, 3 **Ghosts** (no-clip
   flyers, 2× zombie HP/damage, 15 % of hits miss, 40 XP; clearing them gives a Flask Shard), 16–32 blocks away.
   Each wave holds the night (`embervoid:wave/<uuid>`); a player away from the overworld gets it on return.
 - **Blood new moon:** red sky, fog and moon (client, overworld only). Overworld hostiles heal 25 % of damage

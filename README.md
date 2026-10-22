@@ -56,7 +56,7 @@ The mod reads `config/embervoid.json` (created with defaults on first launch). M
 | `nightMobs.zombieLevelBonus` | 5 | 0–max level | Ashen Zombie level = spot level + this |
 | `nightMobs.ghostMissChance` | 0.15 | 0–1 | Chance that a hit on a Ghost misses |
 | `nightMobs.maxZombies` | 10 | 0–100 | Most Ashen Zombies in one player's wave (one per curse stack) |
-| `nightMobs.ghostCount` | 5 | 0–100 | Ghosts sent to a player with no curse |
+| `nightMobs.ghostCount` | 3 | 0–100 | Ghosts sent to a player with no curse |
 | `nightMobs.spawnMinDistance` / `spawnMaxDistance` | 16 / 32 | 1–64 | How far from the player a wave spawns |
 | `vampire.provokeMinutes` | 5 | 0.1–60 | Minutes before the Vampire nearest to a player turns if nobody provoked one |
 | `vampire.groupRadius` | 64 | 8–512 | Players this close share one group of Vampires |
