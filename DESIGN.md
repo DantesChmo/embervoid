@@ -140,8 +140,9 @@ anyway.
   bosses count; falling, drowning, suffocation and being knocked into lava or off a cliff do not). Stacks reset
   after the full moon.
 - On the full moon one **Ashen Zombie** per stack (at most 10) spawns near the cursed player; its level is the
-  spot's level + 5 (*start*). A player with no curse gets **5 Ghosts** instead: twice an Ashen Zombie's HP and
-  damage, they fly, pass through walls, and 15 % of attacks miss them. Dying at least once is the cheaper option.
+  spot's level + 5 (*start*). A player with no curse gets **3 Ghosts** instead (was 5): twice an Ashen Zombie's HP and
+  damage, one touch every 2 s, they fly, pass through walls, and 15 % of attacks miss them. Dying at least once is the
+  cheaper option; a Ghost wave ends when its player dies, so a lost fight costs one death (**Proposed — built as recommended**, R40.1 balance pass, `docs/balance-0.4.0.md`).
 - The night ends when all these zombies and ghosts are dead. A player outside the overworld that night: the
   zombies wait for them to come back.
 
@@ -305,15 +306,15 @@ Base stats at level 1; mob levels scale them (§5.4).
 | Fields | **Ashen Carrion** | elite flyer | natural, rare; perches on scarecrows, outposts | 18 HP, 4 dmg, XP 15 | Circles; dives when the player is below 50 % HP or every 8–12 s. Shadow on the ground + shriek 15 ticks before the dive |
 | Woods | **Withered Thrall** | fodder, ambush | natural + placed in hanging cages | 18 HP, 3.5 dmg, 0.24, XP 8 | Hanged poacher; caged ones drop on a player passing under (chain rattle 10 ticks before) |
 | Woods | **Lantern Hag** | ranged | natural, alone | 16 HP, XP 12 | Keeps 8–12 blocks; throws a fire flask in an arc (4 dmg + 3 s fire patch r 1.5). Raises the lantern 15 ticks before |
-| Woods | **Bark Hollow** | tank | placed (park, glades, lodge) | 50 HP, armor 8, KB res 0.8, 7 dmg, 0.18, XP 30 | Looks like a dead tree until a player is within 6 (creak, eyes light). 3-block sweep, 20-tick windup. ×1.5 damage from axes and fire |
+| Woods | **Bark Hollow** | tank | placed (park, glades, lodge) | 50 HP, armor 8, KB res 0.8, 7 dmg, 0.18, XP 22 | Looks like a dead tree until a player is within 6 (creak, eyes light). 3-block sweep, 20-tick windup. ×1.5 damage from axes and fire |
 | Necropolis | **Restless Bones** | fodder | natural (surface and crypts), groups 2–3 | 16 HP, 4 dmg, 0.25, XP 8 | At 0 HP collapses into a bone pile (6 HP), re-forms after 5 s at half HP. Finish the pile, or light it (block light ≥ 8) and it stays dead |
 | Necropolis | **Crypt Moth** | harasser flyer | natural under cover, groups 1–3 | 10 HP, 2 dmg, XP 8 | Flies to the nearest light within 12. Pollen burst: Blindness 3 s, glowing wings 15 ticks before. Snuffs placed torches (`mobGriefing`) |
-| Necropolis | **Hollow Sentinel** | tank | placed (crypt halls, mausoleum doors) | 45 HP, armor 10, KB res 0.9, XP 30 | Tower shield: front 180° immune to melee and arrows, not broken by axes. Spear thrust 7 dmg (12-tick windup); shield bash 6 dmg + knockback (shield planted 15 ticks before), then open for 30 ticks |
-| Necropolis | **Grave Warden** | elite | placed, 1 per crypt chamber or chapel | 80 HP, armor 8, 8 dmg, XP 60 | Bell-ringer. Every 12 s raises the bell (20 ticks): re-forms all bone piles within 12, raises 2 Restless Bones if none (max 4), staggers players within 4 (Slowness IV 2 s) |
+| Necropolis | **Hollow Sentinel** | tank | placed (crypt halls, mausoleum doors) | 45 HP, armor 10, KB res 0.9, XP 22 | Tower shield: front 180° immune to melee and arrows, not broken by axes. Spear thrust 7 dmg (12-tick windup); shield bash 6 dmg + knockback (shield planted 15 ticks before), then open for 30 ticks |
+| Necropolis | **Grave Warden** | elite | placed, 1 per crypt chamber or chapel | 80 HP, armor 8, 8 dmg, XP 40 | Bell-ringer. Every 12 s raises the bell (20 ticks): re-forms all bone piles within 12, raises 2 Restless Bones if none (max 4), staggers players within 4 (Slowness IV 2 s) |
 | Citadel | **Cinder Hound** | pack fodder | natural in the streets, packs 3–5 | 14 HP, 3 dmg + 2 s fire, 0.35, XP 7 | Fast; a howl pulls the pack |
-| Citadel | **Sparking Marksman** | ranged | placed on walls and gatehouse | 24 HP, bolt 6 dmg + fire, XP 20 | Crossbow; a spark on the bolt tip 20 ticks before firing. Never leaves the wall |
-| Citadel | **Furnace Golem** | tank | placed (inner ring) | 90 HP, armor 12, 9 dmg, 0.15, XP 45 | Heats up with each hit taken; at 4 hits glows 25 ticks, then a fire wave r 4 |
-| Citadel | **Smoldering Knight** | elite | placed (towers, keep) | 100 HP, armor 10, XP 80 | 3-hit combo with short windups; 6-block lunge after a 15-tick crouch |
+| Citadel | **Sparking Marksman** | ranged | placed on walls and gatehouse | 24 HP, bolt 6 dmg + fire, XP 15 | Crossbow; a spark on the bolt tip 20 ticks before firing. Never leaves the wall |
+| Citadel | **Furnace Golem** | tank | placed (inner ring) | 70 HP, armor 12, 9 dmg, 0.15, XP 30 | Heats up with each hit taken; at 4 hits glows 25 ticks, then a fire wave r 4 |
+| Citadel | **Smoldering Knight** | elite | placed (towers, keep) | 75 HP, armor 10, 8 dmg, XP 50 | 3-hit combo with short windups; 6-block lunge after a 15-tick crouch |
 
 Drops: vanilla-flavoured basics (bones, charcoal, rotten flesh, string where it fits) plus the realm loot below.
 Cost: 14 GeckoLib models (10 for the zones, 4 for the Citadel), ~70 animations.
@@ -343,6 +344,8 @@ Line-up: giants with spectacle, and arenas that take part in the fight.
   50 %: armor shatters (+25 % damage taken, faster); every ~25 s one zone hazard: ash storm, fog or darkness.
 - **Damage:** level × Normal 1.25 gives ×2.31 / ×2.5 / ×2.69 / ×3.06; base 5–11 per move. Against full diamond on
   Normal: light hits ~4–6, heavy ~8–12, unblockable ~12–17 HP.
+- **Boss XP** (before level scaling): Ash Colossus 150, Grieving Tree 170, Crypt Keeper 190, Smoldering Lord 300;
+  tank and elite XP and Citadel elite health in the bestiary table were lowered in the same pass (**Proposed — built as recommended**, R40.1 balance pass, `docs/balance-0.4.0.md`).
 - **Levels are fixed** (18 / 21 / 24 / 30), not scaled by progress: the player picks the easier zone first, as in
   Demon's Souls.
 - **Multiplayer:** HP ×(1 + 0.5·(n − 1)) at summon, +1 add per extra fighter, damage unchanged; target switch every
@@ -397,12 +400,15 @@ The Minecraft way: an ore in each open zone → material → consumables and arm
 
 | Weapon | Soul / zone | Numbers | Passive | Special (right-click, §8.1) | Scaling |
 |---|---|---|---|---|---|
-| **Ashen Scythe** | Ash Colossus / Fields | 8 dmg, speed 1.1 | sweep r 2.5 at 75 % damage; a fully charged hit sends an ash wave 6 blocks forward, 3 wide, 3 ember dmg | Harvest: 360° spin r 3.5, 25 stamina, 4 s | STR 0.6 / DEX 0.4 |
+| **Ashen Scythe** | Ash Colossus / Fields | 10 dmg, speed 1.1 | sweep r 2.5 at 75 % damage; a fully charged hit sends an ash wave 6 blocks forward, 3 wide, 3 ember dmg | Harvest: 360° spin r 3.5, 25 stamina, 4 s | STR 0.6 / DEX 0.4 |
 | **Huntsman's Crossbow** | Grieving Tree / Woods | charge 2.0 s, bolt ≈ 1.5× vanilla crossbow | strong knockback (≈ Punch III), pierces 1 | none (right-click loads) | DEX 0.5 / STR 0.5 |
-| **Warden's Scourge** (whip) | Crypt Keeper / Necropolis | 8 dmg, speed 0.9, reach 6, single target | Bleeding +1 per hit | Lash: pulls the target 4 blocks toward you, 20 stamina, 5 s | DEX 1 |
+| **Warden's Scourge** (whip) | Crypt Keeper / Necropolis | 9 dmg, speed 0.9, reach 6, single target | Bleeding +1 per hit | Lash: pulls the target 4 blocks toward you, 20 stamina, 5 s | DEX 1 |
 | **Royal Ash Rapier** | Smoldering Lord / Citadel | 6 dmg, speed 2.0, reach 2.5 | Bleeding +1 per hit, sets on fire 3 s | Lunge: 4-block dash + thrust, double bleed, 20 stamina, 3 s | DEX 0.7, ember part KIN |
 
 - Reach (whip 6, rapier 2.5) needs a server raycast on attack: 1.20.1 has no reach attribute.
+- Scythe, Scourge and Rapier take Sharpness, Smite, Bane of Arthropods, Fire Aspect, Looting and Knockback (table and
+  anvil); Sweeping Edge stays sword-only. Scythe 10 and Scourge 9 damage (were 8) so that unenchanted they beat a
+  diamond sword per hit (**Proposed — built as recommended**, R40.1 balance pass, `docs/balance-0.4.0.md`).
 - **Bleeding** (placeholder until the status-effects design in [BACKLOG.md](BACKLOG.md)): a vanilla status effect,
   levels I–III (each hit +1, 6 s, refreshes), 0.5 / 1 / 1.5 HP per second, ignores armor. Immune: entity tag
   `embervoid:bleed_immune` (Restless Bones, Furnace Golem, Bark Hollow, Ash Colossus, Grieving Tree).
@@ -524,7 +530,7 @@ Every hostile mob — vanilla, overworld-new, realm — has a level. The level d
 |---|---|
 | HP | base × (1 + 0.06·(L − 1)) |
 | Damage | base × difficulty factor (§3.1) × (1 + 0.05·(L − 1)) |
-| XP dropped | base × (1 + 0.10·(L − 1)) |
+| XP dropped | base × (1 + 0.06·(L − 1)) — was 0.10; lowered in the 0.4.0 balance pass so Realm 1 ends near Lv 36 |
 
 Damage scaling covers everything a leveled mob deals: melee, projectiles, explosions, potions. It is applied
 when damage is dealt, by the attacker or the projectile's owner.
