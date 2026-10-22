@@ -84,7 +84,9 @@ pass. None of them needs a game account or a window.
 - `./gradlew runGametest` — Fabric GameTests in `src/gametest` (its own mod `embervoid-gametest`, never in the
   jar) on a headless superflat server: mob levels, starting flask, shrine rest, death → Ash Remnant → recovery,
   Sanctum generation and contents. Fails the build on any failed test; report in `build/gametest/junit.xml`.
-  The test world has only the vanilla dimensions, so realm checks live in the server check.
+  The test world gets the mod's dimensions (realms, Vampire arena) through a gametest-only mixin
+  (`gametest.mixin.TestServerDimensionsMixin`). Use the real (non-creative) player join from `MoonTests` when mobs
+  must target a player, and one `batchId` per test that touches the global moon state.
 - `python3 tools/server_check.py` — a real dedicated server (`runServerCheck`, run dir `run/server-check`, fresh
   world each time): boots to Done, generates a real Sanctum, the Ashen Reach landing, the three zone arenas and the
   depths over RCON, then fails on any crash, mixin failure, ERROR line or datapack load error in the log. Client

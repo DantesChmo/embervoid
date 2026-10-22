@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0 "Moon Nights" — unreleased
+## 0.3.0 "Moon Nights" — 2026-10-22
 
 Every third lunar cycle the overworld gets two dangerous nights, four days apart: a full moon and a blood new
 moon. Neither can be slept through. All numbers are in `config/embervoid.json` (sections `moon`, `nightMobs`,
