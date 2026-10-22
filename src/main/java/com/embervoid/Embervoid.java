@@ -5,6 +5,7 @@ import com.embervoid.config.ConfigSync;
 import com.embervoid.config.EmbervoidConfig;
 import com.embervoid.entity.mob.MobEntities;
 import com.embervoid.mob.MobLevels;
+import com.embervoid.moon.MoonInit;
 import com.embervoid.player.FlaskKeeper;
 import com.embervoid.player.FlaskRefill;
 import com.embervoid.player.PlayerDataManager;
@@ -58,6 +59,7 @@ public class Embervoid implements ModInitializer {
 		RealmInit.register();
 		// Also registers the progress API.
 		Sanctum.register();
+		MoonInit.register();
 
 		LOGGER.info("Embervoid: the embers stir...");
 	}
