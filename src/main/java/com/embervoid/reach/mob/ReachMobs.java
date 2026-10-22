@@ -55,6 +55,14 @@ public final class ReachMobs {
 	public static final EntityType<HollowSentinelEntity> HOLLOW_SENTINEL = register("hollow_sentinel", HollowSentinelEntity::new, 0.8f, 2.3f);
 	public static final EntityType<GraveWardenEntity> GRAVE_WARDEN = register("grave_warden", GraveWardenEntity::new, 0.9f, 2.4f);
 
+	/** The Lantern Hag's thrown fire flask (and the fire patch it leaves). */
+	public static final EntityType<FireFlaskEntity> FIRE_FLASK = ModEntities.register("fire_flask",
+			FabricEntityTypeBuilder.<FireFlaskEntity>create(SpawnGroup.MISC, FireFlaskEntity::new)
+					.dimensions(EntityDimensions.fixed(0.25f, 0.25f))
+					.trackRangeBlocks(64)
+					.trackedUpdateRate(10)
+					.build());
+
 	static {
 		egg(CINDER_HUSK, 0x403833, 0xe06a28);
 		egg(ASH_STALKER, 0x6e6862, 0xff7828);
