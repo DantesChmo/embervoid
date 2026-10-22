@@ -1,0 +1,51 @@
+{
+  "name": "embervoid:ashen_reach/necropolis/crypt/halls",
+  "fallback": "embervoid:ashen_reach/necropolis/crypt/ends",
+  "elements": [
+    {
+      "weight": 4,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "embervoid:ashen_reach/necropolis/crypt/corridor",
+        "processors": "embervoid:ashen_reach/minor",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 3,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "embervoid:ashen_reach/necropolis/crypt/burial_hall",
+        "processors": "embervoid:ashen_reach/minor",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 3,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "embervoid:ashen_reach/necropolis/crypt/flooded_hall",
+        "processors": "embervoid:ashen_reach/minor",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "embervoid:ashen_reach/necropolis/crypt/warden_chamber",
+        "processors": "embervoid:ashen_reach/minor",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "embervoid:ashen_reach/necropolis/crypt/dead_end",
+        "processors": "embervoid:ashen_reach/minor",
+        "projection": "rigid"
+      }
+    }
+  ]
+}

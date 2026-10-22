@@ -221,7 +221,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 9.4 | **Zone terrain density + arena sites** | 9.3 | done (GameTest + server check; terrain shapes not seen) |
 | 9.5 | **Realm 1 blocks and ores** | 9.3, 11.1 | done (GameTest + server check; textures and particles not seen) |
 | 9.6 | **Landing plaza, roads, milestones, outposts** | 9.2, 9.4 | done (GameTest + server check; roads on steep ground and looks not seen) |
-| 9.7 | **Minor structures per zone** | 9.2, 9.5, chest ids | todo |
+| 9.7 | **Minor structures per zone** | 9.2, 9.5, chest ids | done (GameTest + server check; ruin looks not seen) |
 | 9.8 | **Necropolis crypt jigsaw + water** | 9.7 | todo |
 | 9.9 | **World edge** | 9.4 | todo |
 
@@ -323,7 +323,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 12.2 | **Three arenas built** | 9.4 | done (GameTest on the templates; used in the world once 9.4 lands; looks not seen) |
 | 12.3 | **Crypt Keeper** (first: riskiest) | 12.1, 12.2 | done (GameTest + server check; model, telegraphs, darkness and flood looks not seen) |
 | 12.4 | **Ash Colossus** | 12.1, 12.2 | done (GameTest + server check; model, storm and cinders not seen) |
-| 12.5 | **Grieving Tree** | 12.1, 12.2 | todo |
+| 12.5 | **Grieving Tree** | 12.1, 12.2 | done (GameTest + server check; model, lanterns and grove fog not seen) |
 | 12.6 | **Souls and Flask Shards** | 11.1 | todo |
 | 12.7 | **Ash of Rematch** (DESIGN §10.11 as recommended) | 11.1, 12.6 | todo |
 
@@ -346,8 +346,8 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 
 | ID  | Task | Track | Depends on | Status |
 |-----|------|-------|------------|--------|
-| 13.1 | **Depths "Burning City": dimension type, terrain** | reach-world | 9.4, 9.5 | todo |
-| 13.2 | **Citadel jigsaw (~10–12 pieces)** | reach-world | 13.1, 9.2 | todo |
+| 13.1 | **Depths "Burning City": dimension type, terrain** | citadel | 9.4, 9.5 | todo |
+| 13.2 | **Citadel jigsaw (~10–12 pieces)** | citadel | 13.1, 9.2 | todo |
 | 13.3 | **Cinder Hound, Sparking Marksman, Furnace Golem, Smoldering Knight** | reach-mobs | 10.1 | done (GameTest; models not seen) |
 | 13.4 | **Smoldering Lord** | reach-bosses | 12.3–12.5, 13.2 | todo |
 | 13.5 | **Realm completion, Realm 2 obelisk lit, depths open** | coordinator | 13.4 | todo |

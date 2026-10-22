@@ -45,6 +45,7 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.structure.PoolStructurePiece;
 import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.StructureStart;
@@ -511,6 +512,41 @@ public final class ReachWorldTests implements FabricGameTest {
 			}
 		}
 		context.assertTrue(starts >= 150, "only " + starts + " minor structure starts in 1200 blocks around the landing");
+		context.complete();
+	}
+	/** The Necropolis crypt (PLAN 9.8): entrance, junction, halls, and always the lower crypt with the treasure. */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 2400)
+	public void cryptReachesTheLowerCrypt(TestContext context) {
+		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
+		Structure crypt = realm.getRegistryManager().get(RegistryKeys.STRUCTURE).get(Embervoid.id("ashen_reach/necropolis/crypt"));
+		ChunkGenerator generator = realm.getChunkManager().getChunkGenerator();
+		for (int attempt = 0; attempt < 3; attempt++) {
+			double angle = Math.toRadians(200 + attempt * 10);
+			ChunkPos chunk = new ChunkPos(BlockPos.ofFloored(Math.cos(angle) * 600, 0, Math.sin(angle) * 600));
+			StructureStart start = crypt.createStructureStart(realm.getRegistryManager(), generator,
+					generator.getBiomeSource(), realm.getChunkManager().getNoiseConfig(), realm.getStructureTemplateManager(),
+					realm.getSeed() + attempt, chunk, 0, realm, biome -> true);
+			List<String> pieces = start.getChildren().stream()
+					.map(piece -> piece instanceof PoolStructurePiece pool ? pool.getPoolElement().toString() : "?").toList();
+			context.assertTrue(pieces.size() >= 4, "crypt with only " + pieces);
+			context.assertTrue(pieces.stream().anyMatch(p -> p.contains("crypt/lower_crypt")), "no lower crypt in " + pieces);
+			BlockBox box = start.getBoundingBox();
+			ChunkPos.stream(new ChunkPos(box.getMinX() >> 4, box.getMinZ() >> 4), new ChunkPos(box.getMaxX() >> 4, box.getMaxZ() >> 4))
+					.forEach(c -> start.place(realm, realm.getStructureAccessor(), generator, realm.getRandom(),
+							new BlockBox(c.getStartX(), realm.getBottomY(), c.getStartZ(), c.getEndX(), realm.getTopY(), c.getEndZ()), c));
+			boolean treasure = false;
+			boolean water = false;
+			for (BlockPos pos : BlockPos.iterate(box.getMinX(), box.getMinY(), box.getMinZ(), box.getMaxX(), box.getMaxY(), box.getMaxZ())) {
+				BlockState state = realm.getBlockState(pos);
+				context.assertTrue(!state.isOf(PlacedEnemies.MARKER), "placed-enemy marker left in the crypt at " + pos);
+				water |= state.isOf(Blocks.WATER);
+				if (state.isOf(Blocks.CHEST) && realm.getBlockEntity(pos) instanceof LootableContainerBlockEntity chest) {
+					treasure |= chest.createNbt().getString("LootTable").equals("embervoid:chests/ashen_reach/necropolis_treasure");
+				}
+			}
+			context.assertTrue(treasure, "no Necropolis treasure chest in the crypt " + pieces);
+			context.assertTrue(water, "no water in the crypt " + pieces);
+		}
 		context.complete();
 	}
 }
