@@ -115,8 +115,8 @@ Split into tasks in the track plans, which keep each task's choices and notes. A
 
 ## Milestones 8 and later
 
-Split into tasks when the Realm 1 content doc and the weapons doc (DESIGN §8) exist. Checklists in
-[ROADMAP.md](ROADMAP.md) are the starting point.
+Milestone 8 (moon nights, 0.3.0): design in DESIGN §3.3. 0.4.0 (milestones 9–13): design in DESIGN §4.5. Both are split into tasks before work starts.
+Checklists in [ROADMAP.md](ROADMAP.md) are the starting point.
 
 ## Open follow-ups
 

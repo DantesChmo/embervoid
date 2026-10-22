@@ -66,7 +66,7 @@ Lore lives in item descriptions and the environment.
 - Talk → **level-up screen**: all stats, their current derived values (HP, stamina, damage bonus…), a preview
   of what the next point gives, the cost in XP points, and how much XP the player has.
 - Points are bought **one at a time** and applied immediately.
-- Later (not 0.x): respec item, merchant role.
+- Later (not 0.x): respec item, merchant role ([BACKLOG.md](BACKLOG.md)).
 
 ### Void Obelisks
 - One per realm, placed in a ring. States: **dark** (locked, tooltip hint "the flame has not reached it"),
@@ -125,8 +125,43 @@ The Hollow Sentinel and Crypt Moth from the old plan move into Realm 1.
   Deep Dark.
 - XP 6. Loot: 0–1 glowstone dust, 5% blaze powder on a player kill.
 
-### 3.3 Later ideas
-- **Ember Moon** night event (rare): mobs +5 levels, red sky, more XP. Bloodborne's blood moon.
+### 3.3 Moon nights (Decided, 0.3.0)
+Replaces the old "Ember Moon" sketch (rare night, +5 levels, red sky). Two vanilla moon phases become events; the
+other six stay vanilla. Decided by the user on 2026-10-22; numbers marked *start* are starting values, all in config.
+
+**When:** every third lunar cycle (8 days), so each event comes once per 24 days; the full moon and the blood new
+moon of that cycle are 4 days apart. The first full moon of a world (day 0) does not count; counting starts after
+it. Neither night can be slept through. If the night's goal is not met within **30 minutes** real time, it ends
+anyway.
+
+**Full moon** (phase 0, no visual change):
+- Vanilla hostiles spawn **+3 levels** (*start*), follow range ×1.5, and do not lose a player who stays in range.
+- **Curse of the Night:** each death from a direct kill by a hostile mob adds one stack (deaths in realms and to
+  bosses count; falling, drowning, suffocation and being knocked into lava or off a cliff do not). Stacks reset
+  after the full moon.
+- On the full moon one **Ashen Zombie** per stack (at most 10) spawns near the cursed player; its level is the
+  spot's level + 5 (*start*). A player with no curse gets **5 Ghosts** instead: twice an Ashen Zombie's HP and
+  damage, they fly, pass through walls, and 15 % of attacks miss them. Dying at least once is the cheaper option.
+- The night ends when all these zombies and ghosts are dead. A player outside the overworld that night: the
+  zombies wait for them to come back.
+
+**Blood new moon** (phase 4): blood-red sky.
+- One or more **Vampires** spawn near the player, friendly by default. Hitting one turns it into the **Vampire
+  boss** (visual transformation); the other Vampires vanish. If none is provoked within 5 minutes, the one nearest
+  to the player turns.
+- One shared boss. Its level: the highest level among the players taking part, at least 15, capped at the top of
+  the band of the highest realm they have unlocked (*start*). When it forms, every player is teleported into a
+  separate Vampire arena dimension and returned after the kill. A player killed there leaves all their loot there
+  and cannot get back in; if everyone dies, the night ends.
+- All vanilla hostiles get **vampirism**: they heal 25 % (*start*) of the damage they deal to a player.
+- The night ends when the Vampire boss is beaten.
+
+**Open (§10.12):** rewards; a player kill counting toward the curse; and four conflicts with built systems — a
+remnant left in an arena nobody can re-enter destroys the items (against §7); who is pulled into the arena (players
+in a realm boss fight, the Nether, the End, the Sanctum core); players far apart each meeting their own Vampires
+while one hit pulls everyone; one shared night held for everyone by the full moon's zombies. Cost: L (Ashen Zombie,
+Ghost, Vampire and its boss form, the curse, world moon-night state and sky sync, night hold, sleep block,
+vampirism, a field boss without a fog-wall arena).
 
 ---
 
@@ -198,12 +233,223 @@ Progress (attunement, beaten bosses, unlocked realms) is **per player**. A realm
 
 | # | Realm | Zones | Feel | Status |
 |---|---|---|---|---|
-| 1 | **Ashen Reach** | Ash Wasteland · Dead Woods · Sunken Crypt → final: **Smoldering Citadel** | Grey ash, dead trees, crypts, a burning fortress. Absorbs the old 0.2.0 content: Crypt Keeper, Smoldering Lord, Hollow Sentinel, Crypt Moth, Sparking Marksman | Proposed |
+| 1 | **Ashen Reach** | Ashen Fields · Royal Woods · Sunken Necropolis → final: **Smoldering Citadel** | A burnt kingdom under eternal dusk. Full design in §4.5 | Decided (0.4.0) |
 | 2 | *Mire of Rot* | swamp, plague village, drowned mines → final: the Font | Poison, disease, Valley of Defilement | Sketch |
 | 3 | *Cathedral Ward* | gothic city, frozen cloister, catacombs → final: the Chapel | Bloodborne's Yharnam, beasts, hunters | Sketch |
 | 4 | *The Void* | starfall plains, floating ruins, inverted sea → final: the Heart of the Void | Cosmic horror, the reason for the mod's name | Sketch |
 
-Realms 2–4 are only themes. Each gets its own design pass (mobs, bosses, loot) before it is built.
+Realms 2–4 are only themes. Each gets its own design pass (mobs, bosses, loot) before it is built; the first
+round of variants for each is in [BACKLOG.md](BACKLOG.md).
+
+### 4.5 Realm 1 — Ashen Reach (Decided, 0.4.0)
+
+Decided by the user on 2026-10-22. All numbers are starting values for the balance pass. In Russian the realms
+are called **обелиски** ("first obelisk" = Realm 1), not "реалмы".
+
+#### Concept
+- **One burnt kingdom under eternal dusk.** The zones are its districts, the Smoldering Citadel is its burning
+  capital. No storyline: places, item descriptions and bosses tell it.
+- **Tragedy — "The Greedy King".** The king wanted the Ember for himself and locked the flame in his citadel. The
+  fire broke loose and burned the kingdom; the king became the **Smoldering Lord** and still "holds" the fire in
+  the capital. Hints: empty village altars the flame was taken from and gallows for "hiders of the flame" in the
+  Fields; the king's hunting grounds and his oak (the Grieving Tree) in the Woods; the kingdom's dead, burned
+  without rites, in the Necropolis; the hoarded flame in the keep.
+- **No realm-wide rule or meter.** Identity comes from atmosphere and from per-zone and per-arena hazards; the
+  Smoldering Lord replays the three arena hazards as the final exam.
+- **Only its own content:** no overworld mobs (Ash Ghoul, Hollow, Ember Wisp), no vanilla mobs, no mobs of other
+  realms. **Eternal dusk:** no day/night cycle, `fixed_time` ≈ 13500 (surface monster spawning starts at ≈ 13188);
+  nothing burns in daylight.
+- **First 5 minutes:** the landing is the kingdom's crossroads plaza (shrine, Return Obelisk, Sealed Gate), low red
+  sun. Three ash-brick roads with milestones, an outpost visible at each road head. Nearest is the Fields: first
+  farm ruin, first Cinder Husk, first chest. The Lodestar is the backup.
+
+Not chosen (kept for reference): tragedies "Scorched earth", "Funeral kingdom", "The Ember came from here"; rules
+"ash storms as weather", "fire as a resource", "Citadel glow growing per boss"; location layouts "Canon", "Bowl",
+"Eternal Smoulder", "Fog and Silence"; Citadel shapes "island in an ash sea", "chasm", "volcano".
+
+#### Zones and places
+Zone ids stay `zone_a/b/c`; the names change.
+
+| Zone | Levels | Terrain | Look | Minor structures (placed enemies + chests) |
+|---|---|---|---|---|
+| **Ashen Fields** / Пепельные пашни | 15–18 | open low rolling plain, field terraces | ash soil, burnt furrows, grey-ochre fog | farmsteads, barns, windmill skeletons, scarecrow rows, granary ruins, pilgrim camp |
+| **Royal Woods** / Королевский лес | 18–21 | hilly, ravines, dry stream beds | dead-wood forest, podzol, moss, dense grey-green fog | broken park wall, hunting lodge, kennels, hunters' hides, hanging cages and lanterns |
+| **Sunken Necropolis** / Провалившийся некрополь | 21–25 | basin with karst sinkholes | gravel, tuff, cracked ash bricks, candles, blue-grey fog | mausoleums, grave rows, crypt entrances (crypt jigsaw below), chapels on sinkhole rims |
+
+- **Terrain shape per zone:** one zone-aware density function (like `radial_falloff`), blended at the borders.
+- **Water only in the Necropolis** (sinkhole bottoms, flooded crypts, the arena), placed by structures and
+  features, not by sea level. Elsewhere dry.
+- **Fog density per zone:** a client mixin on `BackgroundRenderer`, shared with the boss arena fog.
+- **World edge:** the kingdom border — broken walls and collapsed bridges ending at the abyss cliffs.
+- **Roads** from the landing to each arena: ash-brick road, a milestone every ~100 blocks, 2 ruined outposts per
+  road (toll gate, watchtower) with placed enemies. Roads are the main navigation, side ruins sit off the road.
+- **Smoldering Citadel** (depths, radius ~400, levels 25–30) — "Burning City": a hill in the middle of the burning
+  capital; ember-crack blocks and smouldering logs only here. Own `dimension_type`: dark red sky, same dusk. Jigsaw
+  route: depths landing in the outskirts → burning streets → city wall and gatehouse → inner ring and towers →
+  courtyard below the keep wall (Smoldering Lord arena) → keep.
+- **Cost:** ~6–8 new blocks (burnt straw, milestone, gravestone, ember crack, smouldering log, wet crypt stone…),
+  ~20–25 minor `.nbt` pieces, 3 zone arenas, crypt jigsaw 5–7 pieces, Citadel jigsaw ~10–12 pieces. Java: zone
+  density function, road generator, fog mixin, arena height offset.
+
+#### Bestiary
+Rules:
+- **Placed enemies** in structures are set at worldgen (persistent, like Sanctum guards) and **never respawn**;
+  resting at a shrine does not reset them.
+- **Natural spawning** only for fodder and ranged mobs (+ the rare Ashen Carrion), so zones do not empty out.
+  Tanks and elites are placed only. Zone biome `spawners` list only this realm's mobs.
+- Road outposts hold the zone's fodder and ranged mobs, never tanks, so the first tank is met in its own structure.
+
+Base stats at level 1; mob levels scale them (§5.4).
+
+| Zone | Mob | Role | Spawn | Base | Behaviour and telegraph |
+|---|---|---|---|---|---|
+| Fields | **Cinder Husk** | fodder | natural, groups 2–4 | 16 HP, 3 dmg, speed 0.23, XP 6 | Burnt peasant with a tool. Plain melee, 10-tick raised-arm windup |
+| Fields | **Ash Stalker** | ambusher | natural, alone | 14 HP, 4 dmg, 0.30, XP 8 | Buried in a furrow (invisible, invulnerable). Player within 5: ash boils + hiss for 20 ticks, then it leaps out |
+| Fields | **Ashen Carrion** | elite flyer | natural, rare; perches on scarecrows, outposts | 18 HP, 4 dmg, XP 15 | Circles; dives when the player is below 50 % HP or every 8–12 s. Shadow on the ground + shriek 15 ticks before the dive |
+| Woods | **Withered Thrall** | fodder, ambush | natural + placed in hanging cages | 18 HP, 3.5 dmg, 0.24, XP 8 | Hanged poacher; caged ones drop on a player passing under (chain rattle 10 ticks before) |
+| Woods | **Lantern Hag** | ranged | natural, alone | 16 HP, XP 12 | Keeps 8–12 blocks; throws a fire flask in an arc (4 dmg + 3 s fire patch r 1.5). Raises the lantern 15 ticks before |
+| Woods | **Bark Hollow** | tank | placed (park, glades, lodge) | 50 HP, armor 8, KB res 0.8, 7 dmg, 0.18, XP 30 | Looks like a dead tree until a player is within 6 (creak, eyes light). 3-block sweep, 20-tick windup. ×1.5 damage from axes and fire |
+| Necropolis | **Restless Bones** | fodder | natural (surface and crypts), groups 2–3 | 16 HP, 4 dmg, 0.25, XP 8 | At 0 HP collapses into a bone pile (6 HP), re-forms after 5 s at half HP. Finish the pile, or light it (block light ≥ 8) and it stays dead |
+| Necropolis | **Crypt Moth** | harasser flyer | natural under cover, groups 1–3 | 10 HP, 2 dmg, XP 8 | Flies to the nearest light within 12. Pollen burst: Blindness 3 s, glowing wings 15 ticks before. Snuffs placed torches (`mobGriefing`) |
+| Necropolis | **Hollow Sentinel** | tank | placed (crypt halls, mausoleum doors) | 45 HP, armor 10, KB res 0.9, XP 30 | Tower shield: front 180° immune to melee and arrows, not broken by axes. Spear thrust 7 dmg (12-tick windup); shield bash 6 dmg + knockback (shield planted 15 ticks before), then open for 30 ticks |
+| Necropolis | **Grave Warden** | elite | placed, 1 per crypt chamber or chapel | 80 HP, armor 8, 8 dmg, XP 60 | Bell-ringer. Every 12 s raises the bell (20 ticks): re-forms all bone piles within 12, raises 2 Restless Bones if none (max 4), staggers players within 4 (Slowness IV 2 s) |
+| Citadel | **Cinder Hound** | pack fodder | natural in the streets, packs 3–5 | 14 HP, 3 dmg + 2 s fire, 0.35, XP 7 | Fast; a howl pulls the pack |
+| Citadel | **Sparking Marksman** | ranged | placed on walls and gatehouse | 24 HP, bolt 6 dmg + fire, XP 20 | Crossbow; a spark on the bolt tip 20 ticks before firing. Never leaves the wall |
+| Citadel | **Furnace Golem** | tank | placed (inner ring) | 90 HP, armor 12, 9 dmg, 0.15, XP 45 | Heats up with each hit taken; at 4 hits glows 25 ticks, then a fire wave r 4 |
+| Citadel | **Smoldering Knight** | elite | placed (towers, keep) | 100 HP, armor 10, XP 80 | 3-hit combo with short windups; 6-block lunge after a 15-tick crouch |
+
+Drops: vanilla-flavoured basics (bones, charcoal, rotten flesh, string where it fits) plus the realm loot below.
+Cost: 14 GeckoLib models (10 for the zones, 4 for the Citadel), ~70 animations.
+
+#### Bosses
+Line-up: giants with spectacle, and arenas that take part in the fight.
+
+| Zone | Boss | Level | Base HP → at level | Arena | What it teaches |
+|---|---|---|---|---|---|
+| Fields | **Ash Colossus** (4.5 blocks, ember core in the back) | 18 | 180 → ~364 | market square sunk into a crater, burnt-granary pillars, r ~40 | use cover, strike the back |
+| Woods | **Grieving Tree** (the king's oak, ~10 blocks, hanged lanterns) | 21 | 170 → ~374 | Royal Grove: walled garden behind the hunting lodge, arena fog, r ~48 | shoot the lanterns, keep orientation in fog |
+| Necropolis | **Crypt Keeper** (4 blocks, halberd + lantern) | 24 | 180 → ~428 | sinkhole open to the sky, switchback stair down into a flooded ossuary, r ~32 | light: braziers against darkness and moths |
+| Citadel | **Smoldering Lord** (3.5 blocks, greatsword) | 30 | 260 → ~712 | courtyard below the keep wall | the exam: replays the three arena hazards |
+
+- **Ash Colossus.** P1: fist cone, leap ring, thrown boulder, arm drag; every ~20 s an ash storm (2 HP/s magic +
+  Blindness unless behind a pillar; he smashes pillars, so the arena needs ≥ 8). P2 at 50 %: sheds stone, core
+  exposed, faster, falling cinders. Front takes −50 %, the core ×2.
+- **Grieving Tree.** P1: rooted, trunk takes −70 % unless stunned; 4–5 lanterns (any projectile, or melee on the
+  branch lowered after a sweep) → 5 s stun, trunk ×1.5, fog lifts for 6 s; root lines, branch cone, Withered
+  Thralls drop. P2 at 50 %: uproots and walks slowly, lanterns on its own branches, thicker fog, root cage.
+- **Crypt Keeper.** P1: halberd 3-hit (the third is an unblockable overhead that breaks the shield), sweep ring,
+  lantern throw → fire pool. P2 at 60 %: the lantern shatters → Darkness, water rises 1 block, 4 braziers; in the
+  dark he takes −50 %, in brazier light normal; Crypt Moths smother lit braziers. P3 at 30 %: water 2 blocks on
+  the lower floor, Restless Bones rise, only walkways and pedestals are dry. Ossuary ceiling ≥ 9.
+- **Smoldering Lord.** P0 on the wall (untouchable): mortar rings, flame lines, Sparking Marksmen; lighting 3
+  signal braziers brings him down (landing ring r 6). P1: greatsword combos, lunge line with a fire trail. P2 at
+  50 %: armor shatters (+25 % damage taken, faster); every ~25 s one zone hazard: ash storm, fog or darkness.
+- **Damage:** level × Normal 1.25 gives ×2.31 / ×2.5 / ×2.69 / ×3.06; base 5–11 per move. Against full diamond on
+  Normal: light hits ~4–6, heavy ~8–12, unblockable ~12–17 HP.
+- **Levels are fixed** (18 / 21 / 24 / 30), not scaled by progress: the player picks the easier zone first, as in
+  Demon's Souls.
+- **Multiplayer:** HP ×(1 + 0.5·(n − 1)) at summon, +1 add per extra fighter, damage unchanged; target switch every
+  8–10 s or to the top damage dealer.
+- **Rematch:** a consumable (working name *Ash of Rematch*) used at the arena shrine of a beaten boss summons it
+  again for loot and XP, never its soul. Source and price: Open (§10.11).
+- **Models:** script-generated greybox models at final size with draft animations under the final animation names
+  (like `tools/mob_placeholders.py`); fights are tuned on them, art later.
+- **Music:** one shared zone-boss theme and a separate Smoldering Lord theme (CC-licensed, `CREDITS.md`).
+- **Framework additions:** arena hazard layer (ticked by the fight, restored on reset; real blocks only for water),
+  S2C arena fog, telegraphs (ring at a point, line, cone, falling shadow), shield-breaking hit, fight-bound adds,
+  a non-HP phase (the Lord on the wall), HP scaling hook at fight start.
+
+#### Loot
+The Minecraft way: an ore in each open zone → material → consumables and armor. All weapons are unique.
+
+**Ores** (each generates only in its zone; none in the Citadel):
+
+| Zone | Ore | Drop | Pickaxe | Rarity | Main use |
+|---|---|---|---|---|---|
+| Fields | Cinder Ore (in ash stone) | 1–3 Cinder Shard (Fortune works) | iron | like iron | fire consumables, fuel, template, ingot |
+| Woods | Amber Vein (ravine walls, under roots) | 1–2 Royal Amber | iron | like gold | healing and cure consumables, ingot |
+| Necropolis | Grave Iron Ore (deep, sinkhole walls, crypts) | Raw Grave Iron → Grave Iron Ingot | diamond | like diamond | armor metal, ingot |
+
+- **Smoldering Ingot** = 4 Grave Iron Ingot + 2 Cinder Shard + 2 Royal Amber (shapeless): all three zones needed.
+- No realm tools in 0.4.0: netherite tools stay the best.
+
+**Armor**, three kinds:
+1. **Crafted — Smoldering Plate:** a diamond piece + Smoldering Ingot + Smoldering Template on the smithing table
+   (like netherite). Template: 1 diamond + 6 Cinder Shard + 2 ash stone → 1. Diamond protection (3/8/6/3),
+   toughness 2.5 per piece, durability ~1.15× diamond, −8 % fire damage per piece. Set: no burning ticks (not
+   lava). A full set ≈ 16 Grave Iron + 4 diamonds for templates.
+2. **Mob-drop sets, one per zone** (a piece: 3 % from zone fodder on a player kill, 15 % from the zone elite;
+   FOR applies):
+   - Fields — **Reaper's Garb** (Cinder Husk, Ashen Carrion): armor 15, toughness 0; set +10 % move speed.
+   - Woods — **Huntsman's Leathers** (Lantern Hag, Withered Thrall, Bark Hollow): armor 17, toughness 1 per piece;
+     set +15 % projectile damage.
+   - Necropolis — **Necropolis Warden** (Restless Bones, Hollow Sentinel, Grave Warden): armor 20, toughness 2 per
+     piece, −5 % speed; set +0.3 knockback resistance, −15 % damage while blocking with a shield.
+3. **Unique pieces**, one per slot (0.5 % from that zone's mobs, 4 % from its elite, player kill only):
+   - Helmet **Scarecrow's Mask** (Fields): mobs notice you at half distance; Ash Stalkers do not ambush you.
+   - Leggings **Huntsman's Greaves** (Woods): +20 % speed for 4 s after a kill; no fall damage up to 7 blocks.
+   - Boots **Drowned Sabatons** (Necropolis): normal speed in water, no slow in shallow water.
+   - Chestplate **Furnace Heart Cuirass** (Citadel: Furnace Golem, Smoldering Knight): below 30 % HP releases a fire
+     nova (r 4, knockback, 6 ember damage), once per 60 s.
+
+**Weapons** — all unique; each comes from one boss's soul or, rarely, from a treasure chest of its zone.
+- **Soul** = the boss's first-kill personal drop (the Ember Heart of §4.3, one per boss). Helping a friend on a
+  repeat kill: 25 % chance of the soul. Recipe: soul + 2 Smoldering Ingot + a zone part, crafting table.
+- **Chest:** 4 % in the zone's treasure chest (Fields granary vault, Woods hunting lodge, Necropolis lower crypt,
+  Citadel keep treasury); first come, first served in the shared dimension.
+
+| Weapon | Soul / zone | Numbers | Passive | Special (right-click, §8.1) | Scaling |
+|---|---|---|---|---|---|
+| **Ashen Scythe** | Ash Colossus / Fields | 8 dmg, speed 1.1 | sweep r 2.5 at 75 % damage; a fully charged hit sends an ash wave 6 blocks forward, 3 wide, 3 ember dmg | Harvest: 360° spin r 3.5, 25 stamina, 4 s | STR 0.6 / DEX 0.4 |
+| **Huntsman's Crossbow** | Grieving Tree / Woods | charge 2.0 s, bolt ≈ 1.5× vanilla crossbow | strong knockback (≈ Punch III), pierces 1 | none (right-click loads) | DEX 0.5 / STR 0.5 |
+| **Warden's Scourge** (whip) | Crypt Keeper / Necropolis | 8 dmg, speed 0.9, reach 6, single target | Bleeding +1 per hit | Lash: pulls the target 4 blocks toward you, 20 stamina, 5 s | DEX 1 |
+| **Royal Ash Rapier** | Smoldering Lord / Citadel | 6 dmg, speed 2.0, reach 2.5 | Bleeding +1 per hit, sets on fire 3 s | Lunge: 4-block dash + thrust, double bleed, 20 stamina, 3 s | DEX 0.7, ember part KIN |
+
+- Reach (whip 6, rapier 2.5) needs a server raycast on attack: 1.20.1 has no reach attribute.
+- **Bleeding** (placeholder until the status-effects design in [BACKLOG.md](BACKLOG.md)): a vanilla status effect,
+  levels I–III (each hit +1, 6 s, refreshes), 0.5 / 1 / 1.5 HP per second, ignores armor. Immune: entity tag
+  `embervoid:bleed_immune` (Restless Bones, Furnace Golem, Bark Hollow, Ash Colossus, Grieving Tree).
+
+**Artifacts** (+ stat points; not counted in level or level cost) — 8: Fields: Last-Harvest Grain +3 VIT,
+Ploughman's Horseshoe +3 END. Woods: Royal Hound Fang +3 DEX, Amber Tear +3 KIN. Necropolis: Gravestone Medallion
++3 RES, Ferryman's Coin +3 FOR, Warden's Chain +3 STR. Citadel: Seal of the Ashen King +1 to every stat.
+
+**Rings** (unique effects) — 6: Fields: Courier's Ring (+15 % sprint speed), Ring of Ash Feathers (slow fall, no
+fall damage under 8 blocks). Woods: Ring of the Fog Stalker (fog clears twice as far, not in boss arenas), Delver's
+Ring (Haste I while mining realm ores). Necropolis: Drowned Man's Ring (water breathing). Citadel: Ring of Embers
+(melee hits ignite 2 s).
+
+Artifacts drop mainly from treasure chests (8 % per chest) and elites (2 %); rings from chests (5 %) and elites (1 %).
+
+**Reliquary** (accessory slots, our own, no extra mod): a separate screen, opened by a button next to the recipe
+book on the inventory screen and by a keybind. It shows the player model, 2 artifact slots and 2 ring slots in
+0.4.0; slot kinds and counts are data (tags `embervoid:artifacts`, `embervoid:rings`), so later realms can add
+slots or kinds. Stored in a player attachment synced to the owner; effects are attribute modifiers with fixed
+UUIDs, artifact stat points go through the stat system without raising level or cost. On death accessories go into
+the Ash Remnant with the rest of the inventory and follow its rules (decided "for now"). Not extra slots in the
+vanilla inventory: that breaks other inventory mods and the creative screen.
+
+**Consumables:**
+- Cinder: Ash Bomb (thrown, fire ring r 2, 4 ember dmg), Smoldering Resin (the weapon ignites targets for 60 s),
+  fuel (= 2 coal).
+- Amber: Amber Balm (cures bleeding and poison, Regeneration I 8 s), Amber Lantern Oil (an offhand ember lantern
+  burns 10 min: for the Necropolis darkness and the Crypt Keeper).
+- Grave Iron: Whetstone (repairs 25 % of a realm weapon; uniques also repair on an anvil with an ingot).
+- Flask: each zone boss's first kill also gives a Flask Shard (+1 charge, personal, 3 in total); the Smoldering
+  Lord gives a Flask Ember (+15 % healing per sip, once).
+
+**Chests** (shared, first come, like the Sanctum's):
+
+| Structure | Contents |
+|---|---|
+| Road outposts, farmsteads, barns, kennels, graves | zone ore drops, vanilla food, arrows, iron and gold, Ash Bombs, Balm |
+| Treasure chests: granary vault, hunting lodge, lower crypt, Citadel keep | Smoldering Ingot (rare), templates, mob-set pieces, artifacts 8 %, rings 5 %, the zone weapon 4 % |
+| Chest by the arena | 1 template + zone consumables |
+
+**Why each zone is worth doing:** Fields — Cinder, Reaper's Garb, Scarecrow's Mask, Scythe, 2 artifacts, 2 rings.
+Woods — Amber, Huntsman's Leathers and Greaves, Crossbow, 2 artifacts, 2 rings. Necropolis — Grave Iron (the armor
+metal), the Warden set, Sabatons, Scourge, 3 artifacts, 1 ring. Citadel — no ore; Cuirass, Rapier, the Seal, Ring of
+Embers, Flask Ember.
 
 ---
 
@@ -310,8 +556,8 @@ when damage is dealt, by the attacker or the projectile's owner.
 With these bonuses an End enderman is level 20, the top of the overworld band (was +10 / +20, which put it at
 32, above the Realm 1 boss — see §10.9).
 
-**Realm levels** are set per zone. Realm 1: zones 15–25 (each zone its own band), final zone 25–30, realm
-boss 30. Zone bosses sit at the top of their zone's band.
+**Realm levels** are set per zone. Realm 1: Ashen Fields 15–18, Royal Woods 18–21, Sunken Necropolis 21–25,
+final zone 25–30. Bosses have fixed levels at the top of their zone: 18 / 21 / 24, realm boss 30 (§4.5).
 
 | Realm | Mob levels | Player level that should be comfortable |
 |---|---|---|
@@ -337,7 +583,7 @@ Each realm has its own **material tier** and gear set. Rough position against va
 |---|---|---|
 | Overworld | Vanilla up to diamond / netherite | — |
 | Sanctum outer halls | Flask shards, Wanderer's Cloak pieces, vanilla loot | Proposed |
-| Realm 1 | Smoldering Ingot ≈ diamond+, with properties | Proposed |
+| Realm 1 | Smoldering Ingot ≈ diamond+: Smoldering Plate (diamond protection, more toughness, fire resistance), unique weapons, rings and artifacts (§4.5) | Decided |
 | Realm 2 | ≈ netherite | Proposed |
 | Realm 3 | above netherite | Proposed |
 | Realm 4 | top tier | Proposed |
@@ -346,8 +592,10 @@ Each realm has its own **material tier** and gear set. Rough position against va
 progress?
 
 Loot per realm:
-- **Material** from zone mobs/chests; crafted into armor and weapons of that tier.
-- **Boss uniques** (from *Ember Hearts*): signature weapons and armor sets with set bonuses.
+- **Material** from zone ores, mobs and chests; crafted into armor (and, from Realm 2 on, maybe weapons) of that tier.
+- **Boss uniques** (from *Ember Hearts*, the boss's soul): signature weapons. In Realm 1 every weapon is unique
+  and comes from a soul or a rare chest; armor comes as a crafted set, mob-drop sets and unique pieces (§4.5).
+- **Accessories:** artifacts (+ stat points) and rings (unique effects), worn in the Reliquary (§4.5).
 - **Consumables and upgrades**: flask shards (more charges / more healing), realm-specific items.
 
 ---
@@ -359,7 +607,7 @@ Loot per realm:
 | Stamina | Spent **only** by right-click special attacks. Vanilla hits, sprinting and blocking stay free. Max and regen from END | Decided |
 | Healing Flask | Charges (start 3), heal over time, cannot drink while sprinting. Refilled by resting at an Ember Shrine, sleeping through the night in a bed, and on respawn after death. The flask is never dropped or put into the Ash Remnant: it stays in the inventory on death, full after respawn. Charges live in player data (built per §10.6). A lost flask is crafted again from a glass bottle + a diamond + coal or charcoal (shapeless); a second flask adds no charges | Decided |
 | Flask Shards | Permanent +1 charge or +healing per sip, capped | Decided |
-| Ash Remnant | On death XP and all items except the Healing Flask go into a remnant at a safe spot (the last position on solid ground). Modes `off` / `xp` / `xp_and_items`. With XP as the leveling currency this is our bloodstain. Dying again before reaching it burns the old remnant's XP; its items stay in it until picked up (config `remnant.secondDeath` = `burn_xp` default / `burn_all`, §10.7) | Decided (second death: Proposed — built as recommended) |
+| Ash Remnant | On death XP and all items except the Healing Flask (Reliquary accessories included, §4.5) go into a remnant at a safe spot (the last position on solid ground). Modes `off` / `xp` / `xp_and_items`. With XP as the leveling currency this is our bloodstain. Dying again before reaching it burns the old remnant's XP; its items stay in it until picked up (config `remnant.secondDeath` = `burn_xp` default / `burn_all`, §10.7) | Decided (second death: Proposed — built as recommended) |
 | Full-set bonuses | Armor sets grant a bonus when all 4 pieces are worn | Decided |
 
 ---
@@ -370,8 +618,10 @@ These are big enough to get their own documents. Each is needed before the miles
 
 | Topic | Covers | Needed by |
 |---|---|---|
-| **Weapons** | Weapon classes, STR/DEX/KIN scaling and requirements, special attacks, how vanilla weapons fit in, upgrades | **Special-attack contract** (trigger, cost, cooldown, tooltip, limits): done (§8.1). The rest: Realm 1 loot |
-| **Realm 1 content** | Per-zone mobs, structures, the 4 bosses (moves and phases), loot tables | Realm 1 |
+| **Weapons** | Weapon classes, STR/DEX/KIN scaling and requirements, special attacks, how vanilla weapons fit in, upgrades | **Special-attack contract** (trigger, cost, cooldown, tooltip, limits): done (§8.1). Realm 1 weapons: done (§4.5). Upgrades: [BACKLOG.md](BACKLOG.md). Requirements and the Sanctum weapons (§10.10): open |
+| **Realm 1 content** | Per-zone mobs, structures, the 4 bosses (moves and phases), loot tables | Done (§4.5) |
+| **Status effects** | Bleeding and later effects, RES resistance, immunities, cures | Realm 1 ships a placeholder Bleeding (§4.5); the system: [BACKLOG.md](BACKLOG.md) |
+| **Rings and artifacts** | Catalogue across the mod, more slots, stacking, sources outside realms | Realm 1 set and the Reliquary: done (§4.5); the rest: [BACKLOG.md](BACKLOG.md) |
 | **Bestiary (overworld)** | Hollow and Ember Wisp in detail, behaviors | Overworld threats — done (§3.2) |
 | **Realms 2–4** | Each realm's zones, mobs, bosses, material | Each realm |
 
@@ -463,3 +713,10 @@ Each question names the milestone that cannot start without an answer.
     *Needed by:* milestone 3 (PLAN 3.2), and milestone 5 for the weapons.
     **Decided:** FOR → luck + a small bonus chance on mob drops in 0.2.0. **Proposed — built as recommended:**
     KIN → flask healing, RES → armor toughness + fire damage reduction. **Open:** the Sanctum weapons.
+11. **Rematch item for Realm 1 bosses** (§4.5): where does *Ash of Rematch* come from and what does it cost (a
+    craft from realm materials, a chest drop, XP at the Maiden)?
+    *Needed by:* milestone 12.
+12. **Moon nights** (§3.3): rewards for both nights; whether a player kill counts toward the curse; and the four
+    conflicts listed in §3.3 (remnant in the Vampire arena, who is pulled into it, Vampires in multiplayer, one
+    shared night).
+    *Needed by:* milestone 8.

@@ -225,7 +225,7 @@ the bar name, point the arena JSON's `boss.entity` at it, add its id to the real
 - **Functional blocks:** Ember Shrine, Void Obelisk, Sanctum Flagstone, Return Obelisk, Sealed Gate.
 - **Items:** Healing Flask, Flask Shard, Sanctum Map, Ember Lodestar, Ember Heart, spawn eggs; dev-only
   `debug_sweep`.
-- **No gear yet:** no material tier, weapons or armor (milestone 10, needs the weapons doc).
+- **No gear yet:** no material tier, weapons or armor (milestone 11, design in DESIGN §4.5).
 
 ---
 
@@ -256,10 +256,10 @@ the bar name, point the arena JSON's `boss.entity` at it, add its id to the real
 | Area | Now | Needed |
 |---|---|---|
 | Mob, Maiden models/textures | generated placeholders | art pass (Blockbench) |
-| Realm 1 zones | colour/surface biomes with vanilla zombies etc. | zone mobs, trees, ruins, minor structures (Realm 1 content doc) |
+| Realm 1 zones | colour/surface biomes with vanilla zombies etc. | zone mobs, trees, ruins, minor structures (DESIGN §4.5) |
 | Arenas | code-built discs | built arenas per boss |
 | Bosses | one test boss everywhere | 3 zone bosses + realm boss (moves, phases, loot) |
-| Gear | none | Smoldering tier, weapons with abilities, armor sets, Ember Heart uses (weapons doc) |
+| Gear | none | Smoldering tier, weapons with abilities, armor sets, Ember Heart uses (DESIGN §4.5) |
 | Sanctum weapons | none | 1–2 weapons with a special attack (DESIGN §10.10) |
 | Sound and music | vanilla sounds, music hook only | mob, boss, shrine and flask sounds, boss music |
 | Realms 2–4 | obelisks only | each realm's design pass |

@@ -93,6 +93,31 @@ Leaning, if it comes back: A first (smithing table), B-lite later (Ember once em
 Realm 2 weapons; not C or D. Open: levels, infusions or both; +5 or +10; where it happens; XP on top of
 materials; vanilla weapons and their cap; whether upgrades touch the special attack; armor too; ascension.
 
+## Status effects
+
+**Status:** to design (asked by the user 2026-10-22). The mod needs its own set of status effects, worked out
+together rather than one per weapon. **Bleeding** is the first: Obelisk 1 weapons already apply it (a plain
+damage-over-time placeholder in 0.4.0, DESIGN §4.5).
+
+To decide: the full list (bleeding, rot/poison for Realm 2, frost, curse…); vanilla `StatusEffect` (simple, shows
+in the HUD) or souls-style buildup meters that burst; how RES resists them (DESIGN §5.2 already promises
+resistance to fire, poison, wither); which mobs are immune (skeletons, constructs: an entity tag); cures
+(consumables, the flask, shrines); HUD for buildup.
+
+## Rings and artifacts
+
+**Status:** to design (asked by the user 2026-10-22). Many rings and artifacts across the whole mod, not tied to
+one obelisk. Two kinds of worn items: an **artifact** raises a character stat (e.g. +3 Vitality), a **ring** gives
+a unique effect (water breathing, sprint speed…).
+
+Already decided for 0.4.0 (DESIGN §4.5): the Realm 1 set (8 artifacts, 6 rings) and the **Reliquary** — our own
+screen, no extra mod, 2 artifact + 2 ring slots, slot kinds as data, artifact points not counted in level or cost,
+accessories go into the Ash Remnant on death ("for now").
+
+Still to decide for the system: whether more slots unlock with progress; stacking rules (two copies of one ring);
+sources outside obelisks (overworld structures, the Sanctum, moon nights); a catalogue per obelisk and per
+overworld source so they do not overlap.
+
 ## Realms 2–4 (ROADMAP "Later")
 
 **Status:** not now (decided 2026-10-22). Focus stays on overworld content and Realm 1. Each realm gets its own

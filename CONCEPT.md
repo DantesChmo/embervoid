@@ -20,7 +20,7 @@ progression comes from places, gates and bosses. Full design: [DESIGN.md](DESIGN
 | Overworld  | Mob levels, harder difficulty, Ash Ghoul, Hollow, Ember Wisp                  |
 | Hub        | Ember Sanctum: Ashen Maiden (leveling), Void Obelisks, Ember Shrine           |
 | RPG        | 7 stats (VIT END STR DEX KIN RES FOR), level paid in XP points, no classes    |
-| Realm 1    | Ashen Reach: Ash Wasteland, Dead Woods, Sunken Crypt → Smoldering Citadel     |
+| Realm 1    | Ashen Reach: Ashen Fields, Royal Woods, Sunken Necropolis → Smoldering Citadel |
 | Gear       | One material tier per realm, boss uniques, set bonuses (weapons: separate doc) |
 | Mechanics  | Stamina for specials, healing flask, Ash Remnant on death, shrines in realms  |
 

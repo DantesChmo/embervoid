@@ -14,7 +14,7 @@ and is the only place where the game is launched.
 | 3 | `track-sanctum` | Milestone 5 (Ember Sanctum): progression data, Ember Shrine, Void Obelisks, structure, core protection, attunement, Sanctum Map, loot; Ashen Maiden and level-up screen last | `progress`, `sanctum`, `registry/ModStructures`, `data/embervoid/worldgen/**` for the Sanctum, `data/embervoid/structures/sanctum/**` |
 | 4 | `track-realms` | Milestone 6 (realm framework) and Milestone 7 (boss framework), on placeholders | `realm`, `boss`, `data/embervoid/dimension*/**`, realm worldgen JSON |
 
-Not in any track yet: 0.2.0 release tasks, milestones 8–10 (need the weapons and Realm 1 content docs).
+Not in any track yet: 0.2.0 release tasks, milestone 8 (moon nights, DESIGN §3.3) and 0.4.0 milestones 9–13 (DESIGN §4.5).
 
 ## Contracts between tracks
 

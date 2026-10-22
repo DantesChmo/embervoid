@@ -9,19 +9,19 @@ Every user-facing string ships in both `en_us` and `ru_ru`.
 | Release | Theme | Milestones | Playable loop |
 |---|---|---|---|
 | **0.2.0** "Kindling" | Harder overworld, RPG core, the hub | 1–5 | Survive a harder world, find the Ember Sanctum, level up at the Maiden |
-| **0.3.0** "Ashen Reach" | Realm framework + Realm 1 zones | 6–8, Realm 1 material tier | Enter Realm 1, beat 3 zone bosses, gear up from the zones, open the gate ("the depths are still forming") |
-| **0.3.5** "Smoldering Citadel" | Realm 1 final zone | 9–10 | Through the gate, take the Citadel, kill the Smoldering Lord, earn the boss uniques |
-| 0.4.0+ | Realms 2–4 | one block per realm | Each realm: design pass → build → release |
+| **0.3.0** "Moon Nights" | Realm and boss frameworks, moon nights in the overworld | 6–8 | Survive the full moon and the blood new moon; enter a placeholder realm, beat test bosses, open the gate |
+| **0.4.0** "Ashen Reach" | The first obelisk: all of Realm 1 | 9–13 | Enter Realm 1, take the three zones in any order, gear up, go through the gate, kill the Smoldering Lord |
+| Later | Realms 2–4 and other ideas | — | [BACKLOG.md](BACKLOG.md); each realm gets a design pass first |
 
-Releases are kept small enough to ship: Realm 1 is four bosses, a fortress, around five new mobs and a gear
-tier, waiting on two design docs, so it ships in two releases (split is **Proposed**).
+Realm 1 was split into 0.3.0 / 0.3.5 while its design was missing. With the design decided (DESIGN §4.5) it ships
+whole in 0.4.0; the old split is dropped.
 
 Open questions in [DESIGN.md](DESIGN.md) §10 name the milestone they block. Decide them before that milestone
 is done; until then its tasks build the recommended answer and keep it easy to change.
 
 **Where things stand:** milestones 1–7 are built and on `main`; most of it was checked in game (single player).
-What was not checked in game is marked "(not verified in game: …)" on its line. Not started: the 0.2.0 release
-tasks, the art pass, and the Realm 1 content (milestones 8–10).
+What was not checked in game is marked "(not verified in game: …)" on its line. Not started: the 0.2.0 and 0.3.0
+release tasks, the moon nights (milestone 8), the art pass, and 0.4.0 (milestones 9–13).
 
 ## Decisions
 
@@ -149,12 +149,12 @@ built as recommended; FOR's extra mob-drop chance is Decided.
 
 ---
 
-# 0.3.0 "Ashen Reach"
+# 0.3.0 "Moon Nights"
 
-Before this block: **weapons design doc** and **Realm 1 content doc** (DESIGN.md §8), and answers to
-DESIGN §10.1 (building in realms, blocks milestone 6) and §10.8 (arena shrines, blocks milestone 7).
-Milestones 6 and 7 were built ahead on placeholders with the recommended answers to §10.1 and §10.8; the two
-design docs are still needed for milestones 8–10.
+Everything outside the obelisks: the technology every realm uses (proven with placeholder zones and a test boss)
+and the moon nights in the overworld (DESIGN §3.3). All Realm 1 content is 0.4.0.
+Milestones 6 and 7 were built on the recommended answers to DESIGN §10.1 (building in realms) and §10.8 (arena
+shrines).
 
 ## 6. Realm framework
 
@@ -176,7 +176,7 @@ design docs are still needed for milestones 8–10.
 
 ## 7. Boss framework
 
-**Status:** Done, partly unverified. Proven with a test boss (zombie model); real bosses come with milestones 8–9.
+**Status:** Done, partly unverified. Proven with a test boss (zombie model); real bosses come with milestones 12–13.
 
 - [x] Boss bar with level, fog wall arena, reset on leave/death, phase thresholds, no despawn
 - [x] Summon rule: boss appears when a player who has not beaten it enters; credit to everyone inside (not verified in game: summon and credit with a second player, the fog wall pushing back a player outside)
@@ -186,51 +186,100 @@ design docs are still needed for milestones 8–10.
 
 **Done when:** a test boss can be fought, reset, beaten, re-fought by a second player, and leaves a shrine.
 
-## 8. Realm 1: zones and their bosses
+## 8. Moon nights
 
-**Status:** Not started (needs the Realm 1 content doc).
+**Status:** Not started. Rewards and the conflicts in DESIGN §10.12 are open.
 
-Per the Realm 1 content doc. Starting point from the old plan:
-
-- [ ] **Ash Wasteland** zone: ash soil surface, dead trees, boulders, falling-ash particles, ambient loop, ruins
-- [ ] **Dead Woods** zone and its boss (new, from the content doc)
-- [ ] **Sunken Crypt** zone: crypt jigsaw, **Hollow Sentinel**, **Crypt Moth**, boss **Crypt Keeper** (two phases: halberd and lantern fire → darkness and summoned dead)
-- [ ] Ash Wasteland boss (new, from the content doc)
-- [ ] Zone loot tables: Smoldering material, flask shards, Wanderer's Cloak pieces
-- [ ] **Smoldering Ingot** tier: basic crafted weapons and armor (boss uniques and set bonuses come with milestone 10)
+- [ ] World moon-night state: every third lunar cycle, first full moon skipped, no sleeping, 30-minute fallback, config
+- [ ] Full moon: +3 levels, longer follow range, Curse of the Night stacks, **Ashen Zombie** and **Ghost**
+- [ ] Blood new moon: red sky sync, vampirism on vanilla hostiles, friendly **Vampires**, Vampire boss in its own arena dimension
 
 ## 0.3.0 release
 
 **Status:** Not started.
 
 - [ ] Sealed Gate opens onto a placeholder ("the depths are still forming")
-- [ ] Balance pass: zone level bands vs expected player level, zone bosses, XP yield
+- [ ] Balance pass on the moon nights (levels, curse, Ghosts, Vampire boss)
 - [ ] Multiplayer and performance test (realm worldgen time, entity counts)
 - [ ] Release 0.3.0
 
 ---
 
-# 0.3.5 "Smoldering Citadel"
+# 0.4.0 "Ashen Reach" — the first obelisk
 
-## 9. Realm 1: Smoldering Citadel
+The full Realm 1 per [DESIGN.md](DESIGN.md) §4.5. Design is decided; DESIGN §10.11 is open and blocks
+milestone 12. Order: zones A–C, roads and the three
+arenas first, the Citadel last. New mobs and bosses start on script-generated greybox models at final size; art
+comes in the release pass.
 
-**Status:** Not started (needs the Realm 1 content doc).
+## 9. Realm 1: world
 
-- [ ] Final zone dimension terrain + **Ash Fortress** jigsaw (walls, towers, courtyard, keep, throne arena)
-- [ ] **Sparking Marksman** on the walls
-- [ ] Realm boss **Smoldering Lord** (combos and lunge → cracked armor, fire zones)
-- [ ] Realm completion → Realm 2 obelisk lit (leads nowhere until 0.4.0)
+**Status:** Not started.
 
-## 10. Realm 1 gear, polish and 0.3.5 release
+- [ ] Zones renamed: **Ashen Fields**, **Royal Woods**, **Sunken Necropolis** (ids stay `zone_a/b/c`); eternal dusk (`fixed_time` ≈ 13500)
+- [ ] Zone-aware terrain density function (plain / hills and ravines / sinkhole basin), blended at borders
+- [ ] Per-zone fog density (client mixin on `BackgroundRenderer`, reused for arena fog)
+- [ ] New blocks (~6–8): burnt straw, milestone, gravestone, ember crack, smouldering log, wet crypt stone…
+- [ ] Ores: Cinder Ore (Fields), Amber Vein (Woods), Grave Iron Ore (Necropolis), each only in its zone
+- [ ] Landing as the crossroads plaza; roads to each arena with milestones and 2 outposts per road
+- [ ] Minor structures per zone (~20–25 `.nbt` pieces) and the Necropolis crypt jigsaw (5–7 pieces); water only in the Necropolis
+- [ ] World edge: broken walls and collapsed bridges at the abyss cliffs
 
-**Status:** Not started (needs the weapons doc).
+## 10. Realm 1: zone bestiary
 
-- [ ] Full Smoldering tier (≈ diamond+) weapons and armor per the weapons doc (candidates from the old plan: Keeper's Halberd, Smoldering Greatsword, Ash Dagger, Ember Talisman; sets: Keeper's Garb, Smoldering Plate, Wanderer's Cloak)
-- [ ] Boss uniques via Ember Hearts, full-set bonuses
-- [ ] Balance: realm level bands vs expected player level, boss difficulty, XP yield per realm
-- [ ] Sounds, music (`CREDITS.md` for licensed tracks), textures consistency pass
-- [ ] Multiplayer and performance test (realm worldgen time, entity counts)
-- [ ] Release 0.3.5
+**Status:** Not started.
+
+- [ ] Zone spawners list only Realm 1 mobs (placeholder zombies go); placed enemies at worldgen that never respawn
+- [ ] Fields: **Cinder Husk**, **Ash Stalker** (buried ambush), **Ashen Carrion** (diving flyer)
+- [ ] Woods: **Withered Thrall** (incl. hanging cages), **Lantern Hag** (fire flask), **Bark Hollow** (dormant tree)
+- [ ] Necropolis: **Restless Bones** (bone pile, re-forms, light keeps it dead), **Crypt Moth** (seeks light, snuffs torches), **Hollow Sentinel** (tower shield, bash window), **Grave Warden** (bell-ringer)
+- [ ] Drops: basics + material and set-piece rolls per §4.5
+
+## 11. Realm 1: loot and accessories
+
+**Status:** Not started.
+
+- [ ] Materials: Cinder Shard, Royal Amber, Grave Iron, **Smoldering Ingot**, Smoldering Template
+- [ ] **Smoldering Plate** (smithing table, like netherite) with its set bonus
+- [ ] Mob-drop sets **Reaper's Garb**, **Huntsman's Leathers**, **Necropolis Warden** with set bonuses; unique pieces Scarecrow's Mask, Huntsman's Greaves, Drowned Sabatons, Furnace Heart Cuirass
+- [ ] Weapons: **Ashen Scythe**, **Huntsman's Crossbow**, **Warden's Scourge**, **Royal Ash Rapier** (recipes from boss souls + chest drops); server raycast for reach
+- [ ] **Bleeding** placeholder status effect and the `embervoid:bleed_immune` tag
+- [ ] **Reliquary**: own screen (button + keybind), 2 artifact + 2 ring slots, player attachment, accessories into the Ash Remnant on death
+- [ ] 8 artifacts and 6 rings
+- [ ] Consumables: Ash Bomb, Smoldering Resin, Amber Balm, Amber Lantern Oil, Whetstone, Flask Ember
+- [ ] Chest loot tables: ordinary, treasure and arena-side chests
+
+## 12. Realm 1: zone bosses
+
+**Status:** Not started. Rematch item blocked by DESIGN §10.11.
+
+- [ ] Boss framework additions: arena hazard layer (restored on reset), S2C arena fog, telegraph shapes (ring, line, cone, falling shadow), shield-breaking hit, fight-bound adds, non-HP phase, HP scaling HP ×(1 + 0.5·(n − 1)) + 1 add per extra fighter
+- [ ] **Crypt Keeper** (first: riskiest) in the flooded ossuary: light, rising water, braziers, moths, Restless Bones
+- [ ] **Ash Colossus** in the crater market: smashable pillars, ash storm, exposed core
+- [ ] **Grieving Tree** in the Royal Grove: lanterns, arena fog, uproot phase
+- [ ] Per-boss souls (first-kill personal drop, 25 % when helping), Flask Shard per zone boss
+- [ ] Rematch item (*Ash of Rematch*) at a beaten boss's arena shrine
+- [ ] Shared zone-boss music theme
+
+## 13. Realm 1: Smoldering Citadel
+
+**Status:** Not started.
+
+- [ ] Depths dimension "Burning City": own `dimension_type` (dark red sky, dusk), hill terrain, ember cracks and smouldering logs
+- [ ] Citadel jigsaw (~10–12 pieces): outskirts → burning streets → wall and gatehouse → inner ring and towers → courtyard → keep
+- [ ] Mobs: **Cinder Hound**, **Sparking Marksman**, **Furnace Golem**, **Smoldering Knight**
+- [ ] Realm boss **Smoldering Lord**: wall phase with signal braziers, greatsword phase, replayed zone hazards; own music theme
+- [ ] Realm completion → Realm 2 obelisk lit (leads nowhere yet)
+
+## 0.4.0 release
+
+**Status:** Not started.
+
+- [ ] Balance: zone level bands vs expected player level, boss difficulty, XP yield, loot rates
+- [ ] Art pass: realm mobs and bosses from greybox to final models; textures consistency
+- [ ] Sounds and music (`CREDITS.md` for licensed tracks)
+- [ ] Multiplayer and performance test (realm worldgen time, entity counts, placed enemies)
+- [ ] Release 0.4.0
 
 **Done when:** a fresh survival playthrough goes overworld → Sanctum → Realm 1 → Smoldering Lord without creative mode, feels fair, and breaks nothing on client or server.
 
@@ -241,6 +290,6 @@ Per the Realm 1 content doc. Starting point from the old plan:
 First-round variants and where each discussion stopped: [BACKLOG.md](BACKLOG.md).
 
 - Realms 2–4 (*Mire of Rot*, *Cathedral Ward*, *The Void*), each with its own design pass
-- Ember Moon night event
 - Respec consumable, Maiden as merchant
 - Weapon upgrades / smithing within a tier
+- Status effects system (beyond the Realm 1 Bleeding placeholder); rings and artifacts across the mod
