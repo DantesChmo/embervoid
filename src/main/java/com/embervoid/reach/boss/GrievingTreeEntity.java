@@ -86,7 +86,7 @@ public class GrievingTreeEntity extends ReachBoss {
 
 	public GrievingTreeEntity(EntityType<? extends GrievingTreeEntity> type, World world) {
 		super(type, world);
-		this.experiencePoints = 280;
+		this.experiencePoints = 170;
 	}
 
 	public static DefaultAttributeContainer.Builder createAttributes() {

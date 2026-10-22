@@ -37,7 +37,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.EnumSet;
 
 /**
- * The full moon's answer to a player with no curse (DESIGN §3.3): five of these come instead of Ashen Zombies.
+ * The full moon's answer to a player with no curse (DESIGN §3.3): three of these come instead of Ashen Zombies.
  * Twice an Ashen Zombie's HP and damage; it flies and drifts through blocks like a vex, sees through walls, and
  * {@link NightMobConfig#ghostMissChance} of the hits on it pass through it harmlessly.
  */
@@ -45,7 +45,8 @@ public class GhostEntity extends HostileEntity implements GeoEntity {
 	/** Speed factor of the move control: about 4.4 blocks/s chasing (a vex is 1.0, about 11 blocks/s). */
 	private static final double CHASE_SPEED = 0.4;
 	private static final double WANDER_SPEED = 0.2;
-	private static final int ATTACK_COOLDOWN_TICKS = 20;
+	/** One touch per 2 s (R40.1c: with one a second, three Ghosts out-traded any day-24 player). */
+	private static final int ATTACK_COOLDOWN_TICKS = 40;
 
 	private final AnimatableInstanceCache animations = GeckoLibUtil.createInstanceCache(this);
 

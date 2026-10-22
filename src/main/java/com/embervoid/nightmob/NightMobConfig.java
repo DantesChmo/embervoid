@@ -19,7 +19,7 @@ import com.google.gson.JsonObject;
  */
 public record NightMobConfig(int zombieLevelBonus, float ghostMissChance, int maxZombies, int ghostCount,
 		int spawnMinDistance, int spawnMaxDistance) {
-	public static final NightMobConfig DEFAULT = new NightMobConfig(5, 0.15f, 10, 5, 16, 32);
+	public static final NightMobConfig DEFAULT = new NightMobConfig(5, 0.15f, 10, 3, 16, 32);
 
 	public static final ConfigSection<NightMobConfig> SECTION = EmbervoidConfig.register(ConfigSection.of(
 			"nightMobs", DEFAULT, NightMobConfig::read, NightMobConfig::write));

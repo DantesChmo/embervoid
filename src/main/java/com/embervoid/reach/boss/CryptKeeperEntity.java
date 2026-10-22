@@ -105,7 +105,7 @@ public class CryptKeeperEntity extends ReachBoss {
 
 	public CryptKeeperEntity(EntityType<? extends CryptKeeperEntity> type, World world) {
 		super(type, world);
-		this.experiencePoints = 300;
+		this.experiencePoints = 190;
 	}
 
 	public static DefaultAttributeContainer.Builder createAttributes() {

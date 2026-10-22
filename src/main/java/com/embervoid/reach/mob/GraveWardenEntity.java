@@ -50,7 +50,7 @@ public class GraveWardenEntity extends ReachMob {
 
 	public GraveWardenEntity(EntityType<? extends GraveWardenEntity> type, World world) {
 		super(type, world);
-		experiencePoints = 60;
+		experiencePoints = 40;
 	}
 
 	public static DefaultAttributeContainer.Builder createAttributes() {
