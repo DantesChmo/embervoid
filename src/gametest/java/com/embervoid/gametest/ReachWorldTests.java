@@ -2,11 +2,16 @@ package com.embervoid.gametest;
 
 import com.embervoid.Embervoid;
 import com.embervoid.mob.MobLevels;
+import com.embervoid.reach.gear.GearItems;
+import com.embervoid.reach.world.ReachBlocks;
 import com.embervoid.reach.world.ReachZones;
 import com.embervoid.reach.world.ZoneTitles;
 import com.embervoid.realm.RealmArenas;
 import com.embervoid.realm.RealmDefinition;
 import com.embervoid.realm.RealmMobLevels;
+import com.embervoid.realm.RoadLayout;
+import com.embervoid.realm.worldgen.RealmRoads;
+import com.embervoid.registry.ModBlocks;
 import com.embervoid.realm.Realms;
 import com.embervoid.realm.placed.PlacedEnemies;
 import com.embervoid.realm.placed.PlacedEnemyMarkerBlock;
@@ -16,11 +21,17 @@ import com.embervoid.realm.worldgen.RealmFeaturePiece;
 import com.embervoid.sanctum.SanctumBlocks;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.SharedConstants;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.LootableContainerBlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtInt;
@@ -46,10 +57,13 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.SpawnSettings;
+import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.structure.Structure;
 
 import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
 
 /** Track reach-world (PLAN 9.x): placed enemies, then realm worldgen pieces. */
 public final class ReachWorldTests implements FabricGameTest {
@@ -255,5 +269,162 @@ public final class ReachWorldTests implements FabricGameTest {
 			context.assertTrue(checked > 100, name + ": only " + checked + " floor columns checked");
 		}
 		context.complete();
+	}
+	/** Ore drops (PLAN 9.5): counts per DESIGN §4.5, and the pickaxe each ore needs. */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void oresDropTheirMaterials(TestContext context) {
+		ServerWorld world = context.getWorld();
+		BlockPos pos = context.getAbsolutePos(new BlockPos(1, 2, 1));
+		ItemStack iron = new ItemStack(Items.IRON_PICKAXE);
+		ItemStack diamond = new ItemStack(Items.DIAMOND_PICKAXE);
+		for (int i = 0; i < 20; i++) {
+			assertDrop(context, world, pos, ReachBlocks.CINDER_ORE, iron, GearItems.CINDER_SHARD, 1, 3);
+			assertDrop(context, world, pos, ReachBlocks.AMBER_VEIN, iron, GearItems.ROYAL_AMBER, 1, 2);
+			assertDrop(context, world, pos, ReachBlocks.GRAVE_IRON_ORE, diamond, GearItems.RAW_GRAVE_IRON, 1, 1);
+		}
+		context.assertTrue(iron.isSuitableFor(ReachBlocks.CINDER_ORE.getDefaultState())
+				&& iron.isSuitableFor(ReachBlocks.AMBER_VEIN.getDefaultState()), "an iron pickaxe cannot mine cinder / amber");
+		context.assertTrue(!new ItemStack(Items.STONE_PICKAXE).isSuitableFor(ReachBlocks.CINDER_ORE.getDefaultState()),
+				"a stone pickaxe mines cinder ore");
+		context.assertTrue(!iron.isSuitableFor(ReachBlocks.GRAVE_IRON_ORE.getDefaultState())
+				&& diamond.isSuitableFor(ReachBlocks.GRAVE_IRON_ORE.getDefaultState()), "grave iron is not a diamond-tier ore");
+		for (Block ore : ReachBlocks.ORES) {
+			context.assertTrue(ore.getDefaultState().isIn(ReachBlocks.REALM_ORES), ore + " is not in embervoid:realm_ores");
+		}
+		context.complete();
+	}
+
+	private static void assertDrop(TestContext context, ServerWorld world, BlockPos pos, Block ore, ItemStack tool,
+			Item item, int min, int max) {
+		List<ItemStack> drops = Block.getDroppedStacks(ore.getDefaultState(), world, pos, null, null, tool);
+		int count = drops.stream().filter(stack -> stack.isOf(item)).mapToInt(ItemStack::getCount).sum();
+		context.assertTrue(drops.size() == 1 && count >= min && count <= max,
+				ore + " dropped " + drops + ", expected " + min + "–" + max + " " + item);
+	}
+
+	/** Each zone ore generates in its own zone only (PLAN 9.5). */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 2400)
+	public void zoneOresStayInTheirZone(TestContext context) {
+		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
+		// Sector centres: start angle −90°, three 120° sectors.
+		double[] centres = {-30, 90, 210};
+		for (int zone = 0; zone < 3; zone++) {
+			int[] counts = new int[ReachBlocks.ORES.size()];
+			double a = Math.toRadians(centres[zone]);
+			for (int k = 0; k < 4; k++) {
+				int x = (int) (Math.cos(a) * 350) + (k % 2) * 16;
+				int z = (int) (Math.sin(a) * 350) + (k / 2) * 16;
+				WorldChunk chunk = realm.getChunk(x >> 4, z >> 4);
+				BlockPos.Mutable pos = new BlockPos.Mutable();
+				for (int dx = 0; dx < 16; dx++) {
+					for (int dz = 0; dz < 16; dz++) {
+						for (int y = realm.getBottomY(); y < 120; y++) {
+							BlockState state = chunk.getBlockState(pos.set(dx, y, dz));
+							int ore = ReachBlocks.ORES.indexOf(state.getBlock());
+							if (ore >= 0) {
+								counts[ore]++;
+							}
+						}
+					}
+				}
+			}
+			String found = "zone " + zone + ": cinder " + counts[0] + ", amber " + counts[1] + ", grave iron " + counts[2];
+			for (int ore = 0; ore < counts.length; ore++) {
+				context.assertTrue(ore == zone ? counts[ore] > 0 : counts[ore] == 0, found);
+			}
+		}
+		context.complete();
+	}
+	/** Roads (PLAN 9.6): paved along the line, a milestone beside it, outposts with their chest. */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 2400)
+	public void roadsArePavedWithMilestonesAndOutposts(TestContext context) {
+		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
+		List<RoadLayout.Road> roads = RealmRoads.of(realm);
+		context.assertTrue(roads.size() == 3, "expected 3 roads, got " + roads.size());
+		RoadLayout.Road road = roads.get(0);
+		int paved = 0;
+		int checked = 0;
+		for (int k = 4; k < 64; k += 3) {
+			double[] p = road.points().get(k);
+			BlockPos column = BlockPos.ofFloored(p[0], 0, p[1]);
+			realm.getChunk(column);
+			checked++;
+			if (columnHas(realm, column, state -> ROAD_BLOCKS.contains(state.getBlock()))) {
+				paved++;
+			}
+		}
+		context.assertTrue(paved >= checked - 1, "road paved at only " + paved + " of " + checked + " points");
+
+		RoadLayout.Milestone milestone = road.milestones().get(0);
+		BlockPos stone = new BlockPos(milestone.x(), 0, milestone.z());
+		realm.getChunk(stone);
+		context.assertTrue(columnHas(realm, stone, state -> state.isOf(ReachBlocks.MILESTONE)), "no milestone at " + stone);
+
+		RealmArenas.Location arena = RealmRoads.arenas(realm).get(road.arena());
+		String table = "embervoid:chests/ashen_reach/" + ReachZones.zoneName(arena.spec().bossId()) + "_common";
+		for (RoadLayout.Outpost outpost : road.outposts()) {
+			ChunkPos centre = new ChunkPos(new BlockPos(outpost.x(), 0, outpost.z()));
+			boolean chest = false;
+			for (int cx = -1; cx <= 1; cx++) {
+				for (int cz = -1; cz <= 1; cz++) {
+					WorldChunk chunk = realm.getChunk(centre.x + cx, centre.z + cz);
+					for (BlockEntity entity : chunk.getBlockEntities().values()) {
+						if (entity instanceof LootableContainerBlockEntity
+								&& table.equals(entity.createNbt().getString("LootTable"))) {
+							chest = true;
+						}
+					}
+				}
+			}
+			context.assertTrue(chest, outpost.kind() + " at " + outpost.x() + ", " + outpost.z() + " has no " + table + " chest");
+		}
+		context.complete();
+	}
+
+	/** The crossroads plaza (PLAN 9.6): a gap with lantern posts where each road leaves, the shrine in the middle. */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 1200)
+	public void landingPlazaOpensOntoTheRoads(TestContext context) {
+		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
+		Structure structure = realm.getRegistryManager().get(RegistryKeys.STRUCTURE).get(Embervoid.id("ashen_reach_landing"));
+		ChunkGenerator generator = realm.getChunkManager().getChunkGenerator();
+		StructureStart start = structure.createStructureStart(realm.getRegistryManager(), generator,
+				generator.getBiomeSource(), realm.getChunkManager().getNoiseConfig(), realm.getStructureTemplateManager(),
+				realm.getSeed(), new ChunkPos(0, 0), 0, realm, biome -> true);
+		BlockBox box = start.getBoundingBox();
+		ChunkPos.stream(new ChunkPos(box.getMinX() >> 4, box.getMinZ() >> 4), new ChunkPos(box.getMaxX() >> 4, box.getMaxZ() >> 4))
+				.forEach(c -> start.place(realm, realm.getStructureAccessor(), generator, realm.getRandom(),
+						new BlockBox(c.getStartX(), realm.getBottomY(), c.getStartZ(), c.getEndX(), realm.getTopY(), c.getEndZ()), c));
+		RealmFeaturePiece piece = (RealmFeaturePiece) start.getChildren().get(0);
+		BlockPos center = piece.center();
+		context.assertTrue(realm.getBlockState(piece.shrinePos()).isOf(SanctumBlocks.EMBER_SHRINE), "no shrine on the plaza");
+		for (RoadLayout.Road road : RealmRoads.of(realm)) {
+			double[] exit = road.points().get(0);
+			double angle = Math.atan2(exit[1], exit[0]);
+			int r = RealmFeaturePiece.LANDING_RADIUS;
+			BlockPos rim = center.add((int) Math.round(Math.cos(angle) * r), 1, (int) Math.round(Math.sin(angle) * r));
+			context.assertTrue(realm.getBlockState(rim).isAir(), "the plaza wall blocks road " + road.arena() + " at " + rim);
+			int lanterns = 0;
+			for (BlockPos pos : BlockPos.iterate(rim.add(-7, 0, -7), rim.add(7, 3, 7))) {
+				if (realm.getBlockState(pos).isOf(ModBlocks.EMBER_LANTERN)) {
+					lanterns++;
+				}
+			}
+			context.assertTrue(lanterns == 2, "road " + road.arena() + " exit has " + lanterns + " lantern posts");
+		}
+		context.complete();
+	}
+
+	private static final Set<Block> ROAD_BLOCKS = Set.of(ModBlocks.ASH_BRICKS, ModBlocks.CRACKED_ASH_BRICKS,
+			ModBlocks.COBBLED_ASH_STONE, ModBlocks.ASH_STONE);
+
+	/** Whether any of the top 12 blocks of a column matches. */
+	private static boolean columnHas(ServerWorld world, BlockPos column, Predicate<BlockState> test) {
+		int top = world.getTopY(Heightmap.Type.WORLD_SURFACE, column.getX(), column.getZ());
+		for (int y = top; y > top - 12; y--) {
+			if (test.test(world.getBlockState(new BlockPos(column.getX(), y, column.getZ())))) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

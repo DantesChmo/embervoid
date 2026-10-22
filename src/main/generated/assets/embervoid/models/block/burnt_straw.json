@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "embervoid:block/burnt_straw_top",
+    "side": "embervoid:block/burnt_straw_side"
+  }
+}

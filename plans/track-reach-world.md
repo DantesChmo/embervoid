@@ -13,8 +13,8 @@ Owns `com.embervoid.realm` (incl. `realm.worldgen`, `realm.fog`), `com.embervoid
 - [x] 9.2 Placed enemies
 - [x] 9.3 Zones renamed, eternal dusk, zone looks
 - [x] 9.4 Zone terrain density + arena sites
-- [ ] 9.5 Realm 1 blocks and ores
-- [ ] 9.6 Landing plaza, roads, milestones, outposts
+- [x] 9.5 Realm 1 blocks and ores
+- [x] 9.6 Landing plaza, roads, milestones, outposts
 - [ ] 9.7 Minor structures per zone
 - [ ] 9.8 Necropolis crypt jigsaw + water
 - [ ] 9.9 World edge
@@ -95,3 +95,47 @@ Owns `com.embervoid.realm` (incl. `realm.worldgen`, `realm.fog`), `com.embervoid
   rotated (0, 1, −(fog r + 4)), on the template's north axis. Without a template the placeholder disc stands there.
 - GameTest: each arena start made and placed at its real position (the test world does not generate structures); the
   site is solid at the floor and open for 12 blocks above. Server check passes (realm, arenas, depths generate).
+
+## 9.5 Blocks and ores
+
+- `reach.world.ReachBlocks` (block items through `ModItems.register`): Burnt Straw (hay-like pillar, flammable),
+  Milestone and Gravestone (`MarkerStoneBlock`, facing, post / thin headstone shapes, hand-made models), Ember Crack
+  (magma that burns, luminance 9, lava sparks; Citadel only, 13.1), Smoldering Log (log, luminance 6, smoke; Citadel
+  only), Wet Crypt Stone (drips underneath). Ores in ash stone: Cinder Ore (iron tier, 1–3 Cinder Shard, Fortune,
+  1–3 XP), Amber Vein (iron tier, 1–2 Royal Amber, Fortune), Grave Iron Ore (diamond tier, Raw Grave Iron like vanilla
+  raw ores). Silk touch drops the ore. Tag `embervoid:realm_ores` = the three ores.
+- Generation, each only in its zone biome (`underground_ores`): cinder like iron (14 × size 9, y 4–80 trapezoid),
+  amber like gold but high for ravine walls and under roots (6 × size 7, y 30–90), grave iron like diamond, deep and in
+  sinkhole walls (5 × size 6, y 2–44, 30 % discarded on air). Fields: scattered burnt straw bales; Necropolis: lone
+  gravestones between candles.
+- Datagen `client.reach.world.ReachWorldDataGen` (models, loot, `realm_ores`); vanilla tool tags go through the main
+  block tag provider (`ReachWorldDataGen.vanillaBlockTags`, one line there: two providers cannot write the same file).
+  Textures: `tools/reach_world_placeholders.py` (procedural stand-ins).
+- GameTests: drop counts with iron / diamond pickaxes, tool tiers, the tag; four chunks at each zone's sector centre hold
+  only that zone's ore. Server check passes. Not seen: textures, models, particles.
+
+## 9.6 Landing, roads, outposts
+
+- Landing (`RealmFeaturePiece`, kind landing): the crossroads plaza, brick paving r 21 (some cracked), the old polished
+  disc r 9 around the shrine; Return Obelisk, Sealed Gate and shrine where they were. A broken low wall on the rim with a
+  gap and two lantern posts where each road leaves. The landing piece (and the protected area) is now r 21 + 7.
+- Roads: pure `realm.RoadLayout` (JUnit `RoadLayoutTest`): one road per arena from the plaza edge (r 22) to the site
+  edge, a seeded sideways wobble (≤ 24 blocks, zero at both ends), resampled every 2 blocks; a milestone every 100
+  blocks, 4 to the right walking out, facing the road; a toll gate at 30 % and a watchtower at 65 % of the length.
+  `realm.worldgen.RealmRoads` computes them once per world and seed from `RealmArenas` (now with each site radius).
+- Feature `embervoid:realm_roads` (`reach.world.RoadFeature`, placed once per chunk in the landing and zone biomes,
+  `surface_structures` step): paves 5 wide on the surface (ash bricks / cracked in the middle, cobbles / ash stone at the
+  edges, ~15 % edge gaps), clears 2 above, sets milestones, places outposts whose centre is in the chunk. A road is a
+  feature, not a structure: a structure start cannot reach 900 blocks.
+- Outposts: datagen templates `embervoid:ashen_reach/outpost/<toll_gate|watchtower>_<fields|woods|necropolis>`
+  (`client.reach.world.OutpostTemplates`, written by `ReachTemplateProvider`). The road runs along +Z through the
+  template's middle column; centred on the road, turned along it (`RoadFeature.rotationAlong`), foundation under the
+  footprint, the feature does not pave under it. Toll gate: two ruined towers, broken arch, half barrier; watchtower: 5×5
+  tower with ladder and fenced platform. Each: 2 zone fodder + 1 zone "ranged" placed mob (Fields Ashen Carrion
+  perching, Woods Lantern Hag, Necropolis Crypt Moth), a `<zone>_common` chest, a zone accent. Mob table in
+  `client.reach.world.ReachZoneKit`.
+- Debug: `/embervoid realm roads` (works from the console with `execute in`): lengths, milestones, outposts and whether
+  each has its chest. Server check force-loads every outpost and expects all chests.
+- GameTests: road 0 paved along its first ~120 blocks, its first milestone, both outposts have their zone chest; the
+  plaza (start placed by hand) has the shrine, a wall gap and two lantern posts at each road exit.
+- Not seen: how roads look on steep ground (they follow the surface; no bridges or steps), outposts and plaza looks.

@@ -43,13 +43,18 @@
     [],
     [],
     [],
+    [
+      "embervoid:ashen_reach/roads"
+    ],
     [],
-    [],
-    [],
+    [
+      "embervoid:ashen_reach/grave_iron_ore"
+    ],
     [],
     [],
     [
-      "embervoid:ashen_reach/grave_candles"
+      "embervoid:ashen_reach/grave_candles",
+      "embervoid:ashen_reach/lone_gravestones"
     ],
     []
   ]

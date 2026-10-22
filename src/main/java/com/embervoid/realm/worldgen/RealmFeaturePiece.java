@@ -1,6 +1,7 @@
 package com.embervoid.realm.worldgen;
 
 import com.embervoid.realm.RealmBlocks;
+import com.embervoid.realm.RoadLayout;
 import com.embervoid.realm.placed.PlacedEnemyProcessor;
 import com.embervoid.registry.ModBlocks;
 import com.embervoid.sanctum.SanctumBlocks;
@@ -17,6 +18,7 @@ import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.StructureWorldAccess;
@@ -24,12 +26,18 @@ import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Placeholder landing platform / boss arena, built from code. Replaced by templates once they are built in game;
  * the positions it exposes ({@link #center}, {@link #shrinePos}) stay the contract for the rest of the realm code.
  */
 public class RealmFeaturePiece extends StructurePiece {
-	public static final int LANDING_RADIUS = 9;
+	/** The landing plaza's paved radius (PLAN 9.6); its broken wall stands on the rim. */
+	public static final int LANDING_RADIUS = 21;
+	/** The old inner landing disc, polished stone around the shrine. */
+	private static final int LANDING_INNER = 9;
 	/** Air cleared above the floor. */
 	private static final int HEADROOM = 14;
 	/** Deepest a floor column is extended down to reach the ground. */
@@ -126,7 +134,46 @@ public class RealmFeaturePiece extends StructurePiece {
 	}
 
 	private void generateLanding(StructureWorldAccess world, BlockBox chunkBox) {
-		disc(world, chunkBox, center, radius, ModBlocks.POLISHED_ASH_STONE.getDefaultState(), ModBlocks.ASH_BRICKS.getDefaultState());
+		// The kingdom's crossroads (PLAN 9.6): a brick plaza, the old polished disc around the shrine, a broken low wall
+		// on the rim with a gap and two lantern posts where each road leaves.
+		disc(world, chunkBox, center, radius, ModBlocks.ASH_BRICKS.getDefaultState(), ModBlocks.ASH_BRICKS.getDefaultState());
+		BlockPos.Mutable pos = new BlockPos.Mutable();
+		for (int dx = -radius; dx <= radius; dx++) {
+			for (int dz = -radius; dz <= radius; dz++) {
+				if (dx * dx + dz * dz <= radius * radius && MathHelper.hashCode(dx, 7, dz) % 5 == 0) {
+					put(world, chunkBox, pos.set(center.getX() + dx, center.getY(), center.getZ() + dz),
+							ModBlocks.CRACKED_ASH_BRICKS.getDefaultState());
+				}
+			}
+		}
+		disc(world, chunkBox, center, LANDING_INNER, ModBlocks.POLISHED_ASH_STONE.getDefaultState(), ModBlocks.ASH_BRICKS.getDefaultState());
+		List<Double> exits = new ArrayList<>();
+		for (RoadLayout.Road road : RealmRoads.of(world.toServerWorld())) {
+			double[] start = road.points().get(0);
+			exits.add(Math.atan2(start[1], start[0]));
+		}
+		double gap = 4.5 / radius;
+		for (int step = 0; step < 360; step += 2) {
+			double angle = Math.toRadians(step);
+			BlockPos rim = center.add((int) Math.round(Math.cos(angle) * radius), 1, (int) Math.round(Math.sin(angle) * radius));
+			double nearest = exits.stream().mapToDouble(exit -> Math.abs(MathHelper.wrapDegrees(Math.toDegrees(angle - exit))))
+					.min().orElse(180);
+			if (Math.toRadians(nearest) < gap) {
+				continue;
+			}
+			if (MathHelper.hashCode(rim.getX(), 1, rim.getZ()) % 4 != 0) {
+				put(world, chunkBox, rim, ModBlocks.ASH_BRICK_WALL.getDefaultState());
+			}
+		}
+		for (double exit : exits) {
+			for (int side : new int[]{-1, 1}) {
+				double angle = exit + side * (gap + 1.0 / radius);
+				BlockPos post = center.add((int) Math.round(Math.cos(angle) * radius), 1, (int) Math.round(Math.sin(angle) * radius));
+				put(world, chunkBox, post, ModBlocks.ASH_BRICK_WALL.getDefaultState());
+				put(world, chunkBox, post.up(), ModBlocks.ASH_BRICK_WALL.getDefaultState());
+				put(world, chunkBox, post.up(2), ModBlocks.EMBER_LANTERN.getDefaultState());
+			}
+		}
 		put(world, chunkBox, shrinePos(), SanctumBlocks.EMBER_SHRINE.getDefaultState());
 
 		// Return obelisk to the north, Sealed Gate to the south, lanterns on the diagonals.

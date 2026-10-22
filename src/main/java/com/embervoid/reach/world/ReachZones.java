@@ -4,6 +4,7 @@ import com.embervoid.Embervoid;
 import com.embervoid.realm.fog.FogStack;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.biome.Biome;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,6 +35,21 @@ public final class ReachZones {
 	@Nullable
 	public static FogStack.Layer fog(RegistryKey<Biome> biome) {
 		return FOG.get(biome);
+	}
+
+	/** Zone name used in template and loot table ids ({@code fields}, {@code woods}, {@code necropolis}) of a zone boss id. */
+	public static String zoneName(Identifier bossId) {
+		String path = bossId.getPath();
+		if (path.endsWith("zone_a")) {
+			return "fields";
+		}
+		if (path.endsWith("zone_b")) {
+			return "woods";
+		}
+		if (path.endsWith("zone_c")) {
+			return "necropolis";
+		}
+		throw new IllegalArgumentException("Not an Ashen Reach zone boss: " + bossId);
 	}
 
 	private static RegistryKey<Biome> biome(String path) {

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "embervoid:royal_amber"
+    },
+    {
+      "item": "embervoid:royal_amber"
+    },
+    {
+      "item": "minecraft:glass_bottle"
+    }
+  ],
+  "result": {
+    "item": "embervoid:amber_balm"
+  }
+}

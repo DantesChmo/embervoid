@@ -2,6 +2,7 @@ package com.embervoid.realm;
 
 import com.embervoid.boss.ArenaSpec;
 import com.embervoid.progress.ProgressManager;
+import com.embervoid.realm.worldgen.ArenaSite;
 import com.embervoid.realm.worldgen.RealmFeaturePlacement;
 import com.embervoid.realm.worldgen.RealmFeatureStructure;
 import net.minecraft.registry.Registry;
@@ -22,8 +23,11 @@ import java.util.List;
 
 /** Where a world's boss arenas are, computed from their placements (no chunk has to be loaded or generated). */
 public final class RealmArenas {
-	/** An arena of a world. {@code pos} is its center column; y is 0 (unknown until the chunk generates). */
-	public record Location(ArenaSpec spec, BlockPos pos) {}
+	/**
+	 * An arena of a world. {@code pos} is its center column; y is 0 (unknown until the chunk generates).
+	 * {@code siteRadius} is the radius of its flat ground (the fog wall's radius for an arena without a site).
+	 */
+	public record Location(ArenaSpec spec, BlockPos pos, int siteRadius) {}
 
 	public static List<Location> all(ServerWorld world) {
 		StructurePlacementCalculator calculator = world.getChunkManager().getStructurePlacementCalculator();
@@ -36,7 +40,8 @@ public final class RealmArenas {
 			for (StructurePlacement placement : calculator.getPlacements(entry)) {
 				if (placement instanceof RealmFeaturePlacement realmPlacement) {
 					ChunkPos chunk = realmPlacement.getStartChunk(calculator.getStructureSeed(), 0, 0);
-					result.add(new Location(feature.boss().get(), new BlockPos(chunk.getStartX(), 0, chunk.getStartZ())));
+					int site = feature.site().map(ArenaSite::radius).orElse(feature.boss().get().radius());
+					result.add(new Location(feature.boss().get(), new BlockPos(chunk.getStartX(), 0, chunk.getStartZ()), site));
 				}
 			}
 		}
