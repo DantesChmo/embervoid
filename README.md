@@ -46,6 +46,25 @@ The mod reads `config/embervoid.json` (created with defaults on first launch). M
 | `leveling.costBase` / `costLinear` / `costQuadratic` | 20 / 6 / 0.15 | ≥ 0 | Cost of level L → L+1 in XP points: `costBase + costLinear·L + costQuadratic·L²` |
 | `leveling.statCap` | 99 | 10–999 | Highest value a stat can be levelled to |
 | `leveling.levelCap` | 0 | ≥ 0 | Highest character level reachable by leveling; 0 = no cap |
+| `realm.depthsOpen` | false | true, false | Whether an unsealed Sealed Gate leads into the depths (off in 0.3.0: "the depths are still forming") |
+| `moon.enabled` | true | true, false | Moon nights on or off |
+| `moon.cycleInterval` | 3 | 1–1000 | A moon-night cycle every N lunar cycles (8 days each); the world's first full moon never counts |
+| `moon.fallbackMinutes` | 30 | 1–1440 | Real-time minutes after which a moon night ends even if its goal is not met |
+| `moon.fullMoon.levelBonus` | 3 | 0–100 | Extra levels for overworld hostiles spawning on a full moon |
+| `moon.fullMoon.followRange` | 1.5 | 1–10 | Follow-range multiplier for hostiles on a full moon |
+| `moon.blood.vampirism` | 0.25 | 0–10 | Share of the damage a hostile deals to a player that heals it on a blood new moon |
+| `nightMobs.zombieLevelBonus` | 5 | 0–max level | Ashen Zombie level = spot level + this |
+| `nightMobs.ghostMissChance` | 0.15 | 0–1 | Chance that a hit on a Ghost misses |
+| `nightMobs.maxZombies` | 10 | 0–100 | Most Ashen Zombies in one player's wave (one per curse stack) |
+| `nightMobs.ghostCount` | 5 | 0–100 | Ghosts sent to a player with no curse |
+| `nightMobs.spawnMinDistance` / `spawnMaxDistance` | 16 / 32 | 1–64 | How far from the player a wave spawns |
+| `vampire.provokeMinutes` | 5 | 0.1–60 | Minutes before the Vampire nearest to a player turns if nobody provoked one |
+| `vampire.groupRadius` | 64 | 8–512 | Players this close share one group of Vampires |
+| `vampire.groupMin` / `groupMax` | 1 / 3 | 1–10 | Vampires per group |
+| `vampire.bossMinLevel` | 15 | 1–999 | Lowest Vampire boss level |
+| `vampire.bossCapNoRealm` | 20 | 1–999 | Highest Vampire boss level when nobody taking part has unlocked a realm |
+| `vampire.firstKillShards` | 2 | 0–64 | Flask Shards for a player's first Vampire kill |
+| `vampire.repeatShardChance` | 0.5 | 0–1 | Chance of one Flask Shard on later kills |
 
 A "full point" follows the soft caps: stat values up to 20 count fully, 21–40 at half, 41–99 at a fifth.
 
@@ -67,5 +86,8 @@ Client preferences live in `config/embervoid-client.json` (same rules; never rea
 - `/embervoid levelup <stat>` (operator) — level a stat up as the Maiden will, paying XP points.
 - `/embervoid setstat <stat> <value>` (operator) — set a stat for free (1–999).
 - `/embervoid remnant` (operator) — move your items and XP into an Ash Remnant at your feet, as a death would.
+- `/embervoid moon status | start full | start blood | stop | setcycle <n> | curse <player> <stacks>` (operator) — moon nights: state, start or stop one now, jump the clock to cycle n, set Curse of the Night stacks.
+- `/embervoid wave status | spawn <players> | clear <players>` (operator) — full moon waves.
+- `/embervoid vampire status | provoke` (operator) — blood new moon Vampires and the Vampire fight.
 - `/embervoid_client data` — show the player data as your client sees it.
 - `embervoid:debug_sweep` (dev environment only, `/give` or the creative tab) — test weapon for the special-attack framework: right-click does a knockback sweep for 30 stamina with a 1 s cooldown.
