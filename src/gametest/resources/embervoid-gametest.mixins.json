@@ -5,7 +5,8 @@
 	"mixins": [
 		"TestServerDimensionsMixin",
 		"ServerPlayerEntityAccessor",
-		"LivingEntityAccessor"
+		"LivingEntityAccessor",
+		"ServerWorldSoundMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
