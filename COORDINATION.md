@@ -107,6 +107,9 @@ pass. None of them needs a game account or a window.
   The test world gets the mod's dimensions (realms, Vampire arena) through a gametest-only mixin
   (`gametest.mixin.TestServerDimensionsMixin`). Use the real (non-creative) player join from `MoonTests` when mobs
   must target a player, and one `batchId` per test that touches the global moon state.
+  Mock players from `TestContext.createMockCreativeServerPlayerInWorld` always answer `isCreative()` true (even
+  after `changeGameMode(SURVIVAL)`): code that tests must cover checks `getAbilities().creativeMode`. They have no
+  connection, so `playerTick()` (equipment changes, attack cooldown, item use) runs only when a test calls it.
 - `python3 tools/server_check.py` — a real dedicated server (`runServerCheck`, run dir `run/server-check`, fresh
   world each time): boots to Done, generates a real Sanctum, the Ashen Reach landing, the three zone arenas and the
   depths over RCON, then fails on any crash, mixin failure, ERROR line or datapack load error in the log. Client

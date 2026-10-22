@@ -279,7 +279,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 11.2 | **Bleeding + `bleed_immune`** | reach-gear | — | done (GameTest) |
 | 11.3 | **Smoldering Plate + Template** | reach-gear | 11.1 | done (GameTest; armor textures not seen) |
 | 11.4 | **Mob-drop sets + unique pieces** | reach-gear | 11.1 | done (GameTest; textures not seen) |
-| 11.5 | **Ashen Scythe, Warden's Scourge, Royal Ash Rapier** | reach-gear | 11.1, 11.2 | todo |
+| 11.5 | **Ashen Scythe, Warden's Scourge, Royal Ash Rapier** | reach-gear | 11.1, 11.2 | done (GameTest; textures and reach feel not seen) |
 | 11.6 | **Huntsman's Crossbow** | reach-gear | 11.1 | todo |
 | 11.7 | **Consumables + Flask Ember** | reach-gear | 11.1, 11.2 | todo |
 | 11.8 | **Chest loot + realm loot on mobs** | reach-gear | 11.3–11.7 | todo |
@@ -374,6 +374,8 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 
 ## Open follow-ups
 
+- **Realm weapons and enchantments:** Sharpness, Smite etc. cannot go on the Scythe, Scourge and Rapier (vanilla's
+  weapon enchantment target is swords only); Unbreaking and Mending work. Decide in the R40.1 balance pass.
 - **In-game checks not run yet:** QA #7f (Sanctum casing gaps, next batch); QA #8 step 9 (second and third
   player: personal Ember Heart, fog wall pushing back an outsider, independent progress); Hollow wind-up timing
   and dodge, guard block/break sounds; stamina HUD bar and debug weapon (2.5, 2.6); sounds and boss music.
