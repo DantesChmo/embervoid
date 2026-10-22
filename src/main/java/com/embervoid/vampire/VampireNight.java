@@ -17,6 +17,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -44,6 +45,9 @@ public final class VampireNight {
 	private static final int SPAWN_MIN_DISTANCE = 6;
 	private static final int SPAWN_MAX_DISTANCE = 14;
 	private static final int SPAWN_ATTEMPTS = 24;
+	/** The boss waiting to form at the end of this tick ({@link #onTurned}). */
+	@Nullable
+	private static Runnable pendingForm;
 
 	public static void register() {
 		MoonNights.NIGHT_STARTED.register((server, night) -> {
@@ -149,6 +153,11 @@ public final class VampireNight {
 	}
 
 	private static void tick(MinecraftServer server) {
+		if (pendingForm != null) {
+			Runnable form = pendingForm;
+			pendingForm = null;
+			form.run();
+		}
 		VampireState state = VampireState.get(server);
 		if (state.stage != Stage.GROUPS) {
 			return;
@@ -214,13 +223,18 @@ public final class VampireNight {
 		}
 	}
 
-	/** The transformation is over: the boss forms where the Vampire stood. */
+	/**
+	 * The transformation is over: the boss forms where the Vampire stood. Called from the Vampire's tick, so the
+	 * boss (and the teleports into the arena) wait for the end of the server tick.
+	 */
 	static void onTurned(VampireEntity vampire) {
 		ServerWorld world = (ServerWorld) vampire.getWorld();
 		VampireState state = VampireState.get(world.getServer());
 		state.turning = null;
+		Vec3d pos = vampire.getPos();
+		float yaw = vampire.getYaw();
 		vampire.discard();
-		VampireFight.form(world, vampire.getPos(), vampire.getYaw());
+		pendingForm = () -> VampireFight.form(world, pos, yaw);
 	}
 
 	/** The night ended (dawn, timeout, command): every Vampire leaves. */
@@ -240,10 +254,22 @@ public final class VampireNight {
 
 	/** After a restart: keep going if the blood night is still on, else forget it. */
 	private static void resume(MinecraftServer server) {
+		pendingForm = null;
 		VampireFight.reset();
 		VampireState state = VampireState.get(server);
 		if (state.stage == Stage.NONE) {
 			return;
+		}
+		if (state.stage == Stage.TURNING) {
+			// Stopped mid-transformation: a Vampire turns again right away.
+			state.stage = Stage.GROUPS;
+			state.provokeTicks = 1;
+			state.turning = null;
+			state.markDirty();
+		}
+		if (state.stage == Stage.CLOSING) {
+			// The boss was beaten just before the restart: finish closing the arena.
+			state.closeTicks = 1;
 		}
 		if (MoonNights.current(server) == MoonNight.BLOOD_NEW_MOON) {
 			MoonNights.hold(server, HOLD);
@@ -265,7 +291,7 @@ public final class VampireNight {
 		return switch (state.stage) {
 			case GROUPS -> true;
 			case TURNING -> vampire.getUuid().equals(state.turning);
-			case NONE, FIGHT -> false;
+			case NONE, FIGHT, CLOSING -> false;
 		};
 	}
 

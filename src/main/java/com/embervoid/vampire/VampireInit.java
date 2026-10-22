@@ -12,6 +12,7 @@ public final class VampireInit {
 		VampireEntities.register();
 		VampireNight.register();
 		VampireFight.register();
+		VampireArena.register();
 		VampireCommands.register();
 	}
 

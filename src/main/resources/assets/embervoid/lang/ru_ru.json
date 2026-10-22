@@ -159,5 +159,8 @@
 	"embervoid.vampire.boss.first_kill": "Вампир повержен. Его клык и осколки фляги (%s) — ваши",
 	"embervoid.vampire.boss.beaten": "Вампир уничтожен. Кровавая луна меркнет",
 	"embervoid.vampire.boss.won": "Против вампира не осталось никого. Он со смехом растворяется в ночи",
-	"embervoid.vampire.boss.left": "Охотиться больше не на кого, и вампир растворяется в ночи"
+	"embervoid.vampire.boss.left": "Охотиться больше не на кого, и вампир растворяется в ночи",
+	"embervoid.vampire.arena.pulled": "Кровавая луна затягивает вас во владения вампира",
+	"embervoid.vampire.arena.closing": "Владения вампира рассеются через %s с",
+	"embervoid.vampire.arena.remnant_moved": "Ваш пепельный останок вынесен из владений вампира: %s %s %s"
 }

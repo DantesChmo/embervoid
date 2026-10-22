@@ -1,0 +1,13 @@
+{
+  "type": "embervoid:vampire_arena",
+  "generator": {
+    "type": "minecraft:flat",
+    "settings": {
+      "biome": "embervoid:vampire_arena",
+      "features": false,
+      "lakes": false,
+      "layers": [],
+      "structure_overrides": []
+    }
+  }
+}

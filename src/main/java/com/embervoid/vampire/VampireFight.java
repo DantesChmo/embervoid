@@ -31,25 +31,29 @@ import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 /**
- * The Vampire boss fight (DESIGN §3.3, §10.12, PLAN 8.11): a field boss with no fog wall. One fight per server, on
- * the blood new moon only.
+ * The Vampire boss fight (DESIGN §3.3, §10.12, PLAN 8.11–8.12): a field boss with no fog wall, fought in its own
+ * arena dimension ({@link VampireArena}). One fight per server, on the blood new moon only.
  *
  * <ul>
- *   <li>Taking part: every player near the boss when it forms, and anyone alive who comes within {@link #RADIUS}
- *   later, except players who already died in this fight.</li>
- *   <li>Level: {@link VampireLevel} over the players near it when it forms.</li>
+ *   <li>Taking part: every overworld player outside a Sanctum core, pulled into the arena when the boss forms. A
+ *   player who dies there respawns as usual and cannot come back. (Without the arena dimension: the players within
+ *   {@link #RADIUS} of the boss, in the overworld.)</li>
+ *   <li>Level: {@link VampireLevel} over the players taking part when it forms.</li>
  *   <li>Shared boss bar "Vampire — Lv N" and music for the fighters; phases from {@link VampireBossEntity}.</li>
  *   <li>On the kill, every fighter alive and near gets credit and personal loot straight into the inventory: the first
  *   kill {@code vampire.firstKillShards} Flask Shards + a Vampire Fang, a repeat kill a {@code
- *   vampire.repeatShardChance} chance of one Flask Shard. XP drops like any boss's. The night hold is released.</li>
- *   <li>If every fighter has died (or none has been near for {@link #EMPTY_LIMIT} ticks), the Vampire leaves and the
- *   night hold is released.</li>
+ *   vampire.repeatShardChance} chance of one Flask Shard. XP drops like any boss's. Ten seconds later the arena closes
+ *   (everyone back to where they were pulled from) and the night hold is released.</li>
+ *   <li>If every fighter has died (or none has been there for {@link #EMPTY_LIMIT} ticks), the Vampire leaves, the
+ *   arena closes and the night hold is released, so the night ends.</li>
  * </ul>
  *
  * <p>What is saved lives in {@link VampireState}; the bar and the fighter list are rebuilt after a restart.
@@ -65,6 +69,10 @@ public final class VampireFight {
 	@Nullable
 	private static ServerBossBar bar;
 	private static final Set<UUID> FIGHTERS = new LinkedHashSet<>();
+	/** Where fighters died, so what they dropped follows them home when the arena closes. */
+	private static final Map<UUID, Vec3d> DEATHS = new HashMap<>();
+	/** Seconds between the kill and the arena closing (time to pick up the XP). */
+	private static final int CLOSE_TICKS = 200;
 	private static int emptyTicks;
 
 	public static void register() {
@@ -76,19 +84,30 @@ public final class VampireFight {
 				VampireState state = VampireState.get(player.getServer());
 				state.fallen.add(player.getUuid());
 				state.markDirty();
+				DEATHS.put(player.getUuid(), player.getPos());
 				leave(player);
 			}
 		});
 	}
 
-	/** The transformation is over: the boss forms at {@code pos} and the players near it take part. */
-	static void form(ServerWorld world, Vec3d pos, float yaw) {
-		MinecraftServer server = world.getServer();
+	/**
+	 * The transformation is over: the overworld players outside a Sanctum core are pulled into the arena and the boss
+	 * forms at its centre. Without the arena dimension the boss forms where the Vampire stood, for the players near.
+	 */
+	static void form(ServerWorld overworld, Vec3d pos, float yaw) {
+		MinecraftServer server = overworld.getServer();
 		VampireState state = VampireState.get(server);
-		List<ServerPlayerEntity> near = new ArrayList<>();
-		for (ServerPlayerEntity player : world.getPlayers()) {
-			if (player.isAlive() && !player.isSpectator() && player.getPos().isInRange(pos, RADIUS)) {
-				near.add(player);
+		ServerWorld world = overworld;
+		List<ServerPlayerEntity> near = VampireArena.open(server, state);
+		if (near != null) {
+			world = VampireArena.world(server);
+			pos = VampireArena.center();
+		} else {
+			near = new ArrayList<>();
+			for (ServerPlayerEntity player : overworld.getPlayers()) {
+				if (player.isAlive() && !player.isSpectator() && player.getPos().isInRange(pos, RADIUS)) {
+					near.add(player);
+				}
 			}
 		}
 		VampireConfig config = VampireConfig.get();
@@ -111,11 +130,13 @@ public final class VampireFight {
 		state.markDirty();
 		world.spawnEntity(boss);
 		MobLevels.setLevel(boss, level);
+		world.playSound(null, boss.getBlockPos(), SoundEvents.ENTITY_WITHER_SPAWN, SoundCategory.HOSTILE, 1.0f, 1.2f);
 		emptyTicks = 0;
+		DEATHS.clear();
 		for (ServerPlayerEntity player : near) {
 			join(player, state);
 		}
-		Embervoid.LOGGER.info("Vampire boss formed at {} with level {} ({} player(s) near)", state.fightCenter.toShortString(), level, near.size());
+		Embervoid.LOGGER.info("Vampire boss formed in {} with level {} ({} player(s))", world.getRegistryKey().getValue(), level, near.size());
 	}
 
 	/**
@@ -171,6 +192,12 @@ public final class VampireFight {
 
 	private static void tick(MinecraftServer server) {
 		VampireState state = VampireState.get(server);
+		if (state.stage == Stage.CLOSING) {
+			if (--state.closeTicks <= 0) {
+				finish(server, state);
+			}
+			return;
+		}
 		if (state.stage != Stage.FIGHT) {
 			return;
 		}
@@ -202,7 +229,7 @@ public final class VampireFight {
 		}
 
 		if (FIGHTERS.isEmpty()) {
-			if (!state.fallen.isEmpty() && noFighterLeft(server, state)) {
+			if (everyoneFell(server, state)) {
 				fail(server, state, "embervoid.vampire.boss.won");
 				return;
 			}
@@ -220,8 +247,17 @@ public final class VampireFight {
 		}
 	}
 
-	/** True if every player who could still take part is dead or gone from the fight's world. */
-	private static boolean noFighterLeft(MinecraftServer server, VampireState state) {
+	/**
+	 * True if everyone who took part has died. In the arena that is every player pulled in (a player who logged out
+	 * there may still come back); in the overworld every living player there has died in the fight already.
+	 */
+	private static boolean everyoneFell(MinecraftServer server, VampireState state) {
+		if (state.fallen.isEmpty()) {
+			return false;
+		}
+		if (state.fightWorld == VampireArena.KEY) {
+			return state.fallen.containsAll(state.returnPoints.keySet());
+		}
 		ServerWorld world = fightWorld(server, state);
 		return world == null || world.getPlayers().stream()
 				.noneMatch(p -> p.isAlive() && !p.isSpectator() && !state.fallen.contains(p.getUuid()));
@@ -252,7 +288,22 @@ public final class VampireFight {
 		for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
 			player.sendMessage(Text.translatable("embervoid.vampire.boss.beaten").formatted(Formatting.DARK_RED), false);
 		}
-		finish(server, state);
+		if (state.fightWorld != VampireArena.KEY) {
+			finish(server, state);
+			return;
+		}
+		// A few seconds in the arena to pick up the XP, then everyone goes home.
+		stopBarAndMusic(server);
+		state.stage = Stage.CLOSING;
+		state.closeTicks = CLOSE_TICKS;
+		state.boss = null;
+		state.markDirty();
+		ServerWorld arena = VampireArena.world(server);
+		if (arena != null) {
+			for (ServerPlayerEntity player : arena.getPlayers()) {
+				player.sendMessage(Text.translatable("embervoid.vampire.arena.closing", CLOSE_TICKS / 20).formatted(Formatting.GRAY), false);
+			}
+		}
 	}
 
 	/** Nobody beat it: the Vampire leaves laughing and the night may end. */
@@ -271,7 +322,7 @@ public final class VampireFight {
 		finish(server, state);
 	}
 
-	/** Ends the fight and lets the night end. */
+	/** Ends the fight, closes the arena and lets the night end. */
 	private static void finish(MinecraftServer server, VampireState state) {
 		clear(server, state);
 		MoonNights.release(server, VampireNight.HOLD);
@@ -280,7 +331,7 @@ public final class VampireFight {
 	/** The night ended some other way (dawn, timeout, command): the boss leaves, nobody gets credit. */
 	static void end(MinecraftServer server) {
 		VampireState state = VampireState.get(server);
-		if (state.stage != Stage.FIGHT) {
+		if (state.stage != Stage.FIGHT && state.stage != Stage.CLOSING) {
 			return;
 		}
 		ServerWorld world = fightWorld(server, state);
@@ -292,6 +343,19 @@ public final class VampireFight {
 	}
 
 	private static void clear(MinecraftServer server, VampireState state) {
+		stopBarAndMusic(server);
+		if (state.fightWorld == VampireArena.KEY) {
+			VampireArena.close(server, state, DEATHS);
+		}
+		DEATHS.clear();
+		state.stage = Stage.NONE;
+		state.boss = null;
+		state.fightWorld = null;
+		state.fallen.clear();
+		state.markDirty();
+	}
+
+	private static void stopBarAndMusic(MinecraftServer server) {
 		for (UUID uuid : List.copyOf(FIGHTERS)) {
 			ServerPlayerEntity player = server.getPlayerManager().getPlayer(uuid);
 			if (player != null) {
@@ -303,16 +367,12 @@ public final class VampireFight {
 			bar.clearPlayers();
 			bar = null;
 		}
-		state.stage = Stage.NONE;
-		state.boss = null;
-		state.fightWorld = null;
-		state.fallen.clear();
-		state.markDirty();
 	}
 
 	/** After a restart the bar and fighters are rebuilt; drop the old ones (integrated server reopened). */
 	static void reset() {
 		FIGHTERS.clear();
+		DEATHS.clear();
 		if (bar != null) {
 			bar.clearPlayers();
 			bar = null;

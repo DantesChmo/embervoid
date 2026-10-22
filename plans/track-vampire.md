@@ -45,8 +45,30 @@ says). After syncing with `main`: switch the imports to `moon.api`, delete `vamp
     shard; hold released. Every fighter dead, or nobody near for 30 s → the Vampire leaves, hold released. Night
     ended another way → boss leaves, no credit. Restart mid-fight: boss stays (persistent), bar rebuilt.
   - `/embervoid vampire status` shows the fight.
-- [ ] **8.12 Vampire arena dimension.**
+- [x] **8.12 Vampire arena dimension.**
+  - Dimension `embervoid:vampire_arena` (`dimension/`, `dimension_type/vampire_arena.json`, biome
+    `worldgen/biome/vampire_arena.json`): flat generator with no layers (void), Nether sky effects with a dark-red
+    biome fog (the "red sky"), fixed midnight, no skylight, ambient light 0.25, crimson spores and crimson-forest
+    ambience, no mob spawns, beds and anchors off.
+  - `VampireArena`: arena built in code at 0,64,0 on every opening (so it resets each blood moon): blackstone disc
+    r 22 over the void, red nether brick rings, low wall rim, eight pillars topped with shroomlight; chunks
+    force-loaded while open. No breaking/placing outside creative.
+  - When the boss forms, every overworld player outside a Sanctum core is pulled in (arrival ring r 13 facing the
+    centre), return point saved in `VampireState`; the boss forms at the centre and its level comes from them.
+  - A fighter who dies respawns as usual and cannot get back (nothing leads there). Everyone pulled in dead → the
+    Vampire leaves, the arena closes, the hold is released → the night ends.
+  - Kill → credit and loot as in 8.11, "the domain fades in 10 s", then everyone inside goes back to their return
+    point. On closing, a remnant left in the arena moves to its owner's return point (owner told the coordinates);
+    items lying within 6 blocks of where a fighter died (remnant mode `xp`/`off`) follow that fighter; every other
+    entity is removed.
+  - A player who logged out inside is sent back on their next login once the arena has closed (their return point
+    is kept for that). Restart while closing → closes at once.
+  - Without the arena dimension (broken datapack) the fight stays in the overworld as in 8.11 (logged as an error).
 
 ## Notes
+
+- No GameTest yet: tracks don't run `runGametest`. Good candidates for 8.13: `VampireArena.open/close` round trip
+  (return point, remnant moved), level cap with an attuned player.
+- Server check: `execute in embervoid:vampire_arena run forceload add -16 -16 16 16` would prove the dimension loads.
 
 - Players joining the overworld later in the night get no Vampires of their own (the groups form at dusk).

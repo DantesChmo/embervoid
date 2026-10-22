@@ -9,11 +9,14 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.GlobalPos;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -29,8 +32,13 @@ public final class VampireState extends PersistentState {
 		/** One Vampire is turning; the others are gone. */
 		TURNING,
 		/** The boss is fighting ({@link VampireFight}). */
-		FIGHT
+		FIGHT,
+		/** The boss is beaten; the arena closes in a few seconds. */
+		CLOSING
 	}
+
+	/** Where a player was pulled into the arena from. */
+	public record ReturnPoint(GlobalPos pos, float yaw) {}
 
 	/** Counts blood nights, so a Vampire saved in an unloaded chunk knows it belongs to an earlier one. */
 	int nightId;
@@ -50,6 +58,10 @@ public final class VampireState extends PersistentState {
 	int bossLevel;
 	/** Players who took part and died: they cannot join the fight again. */
 	final Set<UUID> fallen = new HashSet<>();
+	/** Return points of players pulled into the arena; kept for players who logged out inside until they log in. */
+	final Map<UUID, ReturnPoint> returnPoints = new HashMap<>();
+	/** Ticks until the arena closes (stage {@link Stage#CLOSING}). */
+	int closeTicks;
 
 	public static VampireState get(MinecraftServer server) {
 		return server.getOverworld().getPersistentStateManager().getOrCreate(VampireState::fromNbt, VampireState::new, ID);
@@ -81,6 +93,15 @@ public final class VampireState extends PersistentState {
 		for (NbtElement element : nbt.getList("Fallen", NbtElement.INT_ARRAY_TYPE)) {
 			state.fallen.add(NbtHelper.toUuid(element));
 		}
+		for (NbtElement element : nbt.getList("ReturnPoints", NbtElement.COMPOUND_TYPE)) {
+			NbtCompound entry = (NbtCompound) element;
+			Identifier dimension = Identifier.tryParse(entry.getString("Dimension"));
+			if (entry.containsUuid("Player") && dimension != null) {
+				state.returnPoints.put(entry.getUuid("Player"), new ReturnPoint(GlobalPos.create(
+						RegistryKey.of(RegistryKeys.WORLD, dimension), BlockPos.fromLong(entry.getLong("Pos"))), entry.getFloat("Yaw")));
+			}
+		}
+		state.closeTicks = nbt.getInt("CloseTicks");
 		return state;
 	}
 
@@ -105,6 +126,17 @@ public final class VampireState extends PersistentState {
 			fallenList.add(NbtHelper.fromUuid(uuid));
 		}
 		nbt.put("Fallen", fallenList);
+		NbtList points = new NbtList();
+		for (Map.Entry<UUID, ReturnPoint> point : returnPoints.entrySet()) {
+			NbtCompound entry = new NbtCompound();
+			entry.putUuid("Player", point.getKey());
+			entry.putString("Dimension", point.getValue().pos().getDimension().getValue().toString());
+			entry.putLong("Pos", point.getValue().pos().getPos().asLong());
+			entry.putFloat("Yaw", point.getValue().yaw());
+			points.add(entry);
+		}
+		nbt.put("ReturnPoints", points);
+		nbt.putInt("CloseTicks", closeTicks);
 		return nbt;
 	}
 }
