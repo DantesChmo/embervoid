@@ -52,8 +52,9 @@ import java.util.List;
  *   lasts he takes half damage outside block light ≥ 8 — the signal braziers still burn).</li>
  * </ul>
  *
- * Base damage (Lv 30 on Normal ×3.06): swings 9, slam 12, lunge 11 + trail 2 per 0.5 s, mortar 9, flame line 8,
- * landing 10. Base HP 260 (~712 at Lv 30). First kill: his soul and a Flask Ember ({@link ReachBosses}).
+ * Base damage (Lv 30 on Normal ×3.06): swings 8, slam 10, lunge 8 + trail 2 per 0.5 s, mortar 8, flame line 8,
+ * landing 8 (R40.1c: ordinary hits heavy, the slam unblockable against full diamond). Base HP 260 (~712 at Lv 30).
+ * First kill: his soul and a Flask Ember ({@link ReachBosses}).
  */
 public class SmolderingLordEntity extends ReachBoss {
 	public static final Identifier MUSIC = new Identifier("music.dragon");
@@ -78,13 +79,13 @@ public class SmolderingLordEntity extends ReachBoss {
 	public static final String SHATTER = "misc.shatter";
 	public static final String HAZARD = "misc.hazard";
 
-	private static final float SWING_DAMAGE = 9;
-	private static final float SLAM_DAMAGE = 12;
-	private static final float LUNGE_DAMAGE = 11;
+	private static final float SWING_DAMAGE = 8;
+	private static final float SLAM_DAMAGE = 10;
+	private static final float LUNGE_DAMAGE = 8;
 	private static final float TRAIL_DAMAGE = 2;
-	private static final float MORTAR_DAMAGE = 9;
+	private static final float MORTAR_DAMAGE = 8;
 	private static final float FLAME_LINE_DAMAGE = 8;
-	private static final float LANDING_DAMAGE = 10;
+	private static final float LANDING_DAMAGE = 8;
 	private static final int WALL_ATTACK_INTERVAL = 60;
 
 	private final List<BlockPos> braziers = new ArrayList<>();
@@ -349,7 +350,7 @@ public class SmolderingLordEntity extends ReachBoss {
 
 	// --- Greatsword (P1, P2) ---
 
-	/** Combo: 1 and 2 are cone swings, 3 a slam in front of him. */
+	/** Combo: 1 and 2 are cone swings, 3 a slam in front of him that breaks a raised shield. */
 	public void comboSwing(LivingEntity target, int hit) {
 		face(target.getPos());
 		Vec3d facing = directionTo(target.getPos());
@@ -362,7 +363,7 @@ public class SmolderingLordEntity extends ReachBoss {
 		} else {
 			telegraph(TelegraphShape.ring(getPos().add(facing.multiply(2.5)), 3.5), 20, SLAM, SoundEvents.ENTITY_RAVAGER_ROAR,
 					ParticleTypes.LAVA, player -> {
-						player.damage(getDamageSources().mobAttack(this), SLAM_DAMAGE);
+						BossHits.shieldBreaking(this, player, SLAM_DAMAGE);
 						knockAway(player, 1.0, 0.5);
 					});
 		}

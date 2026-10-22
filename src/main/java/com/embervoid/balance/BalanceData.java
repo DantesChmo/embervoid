@@ -170,13 +170,13 @@ public final class BalanceData {
 					melee("thrust", 7, 0),
 					melee("lantern throw", 5, 0),
 					hazard("fire pool, per 0.5 s", 2, HitKind.FIRE)));
-	public static final Boss SMOLDERING_LORD = new Boss("smoldering_lord", "Smoldering Lord", Zone.CITADEL, 30, 260, 12, 9, 500,
+	public static final Boss SMOLDERING_LORD = new Boss("smoldering_lord", "Smoldering Lord", Zone.CITADEL, 30, 260, 12, 8, 500,
 			1, 1, "-", 0.5, 4, SmolderingLordEntity.SHATTERED_DAMAGE, SmolderingLordEntity.SHATTERED_DAMAGE, "cinder_hound", List.of(
-					melee("greatsword swing", 9, 50),
-					new Hit("overhead slam", 12, HitKind.UNBLOCKABLE, 0),
-					melee("lunge", 11, 0),
-					melee("landing ring", 10, 0),
-					new Hit("mortar (P0)", 9, HitKind.FIRE, 0),
+					melee("greatsword swing", 8, 50),
+					new Hit("overhead slam", 10, HitKind.UNBLOCKABLE, 0),
+					melee("lunge", 8, 0),
+					melee("landing ring", 8, 0),
+					new Hit("mortar (P0)", 8, HitKind.FIRE, 0),
 					new Hit("flame line (P0)", 8, HitKind.FIRE, 0),
 					hazard("fire trail, per 0.5 s", 2, HitKind.FIRE)));
 
