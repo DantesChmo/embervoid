@@ -44,6 +44,9 @@ public final class ReachBossDataGen {
 					.pool(drop(GearItems.RAW_GRAVE_IRON, 2, 4))
 					.pool(drop(Items.BONE, 3, 6))
 					.pool(drop(Items.CANDLE, 1, 2)));
+			exporter.accept(ReachBossEntities.ASH_COLOSSUS.getLootTableId(), LootTable.builder()
+					.pool(drop(GearItems.CINDER_SHARD, 3, 6))
+					.pool(drop(Items.CHARCOAL, 2, 5)));
 		}
 
 		static LootPool.Builder drop(Item item, float min, float max) {

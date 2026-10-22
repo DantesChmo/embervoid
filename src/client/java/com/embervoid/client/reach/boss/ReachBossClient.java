@@ -19,6 +19,7 @@ import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 public final class ReachBossClient {
 	public static void register() {
 		renderer(ReachBossEntities.CRYPT_KEEPER);
+		renderer(ReachBossEntities.ASH_COLOSSUS);
 	}
 
 	private static <T extends ReachBoss> void renderer(EntityType<T> type) {

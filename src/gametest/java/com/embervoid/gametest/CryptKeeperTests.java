@@ -155,8 +155,8 @@ public final class CryptKeeperTests implements FabricGameTest {
 			k.arena.await(() -> k.water(LOWER, 1) && k.water(LOWER, 2), 200, "two blocks of water", () -> {
 				context.assertTrue(k.fight.phase() == 2, "phase " + k.fight.phase());
 				context.assertTrue(k.world().isAir(k.frame.at(WALKWAY[0], ReachArenas.WALKWAY_TOP + 1, WALKWAY[1])), "the walkway flooded");
-				long bones = k.fight.adds().stream().filter(add -> add.getType() == ReachMobs.RESTLESS_BONES).count();
-				context.assertTrue(bones >= 3, "only " + bones + " Restless Bones rose");
+				context.assertTrue(k.boss.risenBones() >= 3, "only " + k.boss.risenBones() + " Restless Bones rose");
+				context.assertTrue(k.fight.adds().stream().anyMatch(add -> add.getType() == ReachMobs.RESTLESS_BONES), "no Restless Bones");
 				ArenaManager.reset(k.fight);
 				context.assertTrue(k.world().isAir(k.frame.at(LOWER[0], 1, LOWER[1])) && k.world().isAir(k.frame.at(LOWER[0], 2, LOWER[1])),
 						"the water stayed after the reset: " + k.world().getBlockState(k.frame.at(LOWER[0], 1, LOWER[1])) + " / "

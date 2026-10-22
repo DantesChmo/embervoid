@@ -114,7 +114,90 @@ def crypt_keeper():
     write_mob("crypt_keeper", bones, 128, [3, 4.5], animations, paint)
 
 
-BOSSES = [("crypt_keeper", crypt_keeper)]
+# --- Ash Colossus: 4.5 blocks of fused stone, hunched, huge arms, an ember core in the back under stone plates -----
+
+def ash_colossus():
+    legs, body_h, head = 22, 36, 12
+    top = legs + body_h
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("right_leg", [-7, legs, 0], "root", None, [Cube([-13, 0, -6], [12, legs, 12], "stone")]),
+        Bone("left_leg", [7, legs, 0], "root", None, [Cube([1, 0, -6], [12, legs, 12], "stone")]),
+        Bone("body", [0, legs, 0], "root", [15, 0, 0], [
+            Cube([-17, legs, -11], [34, body_h, 20], "stone"),
+            Cube([-14, legs + 6, 9], [28, 26, 3], "ash"),
+        ]),
+        Bone("core", [0, legs + 18, 11], "body", None, [Cube([-6, legs + 12, 9], [12, 12, 4], "core")]),
+        Bone("plates", [0, legs + 18, 12], "body", None, [
+            Cube([-12, legs + 8, 11], [24, 22, 4], "plate"),
+            Cube([-20, top - 6, -9], [8, 8, 16], "plate"),
+            Cube([12, top - 6, -9], [8, 8, 16], "plate"),
+        ]),
+        Bone("head", [0, top, -6], "body", None, [Cube([-6, top - 2, -14], [12, head, 12], "head")]),
+        Bone("right_arm", [-20, top - 4, 0], "body", None, [
+            Cube([-28, top - 34, -6], [12, 30, 12], "stone"),
+            Cube([-29, top - 44, -7], [14, 10, 14], "fist"),
+        ]),
+        Bone("left_arm", [20, top - 4, 0], "body", None, [
+            Cube([16, top - 34, -6], [12, 30, 12], "stone"),
+            Cube([15, top - 44, -7], [14, 10, 14], "fist"),
+        ]),
+    ]
+    fist, drag, leap, boulder, smash, storm = t(18), t(16), t(22), t(30), t(20), t(30)
+    animations = {
+        "misc.idle": anim(4.0, {
+            "body": rot(0, [0, 0, 0], 2.0, [3, 0, 0], 4.0, [0, 0, 0]),
+            "right_arm": rot(0, ZERO, 2.0, [-4, 0, 3], 4.0, ZERO),
+            "left_arm": rot(0, ZERO, 2.0, [-4, 0, -3], 4.0, ZERO),
+        }),
+        "move.walk": anim(1.8, {
+            "right_leg": rot(0, [18, 0, 0], 0.9, [-18, 0, 0], 1.8, [18, 0, 0]),
+            "left_leg": rot(0, [-18, 0, 0], 0.9, [18, 0, 0], 1.8, [-18, 0, 0]),
+            "right_arm": rot(0, [-14, 0, 0], 0.9, [14, 0, 0], 1.8, [-14, 0, 0]),
+            "left_arm": rot(0, [14, 0, 0], 0.9, [-14, 0, 0], 1.8, [14, 0, 0]),
+            "root": pos(0, ZERO, 0.45, [0, -1, 0], 0.9, ZERO, 1.35, [0, -1, 0], 1.8, ZERO),
+        }),
+        "attack.fist": anim(fist + 0.5, {
+            "right_arm": rot(0, ZERO, fist, [-150, 0, 20], fist + 0.1, [-60, 0, 0], fist + 0.5, ZERO),
+            "body": rot(0, [0, 0, 0], fist, [-15, 15, 0], fist + 0.1, [15, -10, 0], fist + 0.5, [0, 0, 0]),
+        }, loop=False),
+        "attack.drag": anim(drag + 0.5, {
+            "left_arm": rot(0, ZERO, drag, [-60, -60, -40], drag + 0.25, [-60, 50, -10], drag + 0.5, ZERO),
+            "body": rot(0, [0, 0, 0], drag, [10, -25, 0], drag + 0.25, [10, 25, 0], drag + 0.5, [0, 0, 0]),
+        }, loop=False),
+        "attack.leap": anim(leap + 0.9, {
+            "root": pos(0, ZERO, leap, [0, -6, 0], leap + 0.1, [0, 2, 0], leap + 0.9, ZERO),
+            "right_arm": rot(0, ZERO, leap, [40, 0, 10], leap + 0.3, [-170, 0, 10], leap + 0.8, [-40, 0, 0], leap + 0.9, ZERO),
+            "left_arm": rot(0, ZERO, leap, [40, 0, -10], leap + 0.3, [-170, 0, -10], leap + 0.8, [-40, 0, 0], leap + 0.9, ZERO),
+        }, loop=False),
+        "attack.boulder": anim(boulder + 0.4, {
+            "right_arm": rot(0, ZERO, boulder * 0.4, [30, 0, 0], boulder, [-170, 0, 15], boulder + 0.15, [-40, 0, 0], boulder + 0.4, ZERO),
+            "body": rot(0, [0, 0, 0], boulder * 0.4, [25, 0, 0], boulder, [-20, 0, 0], boulder + 0.4, [0, 0, 0]),
+        }, loop=False),
+        "attack.smash": anim(smash + 0.5, {
+            "right_arm": rot(0, ZERO, smash, [-170, 0, 10], smash + 0.1, [-30, 0, 0], smash + 0.5, ZERO),
+            "left_arm": rot(0, ZERO, smash, [-170, 0, -10], smash + 0.1, [-30, 0, 0], smash + 0.5, ZERO),
+        }, loop=False),
+        "misc.storm": anim(storm + 0.5, {
+            "body": rot(0, [0, 0, 0], storm, [-30, 0, 0], storm + 0.5, [0, 0, 0]),
+            "head": rot(0, ZERO, storm, [-35, 0, 0], storm + 0.5, ZERO),
+            "right_arm": rot(0, ZERO, storm, [-20, 0, 60], storm + 0.5, ZERO),
+            "left_arm": rot(0, ZERO, storm, [-20, 0, -60], storm + 0.5, ZERO),
+        }, loop=False),
+        "misc.shed": anim(1.5, {
+            "body": rot(0, [0, 0, 0], 0.3, [-10, 0, 8], 0.6, [-10, 0, -8], 0.9, [-10, 0, 8], 1.5, [0, 0, 0]),
+            "plates": pos(0, ZERO, 0.9, [0, -10, 8]),
+        }, loop=False),
+    }
+    paint = painter({"default": (70, 66, 62, 255), "stone": (78, 74, 70, 255), "ash": (98, 94, 90, 255),
+                     "plate": (60, 58, 56, 255), "head": (84, 80, 76, 255), "fist": (66, 62, 58, 255),
+                     "core": (255, 140, 40, 255)},
+                    eye=(255, 160, 60, 255), eye_tags=("head",), eye_row=0.45, glow_tags=("core",),
+                    cracks=("stone", "fist"), crack_color=(240, 120, 40, 255))
+    write_mob("ash_colossus", bones, 256, [5, 5.5], animations, paint)
+
+
+BOSSES = [("crypt_keeper", crypt_keeper), ("ash_colossus", ash_colossus)]
 
 
 if __name__ == "__main__":

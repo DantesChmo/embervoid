@@ -97,6 +97,7 @@ public class CryptKeeperEntity extends ReachBoss {
 	private final List<BlockPos> braziers = new ArrayList<>();
 	private boolean braziersFound;
 	private int mothTimer = MOTH_INTERVAL / 2;
+	private int risen;
 
 	public CryptKeeperEntity(EntityType<? extends CryptKeeperEntity> type, World world) {
 		super(type, world);
@@ -398,6 +399,9 @@ public class CryptKeeperEntity extends ReachBoss {
 			double distance = 7 + random.nextDouble() * (fight.spec().radius() - 12);
 			@Nullable MobEntity bones = fight.spawnAdd(ReachMobs.RESTLESS_BONES,
 					fight.centerPos().add(Math.cos(angle) * distance, 0, Math.sin(angle) * distance));
+			if (bones != null) {
+				risen++;
+			}
 			if (bones != null && getWorld() instanceof ServerWorld world) {
 				world.spawnParticles(ParticleTypes.SOUL, bones.getX(), bones.getY() + 0.5, bones.getZ(), 10, 0.3, 0.5, 0.3, 0.02);
 			}
@@ -429,6 +433,11 @@ public class CryptKeeperEntity extends ReachBoss {
 	@Override
 	public boolean canBreatheInWater() {
 		return true;
+	}
+
+	/** Restless Bones raised so far (tests: they may fall again before anyone looks). */
+	public int risenBones() {
+		return risen;
 	}
 
 	/** Test hook: whether any of its arena's braziers burns. */
