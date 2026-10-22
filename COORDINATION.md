@@ -18,7 +18,8 @@ Smoldering Citadel (milestone 13).
 | D | `track-reliquary` (done) | PLAN 11.9–11.13 (all merged, plus the Maiden screen's bonus points): Reliquary screen and slots, remnant and stat hooks, 8 artifacts, 6 rings, their drops | `com.embervoid.reliquary`, `com.embervoid.client.reliquary`, its tags and assets |
 | E | `track-reach-bosses` | PLAN 12.1–12.7, 13.4: boss framework additions, three arenas, Crypt Keeper, Ash Colossus, Grieving Tree, souls, Ash of Rematch; then the Smoldering Lord | `com.embervoid.boss`, `com.embervoid.reach.boss`, `com.embervoid.client.reach.boss`, arena contents (`structures/ashen_reach/arena_*`, the Citadel courtyard piece), boss assets and loot |
 
-Coordinator: PLAN 13.5 and the 0.4.0 release tasks. Earlier tracks (0.2.0: `track-player-core`, `track-mobs`,
+At most **4 track sessions run at once**; a new track starts only when another is done, and a finished track's
+session is deleted. Coordinator: PLAN 13.5 and the 0.4.0 release tasks. Earlier tracks (0.2.0: `track-player-core`, `track-mobs`,
 `track-sanctum`, `track-realms`; 0.3.0: `track-moon`, `track-night-mobs`, `track-vampire`) are done and merged.
 Packages not owned by a 0.4.0 track (`player`, `stats`, `mob`, `entity/mob`, `progress`, `sanctum`, `moon`,
 `nightmob`, `vampire`): a track that needs a small hook there (e.g. Flask Ember in the flask, artifact points in

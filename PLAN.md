@@ -278,7 +278,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 11.1 | **Materials, boss items, chest table stubs** (contract, first) | reach-gear | — | done (GameTest; item textures not seen) |
 | 11.2 | **Bleeding + `bleed_immune`** | reach-gear | — | done (GameTest) |
 | 11.3 | **Smoldering Plate + Template** | reach-gear | 11.1 | done (GameTest; armor textures not seen) |
-| 11.4 | **Mob-drop sets + unique pieces** | reach-gear | 11.1 | todo |
+| 11.4 | **Mob-drop sets + unique pieces** | reach-gear | 11.1 | done (GameTest; textures not seen) |
 | 11.5 | **Ashen Scythe, Warden's Scourge, Royal Ash Rapier** | reach-gear | 11.1, 11.2 | todo |
 | 11.6 | **Huntsman's Crossbow** | reach-gear | 11.1 | todo |
 | 11.7 | **Consumables + Flask Ember** | reach-gear | 11.1, 11.2 | todo |
