@@ -73,7 +73,7 @@ public final class NightMobTests implements FabricGameTest {
 			MinecraftServer server = context.getWorld().getServer();
 			List<MobEntity> wave = startFullMoon(context, player, 3);
 			context.assertTrue(wave.size() == 3, "expected 3 wave mobs, got " + wave.size());
-			wave.forEach(Entity::kill);
+			killNearPlayer(wave, player);
 			// A dead mob is removed 20 ticks after its death.
 			context.waitAndRun(30, safe(context, player, () -> {
 				context.assertTrue(!MoonNights.holds(server).contains(NightWaves.holdId(player.getUuid())), "hold still open");
@@ -96,7 +96,7 @@ public final class NightMobTests implements FabricGameTest {
 				assertInRing(context, player, mob);
 			}
 			context.assertTrue(player.getInventory().count(SanctumItems.FLASK_SHARD) == 0, "shard before the wave is beaten");
-			wave.forEach(Entity::kill);
+			killNearPlayer(wave, player);
 			context.waitAndRun(30, safe(context, player, () -> {
 				context.assertTrue(player.getInventory().count(SanctumItems.FLASK_SHARD) == 1,
 						"Flask Shards after the ghost wave: " + player.getInventory().count(SanctumItems.FLASK_SHARD));
@@ -242,6 +242,18 @@ public final class NightMobTests implements FabricGameTest {
 	 * Runs {@code body}; if an assertion fails, stops the night and removes the player first, so a failed test does
 	 * not leave a full moon (and its wave) running into the next batches.
 	 */
+	/**
+	 * Kills the wave next to its player. Wave mobs spawn 16–32 blocks out, and as the suite grows the test can sit
+	 * where some of those chunks are not entity-ticking: a mob killed there never finishes dying (no removal, no
+	 * wave cleared). Brought next to the player first, they all tick.
+	 */
+	private static void killNearPlayer(List<MobEntity> wave, ServerPlayerEntity player) {
+		for (MobEntity mob : wave) {
+			mob.refreshPositionAndAngles(player.getX() + 2, player.getY(), player.getZ() + 2, 0, 0);
+			mob.kill();
+		}
+	}
+
 	private static Runnable safe(TestContext context, ServerPlayerEntity player, Runnable body) {
 		return () -> {
 			try {
