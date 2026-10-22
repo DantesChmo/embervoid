@@ -128,7 +128,7 @@ notes in `plans/<track>.md`. Config: track-moon owns the `moon` section; night-m
 | 8.5 | **Curse of the Night** | moon | 8.1 | todo |
 | 8.6 | **Vampirism** | moon | 8.1 | todo |
 | 8.7 | **Ashen Zombie** | night-mobs | — | done – not verified in game |
-| 8.8 | **Ghost** | night-mobs | 8.7 | todo |
+| 8.8 | **Ghost** | night-mobs | 8.7 | done – not verified in game |
 | 8.9 | **Full moon waves** | night-mobs | 8.1, 8.5, 8.7, 8.8 | todo |
 | 8.10 | **Vampire NPC + provoking** | vampire | 8.1 | todo |
 | 8.11 | **Vampire boss** | vampire | 8.10 | todo |
