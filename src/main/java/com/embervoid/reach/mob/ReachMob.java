@@ -245,8 +245,13 @@ public abstract class ReachMob extends HostileEntity implements GeoEntity {
 		if (step == null) {
 			super.playStepSound(pos, state);
 		} else {
-			playSound(step, 0.15f, 1.0f);
+			playSound(step, stepVolume(), 1.0f);
 		}
+	}
+
+	/** Volume of {@link #stepSound}: vanilla's small-mob 0.15, more for heavy mobs. */
+	protected float stepVolume() {
+		return 0.15f;
 	}
 
 	// --- Placed --------------------------------------------------------------------------------------------------

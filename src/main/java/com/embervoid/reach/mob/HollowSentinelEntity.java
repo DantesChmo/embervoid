@@ -213,4 +213,9 @@ public class HollowSentinelEntity extends ReachMob {
 	protected SoundEvent stepSound() {
 		return ReachMobSounds.HOLLOW_SENTINEL_STEP;
 	}
+
+	@Override
+	protected float stepVolume() {
+		return 0.4f;
+	}
 }

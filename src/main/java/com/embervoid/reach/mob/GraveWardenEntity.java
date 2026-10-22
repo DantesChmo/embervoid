@@ -208,4 +208,9 @@ public class GraveWardenEntity extends ReachMob {
 	protected SoundEvent stepSound() {
 		return ReachMobSounds.GRAVE_WARDEN_STEP;
 	}
+
+	@Override
+	protected float stepVolume() {
+		return 0.4f;
+	}
 }

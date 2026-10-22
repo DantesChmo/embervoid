@@ -11,7 +11,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -29,8 +28,8 @@ public class FurnaceGolemEntity extends ReachMob {
 	public static final double WAVE_RADIUS = 4;
 	public static final float WAVE_DAMAGE_FACTOR = 0.7f;
 	public static final int WAVE_FIRE_SECONDS = 4;
-	static final Move SLAM = new Move("attack.slam", 14, 50, SoundEvents.ENTITY_IRON_GOLEM_ATTACK, 0.6f);
-	static final Move HEAT = new Move("misc.heat", HEAT_TICKS, 0, SoundEvents.BLOCK_BLASTFURNACE_FIRE_CRACKLE, 0.6f);
+	static final Move SLAM = new Move("attack.slam", 14, 50, ReachMobSounds.FURNACE_GOLEM_WINDUP, 1.0f);
+	static final Move HEAT = new Move("misc.heat", HEAT_TICKS, 0, ReachMobSounds.FURNACE_GOLEM_HEAT, 1.0f);
 	private static final byte STATE_HEATING = 1;
 
 	private int heat;
@@ -99,7 +98,7 @@ public class FurnaceGolemEntity extends ReachMob {
 		setState(STATE_NONE);
 		heat = 0;
 		triggerAnim(ACTION, "attack.wave");
-		playSound(SoundEvents.ENTITY_BLAZE_SHOOT, 2.0f, 0.5f);
+		playSound(ReachMobSounds.FURNACE_GOLEM_FIRE_WAVE, 2.0f, 1.0f);
 		float damage = (float) getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE) * WAVE_DAMAGE_FACTOR;
 		for (LivingEntity victim : getWorld().getEntitiesByClass(LivingEntity.class, getBoundingBox().expand(WAVE_RADIUS),
 				entity -> entity != this && entity.isAlive() && entity.squaredDistanceTo(this) <= WAVE_RADIUS * WAVE_RADIUS)) {
@@ -162,21 +161,26 @@ public class FurnaceGolemEntity extends ReachMob {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.BLOCK_FURNACE_FIRE_CRACKLE;
+		return ReachMobSounds.FURNACE_GOLEM_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_IRON_GOLEM_HURT;
+		return ReachMobSounds.FURNACE_GOLEM_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_IRON_GOLEM_DEATH;
+		return ReachMobSounds.FURNACE_GOLEM_DEATH;
 	}
 
 	@Override
-	public float getSoundPitch() {
-		return super.getSoundPitch() * 0.6f;
+	protected SoundEvent stepSound() {
+		return ReachMobSounds.FURNACE_GOLEM_STEP;
+	}
+
+	@Override
+	protected float stepVolume() {
+		return 1.0f;
 	}
 }
