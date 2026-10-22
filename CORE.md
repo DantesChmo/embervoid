@@ -21,8 +21,9 @@ writing content: every new mob, boss, zone, weapon or structure is described aga
 5. Death anywhere leaves an **Ash Remnant** with the player's XP and items; in a realm the player respawns at
    the last shrine rested at in that dimension.
 
-Realm 1 currently has the full mechanics but placeholder content: zone biomes with vanilla mobs, code-built
-arenas, a zombie-model test boss in every arena.
+Realm 1 (**Ashen Reach**, 0.4.0) is complete: three zones with their own mobs, ruins and ores, three zone bosses,
+the Smoldering Citadel and the Smoldering Lord. Beating him lights the Realm 2 obelisk, which leads nowhere yet.
+Details per system below; design and numbers in DESIGN §4.5 and `docs/balance-0.4.0.md`.
 
 ---
 
@@ -189,13 +190,27 @@ Design: DESIGN §3.3, §10.12. All models are placeholders. Config sections `moo
 - **Landing** at 0,0: Ember Shrine in the centre, Return Obelisk north (back to the Sanctum the player came
   from), Sealed Gate south. Mob level 15. Protected from building.
 - **Zones:** three 120° sectors around the landing with noise-warped borders, decided by the biome source
-  `embervoid:realm_zones`. Placeholder biomes: A ash soil + ash particles, B podzol + dark oaks, C gravel.
-  Mob level bands A 15–18, B 18–21, C 21–25.
+  `embervoid:realm_zones`: **Ashen Fields** (zone_a, Lv 15–18, low plain), **Royal Woods** (zone_b, 18–21, hills and
+  ravines), **Sunken Necropolis** (zone_c, 21–25, sinkhole basin, the only water), terrain from the density function
+  `embervoid:zone_blend`; eternal dusk (`fixed_time` 13500) and per-zone fog (`client.realm.RealmFog`, source
+  `embervoid:zone`). Each zone has its own ore (`#embervoid:realm_ores`) and blocks (`reach.world.ReachBlocks`).
+- **Roads and ruins:** ash-brick roads from the crossroads plaza to each arena (`reach.world.RoadFeature`,
+  milestone every 100 blocks, toll gate and watchtower outposts); 21 minor structures (`<zone>/<name>` templates,
+  placement `embervoid:realm_scatter`, kept off roads and arenas); the Necropolis crypt jigsaw; the broken border
+  wall and fallen bridges at the abyss (`embervoid:realm_edge`). Debug: `/embervoid realm roads | edge`.
+- **Placed enemies:** marker block `embervoid:placed_enemy` in templates, processor `embervoid:placed_enemies`
+  (`realm.placed.PlacedEnemies`): spawned once at worldgen, persistent, never respawn, command tag
+  `embervoid.placed` (+ the marker's tags, e.g. `embervoid.placed.cage`).
 - **Arenas:** one per zone, 400–900 blocks out, inside its sector, placed by seed (`/locate structure
-  embervoid:ashen_reach_arena_a|b|c`). Placeholder: ash-stone disc r 20, 6 pillars, an Ember Shrine outside
-  the disc facing the landing. Protected.
-- **Sealed Gate:** opens per player after all three zone bosses → `embervoid:ashen_reach_depths` (radius ~400,
-  levels 25–30) with the realm boss arena. Beating it completes Realm 1 and unlocks the next realm id.
+  embervoid:ashen_reach_arena_a|b|c`). The arena JSON's `site` (`ArenaSite`) shapes the ground; the arena itself
+  is a template (`embervoid:ashen_reach/arena_fields|woods|necropolis`, track reach-bosses): crater market, Royal
+  Grove, sinkhole ossuary, each with its Ember Shrine outside the fog wall and an arena-side chest. Protected.
+- **Sealed Gate:** opens per player after all three zone bosses → `embervoid:ashen_reach_depths` (own dimension type
+  `embervoid:ashen_reach_depths`, red dusk sky, radius ~400, levels 25–30): the **Smoldering Citadel**
+  (`reach.citadel`, fixed layout `CitadelLayout`, 11 template pieces from the outskirts to the keep, placed Citadel
+  mobs, treasury in the keep) and the Smoldering Lord's courtyard at (0, −192). Beating the Lord completes Realm 1
+  and unlocks the next realm in `ProgressManager.REALM_ORDER` (its obelisk lights; entering says the realm is still
+  forming).
   `realm.depthsOpen` (default true since 0.4.0, false in 0.3.0): when off, an unsealed gate only says the depths are still
   forming; `/embervoid realm` commands still reach them.
 - **Ember Lodestar** (`embervoid:ember_lodestar`): compass needle to the nearest unbeaten arena, right-click
@@ -210,9 +225,10 @@ Design: DESIGN §3.3, §10.12. All models are placeholders. Config sections `moo
 - **Datapack** (`data/embervoid/`): `dimension/`, `dimension_type/realm.json`, `worldgen/noise_settings/`,
   `worldgen/biome/ashen_reach_*.json` (look, particles, mob spawners), `worldgen/structure/` +
   `structure_set/` for landing and arenas.
-- **Zone mobs:** the zone biome's `spawners` list; levels come from the zone band automatically.
-- **Zone look:** biome colours, particles, ambient sound, surface blocks (noise settings). Trees, ruins and minor
-  structures are not built yet (no zone features).
+- **Zone mobs:** natural spawns added in code (`reach.mob.ReachMobs`, `BiomeModifications`, config
+  `reachMobs.spawns`); the biome JSON `spawners` stay empty. Levels come from the zone band automatically. Tanks and
+  elites are only placed (placed enemies above). Shared base `reach.mob.ReachMob` (telegraphed moves, placed state).
+- **Zone look:** biome colours, particles, ambient sound, surface blocks, zone features (trees, candles, straw).
 - **Arena:** structure JSON `"feature": "arena"` with `"boss": {id, entity, level, radius}`.
 
 ---
@@ -288,11 +304,8 @@ the bar name, point the arena JSON's `boss.entity` at it, add its id to the real
 
 | Area | Now | Needed |
 |---|---|---|
-| Mob, Maiden models/textures | generated placeholders | art pass (Blockbench) |
-| Realm 1 zones | colour/surface biomes with vanilla zombies etc. | zone mobs, trees, ruins, minor structures (DESIGN §4.5) |
-| Arenas | code-built discs | built arenas per boss |
-| Bosses | one test boss everywhere | 3 zone bosses + realm boss (moves, phases, loot) |
-| Gear | none | Smoldering tier, weapons with abilities, armor sets, Ember Heart uses (DESIGN §4.5) |
+| Overworld mob and Maiden models | generated placeholders (0.2.0) | art pass like Realm 1's (`tools/model_preview.py`) |
+| Realm 1 art | final script-made models and textures, checked in the offline preview only | a look in game |
+| Realm 1 sounds | own sound events on vanilla files; boss music in `CREDITS.md` | a listen in game |
 | Sanctum weapons | none | 1–2 weapons with a special attack (DESIGN §10.10) |
-| Sound and music | vanilla sounds, music hook only | mob, boss, shrine and flask sounds, boss music |
-| Realms 2–4 | obelisks only | each realm's design pass |
+| Realms 2–4 | obelisks only (Realm 2 lights after Realm 1) | each realm's design pass |
