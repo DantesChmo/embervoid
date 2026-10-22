@@ -121,7 +121,7 @@ notes in `plans/<track>.md`. Config: track-moon owns the `moon` section; night-m
 
 | ID  | Task | Track | Depends on | Status |
 |-----|------|-------|------------|--------|
-| 8.1 | **Moon-night state + `moon.api`** | moon | — | todo |
+| 8.1 | **Moon-night state + `moon.api`** | moon | — | done – not verified in game |
 | 8.2 | **Night hold, sleep block, fallback, announcements** | moon | 8.1 | todo |
 | 8.3 | **Blood-red sky sync** | moon | 8.1 | todo |
 | 8.4 | **Full moon mob modifiers** | moon | 8.1 | todo |
