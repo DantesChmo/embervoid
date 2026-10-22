@@ -1,0 +1,43 @@
+{
+  "structures": [
+    {
+      "structure": "embervoid:ashen_reach/fields/farmstead",
+      "weight": 4
+    },
+    {
+      "structure": "embervoid:ashen_reach/fields/barn",
+      "weight": 3
+    },
+    {
+      "structure": "embervoid:ashen_reach/fields/windmill_skeleton",
+      "weight": 2
+    },
+    {
+      "structure": "embervoid:ashen_reach/fields/scarecrow_row",
+      "weight": 3
+    },
+    {
+      "structure": "embervoid:ashen_reach/fields/granary_vault",
+      "weight": 1
+    },
+    {
+      "structure": "embervoid:ashen_reach/fields/pilgrim_camp",
+      "weight": 3
+    },
+    {
+      "structure": "embervoid:ashen_reach/fields/gallows",
+      "weight": 2
+    },
+    {
+      "structure": "embervoid:ashen_reach/fields/village_altar",
+      "weight": 2
+    }
+  ],
+  "placement": {
+    "type": "embervoid:realm_scatter",
+    "salt": 551203,
+    "spacing": 9,
+    "separation": 3,
+    "clearance": 24
+  }
+}

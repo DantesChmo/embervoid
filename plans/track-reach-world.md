@@ -15,7 +15,7 @@ Owns `com.embervoid.realm` (incl. `realm.worldgen`, `realm.fog`), `com.embervoid
 - [x] 9.4 Zone terrain density + arena sites
 - [x] 9.5 Realm 1 blocks and ores
 - [x] 9.6 Landing plaza, roads, milestones, outposts
-- [ ] 9.7 Minor structures per zone
+- [x] 9.7 Minor structures per zone
 - [ ] 9.8 Necropolis crypt jigsaw + water
 - [ ] 9.9 World edge
 - [ ] 13.1 Depths "Burning City"
@@ -139,3 +139,26 @@ Owns `com.embervoid.realm` (incl. `realm.worldgen`, `realm.fog`), `com.embervoid
 - GameTests: road 0 paved along its first ~120 blocks, its first milestone, both outposts have their zone chest; the
   plaza (start placed by hand) has the shrine, a wall gap and two lantern posts at each road exit.
 - Not seen: how roads look on steep ground (they follow the surface; no bridges or steps), outposts and plaza looks.
+
+## 9.7 Minor structures
+
+- 21 datagen templates (`client.reach.world.MinorTemplates`, drawn with the small `Ruin` helper), ids
+  `embervoid:ashen_reach/<zone>/<name>`: Fields farmstead, barn, windmill skeleton, scarecrow row, granary vault
+  (treasure, vault 4 below ground), pilgrim camp, gallows, empty village altar; Woods park wall, hunting lodge
+  (treasure in the loft), kennels, hunter's hide, hanging cages (3 caged Thralls tagged `embervoid.placed.cage`),
+  lantern row, glade (2 Bark Hollows); Necropolis small and large mausoleum, grave rows, chapel (Grave Warden + bell),
+  ossuary pit, collapsed tomb (2 below ground). The crypt entrance comes with the crypt jigsaw (9.8).
+- Mobs by zone role (`ReachZoneKit`): fodder / ranged / tank / elite = Fields Cinder Husk / Ashen Carrion / Ash Stalker
+  (no Fields tank) / Ashen Carrion; Woods Withered Thrall / Lantern Hag / Bark Hollow / Bark Hollow; Necropolis Restless
+  Bones / Crypt Moth / Hollow Sentinel / Grave Warden. Chests `<zone>_common`, treasure `<zone>_treasure`.
+- Each template is a single-piece `minecraft:jigsaw` structure (`worldgen/structure/ashen_reach/<zone>/<name>.json`,
+  pool of one element, processor list `embervoid:ashen_reach/minor` = placed enemies + 12 % cracked bricks), biomes
+  `#embervoid:ashen_reach_<zone>` (new biome tags), `beard_thin` (none for the two sunk ones).
+- One structure set per zone, weighted (treasure structures and the chapel weight 1), placement
+  `embervoid:realm_scatter` (`RealmScatterPlacement`: linear random spread, spacing 9 / separation 3, plus a 24-block
+  clearance from road centre lines, arena sites and the plaza; arenas and roads come from the placement calculator, so
+  `RealmArenas` / `RealmRoads` now work from a `StructurePlacementCalculator`).
+- GameTests: all minor structures built in their zone with no marker left and only `<zone>_*` chest tables; scatter
+  starts within 1200 blocks of the landing (≥ 150) never near a road, site or the plaza. Server check locates and
+  generates a barn, hanging cages and a chapel.
+- Not seen: how the ruins look.

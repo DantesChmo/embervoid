@@ -11,6 +11,7 @@ import com.embervoid.realm.RealmDefinition;
 import com.embervoid.realm.RealmMobLevels;
 import com.embervoid.realm.RoadLayout;
 import com.embervoid.realm.worldgen.RealmRoads;
+import com.embervoid.realm.worldgen.RealmScatterPlacement;
 import com.embervoid.registry.ModBlocks;
 import com.embervoid.realm.Realms;
 import com.embervoid.realm.placed.PlacedEnemies;
@@ -23,6 +24,7 @@ import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.SharedConstants;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.LootableContainerBlockEntity;
 import net.minecraft.entity.Entity;
@@ -40,9 +42,11 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructurePlacementData;
+import net.minecraft.structure.StructureSet;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.structure.StructureTemplate;
 import net.minecraft.test.GameTest;
@@ -59,9 +63,12 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.SpawnSettings;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
 import net.minecraft.world.gen.structure.Structure;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -75,7 +82,7 @@ public final class ReachWorldTests implements FabricGameTest {
 		root.put("size", ints(3, 1, 1));
 		NbtList palette = new NbtList();
 		palette.add(NbtHelper.fromBlockState(PlacedEnemies.MARKER.getDefaultState().with(PlacedEnemyMarkerBlock.FACING, Direction.EAST)));
-		palette.add(NbtHelper.fromBlockState(net.minecraft.block.Blocks.STONE.getDefaultState()));
+		palette.add(NbtHelper.fromBlockState(Blocks.STONE.getDefaultState()));
 		root.put("palette", palette);
 		NbtList blocks = new NbtList();
 		blocks.add(block(0, 0, PlacedEnemies.markerNbt(new Identifier("minecraft", "zombie"), null, List.of(CAGE_TAG))));
@@ -135,7 +142,7 @@ public final class ReachWorldTests implements FabricGameTest {
 		context.assertTrue(world.getBlockState(origin).isAir(), "marker left in the world: " + world.getBlockState(origin));
 		BlockState unknown = world.getBlockState(origin.east());
 		context.assertTrue(unknown.isAir(), "unknown-id marker left in the world: " + unknown);
-		context.assertTrue(world.getBlockState(origin.east(2)).isOf(net.minecraft.block.Blocks.STONE), "template not placed");
+		context.assertTrue(world.getBlockState(origin.east(2)).isOf(Blocks.STONE), "template not placed");
 		zombie.discard();
 		context.complete();
 	}
@@ -426,5 +433,84 @@ public final class ReachWorldTests implements FabricGameTest {
 			}
 		}
 		return false;
+	}
+	/**
+	 * Minor structures (PLAN 9.7): each one built at a spot of its zone the way worldgen does, with every placed-enemy
+	 * marker turned into air and its chest (if any) pointing at a zone table.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 2400)
+	public void minorStructuresBuildWithTheirChests(TestContext context) {
+		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
+		Registry<Structure> structures = realm.getRegistryManager().get(RegistryKeys.STRUCTURE);
+		ChunkGenerator generator = realm.getChunkManager().getChunkGenerator();
+		Map<String, Double> zoneAngles = Map.of("fields", -30.0, "woods", 90.0, "necropolis", 210.0);
+		int built = 0;
+		int index = 0;
+		for (Map.Entry<RegistryKey<Structure>, Structure> entry : structures.getEntrySet()) {
+			String path = entry.getKey().getValue().getPath();
+			if (!entry.getKey().getValue().getNamespace().equals("embervoid") || !path.startsWith("ashen_reach/")) {
+				continue;
+			}
+			String zone = path.split("/")[1];
+			double angle = Math.toRadians(zoneAngles.get(zone) + (index++ % 5 - 2) * 8);
+			ChunkPos chunk = new ChunkPos(BlockPos.ofFloored(Math.cos(angle) * 520, 0, Math.sin(angle) * 520));
+			StructureStart start = entry.getValue().createStructureStart(realm.getRegistryManager(), generator,
+					generator.getBiomeSource(), realm.getChunkManager().getNoiseConfig(), realm.getStructureTemplateManager(),
+					realm.getSeed(), chunk, 0, realm, biome -> true);
+			context.assertTrue(start.hasChildren(), path + ": no pieces");
+			BlockBox box = start.getBoundingBox();
+			ChunkPos.stream(new ChunkPos(box.getMinX() >> 4, box.getMinZ() >> 4), new ChunkPos(box.getMaxX() >> 4, box.getMaxZ() >> 4))
+					.forEach(c -> start.place(realm, realm.getStructureAccessor(), generator, realm.getRandom(),
+							new BlockBox(c.getStartX(), realm.getBottomY(), c.getStartZ(), c.getEndX(), realm.getTopY(), c.getEndZ()), c));
+			Set<String> tables = new HashSet<>();
+			for (BlockPos pos : BlockPos.iterate(box.getMinX(), box.getMinY(), box.getMinZ(), box.getMaxX(), box.getMaxY(), box.getMaxZ())) {
+				BlockState state = realm.getBlockState(pos);
+				context.assertTrue(!state.isOf(PlacedEnemies.MARKER), path + ": placed-enemy marker left at " + pos);
+				if (state.isOf(Blocks.CHEST) && realm.getBlockEntity(pos) instanceof LootableContainerBlockEntity chest) {
+					tables.add(chest.createNbt().getString("LootTable"));
+				}
+			}
+			for (String table : tables) {
+				context.assertTrue(table.startsWith("embervoid:chests/ashen_reach/" + zone + "_"), path + ": chest table " + table);
+			}
+			built++;
+		}
+		context.assertTrue(built >= 20, "only " + built + " minor structures");
+		context.complete();
+	}
+
+	/** Minor structure starts (PLAN 9.7) keep clear of the roads, the arena sites and the plaza. */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 400)
+	public void minorStructuresStayOffRoads(TestContext context) {
+		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
+		StructurePlacementCalculator calculator = realm.getChunkManager().getStructurePlacementCalculator();
+		List<RoadLayout.Road> roads = RealmRoads.of(realm);
+		int starts = 0;
+		for (RegistryEntry<StructureSet> set : calculator.getStructureSets()) {
+			if (!(set.value().placement() instanceof RealmScatterPlacement placement)) {
+				continue;
+			}
+			for (int cx = -75; cx <= 75; cx++) {
+				for (int cz = -75; cz <= 75; cz++) {
+					if (!placement.shouldGenerate(calculator, cx, cz)) {
+						continue;
+					}
+					starts++;
+					int x = cx * 16;
+					int z = cz * 16;
+					for (RoadLayout.Road road : roads) {
+						context.assertTrue(RoadLayout.distanceSquared(road, x, z) >= 20 * 20,
+								"a minor structure starts on road " + road.arena() + " at chunk " + cx + ", " + cz);
+					}
+					for (RealmArenas.Location arena : RealmRoads.arenas(realm)) {
+						context.assertTrue(arena.pos().getSquaredDistance(x, 0, z) >= Math.pow(arena.siteRadius() + 20, 2),
+								"a minor structure starts on the " + arena.spec().bossId() + " site at chunk " + cx + ", " + cz);
+					}
+					context.assertTrue((double) x * x + (double) z * z >= 40 * 40, "a minor structure starts on the plaza");
+				}
+			}
+		}
+		context.assertTrue(starts >= 150, "only " + starts + " minor structure starts in 1200 blocks around the landing");
+		context.complete();
 	}
 }

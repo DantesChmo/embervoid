@@ -11,6 +11,8 @@ import net.minecraft.world.gen.structure.StructureType;
 public final class RealmWorldgen {
 	public static final StructurePlacementType<RealmFeaturePlacement> FEATURE_PLACEMENT = Registry.register(
 			Registries.STRUCTURE_PLACEMENT, Embervoid.id("realm_feature"), () -> RealmFeaturePlacement.CODEC);
+	public static final StructurePlacementType<RealmScatterPlacement> SCATTER_PLACEMENT = Registry.register(
+			Registries.STRUCTURE_PLACEMENT, Embervoid.id("realm_scatter"), () -> RealmScatterPlacement.CODEC);
 	public static final StructureType<RealmFeatureStructure> FEATURE_STRUCTURE = Registry.register(
 			Registries.STRUCTURE_TYPE, Embervoid.id("realm_feature"), () -> RealmFeatureStructure.CODEC);
 	public static final StructurePieceType FEATURE_PIECE = Registry.register(

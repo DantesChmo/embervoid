@@ -5,16 +5,13 @@ import com.embervoid.progress.ProgressManager;
 import com.embervoid.realm.worldgen.ArenaSite;
 import com.embervoid.realm.worldgen.RealmFeaturePlacement;
 import com.embervoid.realm.worldgen.RealmFeatureStructure;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.structure.StructureSet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.gen.chunk.placement.StructurePlacement;
 import net.minecraft.world.gen.chunk.placement.StructurePlacementCalculator;
-import net.minecraft.world.gen.structure.Structure;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -30,16 +27,19 @@ public final class RealmArenas {
 	public record Location(ArenaSpec spec, BlockPos pos, int siteRadius) {}
 
 	public static List<Location> all(ServerWorld world) {
-		StructurePlacementCalculator calculator = world.getChunkManager().getStructurePlacementCalculator();
-		Registry<Structure> structures = world.getRegistryManager().get(RegistryKeys.STRUCTURE);
+		return all(world.getChunkManager().getStructurePlacementCalculator());
+	}
+
+	/** The arenas of the world a placement calculator belongs to (usable during worldgen, without the world). */
+	public static List<Location> all(StructurePlacementCalculator calculator) {
 		List<Location> result = new ArrayList<>();
-		for (RegistryEntry.Reference<Structure> entry : structures.streamEntries().toList()) {
-			if (!(entry.value() instanceof RealmFeatureStructure feature) || feature.boss().isEmpty()) {
+		for (RegistryEntry<StructureSet> set : calculator.getStructureSets()) {
+			if (!(set.value().placement() instanceof RealmFeaturePlacement placement)) {
 				continue;
 			}
-			for (StructurePlacement placement : calculator.getPlacements(entry)) {
-				if (placement instanceof RealmFeaturePlacement realmPlacement) {
-					ChunkPos chunk = realmPlacement.getStartChunk(calculator.getStructureSeed(), 0, 0);
+			for (StructureSet.WeightedEntry entry : set.value().structures()) {
+				if (entry.structure().value() instanceof RealmFeatureStructure feature && feature.boss().isPresent()) {
+					ChunkPos chunk = placement.getStartChunk(calculator.getStructureSeed(), 0, 0);
 					int site = feature.site().map(ArenaSite::radius).orElse(feature.boss().get().radius());
 					result.add(new Location(feature.boss().get(), new BlockPos(chunk.getStartX(), 0, chunk.getStartZ()), site));
 				}

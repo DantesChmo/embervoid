@@ -1,0 +1,39 @@
+{
+  "structures": [
+    {
+      "structure": "embervoid:ashen_reach/woods/park_wall",
+      "weight": 3
+    },
+    {
+      "structure": "embervoid:ashen_reach/woods/hunting_lodge",
+      "weight": 1
+    },
+    {
+      "structure": "embervoid:ashen_reach/woods/kennels",
+      "weight": 3
+    },
+    {
+      "structure": "embervoid:ashen_reach/woods/hunters_hide",
+      "weight": 4
+    },
+    {
+      "structure": "embervoid:ashen_reach/woods/hanging_cages",
+      "weight": 3
+    },
+    {
+      "structure": "embervoid:ashen_reach/woods/lantern_row",
+      "weight": 3
+    },
+    {
+      "structure": "embervoid:ashen_reach/woods/glade",
+      "weight": 2
+    }
+  ],
+  "placement": {
+    "type": "embervoid:realm_scatter",
+    "salt": 551207,
+    "spacing": 9,
+    "separation": 3,
+    "clearance": 24
+  }
+}
