@@ -10,7 +10,9 @@
 		"PlayerEntityDifficultyMixin",
 		"DimensionLifecycleMixin",
 		"StructureTemplateMixin",
-		"SinglePoolElementMixin"
+		"SinglePoolElementMixin",
+		"TrackTargetGoalMixin",
+		"PlayerEntityVampirismMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
