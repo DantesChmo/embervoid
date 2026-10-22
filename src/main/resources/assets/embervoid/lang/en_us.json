@@ -251,5 +251,15 @@
 	"item.embervoid.wardens_chain": "Warden's Chain",
 	"item.embervoid.wardens_chain.desc": "It held the dead in their crypts. Now it holds you up.",
 	"item.embervoid.seal_of_the_ashen_king": "Seal of the Ashen King",
-	"item.embervoid.seal_of_the_ashen_king.desc": "He sealed the Ember away with it. The wax still burns."
+	"item.embervoid.seal_of_the_ashen_king.desc": "He sealed the Ember away with it. The wax still burns.",
+	"effect.embervoid.bleeding": "Bleeding",
+	"death.attack.embervoid.bleeding": "%1$s bled out",
+	"death.attack.embervoid.bleeding.player": "%1$s bled out fighting %2$s",
+	"item.embervoid.smoldering_helmet": "Smoldering Helmet",
+	"item.embervoid.smoldering_chestplate": "Smoldering Chestplate",
+	"item.embervoid.smoldering_leggings": "Smoldering Leggings",
+	"item.embervoid.smoldering_boots": "Smoldering Boots",
+	"embervoid.gear.set_bonus": "Full set: %s",
+	"embervoid.gear.smoldering.piece": "-8% fire damage",
+	"embervoid.gear.smoldering.set": "burning does not hurt you (lava still does)"
 }

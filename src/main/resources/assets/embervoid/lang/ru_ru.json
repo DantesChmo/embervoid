@@ -251,5 +251,15 @@
 	"item.embervoid.wardens_chain": "Цепь стража",
 	"item.embervoid.wardens_chain.desc": "Держала мёртвых в склепах. Теперь держит тебя.",
 	"item.embervoid.seal_of_the_ashen_king": "Печать Пепельного короля",
-	"item.embervoid.seal_of_the_ashen_king.desc": "Ею король запечатал Пламя. Сургуч всё ещё горит."
+	"item.embervoid.seal_of_the_ashen_king.desc": "Ею король запечатал Пламя. Сургуч всё ещё горит.",
+	"effect.embervoid.bleeding": "Кровотечение",
+	"death.attack.embervoid.bleeding": "%1$s истёк кровью",
+	"death.attack.embervoid.bleeding.player": "%1$s истёк кровью в схватке с %2$s",
+	"item.embervoid.smoldering_helmet": "Тлеющий шлем",
+	"item.embervoid.smoldering_chestplate": "Тлеющий нагрудник",
+	"item.embervoid.smoldering_leggings": "Тлеющие поножи",
+	"item.embervoid.smoldering_boots": "Тлеющие ботинки",
+	"embervoid.gear.set_bonus": "Полный комплект: %s",
+	"embervoid.gear.smoldering.piece": "−8 % урона от огня",
+	"embervoid.gear.smoldering.set": "горение не ранит (лава — ранит)"
 }
