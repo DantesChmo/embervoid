@@ -75,6 +75,22 @@ public final class VampireState extends PersistentState {
 		return nightId;
 	}
 
+	/** The boss of the running fight, or null. */
+	@Nullable
+	public UUID boss() {
+		return boss;
+	}
+
+	public int bossLevel() {
+		return bossLevel;
+	}
+
+	/** The world the boss fights in, or null. */
+	@Nullable
+	public RegistryKey<World> fightWorld() {
+		return fightWorld;
+	}
+
 	private static VampireState fromNbt(NbtCompound nbt) {
 		VampireState state = new VampireState();
 		state.nightId = nbt.getInt("NightId");

@@ -22,6 +22,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.GlobalPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -153,11 +154,12 @@ public final class VampireArena {
 			if (d > RADIUS - 1) {
 				return Blocks.POLISHED_BLACKSTONE_BRICKS.getDefaultState();
 			}
-			if (Math.abs(d - (RADIUS - 3)) < 0.6 || Math.abs(d - 6) < 0.6 || (d < 6 && (x == 0 || z == 0))) {
-				return Blocks.RED_NETHER_BRICKS.getDefaultState();
-			}
+			// Crying obsidian heart first, then the red rings and the cross between them.
 			if (d < 1.5) {
 				return Blocks.CRYING_OBSIDIAN.getDefaultState();
+			}
+			if (Math.abs(d - (RADIUS - 3)) < 0.6 || Math.abs(d - 6) < 0.6 || (d < 6 && (x == 0 || z == 0))) {
+				return Blocks.RED_NETHER_BRICKS.getDefaultState();
 			}
 			return Blocks.POLISHED_BLACKSTONE.getDefaultState();
 		}
@@ -254,6 +256,40 @@ public final class VampireArena {
 			return;
 		}
 		FabricDimensions.teleport(item, world, new TeleportTarget(Vec3d.ofBottomCenter(point.pos().getPos()), Vec3d.ZERO, 0, 0));
+	}
+
+	/**
+	 * Checks the built arena for the debug command and the server check: centre, rings, rim and pillars in place,
+	 * void below. Returns null if it is whole, else what is wrong.
+	 */
+	@Nullable
+	static String verify(ServerWorld world) {
+		List<String> wrong = new ArrayList<>();
+		BlockPos.Mutable pos = new BlockPos.Mutable();
+		int checked = 0;
+		for (int x = -RADIUS - 2; x <= RADIUS + 2; x++) {
+			for (int z = -RADIUS - 2; z <= RADIUS + 2; z++) {
+				double d = Math.sqrt(x * x + z * z);
+				for (int y = FLOOR_Y - 2; y <= FLOOR_Y + 7; y++) {
+					BlockState expected = blockAt(x, y - FLOOR_Y, z, d);
+					if (!world.getBlockState(pos.set(x, y, z)).isOf(expected.getBlock())) {
+						if (wrong.size() < 5) {
+							wrong.add(pos.toShortString() + " is " + world.getBlockState(pos).getBlock() + ", not " + expected.getBlock());
+						}
+					}
+					checked++;
+				}
+			}
+		}
+		if (!world.getBlockState(pos.set(0, FLOOR_Y - 10, 0)).isAir()) {
+			wrong.add("no void below the arena");
+		}
+		return wrong.isEmpty() ? null : wrong.size() + "+ wrong of " + checked + ": " + String.join("; ", wrong);
+	}
+
+	/** Whether the arena's chunks are force-loaded (open). */
+	static boolean isForced(ServerWorld world) {
+		return world.getForcedChunks().contains(ChunkPos.toLong(0, 0));
 	}
 
 	private static void setChunksForced(ServerWorld world, boolean forced) {
