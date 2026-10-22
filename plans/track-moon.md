@@ -45,5 +45,7 @@ schedule (day 16 none, day 24 full moon, day 28 blood new moon at dusk); hold st
 pushed past it, release → GOAL_MET at dawn; bed refused on a moon night with the spawn point set; full moon zombie
 +3 levels and ×1.5 follow range, range reverted at the end; curse +1 on a zombie kill (kept through respawn), +0 for
 /kill, fall and a player kill, 0 after the full moon; vampirism heals 25 % of the damage on the blood moon only;
-`embervoid:moon_night` sent on start and end. Found and fixed: the held clock reached dawn for part of every tick.
+`embervoid:moon_night` sent on start and end, and on join, respawn, Nether and back; a full moon zombie keeps a
+player 30 blocks away behind a wall for 100 ticks while an ordinary-night zombie drops it (fails with the
+`TrackTargetGoalMixin` switched off). Found and fixed: the held clock reached dawn for part of every tick.
 
