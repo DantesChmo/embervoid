@@ -792,11 +792,160 @@ def grave_warden():
     write_mob("grave_warden", bones, 64, [3, 3], animations, paint)
 
 
+# Citadel — Cinder Hound: lean burning hound. Bite after a 6-tick lunge; howls to pull the pack.
+def cinder_hound():
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("body", [0, 10, 0], "root", None, [Cube([-3, 7, -6], [6, 6, 13], "body")]),
+        Bone("head", [0, 11, -6], "body", None, [
+            Cube([-3, 8, -12], [6, 6, 6], "head"),
+            Cube([-1.5, 8, -15], [3, 3, 3], "snout"),
+            Cube([-3, 14, -9], [1, 2, 1], "head"),
+            Cube([2, 14, -9], [1, 2, 1], "head"),
+        ]),
+        Bone("tail", [0, 12, 7], "body", [-30, 0, 0], [Cube([-1, 11, 7], [2, 2, 7], "tail")]),
+        Bone("front_right_leg", [-2, 7, -4], "root", None, [Cube([-3, 0, -5], [2, 7, 2], "limb")]),
+        Bone("front_left_leg", [2, 7, -4], "root", None, [Cube([1, 0, -5], [2, 7, 2], "limb")]),
+        Bone("back_right_leg", [-2, 7, 5], "root", None, [Cube([-3, 0, 4], [2, 7, 2], "limb")]),
+        Bone("back_left_leg", [2, 7, 5], "root", None, [Cube([1, 0, 4], [2, 7, 2], "limb")]),
+    ]
+
+    def gait(length, angle):
+        h = length / 2
+        a, b = [angle, 0, 0], [-angle, 0, 0]
+        return {
+            "front_right_leg": rot(0, a, h, b, length, a), "back_left_leg": rot(0, a, h, b, length, a),
+            "front_left_leg": rot(0, b, h, a, length, b), "back_right_leg": rot(0, b, h, a, length, b),
+            "tail": rot(0, [-30, 10, 0], h, [-30, -10, 0], length, [-30, 10, 0]),
+        }
+
+    animations = {
+        "misc.idle": anim(2.0, {"tail": rot(0, [-30, 8, 0], 1, [-30, -8, 0], 2, [-30, 8, 0]),
+                                "head": rot(0, ZERO, 1, [5, 0, 0], 2, ZERO)}),
+        "move.walk": anim(0.5, gait(0.5, 40)),
+        "attack.bite": anim(0.5, {
+            "head": rot(0, ZERO, 0.3, [-25, 0, 0], 0.35, [20, 0, 0], 0.5, ZERO),
+            "body": rot(0, ZERO, 0.3, [5, 0, 0], 0.35, [-5, 0, 0], 0.5, ZERO),
+        }, loop=False),
+        "misc.howl": anim(1.0, {"head": rot(0, ZERO, 0.2, [-55, 0, 0], 0.8, [-55, 0, 0], 1.0, ZERO)}, loop=False),
+    }
+    paint = painter({"default": (40, 34, 30, 255), "snout": (30, 26, 24, 255), "tail": (60, 30, 20, 255)},
+                    eye=(255, 140, 40, 255), eye_row=0.3, cracks=("body", "limb", "tail"), crack_color=(255, 110, 30, 255))
+    write_mob("cinder_hound", bones, 64, [1.5, 1.2], animations, paint)
+
+
+# Citadel — Sparking Marksman: crossbowman on the walls. A spark lights on the bolt tip 20 ticks before it fires.
+def sparking_marksman():
+    bones = biped()
+    bones[2].cubes.append(Cube([-4.5, 24, -4.5], [9, 9, 9], "hood"))
+    bones.append(Bone("crossbow", [-6, 12, 0], "right_arm", None, [
+        Cube([-7, 11, -9], [2, 2, 8], "wood"),
+        Cube([-11, 12, -9], [10, 1, 1], "iron"),
+    ]))
+    bones.append(Bone("spark", [-6, 12, -10], "crossbow", None, [Cube([-6.5, 11.5, -11], [1, 1, 1], "spark", 0.2)]))
+    aim = [-90, 0, 0]
+    animations = {
+        "misc.idle": idle(3.0, 3),
+        "move.walk": walk(1.0, 25, 15),
+        "attack.aim": anim(1.0, {
+            "right_arm": rot(0, ZERO, 0.3, aim, 1.0, aim),
+            "left_arm": rot(0, ZERO, 0.3, [-80, 30, 0], 1.0, [-80, 30, 0]),
+            "head": rot(0, ZERO, 0.3, [5, 0, 0], 1.0, [5, 0, 0]),
+        }, loop=False),
+        "attack.shoot": anim(0.3, {"right_arm": rot(0, aim, 0.1, [-110, 0, 0], 0.3, ZERO)}, loop=False),
+    }
+    paint = painter({"default": (50, 44, 40, 255), "hood": (40, 34, 30, 255), "head": (90, 70, 60, 255),
+                     "wood": (80, 60, 44, 255), "iron": (90, 90, 96, 255), "spark": (255, 220, 120, 255)},
+                    eye=(255, 160, 60, 255), eye_tags=("hood",), eye_row=0.45, glow_tags=("spark",))
+    write_mob("sparking_marksman", bones, 64, [2, 2.5], animations, paint)
+
+
+# Citadel — Furnace Golem: a walking furnace. Heats with each hit taken; the heat bones glow for 25 ticks before the
+# fire wave.
+def furnace_golem():
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("body", [0, 12, 0], "root", None, [
+            Cube([-8, 12, -6], [16, 18, 12], "iron"),
+            Cube([-4, 17, -6.5], [8, 8, 1], "grate"),
+        ]),
+        Bone("heat", [0, 12, 0], "body", None, [Cube([-8, 12, -6], [16, 18, 12], "heat", 0.3)]),
+        Bone("head", [0, 30, 0], "body", None, [
+            Cube([-4, 30, -4], [8, 6, 8], "helm"),
+            Cube([-2, 36, -2], [4, 8, 4], "chimney"),
+        ]),
+        Bone("right_arm", [-10.5, 28, 0], "body", None, [Cube([-13, 8, -3], [5, 20, 6], "iron")]),
+        Bone("left_arm", [10.5, 28, 0], "body", None, [Cube([8, 8, -3], [5, 20, 6], "iron")]),
+        Bone("right_leg", [-4, 12, 0], "root", None, [Cube([-7, 0, -3], [6, 12, 6], "iron")]),
+        Bone("left_leg", [4, 12, 0], "root", None, [Cube([1, 0, -3], [6, 12, 6], "iron")]),
+    ]
+    animations = {
+        "misc.idle": idle(4.0, 2),
+        "move.walk": walk(1.6, 18, 12),
+        "attack.slam": overhead(0.7, 1.2, ("right_arm", "left_arm")),
+        "misc.heat": anim(1.25, {
+            "body": rot(0, ZERO, 0.25, [0, 0, 2], 0.5, [0, 0, -2], 0.75, [0, 0, 2], 1.0, [0, 0, -2], 1.25, ZERO),
+            "right_arm": rot(0, ZERO, 1.25, [0, 0, 25]), "left_arm": rot(0, ZERO, 1.25, [0, 0, -25]),
+        }, loop=False),
+        "attack.wave": anim(0.5, {
+            "right_arm": rot(0, [0, 0, 25], 0.1, [0, 0, 70], 0.5, ZERO),
+            "left_arm": rot(0, [0, 0, -25], 0.1, [0, 0, -70], 0.5, ZERO),
+        }, loop=False),
+    }
+    paint = painter({"default": (58, 56, 60, 255), "helm": (52, 50, 54, 255), "grate": (255, 120, 30, 255),
+                     "chimney": (40, 38, 40, 255), "heat": (255, 90, 20, 140)},
+                    eye=(255, 170, 60, 255), eye_tags=("helm",), eye_row=0.4, glow_tags=("grate", "heat"))
+    write_mob("furnace_golem", bones, 128, [3, 3.5], animations, paint)
+
+
+# Citadel — Smoldering Knight: the king's guard with a greatsword. 3-hit combo, and a lunge after a 15-tick crouch.
+def smoldering_knight():
+    bones = biped(legs=13, body=(9, 14, 5), head=8, arm=(4, 14), leg_w=4)
+    top = 27
+    bones[2].cubes.append(Cube([-4.5, top, -4.5], [9, 9, 9], "helmet"))
+    bones[2].cubes.append(Cube([-0.5, top + 9, -3], [1, 3, 7], "plume"))
+    bones.append(Bone("sword", [-6.5, 13, 0], "right_arm", None, [
+        Cube([-7, 12, -22], [1, 3, 18], "steel"),
+        Cube([-8.5, 12.5, -4], [4, 2, 1], "steel"),
+        Cube([-7, 12.5, -3], [1, 2, 4], "wood"),
+    ]))
+
+    def cut(windup, length, start, end, body=(0, 0)):
+        return anim(length, {
+            "right_arm": rot(0, ZERO, windup, start, windup + 0.1, end, length, ZERO),
+            "body": rot(0, ZERO, windup, [0, body[0], 0], windup + 0.1, [0, body[1], 0], length, ZERO),
+        }, loop=False)
+
+    animations = {
+        "misc.idle": idle(3.0, 2),
+        "move.walk": walk(1.1, 22, 10),
+        "attack.combo1": cut(0.3, 0.6, [-120, 0, 40], [-40, 0, -30], (30, -30)),
+        "attack.combo2": cut(0.25, 0.55, [-60, 0, -60], [-60, 0, 50], (-30, 35)),
+        "attack.combo3": cut(0.4, 0.8, [-170, 0, 0], [-20, 0, 0]),
+        "attack.crouch": anim(0.75, {
+            "body": rot(0, ZERO, 0.75, [25, 0, 0]),
+            "right_leg": rot(0, ZERO, 0.75, [-40, 0, 0]), "left_leg": rot(0, ZERO, 0.75, [30, 0, 0]),
+            "right_arm": rot(0, ZERO, 0.75, [40, 0, 0]),
+            "root": pos(0, ZERO, 0.75, [0, -3, 0]),
+        }, loop=False),
+        "attack.lunge": anim(0.5, {
+            "right_arm": rot(0, [40, 0, 0], 0.1, [-95, 0, 0], 0.5, ZERO),
+            "body": rot(0, [25, 0, 0], 0.1, [10, 0, 0], 0.5, ZERO),
+            "root": pos(0, [0, -3, 0], 0.2, ZERO),
+        }, loop=False),
+    }
+    paint = painter({"default": (44, 42, 46, 255), "helmet": (38, 36, 40, 255), "plume": (150, 40, 20, 255),
+                     "steel": (110, 106, 104, 255), "wood": (70, 50, 36, 255), "head": (60, 40, 30, 255)},
+                    eye=(255, 80, 40, 255), eye_tags=("helmet",), eye_row=0.45,
+                    cracks=("body", "limb"), crack_color=(255, 110, 30, 255))
+    write_mob("smoldering_knight", bones, 64, [3, 3], animations, paint)
+
 REACH_MOBS = [
     ("cinder_husk", cinder_husk), ("ash_stalker", ash_stalker), ("ashen_carrion", ashen_carrion),
     ("withered_thrall", withered_thrall), ("lantern_hag", lantern_hag), ("bark_hollow", bark_hollow),
     ("restless_bones", restless_bones), ("crypt_moth", crypt_moth), ("hollow_sentinel", hollow_sentinel),
-    ("grave_warden", grave_warden),
+    ("grave_warden", grave_warden), ("cinder_hound", cinder_hound), ("sparking_marksman", sparking_marksman),
+    ("furnace_golem", furnace_golem), ("smoldering_knight", smoldering_knight),
 ]
 
 

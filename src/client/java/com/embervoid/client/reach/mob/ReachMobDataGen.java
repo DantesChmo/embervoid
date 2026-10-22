@@ -73,6 +73,20 @@ public final class ReachMobDataGen {
 					.pool(drop(Items.IRON_NUGGET, 2, 5))
 					.pool(drop(Items.BONE, 1, 3))
 					.pool(rare(Items.CANDLE, 0.25f)));
+			exporter.accept(ReachMobs.CINDER_HOUND.getLootTableId(), LootTable.builder()
+					.pool(drop(Items.BONE, 0, 2))
+					.pool(drop(Items.CHARCOAL, 0, 1)));
+			exporter.accept(ReachMobs.SPARKING_MARKSMAN.getLootTableId(), LootTable.builder()
+					.pool(drop(Items.ARROW, 0, 2))
+					.pool(drop(Items.STRING, 0, 1))
+					.pool(rare(Items.CROSSBOW, 0.04f)));
+			exporter.accept(ReachMobs.FURNACE_GOLEM.getLootTableId(), LootTable.builder()
+					.pool(drop(Items.IRON_NUGGET, 2, 6))
+					.pool(drop(Items.COAL, 1, 3)));
+			exporter.accept(ReachMobs.SMOLDERING_KNIGHT.getLootTableId(), LootTable.builder()
+					.pool(drop(Items.IRON_NUGGET, 2, 5))
+					.pool(drop(Items.CHARCOAL, 1, 2))
+					.pool(rare(Items.IRON_INGOT, 0.15f)));
 		}
 
 		/** min–max of an item, +0–1 per Looting level. */

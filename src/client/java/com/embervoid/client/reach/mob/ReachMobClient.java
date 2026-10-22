@@ -33,6 +33,10 @@ public final class ReachMobClient {
 		renderer(ReachMobs.CRYPT_MOTH, true);
 		renderer(ReachMobs.HOLLOW_SENTINEL, true);
 		renderer(ReachMobs.GRAVE_WARDEN, true);
+		renderer(ReachMobs.CINDER_HOUND, true);
+		renderer(ReachMobs.SPARKING_MARKSMAN, true);
+		renderer(ReachMobs.FURNACE_GOLEM, false);
+		renderer(ReachMobs.SMOLDERING_KNIGHT, true);
 		// The flask flies as an item; once it is a fire patch it is invisible and only its particles show.
 		EntityRendererRegistry.register(ReachMobs.FIRE_FLASK, context -> new FlyingItemEntityRenderer<FireFlaskEntity>(context) {
 			@Override

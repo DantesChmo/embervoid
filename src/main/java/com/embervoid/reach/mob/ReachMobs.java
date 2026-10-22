@@ -27,12 +27,13 @@ import net.minecraft.world.LightType;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.biome.Biome;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
  * Realm 1 mobs (DESIGN §4.5, PLAN 10): entity types under the fixed ids, attributes, spawn eggs and natural spawns.
  *
- * <p>Only fodder, ranged mobs and the rare Ashen Carrion spawn naturally, and only in their own zone biome
+ * <p>Only fodder, ranged mobs and the rare Ashen Carrion spawn naturally (Cinder Hounds in the depths), and only in their own biome
  * ({@link ReachMobConfig#spawns}); tanks and elites come from structures (placed, {@link ReachMob#PLACED_TAG}).
  * Natural spawns ignore sky light (the realm is in eternal dusk) and need block light ≤ {@link #MAX_BLOCK_LIGHT}, so
  * torches still keep a camp clear.
@@ -41,6 +42,8 @@ public final class ReachMobs {
 	public static final RegistryKey<Biome> FIELDS = zoneBiome("ashen_reach_zone_a");
 	public static final RegistryKey<Biome> WOODS = zoneBiome("ashen_reach_zone_b");
 	public static final RegistryKey<Biome> NECROPOLIS = zoneBiome("ashen_reach_zone_c");
+	/** The Smoldering Citadel's depths ("Burning City"). */
+	public static final RegistryKey<Biome> DEPTHS = zoneBiome("ashen_reach_depths");
 	/** Natural spawns need block light at or below this. */
 	public static final int MAX_BLOCK_LIGHT = 7;
 
@@ -54,6 +57,10 @@ public final class ReachMobs {
 	public static final EntityType<CryptMothEntity> CRYPT_MOTH = register("crypt_moth", CryptMothEntity::new, 0.7f, 0.6f);
 	public static final EntityType<HollowSentinelEntity> HOLLOW_SENTINEL = register("hollow_sentinel", HollowSentinelEntity::new, 0.8f, 2.3f);
 	public static final EntityType<GraveWardenEntity> GRAVE_WARDEN = register("grave_warden", GraveWardenEntity::new, 0.9f, 2.4f);
+	public static final EntityType<CinderHoundEntity> CINDER_HOUND = register("cinder_hound", CinderHoundEntity::new, 0.8f, 0.9f);
+	public static final EntityType<SparkingMarksmanEntity> SPARKING_MARKSMAN = register("sparking_marksman", SparkingMarksmanEntity::new, 0.6f, 1.95f);
+	public static final EntityType<FurnaceGolemEntity> FURNACE_GOLEM = register("furnace_golem", FurnaceGolemEntity::new, 1.4f, 2.9f);
+	public static final EntityType<SmolderingKnightEntity> SMOLDERING_KNIGHT = register("smoldering_knight", SmolderingKnightEntity::new, 0.7f, 2.2f);
 
 	/** The Lantern Hag's thrown fire flask (and the fire patch it leaves). */
 	public static final EntityType<FireFlaskEntity> FIRE_FLASK = ModEntities.register("fire_flask",
@@ -74,6 +81,10 @@ public final class ReachMobs {
 		egg(CRYPT_MOTH, 0x786e60, 0xdcffa0);
 		egg(HOLLOW_SENTINEL, 0x464a52, 0x96c8ff);
 		egg(GRAVE_WARDEN, 0x302e36, 0x966e32);
+		egg(CINDER_HOUND, 0x28221e, 0xff6e1e);
+		egg(SPARKING_MARKSMAN, 0x322c28, 0xffdc78);
+		egg(FURNACE_GOLEM, 0x3a383c, 0xff7820);
+		egg(SMOLDERING_KNIGHT, 0x2c2a2e, 0x962814);
 	}
 
 	public static void register() {
@@ -88,6 +99,10 @@ public final class ReachMobs {
 		attributes(CRYPT_MOTH, CryptMothEntity::createAttributes);
 		attributes(HOLLOW_SENTINEL, HollowSentinelEntity::createAttributes);
 		attributes(GRAVE_WARDEN, GraveWardenEntity::createAttributes);
+		attributes(CINDER_HOUND, CinderHoundEntity::createAttributes);
+		attributes(SPARKING_MARKSMAN, SparkingMarksmanEntity::createAttributes);
+		attributes(FURNACE_GOLEM, FurnaceGolemEntity::createAttributes);
+		attributes(SMOLDERING_KNIGHT, SmolderingKnightEntity::createAttributes);
 
 		naturalSpawn(CINDER_HUSK, FIELDS, ReachMobs::canSpawnInRealm);
 		naturalSpawn(ASH_STALKER, FIELDS, ReachMobs::canSpawnInRealm);
@@ -96,11 +111,13 @@ public final class ReachMobs {
 		naturalSpawn(LANTERN_HAG, WOODS, ReachMobs::canSpawnInRealm);
 		naturalSpawn(RESTLESS_BONES, NECROPOLIS, ReachMobs::canSpawnInRealm);
 		naturalSpawn(CRYPT_MOTH, NECROPOLIS, ReachMobs::canSpawnUnderCover);
+		naturalSpawn(CINDER_HOUND, DEPTHS, ReachMobs::canSpawnInRealm);
 		// The Scarecrow's Mask (track reach-gear) hides its wearer from buried Ash Stalkers.
 		AshStalkerEntity.addAmbushImmunity(GearArmor::hiddenFromAmbush);
 
 		// Placed only, but spawners and commands still check a rule.
-		for (EntityType<? extends HostileEntity> placedOnly : java.util.List.of(BARK_HOLLOW, HOLLOW_SENTINEL, GRAVE_WARDEN)) {
+		for (EntityType<? extends HostileEntity> placedOnly : List.of(BARK_HOLLOW, HOLLOW_SENTINEL, GRAVE_WARDEN,
+				SPARKING_MARKSMAN, FURNACE_GOLEM, SMOLDERING_KNIGHT)) {
 			SpawnRestriction.register(placedOnly, SpawnRestriction.Location.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
 					ReachMobs::canSpawnInRealm);
 		}
