@@ -311,5 +311,14 @@
 	"embervoid.zone.ashen_reach.zone_a": "Ashen Fields",
 	"embervoid.zone.ashen_reach.zone_b": "Royal Woods",
 	"embervoid.zone.ashen_reach.zone_c": "Sunken Necropolis",
-	"embervoid.zone.ashen_reach.depths": "Smoldering Citadel"
+	"embervoid.zone.ashen_reach.depths": "Smoldering Citadel",
+	"block.embervoid.burnt_straw": "Burnt Straw",
+	"block.embervoid.milestone": "Milestone",
+	"block.embervoid.gravestone": "Gravestone",
+	"block.embervoid.ember_crack": "Ember Crack",
+	"block.embervoid.smoldering_log": "Smoldering Log",
+	"block.embervoid.wet_crypt_stone": "Wet Crypt Stone",
+	"block.embervoid.cinder_ore": "Cinder Ore",
+	"block.embervoid.amber_vein": "Amber Vein",
+	"block.embervoid.grave_iron_ore": "Grave Iron Ore"
 }

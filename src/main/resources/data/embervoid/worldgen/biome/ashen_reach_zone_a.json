@@ -45,11 +45,14 @@
     [],
     [],
     [],
-    [],
+    [
+      "embervoid:ashen_reach/cinder_ore"
+    ],
     [],
     [],
     [
-      "embervoid:ashen_reach/dead_bushes"
+      "embervoid:ashen_reach/dead_bushes",
+      "embervoid:ashen_reach/burnt_straw_piles"
     ],
     []
   ]

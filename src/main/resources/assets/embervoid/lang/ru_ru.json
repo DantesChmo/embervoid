@@ -311,5 +311,14 @@
 	"embervoid.zone.ashen_reach.zone_a": "Пепельные пашни",
 	"embervoid.zone.ashen_reach.zone_b": "Королевский лес",
 	"embervoid.zone.ashen_reach.zone_c": "Провалившийся некрополь",
-	"embervoid.zone.ashen_reach.depths": "Тлеющая цитадель"
+	"embervoid.zone.ashen_reach.depths": "Тлеющая цитадель",
+	"block.embervoid.burnt_straw": "Горелая солома",
+	"block.embervoid.milestone": "Верстовой камень",
+	"block.embervoid.gravestone": "Надгробие",
+	"block.embervoid.ember_crack": "Тлеющая трещина",
+	"block.embervoid.smoldering_log": "Тлеющее бревно",
+	"block.embervoid.wet_crypt_stone": "Сырой склепный камень",
+	"block.embervoid.cinder_ore": "Зольная руда",
+	"block.embervoid.amber_vein": "Янтарная жила",
+	"block.embervoid.grave_iron_ore": "Могильная железная руда"
 }

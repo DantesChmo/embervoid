@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "embervoid:block/wet_crypt_stone"
+  }
+}
