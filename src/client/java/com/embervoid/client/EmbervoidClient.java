@@ -10,6 +10,7 @@ import com.embervoid.client.nightmob.NightMobClient;
 import com.embervoid.client.moon.MoonClient;
 import com.embervoid.client.reach.mob.ReachMobClient;
 import com.embervoid.client.realm.RealmClient;
+import com.embervoid.client.reach.gear.GearClient;
 import com.embervoid.client.reliquary.ReliquaryClient;
 import com.embervoid.client.vampire.VampireClient;
 import com.embervoid.config.EmbervoidClientConfig;
@@ -52,6 +53,7 @@ public class EmbervoidClient implements ClientModInitializer {
 		// Also registers the progress sync receiver.
 		SanctumClient.register();
 		VampireClient.register();
+		GearClient.register();
 		ReliquaryClient.register();
 		ArenaFogClient.register();
 		ReachBossClient.register();

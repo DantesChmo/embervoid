@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:random_selector",
+  "config": {
+    "features": [
+      {
+        "feature": "embervoid:ashen_reach/dead_tree_pole",
+        "chance": 0.35
+      }
+    ],
+    "default": "embervoid:ashen_reach/dead_tree_branchy"
+  }
+}

@@ -275,11 +275,16 @@ BOOTS = [
 
 
 def armor(name, colours, rng_seed=1):
-    """Item icons <name>_helmet|chestplate|leggings|boots and the worn layers (minecraft namespace, see
-    GearArmorMaterial): a plain suit in the set's colours, one accent band."""
-    import random
+    """Item icons <name>_helmet|chestplate|leggings|boots and the worn layers."""
     for piece, rows in (("helmet", HELMET), ("chestplate", CHESTPLATE), ("leggings", LEGGINGS), ("boots", BOOTS)):
         icon(name + "_" + piece, rows, palette(*colours))
+    layers(name, colours, rng_seed)
+
+
+def layers(name, colours, rng_seed=1):
+    """Worn armor layers (minecraft namespace, see GearArmorMaterial): a plain suit in the material's colours, one
+    accent band. The game only draws the parts of the slots the material has pieces for."""
+    import random
     light, mid, dark, accent = colours
     rng = random.Random(rng_seed)
     layer_dir = os.path.join("src", "main", "resources", "assets", "minecraft", "textures", "models", "armor")
@@ -301,6 +306,128 @@ def armor(name, colours, rng_seed=1):
 
 def armor_sets():
     armor("smoldering", ((104, 92, 90, 255), (64, 54, 54, 255), (38, 32, 34, 255), (246, 112, 36, 255)))
+    armor("reaper", ((170, 156, 128, 255), (118, 104, 82, 255), (72, 62, 50, 255), (196, 70, 40, 255)))
+    armor("huntsman", ((122, 140, 90, 255), (84, 100, 62, 255), (52, 62, 40, 255), (214, 160, 70, 255)))
+    armor("warden", ((150, 158, 176, 255), (98, 106, 124, 255), (58, 64, 80, 255), (180, 196, 230, 255)), 3)
+    uniques = (
+        ("scarecrow_mask", "scarecrow_mask", HELMET, ((214, 190, 120, 255), (160, 134, 74, 255), (96, 78, 44, 255), (40, 30, 24, 255))),
+        ("huntsman_greaves", "huntsman_greaves", LEGGINGS, ((150, 116, 76, 255), (108, 80, 50, 255), (66, 48, 30, 255), (226, 186, 90, 255))),
+        ("drowned_sabatons", "drowned_sabatons", BOOTS, ((110, 160, 150, 255), (64, 110, 104, 255), (34, 66, 64, 255), (170, 220, 210, 255))),
+        ("furnace_heart_cuirass", "furnace_heart", CHESTPLATE, ((120, 80, 70, 255), (76, 46, 40, 255), (44, 26, 24, 255), (255, 150, 40, 255))),
+    )
+    for item, material, rows, colours in uniques:
+        icon(item, rows, palette(*colours))
+        layers(material, colours, 7)
+
+
+SCYTHE = [
+    "................",
+    "..ooooooo.......",
+    ".oLLLLLLMoo.....",
+    "..ooooooMMDo....",
+    "........oDDo....",
+    ".......oWo.oo...",
+    "......oWo.......",
+    ".....oWo........",
+    "....oWo.........",
+    "...oWo..........",
+    "..oWo...........",
+    ".oWo............",
+    "oWo.............",
+    "oo..............",
+    "................",
+    "................",
+]
+
+WHIP = [
+    "................",
+    "..........ooo...",
+    ".........oLLMo..",
+    "........oLo.oDo.",
+    ".......oLo...oMo",
+    "......oLo....oMo",
+    ".....oMo....oDo.",
+    "....oMo....oMo..",
+    "...ooo....oMo...",
+    "..oWWo...oDo....",
+    ".oWWo...oEo.....",
+    "oWWo....oEo.....",
+    "oWo......o......",
+    ".o..............",
+    "................",
+    "................",
+]
+
+RAPIER = [
+    "..............o.",
+    ".............oLo",
+    "............oLo.",
+    "...........oLo..",
+    "..........oLo...",
+    ".........oLo....",
+    "........oMo.....",
+    ".......oMo......",
+    "...oo.oMo.......",
+    "...oEoMo........",
+    "....oEo.........",
+    "...oWoEo........",
+    "..oWo.oo........",
+    ".oWo............",
+    ".oo.............",
+    "................",
+]
+
+
+def line(c, x0, y0, x1, y1, color):
+    dx, dy = abs(x1 - x0), -abs(y1 - y0)
+    sx, sy = (1 if x0 < x1 else -1), (1 if y0 < y1 else -1)
+    err = dx + dy
+    while True:
+        c.set(x0, y0, color)
+        if x0 == x1 and y0 == y1:
+            return
+        e2 = 2 * err
+        if e2 >= dy:
+            err += dy
+            x0 += sx
+        if e2 <= dx:
+            err += dx
+            y0 += sy
+
+
+def crossbow():
+    """Huntsman's Crossbow, pointing up-right like vanilla's sprite: standby, three pulling stages, loaded with an
+    arrow or a firework."""
+    wood, dark_wood = (120, 84, 50, 255), (78, 52, 30, 255)
+    limb, string = (84, 100, 62, 255), (230, 226, 210, 255)
+    nock = {"standby": (10, 5), "pulling_0": (9, 6), "pulling_1": (8, 7), "pulling_2": (7, 8), "arrow": (7, 8),
+            "firework": (7, 8)}
+    for state, (sx, sy) in nock.items():
+        c = Canvas(16, 16)
+        line(c, 2, 13, 11, 4, wood)
+        line(c, 3, 13, 11, 5, dark_wood)
+        line(c, 7, 1, 14, 8, limb)
+        line(c, 8, 1, 14, 7, limb)
+        line(c, 7, 1, sx, sy, string)
+        line(c, 14, 8, sx, sy, string)
+        if state == "arrow":
+            line(c, sx, sy, 13, 2, (170, 170, 176, 255))
+            c.set(13, 2, (90, 90, 96, 255))
+        if state == "firework":
+            line(c, sx, sy, 12, 3, (196, 40, 40, 255))
+            c.set(12, 3, (240, 220, 120, 255))
+        c.save(os.path.join(ITEM_DIR, "huntsmans_crossbow_" + state + ".png"))
+
+
+def weapons():
+    handle = (92, 60, 40, 255)
+    p = palette((214, 214, 220, 255), (150, 150, 160, 255), (90, 90, 100, 255), (255, 120, 40, 255))
+    p["W"] = handle
+    icon("ashen_scythe", SCYTHE, dict(p, L=(196, 190, 184, 255), M=(140, 134, 130, 255), D=(92, 88, 86, 255)))
+    icon("wardens_scourge", WHIP, dict(p, L=(150, 158, 176, 255), M=(98, 106, 124, 255), D=(58, 64, 80, 255),
+                                       E=(140, 20, 24, 255), W=(60, 50, 44, 255)))
+    icon("royal_ash_rapier", RAPIER, dict(p, E=(232, 180, 60, 255), W=(120, 30, 30, 255)))
+    crossbow()
 
 
 def palette(light, mid, dark, extra=(255, 255, 255, 255)):
@@ -365,4 +492,5 @@ if __name__ == "__main__":
     boss_items()
     effects()
     armor_sets()
+    weapons()
     print("Wrote reach gear placeholder textures")

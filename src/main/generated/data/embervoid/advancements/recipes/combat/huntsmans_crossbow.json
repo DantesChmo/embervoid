@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_grieving_tree_soul": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "embervoid:grieving_tree_soul"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "embervoid:huntsmans_crossbow"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_grieving_tree_soul",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "embervoid:huntsmans_crossbow"
+    ]
+  },
+  "sends_telemetry_event": false
+}

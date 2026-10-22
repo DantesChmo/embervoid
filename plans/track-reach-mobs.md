@@ -4,10 +4,10 @@ Scope: PLAN 10.1–10.7, then 13.3 (Realm 1 bestiary, DESIGN §4.5). Branch `cla
 
 | # | Task | Status |
 |---|---|---|
-| 10.1 | Greybox pipeline, shared base, spawns, base levels, basic drops | done |
-| 10.2 | Cinder Husk, Ash Stalker | todo |
-| 10.3 | Ashen Carrion | todo |
-| 10.4 | Withered Thrall (+ hanging cage), Lantern Hag | todo |
+| 10.1 | Greybox pipeline, shared base, spawns, base levels, basic drops | merged |
+| 10.2 | Cinder Husk, Ash Stalker | done |
+| 10.3 | Ashen Carrion | done |
+| 10.4 | Withered Thrall (+ hanging cage), Lantern Hag | done |
 | 10.5 | Bark Hollow | todo |
 | 10.6 | Restless Bones, Crypt Moth | todo |
 | 10.7 | Hollow Sentinel, Grave Warden | todo |
@@ -63,7 +63,53 @@ Scope: PLAN 10.1–10.7, then 13.3 (Realm 1 bestiary, DESIGN §4.5). Branch `cla
 - **Russian names:** Обугленный остов, Пепельный ловчий, Пепельный падальщик, Иссохший невольник, Карга с фонарём,
   Полый древень, Неупокоенные кости, Склепная моль, Полый часовой, Кладбищенский звонарь.
 
-## GameTests (`ReachMobTests`)
+## Cinder Husk, Ash Stalker (10.2)
+
+- **Cinder Husk:** plain telegraphed melee from the base (10-tick raised-arm windup, 30-tick cooldown); natural
+  groups of 2–4 in the Fields.
+- **Ash Stalker:** buried state (synced state byte; drawn invisible through `isInvisible`, since vanilla resets the
+  invisibility flag from status effects), invulnerable, not pushable, no AI. A survival player within 5 blocks sets
+  it off: 20 ticks of boiling ash, hiss and the emerge animation (now visible, still invulnerable), then a leap at
+  that player (hits once on contact within 15 ticks), then normal melee (8-tick claw). Without a target for 10 s on
+  the ground it buries itself again. Natural and placed ones start buried; spawn eggs do not.
+- **Scarecrow's Mask:** `AshStalkerEntity.addAmbushImmunity(Predicate<PlayerEntity>)`; `ReachMobs` registers
+  `GearArmor.hiddenFromAmbush` (track reach-gear, 11.4), so a player wearing the mask never sets a stalker off.
+
+## Ashen Carrion (10.3)
+
+- Its own flight (velocity steering, no movement goals; targets from revenge and players). Without a target it
+  hovers ~4 blocks up, and after 5 s comes down and **perches** (natural, egg-less spawns and placed ones start
+  perched: on scarecrows, outpost walls, wherever the structure puts it). A target, or a hit, makes it take off.
+- With a target it **circles** 7 blocks out, 6 up, and **dives**: every 160–240 ticks (8–12 s), or as soon as the
+  target is below half health (at most once per 40 ticks). **Telegraph:** 15-tick shriek (ghast scream, high
+  pitch) while it hangs in the air and a shadow ring (squid ink + smoke, closing in) gathers at the target's feet.
+  The dive flies straight at the target for up to 40 ticks, hits once on contact (peck), then climbs back.
+
+## Withered Thrall, Lantern Hag (10.4)
+
+- **Withered Thrall:** natural ones walk and claw (10-tick windup). A placed one with the extra tag
+  `embervoid.placed.cage` (contract with reach-world, recorded in COORDINATION) **hangs** where it was placed: no
+  gravity, no AI, not pushable, silent. A survival player within 1.5 blocks horizontally and up to 16 below sets
+  it off: **chain rattle for 10 ticks** (still hanging), then it drops (opening a closed trapdoor right under it, if
+  the cage has one), hits a player it lands on and fights on. Shot or hit while hanging, it drops at once.
+  **For reach-world's cages:** the cage floor must be open or a trapdoor; the thrall stands on the cage floor
+  block's top.
+- **Lantern Hag:** keeps 8–12 blocks from her target (backs off closer, walks up farther or out of sight) and
+  throws when she sees it at 4–14 blocks. **Telegraph:** lantern raised 15 ticks (flame particles at it), then the
+  flask flies in the witch's arc at where the target stands. **Fire flask** (`embervoid:fire_flask`, its own
+  entity, drawn as a splash potion item): 4 damage within 1.2 of the impact, then a 3 s fire patch r 1.5 (the same
+  entity, invisible, flame particles) that sets everything standing in it alight, the hag excepted. No fire blocks.
+
+## GameTests (`ReachMobTests`, `ReachFieldsTests`, …)
+
+Test API traps: `TestContext.spawnMob` clears the mob's goals (AI tests use `ReachTests.mob`, i.e.
+`spawnEntity`; `ReachTests.still` when only the mob's own tick logic should run), and the mock test player always
+says `isCreative()`, so mobs that skip creative players ignore it (tests use `ReachTests.player`, a real joined
+survival player). Test areas are reused by later batches and entities outlive their test (a leftover iron golem
+once drew another suite's zombie), so everything a test spawns goes through `ReachTests` and `ReachTests.finish`
+removes it; `ReachTests.guard` does the same when an assertion fails. Targets are `ReachTests.dummy`: a 100 HP cow
+with no AI (nothing hunts cows). Tests where a mob reacts to players or chases run in a batch of their own. Relative
+y 0 is the ground; a mob without AI spawned at y 1 floats.
 
 | Test | Checks |
 |---|---|
@@ -72,3 +118,14 @@ Scope: PLAN 10.1–10.7, then 13.3 (Realm 1 bestiary, DESIGN §4.5). Branch `cla
 | `placedTagMakesAGuard` | tag → placed, persistent, guards its spot; survives save/load; ordinary spawn not placed |
 | `naturalSpawnsOnlyInTheirZone` | spawn entries only in the right zone biome; tanks/elites nowhere |
 | `everyMobHasBasicDrops` | every mob has a loot table |
+| `cinderHuskChasesAndHitsAfterTheWindup` | with AI on the husk walks up and hits no sooner than its windup |
+| `ashStalkerAmbushesAPlayerWithinFive` | buried: invisible, no damage; player at 7 nothing; at 3 → boils 20 ticks (invulnerable) → out, targets the player |
+| `ashStalkerReburiesWhenAlone` | out with nothing to hunt → buried again after 10 s |
+| `scarecrowMaskKeepsTheStalkerBuried` | a player wearing the Scarecrow's Mask does not set it off |
+| `carrionDivesEveryEightToTwelveSeconds` | first shriek ≥ 155 ticks in, dive 15 ticks after the shriek, the target is hit by the dive |
+| `carrionDivesAtAWoundedTarget` | a target below half health draws a shriek at once |
+| `carrionPerchesAndTakesOff` | no target: perched after 10 s; a target makes it take off |
+| `cagedThrallDropsOnAPlayerPassingUnder` | hangs with a player 3 blocks aside; a player under it → rattle, still hanging at 9 ticks, then falls and targets the player |
+| `cagedThrallOpensTheTrapdoorUnderIt` | a trapdoor cage floor opens and the thrall falls through |
+| `lanternHagThrowsAFlaskThatBurns` | no flask during the 15-tick lantern raise, a flask after it; the target is hurt and set alight |
+| `lanternHagKeepsHerDistance` | a target 3 blocks away: she backs off to ≥ 6 |

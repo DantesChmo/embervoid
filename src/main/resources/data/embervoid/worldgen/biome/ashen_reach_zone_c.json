@@ -3,12 +3,12 @@
   "temperature": 0.6,
   "downfall": 0.0,
   "effects": {
-    "fog_color": 3949652,
-    "sky_color": 3093826,
-    "water_color": 4147786,
-    "water_fog_color": 1712160,
-    "grass_color": 7038544,
-    "foliage_color": 6051907,
+    "fog_color": 4739166,
+    "sky_color": 3818064,
+    "water_color": 3029572,
+    "water_fog_color": 1054752,
+    "grass_color": 5923936,
+    "foliage_color": 4871248,
     "mood_sound": {
       "block_search_extent": 8,
       "offset": 2.0,
@@ -19,24 +19,15 @@
       "options": {
         "type": "minecraft:white_ash"
       },
-      "probability": 0.01
+      "probability": 0.008
+    },
+    "additions_sound": {
+      "sound": "minecraft:ambient.soul_sand_valley.additions",
+      "tick_chance": 0.008
     }
   },
   "spawners": {
-    "monster": [
-      {
-        "type": "minecraft:skeleton",
-        "weight": 100,
-        "minCount": 2,
-        "maxCount": 4
-      },
-      {
-        "type": "minecraft:stray",
-        "weight": 60,
-        "minCount": 1,
-        "maxCount": 2
-      }
-    ],
+    "monster": [],
     "creature": [],
     "ambient": [],
     "axolotls": [],
@@ -57,7 +48,9 @@
     [],
     [],
     [],
-    [],
+    [
+      "embervoid:ashen_reach/grave_candles"
+    ],
     []
   ]
 }

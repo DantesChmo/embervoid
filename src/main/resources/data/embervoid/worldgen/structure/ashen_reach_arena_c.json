@@ -3,12 +3,20 @@
   "biomes": "#embervoid:ashen_reach",
   "spawn_overrides": {},
   "step": "surface_structures",
-  "terrain_adaptation": "beard_thin",
+  "terrain_adaptation": "beard_box",
   "feature": "arena",
   "boss": {
     "id": "embervoid:ashen_reach/zone_c",
     "entity": "embervoid:crypt_keeper",
-    "level": 25,
-    "radius": 20
+    "level": 24,
+    "radius": 32
+  },
+  "site": {
+    "radius": 40,
+    "height_offset": -18,
+    "ground": {
+      "Name": "minecraft:gravel"
+    },
+    "template": "embervoid:ashen_reach/arena_necropolis"
   }
 }

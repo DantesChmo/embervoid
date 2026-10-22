@@ -15,10 +15,13 @@
 			"com.embervoid.gametest.NightMobTests",
 			"com.embervoid.gametest.VampireTests",
 			"com.embervoid.gametest.ReachMobTests",
+			"com.embervoid.gametest.ReachFieldsTests",
+			"com.embervoid.gametest.ReachWoodsTests",
 			"com.embervoid.gametest.GearTests",
 			"com.embervoid.gametest.ReliquaryTests",
 			"com.embervoid.gametest.BossFrameworkTests",
 			"com.embervoid.gametest.ArenaTemplateTests",
+			"com.embervoid.gametest.ReachWorldTests",
 			"com.embervoid.gametest.CryptKeeperTests"
 		]
 	},
