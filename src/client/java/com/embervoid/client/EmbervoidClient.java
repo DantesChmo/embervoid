@@ -5,6 +5,7 @@ import com.embervoid.config.ConfigSync;
 import com.embervoid.client.mob.MobLevelClient;
 import com.embervoid.client.mob.MobRenderers;
 import com.embervoid.client.realm.RealmClient;
+import com.embervoid.client.vampire.VampireClient;
 import com.embervoid.config.EmbervoidClientConfig;
 import com.embervoid.config.EmbervoidConfig;
 import com.embervoid.registry.ModBlocks;
@@ -41,6 +42,7 @@ public class EmbervoidClient implements ClientModInitializer {
 		RealmClient.register();
 		// Also registers the progress sync receiver.
 		SanctumClient.register();
+		VampireClient.register();
 		// Particles and the name label only; a model comes with the art pass.
 		EntityRendererRegistry.register(ModEntities.ASH_REMNANT, EmptyEntityRenderer::new);
 		FabricModelPredicateProviderRegistry.register(ModItems.HEALING_FLASK, Embervoid.id("empty"),

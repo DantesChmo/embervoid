@@ -143,5 +143,14 @@
 	"embervoid.derived.flask_heal": "Лечение флягой",
 	"embervoid.derived.armor_toughness": "Прочность брони",
 	"embervoid.derived.fire_reduction": "Снижение урона от огня",
-	"embervoid.derived.luck": "Удача"
+	"embervoid.derived.luck": "Удача",
+	"entity.embervoid.vampire": "Вампир",
+	"embervoid.vampire.talk": "%s: «%s»",
+	"embervoid.vampire.talk.0": "Чудная ночь, не правда ли? Луна прячет для нас своё лицо.",
+	"embervoid.vampire.talk.1": "Не бойтесь. Я лишь пришёл полюбоваться тьмой.",
+	"embervoid.vampire.talk.2": "Ваше сердце бьётся так громко... простите, я заслушался.",
+	"embervoid.vampire.talk.3": "Побудьте со мной. До рассвета ещё так далеко.",
+	"embervoid.vampire.arrived": "Из темноты выходят бледные фигуры. Кажется, они дружелюбны... пока.",
+	"embervoid.vampire.provoked": "%s бьёт вампира — тот сбрасывает личину!",
+	"embervoid.vampire.impatient": "Вампиру надоело ждать, и он сбрасывает личину!"
 }

@@ -143,5 +143,14 @@
 	"embervoid.derived.flask_heal": "Flask healing",
 	"embervoid.derived.armor_toughness": "Armor toughness",
 	"embervoid.derived.fire_reduction": "Fire damage reduction",
-	"embervoid.derived.luck": "Luck"
+	"embervoid.derived.luck": "Luck",
+	"entity.embervoid.vampire": "Vampire",
+	"embervoid.vampire.talk": "%s: \"%s\"",
+	"embervoid.vampire.talk.0": "A lovely night, is it not? The moon hides her face for us.",
+	"embervoid.vampire.talk.1": "Do not be alarmed. I only came to admire the dark.",
+	"embervoid.vampire.talk.2": "Your heart beats so loudly... forgive me, I am listening.",
+	"embervoid.vampire.talk.3": "Stay a while. Dawn is still very far away.",
+	"embervoid.vampire.arrived": "Pale figures step out of the dark. They seem friendly... for now.",
+	"embervoid.vampire.provoked": "%s struck a Vampire. It sheds its disguise!",
+	"embervoid.vampire.impatient": "The Vampire grows tired of waiting and sheds its disguise!"
 }
