@@ -347,7 +347,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | ID  | Task | Track | Depends on | Status |
 |-----|------|-------|------------|--------|
 | 13.1 | **Depths "Burning City": dimension type, terrain** | citadel | 9.4, 9.5 | done (GameTest + server check; sky, fog and hill looks not seen) |
-| 13.2 | **Citadel jigsaw (~10–12 pieces)** | citadel | 13.1, 9.2 | todo |
+| 13.2 | **Citadel jigsaw (~10–12 pieces)** | citadel | 13.1, 9.2 | done (GameTest + server check; fixed-layout structure, not a vanilla jigsaw; looks not seen) |
 | 13.3 | **Cinder Hound, Sparking Marksman, Furnace Golem, Smoldering Knight** | reach-mobs | 10.1 | done (GameTest; models not seen) |
 | 13.4 | **Smoldering Lord** | reach-bosses | 12.3–12.5, 13.2 | todo |
 | 13.5 | **Realm completion, Realm 2 obelisk lit, depths open** | coordinator | 13.4 | todo |

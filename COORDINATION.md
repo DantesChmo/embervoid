@@ -17,7 +17,7 @@ Smoldering Citadel (milestone 13).
 | C | `track-reach-gear` (done) | PLAN 11.1–11.8: materials and boss items, Bleeding, Smoldering Plate, mob sets and uniques, weapons, consumables, chest loot and realm loot on mobs | `com.embervoid.reach.gear`, `com.embervoid.client.reach.gear`, `loot_tables/chests/ashen_reach/**`, its recipes, tags and assets |
 | D | `track-reliquary` (done) | PLAN 11.9–11.13 (all merged, plus the Maiden screen's bonus points): Reliquary screen and slots, remnant and stat hooks, 8 artifacts, 6 rings, their drops | `com.embervoid.reliquary`, `com.embervoid.client.reliquary`, its tags and assets |
 | E | `track-reach-bosses` | PLAN 12.1–12.7, 13.4: boss framework additions, three arenas, Crypt Keeper, Ash Colossus, Grieving Tree, souls, Ash of Rematch; then the Smoldering Lord | `com.embervoid.boss`, `com.embervoid.reach.boss`, `com.embervoid.client.reach.boss`, arena contents (`structures/ashen_reach/arena_*`, the Citadel courtyard piece), boss assets and loot |
-| F | `track-citadel` | PLAN 13.1–13.2: depths "Burning City" dimension, Citadel jigsaw, the courtyard site for the Smoldering Lord | `com.embervoid.reach.citadel`, `client.reach.citadel`; depths `dimension*` / noise settings / biome; `structures/ashen_reach/citadel/**` |
+| F | `track-citadel` (done) | PLAN 13.1–13.2: depths "Burning City" dimension, Citadel jigsaw, the courtyard site for the Smoldering Lord | `com.embervoid.reach.citadel`, `client.reach.citadel`; depths `dimension*` / noise settings / biome; `structures/ashen_reach/citadel/**` |
 
 At most **4 track sessions run at once**; a new track starts only when another is done, and a finished track's
 session is deleted. Coordinator: PLAN 13.5 and the 0.4.0 release tasks. Earlier tracks (0.2.0: `track-player-core`, `track-mobs`,
@@ -28,6 +28,10 @@ Packages not owned by a 0.4.0 track (`player`, `stats`, `mob`, `entity/mob`, `pr
 
 **Arena boundary:** reach-world decides where an arena sits and the ground under it (placement, height,
 blending); reach-bosses builds what stands on it (the arena itself, shrine spot, arena-side chest, hazards).
+**Smoldering Lord courtyard** (track-citadel, 13.1–13.2 merged): centre (0, −192), floor y 88, ArenaSite r 36, fog r 30,
+template `embervoid:ashen_reach/arena_citadel` (reach-bosses builds it). Everything inside the 73×73 square around
+the centre is reach-bosses', including the keep-wall face with a gate at x −2…2; the Citadel pieces stay outside it
+and the keep door lines up with that gate.
 
 ## Contracts between tracks
 
