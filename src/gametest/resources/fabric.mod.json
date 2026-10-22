@@ -9,6 +9,7 @@
 	"entrypoints": {
 		"fabric-gametest": [
 			"com.embervoid.gametest.MobLevelTests",
+			"com.embervoid.gametest.MoonTests",
 			"com.embervoid.gametest.PlayerTests",
 			"com.embervoid.gametest.SanctumTests"
 		]

@@ -7,8 +7,8 @@ import net.minecraft.text.Text;
 import net.minecraft.world.World;
 
 /**
- * Beds in the overworld refuse during a moon night (and on its evening), with a message. The respawn point is still
- * set, as vanilla does when a bed refuses at daytime.
+ * Beds in the overworld refuse during a moon night (and on its evening), with a message. Fabric asks this after the
+ * vanilla server checks (range, obstruction, time, monsters), which already set the respawn point.
  */
 final class MoonSleep {
 	static void register() {
@@ -18,7 +18,6 @@ final class MoonSleep {
 					|| !MoonNightManager.sleepBlocked(serverPlayer.server)) {
 				return null;
 			}
-			serverPlayer.setSpawnPoint(World.OVERWORLD, pos, serverPlayer.getYaw(), false, true);
 			player.sendMessage(Text.translatable("embervoid.moon.no_sleep"), true);
 			return PlayerEntity.SleepFailureReason.OTHER_PROBLEM;
 		});

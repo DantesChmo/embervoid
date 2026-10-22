@@ -21,10 +21,11 @@ Packages owned: `com.embervoid.moon` (main), `com.embervoid.client.moon` (client
 Decisions made here (small, easy to change):
 - `hold` outside a moon night returns false and holds nothing; holds are cleared when a night ends.
 - Holds are saved with the world, so a held night stays held across a restart (owners can reconcile via `holds`).
-- Held night: the overworld clock is set back to 22999 of the night's day every tick (clients may see up to a
-  second of drift between time syncs). Release of the last hold moves the clock to dawn (23000).
+- Held night: the overworld clock is set back to 22998 of the night's day at the end of every tick, so vanilla's
+  advance during the next tick reaches 22999, never dawn (clients may see up to a second of drift between time
+  syncs). Release of the last hold moves the clock to dawn (23000).
 - Beds refuse from 12000 on the day of a scheduled night (vanilla allows lying down at ~12542, before our dusk at
-  13000) and during any moon night; the respawn point is still set. Sleepers are woken when a night starts.
+  13000) and during any moon night; Fabric asks after vanilla's checks, so the respawn point is still set. Sleepers are woken when a night starts.
 - Announcements: chat line to every player, title only to overworld players; end title "Dawn" for any reason.
 - `start` during the day moves the clock to dusk of the same day; `setcycle n` sets the clock to 1000 on day 8n.
 
@@ -36,3 +37,13 @@ Decisions made here (small, easy to change):
 - [x] 8.4 Full moon mob modifiers
 - [x] 8.5 Curse of the Night
 - [x] 8.6 Vampirism
+
+## GameTests (`src/gametest/.../MoonTests.java`, one batch per test)
+
+All pass with `./gradlew runGametest` (15/15 with the other tests):
+schedule (day 16 none, day 24 full moon, day 28 blood new moon at dusk); hold stops the clock before dawn even when
+pushed past it, release → GOAL_MET at dawn; bed refused on a moon night with the spawn point set; full moon zombie
++3 levels and ×1.5 follow range, range reverted at the end; curse +1 on a zombie kill (kept through respawn), +0 for
+/kill, fall and a player kill, 0 after the full moon; vampirism heals 25 % of the damage on the blood moon only;
+`embervoid:moon_night` sent on start and end. Found and fixed: the held clock reached dawn for part of every tick.
+
