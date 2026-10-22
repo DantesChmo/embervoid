@@ -1,6 +1,7 @@
 package com.embervoid;
 
 import com.embervoid.command.ModCommands;
+import com.embervoid.command.PerfCommands;
 import com.embervoid.config.ConfigSync;
 import com.embervoid.config.EmbervoidConfig;
 import com.embervoid.entity.mob.MobEntities;
@@ -65,6 +66,7 @@ public class Embervoid implements ModInitializer {
 		RemnantDeathHandler.register();
 		StatEffects.register();
 		ModCommands.register();
+		PerfCommands.register();
 		RealmInit.register();
 		// Also registers the progress API.
 		Sanctum.register();
