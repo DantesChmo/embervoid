@@ -22,6 +22,7 @@ import com.embervoid.registry.ModSounds;
 import com.embervoid.registry.ModStructures;
 import com.embervoid.sanctum.Sanctum;
 import com.embervoid.stats.StatEffects;
+import com.embervoid.vampire.VampireInit;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
@@ -62,6 +63,7 @@ public class Embervoid implements ModInitializer {
 		// Also registers the progress API.
 		Sanctum.register();
 		MoonInit.register();
+		VampireInit.register();
 
 		LOGGER.info("Embervoid: the embers stir...");
 	}
