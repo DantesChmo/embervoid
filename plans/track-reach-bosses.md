@@ -12,7 +12,7 @@ courtyard piece), boss assets and loot. Config section `boss`.
 - [x] **12.1 Boss framework additions** (below; GameTests `BossFrameworkTests`, JUnit `TelegraphShapeTest`, `BossScalingTest`)
 - [x] **12.2 Three arenas built** (templates; placed by reach-world's arena site code, 9.4; GameTests `ArenaTemplateTests`)
 - [x] **12.3 Crypt Keeper** (GameTests `CryptKeeperTests` in the real ossuary template)
-- [ ] **12.4 Ash Colossus**
+- [x] **12.4 Ash Colossus** (GameTests `AshColossusTests` in the real crater market template)
 - [ ] **12.5 Grieving Tree**
 - [ ] **12.6 Souls and Flask Shards**
 - [ ] **12.7 Ash of Rematch**
@@ -94,6 +94,27 @@ bones). Greybox assets: `python3 tools/boss_placeholders.py [name]` (helpers fro
 - Braziers are found at summon (every campfire in the arena) and remembered, so a reset or kill leaves them unlit.
 - Gear interplay (not built here): Amber Lantern Oil's offhand lantern (11.7) is not block light; if it should light
   the Keeper, reach-gear can tell me and `isLit` takes a held-light check.
+
+## 12.4 Ash Colossus
+
+`embervoid:ash_colossus`, 2.4 × 4.5, base HP 180 (~364 at Lv 18), armor 10 → 3 in P2, KB res 1, speed 0.2 → 0.26,
+250 XP before level scaling. Loot (every kill): 3–6 Cinder Shard, 2–5 charcoal. Adds per extra fighter: Cinder Husk.
+
+| Move | Telegraph | Base dmg |
+|---|---|---|
+| Fist | cone r 5.5 ±45°, 18 ticks; knockback | 8 |
+| Arm drag | cone r 6 ±70°, 16 ticks; pulls players in | 6 |
+| Leap (target 8–22 away) | ring r 4.5 at the target's spot, 22-tick crouch, then the leap; hits on landing | 9 |
+| Boulder | falling shadow r 2.5 at the target, 30 ticks | 7 |
+| Pillar smash | cone at the pillar, 20 ticks; every block within 2 of the hit column, floor + 1 to + 10, goes (back after the fight) | 8 to players in the cone |
+| Ash storm (every 20 s, first after 10 s) | 30-tick roar, then 6 s: 2 HP/s magic (flat, not level-scaled) + Blindness to every fighter it can see | — |
+| Cinders (P2, every 2.5 s) | a falling shadow r 2 near each fighter, 30 ticks; fire, burning 3 s | 5 |
+
+- Cover: a block between its core (80 % of its height) and the player's eyes. When its target is behind cover within 5
+  blocks it smashes it; farther away it walks up to it.
+- Damage by direction (from the damage source's position, against its facing): front ±60° ×0.5, back beyond ±120° ×1.5
+  (core covered, P1) / ×2 (core bare, P2), sides ×1.
+- Model bones `plates` (P1) and `core` (P2) toggle with the phase.
 
 ## Status / notes
 

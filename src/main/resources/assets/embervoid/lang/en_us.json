@@ -95,7 +95,7 @@
 	"item.embervoid.ember_heart": "Ember Heart",
 	"embervoid.ember_heart.boss": "Taken from %s",
 	"entity.embervoid.test_boss": "Test Champion",
-	"boss.embervoid.ashen_reach.zone_a": "Champion of Zone A",
+	"boss.embervoid.ashen_reach.zone_a": "Ash Colossus",
 	"boss.embervoid.ashen_reach.zone_b": "Champion of Zone B",
 	"boss.embervoid.ashen_reach.zone_c": "Crypt Keeper",
 	"boss.embervoid.ashen_reach.final": "Champion of the Depths",
@@ -324,5 +324,6 @@
 	"embervoid.zone.ashen_reach.depths": "Smoldering Citadel",
 	"item.embervoid.huntsmans_crossbow": "Huntsman's Crossbow",
 	"item.embervoid.huntsmans_crossbow.passive": "Slow to load; bolts hit harder, knock back hard and pierce a foe",
-	"entity.embervoid.crypt_keeper": "Crypt Keeper"
+	"entity.embervoid.crypt_keeper": "Crypt Keeper",
+	"entity.embervoid.ash_colossus": "Ash Colossus"
 }

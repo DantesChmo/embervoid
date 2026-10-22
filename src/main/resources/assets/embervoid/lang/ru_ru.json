@@ -95,7 +95,7 @@
 	"item.embervoid.ember_heart": "Тлеющее сердце",
 	"embervoid.ember_heart.boss": "Добыто у: %s",
 	"entity.embervoid.test_boss": "Испытательный чемпион",
-	"boss.embervoid.ashen_reach.zone_a": "Чемпион зоны A",
+	"boss.embervoid.ashen_reach.zone_a": "Пепельный колосс",
 	"boss.embervoid.ashen_reach.zone_b": "Чемпион зоны B",
 	"boss.embervoid.ashen_reach.zone_c": "Хранитель склепа",
 	"boss.embervoid.ashen_reach.final": "Чемпион глубин",
@@ -324,5 +324,6 @@
 	"embervoid.zone.ashen_reach.depths": "Тлеющая цитадель",
 	"item.embervoid.huntsmans_crossbow": "Арбалет королевского ловчего",
 	"item.embervoid.huntsmans_crossbow.passive": "Долго заряжается; болты бьют сильнее, мощно отбрасывают и пробивают врага",
-	"entity.embervoid.crypt_keeper": "Хранитель склепа"
+	"entity.embervoid.crypt_keeper": "Хранитель склепа",
+	"entity.embervoid.ash_colossus": "Пепельный колосс"
 }

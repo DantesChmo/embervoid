@@ -135,6 +135,11 @@ public abstract class ReachBoss extends HostileEntity implements ArenaBoss, GeoE
 		}
 	}
 
+	/** Keeps the brain from picking a move for {@code ticks} ticks (tests drive moves themselves). */
+	public void holdMoves(int ticks) {
+		moveCooldown = ticks;
+	}
+
 	/** Every server tick, AI or not (phase effects, hazards); moves are picked in the AI tick after it. */
 	protected void tickBoss() {
 	}

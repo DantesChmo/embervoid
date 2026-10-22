@@ -16,8 +16,16 @@ public final class ReachBossEntities {
 					.fireImmune()
 					.build());
 
+	public static final EntityType<AshColossusEntity> ASH_COLOSSUS = ModEntities.register("ash_colossus",
+			FabricEntityTypeBuilder.<AshColossusEntity>create(SpawnGroup.MONSTER, AshColossusEntity::new)
+					.dimensions(EntityDimensions.fixed(2.4f, 4.5f))
+					.trackRangeBlocks(96)
+					.fireImmune()
+					.build());
+
 	static void register() {
 		FabricDefaultAttributeRegistry.register(CRYPT_KEEPER, CryptKeeperEntity.createAttributes());
+		FabricDefaultAttributeRegistry.register(ASH_COLOSSUS, AshColossusEntity.createAttributes());
 	}
 
 	private ReachBossEntities() {}
