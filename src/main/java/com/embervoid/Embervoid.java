@@ -20,6 +20,7 @@ import com.embervoid.registry.ModItemGroups;
 import com.embervoid.registry.ModItems;
 import com.embervoid.registry.ModSounds;
 import com.embervoid.registry.ModStructures;
+import com.embervoid.reliquary.ReliquaryInit;
 import com.embervoid.sanctum.Sanctum;
 import com.embervoid.stats.StatEffects;
 import com.embervoid.vampire.VampireInit;
@@ -64,6 +65,7 @@ public class Embervoid implements ModInitializer {
 		Sanctum.register();
 		MoonInit.register();
 		VampireInit.register();
+		ReliquaryInit.register();
 
 		LOGGER.info("Embervoid: the embers stir...");
 	}

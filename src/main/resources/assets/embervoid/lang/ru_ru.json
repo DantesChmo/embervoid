@@ -183,5 +183,11 @@
 	"embervoid.vampire.boss.left": "Охотиться больше не на кого, и вампир растворяется в ночи",
 	"embervoid.vampire.arena.pulled": "Кровавая луна затягивает вас во владения вампира",
 	"embervoid.vampire.arena.closing": "Владения вампира рассеются через %s с",
-	"embervoid.vampire.arena.remnant_moved": "Ваш пепельный останок вынесен из владений вампира: %s %s %s"
+	"embervoid.vampire.arena.remnant_moved": "Ваш пепельный останок вынесен из владений вампира: %s %s %s",
+	"key.categories.embervoid": "Embervoid",
+	"key.embervoid.reliquary": "Открыть реликварий",
+	"embervoid.reliquary.title": "Реликварий",
+	"embervoid.reliquary.button": "Реликварий (%s)",
+	"embervoid.reliquary.slot.artifact": "Артефакт",
+	"embervoid.reliquary.slot.ring": "Кольцо"
 }
