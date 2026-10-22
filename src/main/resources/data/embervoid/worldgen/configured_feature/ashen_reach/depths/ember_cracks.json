@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:disk",
+  "config": {
+    "state_provider": {
+      "fallback": {
+        "type": "minecraft:simple_state_provider",
+        "state": {
+          "Name": "embervoid:ember_crack"
+        }
+      },
+      "rules": []
+    },
+    "target": {
+      "type": "minecraft:matching_blocks",
+      "blocks": [
+        "embervoid:ash_soil",
+        "minecraft:blackstone",
+        "embervoid:cobbled_ash_stone"
+      ]
+    },
+    "radius": {
+      "type": "minecraft:uniform",
+      "value": {
+        "min_inclusive": 0,
+        "max_inclusive": 2
+      }
+    },
+    "half_height": 1
+  }
+}

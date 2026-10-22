@@ -3,8 +3,8 @@
   "temperature": 0.6,
   "downfall": 0.0,
   "effects": {
-    "fog_color": 4857360,
-    "sky_color": 3807248,
+    "fog_color": 3937292,
+    "sky_color": 5905426,
     "water_color": 4147786,
     "water_fog_color": 1712160,
     "grass_color": 7232064,
@@ -19,7 +19,12 @@
       "options": {
         "type": "minecraft:ash"
       },
-      "probability": 0.01
+      "probability": 0.02
+    },
+    "ambient_sound": "minecraft:ambient.basalt_deltas.loop",
+    "additions_sound": {
+      "sound": "minecraft:ambient.basalt_deltas.additions",
+      "tick_chance": 0.0111
     }
   },
   "spawners": {
@@ -44,7 +49,10 @@
     [],
     [],
     [],
-    [],
+    [
+      "embervoid:ashen_reach/depths/ember_cracks",
+      "embervoid:ashen_reach/depths/smoldering_debris"
+    ],
     []
   ]
 }
