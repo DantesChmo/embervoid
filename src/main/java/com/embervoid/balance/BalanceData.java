@@ -190,11 +190,11 @@ public final class BalanceData {
 			List.of(melee("swing", 4, 20)));
 	public static final Mob GHOST = new Mob("ghost", "Ghost", null, Role.FLYER, 48, 0, 0, 8, 40, false,
 			List.of(melee("touch", 8, 20)));
-	public static final Boss VAMPIRE = new Boss("vampire_boss", "Vampire boss", null, 15, 220, 4, 7, 200,
+	public static final Boss VAMPIRE = new Boss("vampire_boss", "Vampire boss", null, 15, 220, 4, 5, 200,
 			1, 1, "-", 0, 4, 1, 1, "-", List.of(
-					melee("claw", 7, 30),
-					melee("leap", 9, 0),
-					melee("blood nova (heals 25 %)", 10, 0)));
+					melee("claw", 5, 30),
+					melee("leap", 7, 0),
+					melee("blood nova (heals 25 %)", 7.5, 0)));
 
 	// --- Where the XP comes from (R40.1a "a normal playthrough") ------------------------------------------------
 
