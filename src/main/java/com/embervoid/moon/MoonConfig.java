@@ -6,8 +6,8 @@ import com.embervoid.config.SectionReader;
 import com.google.gson.JsonObject;
 
 /**
- * The {@code moon} config section (DESIGN §3.3, §10.12). Holds the numbers of all three 0.3.0 tracks, so the night
- * mobs and the Vampire read their keys here too.
+ * The {@code moon} config section (DESIGN §3.3, §10.12): the moon nights themselves. The night mobs and the Vampire
+ * keep their numbers in their own sections.
  *
  * @param enabled         false: no moon night starts on its own (the debug command still works)
  * @param cycleInterval   events come every this many lunar cycles (8 days each), first in cycle {@code cycleInterval}
@@ -17,22 +17,17 @@ import com.google.gson.JsonObject;
  */
 public record MoonConfig(boolean enabled, int cycleInterval, float fallbackMinutes, FullMoon fullMoon, Blood blood) {
 	/**
-	 * @param levelBonus       extra levels for overworld hostiles that spawn on a full moon
-	 * @param followRange      follow range multiplier for overworld hostiles during a full moon
-	 * @param zombieLevelBonus Ashen Zombie level = spot level + this
-	 * @param ghostMissChance  chance that a hit on a Ghost misses
+	 * @param levelBonus  extra levels for overworld hostiles that spawn on a full moon
+	 * @param followRange follow range multiplier for overworld hostiles during a full moon
 	 */
-	public record FullMoon(int levelBonus, float followRange, int zombieLevelBonus, float ghostMissChance) {}
+	public record FullMoon(int levelBonus, float followRange) {}
 
-	/**
-	 * @param vampirism      share of the damage a hostile deals to a player that heals it
-	 * @param provokeMinutes after this many minutes with no Vampire provoked, the nearest one turns
-	 */
-	public record Blood(float vampirism, float provokeMinutes) {}
+	/** @param vampirism share of the damage a hostile deals to a player that heals it */
+	public record Blood(float vampirism) {}
 
 	public static final MoonConfig DEFAULT = new MoonConfig(true, 3, 30,
-			new FullMoon(3, 1.5f, 5, 0.15f),
-			new Blood(0.25f, 5));
+			new FullMoon(3, 1.5f),
+			new Blood(0.25f));
 
 	public static final ConfigSection<MoonConfig> SECTION = EmbervoidConfig.register(ConfigSection.of(
 			"moon", DEFAULT, MoonConfig::read, MoonConfig::write));
@@ -57,12 +52,8 @@ public record MoonConfig(boolean enabled, int cycleInterval, float fallbackMinut
 				in.readFloat("fallbackMinutes", DEFAULT.fallbackMinutes, 1, 24 * 60),
 				new FullMoon(
 						full.readInt("levelBonus", fullDef.levelBonus, 0, 100),
-						full.readFloat("followRange", fullDef.followRange, 1, 10),
-						full.readInt("zombieLevelBonus", fullDef.zombieLevelBonus, 0, 100),
-						full.readFloat("ghostMissChance", fullDef.ghostMissChance, 0, 1)),
-				new Blood(
-						blood.readFloat("vampirism", bloodDef.vampirism, 0, 10),
-						blood.readFloat("provokeMinutes", bloodDef.provokeMinutes, 0, 60)));
+						full.readFloat("followRange", fullDef.followRange, 1, 10)),
+				new Blood(blood.readFloat("vampirism", bloodDef.vampirism, 0, 10)));
 	}
 
 	private static void write(MoonConfig value, JsonObject out) {
@@ -72,12 +63,9 @@ public record MoonConfig(boolean enabled, int cycleInterval, float fallbackMinut
 		JsonObject full = new JsonObject();
 		full.addProperty("levelBonus", value.fullMoon.levelBonus);
 		full.addProperty("followRange", value.fullMoon.followRange);
-		full.addProperty("zombieLevelBonus", value.fullMoon.zombieLevelBonus);
-		full.addProperty("ghostMissChance", value.fullMoon.ghostMissChance);
 		out.add("fullMoon", full);
 		JsonObject blood = new JsonObject();
 		blood.addProperty("vampirism", value.blood.vampirism);
-		blood.addProperty("provokeMinutes", value.blood.provokeMinutes);
 		out.add("blood", blood);
 	}
 }
