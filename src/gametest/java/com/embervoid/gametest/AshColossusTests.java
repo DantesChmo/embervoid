@@ -32,7 +32,7 @@ public final class AshColossusTests implements FabricGameTest {
 	}
 
 	/** Front hits are halved, back hits ×1.5 while the core is covered and ×2 once it is bare. */
-	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "colossus_sides", tickLimit = 400)
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "colossus_sides", tickLimit = PlacedFight.LOAD_LIMIT + 400)
 	public void damageDependsOnWhereItComesFrom(TestContext context) {
 		start(context, 0, new int[][]{{0, 0, 6}, {0, 0, -6}}, f -> {
 			AshColossusEntity boss = f.boss;
@@ -64,7 +64,7 @@ public final class AshColossusTests implements FabricGameTest {
 	}
 
 	/** The ash storm hurts and blinds a player it can see; a granary pillar shelters the one behind it. */
-	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "colossus_storm", tickLimit = 400)
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "colossus_storm", tickLimit = PlacedFight.LOAD_LIMIT + 400)
 	public void stormHurtsOnlyThoseItSees(TestContext context) {
 		start(context, 1, new int[][]{OPEN, BEHIND_PILLAR}, f -> {
 			f.boss.setAiDisabled(true);
@@ -85,7 +85,7 @@ public final class AshColossusTests implements FabricGameTest {
 	}
 
 	/** A smashed pillar is gone during the fight and stands again after it. */
-	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "colossus_smash", tickLimit = 400)
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "colossus_smash", tickLimit = PlacedFight.LOAD_LIMIT + 400)
 	public void smashedPillarComesBack(TestContext context) {
 		start(context, 2, new int[][]{OPEN}, f -> {
 			f.boss.setAiDisabled(true);
@@ -106,7 +106,7 @@ public final class AshColossusTests implements FabricGameTest {
 	}
 
 	/** The leap lands on the ring it marked around a far player and hurts them. */
-	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "colossus_leap", tickLimit = 400)
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "colossus_leap", tickLimit = PlacedFight.LOAD_LIMIT + 400)
 	public void leapLandsOnTheMarkedRing(TestContext context) {
 		start(context, 3, new int[][]{{0, 0, 14}}, f -> {
 			ServerPlayerEntity player = f.player(0);
@@ -125,7 +125,7 @@ public final class AshColossusTests implements FabricGameTest {
 	}
 
 	/** P2 at 50 %: less armor, faster, the core bare, cinders falling around the fighters. */
-	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "colossus_shed", tickLimit = 400)
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "colossus_shed", tickLimit = PlacedFight.LOAD_LIMIT + 400)
 	public void secondPhaseShedsStone(TestContext context) {
 		start(context, 4, new int[][]{OPEN}, f -> {
 			f.boss.setAiDisabled(true);

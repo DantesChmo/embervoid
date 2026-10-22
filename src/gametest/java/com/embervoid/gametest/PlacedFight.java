@@ -23,6 +23,8 @@ import java.util.function.Consumer;
  * the test. The boss's brain is held (no moves of its own) unless the test lets it go.
  */
 final class PlacedFight<T extends ReachBoss> {
+	/** Ticks to wait for the far arena's chunks to generate and tick (it varies a lot on the test server). */
+	static final int LOAD_LIMIT = 1000;
 	final BossArena arena;
 	final ArenaFrame frame;
 	final List<ServerPlayerEntity> players = new ArrayList<>();
@@ -40,7 +42,7 @@ final class PlacedFight<T extends ReachBoss> {
 		// The fight area: the middle and the fog wall north, south, east and west (the Lord stands by the wall).
 		int r = arena.radius();
 		List<BlockPos> area = List.of(center.up(), center.add(-r, 1, 0), center.add(r, 1, 0), center.add(0, 1, -r), center.add(0, 1, r));
-		placed.arena.await(() -> area.stream().allMatch(pos -> placed.world().shouldTickEntity(pos)), 300, "the arena chunks to tick", () -> {
+		placed.arena.await(() -> area.stream().allMatch(pos -> placed.world().shouldTickEntity(pos)), LOAD_LIMIT, "the arena chunks to tick", () -> {
 			ArenaSpec spec = new ArenaSpec(new Identifier("embervoid", bossId), type, level, arena.radius());
 			placed.fight = placed.arena.startAt(spec, center);
 			if (placed.fight.boss() == null || placed.fight.boss().getType() != type) {

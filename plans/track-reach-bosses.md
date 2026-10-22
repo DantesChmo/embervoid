@@ -187,5 +187,8 @@ extra fighter: Cinder Hound. Killing him completes the realm (existing `BossFigh
 - Started 2026-10-22.
 - GameTests use `BossArena` (stone floor, real joined players, fights through `ArenaManager.start`) with the framework's
   test boss, AI off. One batch per test (fights are global).
+- Far-away test arenas: their chunks are forced and every test waits (up to `PlacedFight.LOAD_LIMIT`, 1000 ticks)
+  until the fight area's chunks tick; without that a boss spawned or moved into a still-loading chunk is not found and
+  the fight resets (the cause of the flaky `RematchTests` and slow-loading Colossus tests).
 - Server check: not run in this worktree (its run folder needs the Minecraft EULA accepted; left to the coordinator).
 - `BossConfig.SECTION` is loaded in `BossInit`, so a config parsed before any fight (tests, the client) has the `boss` keys.

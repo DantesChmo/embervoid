@@ -52,7 +52,7 @@ public final class SmolderingLordTests implements FabricGameTest {
 	 * P0: he stands on the keep wall with two Sparking Marksmen, untouchable; two lit braziers are not enough, the
 	 * third brings him down to the middle of the courtyard, where he can be hurt.
 	 */
-	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "lord_wall", tickLimit = 500)
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "lord_wall", tickLimit = PlacedFight.LOAD_LIMIT + 500)
 	public void waitsOnTheWallUntilTheBraziersBurn(TestContext context) {
 		start(context, 0, new int[][]{{0, 0, -10}}, f -> {
 			SmolderingLordEntity lord = f.boss;
@@ -86,7 +86,7 @@ public final class SmolderingLordTests implements FabricGameTest {
 	}
 
 	/** From the wall: a flame line across the courtyard hurts and leaves fire; mortar rings fall on the fighters. */
-	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "lord_wall_moves", tickLimit = 500)
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "lord_wall_moves", tickLimit = PlacedFight.LOAD_LIMIT + 500)
 	public void wallMovesHitTheCourtyard(TestContext context) {
 		start(context, 1, new int[][]{{0, 0, -8}, {-12, 0, -4}}, f -> {
 			ServerPlayerEntity lined = f.player(0);
@@ -113,7 +113,7 @@ public final class SmolderingLordTests implements FabricGameTest {
 	}
 
 	/** In the courtyard: the greatsword swing hits the player in front; the lunge hits a far one and leaves a fire trail. */
-	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "lord_sword", tickLimit = 500)
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "lord_sword", tickLimit = PlacedFight.LOAD_LIMIT + 500)
 	public void greatswordAndLunge(TestContext context) {
 		start(context, 2, new int[][]{{0, 0, -3}, {0, 0, -11}}, f -> {
 			ServerPlayerEntity near = f.player(0);
@@ -139,7 +139,7 @@ public final class SmolderingLordTests implements FabricGameTest {
 	 * P2 at 50 %: armor down, ×1.25 damage taken; the zone hazards in turn: an ash storm, fog for the fighters, and
 	 * darkness, in which he takes half damage away from light.
 	 */
-	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "lord_shatter", tickLimit = 600)
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "lord_shatter", tickLimit = PlacedFight.LOAD_LIMIT + 600)
 	public void armorShattersAndHazardsCycle(TestContext context) {
 		start(context, 3, new int[][]{{-6, 0, -14}}, f -> {
 			SmolderingLordEntity lord = f.boss;
