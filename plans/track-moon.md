@@ -13,6 +13,7 @@ Packages owned: `com.embervoid.moon` (main), `com.embervoid.client.moon` (client
 | API | `moon.api.MoonNights` (`current`, `NIGHT_STARTED`, `NIGHT_ENDED`, `hold`, `release`, `holds`), `moon.api.MoonNight` enum, `moon.api.CurseOfTheNight.stacks` |
 | Config | `MoonConfig`: `enabled`, `cycleInterval` 3, `fallbackMinutes` 30, `fullMoon.{levelBonus 3, followRange 1.5, zombieLevelBonus 5, ghostMissChance 0.15}`, `blood.{vampirism 0.25, provokeMinutes 5}` — keys of all three tracks |
 | Sky sync | `MoonSync` S2C `embervoid:moon_night` (night ordinal) on join, respawn, dimension change, start/end. Client `client.moon.MoonClient` fades a tint 0→1 over 100 ticks on the blood new moon in the overworld; mixins `MoonSkyColorMixin` (`ClientWorld.getSkyColor`), `MoonFogColorMixin` (`BackgroundRenderer.render` before `clearColor`, not under water/lava), `MoonRenderMixin` (shader colour before the moon texture in `WorldRenderer.renderSky`) |
+| Full moon mobs | `FullMoonMobs`: `MobLevels` provider (overworld, full moon: default level + `levelBonus`, kept after the night); transient follow-range modifier (×`followRange`, MULTIPLY_TOTAL) on load and on all loaded overworld hostiles at start, removed at the end; `TrackTargetGoalMixin` keeps a player target within follow range when the goal would drop it (only while `mob.getTarget()` is still set, so deliberate clears like the Ember Wisp's flee stay) |
 | Debug | `/embervoid moon status | start full | start blood | stop | setcycle <n>` |
 
 Decisions made here (small, easy to change):
@@ -30,6 +31,6 @@ Decisions made here (small, easy to change):
 - [x] 8.1 Moon-night state + `moon.api` (schedule JUnit-tested)
 - [x] 8.2 Night hold (time freeze), dawn on release, sleep block, fallback, announcements
 - [x] 8.3 Blood-red sky sync
-- [ ] 8.4 Full moon mob modifiers
+- [x] 8.4 Full moon mob modifiers
 - [ ] 8.5 Curse of the Night
 - [ ] 8.6 Vampirism
