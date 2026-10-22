@@ -10,7 +10,7 @@ Track branch `claude/release-art-4ffe4e`. Owns `tools/model_preview.py`, the `to
 | R40.2a Offline model preview | done | `tools/model_preview.py` |
 | R40.2b Zone mobs art | done | `tools/reach_mob_art.py` (+ `tools/art_kit.py`) |
 | R40.2c Citadel mobs, bosses, small entities | done | `tools/reach_mob_art.py`, `tools/reach_boss_art.py`, `tools/reach_item_art.py` |
-| R40.2d Texture consistency (items, armor, blocks, Reliquary GUI) | todo | |
+| R40.2d Texture consistency (items, armor, blocks, Reliquary GUI) | done | `tools/reach_item_art.py`, `tools/reach_armor_art.py`, `tools/reach_gui_art.py` |
 
 ## R40.2a — model preview
 
@@ -98,6 +98,32 @@ Animation changes: none in timing; Smoldering Lord's greatsword now hangs point-
 forward by the bone's rest rotation (the greybox held it pointing up past the shoulder, so swings pointed it
 backward): low guard at idle, over the shoulder in the slam windup, forward in the lunge. Some idle/walk secondary
 motion (head, crown, branches, walk bob).
+
+## R40.2d — items, armor, blocks, Reliquary GUI
+
+- Items (`tools/reach_item_art.py`): one style for every Realm 1 icon — coloured outline (a dark shade of the
+  colour it borders, as vanilla, instead of one near-black), light from the top left with a 1 px bevel. The gear
+  and reliquary placeholder silhouettes (materials, consumables, scythe, scourge, rapier, artifacts, rings) are
+  kept and restyled: the script runs them, then restyles in place, so it is rerunnable;
+  `gear_placeholders.py` / `reliquary_placeholders.py` no longer run on their own. Redrawn: the four boss souls
+  (one heart, four bosses: ash stone with a seam, oak knot weeping amber, cold lantern flame, burning heart in
+  the king's gold), Smoldering Template (ash-stone slab with a carved burning flame), Flask Shard, the six
+  Huntsman's Crossbow states (outlined stock and bow, string over them), Fire Flask, Ash Bomb.
+- Armor (`tools/reach_armor_art.py`): the worn layers painted on the vanilla armor model's box-UV regions with the
+  mob materials, covering only what a piece covers, like vanilla: Reaper's Garb (burlap hood, laced linen smock,
+  rope belt, wraps), Huntsman's Leathers (cap with a pheasant feather, studded jerkin with quiver strap, knee pads,
+  cuffed boots), Necropolis Warden (slit helm, plate with the slate tabard, pauldrons, mail chausses), Smoldering
+  Plate (black steel, gold trim, ember seams), Scarecrow's Mask (burlap sack, button eyes, stitched grin, straw),
+  Huntsman's Greaves (fur-trimmed laced leather), Drowned Sabatons (verdigris plate, barnacles, weed), Furnace
+  Heart Cuirass (cast iron, glowing grate). The 20 icons share one silhouette per slot (as vanilla) in the set's
+  colours; the uniques draw their own.
+- Blocks: unchanged — they are the style reference, and the preview shows them consistent (ash stone, bricks, ores,
+  dead wood, crypt stone, lantern). The item palettes were checked against them.
+- Reliquary GUI (`tools/reach_gui_art.py` → `textures/gui/reliquary.png`): the vanilla container panel (so it sits
+  with the inventory it opens from) with the player model in a bronze-framed alcove with ember corners, and two
+  slot sprites (vanilla, and accessory with bronze corners). Slots are not baked in (their kinds and counts are
+  data): `ReliquaryScreen` draws a sprite at every slot. `--mock PATH` writes the screen with 0.4.0's slots.
+  Java: `client.reliquary.ReliquaryScreen` draws the texture instead of fills (separate commit).
 
 ## Decisions
 

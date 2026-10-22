@@ -139,8 +139,5 @@ def rings():
 
 
 if __name__ == "__main__":
-    empty_slot_icons()
-    button_icon()
-    artifacts()
-    rings()
-    print("Wrote Reliquary placeholder textures")
+    # tools/reach_item_art.py runs these and restyles the artifacts and rings; run it instead.
+    print("Run python3 tools/reach_item_art.py.")

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Writes placeholder item textures for the Ashen Reach gear (PLAN milestone 11, track reach-gear).
 
-Run from the repository root: python3 tools/gear_placeholders.py
-Each icon is a 16x16 ASCII sketch; a letter is a palette colour, '.' is transparent. Stand-ins until the art pass.
+The 16x16 ASCII silhouettes of the Ashen Reach gear (a letter is a palette colour, '.' is transparent) and the
+Bleeding effect icon. Not run on its own: tools/reach_item_art.py runs these functions and restyles the output
+(PLAN R40.2d); armor lives in tools/reach_armor_art.py.
 """
 import os
 import sys
@@ -195,129 +196,6 @@ EMBER = [
     "......oooo......",
     "................",
 ]
-
-
-HELMET = [
-    "................",
-    "................",
-    "................",
-    "....oooooooo....",
-    "...oLLLLLLLMo...",
-    "..oLLMMMMMMMDo..",
-    "..oLMMMMMMMMDo..",
-    "..oLMMMMMMMMDo..",
-    "..oLMooooooDMo..",
-    "..oLMo....oDMo..",
-    "..oMDo....oDDo..",
-    "...oo......oo...",
-    "................",
-    "................",
-    "................",
-    "................",
-]
-
-CHESTPLATE = [
-    "................",
-    "..ooo......ooo..",
-    ".oLLLoooooooLMo.",
-    ".oLMMLLLLLLMMDo.",
-    ".oLMMMMEEMMMMDo.",
-    "..ooLMMEEMMMoo..",
-    "....oLMMMMDo....",
-    "....oLMMMMDo....",
-    "....oLMMMMDo....",
-    "....oLMMMMDo....",
-    "....oMMMMMDo....",
-    "....oMMMMDDo....",
-    "....oDDDDDDo....",
-    ".....oooooo.....",
-    "................",
-    "................",
-]
-
-LEGGINGS = [
-    "................",
-    "................",
-    "...oooooooooo...",
-    "...oLLLLLLLMo...",
-    "...oLMMEEMMDo...",
-    "...oLMMooMMDo...",
-    "...oLMDooLMDo...",
-    "...oLMDooLMDo...",
-    "...oLMDooLMDo...",
-    "...oLMDooLMDo...",
-    "...oLMDooLMDo...",
-    "...oMDDooMDDo...",
-    "...ooooooooooo..",
-    "................",
-    "................",
-    "................",
-]
-
-BOOTS = [
-    "................",
-    "................",
-    "................",
-    "................",
-    "................",
-    "...oooo..oooo...",
-    "...oLMo..oLMo...",
-    "...oLMo..oLMo...",
-    "...oLMo..oLMo...",
-    "...oLMo..oLMo...",
-    "..oLMMo..oLMMo..",
-    ".oLMMDo..oLMMDo.",
-    ".oMDDDo..oMDDDo.",
-    ".oooooo..oooooo.",
-    "................",
-    "................",
-]
-
-
-def armor(name, colours, rng_seed=1):
-    """Item icons <name>_helmet|chestplate|leggings|boots and the worn layers."""
-    for piece, rows in (("helmet", HELMET), ("chestplate", CHESTPLATE), ("leggings", LEGGINGS), ("boots", BOOTS)):
-        icon(name + "_" + piece, rows, palette(*colours))
-    layers(name, colours, rng_seed)
-
-
-def layers(name, colours, rng_seed=1):
-    """Worn armor layers (minecraft namespace, see GearArmorMaterial): a plain suit in the material's colours, one
-    accent band. The game only draws the parts of the slots the material has pieces for."""
-    import random
-    light, mid, dark, accent = colours
-    rng = random.Random(rng_seed)
-    layer_dir = os.path.join("src", "main", "resources", "assets", "minecraft", "textures", "models", "armor")
-    one = Canvas(64, 32)
-    one.rect(0, 0, 32, 16, mid, 10, rng)  # head
-    one.rect(8, 0, 16, 8, light, 10, rng)  # head top / front band
-    one.rect(16, 16, 24, 16, mid, 10, rng)  # body
-    one.rect(20, 20, 8, 3, accent)  # chest band
-    one.rect(40, 16, 16, 16, dark, 10, rng)  # arms
-    one.rect(0, 26, 16, 6, dark, 10, rng)  # boots: lower legs
-    one.rect(8, 16, 4, 4, dark)  # boot soles
-    one.save(os.path.join(layer_dir, "embervoid_" + name + "_layer_1.png"))
-    two = Canvas(64, 32)
-    two.rect(0, 16, 16, 16, mid, 10, rng)  # legs
-    two.rect(16, 16, 24, 16, dark, 10, rng)  # hips
-    two.rect(20, 26, 8, 2, accent)  # belt
-    two.save(os.path.join(layer_dir, "embervoid_" + name + "_layer_2.png"))
-
-
-def armor_sets():
-    armor("smoldering", ((104, 92, 90, 255), (64, 54, 54, 255), (38, 32, 34, 255), (246, 112, 36, 255)))
-    armor("reaper", ((170, 156, 128, 255), (118, 104, 82, 255), (72, 62, 50, 255), (196, 70, 40, 255)))
-    armor("huntsman", ((122, 140, 90, 255), (84, 100, 62, 255), (52, 62, 40, 255), (214, 160, 70, 255)))
-    armor("warden", ((150, 158, 176, 255), (98, 106, 124, 255), (58, 64, 80, 255), (180, 196, 230, 255)), 3)
-    uniques = (
-        ("scarecrow_mask", "scarecrow_mask", HELMET, ((214, 190, 120, 255), (160, 134, 74, 255), (96, 78, 44, 255), (40, 30, 24, 255))),
-        ("huntsman_greaves", "huntsman_greaves", LEGGINGS, ((150, 116, 76, 255), (108, 80, 50, 255), (66, 48, 30, 255), (226, 186, 90, 255))),
-        ("drowned_sabatons", "drowned_sabatons", BOOTS, ((110, 160, 150, 255), (64, 110, 104, 255), (34, 66, 64, 255), (170, 220, 210, 255))),
-        ("furnace_heart_cuirass", "furnace_heart", CHESTPLATE, ((120, 80, 70, 255), (76, 46, 40, 255), (44, 26, 24, 255), (255, 150, 40, 255))),
-    )
-    for item, material, rows, colours in uniques:
-        icon(item, rows, palette(*colours))
-        layers(material, colours, 7)
 
 
 SCYTHE = [
@@ -578,10 +456,6 @@ def effects():
 
 
 if __name__ == "__main__":
-    materials()
-    boss_items()
-    effects()
-    armor_sets()
-    weapons()
-    consumables()
-    print("Wrote reach gear placeholder textures")
+    # The silhouettes here are restyled by tools/reach_item_art.py, which runs them; armor is in
+    # tools/reach_armor_art.py. Run those instead, so the final art is not replaced by the raw sketches.
+    print("Run python3 tools/reach_item_art.py (items) and python3 tools/reach_armor_art.py (armor).")
