@@ -2,10 +2,13 @@ package com.embervoid.reach.gear;
 
 import com.embervoid.registry.ModItems;
 import com.embervoid.stats.WeaponScaling;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.Item;
 import net.minecraft.util.Rarity;
 
 import java.util.List;
+import java.util.Set;
 
 /** The realm's unique weapons, one per boss soul (DESIGN §4.5 "Weapons"). */
 public final class GearWeapons {
@@ -23,9 +26,22 @@ public final class GearWeapons {
 
 	public static final List<Item> MELEE = List.of(ASHEN_SCYTHE, WARDENS_SCOURGE, ROYAL_ASH_RAPIER);
 
+	/**
+	 * The sword enchantments the realm melee weapons take on the anvil and the enchanting table (R40.1c): without them
+	 * an enchanted netherite sword out-damaged every realm weapon. Not Sweeping Edge: only swords sweep the vanilla
+	 * way, and the Scythe has its own sweep.
+	 */
+	public static final Set<Enchantment> SWORD_ENCHANTMENTS = Set.of(Enchantments.SHARPNESS, Enchantments.SMITE,
+			Enchantments.BANE_OF_ARTHROPODS, Enchantments.FIRE_ASPECT, Enchantments.LOOTING, Enchantments.KNOCKBACK);
+
 	/** Charge 2.0 s, bolts ≈ 1.5×, Punch III knockback, pierce 1. DEX 0.5 / STR 0.5. */
 	public static final Item HUNTSMANS_CROSSBOW = ModItems.register("huntsmans_crossbow",
 			new HuntsmansCrossbowItem(new Item.Settings().maxDamage(1200).rarity(Rarity.EPIC).fireproof()));
+
+	/** Whether {@code item} is a realm melee weapon and {@code enchantment} one of {@link #SWORD_ENCHANTMENTS}. */
+	public static boolean takesSwordEnchantment(Enchantment enchantment, Item item) {
+		return item instanceof GearWeaponItem && SWORD_ENCHANTMENTS.contains(enchantment);
+	}
 
 	private static Item.Settings settings() {
 		return new Item.Settings().maxDamage(DURABILITY).rarity(Rarity.EPIC).fireproof();
