@@ -143,5 +143,7 @@
 	"embervoid.derived.flask_heal": "Flask healing",
 	"embervoid.derived.armor_toughness": "Armor toughness",
 	"embervoid.derived.fire_reduction": "Fire damage reduction",
-	"embervoid.derived.luck": "Luck"
+	"embervoid.derived.luck": "Luck",
+	"entity.embervoid.ashen_zombie": "Ashen Zombie",
+	"item.embervoid.ashen_zombie_spawn_egg": "Ashen Zombie Spawn Egg"
 }

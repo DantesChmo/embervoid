@@ -143,5 +143,7 @@
 	"embervoid.derived.flask_heal": "Лечение флягой",
 	"embervoid.derived.armor_toughness": "Прочность брони",
 	"embervoid.derived.fire_reduction": "Снижение урона от огня",
-	"embervoid.derived.luck": "Удача"
+	"embervoid.derived.luck": "Удача",
+	"entity.embervoid.ashen_zombie": "Пепельный зомби",
+	"item.embervoid.ashen_zombie_spawn_egg": "Яйцо призыва пепельного зомби"
 }
