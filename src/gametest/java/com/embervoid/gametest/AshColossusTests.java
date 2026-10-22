@@ -111,14 +111,18 @@ public final class AshColossusTests implements FabricGameTest {
 		start(context, 3, new int[][]{{0, 0, 14}}, f -> {
 			ServerPlayerEntity player = f.player(0);
 			Vec3d[] from = new Vec3d[1];
+			Vec3d[] mark = new Vec3d[1];
 			f.arena.after(BossArena.JOIN_INVULNERABLE_TICKS, () -> {
 				from[0] = f.boss.getPos();
+				mark[0] = player.getPos();
 				f.boss.leap(player);
 			});
 			f.arena.after(BossArena.JOIN_INVULNERABLE_TICKS + 80, () -> {
 				context.assertTrue(player.getHealth() < player.getMaxHealth(), "the landing did not hit: boss from " + from[0] + " now "
 						+ f.boss.getPos() + " on ground " + f.boss.isOnGround() + ", player " + player.getPos() + ", ai off " + f.boss.isAiDisabled());
-				context.assertTrue(f.boss.squaredDistanceTo(player) < 6 * 6, "landed " + f.boss.distanceTo(player) + " blocks away");
+				// The landing knocks the player away, so measure from the marked spot.
+				double off = Math.hypot(f.boss.getX() - mark[0].x, f.boss.getZ() - mark[0].z);
+				context.assertTrue(off < 4.5, "landed " + off + " blocks from the marked spot");
 				f.arena.finish();
 			});
 		});
