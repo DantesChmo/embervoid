@@ -4,8 +4,8 @@ Scope: PLAN 10.1–10.7, then 13.3 (Realm 1 bestiary, DESIGN §4.5). Branch `cla
 
 | # | Task | Status |
 |---|---|---|
-| 10.1 | Greybox pipeline, shared base, spawns, base levels, basic drops | done |
-| 10.2 | Cinder Husk, Ash Stalker | todo |
+| 10.1 | Greybox pipeline, shared base, spawns, base levels, basic drops | merged |
+| 10.2 | Cinder Husk, Ash Stalker | done |
 | 10.3 | Ashen Carrion | todo |
 | 10.4 | Withered Thrall (+ hanging cage), Lantern Hag | todo |
 | 10.5 | Bark Hollow | todo |
@@ -63,7 +63,25 @@ Scope: PLAN 10.1–10.7, then 13.3 (Realm 1 bestiary, DESIGN §4.5). Branch `cla
 - **Russian names:** Обугленный остов, Пепельный ловчий, Пепельный падальщик, Иссохший невольник, Карга с фонарём,
   Полый древень, Неупокоенные кости, Склепная моль, Полый часовой, Кладбищенский звонарь.
 
-## GameTests (`ReachMobTests`)
+## Cinder Husk, Ash Stalker (10.2)
+
+- **Cinder Husk:** plain telegraphed melee from the base (10-tick raised-arm windup, 30-tick cooldown); natural
+  groups of 2–4 in the Fields.
+- **Ash Stalker:** buried state (synced state byte; drawn invisible through `isInvisible`, since vanilla resets the
+  invisibility flag from status effects), invulnerable, not pushable, no AI. A survival player within 5 blocks sets
+  it off: 20 ticks of boiling ash, hiss and the emerge animation (now visible, still invulnerable), then a leap at
+  that player (hits once on contact within 15 ticks), then normal melee (8-tick claw). Without a target for 10 s on
+  the ground it buries itself again. Natural and placed ones start buried; spawn eggs do not.
+- **Scarecrow's Mask hook** (for track reach-gear): `AshStalkerEntity.addAmbushImmunity(Predicate<PlayerEntity>)` —
+  a matching player never sets a buried stalker off.
+
+## GameTests (`ReachMobTests`, `ReachFieldsTests`, …)
+
+Test API traps: `TestContext.spawnMob` clears the mob's goals (AI tests use `ReachTests.mob`, i.e.
+`spawnEntity`), and the mock test player always says `isCreative()`, so mobs that skip creative players ignore it
+(tests use `ReachTests.player`, a real joined survival player). A failed assertion removes the test's players
+(`ReachTests.guard`). Tests where a mob reacts to players or chases run in a batch of their own. Relative y 0 is the
+ground; a mob without AI spawned at y 1 floats.
 
 | Test | Checks |
 |---|---|
@@ -72,3 +90,7 @@ Scope: PLAN 10.1–10.7, then 13.3 (Realm 1 bestiary, DESIGN §4.5). Branch `cla
 | `placedTagMakesAGuard` | tag → placed, persistent, guards its spot; survives save/load; ordinary spawn not placed |
 | `naturalSpawnsOnlyInTheirZone` | spawn entries only in the right zone biome; tanks/elites nowhere |
 | `everyMobHasBasicDrops` | every mob has a loot table |
+| `cinderHuskChasesAndHitsAfterTheWindup` | with AI on the husk walks up and hits no sooner than its windup |
+| `ashStalkerAmbushesAPlayerWithinFive` | buried: invisible, no damage; player at 7 nothing; at 3 → boils 20 ticks (invulnerable) → out, targets the player |
+| `ambushImmunityKeepsTheStalkerBuried` | a player matching an ambush immunity does not set it off |
+| `ashStalkerReburiesWhenAlone` | out with nothing to hunt → buried again after 10 s |

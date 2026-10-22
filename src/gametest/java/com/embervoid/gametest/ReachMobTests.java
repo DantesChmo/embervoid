@@ -30,7 +30,8 @@ import java.util.stream.Collectors;
 public final class ReachMobTests implements FabricGameTest {
 	/** A 100 HP target that does not move or fight back. */
 	static IronGolemEntity dummy(TestContext context, int x, int z) {
-		IronGolemEntity golem = context.spawnMob(EntityType.IRON_GOLEM, x, 1, z);
+		// On the ground (relative y 0 is the floor's top layer of air): with no AI it would float where it spawned.
+		IronGolemEntity golem = context.spawnMob(EntityType.IRON_GOLEM, x, 0, z);
 		golem.setAiDisabled(true);
 		return golem;
 	}
