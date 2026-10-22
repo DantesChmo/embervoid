@@ -10,7 +10,8 @@
 		"MoonRenderMixin",
 		"RealmFogMixin",
 		"GearPlayerEntityRendererMixin",
-		"GearHeldItemRendererMixin"
+		"GearHeldItemRendererMixin",
+		"DepthsSkyColorMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
