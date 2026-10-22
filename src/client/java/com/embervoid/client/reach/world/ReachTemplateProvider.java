@@ -28,6 +28,7 @@ public class ReachTemplateProvider implements DataProvider {
 	public static Map<Identifier, TemplateBuilder> all() {
 		Map<Identifier, TemplateBuilder> templates = new LinkedHashMap<>();
 		templates.putAll(OutpostTemplates.all());
+		templates.putAll(MinorTemplates.all());
 		return templates;
 	}
 

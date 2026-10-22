@@ -1,0 +1,35 @@
+{
+  "structures": [
+    {
+      "structure": "embervoid:ashen_reach/necropolis/mausoleum_small",
+      "weight": 4
+    },
+    {
+      "structure": "embervoid:ashen_reach/necropolis/mausoleum_large",
+      "weight": 2
+    },
+    {
+      "structure": "embervoid:ashen_reach/necropolis/grave_rows",
+      "weight": 4
+    },
+    {
+      "structure": "embervoid:ashen_reach/necropolis/chapel",
+      "weight": 1
+    },
+    {
+      "structure": "embervoid:ashen_reach/necropolis/ossuary_pit",
+      "weight": 3
+    },
+    {
+      "structure": "embervoid:ashen_reach/necropolis/collapsed_tomb",
+      "weight": 3
+    }
+  ],
+  "placement": {
+    "type": "embervoid:realm_scatter",
+    "salt": 551211,
+    "spacing": 9,
+    "separation": 3,
+    "clearance": 24
+  }
+}
