@@ -43,6 +43,16 @@ public final class ArenaManager {
 				}
 			}
 		});
+		// Target switching counts who hurts the boss (DESIGN §4.5 "Multiplayer").
+		ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
+			if (entity instanceof ArenaBoss && source.getAttacker() instanceof ServerPlayerEntity player) {
+				BossFight fight = fightOf(entity.getUuid());
+				if (fight != null) {
+					fight.recordDamage(player, amount);
+				}
+			}
+			return true;
+		});
 		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
 			FIGHTS.values().forEach(BossFight::reset);
 			FIGHTS.clear();
@@ -63,10 +73,7 @@ public final class ArenaManager {
 	}
 
 	private static void tick(ServerWorld world) {
-		if (!Realms.isRealm(world)) {
-			return;
-		}
-		if (world.getTime() % ENTER_CHECK_INTERVAL == 0) {
+		if (Realms.isRealm(world) && world.getTime() % ENTER_CHECK_INTERVAL == 0) {
 			for (ServerPlayerEntity player : world.getPlayers()) {
 				if (!player.isSpectator() && player.isAlive()) {
 					tryStart(world, player);
@@ -94,20 +101,48 @@ public final class ArenaManager {
 		BlockPos center = feature.piece().center();
 		double dx = player.getX() - (center.getX() + 0.5);
 		double dz = player.getZ() - (center.getZ() + 0.5);
-		ArenaKey key = new ArenaKey(world.getRegistryKey(), center);
-		if (dx * dx + dz * dz > (spec.radius() - 1) * (spec.radius() - 1) || FIGHTS.containsKey(key)
+		if (dx * dx + dz * dz > (spec.radius() - 1) * (spec.radius() - 1) || fightAt(world, center) != null
 				|| ProgressManager.hasBeatenBoss(player, spec.bossId())) {
 			return;
 		}
-		BossFight fight = new BossFight(world, spec, center);
+		start(world, spec, center);
+	}
+
+	/**
+	 * Starts a fight in any world: summons the boss at {@code center} (the arena floor block) and makes everyone inside
+	 * {@code spec.radius()} a fighter. Returns null if a fight already runs there or the boss cannot be created.
+	 * The summon rule calls this for realm arenas; GameTests and rematches call it directly.
+	 */
+	@Nullable
+	public static BossFight start(ServerWorld world, ArenaSpec spec, BlockPos center) {
+		ArenaKey key = new ArenaKey(world.getRegistryKey(), center.toImmutable());
+		BossFight running = FIGHTS.get(key);
+		if (running != null && !running.isEnded()) {
+			return null;
+		}
+		BossFight fight = new BossFight(world, spec, center.toImmutable());
 		FIGHTS.put(key, fight);
 		if (!fight.start()) {
 			FIGHTS.remove(key);
+			return null;
 		}
+		return fight;
+	}
+
+	/** The fight running at an arena center, or null. */
+	@Nullable
+	public static BossFight fightAt(ServerWorld world, BlockPos center) {
+		BossFight fight = FIGHTS.get(new ArenaKey(world.getRegistryKey(), center));
+		return fight == null || fight.isEnded() ? null : fight;
+	}
+
+	/** Ends a running fight without a kill, as if every fighter had left (debug, tests). */
+	public static void reset(BossFight fight) {
+		fight.reset();
 	}
 
 	@Nullable
-	private static BossFight fightOf(UUID bossUuid) {
+	static BossFight fightOf(UUID bossUuid) {
 		for (BossFight fight : FIGHTS.values()) {
 			if (bossUuid.equals(fight.bossUuid()) && !fight.isEnded()) {
 				return fight;

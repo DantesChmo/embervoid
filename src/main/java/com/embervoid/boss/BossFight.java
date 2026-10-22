@@ -9,9 +9,14 @@ import com.embervoid.realm.worldgen.RealmFeatures;
 import com.embervoid.registry.ModBlocks;
 import com.embervoid.sanctum.SanctumBlocks;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.attribute.EntityAttributeInstance;
+import net.minecraft.entity.attribute.EntityAttributeModifier;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.boss.BossBar;
 import net.minecraft.entity.boss.ServerBossBar;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -24,19 +29,26 @@ import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 /**
- * One running boss fight in one arena (DESIGN §4.3).
+ * One running boss fight in one arena (DESIGN §4.3, §4.5).
  *
  * <ul>
- *   <li>Started by {@link ArenaManager} when a player who has not beaten the boss enters; everyone inside joins.</li>
+ *   <li>Started by {@link ArenaManager} when a player who has not beaten the boss enters; everyone inside joins.
+ *   With n fighters the boss has ×(1 + 0.5·(n − 1)) HP and brings n − 1 adds ({@link BossConfig}).</li>
  *   <li>Fog wall: a cylinder at the arena radius. Fighters cannot walk out, others cannot walk in.</li>
  *   <li>A fighter leaves by dying, logging out or getting out some other way (pearl, teleport). With no fighters
  *   left the fight resets: the boss is removed and comes back whole for the next attempt.</li>
+ *   <li>The fight owns what the boss leaves in the arena: adds ({@link #spawnAdd}), hazards ({@link #addHazard}),
+ *   changed blocks ({@link #blocks}) and arena fog ({@link #setFog}). All of it goes when the fight ends.</li>
+ *   <li>Every 8–10 s the boss turns to the fighter who hurt it most meanwhile (or to another one).</li>
  *   <li>On the kill, every fighter still inside gets credit; a first kill gives that player their own Ember Heart.</li>
  * </ul>
  */
@@ -45,6 +57,7 @@ public class BossFight {
 	private static final int FOG_INTERVAL = 10;
 	/** Fog wall height above the arena floor. */
 	private static final int FOG_HEIGHT = 4;
+	private static final UUID FIGHTERS_HEALTH_ID = UUID.fromString("6f1b8c52-3a9e-4f0d-b2c1-8e7d5a4c3b21");
 
 	private final ServerWorld world;
 	private final ArenaSpec spec;
@@ -52,17 +65,32 @@ public class BossFight {
 	private final BlockPos center;
 	private final ServerBossBar bar;
 	private final Set<UUID> fighters = new LinkedHashSet<>();
+	private final List<UUID> adds = new ArrayList<>();
+	private final List<ArenaHazard> hazards = new ArrayList<>();
+	private final ArenaBlocks blocks;
+	/** Damage each fighter dealt the boss since the last target switch. */
+	private final Map<UUID, Float> damageDealt = new HashMap<>();
 	private UUID bossUuid;
 	@Nullable
 	private Identifier music;
 	private int phase;
 	private boolean ended;
+	private int switchIn;
+	/** Arena fog now shown to the fighters: {density, colour}, or null. */
+	private float @Nullable [] fog;
 
 	BossFight(ServerWorld world, ArenaSpec spec, BlockPos center) {
 		this.world = world;
 		this.spec = spec;
 		this.center = center;
+		this.blocks = new ArenaBlocks(world);
 		this.bar = new ServerBossBar(barName(), BossBar.Color.RED, BossBar.Style.NOTCHED_10);
+	}
+
+	/** The running fight of a boss entity, or null (client side, no fight, ended). */
+	@Nullable
+	public static BossFight of(Entity boss) {
+		return boss.getWorld().isClient ? null : ArenaManager.fightOf(boss.getUuid());
 	}
 
 	public ServerWorld world() {
@@ -73,8 +101,14 @@ public class BossFight {
 		return spec;
 	}
 
+	/** Arena floor center block. */
 	public BlockPos center() {
 		return center;
+	}
+
+	/** Top center of the arena floor block. */
+	public Vec3d centerPos() {
+		return new Vec3d(center.getX() + 0.5, center.getY() + 1, center.getZ() + 0.5);
 	}
 
 	public boolean isEnded() {
@@ -84,6 +118,15 @@ public class BossFight {
 	@Nullable
 	public UUID bossUuid() {
 		return bossUuid;
+	}
+
+	public int phase() {
+		return phase;
+	}
+
+	/** Real blocks the fight changes; put back when it ends. */
+	public ArenaBlocks blocks() {
+		return blocks;
 	}
 
 	private Text bossName() {
@@ -97,7 +140,7 @@ public class BossFight {
 	/** Summons the boss; everyone inside the arena becomes a fighter. Returns false if the boss cannot be created. */
 	boolean start() {
 		Entity entity = spec.entity().create(world);
-		if (!(entity instanceof MobEntity boss) || !(entity instanceof ArenaBoss)) {
+		if (!(entity instanceof MobEntity boss) || !(entity instanceof ArenaBoss arenaBoss)) {
 			if (entity != null) {
 				entity.discard();
 			}
@@ -108,7 +151,7 @@ public class BossFight {
 		boss.setPersistent();
 		boss.setCustomName(bossName());
 		bossUuid = boss.getUuid();
-		music = ((ArenaBoss) boss).music();
+		music = arenaBoss.music();
 		for (ServerPlayerEntity player : world.getPlayers()) {
 			if (isInside(player.getPos(), 0) && !player.isSpectator()) {
 				addFighter(player);
@@ -116,21 +159,77 @@ public class BossFight {
 		}
 		world.spawnEntity(boss);
 		MobLevels.setLevel(boss, spec.level());
+		scaleToFighters(boss, arenaBoss);
 		world.playSound(null, center, SoundEvents.ENTITY_WITHER_SPAWN, SoundCategory.HOSTILE, 1.0f, 0.8f);
-		((ArenaBoss) boss).onPhaseChange(0);
+		BossConfig config = BossConfig.get();
+		switchIn = BossScaling.switchTicks(config.targetSwitchMinSeconds(), config.targetSwitchMaxSeconds(), world.random.nextDouble());
+		arenaBoss.onPhaseChange(0);
 		return true;
+	}
+
+	/** Multiplayer scaling at summon: more HP and one add per fighter beyond the first. */
+	private void scaleToFighters(MobEntity boss, ArenaBoss arenaBoss) {
+		BossConfig config = BossConfig.get();
+		int count = fighters.size();
+		double multiplier = BossScaling.healthMultiplier(count, config.healthPerExtraFighter());
+		EntityAttributeInstance maxHealth = boss.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH);
+		if (maxHealth != null && multiplier != 1) {
+			maxHealth.removeModifier(FIGHTERS_HEALTH_ID);
+			maxHealth.addPersistentModifier(new EntityAttributeModifier(FIGHTERS_HEALTH_ID, "Embervoid boss fighters", multiplier - 1,
+					EntityAttributeModifier.Operation.MULTIPLY_TOTAL));
+			boss.setHealth(boss.getMaxHealth());
+		}
+		EntityType<? extends MobEntity> addType = arenaBoss.scalingAdd();
+		int addCount = addType == null ? 0 : BossScaling.adds(count, config.addsPerExtraFighter());
+		for (int i = 0; i < addCount; i++) {
+			double angle = Math.PI * 2 * i / addCount;
+			spawnAdd(addType, centerPos().add(Math.cos(angle) * 3, 0, Math.sin(angle) * 3));
+		}
 	}
 
 	private void addFighter(ServerPlayerEntity player) {
 		if (fighters.add(player.getUuid())) {
 			bar.addPlayer(player);
 			BossMusic.play(player, music);
+			if (fog != null) {
+				ArenaFog.push(player, ArenaFog.source(spec.bossId()), fog[0], (int) fog[1]);
+			}
 		}
 	}
 
+	private void removeFighter(UUID uuid, @Nullable ServerPlayerEntity player) {
+		fighters.remove(uuid);
+		damageDealt.remove(uuid);
+		if (player != null) {
+			bar.removePlayer(player);
+			BossMusic.stop(player);
+			if (fog != null) {
+				ArenaFog.clear(player, ArenaFog.source(spec.bossId()));
+			}
+		}
+	}
+
+	/** The boss entity, or null if it is gone. */
 	@Nullable
-	private Entity boss() {
-		return bossUuid == null ? null : world.getEntity(bossUuid);
+	public MobEntity boss() {
+		return bossUuid != null && world.getEntity(bossUuid) instanceof MobEntity boss ? boss : null;
+	}
+
+	/** Fighters still in the fight (alive, inside, online). */
+	public List<ServerPlayerEntity> fighters() {
+		List<ServerPlayerEntity> present = new ArrayList<>();
+		for (UUID uuid : fighters) {
+			ServerPlayerEntity player = world.getServer().getPlayerManager().getPlayer(uuid);
+			if (player != null && player.getServerWorld() == world && player.isAlive()) {
+				present.add(player);
+			}
+		}
+		return present;
+	}
+
+	/** Whether a position is inside the fog wall (plus {@code margin} blocks), within the arena's height band. */
+	public boolean contains(Vec3d pos, double margin) {
+		return isInside(pos, margin);
 	}
 
 	/** Horizontal check against the fog wall radius (plus a margin), within the arena's height band. */
@@ -141,12 +240,96 @@ public class BossFight {
 				&& pos.y > center.getY() - 3 && pos.y < center.getY() + 20;
 	}
 
+	// --- Fight-bound adds, hazards, fog, phases ---
+
+	/**
+	 * Summons an add for this fight at {@code pos}: persistent, {@link BossConfig#addLevelOffset} levels below the boss,
+	 * aimed at the nearest fighter, removed when the fight ends. Returns null if the type cannot be created.
+	 */
+	@Nullable
+	public <T extends MobEntity> T spawnAdd(EntityType<T> type, Vec3d pos) {
+		T add = type.create(world);
+		if (add == null) {
+			return null;
+		}
+		add.refreshPositionAndAngles(pos.x, pos.y, pos.z, world.random.nextFloat() * 360, 0);
+		add.initialize(world, world.getLocalDifficulty(add.getBlockPos()), SpawnReason.MOB_SUMMONED, null, null);
+		add.setPersistent();
+		world.spawnEntity(add);
+		MobLevels.setLevel(add, Math.max(1, spec.level() - BossConfig.get().addLevelOffset()));
+		fighters().stream().min(Comparator.comparingDouble(add::squaredDistanceTo)).ifPresent(add::setTarget);
+		adds.add(add.getUuid());
+		return add;
+	}
+
+	/** This fight's adds that are still alive. */
+	public List<MobEntity> adds() {
+		List<MobEntity> living = new ArrayList<>();
+		for (UUID uuid : adds) {
+			if (world.getEntity(uuid) instanceof MobEntity add && add.isAlive() && !add.isRemoved()) {
+				living.add(add);
+			}
+		}
+		return living;
+	}
+
+	/** Starts a hazard; the fight ticks it until it is over and ends it with the fight. */
+	public void addHazard(ArenaHazard hazard) {
+		if (!ended) {
+			hazards.add(hazard);
+		}
+	}
+
+	public List<ArenaHazard> hazards() {
+		return List.copyOf(hazards);
+	}
+
+	/** Shows arena fog to every fighter (density 0–1, colour 0xRRGGBB) until changed, cleared or the fight ends. */
+	public void setFog(float density, int color) {
+		fog = new float[]{density, color};
+		for (ServerPlayerEntity player : fighters()) {
+			ArenaFog.push(player, ArenaFog.source(spec.bossId()), density, color);
+		}
+	}
+
+	public void clearFog() {
+		if (fog == null) {
+			return;
+		}
+		fog = null;
+		for (ServerPlayerEntity player : fighters()) {
+			ArenaFog.clear(player, ArenaFog.source(spec.bossId()));
+		}
+	}
+
+	/** The arena fog density now shown, or 0. */
+	public float fogDensity() {
+		return fog == null ? 0 : fog[0];
+	}
+
+	/** Ends a scripted phase ({@link ArenaBoss#scriptedPhases}); does nothing once the health phases have begun. */
+	public void advancePhase() {
+		MobEntity boss = boss();
+		if (ended || !(boss instanceof ArenaBoss arenaBoss) || phase >= arenaBoss.scriptedPhases()) {
+			return;
+		}
+		phase++;
+		arenaBoss.onPhaseChange(phase);
+	}
+
+	/** A fighter hurt the boss (before armor): counts toward the next target switch. */
+	void recordDamage(ServerPlayerEntity player, float amount) {
+		if (fighters.contains(player.getUuid())) {
+			damageDealt.merge(player.getUuid(), amount, Float::sum);
+		}
+	}
+
 	void tick() {
 		if (ended) {
 			return;
 		}
-		Entity bossEntity = boss();
-		if (!(bossEntity instanceof MobEntity boss) || bossEntity.isRemoved()) {
+		MobEntity boss = boss();
+		if (boss == null || boss.isRemoved()) {
 			// Gone without dying (chunk unloaded, killed by a command that removes, ...): start over.
 			reset();
 			return;
@@ -157,11 +340,7 @@ public class BossFight {
 		for (UUID uuid : List.copyOf(fighters)) {
 			ServerPlayerEntity player = world.getServer().getPlayerManager().getPlayer(uuid);
 			if (player == null || player.getServerWorld() != world || !player.isAlive() || !isInside(player.getPos(), 2)) {
-				fighters.remove(uuid);
-				if (player != null) {
-					bar.removePlayer(player);
-					BossMusic.stop(player);
-				}
+				removeFighter(uuid, player);
 			} else {
 				present.add(player);
 			}
@@ -175,14 +354,59 @@ public class BossFight {
 		if (!isInside(boss.getPos(), -1)) {
 			boss.requestTeleport(center.getX() + 0.5, center.getY() + 1, center.getZ() + 0.5);
 		}
+		for (MobEntity add : adds()) {
+			if (!isInside(add.getPos(), 1)) {
+				add.requestTeleport(center.getX() + 0.5, center.getY() + 1, center.getZ() + 0.5);
+			}
+		}
+		tickHazards();
+		tickTargetSwitch((ArenaBoss) boss, boss, present);
 
 		float fraction = boss.getHealth() / boss.getMaxHealth();
 		bar.setPercent(fraction);
-		float[] thresholds = ((ArenaBoss) boss).phaseThresholds();
-		while (phase < thresholds.length && fraction <= thresholds[phase]) {
+		ArenaBoss arenaBoss = (ArenaBoss) boss;
+		int scripted = arenaBoss.scriptedPhases();
+		float[] thresholds = arenaBoss.phaseThresholds();
+		while (phase >= scripted && phase - scripted < thresholds.length && fraction <= thresholds[phase - scripted]) {
 			phase++;
-			((ArenaBoss) boss).onPhaseChange(phase);
+			arenaBoss.onPhaseChange(phase);
 		}
+	}
+
+	private void tickHazards() {
+		for (ArenaHazard hazard : List.copyOf(hazards)) {
+			if (!hazards.contains(hazard)) {
+				continue;
+			}
+			if (!hazard.tick(this)) {
+				hazards.remove(hazard);
+				hazard.end(this);
+			}
+		}
+	}
+
+	/** Every 8–10 s: turn to whoever dealt the most damage meanwhile, or to another fighter if nobody did. */
+	private void tickTargetSwitch(ArenaBoss arenaBoss, MobEntity boss, List<ServerPlayerEntity> present) {
+		if (--switchIn > 0) {
+			return;
+		}
+		BossConfig config = BossConfig.get();
+		switchIn = BossScaling.switchTicks(config.targetSwitchMinSeconds(), config.targetSwitchMaxSeconds(), world.random.nextDouble());
+		List<ServerPlayerEntity> candidates = present.stream().filter(p -> !p.isCreative()).toList();
+		if (!arenaBoss.switchesTargets() || candidates.size() < 2) {
+			damageDealt.clear();
+			return;
+		}
+		ServerPlayerEntity next = candidates.stream()
+				.filter(p -> damageDealt.getOrDefault(p.getUuid(), 0f) > 0)
+				.max(Comparator.comparingDouble(p -> damageDealt.get(p.getUuid())))
+				.orElse(null);
+		if (next == null) {
+			List<ServerPlayerEntity> others = candidates.stream().filter(p -> p != boss.getTarget()).toList();
+			next = others.get(world.random.nextInt(others.size()));
+		}
+		damageDealt.clear();
+		boss.setTarget(next);
 	}
 
 	/** Pushes fighters back in and everyone else back out; draws the wall near the arena edge. */
@@ -289,8 +513,24 @@ public class BossFight {
 		end();
 	}
 
+	/** Ends the fight: hazards end, adds go, changed blocks come back, fog, bar and music stop. */
 	private void end() {
 		ended = true;
+		for (ArenaHazard hazard : List.copyOf(hazards)) {
+			hazard.end(this);
+		}
+		hazards.clear();
+		for (MobEntity add : adds()) {
+			add.discard();
+		}
+		adds.clear();
+		blocks.restore();
+		if (fog != null) {
+			for (ServerPlayerEntity player : fighters()) {
+				ArenaFog.clear(player, ArenaFog.source(spec.bossId()));
+			}
+			fog = null;
+		}
 		for (ServerPlayerEntity player : List.copyOf(bar.getPlayers())) {
 			BossMusic.stop(player);
 		}
@@ -299,7 +539,8 @@ public class BossFight {
 
 	@Override
 	public String toString() {
-		return spec.bossId() + " at " + center.toShortString() + ", fighters " + fighters.size() + ", phase " + phase;
+		return spec.bossId() + " at " + center.toShortString() + ", fighters " + fighters.size() + ", phase " + phase
+				+ ", adds " + adds().size() + ", hazards " + hazards.size();
 	}
 
 	/** Id of the boss this fight is for. */
