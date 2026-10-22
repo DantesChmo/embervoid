@@ -1,6 +1,7 @@
 package com.embervoid.realm;
 
 import com.embervoid.boss.BossInit;
+import com.embervoid.realm.placed.PlacedEnemies;
 import com.embervoid.realm.worldgen.RealmWorldgen;
 import java.util.Objects;
 
@@ -9,6 +10,7 @@ public final class RealmInit {
 	public static void register() {
 		Objects.requireNonNull(RealmConfig.SECTION);
 		RealmWorldgen.register();
+		PlacedEnemies.register();
 		RealmBlocks.register();
 		RealmPlayerData.register();
 		RealmItems.register();

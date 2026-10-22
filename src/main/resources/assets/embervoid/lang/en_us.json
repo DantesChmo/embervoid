@@ -183,5 +183,6 @@
 	"embervoid.vampire.boss.left": "With no one to hunt, the Vampire melts into the night",
 	"embervoid.vampire.arena.pulled": "The blood moon drags you into the Vampire's domain",
 	"embervoid.vampire.arena.closing": "The domain fades in %s seconds",
-	"embervoid.vampire.arena.remnant_moved": "Your remnant was carried out of the Vampire's domain to %s %s %s"
+	"embervoid.vampire.arena.remnant_moved": "Your remnant was carried out of the Vampire's domain to %s %s %s",
+	"block.embervoid.placed_enemy": "Placed Enemy Marker"
 }

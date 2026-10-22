@@ -10,7 +10,7 @@ Owns `com.embervoid.realm` (incl. `realm.worldgen`, `realm.fog`), `com.embervoid
 ## Tasks
 
 - [x] 9.1 Fog API + per-zone fog
-- [ ] 9.2 Placed enemies
+- [x] 9.2 Placed enemies
 - [ ] 9.3 Zones renamed, eternal dusk, zone looks
 - [ ] 9.4 Zone terrain density + arena sites
 - [ ] 9.5 Realm 1 blocks and ores
@@ -36,3 +36,21 @@ Owns `com.embervoid.realm` (incl. `realm.worldgen`, `realm.fog`), `com.embervoid
   `reach.world.ReachZones` (Fields 0.35 grey-ochre, Woods 0.60 grey-green, Necropolis 0.45 blue-grey, landing 0.30,
   abyss 0.35, depths 0.40 dark red). Colours are dusk-dark because the sky at time 13500 is near night.
 - Not seen: how the fog looks (no client launch). Values are first guesses for QA.
+
+## 9.2 Placed enemies
+
+- Marker block `embervoid:placed_enemy` (`realm.placed.PlacedEnemyMarkerBlock`, horizontal `facing`, invisible, no
+  item, no drops) with block NBT `{entity: "<id>", tags: [...], nbt: {…}}` — build it with
+  `PlacedEnemies.markerNbt(id, nbt[, tags])`.
+- Processor `embervoid:placed_enemies` (`PlacedEnemyProcessor.INSTANCE`): marker → air, spawns the entity once (only the
+  pass whose chunk box holds the marker; a template is processed once per chunk it crosses). Facing follows the
+  template rotation/mirror (block states are rotated after processors run, so the processor turns the facing itself).
+- Spawn (`PlacedEnemies.spawn`): `initialize(…, STRUCTURE)`, then the marker's `nbt` merged in, command tag
+  `embervoid.placed` (`PlacedEnemies.isPlaced(entity)`, read by reach-mobs) plus the marker's `tags` (e.g.
+  `embervoid.placed.cage` for caged Thralls), `setPersistent()`. Unknown id: one WARN per id, nothing spawned.
+- Level: the zone band from `RealmMobLevels` when the mob loads (nothing new needed). Never respawned: it exists once,
+  from worldgen; shrine rest does not touch entities.
+- Markers built in game with a structure block lose their NBT (no block entity); templates are built in code.
+- GameTests (`ReachWorldTests`): spawns once across chunk passes, persistent + tagged + marker gone, unknown id spawns
+  nothing, facing follows a 90° rotation, the realm provider gives a placed mob its zone band. The test server never
+  brings far realm chunks to entity tracking, so the last test checks `MobLevels.spawnLevel`, not the loaded level.
