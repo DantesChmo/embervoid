@@ -28,7 +28,8 @@
 			"com.embervoid.gametest.AshColossusTests",
 			"com.embervoid.gametest.GrievingTreeTests",
 			"com.embervoid.gametest.BossRewardTests",
-			"com.embervoid.gametest.RematchTests"
+			"com.embervoid.gametest.RematchTests",
+			"com.embervoid.gametest.SmolderingLordTests"
 		]
 	},
 	"mixins": [

@@ -20,8 +20,11 @@ public final class ReachArenas {
 	/** Shrine distance outside the fog wall (the arena structure's rule). */
 	public static final int SHRINE_GAP = 4;
 
-	/** One zone arena: template id, fog wall radius, site radius (template half-size), template height. */
-	public record Arena(String zone, Identifier template, int radius, int site, int height) {
+	/**
+	 * One arena: template id, fog wall radius, site radius (template half-size), template height, and whether an
+	 * arena-side chest stands by its shrine (the zone arenas; not the Citadel courtyard).
+	 */
+	public record Arena(String zone, Identifier template, int radius, int site, int height, boolean hasChest) {
 		/** Shrine offset: on the north axis, outside the fog wall. */
 		public BlockPos shrine() {
 			return new BlockPos(0, 1, -(radius + SHRINE_GAP));
@@ -42,13 +45,16 @@ public final class ReachArenas {
 	}
 
 	/** Ashen Fields: market square sunk into a crater, burnt-granary pillars. */
-	public static final Arena FIELDS = new Arena("fields", Embervoid.id("ashen_reach/arena_fields"), 40, 48, 12);
+	public static final Arena FIELDS = new Arena("fields", Embervoid.id("ashen_reach/arena_fields"), 40, 48, 12, true);
 	/** Royal Woods: the walled Royal Grove behind the hunting lodge. */
-	public static final Arena WOODS = new Arena("woods", Embervoid.id("ashen_reach/arena_woods"), 48, 56, 8);
+	public static final Arena WOODS = new Arena("woods", Embervoid.id("ashen_reach/arena_woods"), 48, 56, 8, true);
 	/** Sunken Necropolis: a sinkhole with a switchback stair down into a flooded ossuary. */
-	public static final Arena NECROPOLIS = new Arena("necropolis", Embervoid.id("ashen_reach/arena_necropolis"), 32, 40, 20);
+	public static final Arena NECROPOLIS = new Arena("necropolis", Embervoid.id("ashen_reach/arena_necropolis"), 32, 40, 20, true);
 
-	public static final List<Arena> ALL = List.of(FIELDS, WOODS, NECROPOLIS);
+	/** Smoldering Citadel: the courtyard below the keep wall (PLAN 13.4); the Lord stands on the wall first. */
+	public static final Arena CITADEL = new Arena("citadel", Embervoid.id("ashen_reach/arena_citadel"), 24, 32, 14, false);
+
+	public static final List<Arena> ALL = List.of(FIELDS, WOODS, NECROPOLIS, CITADEL);
 
 	// --- Fields ---
 
@@ -113,6 +119,31 @@ public final class ReachArenas {
 		}
 		int d = BRAZIER_OFFSET;
 		return Math.abs(Math.abs(x) - d) <= 1 && Math.abs(Math.abs(z) - d) <= 1;
+	}
+
+	// --- Citadel courtyard ---
+
+	/** The keep wall across the south of the courtyard: its inner face, depth and height (the walkway's top block). */
+	public static final int KEEP_WALL_Z = 21;
+	public static final int KEEP_WALL_DEPTH = 4;
+	public static final int KEEP_WALL_HEIGHT = 10;
+	/** The gate through the keep wall (to the keep), this wide each side of the axis and this high. */
+	public static final int KEEP_GATE_HALF_WIDTH = 1;
+	public static final int KEEP_GATE_HEIGHT = 5;
+
+	/** Where the Lord stands on the wall in P0 (the block his feet are in). */
+	public static BlockPos lordOnWall() {
+		return new BlockPos(0, KEEP_WALL_HEIGHT + 1, KEEP_WALL_Z + 1);
+	}
+
+	/** Where the Sparking Marksmen stand on the wall in P0. */
+	public static List<BlockPos> marksmenOnWall() {
+		return List.of(new BlockPos(-7, KEEP_WALL_HEIGHT + 1, KEEP_WALL_Z + 1), new BlockPos(7, KEEP_WALL_HEIGHT + 1, KEEP_WALL_Z + 1));
+	}
+
+	/** The three signal braziers (campfires on 3×3 pedestals two high); lighting all brings the Lord down. */
+	public static List<BlockPos> signalBraziers() {
+		return List.of(new BlockPos(-12, 3, 4), new BlockPos(12, 3, 4), new BlockPos(0, 3, -12));
 	}
 
 	private ReachArenas() {}

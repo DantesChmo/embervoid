@@ -51,6 +51,10 @@ public final class ReachBossDataGen {
 			exporter.accept(ReachBossEntities.GRIEVING_TREE.getLootTableId(), LootTable.builder()
 					.pool(drop(GearItems.ROYAL_AMBER, 3, 6))
 					.pool(drop(ModBlocks.DEAD_LOG.asItem(), 2, 5)));
+			exporter.accept(ReachBossEntities.SMOLDERING_LORD.getLootTableId(), LootTable.builder()
+					.pool(drop(GearItems.SMOLDERING_INGOT, 1, 2))
+					.pool(drop(GearItems.CINDER_SHARD, 4, 8))
+					.pool(drop(Items.GOLD_INGOT, 2, 5)));
 		}
 
 		static LootPool.Builder drop(Item item, float min, float max) {

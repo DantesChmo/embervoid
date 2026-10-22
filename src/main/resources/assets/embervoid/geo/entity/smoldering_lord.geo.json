@@ -1,0 +1,326 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.embervoid.smoldering_lord",
+				"texture_width": 128,
+				"texture_height": 128,
+				"visible_bounds_width": 3,
+				"visible_bounds_height": 4,
+				"visible_bounds_offset": [
+					0,
+					2.0,
+					0
+				]
+			},
+			"bones": [
+				{
+					"name": "root",
+					"pivot": [
+						0,
+						0,
+						0
+					]
+				},
+				{
+					"name": "right_leg",
+					"pivot": [
+						-3.5,
+						22,
+						0
+					],
+					"parent": "root",
+					"cubes": [
+						{
+							"origin": [
+								-7,
+								0,
+								-3.5
+							],
+							"size": [
+								7,
+								22,
+								7
+							],
+							"uv": [
+								0,
+								0
+							]
+						}
+					]
+				},
+				{
+					"name": "left_leg",
+					"pivot": [
+						3.5,
+						22,
+						0
+					],
+					"parent": "root",
+					"cubes": [
+						{
+							"origin": [
+								0,
+								0,
+								-3.5
+							],
+							"size": [
+								7,
+								22,
+								7
+							],
+							"uv": [
+								28,
+								0
+							]
+						}
+					]
+				},
+				{
+					"name": "body",
+					"pivot": [
+						0,
+						22,
+						0
+					],
+					"parent": "root",
+					"cubes": [
+						{
+							"origin": [
+								-8,
+								22,
+								-4.5
+							],
+							"size": [
+								16,
+								22,
+								9
+							],
+							"uv": [
+								56,
+								0
+							]
+						}
+					]
+				},
+				{
+					"name": "armor",
+					"pivot": [
+						0,
+						22,
+						0
+					],
+					"parent": "body",
+					"cubes": [
+						{
+							"origin": [
+								-8.5,
+								28,
+								-5
+							],
+							"size": [
+								17,
+								16,
+								10
+							],
+							"uv": [
+								0,
+								31
+							],
+							"inflate": 0.5
+						},
+						{
+							"origin": [
+								-12,
+								40,
+								-5
+							],
+							"size": [
+								7,
+								5,
+								10
+							],
+							"uv": [
+								54,
+								31
+							]
+						},
+						{
+							"origin": [
+								5,
+								40,
+								-5
+							],
+							"size": [
+								7,
+								5,
+								10
+							],
+							"uv": [
+								88,
+								31
+							]
+						}
+					]
+				},
+				{
+					"name": "head",
+					"pivot": [
+						0,
+						44,
+						0
+					],
+					"parent": "body",
+					"cubes": [
+						{
+							"origin": [
+								-5,
+								44,
+								-5
+							],
+							"size": [
+								10,
+								10,
+								10
+							],
+							"uv": [
+								0,
+								57
+							]
+						},
+						{
+							"origin": [
+								-5.5,
+								54,
+								-5.5
+							],
+							"size": [
+								11,
+								3,
+								11
+							],
+							"uv": [
+								40,
+								57
+							]
+						}
+					]
+				},
+				{
+					"name": "right_arm",
+					"pivot": [
+						-10.5,
+						42,
+						0
+					],
+					"parent": "body",
+					"cubes": [
+						{
+							"origin": [
+								-13,
+								22,
+								-2.5
+							],
+							"size": [
+								5,
+								22,
+								5
+							],
+							"uv": [
+								84,
+								57
+							]
+						}
+					]
+				},
+				{
+					"name": "left_arm",
+					"pivot": [
+						10.5,
+						42,
+						0
+					],
+					"parent": "body",
+					"cubes": [
+						{
+							"origin": [
+								8,
+								22,
+								-2.5
+							],
+							"size": [
+								5,
+								22,
+								5
+							],
+							"uv": [
+								104,
+								57
+							]
+						}
+					]
+				},
+				{
+					"name": "greatsword",
+					"pivot": [
+						-10.5,
+						24,
+						0
+					],
+					"parent": "right_arm",
+					"cubes": [
+						{
+							"origin": [
+								-11.5,
+								20,
+								-1
+							],
+							"size": [
+								2,
+								6,
+								2
+							],
+							"uv": [
+								0,
+								84
+							]
+						},
+						{
+							"origin": [
+								-14,
+								26,
+								-1
+							],
+							"size": [
+								7,
+								2,
+								2
+							],
+							"uv": [
+								8,
+								84
+							]
+						},
+						{
+							"origin": [
+								-12,
+								28,
+								-1.5
+							],
+							"size": [
+								3,
+								36,
+								3
+							],
+							"uv": [
+								26,
+								84
+							]
+						}
+					]
+				}
+			]
+		}
+	]
+}

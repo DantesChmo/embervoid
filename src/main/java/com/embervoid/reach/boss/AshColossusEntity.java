@@ -1,6 +1,6 @@
 package com.embervoid.reach.boss;
 
-import com.embervoid.boss.ArenaHazard;
+import com.embervoid.boss.AshStormHazard;
 import com.embervoid.boss.BossFight;
 import com.embervoid.boss.BossHits;
 import com.embervoid.boss.Telegraph;
@@ -16,8 +16,6 @@ import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -328,14 +326,14 @@ public class AshColossusEntity extends ReachBoss {
 		Telegraph.windup(this, STORM_WINDUP, STORM, SoundEvents.ENTITY_ENDER_DRAGON_GROWL, ParticleTypes.ASH, 6, () -> {
 			BossFight fight = fight();
 			if (fight != null) {
-				fight.addHazard(new AshStorm());
+				fight.addHazard(new AshStormHazard(this, STORM_TICKS, STORM_DAMAGE));
 			}
 		});
 	}
 
 	/** Whether a block stands between its core and the player's eyes (a pillar, rubble). */
 	public boolean isSheltered(PlayerEntity player) {
-		return coverOf(player) != null;
+		return AshStormHazard.isSheltered(this, player);
 	}
 
 	/** The first block between its core and the target's eyes, or null if it sees them. */
@@ -345,30 +343,6 @@ public class AshColossusEntity extends ReachBoss {
 		BlockHitResult hit = getWorld().raycast(new RaycastContext(from, target.getEyePos(), RaycastContext.ShapeType.COLLIDER,
 				RaycastContext.FluidHandling.NONE, this));
 		return hit.getType() == HitResult.Type.BLOCK ? hit.getBlockPos() : null;
-	}
-
-	/** Ash storm hazard: every second, players in its sight take magic damage and go blind; ash over the arena. */
-	private class AshStorm implements ArenaHazard {
-		private int age;
-
-		@Override
-		public boolean tick(BossFight fight) {
-			ServerWorld world = fight.world();
-			if (age % 5 == 0) {
-				double r = fight.spec().radius();
-				world.spawnParticles(ParticleTypes.ASH, fight.centerPos().x, fight.centerPos().y + 4, fight.centerPos().z, 300, r / 2, 3, r / 2, 0);
-				world.spawnParticles(ParticleTypes.WHITE_ASH, fight.centerPos().x, fight.centerPos().y + 4, fight.centerPos().z, 150, r / 2, 3, r / 2, 0);
-			}
-			if (age % 20 == 0 && isAlive()) {
-				for (ServerPlayerEntity player : fight.fighters()) {
-					if (!player.isCreative() && !player.isSpectator() && !isSheltered(player)) {
-						player.damage(world.getDamageSources().magic(), STORM_DAMAGE);
-						player.addStatusEffect(new StatusEffectInstance(StatusEffects.BLINDNESS, 40, 0, false, false), AshColossusEntity.this);
-					}
-				}
-			}
-			return ++age < STORM_TICKS && isAlive();
-		}
 	}
 
 	/** P2: cinders fall around the fighters, each marked by a falling shadow. */

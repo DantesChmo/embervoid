@@ -16,7 +16,7 @@ courtyard piece), boss assets and loot. Config section `boss`.
 - [x] **12.5 Grieving Tree** (GameTests `GrievingTreeTests` in the real Royal Grove template)
 - [x] **12.6 Souls and Flask Shards** (GameTests `BossRewardTests`)
 - [x] **12.7 Ash of Rematch** (GameTest `RematchTests` at the real Necropolis arena in the realm)
-- [ ] **13.4 Smoldering Lord**
+- [x] **13.4 Smoldering Lord** (GameTests `SmolderingLordTests` in the real courtyard template; reward in `BossRewardTests`)
 
 ## 12.1 Framework additions — design
 
@@ -157,6 +157,30 @@ bones). Greybox assets: `python3 tools/boss_placeholders.py [name]` (helpers fro
   rematch (`BossFight.isRematch`): loot table and XP as usual, no repeat soul; a fighter who had not beaten it still gets
   the first-kill reward. An unused priming lapses after 60 s.
 - Source of the ash (recipe, arena-side chest) is reach-gear's (DESIGN §10.11).
+
+## 13.4 Smoldering Lord
+
+`embervoid:smoldering_lord`, 1.4 × 3.5, base HP 260 (~712 at Lv 30), armor 12 → 4 in P2, KB res 1, speed 0.26 → 0.32,
+500 XP before level scaling, music placeholder `music.dragon`. Loot (every kill): 1–2 Smoldering Ingot, 4–8 Cinder
+Shard, 2–5 gold ingots. First kill (`BossReward` on `embervoid:ashen_reach/final`): his soul + a Flask Ember. Adds per
+extra fighter: Cinder Hound. Killing him completes the realm (existing `BossFight` rule for the realm's final boss).
+
+- Courtyard template `embervoid:ashen_reach/arena_citadel` (`ReachArenas.CITADEL`: fog wall r 24, site r 32, no arena
+  chest): flagstones with a few ember cracks, burning beams, the keep wall across the south (z 21–24, 10 high, walkway on
+  top, crenellations, a 3-wide gate to the keep), three signal braziers (campfires on 3×3 pedestals) at (−12, 4),
+  (12, 4), (0, −12), shrine platform north. For now `ashen_reach_depths_arena.json` places it through reach-world's
+  arena site (radius 32, ground ash bricks); track-citadel may move the site into the Citadel jigsaw courtyard — the
+  template stays the contract (centre, y = 0 floor, north towards the depths landing).
+- P0 (scripted phase): on the wall at (0, 11, 22), untouchable, with 2 Sparking Marksmen (fight adds, marked placed).
+  Every 3 s from the wall: mortar rings (r 3 on up to two fighters, 40 ticks, 9 fire) or a flame line (from below the
+  wall across the courtyard at a fighter, 30 ticks, 8 fire, then 3 s of fire on the line). All three signal braziers lit
+  → he comes down: ring r 6 in the middle, 30 ticks, landing 10 (invulnerable until he lands).
+- P1: greatsword combo (cone r 5 ±60° 14 / 10 ticks, 9 each, burning; slam ring r 3.5 in front, 20 ticks, 12) and a
+  lunge (line to just past the target, 6–14, 18 ticks, 11; dashes; a fire trail on the line for 4 s, 2 per 0.5 s).
+- P2 (50 %): armor shatters (×1.25 damage taken, faster); every 25 s (first after 12.5 s) one zone hazard in turn: ash
+  storm (`AshStormHazard`, 6 s, 2/s, cover shelters), fog (0.8 dark red, 20 s), darkness (15 s, Darkness on fighters,
+  he takes half damage outside block light ≥ 8 — the signal braziers still burn).
+- Framework: the Colossus's storm is now `boss.AshStormHazard`, shared.
 
 ## Status / notes
 

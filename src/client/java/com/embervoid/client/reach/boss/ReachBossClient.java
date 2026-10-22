@@ -21,6 +21,7 @@ public final class ReachBossClient {
 		renderer(ReachBossEntities.CRYPT_KEEPER);
 		renderer(ReachBossEntities.ASH_COLOSSUS);
 		renderer(ReachBossEntities.GRIEVING_TREE);
+		renderer(ReachBossEntities.SMOLDERING_LORD);
 		EntityRendererRegistry.register(ReachBossEntities.TREE_LANTERN, TreeLanternRenderer::new);
 	}
 
