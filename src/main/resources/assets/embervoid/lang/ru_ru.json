@@ -207,5 +207,8 @@
 	"item.embervoid.ash_of_rematch": "Пепел реванша",
 	"item.embervoid.ash_of_rematch.tooltip": "Рассыпанный у святилища павшего стража, зовёт его обратно. Душа не возвращается",
 	"item.embervoid.flask_ember": "Уголёк фляги",
-	"item.embervoid.flask_ember.tooltip": "Искра присвоенного королём пламени. Отданная фляге, усиливает каждый глоток"
+	"item.embervoid.flask_ember.tooltip": "Искра присвоенного королём пламени. Отданная фляге, усиливает каждый глоток",
+	"effect.embervoid.bleeding": "Кровотечение",
+	"death.attack.embervoid.bleeding": "%1$s истёк кровью",
+	"death.attack.embervoid.bleeding.player": "%1$s истёк кровью в схватке с %2$s"
 }

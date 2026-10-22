@@ -25,7 +25,18 @@ textures). Config section `gear`. Tests: `GearTests` (GameTests), JUnit under `s
     реванша", "Уголёк фляги"; souls "Душа <boss>" with my own boss names (Пепельный колосс, Скорбящее древо,
     Хранитель склепа, Тлеющий владыка) — reach-bosses' entity names should match or the coordinator aligns them.
   - Textures: placeholders, not seen in game.
-- [ ] **11.2 Bleeding + `embervoid:bleed_immune`.**
+- [x] **11.2 Bleeding + `embervoid:bleed_immune`.**
+  - `Bleeding` (status effect `embervoid:bleeding`, harmful): `Bleeding.apply(target, stacks, source)` adds levels
+    (cap `gear.bleeding.maxLevel` 3) and refreshes the duration (`durationTicks` 120); `Bleeding.level(entity)`.
+    Damage `damagePerLevel` 0.5 × level once a second, timed by the entity's age so refreshing on every hit neither
+    adds nor skips ticks. Numbers in `BleedRules` (JUnit).
+  - Damage type `embervoid:bleeding` in `bypasses_armor`, `bypasses_cooldown` (the hurt cooldown of melee hits
+    would swallow it otherwise) and `no_impact`; death messages "bled out" (with the last attacker if any).
+  - Kill credit: `apply` with a player source calls `setAttacking(player)`, so a bleed kill drops XP and player-kill
+    loot like a hit would.
+  - Tag `embervoid:bleed_immune` (datagen, all entries optional): restless_bones, furnace_golem, bark_hollow,
+    ash_colossus, grieving_tree. Checked in `apply` and on every damage tick (an `/effect` command cannot bypass it).
+  - Debug: `/embervoid gear bleed <targets> [stacks]`. Effect icon: placeholder, not seen.
 - [ ] **11.3 Smoldering Plate + Template.**
 - [ ] **11.4 Mob-drop sets + unique pieces.**
 - [ ] **11.5 Ashen Scythe, Warden's Scourge, Royal Ash Rapier.**

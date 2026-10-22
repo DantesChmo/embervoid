@@ -1,10 +1,13 @@
 package com.embervoid.client.reach.gear;
 
+import com.embervoid.Embervoid;
+import com.embervoid.reach.gear.Bleeding;
 import com.embervoid.reach.gear.GearLootTables;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.SimpleFabricLootTableProvider;
 import net.minecraft.data.client.BlockStateModelGenerator;
 import net.minecraft.data.client.ItemModelGenerator;
@@ -16,15 +19,17 @@ import net.minecraft.item.Items;
 import net.minecraft.loot.LootTable;
 import net.minecraft.loot.context.LootContextTypes;
 import net.minecraft.recipe.book.RecipeCategory;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static com.embervoid.reach.gear.GearItems.*;
 
-/** Datagen for the reach-gear track: item models, recipes, Ashen Reach chest loot tables. */
+/** Datagen for the reach-gear track: item models, recipes, Ashen Reach chest loot tables, tags. */
 public final class GearDataGen {
 	/** Flat items drawn by {@code tools/gear_placeholders.py}. */
 	static final List<Item> FLAT_ITEMS = List.of(CINDER_SHARD, ROYAL_AMBER, RAW_GRAVE_IRON, GRAVE_IRON_INGOT,
@@ -35,6 +40,27 @@ public final class GearDataGen {
 		pack.addProvider(ItemModels::new);
 		pack.addProvider(Recipes::new);
 		pack.addProvider(ChestLoot::new);
+		pack.addProvider(EntityTags::new);
+	}
+
+	private static class EntityTags extends FabricTagProvider.EntityTypeTagProvider {
+		EntityTags(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registries) {
+			super(output, registries);
+		}
+
+		@Override
+		public String getName() {
+			return "Embervoid reach gear entity tags";
+		}
+
+		@Override
+		protected void configure(RegistryWrapper.WrapperLookup registries) {
+			// Bloodless: bones, a furnace, bark, ash and stone. Optional entries: the mobs and bosses are other tracks'.
+			var immune = getOrCreateTagBuilder(Bleeding.IMMUNE);
+			for (String id : List.of("restless_bones", "furnace_golem", "bark_hollow", "ash_colossus", "grieving_tree")) {
+				immune.addOptional(Embervoid.id(id));
+			}
+		}
 	}
 
 	private static class ItemModels extends FabricModelProvider {

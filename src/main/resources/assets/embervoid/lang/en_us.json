@@ -207,5 +207,8 @@
 	"item.embervoid.ash_of_rematch": "Ash of Rematch",
 	"item.embervoid.ash_of_rematch.tooltip": "Scattered on the shrine of a fallen guardian, it calls the guardian back. Its soul does not return",
 	"item.embervoid.flask_ember": "Flask Ember",
-	"item.embervoid.flask_ember.tooltip": "A spark of the king's hoarded flame. Fed to the flask, it strengthens every sip"
+	"item.embervoid.flask_ember.tooltip": "A spark of the king's hoarded flame. Fed to the flask, it strengthens every sip",
+	"effect.embervoid.bleeding": "Bleeding",
+	"death.attack.embervoid.bleeding": "%1$s bled out",
+	"death.attack.embervoid.bleeding.player": "%1$s bled out fighting %2$s"
 }

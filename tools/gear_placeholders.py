@@ -225,7 +225,37 @@ def boss_items():
     icon("flask_ember", EMBER, palette((255, 210, 110, 255), (246, 128, 40, 255), (170, 52, 24, 255), (255, 246, 210, 255)))
 
 
+def effects():
+    """18x18 status effect icon: a red drop."""
+    c = Canvas(18, 18)
+    drop = ["........o.........",
+            ".......oLo........",
+            ".......oLo........",
+            "......oLLMo.......",
+            "......oLMMo.......",
+            ".....oLLMMMo......",
+            ".....oLMMMMo......",
+            "....oLLMMMMMo.....",
+            "....oLMMMMMMo.....",
+            "...oLMMMMMMMDo....",
+            "...oLMMMMMMMDo....",
+            "...oMMMMMMMDDo....",
+            "...oMMMMMMDDDo....",
+            "....oMMMMDDDo.....",
+            ".....ooDDDoo......",
+            ".......ooo........",
+            "..................",
+            ".................."]
+    colours = {"L": (236, 96, 96, 255), "M": (176, 20, 24, 255), "D": (104, 8, 12, 255)}
+    for y, row in enumerate(drop):
+        for x, ch in enumerate(row):
+            if ch != ".":
+                c.set(x + 1, y + 1, OUTLINE if ch == "o" else colours[ch])
+    c.save(os.path.join("src", "main", "resources", "assets", "embervoid", "textures", "mob_effect", "bleeding.png"))
+
+
 if __name__ == "__main__":
     materials()
     boss_items()
+    effects()
     print("Wrote reach gear placeholder textures")

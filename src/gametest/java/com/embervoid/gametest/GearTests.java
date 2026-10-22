@@ -1,12 +1,22 @@
 package com.embervoid.gametest;
 
 import com.embervoid.Embervoid;
+import com.embervoid.reach.gear.Bleeding;
+import com.embervoid.reach.gear.GearConfig;
 import com.embervoid.reach.gear.GearItems;
 import com.embervoid.reach.gear.GearLootTables;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.HuskEntity;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.loot.LootTable;
 import net.minecraft.recipe.Recipe;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
@@ -26,6 +36,54 @@ public final class GearTests implements FabricGameTest {
 		assertRecipe(context, "grave_iron_ingot_from_smelting_raw_grave_iron", GearItems.GRAVE_IRON_INGOT);
 		assertRecipe(context, "grave_iron_ingot_from_blasting_raw_grave_iron", GearItems.GRAVE_IRON_INGOT);
 		context.complete();
+	}
+
+	/** Three hits make Bleeding III; it deals 1.5 per second straight through full diamond armor. */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 200)
+	public void bleedingStacksAndIgnoresArmor(TestContext context) {
+		HuskEntity husk = context.spawnMob(EntityType.HUSK, 2, 2, 2);
+		husk.setAiDisabled(true);
+		for (EquipmentSlot slot : new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
+			husk.equipStack(slot, new ItemStack(switch (slot) {
+				case HEAD -> Items.DIAMOND_HELMET;
+				case CHEST -> Items.DIAMOND_CHESTPLATE;
+				case LEGS -> Items.DIAMOND_LEGGINGS;
+				default -> Items.DIAMOND_BOOTS;
+			}));
+		}
+		for (int hit = 0; hit < 4; hit++) {
+			context.assertTrue(Bleeding.apply(husk, 1, null), "husk did not bleed");
+		}
+		context.assertTrue(Bleeding.level(husk) == 3, "expected Bleeding III, got " + Bleeding.level(husk));
+		float start = husk.getHealth();
+		// 40 ticks hold exactly two damage ticks, whatever the husk's age.
+		context.runAtTick(context.getTick() + 40, () -> {
+			float lost = start - husk.getHealth();
+			context.assertTrue(Math.abs(lost - 3.0f) < 0.01f, "expected 3.0 bleed damage through armor, got " + lost);
+			context.complete();
+		});
+	}
+
+	/** Every new stack refreshes the duration; immune entity types (tag {@code embervoid:bleed_immune}) never bleed. */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 200)
+	public void bleedingRefreshesAndRespectsImmunity(TestContext context) {
+		HuskEntity husk = context.spawnMob(EntityType.HUSK, 2, 2, 2);
+		husk.setAiDisabled(true);
+		Bleeding.apply(husk, 1, null);
+		int full = GearConfig.get().bleeding().durationTicks();
+		context.runAtTick(context.getTick() + 30, () -> {
+			context.assertTrue(husk.getStatusEffect(Bleeding.BLEEDING).getDuration() < full, "duration did not run down");
+			Bleeding.apply(husk, 1, null);
+			context.assertTrue(husk.getStatusEffect(Bleeding.BLEEDING).getDuration() == full, "second hit did not refresh");
+			context.assertTrue(Bleeding.level(husk) == 2, "second hit did not raise the level");
+
+			for (RegistryEntry<EntityType<?>> type : Registries.ENTITY_TYPE.iterateEntries(Bleeding.IMMUNE)) {
+				if (type.value().create(context.getWorld()) instanceof LivingEntity immune) {
+					context.assertFalse(Bleeding.apply(immune, 1, null), type.value() + " is tagged immune but bled");
+				}
+			}
+			context.complete();
+		});
 	}
 
 	static void assertRecipe(TestContext context, String name, Item output) {
