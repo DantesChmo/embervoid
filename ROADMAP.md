@@ -20,7 +20,7 @@ Open questions in [DESIGN.md](DESIGN.md) §10 name the milestone they block. Dec
 is done; until then its tasks build the recommended answer and keep it easy to change.
 
 **Where things stand:** milestones 1–7 are built and on `main`; most of it was checked in game (single player).
-What was not checked in game is marked "(not verified in game: …)" on its line. Milestone 8 (moon nights) is built and covered by GameTests. 0.4.0 (milestones 9–13) is in progress in five tracks. Not started: the 0.2.0 release tasks, most 0.3.0 release tasks, the art pass.
+What was not checked in game is marked "(not verified in game: …)" on its line. Milestone 8 (moon nights) is built and covered by GameTests. 0.4.0 milestones 9–13 are built (GameTests + server check, nothing seen in game); its release tasks remain. Not started: the 0.2.0 release tasks, most 0.3.0 release tasks, the art pass.
 
 ## Decisions
 
@@ -262,13 +262,13 @@ comes in the release pass.
 
 ## 13. Realm 1: Smoldering Citadel
 
-**Status:** Not started (each track does its part after its zone tasks).
+**Status:** Done except music (PLAN 13.1–13.5; GameTests + server check; greybox models, looks not seen in game). The Smoldering Lord theme is release task R40.3.
 
-- [ ] Depths dimension "Burning City": own `dimension_type` (dark red sky, dusk), hill terrain, ember cracks and smouldering logs
-- [ ] Citadel jigsaw (~10–12 pieces): outskirts → burning streets → wall and gatehouse → inner ring and towers → courtyard → keep
-- [ ] Mobs: **Cinder Hound**, **Sparking Marksman**, **Furnace Golem**, **Smoldering Knight**
-- [ ] Realm boss **Smoldering Lord**: wall phase with signal braziers, greatsword phase, replayed zone hazards; own music theme
-- [ ] Realm completion → Realm 2 obelisk lit (leads nowhere yet)
+- [x] Depths dimension "Burning City": own `dimension_type` (dark red sky, dusk), hill terrain, ember cracks and smouldering logs
+- [x] Citadel jigsaw (~10–12 pieces): outskirts → burning streets → wall and gatehouse → inner ring and towers → courtyard → keep
+- [x] Mobs: **Cinder Hound**, **Sparking Marksman**, **Furnace Golem**, **Smoldering Knight**
+- [x] Realm boss **Smoldering Lord**: wall phase with signal braziers, greatsword phase, replayed zone hazards; own music theme
+- [x] Realm completion → Realm 2 obelisk lit (leads nowhere yet)
 
 ## 0.4.0 release
 

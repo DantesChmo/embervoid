@@ -350,7 +350,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 13.2 | **Citadel jigsaw (~10–12 pieces)** | citadel | 13.1, 9.2 | done (GameTest + server check; fixed-layout structure, not a vanilla jigsaw; looks not seen) |
 | 13.3 | **Cinder Hound, Sparking Marksman, Furnace Golem, Smoldering Knight** | reach-mobs | 10.1 | done (GameTest; models not seen) |
 | 13.4 | **Smoldering Lord** | reach-bosses | 12.3–12.5, 13.2 | done (GameTest + server check; model, moves and courtyard look not seen) |
-| 13.5 | **Realm completion, Realm 2 obelisk lit, depths open** | coordinator | 13.4 | todo |
+| 13.5 | **Realm completion, Realm 2 obelisk lit, depths open** | coordinator | 13.4 | done (GameTest `RealmLoopTests`) |
 
 - **13.1** Own `dimension_type` for the depths (dark red sky, same dusk), hill terrain, ember cracks and
   smouldering logs only here, radius ~400, levels 25–30.
