@@ -24,36 +24,36 @@ import java.util.Map;
 
 /**
  * Builds a structure template ({@code .nbt}, the format structure blocks save) in code. Positions not set are
- * left out of the template, so the world keeps whatever is there.
+ * left out of the template, so the world keeps whatever is there. Also used for the boss arenas (track reach-bosses).
  */
-final class TemplateBuilder {
+public final class TemplateBuilder {
 	private record Entry(BlockState state, @Nullable NbtCompound nbt) {}
 
-	final int sizeX;
-	final int sizeY;
-	final int sizeZ;
+	public final int sizeX;
+	public final int sizeY;
+	public final int sizeZ;
 	private final Map<BlockPos, Entry> blocks = new LinkedHashMap<>();
 	private final NbtList entities = new NbtList();
 	/** Added to every y given to the methods below, so a piece can be drawn on top of a foundation. */
 	private int baseY;
 
-	TemplateBuilder(int sizeX, int sizeY, int sizeZ) {
+	public TemplateBuilder(int sizeX, int sizeY, int sizeZ) {
 		this.sizeX = sizeX;
 		this.sizeY = sizeY;
 		this.sizeZ = sizeZ;
 	}
 
-	TemplateBuilder set(int x, int y, int z, BlockState state) {
+	public TemplateBuilder set(int x, int y, int z, BlockState state) {
 		return set(x, y, z, state, null);
 	}
 
 	/** From now on, y = 0 means {@code baseY} in the template. */
-	TemplateBuilder baseY(int baseY) {
+	public TemplateBuilder baseY(int baseY) {
 		this.baseY = baseY;
 		return this;
 	}
 
-	TemplateBuilder set(int x, int y, int z, BlockState state, @Nullable NbtCompound nbt) {
+	public TemplateBuilder set(int x, int y, int z, BlockState state, @Nullable NbtCompound nbt) {
 		y += baseY;
 		if (x < 0 || y < 0 || z < 0 || x >= sizeX || y >= sizeY || z >= sizeZ) {
 			throw new IllegalArgumentException("Outside the template: " + x + ", " + y + ", " + z);
@@ -62,13 +62,13 @@ final class TemplateBuilder {
 		return this;
 	}
 
-	BlockState get(int x, int y, int z) {
+	public BlockState get(int x, int y, int z) {
 		Entry entry = blocks.get(new BlockPos(x, y + baseY, z));
 		return entry != null ? entry.state : Blocks.STRUCTURE_VOID.getDefaultState();
 	}
 
 	/** Fills the inclusive box. */
-	TemplateBuilder fill(int x0, int y0, int z0, int x1, int y1, int z1, BlockState state) {
+	public TemplateBuilder fill(int x0, int y0, int z0, int x1, int y1, int z1, BlockState state) {
 		for (int x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) {
 			for (int y = Math.min(y0, y1); y <= Math.max(y0, y1); y++) {
 				for (int z = Math.min(z0, z1); z <= Math.max(z0, z1); z++) {
@@ -82,7 +82,7 @@ final class TemplateBuilder {
 	/**
 	 * A closed room filling the whole template: floor, ceiling and walls of the given blocks, air inside.
 	 */
-	TemplateBuilder room(BlockState floor, BlockState walls, BlockState ceiling) {
+	public TemplateBuilder room(BlockState floor, BlockState walls, BlockState ceiling) {
 		fill(0, 0, 0, sizeX - 1, sizeY - 1, sizeZ - 1, walls);
 		fill(1, 1, 1, sizeX - 2, sizeY - 2, sizeZ - 2, Blocks.AIR.getDefaultState());
 		fill(1, 0, 1, sizeX - 2, 0, sizeZ - 2, floor);
@@ -94,7 +94,7 @@ final class TemplateBuilder {
 	 * Jigsaw block. {@code name} is what other pieces target; {@code pool}/{@code target} say what to attach here
 	 * (may be null for a receiving-only connector). After generation the block becomes {@code finalState}.
 	 */
-	TemplateBuilder jigsaw(int x, int y, int z, JigsawOrientation orientation, Identifier name,
+	public TemplateBuilder jigsaw(int x, int y, int z, JigsawOrientation orientation, Identifier name,
 			@Nullable Identifier pool, @Nullable Identifier target, BlockState finalState) {
 		NbtCompound nbt = new NbtCompound();
 		nbt.putString("id", "minecraft:jigsaw");
@@ -107,12 +107,12 @@ final class TemplateBuilder {
 	}
 
 	/** A horizontal doorway jigsaw on a wall, facing out of the piece; becomes air. */
-	TemplateBuilder door(int x, int y, int z, Direction facing, Identifier name, @Nullable Identifier pool, @Nullable Identifier target) {
+	public TemplateBuilder door(int x, int y, int z, Direction facing, Identifier name, @Nullable Identifier pool, @Nullable Identifier target) {
 		return jigsaw(x, y, z, JigsawOrientation.byDirections(facing, Direction.UP), name, pool, target,
 				Blocks.AIR.getDefaultState());
 	}
 
-	TemplateBuilder chest(int x, int y, int z, Direction facing, Identifier lootTable) {
+	public TemplateBuilder chest(int x, int y, int z, Direction facing, Identifier lootTable) {
 		NbtCompound nbt = new NbtCompound();
 		nbt.putString("id", "minecraft:chest");
 		nbt.putString("LootTable", lootTable.toString());
@@ -120,14 +120,14 @@ final class TemplateBuilder {
 	}
 
 	/** A block entity block with extra NBT (the id is added). */
-	TemplateBuilder blockEntity(int x, int y, int z, BlockState state, String blockEntityId, NbtCompound data) {
+	public TemplateBuilder blockEntity(int x, int y, int z, BlockState state, String blockEntityId, NbtCompound data) {
 		NbtCompound nbt = data.copy();
 		nbt.putString("id", blockEntityId);
 		return set(x, y, z, state, nbt);
 	}
 
 	/** An entity standing on the block at (x, y, z); {@code nbt} must contain its "id". */
-	TemplateBuilder entity(int x, int y, int z, NbtCompound nbt) {
+	public TemplateBuilder entity(int x, int y, int z, NbtCompound nbt) {
 		NbtCompound entry = new NbtCompound();
 		NbtList pos = new NbtList();
 		pos.add(NbtDouble.of(x + 0.5));
@@ -140,7 +140,7 @@ final class TemplateBuilder {
 		return this;
 	}
 
-	NbtCompound toNbt() {
+	public NbtCompound toNbt() {
 		NbtCompound root = new NbtCompound();
 		Map<BlockState, Integer> paletteIndex = new HashMap<>();
 		NbtList palette = new NbtList();
@@ -177,7 +177,7 @@ final class TemplateBuilder {
 	}
 
 	/** "namespace:block[prop=value,...]", the format jigsaw final states use. */
-	static String stateString(BlockState state) {
+	public static String stateString(BlockState state) {
 		String s = state.toString();
 		// BlockState.toString is "Block{namespace:id}[props]".
 		int open = s.indexOf('{');
