@@ -51,7 +51,24 @@ textures). Config section `gear`. Tests: `GearTests` (GameTests), JUnit under `s
     start of `LivingEntity.damage` through `mixin.GearLivingEntityMixin` (one `@ModifyVariable`, like the stats one);
     full set: `on_fire` damage cancelled (`ALLOW_DAMAGE`); lava and fire blocks still hurt.
   - Textures: placeholder icons and layers, not seen in game.
-- [ ] **11.4 Mob-drop sets + unique pieces.**
+- [x] **11.4 Mob-drop sets + unique pieces.**
+  - Sets (`GearArmor`, items `<set>_helmet|chestplate|leggings|boots`): Reaper's Garb `reaper` 2/6/5/2 (15),
+    toughness 0, repaired with Cinder Shard; Huntsman's Leathers `huntsman` 2/7/5/3 (17), toughness 1; Necropolis
+    Warden `warden` 3/8/6/3 (20), toughness 2, −1.25 % speed per piece (−5 % full). Durability ×15 / ×20 / ×30.
+  - Set bonuses (config `gear.sets`): Reaper +10 % speed and Warden +0.3 knockback resistance are attribute modifiers
+    toggled on `ServerEntityEvents.EQUIPMENT_CHANGE` (`GearEffects`); Huntsman +15 % projectile damage from the wearer
+    and Warden −15 % damage while blocking in `GearDamage.modifyIncoming`.
+  - Uniques (rare, fireproof, each with its own material so it never counts towards a set; config `gear.uniques`):
+    `scarecrow_mask` — `getAttackDistanceScalingFactor` × 0.5 (the vanilla mob-head mechanism) and
+    `GearArmor.hiddenFromAmbush(entity)` for reach-mobs' Ash Stalker; `huntsman_greaves` — Speed I 4 s after a kill,
+    fall damage −4 (a fall of up to 7 blocks does not hurt at all); `drowned_sabatons` — Depth Strider III
+    (`GearEnchantmentHelperMixin`); `furnace_heart_cuirass` — below 30 % health a fire nova (r 4, knockback, 6 ember
+    damage), 60 s vanilla item cooldown shown on the cuirass. Players only for the nova.
+  - Damage type `embervoid:ember` (`GearDamage.ember(attacker, source)`): the realm's flame, armor applies; used by
+    the nova, later the scythe's ash wave and Ash Bombs.
+  - Mixins: `GearLivingEntityMixin` gained a `damage` RETURN hook and the mask's scaling; new `GearEnchantmentHelperMixin`.
+  - Test players have no connection, so tests call `playerTick()` where a real player's tick matters.
+  - Textures: placeholder icons and layers, not seen in game.
 - [ ] **11.5 Ashen Scythe, Warden's Scourge, Royal Ash Rapier.**
 - [ ] **11.6 Huntsman's Crossbow.**
 - [ ] **11.7 Consumables + Flask Ember.**

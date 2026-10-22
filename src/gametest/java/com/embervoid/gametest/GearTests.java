@@ -4,6 +4,7 @@ import com.embervoid.Embervoid;
 import com.embervoid.reach.gear.Bleeding;
 import com.embervoid.reach.gear.GearArmor;
 import com.embervoid.reach.gear.GearConfig;
+import com.embervoid.reach.gear.GearDamage;
 import com.embervoid.reach.gear.GearItems;
 import com.embervoid.reach.gear.GearLootTables;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -12,7 +13,10 @@ import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.HuskEntity;
+import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -27,7 +31,10 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+
+import java.util.List;
 
 /** Ashen Reach gear (PLAN milestone 11): recipes, loot tables and item behaviour. */
 public final class GearTests implements FabricGameTest {
@@ -135,6 +142,109 @@ public final class GearTests implements FabricGameTest {
 			context.assertTrue(player.getHealth() < player.getMaxHealth(), "full set made lava harmless");
 			TestPlayers.complete(context, player);
 		}, player));
+	}
+
+	/**
+	 * Set bonuses follow the equipment: full Reaper's Garb +10 % speed, full Necropolis Warden +0.3 knockback
+	 * resistance and −1.25 % speed per piece, and the bonus leaves with a piece. Huntsman's Leathers: +15 % projectile
+	 * damage from the wearer; the Warden set takes 15 % less while blocking.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 200)
+	public void setBonusesFollowEquipment(TestContext context) {
+		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
+		double baseSpeed = player.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
+		withPlayers(context, () -> {
+			equip(player, GearArmor.REAPERS_GARB);
+			// Test players have no connection to tick them; a real player's tick notices equipment changes.
+			player.playerTick();
+			double speed = player.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
+			context.assertTrue(Math.abs(speed - baseSpeed * 1.1) < 1e-6, "Reaper set speed " + speed + ", base " + baseSpeed);
+			player.equipStack(EquipmentSlot.FEET, ItemStack.EMPTY);
+			player.playerTick();
+			speed = player.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
+			context.assertTrue(Math.abs(speed - baseSpeed) < 1e-6, "speed bonus stayed without the boots: " + speed);
+
+			equip(player, GearArmor.NECROPOLIS_WARDEN);
+			player.setStackInHand(Hand.OFF_HAND, new ItemStack(Items.SHIELD));
+			player.setCurrentHand(Hand.OFF_HAND);
+			// A shield blocks after 5 ticks of use.
+			for (int tick = 0; tick < 6; tick++) {
+				player.playerTick();
+			}
+			speed = player.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
+			context.assertTrue(Math.abs(speed - baseSpeed * 0.95) < 1e-6, "Warden set speed " + speed);
+			double knockback = player.getAttributeValue(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE);
+			context.assertTrue(Math.abs(knockback - 0.3) < 1e-6, "Warden set knockback resistance " + knockback);
+			context.assertTrue(player.isBlocking(), "player is not blocking with the shield");
+			float blocked = GearDamage.modifyIncoming(player, player.getDamageSources().generic(), 10);
+			context.assertTrue(Math.abs(blocked - 8.5f) < 1e-4, "Warden set while blocking: " + blocked);
+
+			HuskEntity husk = context.spawnMob(EntityType.HUSK, 4, 2, 4);
+			husk.setAiDisabled(true);
+			ArrowEntity arrow = new ArrowEntity(context.getWorld(), player);
+			float plain = GearDamage.modifyIncoming(husk, context.getWorld().getDamageSources().arrow(arrow, player), 10);
+			context.assertTrue(plain == 10, "arrow damage changed without the Huntsman set: " + plain);
+			equip(player, GearArmor.HUNTSMANS_LEATHERS);
+			float boosted = GearDamage.modifyIncoming(husk, context.getWorld().getDamageSources().arrow(arrow, player), 10);
+			context.assertTrue(Math.abs(boosted - 11.5f) < 1e-4, "Huntsman set arrow damage: " + boosted);
+		}, player);
+		TestPlayers.complete(context, player);
+	}
+
+	/**
+	 * Scarecrow's Mask halves the distance mobs notice the wearer at; Drowned Sabatons give Depth Strider III; Huntsman's
+	 * Greaves take 4 off fall damage (nothing up to 7 blocks) and give Speed after a kill.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 200)
+	public void uniquePiecesWork(TestContext context) {
+		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
+		context.assertTrue(player.getAttackDistanceScalingFactor(null) == 1.0, "scaling without the mask");
+		player.equipStack(EquipmentSlot.HEAD, new ItemStack(GearArmor.SCARECROW_MASK));
+		context.assertTrue(player.getAttackDistanceScalingFactor(null) == 0.5, "mask: " + player.getAttackDistanceScalingFactor(null));
+		context.assertTrue(GearArmor.hiddenFromAmbush(player), "mask does not hide from ambushes");
+		player.equipStack(EquipmentSlot.FEET, new ItemStack(GearArmor.DROWNED_SABATONS));
+		context.assertTrue(EnchantmentHelper.getDepthStrider(player) == 3, "sabatons depth strider " + EnchantmentHelper.getDepthStrider(player));
+		player.equipStack(EquipmentSlot.LEGS, new ItemStack(GearArmor.HUNTSMAN_GREAVES_ITEM));
+
+		context.waitAndRun(JOIN_INVULNERABLE_TICKS, () -> withPlayers(context, () -> {
+			player.damage(player.getDamageSources().fall(), 4);
+			context.assertTrue(player.getHealth() == player.getMaxHealth(), "a 7-block fall hurt: " + player.getHealth());
+			player.damage(player.getDamageSources().fall(), 7);
+			float lost = player.getMaxHealth() - player.getHealth();
+			// Leggings armor applies on top: the fall loses 4, then 5 armor points.
+			context.assertTrue(lost > 0 && lost < 3.01f, "a 10-block fall: lost " + lost + ", expected at most 3");
+
+			HuskEntity husk = context.spawnMob(EntityType.HUSK, 4, 2, 4);
+			husk.damage(context.getWorld().getDamageSources().playerAttack(player), 10000);
+			context.assertTrue(player.hasStatusEffect(StatusEffects.SPEED), "no speed after a kill");
+			TestPlayers.complete(context, player);
+		}, player));
+	}
+
+	/** Furnace Heart Cuirass: dropping below 30 % health sets off a fire nova that hurts mobs around, once per cooldown. */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 200)
+	public void furnaceHeartNova(TestContext context) {
+		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
+		player.equipStack(EquipmentSlot.CHEST, new ItemStack(GearArmor.FURNACE_HEART_CUIRASS));
+		HuskEntity husk = context.spawnMob(EntityType.HUSK, 4, 2, 2);
+		husk.setAiDisabled(true);
+		context.waitAndRun(JOIN_INVULNERABLE_TICKS, () -> withPlayers(context, () -> {
+			player.damage(player.getDamageSources().magic(), 4);
+			context.assertTrue(husk.getHealth() == husk.getMaxHealth(), "nova went off above 30 % health");
+		}, player));
+		// Past the hurt cooldown of the first hit.
+		context.waitAndRun(JOIN_INVULNERABLE_TICKS + 20, () -> withPlayers(context, () -> {
+			player.damage(player.getDamageSources().magic(), 11);
+			context.assertTrue(husk.getHealth() < husk.getMaxHealth(), "no nova below 30 % health");
+			context.assertTrue(player.getItemCooldownManager().isCoolingDown(GearArmor.FURNACE_HEART_CUIRASS), "no cooldown");
+			TestPlayers.complete(context, player);
+		}, player));
+	}
+
+	static void equip(LivingEntity entity, List<Item> set) {
+		for (int i = 0; i < GearArmor.SLOTS.size(); i++) {
+			entity.equipStack(GearArmor.SLOTS.get(i), new ItemStack(set.get(i)));
+		}
 	}
 
 	/** Runs a test step; if it fails, the players leave the server first so they do not leak into other tests. */

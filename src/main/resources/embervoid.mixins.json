@@ -14,6 +14,7 @@
 		"TrackTargetGoalMixin",
 		"PlayerEntityVampirismMixin",
 		"GearLivingEntityMixin",
+		"GearEnchantmentHelperMixin",
 		"ReliquaryLivingEntityMixin",
 		"ReliquaryPlayerEntityMixin"
 	],

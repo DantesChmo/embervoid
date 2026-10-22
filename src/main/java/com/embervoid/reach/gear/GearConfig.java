@@ -11,16 +11,22 @@ import com.google.gson.JsonObject;
  *
  * @param bleeding   the Bleeding status effect
  * @param smoldering the Smoldering Plate
+ * @param sets       the mob-drop set bonuses
+ * @param uniques    the unique armor pieces
  */
-public record GearConfig(Bleeding bleeding, Smoldering smoldering) {
-	private static final GearConfig DEFAULTS = new GearConfig(Bleeding.DEFAULTS, Smoldering.DEFAULTS);
+public record GearConfig(Bleeding bleeding, Smoldering smoldering, Sets sets, Uniques uniques) {
+	private static final GearConfig DEFAULTS = new GearConfig(Bleeding.DEFAULTS, Smoldering.DEFAULTS, Sets.DEFAULTS,
+			Uniques.DEFAULTS);
 
 	public static final ConfigSection<GearConfig> SECTION = EmbervoidConfig.register(ConfigSection.of(
 			"gear", DEFAULTS,
-			in -> new GearConfig(Bleeding.read(in.section("bleeding")), Smoldering.read(in.section("smoldering"))),
+			in -> new GearConfig(Bleeding.read(in.section("bleeding")), Smoldering.read(in.section("smoldering")),
+					Sets.read(in.section("sets")), Uniques.read(in.section("uniques"))),
 			(value, out) -> {
 				out.add("bleeding", value.bleeding.write());
 				out.add("smoldering", value.smoldering.write());
+				out.add("sets", value.sets.write());
+				out.add("uniques", value.uniques.write());
 			}));
 
 	public static GearConfig get() {
@@ -62,6 +68,70 @@ public record GearConfig(Bleeding bleeding, Smoldering smoldering) {
 		JsonObject write() {
 			JsonObject out = new JsonObject();
 			out.addProperty("fireReductionPerPiece", fireReductionPerPiece);
+			return out;
+		}
+	}
+
+	/**
+	 * @param reaperSpeed            Reaper's Garb: move speed bonus (share of base)
+	 * @param huntsmanProjectile     Huntsman's Leathers: projectile damage bonus
+	 * @param wardenKnockbackResist  Necropolis Warden: knockback resistance added
+	 * @param wardenBlockingReduction Necropolis Warden: share of damage taken away while blocking with a shield
+	 */
+	public record Sets(float reaperSpeed, float huntsmanProjectile, float wardenKnockbackResist, float wardenBlockingReduction) {
+		static final Sets DEFAULTS = new Sets(0.10f, 0.15f, 0.3f, 0.15f);
+
+		static Sets read(SectionReader in) {
+			return new Sets(
+					in.readFloat("reaperSpeed", DEFAULTS.reaperSpeed, 0, 1),
+					in.readFloat("huntsmanProjectile", DEFAULTS.huntsmanProjectile, 0, 2),
+					in.readFloat("wardenKnockbackResist", DEFAULTS.wardenKnockbackResist, 0, 1),
+					in.readFloat("wardenBlockingReduction", DEFAULTS.wardenBlockingReduction, 0, 1));
+		}
+
+		JsonObject write() {
+			JsonObject out = new JsonObject();
+			out.addProperty("reaperSpeed", reaperSpeed);
+			out.addProperty("huntsmanProjectile", huntsmanProjectile);
+			out.addProperty("wardenKnockbackResist", wardenKnockbackResist);
+			out.addProperty("wardenBlockingReduction", wardenBlockingReduction);
+			return out;
+		}
+	}
+
+	/**
+	 * @param scarecrowDetection    Scarecrow's Mask: share of the usual distance at which mobs notice the wearer
+	 * @param greavesSpeedTicks     Huntsman's Greaves: Speed I after a kill, ticks
+	 * @param greavesSafeFallDamage Huntsman's Greaves: fall damage taken away (4 = no damage from up to 7 blocks)
+	 * @param novaHealthFraction    Furnace Heart Cuirass: the nova goes off below this share of max health
+	 * @param novaRadius            Furnace Heart Cuirass: nova radius
+	 * @param novaDamage            Furnace Heart Cuirass: ember damage to each mob in the nova
+	 * @param novaCooldownTicks     Furnace Heart Cuirass: ticks between two novas
+	 */
+	public record Uniques(float scarecrowDetection, int greavesSpeedTicks, float greavesSafeFallDamage,
+			float novaHealthFraction, float novaRadius, float novaDamage, int novaCooldownTicks) {
+		static final Uniques DEFAULTS = new Uniques(0.5f, 80, 4, 0.3f, 4, 6, 1200);
+
+		static Uniques read(SectionReader in) {
+			return new Uniques(
+					in.readFloat("scarecrowDetection", DEFAULTS.scarecrowDetection, 0, 1),
+					in.readInt("greavesSpeedTicks", DEFAULTS.greavesSpeedTicks, 0, 1200),
+					in.readFloat("greavesSafeFallDamage", DEFAULTS.greavesSafeFallDamage, 0, 100),
+					in.readFloat("novaHealthFraction", DEFAULTS.novaHealthFraction, 0, 1),
+					in.readFloat("novaRadius", DEFAULTS.novaRadius, 1, 16),
+					in.readFloat("novaDamage", DEFAULTS.novaDamage, 0, 100),
+					in.readInt("novaCooldownTicks", DEFAULTS.novaCooldownTicks, 20, 72000));
+		}
+
+		JsonObject write() {
+			JsonObject out = new JsonObject();
+			out.addProperty("scarecrowDetection", scarecrowDetection);
+			out.addProperty("greavesSpeedTicks", greavesSpeedTicks);
+			out.addProperty("greavesSafeFallDamage", greavesSafeFallDamage);
+			out.addProperty("novaHealthFraction", novaHealthFraction);
+			out.addProperty("novaRadius", novaRadius);
+			out.addProperty("novaDamage", novaDamage);
+			out.addProperty("novaCooldownTicks", novaCooldownTicks);
 			return out;
 		}
 	}

@@ -275,11 +275,16 @@ BOOTS = [
 
 
 def armor(name, colours, rng_seed=1):
-    """Item icons <name>_helmet|chestplate|leggings|boots and the worn layers (minecraft namespace, see
-    GearArmorMaterial): a plain suit in the set's colours, one accent band."""
-    import random
+    """Item icons <name>_helmet|chestplate|leggings|boots and the worn layers."""
     for piece, rows in (("helmet", HELMET), ("chestplate", CHESTPLATE), ("leggings", LEGGINGS), ("boots", BOOTS)):
         icon(name + "_" + piece, rows, palette(*colours))
+    layers(name, colours, rng_seed)
+
+
+def layers(name, colours, rng_seed=1):
+    """Worn armor layers (minecraft namespace, see GearArmorMaterial): a plain suit in the material's colours, one
+    accent band. The game only draws the parts of the slots the material has pieces for."""
+    import random
     light, mid, dark, accent = colours
     rng = random.Random(rng_seed)
     layer_dir = os.path.join("src", "main", "resources", "assets", "minecraft", "textures", "models", "armor")
@@ -301,6 +306,18 @@ def armor(name, colours, rng_seed=1):
 
 def armor_sets():
     armor("smoldering", ((104, 92, 90, 255), (64, 54, 54, 255), (38, 32, 34, 255), (246, 112, 36, 255)))
+    armor("reaper", ((170, 156, 128, 255), (118, 104, 82, 255), (72, 62, 50, 255), (196, 70, 40, 255)))
+    armor("huntsman", ((122, 140, 90, 255), (84, 100, 62, 255), (52, 62, 40, 255), (214, 160, 70, 255)))
+    armor("warden", ((150, 158, 176, 255), (98, 106, 124, 255), (58, 64, 80, 255), (180, 196, 230, 255)), 3)
+    uniques = (
+        ("scarecrow_mask", "scarecrow_mask", HELMET, ((214, 190, 120, 255), (160, 134, 74, 255), (96, 78, 44, 255), (40, 30, 24, 255))),
+        ("huntsman_greaves", "huntsman_greaves", LEGGINGS, ((150, 116, 76, 255), (108, 80, 50, 255), (66, 48, 30, 255), (226, 186, 90, 255))),
+        ("drowned_sabatons", "drowned_sabatons", BOOTS, ((110, 160, 150, 255), (64, 110, 104, 255), (34, 66, 64, 255), (170, 220, 210, 255))),
+        ("furnace_heart_cuirass", "furnace_heart", CHESTPLATE, ((120, 80, 70, 255), (76, 46, 40, 255), (44, 26, 24, 255), (255, 150, 40, 255))),
+    )
+    for item, material, rows, colours in uniques:
+        icon(item, rows, palette(*colours))
+        layers(material, colours, 7)
 
 
 def palette(light, mid, dark, extra=(255, 255, 255, 255)):
