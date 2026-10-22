@@ -198,8 +198,8 @@ shrines).
 **Status:** In progress.
 
 - [x] Sealed Gate opens onto a placeholder ("the depths are still forming"; `realm.depthsOpen`)
-- [ ] Balance pass on the moon nights (levels, curse, Ghosts, Vampire boss)
-- [ ] Multiplayer and performance test (realm worldgen time, entity counts)
+- [x] Balance pass on the moon nights (levels, curse, Ghosts, Vampire boss) — done in the 0.4.0 balance pass
+- [x] Multiplayer and performance test (realm worldgen time, entity counts) — done in 0.4.0 (R40.4)
 - [ ] Release 0.3.0 (version bumped, jar built; publishing waits for the user)
 
 ---

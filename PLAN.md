@@ -412,8 +412,8 @@ performance) are done here with them.
   task in ROADMAP.md.
 - **Design:** DESIGN §10.1, §10.7, §10.8, §10.9 and the KIN/RES part of §10.10 are built as recommended and wait
   for the user's confirmation; §10.2–10.5 and the Sanctum weapons (§10.10) are open.
-- **Art pass:** every mob and the Maiden use generated placeholder models and textures.
-- **Balance:** real bosses need base values picked with level scaling in mind (the test boss at Lv 18 hit for
-  37 melee with 404 HP, QA #8); the 0.2.0 balance pass.
+- **Art pass:** the overworld mobs (Ash Ghoul, Hollow, Ember Wisp), the moon-night mobs, the Vampires and the Maiden
+  still use generated placeholder models; Realm 1 got its art in 0.4.0 (`tools/model_preview.py` can do the same for them).
+- **Balance:** the 0.2.0 overworld balance pass (Realm 1 and the moon nights were balanced in 0.4.0, `docs/balance-0.4.0.md`).
 - **Known limitation:** a dormant arena shrine looks lit to everyone; only resting is refused (a per-player look
   needs client-side progress).
