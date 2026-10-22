@@ -14,7 +14,7 @@ Owns `com.embervoid.realm` (incl. `realm.worldgen`, `realm.fog`), `com.embervoid
 - [x] 9.3 Zones renamed, eternal dusk, zone looks
 - [x] 9.4 Zone terrain density + arena sites
 - [x] 9.5 Realm 1 blocks and ores
-- [ ] 9.6 Landing plaza, roads, milestones, outposts
+- [x] 9.6 Landing plaza, roads, milestones, outposts
 - [ ] 9.7 Minor structures per zone
 - [ ] 9.8 Necropolis crypt jigsaw + water
 - [ ] 9.9 World edge
@@ -113,3 +113,29 @@ Owns `com.embervoid.realm` (incl. `realm.worldgen`, `realm.fog`), `com.embervoid
   Textures: `tools/reach_world_placeholders.py` (procedural stand-ins).
 - GameTests: drop counts with iron / diamond pickaxes, tool tiers, the tag; four chunks at each zone's sector centre hold
   only that zone's ore. Server check passes. Not seen: textures, models, particles.
+
+## 9.6 Landing, roads, outposts
+
+- Landing (`RealmFeaturePiece`, kind landing): the crossroads plaza, brick paving r 21 (some cracked), the old polished
+  disc r 9 around the shrine; Return Obelisk, Sealed Gate and shrine where they were. A broken low wall on the rim with a
+  gap and two lantern posts where each road leaves. The landing piece (and the protected area) is now r 21 + 7.
+- Roads: pure `realm.RoadLayout` (JUnit `RoadLayoutTest`): one road per arena from the plaza edge (r 22) to the site
+  edge, a seeded sideways wobble (≤ 24 blocks, zero at both ends), resampled every 2 blocks; a milestone every 100
+  blocks, 4 to the right walking out, facing the road; a toll gate at 30 % and a watchtower at 65 % of the length.
+  `realm.worldgen.RealmRoads` computes them once per world and seed from `RealmArenas` (now with each site radius).
+- Feature `embervoid:realm_roads` (`reach.world.RoadFeature`, placed once per chunk in the landing and zone biomes,
+  `surface_structures` step): paves 5 wide on the surface (ash bricks / cracked in the middle, cobbles / ash stone at the
+  edges, ~15 % edge gaps), clears 2 above, sets milestones, places outposts whose centre is in the chunk. A road is a
+  feature, not a structure: a structure start cannot reach 900 blocks.
+- Outposts: datagen templates `embervoid:ashen_reach/outpost/<toll_gate|watchtower>_<fields|woods|necropolis>`
+  (`client.reach.world.OutpostTemplates`, written by `ReachTemplateProvider`). The road runs along +Z through the
+  template's middle column; centred on the road, turned along it (`RoadFeature.rotationAlong`), foundation under the
+  footprint, the feature does not pave under it. Toll gate: two ruined towers, broken arch, half barrier; watchtower: 5×5
+  tower with ladder and fenced platform. Each: 2 zone fodder + 1 zone "ranged" placed mob (Fields Ashen Carrion
+  perching, Woods Lantern Hag, Necropolis Crypt Moth), a `<zone>_common` chest, a zone accent. Mob table in
+  `client.reach.world.ReachZoneKit`.
+- Debug: `/embervoid realm roads` (works from the console with `execute in`): lengths, milestones, outposts and whether
+  each has its chest. Server check force-loads every outpost and expects all chests.
+- GameTests: road 0 paved along its first ~120 blocks, its first milestone, both outposts have their zone chest; the
+  plaza (start placed by hand) has the shrine, a wall gap and two lantern posts at each road exit.
+- Not seen: how roads look on steep ground (they follow the surface; no bridges or steps), outposts and plaza looks.

@@ -20,6 +20,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.ToDoubleFunction;
 
 /**
@@ -40,6 +41,8 @@ public class HealingFlaskItem extends Item {
 
 	/** Multiplier on the heal per sip from the player's stats (Kindling, set by the stats system); 1 by default. */
 	private static ToDoubleFunction<PlayerEntity> healMultiplier = player -> 1.0;
+	/** Further multipliers from other systems (the Flask Ember), applied on top of the stats one. */
+	private static final List<ToDoubleFunction<PlayerEntity>> EXTRA_HEAL_MULTIPLIERS = new CopyOnWriteArrayList<>();
 
 	public HealingFlaskItem(Settings settings) {
 		super(settings);
@@ -48,6 +51,11 @@ public class HealingFlaskItem extends Item {
 	/** Lets the stats system scale flask healing (DESIGN §10.10: Kindling). */
 	public static void setHealMultiplier(ToDoubleFunction<PlayerEntity> multiplier) {
 		healMultiplier = multiplier;
+	}
+
+	/** Adds a multiplier on the heal per sip, e.g. a one-time flask upgrade; it must work on both sides. */
+	public static void addHealMultiplier(ToDoubleFunction<PlayerEntity> multiplier) {
+		EXTRA_HEAL_MULTIPLIERS.add(multiplier);
 	}
 
 	/** Charge cap for this player: base charges plus upgrades, never above {@code flask.maxCharges}. */
@@ -65,7 +73,11 @@ public class HealingFlaskItem extends Item {
 	public static float healAmount(PlayerEntity player) {
 		PlayerData data = PlayerDataManager.get(player);
 		float base = EmbervoidConfig.get().flask().healAmount() + data.flaskHealUpgrades * HEAL_PER_UPGRADE;
-		return (float) (base * healMultiplier.applyAsDouble(player));
+		double multiplier = healMultiplier.applyAsDouble(player);
+		for (ToDoubleFunction<PlayerEntity> extra : EXTRA_HEAL_MULTIPLIERS) {
+			multiplier *= extra.applyAsDouble(player);
+		}
+		return (float) (base * multiplier);
 	}
 
 	/** Fills the player's charges to their cap (resting, respawning). */

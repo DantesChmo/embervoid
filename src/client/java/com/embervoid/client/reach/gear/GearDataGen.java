@@ -3,6 +3,7 @@ package com.embervoid.client.reach.gear;
 import com.embervoid.Embervoid;
 import com.embervoid.reach.gear.Bleeding;
 import com.embervoid.reach.gear.GearArmor;
+import com.embervoid.reach.gear.GearConsumables;
 import com.embervoid.reach.gear.GearLootTables;
 import com.embervoid.reach.gear.GearWeapons;
 import com.embervoid.registry.ModBlocks;
@@ -22,11 +23,18 @@ import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
+import net.minecraft.loot.LootPool;
 import net.minecraft.loot.LootTable;
+import net.minecraft.loot.condition.RandomChanceLootCondition;
 import net.minecraft.loot.context.LootContextTypes;
+import net.minecraft.loot.entry.ItemEntry;
+import net.minecraft.loot.entry.LootPoolEntry;
+import net.minecraft.loot.function.SetCountLootFunction;
+import net.minecraft.loot.provider.number.UniformLootNumberProvider;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.book.RecipeCategory;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.util.Identifier;
 
 import java.util.List;
@@ -42,7 +50,8 @@ public final class GearDataGen {
 	/** Flat items drawn by {@code tools/gear_placeholders.py}. */
 	static final List<Item> FLAT_ITEMS = List.of(CINDER_SHARD, ROYAL_AMBER, RAW_GRAVE_IRON, GRAVE_IRON_INGOT,
 			SMOLDERING_INGOT, SMOLDERING_TEMPLATE, ASH_COLOSSUS_SOUL, GRIEVING_TREE_SOUL, CRYPT_KEEPER_SOUL,
-			SMOLDERING_LORD_SOUL, ASH_OF_REMATCH, FLASK_EMBER);
+			SMOLDERING_LORD_SOUL, ASH_OF_REMATCH, FLASK_EMBER, GearConsumables.ASH_BOMB, GearConsumables.SMOLDERING_RESIN,
+			GearConsumables.AMBER_BALM, GearConsumables.AMBER_LANTERN_OIL, GearConsumables.WHETSTONE);
 
 	/** Armor pieces; icons and armor layers drawn by {@code tools/gear_placeholders.py}. */
 	static final List<Item> ARMOR = Stream.of(GearArmor.SMOLDERING_PLATE, GearArmor.REAPERS_GARB,
@@ -152,6 +161,34 @@ public final class GearDataGen {
 			weapon(exporter, GearWeapons.ROYAL_ASH_RAPIER, SMOLDERING_LORD_SOUL, Items.GOLDEN_SWORD);
 			weapon(exporter, GearWeapons.HUNTSMANS_CROSSBOW, GRIEVING_TREE_SOUL, Items.CROSSBOW);
 
+			// Consumables: cinder for fire, amber for healing and light, grave iron for the whetstone.
+			ShapelessRecipeJsonBuilder.create(RecipeCategory.COMBAT, GearConsumables.ASH_BOMB, 2)
+					.input(CINDER_SHARD, 2)
+					.input(Items.GUNPOWDER)
+					.criterion(hasItem(CINDER_SHARD), conditionsFromItem(CINDER_SHARD))
+					.offerTo(exporter);
+			ShapelessRecipeJsonBuilder.create(RecipeCategory.COMBAT, GearConsumables.SMOLDERING_RESIN)
+					.input(CINDER_SHARD, 2)
+					.input(Items.CHARCOAL)
+					.criterion(hasItem(CINDER_SHARD), conditionsFromItem(CINDER_SHARD))
+					.offerTo(exporter);
+			ShapelessRecipeJsonBuilder.create(RecipeCategory.BREWING, GearConsumables.AMBER_BALM)
+					.input(ROYAL_AMBER, 2)
+					.input(Items.GLASS_BOTTLE)
+					.criterion(hasItem(ROYAL_AMBER), conditionsFromItem(ROYAL_AMBER))
+					.offerTo(exporter);
+			ShapelessRecipeJsonBuilder.create(RecipeCategory.MISC, GearConsumables.AMBER_LANTERN_OIL)
+					.input(ROYAL_AMBER)
+					.input(Items.GLASS_BOTTLE)
+					.input(ItemTags.COALS)
+					.criterion(hasItem(ROYAL_AMBER), conditionsFromItem(ROYAL_AMBER))
+					.offerTo(exporter);
+			ShapelessRecipeJsonBuilder.create(RecipeCategory.TOOLS, GearConsumables.WHETSTONE, 2)
+					.input(GRAVE_IRON_INGOT)
+					.input(ModBlocks.COBBLED_ASH_STONE, 2)
+					.criterion(hasItem(GRAVE_IRON_INGOT), conditionsFromItem(GRAVE_IRON_INGOT))
+					.offerTo(exporter);
+
 			// DESIGN §10.11, built as recommended.
 			ShapelessRecipeJsonBuilder.create(RecipeCategory.MISC, ASH_OF_REMATCH)
 					.input(CINDER_SHARD, 4)
@@ -171,6 +208,12 @@ public final class GearDataGen {
 				.offerTo(exporter);
 	}
 
+	/**
+	 * Ashen Reach chests (DESIGN §4.5 "Chests"): common (outposts, farmsteads, barns, kennels, graves), treasure
+	 * (granary vault, hunting lodge, lower crypt, Citadel keep: Smoldering Ingot, templates, set pieces, the zone weapon
+	 * 4 %; track reliquary injects artifacts and rings) and the chest by each arena (a template, an Ash of Rematch and
+	 * the zone's consumables).
+	 */
 	private static class ChestLoot extends SimpleFabricLootTableProvider {
 		ChestLoot(FabricDataOutput output) {
 			super(output, LootContextTypes.CHEST);
@@ -181,11 +224,114 @@ public final class GearDataGen {
 			return "Embervoid Ashen Reach chest loot tables";
 		}
 
+		/** A zone's ore material, set, weapon and arena consumables. */
+		private record Zone(String name, Item material, int materialMax, List<Item> set, Item weapon, Item consumable,
+				Item secondConsumable) {}
+
 		@Override
 		public void accept(BiConsumer<Identifier, LootTable.Builder> exporter) {
-			for (Identifier id : GearLootTables.all()) {
-				exporter.accept(id, LootTable.builder());
+			List<Zone> zones = List.of(
+					new Zone("fields", CINDER_SHARD, 3, GearArmor.REAPERS_GARB, GearWeapons.ASHEN_SCYTHE,
+							GearConsumables.ASH_BOMB, GearConsumables.SMOLDERING_RESIN),
+					new Zone("woods", ROYAL_AMBER, 2, GearArmor.HUNTSMANS_LEATHERS, GearWeapons.HUNTSMANS_CROSSBOW,
+							GearConsumables.AMBER_BALM, Items.ARROW),
+					new Zone("necropolis", RAW_GRAVE_IRON, 2, GearArmor.NECROPOLIS_WARDEN, GearWeapons.WARDENS_SCOURGE,
+							GearConsumables.AMBER_LANTERN_OIL, GearConsumables.AMBER_BALM));
+			for (Zone zone : zones) {
+				LootPool.Builder common = supplies(3, 5).with(item(zone.material, 20, 1, zone.materialMax));
+				if (zone.name.equals("necropolis")) {
+					// The Necropolis is dark: its graves keep lantern oil.
+					common.with(item(GearConsumables.AMBER_LANTERN_OIL, 4, 1, 1));
+				}
+				exporter.accept(GearLootTables.common(zone.name), LootTable.builder().pool(common));
+				exporter.accept(GearLootTables.treasure(zone.name), treasure(List.of(zone.material, GRAVE_IRON_INGOT),
+						zone.set, zone.weapon, 0.12f, 0.25f, 0.3f));
+				exporter.accept(GearLootTables.arena(zone.name), LootTable.builder()
+						.pool(single(SMOLDERING_TEMPLATE))
+						.pool(single(ASH_OF_REMATCH))
+						.pool(LootPool.builder().rolls(UniformLootNumberProvider.create(2, 3))
+								.with(item(zone.consumable, 10, 1, zone.consumable == GearConsumables.ASH_BOMB ? 4 : 2))
+								.with(item(zone.secondConsumable, 8, 1, zone.secondConsumable == Items.ARROW ? 16 : 2))
+								.with(item(zone.material, 6, 1, zone.materialMax))));
 			}
+			// The burning capital: no ore of its own, a little of everything; the keep holds the king's hoard.
+			exporter.accept(GearLootTables.CITADEL_COMMON, LootTable.builder()
+					.pool(supplies(3, 5)
+							.with(item(CINDER_SHARD, 8, 1, 3))
+							.with(item(ROYAL_AMBER, 6, 1, 2))
+							.with(item(RAW_GRAVE_IRON, 5, 1, 2))
+							.with(item(GearConsumables.SMOLDERING_RESIN, 4, 1, 1))
+							.with(item(GearConsumables.AMBER_LANTERN_OIL, 3, 1, 1))));
+			List<Item> anySet = Stream.of(GearArmor.REAPERS_GARB, GearArmor.HUNTSMANS_LEATHERS, GearArmor.NECROPOLIS_WARDEN)
+					.flatMap(List::stream).toList();
+			exporter.accept(GearLootTables.CITADEL_TREASURE, treasure(List.of(GRAVE_IRON_INGOT, CINDER_SHARD, ROYAL_AMBER),
+					anySet, GearWeapons.ROYAL_ASH_RAPIER, 0.3f, 0.35f, 0.35f));
+		}
+
+		/** The everyday pool of a common chest: food, arrows, iron and gold, bombs, light. */
+		private static LootPool.Builder supplies(int min, int max) {
+			return LootPool.builder().rolls(UniformLootNumberProvider.create(min, max))
+					.with(item(Items.BREAD, 15, 1, 3))
+					.with(item(Items.BAKED_POTATO, 10, 1, 3))
+					.with(item(Items.COOKED_RABBIT, 8, 1, 2))
+					.with(item(Items.APPLE, 8, 1, 3))
+					.with(item(Items.ARROW, 12, 2, 8))
+					.with(item(Items.IRON_NUGGET, 10, 2, 6))
+					.with(item(Items.IRON_INGOT, 6, 1, 2))
+					.with(item(Items.GOLD_NUGGET, 8, 2, 6))
+					.with(item(Items.GOLD_INGOT, 3, 1, 1))
+					.with(item(GearConsumables.ASH_BOMB, 6, 1, 2))
+					.with(item(GearConsumables.AMBER_BALM, 4, 1, 1))
+					.with(item(Items.TORCH, 8, 2, 5))
+					.with(item(Items.BONE, 8, 1, 3))
+					.with(item(Items.STRING, 6, 1, 3));
+		}
+
+		/**
+		 * A treasure chest: a rich pool of materials and consumables, then separate rolls for a Smoldering Ingot, a
+		 * template, a set piece and the weapon (4 %).
+		 */
+		private static LootTable.Builder treasure(List<Item> materials, List<Item> set, Item weapon, float ingot,
+				float template, float setPiece) {
+			LootPool.Builder hoard = LootPool.builder().rolls(UniformLootNumberProvider.create(3, 5))
+					.with(item(Items.GOLD_INGOT, 10, 1, 3))
+					.with(item(Items.DIAMOND, 4, 1, 2))
+					.with(item(Items.EMERALD, 4, 1, 2))
+					.with(item(Items.GOLDEN_APPLE, 2, 1, 1))
+					.with(item(GearConsumables.ASH_BOMB, 8, 2, 4))
+					.with(item(GearConsumables.AMBER_BALM, 8, 1, 2))
+					.with(item(GearConsumables.SMOLDERING_RESIN, 6, 1, 2))
+					.with(item(GearConsumables.WHETSTONE, 5, 1, 1))
+					.with(item(GearConsumables.AMBER_LANTERN_OIL, 5, 1, 1));
+			for (Item material : materials) {
+				hoard.with(item(material, 12, 2, 4));
+			}
+			LootPool.Builder setPool = LootPool.builder().conditionally(RandomChanceLootCondition.builder(setPiece));
+			for (Item piece : set) {
+				setPool.with(ItemEntry.builder(piece));
+			}
+			return LootTable.builder()
+					.pool(hoard)
+					.pool(chance(SMOLDERING_INGOT, ingot))
+					.pool(chance(SMOLDERING_TEMPLATE, template))
+					.pool(setPool)
+					.pool(chance(weapon, 0.04f));
+		}
+
+		private static LootPoolEntry.Builder<?> item(Item item, int weight, int min, int max) {
+			ItemEntry.Builder<?> entry = ItemEntry.builder(item).weight(weight);
+			if (max > 1) {
+				entry.apply(SetCountLootFunction.builder(UniformLootNumberProvider.create(min, max)));
+			}
+			return entry;
+		}
+
+		private static LootPool.Builder single(Item item) {
+			return LootPool.builder().with(ItemEntry.builder(item));
+		}
+
+		private static LootPool.Builder chance(Item item, float chance) {
+			return LootPool.builder().conditionally(RandomChanceLootCondition.builder(chance)).with(ItemEntry.builder(item));
 		}
 	}
 

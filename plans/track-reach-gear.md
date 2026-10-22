@@ -98,8 +98,42 @@ textures). Config section `gear`. Tests: `GearTests` (GameTests), JUnit under `s
     `gear.crossbow`). Scaling DEX 0.5 / STR 0.5 through `WeaponScaling.addRangedRule`.
   - Recipe: Grieving Tree soul + 2 Smoldering Ingot + a crossbow. Model states (pull, pulling, charged, firework)
     registered client-side in `GearClient` like vanilla's; models hand-written in resources.
-  - Not done (visual, client-only, unverifiable here): third-person "hold a charged crossbow" pose and the
-    first-person crossbow placement are keyed to `Items.CROSSBOW` in vanilla renderers, so this one is held like an
-    ordinary item when charged. Textures placeholders, not seen.
-- [ ] **11.7 Consumables + Flask Ember.**
-- [ ] **11.8 Chest loot + realm loot on mobs.**
+  - Poses: vanilla keys the "hold a loaded crossbow" arm pose and the two-handed first-person crossbow to
+    `Items.CROSSBOW`; client mixins `GearPlayerEntityRendererMixin` (getArmPose) and `GearHeldItemRendererMixin`
+    (hand render type, charged check, first-person item) wrap those `isOf` checks so
+    `HuntsmansCrossbowItem.countsAsCrossbow` answers yes for it. Targets resolved by the mixin annotation processor;
+    not seen in game (no client launch). Textures placeholders, not seen.
+- [x] **11.7 Consumables + Flask Ember.** (config `gear.consumables`)
+  - Hook commit `ed8e17b` in `item.HealingFlaskItem` (player-core's): `addHealMultiplier(ToDoubleFunction<PlayerEntity>)`,
+    multiplied on top of the stats multiplier.
+  - `flask_ember` (`FlaskEmberItem`): right-click once per player → +15 % flask healing for good; own attachment
+    `embervoid:flask_ember` (persistent, copied on death), synced to the owner (join, respawn, world change) only for
+    the flask tooltip; a second one is refused with a message.
+  - `ash_bomb` (thrown, entity `embervoid:ash_bomb`, `FlyingItemEntityRenderer`): bursts on impact, 4 ember damage
+    and 3 s fire to mobs within r 2, flame-ring particles. Decided: no fire blocks (no griefing, no spreading fires).
+  - `smoldering_resin`: coats the weapon in the other hand (swords, axes, tridents, realm weapons; NBT
+    `EmbervoidResinUntil`), for 60 s its landed melee hits ignite for 4 s (`GearEffects.afterDamage`).
+  - Cinder fuel: the Cinder Shard itself burns 3200 ticks (= 2 coal) — no extra item.
+  - `amber_balm` (drink, 32 ticks, leaves the bottle): cures Bleeding and Poison, Regeneration I 8 s.
+  - `amber_lantern_oil`: poured into an Ember Lantern held in the offhand (NBT `EmbervoidOilUntil`) it burns 10 min;
+    a lit offhand lantern gives Night Vision (refreshed every second). No dynamic light (vanilla has none; placing
+    light blocks was judged too risky). `GearConsumables.carriesLitLantern(player)` for the Crypt Keeper / Crypt Moths.
+  - `whetstone`: repairs 25 % of a realm weapon (melee or the crossbow) in the other hand. Realm weapons also repair
+    on an anvil with a Smoldering Ingot (since 11.5).
+  - Recipes (shapeless): bomb 2 Cinder + gunpowder → 2; resin 2 Cinder + charcoal; balm 2 Amber + bottle; oil Amber +
+    bottle + coal/charcoal; whetstone Grave Iron Ingot + 2 cobbled ash stone → 2.
+  - Client (`GearClient`): bomb renderer, Flask Ember sync receiver, tooltip lines for burning resin / oil.
+  - Textures placeholders, not seen; bomb flight and burst not seen.
+- [x] **11.8 Chest loot + realm loot on mobs.**
+  - Chest tables (datagen, `GearDataGen.ChestLoot`): common = 3–5 rolls of food, arrows, iron, gold, torches,
+    bones, string, Ash Bombs, Amber Balm + the zone material (Necropolis also lantern oil); treasure = 3–5 rolls of
+    gold, diamonds, emeralds, consumables, materials + Smoldering Ingot 12 %, template 25 %, a zone set piece 30 %, the
+    zone weapon 4 % (reliquary adds artifacts and rings); arena = a template, an Ash of Rematch, 2–3 zone consumables.
+    Citadel common = supplies + all three materials; Citadel treasure = ingot 30 %, template 35 %, any set piece 35 %,
+    the Rapier 4 %.
+  - `GearLoot` (`LootTableEvents.MODIFY`, built-in tables only, like `ReliquaryLoot`): per mob id the zone material
+    (10 % natural / 50 % ×1–2 placed), a set piece (3 % natural / 15 % placed tank or elite, player kills) and the
+    unique (0.5 % / 4 % from the zone's elite — Ashen Carrion, Grave Warden, and the Bark Hollow for the elite-less
+    Woods; Furnace Golem and Smoldering Knight 4 % for the Cuirass). Looting adds a little; Fortune's extra roll
+    covers these pools. Config `gear.loot`.
+  - Ash Stalker and Crypt Moth (not in any set's list) drop materials and the unique only.

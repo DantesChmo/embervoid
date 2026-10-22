@@ -11,7 +11,7 @@ courtyard piece), boss assets and loot. Config section `boss`.
 
 - [x] **12.1 Boss framework additions** (below; GameTests `BossFrameworkTests`, JUnit `TelegraphShapeTest`, `BossScalingTest`)
 - [x] **12.2 Three arenas built** (templates; placed by reach-world's arena site code, 9.4; GameTests `ArenaTemplateTests`)
-- [ ] **12.3 Crypt Keeper**
+- [x] **12.3 Crypt Keeper** (GameTests `CryptKeeperTests` in the real ossuary template)
 - [ ] **12.4 Ash Colossus**
 - [ ] **12.5 Grieving Tree**
 - [ ] **12.6 Souls and Flask Shards**
@@ -61,9 +61,44 @@ the centre (the Necropolis dais).
 Asked reach-world: `shrinePos()` on the template's north axis (centre + rotation(0, 1, −(r + 4))); arena JSON boss radius
 40 / 48 / 32, level 18 / 21 / 24, site radius 48 / 56 / 40.
 
+## Shared boss base
+
+`reach.boss.ReachBoss` (HostileEntity + `ArenaBoss` + GeoEntity): synced phase byte, `movement` + `action` controllers,
+a brain that walks to the target and calls `chooseMove` when its cooldown ends, stands still during a windup,
+`telegraph(shape, ticks, animation, sound, particle, hit)` hits the players in the marked shape, `afterStrike` chains
+moves. No fall, drowning or in-wall damage, not pushable, never despawns. Phase effects run in `tickBoss` every server
+tick (also with the AI off, as in the GameTests). Renderers in `client.reach.boss.ReachBossClient` (glowmask, toggled
+bones). Greybox assets: `python3 tools/boss_placeholders.py [name]` (helpers from `tools/mob_placeholders.py`). Music:
+`music.nether.basalt_deltas` as the shared zone-boss placeholder (`ReachBoss.ZONE_BOSS_MUSIC`).
+
+## 12.3 Crypt Keeper
+
+`embervoid:crypt_keeper`, 1.6 × 4.0, base HP 180 (~428 at Lv 24), armor 8, KB res 1, speed 0.22 / 0.24 / 0.26 by phase,
+300 XP before level scaling. Loot table (every kill): 2–4 Raw Grave Iron, 3–6 bones, 1–2 candles.
+
+| Move | Telegraph | Base dmg |
+|---|---|---|
+| Halberd 1 / 2 | cone r 4.8, ±55°, 14 / 10 ticks | 5 each |
+| Overhead (3rd hit) | red line 6.5 × 2.2, 22 ticks; shield-breaking | 10 |
+| Sweep | ring r 5 around it, 24 ticks; knockback | 7 |
+| Lantern throw (P1) | falling shadow r 2.5 at the target, 20 ticks; then a fire pool 5 s (2 per 0.5 s, burning) | 5 |
+| Thrust (P2, P3, far target) | line 9 long, 18 ticks; lunges forward | 7 |
+
+- P2 (60 %): lantern shatters (bone hidden), Darkness on fighters (refreshed every 2 s), water to 1 block on the lower
+  floor over 3 s (`FloodHazard`, radius fog wall + 7, so the whole sinkhole floor), half damage unless block light ≥ 8
+  where it stands (braziers are campfires: flint and steel, fire charge, burning arrow; a torch works too). Crypt Moths:
+  a wave every 15 s while a brazier burns (2 if two or more burn, at most 4 alive), steered at the nearest lit brazier,
+  smother it at 1.6 blocks.
+- P3 (30 %): water to 2 blocks; 3 Restless Bones (+1 per extra fighter) rise on the floor.
+- Adds: Restless Bones per extra fighter at summon.
+- Braziers are found at summon (every campfire in the arena) and remembered, so a reset or kill leaves them unlit.
+- Gear interplay (not built here): Amber Lantern Oil's offhand lantern (11.7) is not block light; if it should light
+  the Keeper, reach-gear can tell me and `isLit` takes a held-light check.
+
 ## Status / notes
 
 - Started 2026-10-22.
 - GameTests use `BossArena` (stone floor, real joined players, fights through `ArenaManager.start`) with the framework's
   test boss, AI off. One batch per test (fights are global).
+- Server check: not run in this worktree (its run folder needs the Minecraft EULA accepted; left to the coordinator).
 - `BossConfig.SECTION` is loaded in `BossInit`, so a config parsed before any fight (tests, the client) has the `boss` keys.

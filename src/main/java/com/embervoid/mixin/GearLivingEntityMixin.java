@@ -24,11 +24,11 @@ abstract class GearLivingEntityMixin {
 		return GearDamage.modifyIncoming((LivingEntity) (Object) this, source, amount);
 	}
 
-	// Effects that answer being hurt (Furnace Heart Cuirass).
+	// Effects that answer a hit landing (Smoldering Resin, Furnace Heart Cuirass).
 	@Inject(method = "damage", at = @At("RETURN"))
 	private void embervoid$gearAfterDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
 		if (cir.getReturnValueZ()) {
-			GearEffects.afterDamage((LivingEntity) (Object) this);
+			GearEffects.afterDamage((LivingEntity) (Object) this, source);
 		}
 	}
 

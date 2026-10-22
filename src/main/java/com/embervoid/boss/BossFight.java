@@ -256,7 +256,7 @@ public class BossFight {
 	// --- Fight-bound adds, hazards, fog, phases ---
 
 	/**
-	 * Summons an add for this fight at {@code pos}: persistent, {@link BossConfig#addLevelOffset} levels below the boss,
+	 * Summons an add for this fight at {@code pos} (or the first free spot above it): persistent, {@link BossConfig#addLevelOffset} levels below the boss,
 	 * aimed at the nearest fighter, removed when the fight ends. Returns null if the type cannot be created.
 	 */
 	@Nullable
@@ -265,7 +265,11 @@ public class BossFight {
 		if (add == null) {
 			return null;
 		}
-		add.refreshPositionAndAngles(pos.x, pos.y, pos.z, world.random.nextFloat() * 360, 0);
+		Vec3d at = pos;
+		for (int up = 0; up < 6 && !world.isSpaceEmpty(add, type.getDimensions().getBoxAt(at)); up++) {
+			at = pos.add(0, up + 1, 0); // out of a walkway or rubble it would stand in
+		}
+		add.refreshPositionAndAngles(at.x, at.y, at.z, world.random.nextFloat() * 360, 0);
 		add.initialize(world, world.getLocalDifficulty(add.getBlockPos()), SpawnReason.MOB_SUMMONED, null, null);
 		add.setPersistent();
 		world.spawnEntity(add);

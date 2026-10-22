@@ -16,10 +16,10 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /** Writes the zone arena templates ({@link ArenaTemplates}) to data/embervoid/structures/ashen_reach. */
-public class ArenaTemplateProvider implements DataProvider {
+class ArenaTemplateProvider implements DataProvider {
 	private final DataOutput.PathResolver resolver;
 
-	public ArenaTemplateProvider(FabricDataOutput output) {
+	ArenaTemplateProvider(FabricDataOutput output) {
 		this.resolver = output.getResolver(DataOutput.OutputType.DATA_PACK, "structures");
 	}
 

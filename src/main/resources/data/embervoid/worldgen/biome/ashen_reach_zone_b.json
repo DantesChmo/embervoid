@@ -43,7 +43,9 @@
     [],
     [],
     [],
-    [],
+    [
+      "embervoid:ashen_reach/roads"
+    ],
     [],
     [
       "embervoid:ashen_reach/amber_vein"

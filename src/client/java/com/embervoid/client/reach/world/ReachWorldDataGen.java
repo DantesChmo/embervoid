@@ -37,6 +37,7 @@ public final class ReachWorldDataGen {
 		pack.addProvider(Models::new);
 		pack.addProvider(Loot::new);
 		pack.addProvider(Tags::new);
+		pack.addProvider(ReachTemplateProvider::new);
 	}
 
 	private static class Models extends FabricModelProvider {

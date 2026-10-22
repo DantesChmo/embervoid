@@ -8,9 +8,10 @@ What it does:
    RCON on a local port, and waits for "Done".
 2. Over RCON: locates the nearest Ember Sanctum and force-loads the chunks around it (so it is really generated in
    overworld terrain), force-loads the Ashen Reach landing and depths centre, locates the three zone arenas and the
-   depths arena and force-loads them too, force-loads the Vampire arena, starts and stops a full moon and a blood
-   new moon, opens, checks and closes the Vampire arena, waits for generation, saves, stops the server. Commands
-   with an expected answer fail the check when the answer does not match.
+   depths arena and force-loads them too, force-loads every road outpost and checks each got its chest, force-loads
+   the Vampire arena, starts and stops a full moon and a blood new moon, opens, checks and closes the Vampire arena,
+   waits for generation, saves, stops the server. Commands with an expected answer fail the check when the answer does
+   not match.
 3. Scans the whole output (build + server log) for crashes, mixin failures, ERROR lines and datapack load errors.
    Exit code 0 only if there are none. WARN lines are listed but do not fail the check.
 
@@ -171,6 +172,10 @@ def exercise(rcon):
                           f"embervoid:ashen_reach_arena_{arena}"))
         if pos:
             generate_around(f"Arena {arena.upper()}", "embervoid:ashen_reach", pos, 32)
+    # Roads (PLAN 9.6): generate around every outpost, then each must have its chest.
+    roads = run("Roads", "execute in embervoid:ashen_reach run embervoid realm roads")
+    for kind, x, z in re.findall(r"(toll_gate|watchtower) at (-?\d+) (-?\d+)", roads):
+        generate_around(f"Outpost {kind}", "embervoid:ashen_reach", (int(x), int(z)), 24)
     generate_around("Depths landing", "embervoid:ashen_reach_depths", (0, 0))
     pos = located(run("Depths arena", "execute in embervoid:ashen_reach_depths run locate structure "
                       "embervoid:ashen_reach_depths_arena"))
@@ -192,6 +197,8 @@ def exercise(rcon):
             expect("Vampires without players", "embervoid vampire status", r", NONE, ")
         run(f"Moon {night} stop", "embervoid moon stop")
     time.sleep(GENERATION_WAIT)
+    expect("Road outposts built", "execute in embervoid:ashen_reach run embervoid realm roads",
+           r"^(?![\s\S]*(missing|not loaded))3 roads")
     run("Save", "save-all flush")
     return log
 

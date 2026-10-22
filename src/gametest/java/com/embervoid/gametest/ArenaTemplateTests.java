@@ -108,7 +108,7 @@ public final class ArenaTemplateTests implements FabricGameTest {
 	}
 
 	/** Places an arena template the way the arena structure does: centred on {@code center}, north to the landing. */
-	private static ArenaFrame place(TestContext context, Arena arena, BlockPos center) {
+	static ArenaFrame place(TestContext context, Arena arena, BlockPos center) {
 		ServerWorld world = context.getWorld();
 		StructureTemplate template = world.getStructureTemplateManager().getTemplate(arena.template()).orElse(null);
 		context.assertTrue(template != null, "no template " + arena.template());
