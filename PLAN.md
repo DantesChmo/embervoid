@@ -346,7 +346,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 
 | ID  | Task | Track | Depends on | Status |
 |-----|------|-------|------------|--------|
-| 13.1 | **Depths "Burning City": dimension type, terrain** | citadel | 9.4, 9.5 | todo |
+| 13.1 | **Depths "Burning City": dimension type, terrain** | citadel | 9.4, 9.5 | done (GameTest + server check; sky, fog and hill looks not seen) |
 | 13.2 | **Citadel jigsaw (~10–12 pieces)** | citadel | 13.1, 9.2 | todo |
 | 13.3 | **Cinder Hound, Sparking Marksman, Furnace Golem, Smoldering Knight** | reach-mobs | 10.1 | done (GameTest; models not seen) |
 | 13.4 | **Smoldering Lord** | reach-bosses | 12.3–12.5, 13.2 | todo |
@@ -374,6 +374,8 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 
 ## Open follow-ups
 
+- **Flaky GameTest:** `RematchTests.ashOfRematchSummonsABeatenBoss` fails in about half of full runs; track
+  reach-bosses is fixing it.
 - **Realm weapons and enchantments:** Sharpness, Smite etc. cannot go on the Scythe, Scourge and Rapier (vanilla's
   weapon enchantment target is swords only); Unbreaking and Mending work. Decide in the R40.1 balance pass.
 - **In-game checks not run yet:** QA #7f (Sanctum casing gaps, next batch); QA #8 step 9 (second and third
