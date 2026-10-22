@@ -13,7 +13,6 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
@@ -56,7 +55,7 @@ public final class AshOfRematch {
 		if (!player.isCreative()) {
 			stack.decrement(1);
 		}
-		world.playSound(null, pos, SoundEvents.ITEM_FIRECHARGE_USE, SoundCategory.BLOCKS, 1.0f, 0.6f);
+		world.playSound(null, pos, ReachBossSounds.ASH_OF_REMATCH_USE, SoundCategory.BLOCKS, 1.0f, 1.0f);
 		world.spawnParticles(ParticleTypes.ASH, pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, 60, 0.4, 0.6, 0.4, 0.02);
 		world.spawnParticles(ParticleTypes.FLAME, pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, 20, 0.3, 0.4, 0.3, 0.02);
 		player.sendMessage(Text.translatable("embervoid.rematch.ready", boss), false);

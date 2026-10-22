@@ -5,6 +5,7 @@ import com.embervoid.boss.ArenaManager;
 import com.embervoid.boss.BossFight;
 import com.embervoid.boss.Telegraph;
 import com.embervoid.boss.TelegraphShape;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
@@ -21,6 +22,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -206,6 +208,30 @@ public abstract class ReachBoss extends HostileEntity implements ArenaBoss, GeoE
 	@FunctionalInterface
 	protected interface HitAction {
 		void hit(PlayerEntity player);
+	}
+
+	// --- Sounds ---
+
+	/** The boss's footsteps ({@link ReachBossSounds}), or null for the block's own step sound. */
+	@Nullable
+	protected SoundEvent stepSound() {
+		return null;
+	}
+
+	@Override
+	protected void playStepSound(BlockPos pos, BlockState state) {
+		SoundEvent step = stepSound();
+		if (step == null) {
+			super.playStepSound(pos, state);
+		} else {
+			playSound(step, 1.0f, 1.0f);
+		}
+	}
+
+	/** Giants: their ambient, hurt and death sounds carry across the arena. */
+	@Override
+	protected float getSoundVolume() {
+		return 2.0f;
 	}
 
 	// --- Entity ---

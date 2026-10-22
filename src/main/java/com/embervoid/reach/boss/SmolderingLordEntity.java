@@ -28,6 +28,7 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -181,8 +182,7 @@ public class SmolderingLordEntity extends ReachBoss {
 			descend(fight);
 		} else if (phase == 2) {
 			playAnimation(SHATTER);
-			world.playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_ITEM_BREAK, SoundCategory.HOSTILE, 2.0f, 0.5f);
-			world.playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_BLAZE_DEATH, SoundCategory.HOSTILE, 1.5f, 0.6f);
+			world.playSound(null, getX(), getY(), getZ(), ReachBossSounds.SMOLDERING_LORD_SHATTER, SoundCategory.HOSTILE, 2.0f, 1.0f);
 			world.spawnParticles(ParticleTypes.LAVA, getX(), getY() + 2, getZ(), 30, 0.5, 0.8, 0.5, 0);
 			getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(4);
 			getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).setBaseValue(0.32);
@@ -216,7 +216,7 @@ public class SmolderingLordEntity extends ReachBoss {
 		descending = true;
 		Vec3d landing = fight.centerPos();
 		TelegraphShape ring = TelegraphShape.ring(landing, LANDING_RADIUS);
-		getWorld().playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_ENDER_DRAGON_GROWL, SoundCategory.HOSTILE, 2.0f, 0.7f);
+		getWorld().playSound(null, getX(), getY(), getZ(), ReachBossSounds.SMOLDERING_LORD_DESCEND, SoundCategory.HOSTILE, 2.0f, 1.0f);
 		Telegraph.windup(this, ring, 30, DESCEND, null, ParticleTypes.FLAME, () -> {
 			descending = false;
 			requestTeleport(landing.x, landing.y, landing.z);
@@ -313,7 +313,7 @@ public class SmolderingLordEntity extends ReachBoss {
 			return;
 		}
 		playAnimation(MORTAR);
-		getWorld().playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.HOSTILE, 2.0f, 0.6f);
+		getWorld().playSound(null, getX(), getY(), getZ(), ReachBossSounds.SMOLDERING_LORD_MORTAR, SoundCategory.HOSTILE, 2.0f, 1.0f);
 		List<ServerPlayerEntity> fighters = new ArrayList<>(fight.fighters());
 		int shells = Math.min(2, fighters.size());
 		for (int i = 0; i < shells; i++) {
@@ -321,6 +321,7 @@ public class SmolderingLordEntity extends ReachBoss {
 			TelegraphShape ring = TelegraphShape.ring(target.getPos(), 3);
 			Telegraph.windup(this, ring, 40, null, null, ParticleTypes.FLAME, () -> {
 				Vec3d at = target.getPos();
+				fight.world().playSound(null, at.x, at.y, at.z, ReachBossSounds.SMOLDERING_LORD_MORTAR_IMPACT, SoundCategory.HOSTILE, 1.5f, 1.0f);
 				fight.world().spawnParticles(ParticleTypes.EXPLOSION, at.x, at.y + 0.3, at.z, 2, 1, 0.1, 1, 0);
 				for (PlayerEntity hit : Telegraph.playersIn(this, ring)) {
 					hit.damage(BossHits.source(this, DamageTypes.IN_FIRE), MORTAR_DAMAGE);
@@ -340,7 +341,7 @@ public class SmolderingLordEntity extends ReachBoss {
 		Vec3d direction = new Vec3d(target.getX() - start.x, 0, target.getZ() - start.z);
 		direction = direction.lengthSquared() < 1e-4 ? new Vec3d(0, 0, -1) : direction.normalize();
 		TelegraphShape line = TelegraphShape.line(start, start.add(direction.multiply(fight.spec().radius() * 2)), 1.2);
-		telegraph(line, 30, FLAME_LINE, SoundEvents.ITEM_FIRECHARGE_USE, ParticleTypes.FLAME, player -> {
+		telegraph(line, 30, FLAME_LINE, ReachBossSounds.SMOLDERING_LORD_FLAME_LINE, ParticleTypes.FLAME, player -> {
 			player.damage(BossHits.source(this, DamageTypes.IN_FIRE), FLAME_LINE_DAMAGE);
 			player.setOnFireFor(3);
 		});
@@ -356,12 +357,12 @@ public class SmolderingLordEntity extends ReachBoss {
 		Vec3d facing = directionTo(target.getPos());
 		if (hit < 3) {
 			telegraph(TelegraphShape.cone(getPos(), facing, 5, 60), hit == 1 ? 14 : 10, hit == 1 ? SWING_1 : SWING_2,
-					SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, ParticleTypes.FLAME, player -> {
+					ReachBossSounds.SMOLDERING_LORD_SWING, ParticleTypes.FLAME, player -> {
 						player.damage(getDamageSources().mobAttack(this), SWING_DAMAGE);
 						player.setOnFireFor(2);
 					});
 		} else {
-			telegraph(TelegraphShape.ring(getPos().add(facing.multiply(2.5)), 3.5), 20, SLAM, SoundEvents.ENTITY_RAVAGER_ROAR,
+			telegraph(TelegraphShape.ring(getPos().add(facing.multiply(2.5)), 3.5), 20, SLAM, ReachBossSounds.SMOLDERING_LORD_SLAM,
 					ParticleTypes.LAVA, player -> {
 						BossHits.shieldBreaking(this, player, SLAM_DAMAGE);
 						knockAway(player, 1.0, 0.5);
@@ -388,7 +389,7 @@ public class SmolderingLordEntity extends ReachBoss {
 		Vec3d facing = directionTo(target.getPos());
 		double length = Math.max(6, Math.min(14, Math.sqrt(squaredDistanceTo(target)) + 1.5));
 		TelegraphShape line = TelegraphShape.line(getPos(), getPos().add(facing.multiply(length)), 1.2);
-		telegraph(line, 18, LUNGE, SoundEvents.ENTITY_RAVAGER_ATTACK, ParticleTypes.FLAME, player -> {
+		telegraph(line, 18, LUNGE, ReachBossSounds.SMOLDERING_LORD_LUNGE, ParticleTypes.FLAME, player -> {
 			player.damage(getDamageSources().mobAttack(this), LUNGE_DAMAGE);
 			knockAway(player, 0.8, 0.3);
 		});
@@ -413,13 +414,15 @@ public class SmolderingLordEntity extends ReachBoss {
 		}
 		playAnimation(HAZARD);
 		switch (which) {
-			case 0 -> Telegraph.windup(this, 30, null, SoundEvents.ENTITY_ENDER_DRAGON_GROWL, ParticleTypes.ASH, 6,
+			case 0 -> Telegraph.windup(this, 30, null, ReachBossSounds.SMOLDERING_LORD_STORM, ParticleTypes.ASH, 6,
 					() -> fight.addHazard(new AshStormHazard(this, 120, 2)));
 			case 1 -> {
+				playSound(ReachBossSounds.SMOLDERING_LORD_FOG, 2.0f, 1.0f);
 				fogTicks = FOG_TICKS;
 				fight.setFog(FOG_DENSITY, FOG_COLOR);
 			}
 			default -> {
+				playSound(ReachBossSounds.SMOLDERING_LORD_DARKNESS, 2.0f, 1.0f);
 				darkTicks = DARK_TICKS;
 				for (ServerPlayerEntity player : fight.fighters()) {
 					player.addStatusEffect(new StatusEffectInstance(StatusEffects.DARKNESS, 80, 0, false, false), this);
@@ -458,5 +461,25 @@ public class SmolderingLordEntity extends ReachBoss {
 	@Override
 	public boolean isFireImmune() {
 		return true;
+	}
+
+	@Override
+	protected SoundEvent getAmbientSound() {
+		return ReachBossSounds.SMOLDERING_LORD_AMBIENT;
+	}
+
+	@Override
+	protected SoundEvent getHurtSound(DamageSource source) {
+		return ReachBossSounds.SMOLDERING_LORD_HURT;
+	}
+
+	@Override
+	protected SoundEvent getDeathSound() {
+		return ReachBossSounds.SMOLDERING_LORD_DEATH;
+	}
+
+	@Override
+	protected SoundEvent stepSound() {
+		return ReachBossSounds.SMOLDERING_LORD_STEP;
 	}
 }
