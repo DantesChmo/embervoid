@@ -12,7 +12,7 @@ milestone track (`track-reach-bosses`) is done.
 
 | Track | Session name | Scope | Owns |
 |---|---|---|---|
-| R1 | `release-balance` | R40.1a–c (+ R30.2) | `docs/balance-0.4.0.md`, `com.embervoid.balance` (calculator, tests); number changes in any package (config defaults, base attributes), each a small commit |
+| R1 | `release-balance` (done) | R40.1a–c (+ R30.2) | `docs/balance-0.4.0.md`, `com.embervoid.balance` (calculator, tests); number changes in any package (config defaults, base attributes), each a small commit |
 | R2 | `release-art` | R40.2a–d | `tools/model_preview.py`, `tools/*_placeholders.py`, `assets/embervoid/geo/**`, `animations/**`, `textures/**` |
 | R3 | `release-audio` | R40.3a–b | `assets/embervoid/sounds.json`, `assets/embervoid/sounds/**`, `registry/ModSounds` + per-package sound classes, `CREDITS.md`; sound hooks in entity/item classes as small separate commits |
 | R4 | `release-mp` | R40.4a–b (+ R30.3) | multiplayer GameTests, `tools/server_check.py` perf options; fixes in the owning package as separate commits |
