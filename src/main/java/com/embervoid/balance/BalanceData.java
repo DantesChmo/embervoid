@@ -129,9 +129,9 @@ public final class BalanceData {
 					List.of(melee("bite (+2 s fire)", 3, 20))),
 			new Mob("sparking_marksman", "Sparking Marksman", Zone.CITADEL, Role.RANGED, 24, 0, 0, 2, 15, true,
 					List.of(new Hit("bolt (+fire)", SparkingMarksmanEntity.BOLT_DAMAGE, HitKind.PHYSICAL, 60))),
-			new Mob("furnace_golem", "Furnace Golem", Zone.CITADEL, Role.TANK, 90, 0, 12, 9, 30, true,
+			new Mob("furnace_golem", "Furnace Golem", Zone.CITADEL, Role.TANK, 70, 0, 12, 9, 30, true,
 					List.of(melee("slam", 9, 50), new Hit("fire wave", 9 * FurnaceGolemEntity.WAVE_DAMAGE_FACTOR, HitKind.FIRE, 0))),
-			new Mob("smoldering_knight", "Smoldering Knight", Zone.CITADEL, Role.ELITE, 100, 0, 10, 8, 50, true,
+			new Mob("smoldering_knight", "Smoldering Knight", Zone.CITADEL, Role.ELITE, 75, 0, 10, 8, 50, true,
 					// Three combo hits per 6 + 5 + 8 + 40 ticks; the lunge is ×1.25.
 					List.of(melee("combo hit", 8, 20), melee("lunge", 8 * 1.25, 80))));
 
