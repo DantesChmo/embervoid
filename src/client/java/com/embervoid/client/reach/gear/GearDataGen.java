@@ -3,6 +3,7 @@ package com.embervoid.client.reach.gear;
 import com.embervoid.Embervoid;
 import com.embervoid.reach.gear.Bleeding;
 import com.embervoid.reach.gear.GearArmor;
+import com.embervoid.reach.gear.GearConsumables;
 import com.embervoid.reach.gear.GearLootTables;
 import com.embervoid.reach.gear.GearWeapons;
 import com.embervoid.registry.ModBlocks;
@@ -27,6 +28,7 @@ import net.minecraft.loot.context.LootContextTypes;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.book.RecipeCategory;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.util.Identifier;
 
 import java.util.List;
@@ -42,7 +44,8 @@ public final class GearDataGen {
 	/** Flat items drawn by {@code tools/gear_placeholders.py}. */
 	static final List<Item> FLAT_ITEMS = List.of(CINDER_SHARD, ROYAL_AMBER, RAW_GRAVE_IRON, GRAVE_IRON_INGOT,
 			SMOLDERING_INGOT, SMOLDERING_TEMPLATE, ASH_COLOSSUS_SOUL, GRIEVING_TREE_SOUL, CRYPT_KEEPER_SOUL,
-			SMOLDERING_LORD_SOUL, ASH_OF_REMATCH, FLASK_EMBER);
+			SMOLDERING_LORD_SOUL, ASH_OF_REMATCH, FLASK_EMBER, GearConsumables.ASH_BOMB, GearConsumables.SMOLDERING_RESIN,
+			GearConsumables.AMBER_BALM, GearConsumables.AMBER_LANTERN_OIL, GearConsumables.WHETSTONE);
 
 	/** Armor pieces; icons and armor layers drawn by {@code tools/gear_placeholders.py}. */
 	static final List<Item> ARMOR = Stream.of(GearArmor.SMOLDERING_PLATE, GearArmor.REAPERS_GARB,
@@ -151,6 +154,34 @@ public final class GearDataGen {
 			weapon(exporter, GearWeapons.WARDENS_SCOURGE, CRYPT_KEEPER_SOUL, Items.CHAIN);
 			weapon(exporter, GearWeapons.ROYAL_ASH_RAPIER, SMOLDERING_LORD_SOUL, Items.GOLDEN_SWORD);
 			weapon(exporter, GearWeapons.HUNTSMANS_CROSSBOW, GRIEVING_TREE_SOUL, Items.CROSSBOW);
+
+			// Consumables: cinder for fire, amber for healing and light, grave iron for the whetstone.
+			ShapelessRecipeJsonBuilder.create(RecipeCategory.COMBAT, GearConsumables.ASH_BOMB, 2)
+					.input(CINDER_SHARD, 2)
+					.input(Items.GUNPOWDER)
+					.criterion(hasItem(CINDER_SHARD), conditionsFromItem(CINDER_SHARD))
+					.offerTo(exporter);
+			ShapelessRecipeJsonBuilder.create(RecipeCategory.COMBAT, GearConsumables.SMOLDERING_RESIN)
+					.input(CINDER_SHARD, 2)
+					.input(Items.CHARCOAL)
+					.criterion(hasItem(CINDER_SHARD), conditionsFromItem(CINDER_SHARD))
+					.offerTo(exporter);
+			ShapelessRecipeJsonBuilder.create(RecipeCategory.BREWING, GearConsumables.AMBER_BALM)
+					.input(ROYAL_AMBER, 2)
+					.input(Items.GLASS_BOTTLE)
+					.criterion(hasItem(ROYAL_AMBER), conditionsFromItem(ROYAL_AMBER))
+					.offerTo(exporter);
+			ShapelessRecipeJsonBuilder.create(RecipeCategory.MISC, GearConsumables.AMBER_LANTERN_OIL)
+					.input(ROYAL_AMBER)
+					.input(Items.GLASS_BOTTLE)
+					.input(ItemTags.COALS)
+					.criterion(hasItem(ROYAL_AMBER), conditionsFromItem(ROYAL_AMBER))
+					.offerTo(exporter);
+			ShapelessRecipeJsonBuilder.create(RecipeCategory.TOOLS, GearConsumables.WHETSTONE, 2)
+					.input(GRAVE_IRON_INGOT)
+					.input(ModBlocks.COBBLED_ASH_STONE, 2)
+					.criterion(hasItem(GRAVE_IRON_INGOT), conditionsFromItem(GRAVE_IRON_INGOT))
+					.offerTo(exporter);
 
 			// DESIGN §10.11, built as recommended.
 			ShapelessRecipeJsonBuilder.create(RecipeCategory.MISC, ASH_OF_REMATCH)

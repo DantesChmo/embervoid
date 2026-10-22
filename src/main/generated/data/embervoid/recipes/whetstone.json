@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "embervoid:grave_iron_ingot"
+    },
+    {
+      "item": "embervoid:cobbled_ash_stone"
+    },
+    {
+      "item": "embervoid:cobbled_ash_stone"
+    }
+  ],
+  "result": {
+    "count": 2,
+    "item": "embervoid:whetstone"
+  }
+}

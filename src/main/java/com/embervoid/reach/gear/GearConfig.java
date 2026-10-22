@@ -15,17 +15,18 @@ import com.google.gson.JsonObject;
  * @param uniques    the unique armor pieces
  * @param weapons    the unique weapons' passives and special attacks (base damage, speed and reach are in code)
  * @param crossbow   Huntsman's Crossbow
+ * @param consumables bombs, resin, balm, lantern oil, whetstone, fuel and the Flask Ember
  */
 public record GearConfig(Bleeding bleeding, Smoldering smoldering, Sets sets, Uniques uniques, Weapons weapons,
-		Crossbow crossbow) {
+		Crossbow crossbow, Consumables consumables) {
 	private static final GearConfig DEFAULTS = new GearConfig(Bleeding.DEFAULTS, Smoldering.DEFAULTS, Sets.DEFAULTS,
-			Uniques.DEFAULTS, Weapons.DEFAULTS, Crossbow.DEFAULTS);
+			Uniques.DEFAULTS, Weapons.DEFAULTS, Crossbow.DEFAULTS, Consumables.DEFAULTS);
 
 	public static final ConfigSection<GearConfig> SECTION = EmbervoidConfig.register(ConfigSection.of(
 			"gear", DEFAULTS,
 			in -> new GearConfig(Bleeding.read(in.section("bleeding")), Smoldering.read(in.section("smoldering")),
 					Sets.read(in.section("sets")), Uniques.read(in.section("uniques")), Weapons.read(in.section("weapons")),
-					Crossbow.read(in.section("crossbow"))),
+					Crossbow.read(in.section("crossbow")), Consumables.read(in.section("consumables"))),
 			(value, out) -> {
 				out.add("bleeding", value.bleeding.write());
 				out.add("smoldering", value.smoldering.write());
@@ -33,6 +34,7 @@ public record GearConfig(Bleeding bleeding, Smoldering smoldering, Sets sets, Un
 				out.add("uniques", value.uniques.write());
 				out.add("weapons", value.weapons.write());
 				out.add("crossbow", value.crossbow.write());
+				out.add("consumables", value.consumables.write());
 			}));
 
 	public static GearConfig get() {
@@ -227,6 +229,52 @@ public record GearConfig(Bleeding bleeding, Smoldering smoldering, Sets sets, Un
 			out.addProperty("boltDamageMultiplier", boltDamageMultiplier);
 			out.addProperty("punch", punch);
 			out.addProperty("pierce", pierce);
+			return out;
+		}
+	}
+
+	/**
+	 * @param bombRadius       Ash Bomb: radius of the fire ring
+	 * @param bombDamage       Ash Bomb: ember damage
+	 * @param bombFireSeconds  Ash Bomb: seconds the mobs it catches burn
+	 * @param resinSeconds     Smoldering Resin: how long a coated weapon ignites what it hits
+	 * @param resinFireSeconds Smoldering Resin: seconds a target burns
+	 * @param balmRegenTicks   Amber Balm: Regeneration I duration
+	 * @param oilMinutes       Amber Lantern Oil: burn time of a lantern
+	 * @param whetstoneShare   Whetstone: share of max durability repaired
+	 * @param cinderFuelTicks  Cinder Shard as furnace fuel (coal is 1600); read at startup
+	 * @param flaskEmberBonus  Flask Ember: extra flask healing
+	 */
+	public record Consumables(float bombRadius, float bombDamage, int bombFireSeconds, int resinSeconds, int resinFireSeconds,
+			int balmRegenTicks, int oilMinutes, float whetstoneShare, int cinderFuelTicks, float flaskEmberBonus) {
+		static final Consumables DEFAULTS = new Consumables(2, 4, 3, 60, 4, 160, 10, 0.25f, 3200, 0.15f);
+
+		static Consumables read(SectionReader in) {
+			return new Consumables(
+					in.readFloat("bombRadius", DEFAULTS.bombRadius, 0.5f, 8),
+					in.readFloat("bombDamage", DEFAULTS.bombDamage, 0, 100),
+					in.readInt("bombFireSeconds", DEFAULTS.bombFireSeconds, 0, 60),
+					in.readInt("resinSeconds", DEFAULTS.resinSeconds, 1, 3600),
+					in.readInt("resinFireSeconds", DEFAULTS.resinFireSeconds, 1, 60),
+					in.readInt("balmRegenTicks", DEFAULTS.balmRegenTicks, 0, 6000),
+					in.readInt("oilMinutes", DEFAULTS.oilMinutes, 1, 600),
+					in.readFloat("whetstoneShare", DEFAULTS.whetstoneShare, 0, 1),
+					in.readInt("cinderFuelTicks", DEFAULTS.cinderFuelTicks, 0, 32000),
+					in.readFloat("flaskEmberBonus", DEFAULTS.flaskEmberBonus, 0, 2));
+		}
+
+		JsonObject write() {
+			JsonObject out = new JsonObject();
+			out.addProperty("bombRadius", bombRadius);
+			out.addProperty("bombDamage", bombDamage);
+			out.addProperty("bombFireSeconds", bombFireSeconds);
+			out.addProperty("resinSeconds", resinSeconds);
+			out.addProperty("resinFireSeconds", resinFireSeconds);
+			out.addProperty("balmRegenTicks", balmRegenTicks);
+			out.addProperty("oilMinutes", oilMinutes);
+			out.addProperty("whetstoneShare", whetstoneShare);
+			out.addProperty("cinderFuelTicks", cinderFuelTicks);
+			out.addProperty("flaskEmberBonus", flaskEmberBonus);
 			return out;
 		}
 	}
