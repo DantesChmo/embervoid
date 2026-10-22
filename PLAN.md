@@ -325,7 +325,7 @@ Fixed ids (contracts, so tracks can reference each other's content before it is 
 | 12.4 | **Ash Colossus** | 12.1, 12.2 | done (GameTest + server check; model, storm and cinders not seen) |
 | 12.5 | **Grieving Tree** | 12.1, 12.2 | done (GameTest + server check; model, lanterns and grove fog not seen) |
 | 12.6 | **Souls and Flask Shards** | 11.1 | done (GameTest) |
-| 12.7 | **Ash of Rematch** (DESIGN §10.11 as recommended) | 11.1, 12.6 | todo |
+| 12.7 | **Ash of Rematch** (DESIGN §10.11 as recommended) | 11.1, 12.6 | done (GameTest) |
 
 - **12.1** Arena hazard layer (ticked by the fight, restored on reset; real blocks only for water), S2C arena fog
   through the 9.1 API, telegraph shapes (ring at a point, line, cone, falling shadow), shield-breaking hit,

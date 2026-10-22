@@ -250,14 +250,14 @@ comes in the release pass.
 
 ## 12. Realm 1: zone bosses
 
-**Status:** In progress (track reach-bosses). Rematch item per DESIGN §10.11 as recommended.
+**Status:** Done except music (PLAN 12.1–12.7; GameTests; greybox models, moves not seen in game). Shared zone-boss theme is release task R40.3.
 
-- [ ] Boss framework additions: arena hazard layer (restored on reset), S2C arena fog, telegraph shapes (ring, line, cone, falling shadow), shield-breaking hit, fight-bound adds, non-HP phase, HP scaling HP ×(1 + 0.5·(n − 1)) + 1 add per extra fighter
-- [ ] **Crypt Keeper** (first: riskiest) in the flooded ossuary: light, rising water, braziers, moths, Restless Bones
-- [ ] **Ash Colossus** in the crater market: smashable pillars, ash storm, exposed core
-- [ ] **Grieving Tree** in the Royal Grove: lanterns, arena fog, uproot phase
-- [ ] Per-boss souls (first-kill personal drop, 25 % when helping), Flask Shard per zone boss
-- [ ] Rematch item (*Ash of Rematch*) at a beaten boss's arena shrine
+- [x] Boss framework additions: arena hazard layer (restored on reset), S2C arena fog, telegraph shapes (ring, line, cone, falling shadow), shield-breaking hit, fight-bound adds, non-HP phase, HP scaling HP ×(1 + 0.5·(n − 1)) + 1 add per extra fighter
+- [x] **Crypt Keeper** (first: riskiest) in the flooded ossuary: light, rising water, braziers, moths, Restless Bones
+- [x] **Ash Colossus** in the crater market: smashable pillars, ash storm, exposed core
+- [x] **Grieving Tree** in the Royal Grove: lanterns, arena fog, uproot phase
+- [x] Per-boss souls (first-kill personal drop, 25 % when helping), Flask Shard per zone boss
+- [x] Rematch item (*Ash of Rematch*) at a beaten boss's arena shrine
 - [ ] Shared zone-boss music theme
 
 ## 13. Realm 1: Smoldering Citadel
