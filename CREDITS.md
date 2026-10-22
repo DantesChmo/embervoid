@@ -8,13 +8,10 @@ audio files of its own for effects: the game supplies them.
 
 ## Music
 
-Placeholders until licensed tracks are approved: the boss themes play vanilla Minecraft music by reference (not
-shipped with the mod).
+| Theme | Track | Author | Licence | Source |
+|---|---|---|---|---|
+| Zone bosses (Ash Colossus, Grieving Tree, Crypt Keeper) — `embervoid:music.zone_boss` | "For the Black Lord" (loop version) | Ronhul Maggot | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://opengameart.org/node/141359 |
+| Smoldering Lord — `embervoid:music.smoldering_lord` | "Dark souls type boss theme" | Philémon Weber (Helmet) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | https://opengameart.org/node/155832 (more by the author: https://helmet2.bandcamp.com/music) |
 
-| Theme | Plays now | Author |
-|---|---|---|
-| Zone bosses (Ash Colossus, Grieving Tree, Crypt Keeper) — `embervoid:music.zone_boss` | "So Below", "Rubedo" | Lena Raine |
-| | "Dead Voxel" | C418 |
-| Smoldering Lord — `embervoid:music.smoldering_lord` | "Boss" | C418 |
-
-Licensed tracks that replace them are added here with title, author, licence and source when they come in.
+Both tracks were converted to OGG Vorbis (`assets/embervoid/sounds/music/zone_boss.ogg`, `smoldering_lord.ogg`);
+no other changes were made.

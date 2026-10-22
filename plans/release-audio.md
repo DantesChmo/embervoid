@@ -11,8 +11,8 @@ track never launches a client, so every pitch and volume below is a first guess 
 | R40.3a hooks: zone mobs, Citadel mobs, bosses, weapons and consumables, blocks, Reliquary | done |
 | R40.3a GameTests: registry ↔ `sounds.json` ↔ lang; telegraphs play their event | done |
 | R40.3b music events (placeholders), `CREDITS.md` | done |
-| R40.3b CC-licensed music candidates → coordinator (QUESTION) | sent; waiting for the user's choice |
-| R40.3b add the approved tracks (`.ogg` + attribution) | waiting for approval |
+| R40.3b CC-licensed music candidates → coordinator (QUESTION) | done; the user left the choice to the coordinator, who took the recommendations |
+| R40.3b add the approved tracks (`.ogg` + attribution) | done |
 
 ## How it is built
 
@@ -32,7 +32,7 @@ track never launches a client, so every pitch and volume below is a first guess 
 
 ## Decisions (small, made here)
 
-- **Files, not event references.** Each event points at concrete vanilla files rather than `"type": "event"`, so
+- **Files, not event references.** Each effect event points at concrete vanilla files rather than `"type": "event"`, so
   one variant set can be picked per creature (e.g. only the ghast screams for the Carrion's shriek). JUnit
   `registry.SoundFilesTest` checks every file against Loom's 1.20.1 asset index (skipped where it is not downloaded).
 - **Explosions stay vanilla** (`entity.generic.explode`: landing rings, boulder impact, cover smash) — the vanilla
@@ -47,9 +47,11 @@ track never launches a client, so every pitch and volume below is a first guess 
   smouldering log, wet crypt stone drips).
 - **Bosses' ambient, hurt, death and step** are new (they used the generic hostile sounds before).
 - **Bark Hollow stays silent while dormant** (already so: `isSilent` while dormant); it creaks once awake.
-- **Music placeholders:** zone bosses — Lena Raine's "So Below" and "Rubedo" and C418's "Dead Voxel" (nether
-  tracks, one picked per fight); Smoldering Lord — C418's "Boss" (the dragon fight). Streamed, looped by
-  `BossMusicClient`.
+- **Music:** zone bosses — "For the Black Lord" by Ronhul Maggot (loop version, 82 s); Smoldering Lord — "Dark souls
+  type boss theme" by Philémon Weber (Helmet) (4:08). Both CC BY 4.0 from OpenGameArt, credited in `CREDITS.md`.
+  Converted with ffmpeg's built-in Vorbis encoder (no libvorbis here): stereo 44.1 kHz, `-q:a 4` (~130 kbps, 1.3 MB)
+  and `-q:a 3` (~109 kbps from a 64 kbps MP3 source, 3.4 MB). Streamed, looped by `BossMusicClient`. The vanilla
+  placeholders that stood in until then are gone.
 
 ## Not heard
 

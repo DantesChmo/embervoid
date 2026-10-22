@@ -1200,14 +1200,12 @@
 	},
 	"music.zone_boss": {
 		"sounds": [
-			{"name": "minecraft:music/game/nether/soulsand_valley/so_below", "volume": 0.5, "stream": true},
-			{"name": "minecraft:music/game/nether/nether_wastes/rubedo", "volume": 0.5, "stream": true},
-			{"name": "minecraft:music/game/nether/nether2", "stream": true}
+			{"name": "embervoid:music/zone_boss", "stream": true}
 		]
 	},
 	"music.smoldering_lord": {
 		"sounds": [
-			{"name": "minecraft:music/game/end/boss", "stream": true}
+			{"name": "embervoid:music/smoldering_lord", "stream": true}
 		]
 	},
 	"item.ashen_scythe.harvest": {
