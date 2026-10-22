@@ -33,8 +33,8 @@ track never launches a client, so every pitch and volume below is a first guess 
 ## Decisions (small, made here)
 
 - **Files, not event references.** Each event points at concrete vanilla files rather than `"type": "event"`, so
-  one variant set can be picked per creature (e.g. only the ghast screams for the Carrion's shriek). Checked once
-  against the 1.20.1 asset index: all files exist (see the JUnit-free check in the merge notes).
+  one variant set can be picked per creature (e.g. only the ghast screams for the Carrion's shriek). JUnit
+  `registry.SoundFilesTest` checks every file against Loom's 1.20.1 asset index (skipped where it is not downloaded).
 - **Explosions stay vanilla** (`entity.generic.explode`: landing rings, boulder impact, cover smash) — the vanilla
   subtitle "Explosion" is accurate. Also vanilla: armor equip sounds, the Huntsman's Crossbow (vanilla crossbow
   code), fire extinguish of smothered braziers, the cage trapdoor, the arena fog wall and boss summon.
@@ -46,7 +46,7 @@ track never launches a client, so every pitch and volume below is a first guess 
   ash storm one already roared); Reliquary opening and an accessory going into a slot; block ambience (ember crack,
   smouldering log, wet crypt stone drips).
 - **Bosses' ambient, hurt, death and step** are new (they used the generic hostile sounds before).
-- **Bark Hollow stays silent while dormant** (its creak would give away the ambush); it creaks once awake.
+- **Bark Hollow stays silent while dormant** (already so: `isSilent` while dormant); it creaks once awake.
 - **Music placeholders:** zone bosses — Lena Raine's "So Below" and "Rubedo" and C418's "Dead Voxel" (nether
   tracks, one picked per fight); Smoldering Lord — C418's "Boss" (the dragon fight). Streamed, looped by
   `BossMusicClient`.
