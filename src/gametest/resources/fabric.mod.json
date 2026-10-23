@@ -34,7 +34,9 @@
 			"com.embervoid.gametest.RealmLoopTests",
 			"com.embervoid.gametest.BalanceFightTests",
 			"com.embervoid.gametest.MultiplayerTests",
-			"com.embervoid.gametest.SoundTests"
+			"com.embervoid.gametest.SoundTests",
+			"com.embervoid.gametest.StaminaTests",
+			"com.embervoid.gametest.HollowTests"
 		]
 	},
 	"mixins": [

@@ -5,10 +5,14 @@ import com.embervoid.entity.mob.MobEntities;
 import com.embervoid.sanctum.SanctumBlocks;
 import com.embervoid.sanctum.SanctumEntities;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.LootableContainerBlockEntity;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.structure.PoolStructurePiece;
+import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
@@ -27,6 +31,8 @@ import net.minecraft.world.gen.structure.Structure;
 public final class SanctumTests implements FabricGameTest {
 	/** Far from the test grid so the Sanctum never overlaps another test. */
 	private static final BlockPos ORIGIN = new BlockPos(3000, 0, 3000);
+	/** For the flooded Sanctum, away from the first one. */
+	private static final BlockPos FLOODED_ORIGIN = new BlockPos(3000, 0, -3000);
 
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 200)
 	public void sanctumGeneratesWithCoreAndGuards(TestContext context) {
@@ -80,5 +86,49 @@ public final class SanctumTests implements FabricGameTest {
 		context.assertTrue(hollows >= 1, "no Hollow guard (the gate hall always has one); " + counts);
 		context.assertTrue(chests[0] >= 1, "no loot chests; " + counts);
 		context.complete();
+	}
+
+	/**
+	 * QA #7f, never checked in game: a stairwell sunk into water (an aquifer, a lake) ends with no water anywhere in its
+	 * casing or inside it: the casing's gaps keep the world's block, but turn to rock where that block is a fluid.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 200)
+	public void floodedStairwellKeepsWaterOut(TestContext context) {
+		ServerWorld world = context.getWorld();
+		Structure structure = world.getRegistryManager().get(RegistryKeys.STRUCTURE).get(Embervoid.id("ember_sanctum"));
+		ChunkGenerator generator = world.getChunkManager().getChunkGenerator();
+		StructureStart start = structure.createStructureStart(world.getRegistryManager(), generator,
+				generator.getBiomeSource(), world.getChunkManager().getNoiseConfig(), world.getStructureTemplateManager(),
+				world.getSeed(), new ChunkPos(FLOODED_ORIGIN), 0, world, biome -> true);
+		context.assertTrue(start.hasChildren(), "the Sanctum start produced no pieces");
+		int minY = start.getChildren().stream().mapToInt(piece -> piece.getBoundingBox().getMinY()).min().orElseThrow();
+		int lift = Math.max(0, world.getBottomY() + 8 - minY);
+		start.getChildren().forEach(piece -> piece.translate(0, lift, 0));
+		BlockBox box = start.getBoundingBox();
+		BlockBox descent = start.getChildren().stream()
+				.filter(piece -> piece instanceof PoolStructurePiece pool && pool.getPoolElement().toString().contains("sanctum/descent"))
+				.map(StructurePiece::getBoundingBox).findFirst().orElse(null);
+		context.assertTrue(descent != null, "no stairwell piece in " + start.getChildren().size() + " pieces");
+
+		// The world around and inside the stairwell is water before the Sanctum is placed.
+		int[] flooded = {0};
+		BlockPos.stream(descent).forEach(pos -> {
+			world.setBlockState(pos, Blocks.WATER.getDefaultState(), Block.NOTIFY_LISTENERS);
+			flooded[0]++;
+		});
+		ChunkPos min = new ChunkPos(box.getMinX() >> 4, box.getMinZ() >> 4);
+		ChunkPos max = new ChunkPos(box.getMaxX() >> 4, box.getMaxZ() >> 4);
+		ChunkPos.stream(min, max).forEach(chunk -> start.place(world, world.getStructureAccessor(), generator,
+				world.getRandom(), new BlockBox(chunk.getStartX(), world.getBottomY(), chunk.getStartZ(), chunk.getEndX(),
+						world.getTopY(), chunk.getEndZ()), chunk));
+
+		// Checked again after the water had time to flow (it moves every 5 ticks).
+		context.waitAndRun(20, () -> {
+			long wet = BlockPos.stream(descent).filter(pos -> !world.getFluidState(pos).isEmpty()).count();
+			Embervoid.LOGGER.info("Flooded Sanctum test: stairwell {} flooded with {} blocks, {} wet after placing", descent,
+					flooded[0], wet);
+			context.assertTrue(wet == 0, wet + " blocks of the stairwell " + descent + " still hold water");
+			context.complete();
+		});
 	}
 }
