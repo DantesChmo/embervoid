@@ -545,7 +545,7 @@ release, **0.5.0** (the user, 2026-10-23: no string of small versions); the sing
 |---|---|
 | 14 | boss music volume, road visibility |
 | 15, 16 | hub dimension and the Cleft Stele, the overworld dungeon and its boss, dungeon frequency |
-| 17, 18 | weapons above netherite (looks, stats, the whip), full rebalance, status effects |
+| 17, 18 | weapons above netherite (looks, stats, the whip), full rebalance |
 | 19, 20, 21 | mob and boss visuals, props and moving set pieces, the Citadel behind a fog wall |
 
 On top of the rules at the top of this file:
@@ -680,22 +680,25 @@ attack animations; the Warden's Scourge as a real whip.
 
 | ID | Task | Size | Depends on | Status |
 |----|------|------|------------|--------|
-| 17.0 | **Design: loot ladder, fight length, status effects** (with the user) | M | — | todo |
+| 17.0 | **Design: loot ladder, weapons, fight length** (with the user) | M | — | done (DESIGN §5.5, §6, §6.1, §10.14) |
 | 17.1 | **Player attack animations** (playerAnimator) | M | 17.0 | todo |
 | 17.2 | **Weapon models in hand** | M | 17.0 | todo |
 | 17.3 | **Weapon stats and identities** | M | 17.0, 18.1 | todo |
 | 17.4 | **Warden's Scourge as a real whip** | L | 17.1 | todo |
 
-- **17.0 Design** (one pass for milestones 17 and 18; they share the numbers). DESIGN §6 loot ladder rewritten with
-  the Realm 1 uniques above netherite, and what that does to the Sanctum weapons, the Realm 2+ tiers and the weapon
-  upgrades in BACKLOG; each unique's identity (Ashen Scythe, Huntsman's Crossbow, Warden's Scourge, Royal Ash
-  Rapier; the Sanctum Longsword and Ashbearer's Mace a step below); target fight lengths for the whole game (bosses
-  about 1.5–2.5 min with dodging, about 20–35 clean hits; every mob role; moon nights); a hit taking two thirds of
-  the player's health only after a clear wind-up (minimum ticks). **Status effects** (asked by the user 2026-10-22, the
-  mod's own set worked out together, Bleeding first): the list (bleeding, rot/poison for Realm 2, frost, curse…),
-  vanilla `StatusEffect` or souls-style buildup meters, how RES resists them (DESIGN §5.2 promises fire, poison,
-  wither), immunities by entity tag, cures (consumables, the flask, shrines), HUD for buildup. Big choices for the
-  user: how far above netherite; buildup meters or plain effects.
+- **17.0 Design** (one pass for milestones 17 and 18; they share the numbers). *Done 2026-10-23:* DESIGN §5.5 (fight
+  length, hit sizes, the wind-up rule), §6 (ladder: Realm 1 about 30 % above netherite, the user's pick; Smoldering
+  Plate raised to netherite), §6.1 (weapon identities and starting numbers), §10.14. **Status effects were taken out and
+  postponed to 0.6.0** (the user: a big topic of its own; back in BACKLOG); Bleeding stays the placeholder and 18.2 is
+  dropped. The original brief: DESIGN §6 loot ladder rewritten with the Realm 1 uniques above netherite, and what that
+  does to the Sanctum weapons, the Realm 2+ tiers and the weapon upgrades in BACKLOG; each unique's identity (Ashen
+  Scythe, Huntsman's Crossbow, Warden's Scourge, Royal Ash Rapier; the Sanctum Longsword and Ashbearer's Mace a step
+  below); target fight lengths for the whole game (bosses about 1.5–2.5 min with dodging, about 20–35 clean hits; every
+  mob role; moon nights); a hit taking two thirds of the player's health only after a clear wind-up (minimum ticks).
+  **Status effects** (asked by the user 2026-10-22, the mod's own set worked out together, Bleeding first): the list
+  (bleeding, rot/poison for Realm 2, frost, curse…), vanilla `StatusEffect` or souls-style buildup meters, how RES
+  resists them (DESIGN §5.2 promises fire, poison, wither), immunities by entity tag, cures (consumables, the flask,
+  shrines), HUD for buildup. Big choices for the user: how far above netherite; buildup meters or plain effects.
 - **17.1 Player attack animations.** New required dependency playerAnimator (Fabric, 1.20.1): `build.gradle`,
   `fabric.mod.json`, README, ROADMAP "Required runtime mods". A small API that plays an attack animation on the
   attacking player for everyone nearby (server-triggered, synced); one set per weapon kind (sword, rapier thrust,
@@ -704,7 +707,8 @@ attack animations; the Warden's Scourge as a real whip.
 - **17.2 Weapon models in hand.** Bigger own models for the six weapons (GeckoLib item renderer or JSON with display
   transforms), first and third person; inventory icons stay readable. Through the art scripts, checked with
   `tools/model_preview.py`; not seen in hand.
-- **17.3 Weapon stats and identities.** Numbers from 17.0 / 18.1 (damage, speed, reach, sweep, specials) for the
+- **17.3 Weapon stats and identities.** DESIGN §6.1 (identities, starting numbers) and §6 (Smoldering Plate to
+  netherite). Numbers from 17.0 / 18.1 (damage, speed, reach, sweep, specials) for the
   Realm 1 and Sanctum weapons, each unique's passive. `BalanceTargetsTest` to the new ladder.
 - **17.4 Warden's Scourge as a real whip.** Long and segmented, bends through the air on a swing (bone chain with
   secondary motion or a client-side rope); hits along an arc line (server samples along the arc, no hit through
@@ -721,17 +725,13 @@ stats, weapons.
 | ID | Task | Size | Depends on | Status |
 |----|------|------|------------|--------|
 | 18.1 | **Balance model on fight length** | M | 17.0 | todo |
-| 18.2 | **Status effects** (Bleeding rebuilt) | M | 17.0 | todo |
 | 18.3 | **Retune: overworld, dungeon, moon nights** | M | 18.1, 16.4 | todo |
-| 18.4 | **Retune: Realm 1 mobs and bosses, player stats** | L | 18.1, 18.2, 17.3 | todo |
+| 18.4 | **Retune: Realm 1 mobs and bosses, player stats** | L | 18.1, 17.3 | todo |
 
 - **18.1 Balance model on fight length.** `com.embervoid.balance` turns hits to kill into seconds (weapon speed, an
   uptime factor per boss for dodging) next to the 17.0 targets, for every stage: overworld, dungeon boss, moon
   nights, the three zones, the Citadel. New `docs/balance-0.5.0.md` (the old write-ups stay as history);
   `BalanceTargetsTest` gets the new targets (red until 18.3 and 18.4).
-- **18.2 Status effects.** The framework per 17.0; Bleeding (today a vanilla damage-over-time placeholder, DESIGN
-  §4.5, tag `embervoid:bleed_immune`) moved onto it; RES resistance, immunities, cures (Amber Balm), HUD if buildup.
-  GameTests.
 - **18.3 Retune: overworld, dungeon, moon nights.** Overworld mobs, dungeon guards and boss, moon-night mobs and the
   Vampire boss to the targets; `OverworldTargetsTest`, `BalanceFightTests`.
 - **18.4 Retune: Realm 1.** Zone and Citadel mobs and the four bosses: HP to the fight length, damage per hit under

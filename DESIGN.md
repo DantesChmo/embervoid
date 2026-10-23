@@ -462,6 +462,7 @@ The Minecraft way: an ore in each open zone → material → consumables and arm
   repeat kill: 25 % chance of the soul. Recipe: soul + 2 Smoldering Ingot + a zone part, crafting table.
 - **Chest:** 4 % in the zone's treasure chest (Fields granary vault, Woods hunting lodge, Necropolis lower crypt,
   Citadel keep treasury); first come, first served in the shared dimension.
+- The numbers below are 0.4.0's; 0.5.0 moves the weapons above netherite with new identities (§6.1).
 
 | Weapon | Soul / zone | Numbers | Passive | Special (right-click, §8.1) | Scaling |
 |---|---|---|---|---|---|
@@ -474,7 +475,7 @@ The Minecraft way: an ore in each open zone → material → consumables and arm
 - Scythe, Scourge and Rapier take Sharpness, Smite, Bane of Arthropods, Fire Aspect, Looting and Knockback (table and
   anvil); Sweeping Edge stays sword-only. Scythe 10 and Scourge 9 damage (were 8) so that unenchanted they beat a
   diamond sword per hit (**Proposed — built as recommended**, R40.1 balance pass, `docs/balance-0.4.0.md`).
-- **Bleeding** (placeholder until the status-effects design in 0.5.0, [PLAN.md](PLAN.md) 17.0): a vanilla status effect,
+- **Bleeding** (placeholder; the status-effects system is a 0.6.0 topic, [BACKLOG.md](BACKLOG.md)): a vanilla status effect,
   levels I–III (each hit +1, 6 s, refreshes), 0.5 / 1 / 1.5 HP per second, ignores armor. Immune: entity tag
   `embervoid:bleed_immune` (Restless Bones, Furnace Golem, Bark Hollow, Ash Colossus, Grieving Tree).
 
@@ -644,6 +645,24 @@ What you see is what you get.
 
 ---
 
+### 5.5 Fight length and hit sizes (Decided, 0.5.0)
+
+The 0.4.1 playtest: boss fights took 5+ minutes while a boss killed in about two hits (the 0.4.0 model gave 52–73
+clean hits per Realm 1 boss; souls games sit at about 20–35). Decided 2026-10-23 (PLAN 17.0); the whole game is
+retuned to these targets in 0.5.0 (PLAN milestone 18). "Expected player" is the balance model's player at that
+stage with that stage's reference weapon, Normal difficulty.
+
+| Target | Value |
+|---|---|
+| Boss fight, solo, with dodging | **1.5–2.5 min**; **20–35 clean hits** with the stage's reference weapon (dungeon boss: iron sword at level 1; first zone boss: diamond sword at level 10; later zone bosses and the Citadel: a Realm 1 unique) |
+| Mobs, hits to kill | fodder 2–3, ambushers and ranged 3–4, elites 6–10 |
+| Hits to kill the player from full HP | fodder ≥ 6, elites ≥ 4; boss light moves ≥ 5 (≤ 20 % of max HP), heavy ≥ 3 (≤ 35 %), the biggest move ≤ ⅔ — never a one-shot |
+| Wind-up rule | a hit of ≥ ⅓ of the player's max HP needs a wind-up of ≥ 12 ticks with a visible tell; ≥ ½ needs ≥ 20 ticks plus a telegraph shape (ring, line, cone, falling shadow) or a sound cue. Checked by a test over every boss move |
+
+How: boss HP down to the hit count, boss damage down by move class; the player's HP scale stays vanilla-like
+(hearts stay readable) and the VIT curve changes only if the targets cannot be met otherwise. The balance model
+turns hits into seconds with an uptime factor per boss from its move cadence (about 25–35 %).
+
 ## 6. The carrot: loot ladder
 
 Each realm has its own **material tier** and gear set. Rough position against vanilla:
@@ -651,11 +670,14 @@ Each realm has its own **material tier** and gear set. Rough position against va
 | Source | Tier | Status |
 |---|---|---|
 | Overworld | Vanilla up to diamond / netherite | — |
-| Ruined Sanctum (dungeon) | The Crying Soul from the Fallen Sister (§2); in the outer halls flask shards, the Sanctum Longsword and Ashbearer's Mace (§10.10), vanilla loot; the Wanderer's Cloak moved to [BACKLOG.md](BACKLOG.md) | Proposed — built as recommended |
-| Realm 1 | Smoldering Ingot ≈ diamond+: Smoldering Plate (diamond protection, more toughness, fire resistance), unique weapons, rings and artifacts (§4.5) | Decided |
-| Realm 2 | ≈ netherite | Proposed |
-| Realm 3 | above netherite | Proposed |
+| Ruined Sanctum (dungeon) | The Crying Soul from the Fallen Sister (§2); in the outer halls flask shards and the Sanctum Longsword and Ashbearer's Mace (§10.10), between iron and diamond; vanilla loot; the Wanderer's Cloak moved to [BACKLOG.md](BACKLOG.md) | Decided |
+| Realm 1 | **Above netherite** (0.5.0): unique weapons about **+30 % damage per second** over an unenchanted netherite sword in their own use (§6.1); Smoldering Plate raised to netherite (protection 3/8/6/3, toughness 3, knockback resistance 0.1 per piece) plus −8 % fire damage per piece; rings and artifacts (§4.5) | Decided |
+| Realm 2 | about +25 % over Realm 1 | Proposed |
+| Realm 3 | about +25 % over Realm 2 | Proposed |
 | Realm 4 | top tier | Proposed |
+
+Enchantments keep mattering on every tier: a unique is meant to beat netherite unenchanted, not to make
+enchanting pointless. Decided 2026-10-23 (the user's pick of about 30 % over a far jump of about 60 %).
 
 **Open:** should Realm 2 require netherite gear (the Nether as a soft gate), or stay independent of vanilla
 progress?
@@ -668,6 +690,24 @@ Loot per realm:
 - **Consumables and upgrades**: flask shards (more charges / more healing), realm-specific items.
 
 ---
+
+### 6.1 Realm 1 weapons above netherite (Decided, 0.5.0)
+
+The 0.4.1 playtest: every Realm 1 weapon looked bad and felt worse than vanilla (the Rapier, 6 damage at speed 2.0
+with reach 2.5, matched a diamond sword per second, had less reach than vanilla and no sweep). Each unique now has an
+identity felt in hand, a bigger in-hand model and its own player attack animation (PLAN 17.1–17.4). Reference:
+netherite sword 8 damage at 1.6 = 12.8 per second; the target for a unique in its own use is about 16–17.
+Numbers are the starting point for PLAN 17.3; the balance model (PLAN 18.1) may move them a little.
+
+| Weapon | Identity | Starting numbers | What makes it itself |
+|---|---|---|---|
+| **Ashen Scythe** (STR 0.6 / DEX 0.4) | the crowd cutter | 12 dmg, speed 1.1, reach 3.5 | every hit sweeps r 2.5 at 75 %; a fully charged hit sends the ash wave; each enemy caught by a sweep or by Harvest refunds 3 stamina. Weaker than the others on one target, by far the best on groups |
+| **Royal Ash Rapier** (DEX 0.7, ember part KIN) | the duellist | 7 dmg, speed 2.2, reach 3.5 | a thrust, no sweep; hits on the same target within 1.5 s ramp +10 % each up to +30 % (lost on a miss or a hit taken); fire 3 s; Lunge. About 15 per second, about 20 ramped |
+| **Warden's Scourge** (DEX 1) | the whip | 10 dmg, speed 1.0, reach 6 | hits every enemy along the swing's arc; the tip (last 1.5 blocks) cracks for ×1.6; Lash still pulls. About 16 per second at the tip |
+| **Huntsman's Crossbow** (DEX 0.5 / STR 0.5) | the hunter's bolt | charge 1.6 s, bolt 16, pierces 2 | strong knockback; a bolt into a target that is not targeting you deals ×1.5 (the opener); right-click loads |
+
+Bleeding stays the 0.4.0 placeholder (a vanilla effect, §4.5) until the status-effects system in 0.6.0; the
+rebalance counts it as it is. The Sanctum Longsword and Ashbearer's Mace keep their place between iron and diamond.
 
 ## 7. Core mechanics (carried over)
 
@@ -689,7 +729,7 @@ These are big enough to get their own documents. Each is needed before the miles
 |---|---|---|
 | **Weapons** | Weapon classes, STR/DEX/KIN scaling and requirements, special attacks, how vanilla weapons fit in, upgrades | **Special-attack contract** (trigger, cost, cooldown, tooltip, limits): done (§8.1). Realm 1 weapons: done (§4.5). Upgrades: [BACKLOG.md](BACKLOG.md). Sanctum weapons: done (§10.10). Requirements: open |
 | **Realm 1 content** | Per-zone mobs, structures, the 4 bosses (moves and phases), loot tables | Done (§4.5) |
-| **Status effects** | Bleeding and later effects, RES resistance, immunities, cures | Realm 1 ships a placeholder Bleeding (§4.5); the system: designed and built in 0.5.0 ([PLAN.md](PLAN.md) 17.0, 18.2) |
+| **Status effects** | Bleeding and later effects, RES resistance, immunities, cures | Realm 1 ships a placeholder Bleeding (§4.5); the system: 0.6.0, [BACKLOG.md](BACKLOG.md) |
 | **Rings and artifacts** | Catalogue across the mod, more slots, stacking, sources outside realms | Realm 1 set and the Reliquary: done (§4.5); the rest: [BACKLOG.md](BACKLOG.md) |
 | **Bestiary (overworld)** | Hollow and Ember Wisp in detail, behaviors | Overworld threats — done (§3.2) |
 | **Realms 2–4** | Each realm's zones, mobs, bosses, material | Each realm |
@@ -821,3 +861,10 @@ Each question names the milestone that cannot start without an answer.
     three concepts); **one lit stele per world** (the user's pick over one per player); an **Ember Shrine at the boss
     door** (the user's pick). The rest (hub layout, exit fallback, Cleft Stone recipe, per-dungeon clearing, names,
     old worlds) decided in the same pass, easy to change.
+14. **Weapons and fight length** (the 0.4.1 playtest): how far above netherite Realm 1 goes, what each unique is,
+    how long fights last and how big a hit may be.
+    *Needed by:* milestones 17–18 (PLAN 17.0).
+    **Decided** (2026-10-23, §5.5, §6, §6.1): Realm 1 uniques about **30 % above netherite** per second (the user's
+    pick), Smoldering Plate raised to netherite; bosses 1.5–2.5 min and 20–35 hits; the wind-up rule; the weapon
+    identities and starting numbers decided in the same pass, easy to change. **Status effects** postponed to 0.6.0
+    (the user: a big topic of its own); Bleeding stays the placeholder.

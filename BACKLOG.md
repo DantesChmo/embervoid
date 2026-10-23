@@ -98,6 +98,21 @@ Leaning, if it comes back: A first (smithing table), B-lite later (Ember once em
 Realm 2 weapons; not C or D. Open: levels, infusions or both; +5 or +10; where it happens; XP on top of
 materials; vanilla weapons and their cap; whether upgrades touch the special attack; armor too; ascension.
 
+## Status effects (0.6.0)
+
+**Status:** to design, for 0.6.0 (the user, 2026-10-23: taken out of 0.5.0, a big topic of its own). Asked by the
+user 2026-10-22: the mod needs its own set of status effects, worked out together rather than one per weapon.
+**Bleeding** is the first: Obelisk 1 weapons already apply it (a plain damage-over-time placeholder since 0.4.0,
+DESIGN §4.5), and the 0.5.0 rebalance counts it as it is.
+
+To decide: the full list (bleeding, rot/poison for Realm 2, frost, curse…); vanilla `StatusEffect` (simple, shows
+in the HUD) or souls-style buildup meters that burst; how RES resists them (DESIGN §5.2 already promises
+resistance to fire, poison, wither); which mobs are immune (skeletons, constructs: an entity tag); cures
+(consumables, the flask, shrines); HUD for buildup.
+
+Leaning (proposed in the 0.5.0 design pass): buildup meters that burst (bleeding: a chunk of max HP), shown for the
+player above the hotbar; RES raises the player's thresholds; one framework that later serves rot, frost and curse.
+
 ## Rings and artifacts
 
 **Status:** to design (asked by the user 2026-10-22). Many rings and artifacts across the whole mod, not tied to
@@ -128,7 +143,7 @@ Cross-realm constraints found:
 - Gear tier vs netherite (out of date once 0.5.0 puts Realm 1 above netherite, PLAN 17.0): DESIGN §6 puts Realm 2 at
   about netherite, but if Realm 2 needs netherite (§10 q3) its tier must sit above it. Leaning: the Realm 2 tier is a
   smithing upgrade of netherite gear (a soft gate through the recipe, not the obelisk).
-- One buildup-status framework (now designed and built in 0.5.0, PLAN 17.0 / 18.2), reused by every realm. Three realms
+- One buildup-status framework (see Status effects, planned for 0.6.0), reused by every realm. Three realms
   with a meter each is too much: either fewer meters, or each plays differently (rot = damage over time, beastblood =
   risk/reward buff, void taint = light and visibility).
 - Ember Moon sky and visuals could be reused for Realm 3's perpetual night.

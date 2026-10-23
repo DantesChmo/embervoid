@@ -342,9 +342,9 @@ visuals; the quick fixes fit in anywhere. Milestones 15, 17 and 21 start with a 
 
 ## 17. Weapons above netherite
 
-**Status:** To do (design first, PLAN 17.0, shared with milestone 18).
+**Status:** Design done (DESIGN §5.5, §6.1); build to do.
 
-- [ ] Design: loot ladder with Realm 1 uniques above netherite, weapon identities, target fight lengths, status effects
+- [x] Design: loot ladder with Realm 1 uniques about 30 % above netherite, weapon identities, target fight lengths — DESIGN §5.5, §6, §6.1
 - [ ] Player attack animations (new dependency: playerAnimator)
 - [ ] Bigger in-hand weapon models
 - [ ] New weapon stats and identities
@@ -355,7 +355,6 @@ visuals; the quick fixes fit in anywhere. Milestones 15, 17 and 21 start with a 
 **Status:** To do.
 
 - [ ] Balance model on fight length (bosses about 1.5–2.5 min with dodging, about 20–35 clean hits)
-- [ ] Status effects framework; Bleeding rebuilt on it
 - [ ] Retune overworld, dungeon and moon nights; then Realm 1 mobs, bosses and player stats
 
 ## 19. Mobs and bosses that look the part
@@ -402,4 +401,4 @@ First-round variants and where each discussion stopped: [BACKLOG.md](BACKLOG.md)
 - Realms 2–4 (*Mire of Rot*, *Cathedral Ward*, *The Void*), each with its own design pass
 - Respec consumable, Maiden as merchant
 - Weapon upgrades / smithing within a tier
-- Rings and artifacts across the mod (the status effects system moved to 0.5.0)
+- Status effects system for 0.6.0 (Bleeding stays the Realm 1 placeholder until then); rings and artifacts across the mod
