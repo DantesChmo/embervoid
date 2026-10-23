@@ -5,7 +5,6 @@ import com.embervoid.realm.api.ShrineHooks;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
@@ -23,7 +22,7 @@ final class ShrineRest {
 		}
 		HealingFlaskItem.refill(player);
 		player.setHealth(player.getMaxHealth());
-		world.playSound(null, pos, SoundEvents.ITEM_FIRECHARGE_USE, SoundCategory.BLOCKS, 0.6f, 0.8f);
+		world.playSound(null, pos, SanctumSounds.SHRINE_REST, SoundCategory.BLOCKS, 0.6f, 0.8f);
 		player.sendMessage(Text.translatable("embervoid.shrine.rested").formatted(Formatting.GOLD), true);
 		ShrineHooks.RESTED.invoker().onRested(player, world, pos);
 	}

@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -32,15 +33,20 @@ public class SealedGateBlock extends Block {
 		if (player instanceof ServerPlayerEntity serverPlayer) {
 			if (realm.depths().equals(world.getRegistryKey())) {
 				RealmTeleports.toLanding(serverPlayer, realm.world());
+				RealmTeleports.travelled(serverPlayer);
 			} else {
 				long remaining = remainingZoneBosses(serverPlayer, realm);
 				if (remaining == 0 && !RealmConfig.get().depthsOpen()) {
 					serverPlayer.sendMessage(Text.translatable("embervoid.realm.gate.forming"), true);
+					serverPlayer.playSound(RealmSounds.GATE_SEALED, SoundCategory.BLOCKS, 1.0f, 1.0f);
 				} else if (remaining == 0) {
 					serverPlayer.sendMessage(Text.translatable("embervoid.realm.gate.open"), true);
+					serverPlayer.playSound(RealmSounds.GATE_OPEN, SoundCategory.BLOCKS, 1.0f, 1.0f);
 					RealmTeleports.toLanding(serverPlayer, realm.depths());
+					RealmTeleports.travelled(serverPlayer);
 				} else {
 					serverPlayer.sendMessage(Text.translatable("embervoid.realm.gate.sealed", remaining), true);
+					serverPlayer.playSound(RealmSounds.GATE_SEALED, SoundCategory.BLOCKS, 1.0f, 1.0f);
 				}
 			}
 		}

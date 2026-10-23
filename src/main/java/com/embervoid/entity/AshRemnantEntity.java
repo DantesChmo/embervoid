@@ -5,9 +5,10 @@ import com.embervoid.player.DeathStashes;
 import com.embervoid.player.FlaskKeeper;
 import com.embervoid.player.PlayerData;
 import com.embervoid.player.PlayerDataManager;
+import com.embervoid.player.PlayerSounds;
 import com.embervoid.player.XpUtil;
-import net.minecraft.block.piston.PistonBehavior;
 import com.embervoid.registry.ModEntities;
+import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.damage.DamageSource;
@@ -22,7 +23,6 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
@@ -98,6 +98,8 @@ public class AshRemnantEntity extends Entity {
 
 		RemnantRegistry.get(player.getServer()).setRemnant(player.getUuid(), remnant.getUuid());
 		player.getServerWorld().spawnEntity(remnant);
+		player.getServerWorld().playSound(null, remnant.getX(), remnant.getY(), remnant.getZ(), PlayerSounds.REMNANT_PLACED,
+				SoundCategory.PLAYERS, 1.0f, 1.0f);
 		PlayerDataManager.get(player).remnantId = remnant.getUuid();
 		PlayerDataManager.sync(player);
 		return remnant;
@@ -198,7 +200,7 @@ public class AshRemnantEntity extends Entity {
 		}
 		player.sendMessage(Text.translatable("embervoid.remnant.recovered").formatted(Formatting.GOLD), true);
 		ServerWorld world = player.getServerWorld();
-		world.playSound(null, getX(), getY(), getZ(), SoundEvents.PARTICLE_SOUL_ESCAPE, SoundCategory.PLAYERS, 1.0f, 0.8f);
+		world.playSound(null, getX(), getY(), getZ(), PlayerSounds.REMNANT_CLAIMED, SoundCategory.PLAYERS, 1.0f, 0.8f);
 		world.spawnParticles(ParticleTypes.SOUL, getX(), getY() + 0.6, getZ(), 20, 0.3, 0.4, 0.3, 0.02);
 		discard();
 	}
@@ -211,7 +213,7 @@ public class AshRemnantEntity extends Entity {
 		}
 		if (experience > 0 && getWorld() instanceof ServerWorld world) {
 			world.spawnParticles(ParticleTypes.SMOKE, getX(), getY() + 0.6, getZ(), 12, 0.25, 0.4, 0.25, 0.01);
-			world.playSound(null, getX(), getY(), getZ(), SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.BLOCKS, 0.5f, 1.2f);
+			world.playSound(null, getX(), getY(), getZ(), PlayerSounds.REMNANT_FADED, SoundCategory.BLOCKS, 0.5f, 1.2f);
 		}
 		experience = 0;
 		itemOnly = true;
@@ -226,7 +228,7 @@ public class AshRemnantEntity extends Entity {
 	public void burn() {
 		if (getWorld() instanceof ServerWorld world) {
 			world.spawnParticles(ParticleTypes.LARGE_SMOKE, getX(), getY() + 0.5, getZ(), 15, 0.3, 0.4, 0.3, 0.01);
-			world.playSound(null, getX(), getY(), getZ(), SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.BLOCKS, 0.8f, 0.6f);
+			world.playSound(null, getX(), getY(), getZ(), PlayerSounds.REMNANT_BURNT, SoundCategory.BLOCKS, 0.8f, 0.6f);
 		}
 		items.clear();
 		stashes.clear();

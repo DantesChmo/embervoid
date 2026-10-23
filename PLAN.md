@@ -421,12 +421,12 @@ animation names; new sounds are own `embervoid:` events on vanilla files with su
 |----|------|-------|--------|
 | L1 | **Sanctum weapons** (DESIGN §10.10): Sanctum Longsword and Ashbearer's Mace with special attacks, in the outer-hall loot | left-gear | todo |
 | L2 | **Overworld balance pass** (0.2.0 release): model and engine check from a fresh level 1 player to the Sanctum | left-gear | todo |
-| L3 | **Sound gaps** (0.2.0 release): overworld mobs, moon-night mobs, Vampires, Sanctum blocks and items, flask, remnant, stamina | left-audio | todo |
+| L3 | **Sound gaps** (0.2.0 release): overworld mobs, moon-night mobs, Vampires, Sanctum blocks and items, flask, remnant, stamina | coordinator (was left-audio) | done (GameTest `OverworldSoundTests`; 53 events on vanilla files; not heard) |
 | L4 | **Art pass** (0.2.0 + 0.3.0 release): Ash Ghoul, Hollow, Ember Wisp, Ashen Maiden, Ashen Zombie, Ghost, Vampire, Vampire boss | left-art | todo |
-| L5 | **Headless checks for the in-game checks never run**: debug weapon and stamina (2.5, 2.6), Hollow wind-up / dodge / guard, Sanctum casing gaps (QA #7f) | coordinator | todo |
-| L6 | **Dedicated-server test** (2.11, 3.8, 0.2.0 release): stats sync, leveling through the real packet, death → remnant → recovery, with a bot in `tools/server_check.py` | coordinator | todo |
-| L7 | **Per-player arena shrine look** (DESIGN §10.8 known limitation) | coordinator | todo |
-| L8 | **README check** (0.2.0 release): features, required mods (GeckoLib is missing), config reference | coordinator | todo |
+| L5 | **Headless checks for the in-game checks never run**: debug weapon and stamina (2.5, 2.6), Hollow wind-up / dodge / guard, Sanctum casing gaps (QA #7f) | coordinator | done (GameTests `StaminaTests`, `HollowTests`, `SanctumTests.floodedStairwellKeepsWaterOut`; JUnit `StaminaBarTest`) |
+| L6 | **Dedicated-server test** (2.11, 3.8, 0.2.0 release): stats sync, leveling through the real packet, death → remnant → recovery, with a bot in `tools/server_check.py` | coordinator | done (`tools/server_check.py` bot step) |
+| L7 | **Per-player arena shrine look** (DESIGN §10.8 known limitation) | coordinator | done (GameTest `MultiplayerTests.arenaShrineIsColdForNewcomersOnly`; the cold look not seen) |
+| L8 | **README check** (0.2.0 release): features, required mods (GeckoLib is missing), config reference | coordinator | done (config rows checked against a fresh `embervoid.json`) |
 | L9 | **Release 0.4.1**: version, changelog, CORE/ROADMAP/PLAN, 0.2.0 and 0.3.0 sections closed as superseded (R30.4 included) | coordinator | todo |
 
 - **L1 Sanctum weapons** (DESIGN §10.10, built as recommended here; numbers are the starting point, L2 fits them to the
@@ -441,8 +441,11 @@ animation names; new sounds are own `embervoid:` events on vanilla files with su
   - Both: durability ~600, repaired with iron ingots, the same enchantment set as the Realm 1 melee weapons
     (`GearWeapons.SWORD_ENCHANTMENTS`). Each lies in `embervoid:chests/sanctum_outer_hall` at a chance that gives about
     one of the two weapons per two Sanctums (≈ 6 % per chest each; the write-up states the per-Sanctum odds).
-  - Must stay below every realm weapon per hit and per second (Ashen Scythe 10, Warden's Scourge 9, Royal Ash Rapier 6 at
-    2.0) and no stronger than a diamond sword / axe per second; checked in `BalanceTargetsTest`. Item textures through
+  - Must sit below the realm weapons (Ashen Scythe 10, Warden's Scourge 9, Royal Ash Rapier 6 at 2.0): no Sanctum
+    weapon beats any realm weapon both per hit and per second, the best realm weapon on each axis beats both, and per
+    second the Longsword is no stronger than a diamond sword, the Mace no stronger than a diamond axe; checked in
+    `BalanceTargetsTest`. (Below every realm weapon on each axis separately cannot hold: the Rapier is light and fast,
+    the Scourge slow with reach, so the Longsword would drop under an iron sword.) Item textures through
     `tools/art_kit.py` (preview with `tools/model_preview.py`), lang in both languages, GameTests for both specials (cost,
     cooldown, hits through `damage()`, guard break, no hit through walls) and the loot.
 - **L2 Overworld balance pass.** Extend `com.embervoid.balance` with the overworld stage: a level 1 player (all stats
@@ -476,9 +479,15 @@ animation names; new sounds are own `embervoid:` events on vanilla files with su
   and levelled through RCON and through the real level-up packet next to a summoned Maiden (XP taken exactly, max
   health right), the bot receives the player-data and progress sync packets, dies with items and XP, respawns, and gets
   everything back from its remnant by a real interact packet.
+  *Done:* the bot also checks the join syncs (player data, progress, stamina, config). XP is compared through
+  `/embervoid stats` (XpUtil), not vanilla's `xp query`, which floors the bar.
 - **L7 Arena shrine look.** The client draws a dormant arena shrine cold (smoke, no flame) for a player who has not
   beaten its boss; resting is still refused on the server. The server sends each player the dormant shrine positions
   near them (S2C, on entering a realm and on progress change); GameTest that the packet lists the right shrines.
+  *Done:* `boss.ArenaShrines` sends each player in a realm the shrines of loaded arenas within 192 blocks with their
+  boss ids (on join, dimension change and every 2 s when the list changed); the client (`client.boss.ArenaShrinesClient`)
+  decides from its own synced progress, so a kill lights the shrine at once. A cold shrine shows smoke and white ash
+  instead of flame. The block's light level stays 15 for everyone (light is not per player).
 - **L8 README.** Required mods (Fabric API, GeckoLib), a short feature list per release, config reference checked
   against the config classes (every key and default), the L1–L7 additions.
 - **L9 Release 0.4.1.** `mod_version` 0.4.1, CHANGELOG "0.4.1", CORE (Sanctum weapons, sounds, art), ROADMAP and PLAN:

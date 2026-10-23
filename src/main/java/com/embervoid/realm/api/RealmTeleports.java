@@ -4,12 +4,14 @@ import com.embervoid.progress.ProgressManager;
 import com.embervoid.realm.RealmDefinition;
 import com.embervoid.realm.RealmLayout;
 import com.embervoid.realm.RealmPlayerData;
+import com.embervoid.realm.RealmSounds;
 import com.embervoid.realm.Realms;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
 import net.minecraft.block.Blocks;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -38,11 +40,13 @@ public final class RealmTeleports {
 		RealmDefinition realm = Realms.byId(realmId);
 		if (!ProgressManager.isRealmUnlocked(player, realmId)) {
 			player.sendMessage(Text.translatable("embervoid.realm.locked"), true);
+			refuse(player);
 			return false;
 		}
 		if (realm == null) {
 			// Unlocked by the previous realm's boss, but not built yet.
 			player.sendMessage(Text.translatable("embervoid.realm.forming"), true);
+			refuse(player);
 			return false;
 		}
 		RealmPlayerData data = RealmPlayerData.get(player);
@@ -50,10 +54,10 @@ public final class RealmTeleports {
 			data.returnPoint = GlobalPos.create(player.getWorld().getRegistryKey(), player.getBlockPos());
 			data.returnYaw = player.getYaw();
 		}
-		if (toLastShrine && toShrine(player, realm.world())) {
-			return true;
+		if (!(toLastShrine && toShrine(player, realm.world()))) {
+			toLanding(player, realm.world());
 		}
-		toLanding(player, realm.world());
+		travelled(player);
 		return true;
 	}
 
@@ -75,6 +79,17 @@ public final class RealmTeleports {
 			teleport(player, overworld, Vec3d.ofBottomCenter(overworld.getSpawnPos()), 0);
 		}
 		data.returnPoint = null;
+		travelled(player);
+	}
+
+	/** The obelisk's travel sound, heard by the player where they arrive. */
+	public static void travelled(ServerPlayerEntity player) {
+		player.playSound(RealmSounds.TRAVEL, SoundCategory.PLAYERS, 1.0f, 1.0f);
+	}
+
+	/** An obelisk or gate that will not take the player. */
+	public static void refuse(ServerPlayerEntity player) {
+		player.playSound(RealmSounds.REFUSE, SoundCategory.PLAYERS, 1.0f, 1.0f);
 	}
 
 	/** To the landing of the given realm dimension (open zones or final zone). */

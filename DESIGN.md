@@ -698,8 +698,9 @@ Each question names the milestone that cannot start without an answer.
    for them. Recommendation: the shrine is part of the arena structure, stands outside the fog wall, and is
    dormant (cannot be rested at, looks unlit to them) for players who have not beaten that boss.
    *Needed by:* milestone 7.
-   **Proposed — built as recommended:** outside the fog wall and dormant ("The ember here is cold to you"), but
-   it looks lit to everyone: a per-player look needs client-side progress.
+   **Proposed — built as recommended:** outside the fog wall and dormant ("The ember here is cold to you"); since
+   0.4.1 it also looks cold (smoke, no flame) to a player who has not beaten its boss. Its light level stays the same
+   for everyone.
 9. **Nether and End level bonuses, unlisted mobs.** The first values, +10 / +20, put End endermen at level 32 (above the Realm 1
    boss) and Nether mobs in the Realm 1 band, which breaks the "overworld 3–20" band in §5.4. Nether mobs,
    illagers and modded hostiles have no base level. Recommendation: Nether +5, End +8 (End endermen ≈ 20, the

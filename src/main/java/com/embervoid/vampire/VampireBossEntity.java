@@ -20,7 +20,6 @@ import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -130,14 +129,14 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 		double distance = squaredDistanceTo(target);
 		if (phase >= 1 && novaCooldown <= 0 && distance < NOVA_RADIUS * NOVA_RADIUS) {
 			novaCooldown = phase >= 2 ? 120 : 160;
-			Telegraph.windup(this, NOVA_WINDUP, "attack.nova", SoundEvents.ENTITY_EVOKER_PREPARE_ATTACK, BLOOD, NOVA_RADIUS, this::nova);
+			Telegraph.windup(this, NOVA_WINDUP, "attack.nova", VampireSounds.VAMPIRE_BOSS_NOVA_WINDUP, BLOOD, NOVA_RADIUS, this::nova);
 		} else if (phase >= 2 && mistCooldown <= 0 && distance > 9) {
 			mistCooldown = 100;
-			Telegraph.windup(this, MIST_WINDUP, "misc.mist", SoundEvents.ENTITY_ILLUSIONER_PREPARE_MIRROR, ParticleTypes.SMOKE, 0, this::mistStep);
+			Telegraph.windup(this, MIST_WINDUP, "misc.mist", VampireSounds.VAMPIRE_BOSS_MIST, ParticleTypes.SMOKE, 0, this::mistStep);
 		} else if (leapCooldown <= 0 && distance > 25 && distance < 256) {
 			leapCooldown = phase >= 1 ? 100 : 140;
 			Vec3d landing = target.getPos();
-			Telegraph.windup(this, LEAP_WINDUP, "attack.leap", SoundEvents.ENTITY_RAVAGER_ROAR, BLOOD, 0, () -> leap(landing));
+			Telegraph.windup(this, LEAP_WINDUP, "attack.leap", VampireSounds.VAMPIRE_BOSS_LEAP, BLOOD, 0, () -> leap(landing));
 			markLanding(landing);
 		}
 	}
@@ -169,7 +168,7 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 		}
 		if ((isOnGround() && leapAirTicks > 4) || leapAirTicks > 40) {
 			leapTarget = null;
-			world.playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.HOSTILE, 1.0f, 1.3f);
+			world.playSound(null, getX(), getY(), getZ(), VampireSounds.VAMPIRE_BOSS_LAND, SoundCategory.HOSTILE, 1.0f, 1.3f);
 			world.spawnParticles(BLOOD, getX(), getY() + 0.3, getZ(), 40, LEAP_RADIUS / 2, 0.2, LEAP_RADIUS / 2, 0);
 			for (PlayerEntity player : playersWithin(world, LEAP_RADIUS)) {
 				player.damage(getDamageSources().mobAttack(this), LEAP_DAMAGE);
@@ -183,7 +182,7 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 		if (!(getWorld() instanceof ServerWorld world)) {
 			return;
 		}
-		world.playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_WARDEN_SONIC_BOOM, SoundCategory.HOSTILE, 1.5f, 1.4f);
+		world.playSound(null, getX(), getY(), getZ(), VampireSounds.VAMPIRE_BOSS_NOVA, SoundCategory.HOSTILE, 1.5f, 1.4f);
 		world.spawnParticles(BLOOD, getX(), getY() + 1, getZ(), 120, NOVA_RADIUS / 2, 0.8, NOVA_RADIUS / 2, 0);
 		float dealt = 0;
 		for (PlayerEntity player : playersWithin(world, NOVA_RADIUS)) {
@@ -210,7 +209,7 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 		Vec3d behind = target.getPos().subtract(target.getRotationVector().multiply(1, 0, 1).normalize().multiply(2));
 		if (teleport(behind.x, target.getY(), behind.z, false)) {
 			world.spawnParticles(ParticleTypes.LARGE_SMOKE, getX(), getY() + 1, getZ(), 30, 0.4, 0.8, 0.4, 0.02);
-			world.playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_ILLUSIONER_MIRROR_MOVE, SoundCategory.HOSTILE, 1.5f, 0.8f);
+			world.playSound(null, getX(), getY(), getZ(), VampireSounds.VAMPIRE_BOSS_MIST_STEP, SoundCategory.HOSTILE, 1.5f, 0.8f);
 			lookAtEntity(target, 360, 360);
 			tryAttack(target);
 		}
@@ -238,7 +237,7 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 
 	@Override
 	public void onPhaseChange(int phase) {
-		getWorld().playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_WITHER_AMBIENT, SoundCategory.HOSTILE, 2.0f, 1.4f);
+		getWorld().playSound(null, getX(), getY(), getZ(), VampireSounds.VAMPIRE_BOSS_PHASE, SoundCategory.HOSTILE, 2.0f, 1.4f);
 		if (getWorld() instanceof ServerWorld world) {
 			world.spawnParticles(BLOOD, getX(), getY() + 1, getZ(), 50, 0.5, 1.0, 0.5, 0);
 		}
