@@ -961,7 +961,8 @@ and in mechanics. The hard lock (DESIGN §4.1 "Final zone lock") moves to the se
   inside fail, elytra gliding into it stops, riptide refused. The look: a burnt city wall along both borders
   (worldgen) and a client-drawn ember fog curtain near the player. GameTests for every way in (walk, pearl, chorus,
   elytra, riptide, a bridge built over the wall, a tunnel under it) and for a cleared player passing.
-- **21.3 Citadel generation in the sector.** The Citadel jigsaw and terrain (`com.embervoid.reach.citadel`,
+- **21.3 Citadel generation in the sector.** Also removes the `depths` dimension and `RealmDefinition.depths`, which
+  21.1 kept so the game stays completable at every merge (its status line lists what to remove). The Citadel jigsaw and terrain (`com.embervoid.reach.citadel`,
   `CitadelLayout`, `CitadelTerrain`) move from `ashen_reach_depths` onto the sector's middle line about 600–800
   blocks out; the Citadel biome (dark red sky and fog colours, ember cracks, smouldering logs), outskirts and
   burning streets from the gate to the hill, burnt suburbs beyond it; the first Citadel shrine just inside the gate;
