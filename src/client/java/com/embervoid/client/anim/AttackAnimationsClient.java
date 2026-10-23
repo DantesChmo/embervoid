@@ -19,7 +19,9 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -36,6 +38,16 @@ public final class AttackAnimationsClient {
 	private static final int FADE_OUT_TICKS = 4;
 	/** Clips already reported missing, so a broken resource pack logs once per clip. */
 	private static final Set<Identifier> MISSING = new HashSet<>();
+	private static final List<ClipListener> LISTENERS = new ArrayList<>();
+
+	/** Told of every clip a player starts, before it is put on the layer (the Scourge's lash follows its swings). */
+	public interface ClipListener {
+		void started(AbstractClientPlayerEntity player, Identifier clip, int ticks);
+	}
+
+	public static void listen(ClipListener listener) {
+		LISTENERS.add(listener);
+	}
 
 	public static void register() {
 		PlayerAnimationFactory.ANIMATION_DATA_FACTORY.registerFactory(LAYER, PRIORITY, player -> new ModifierLayer<>());
@@ -51,6 +63,11 @@ public final class AttackAnimationsClient {
 	private static void play(MinecraftClient client, int entityId, @Nullable Identifier clip, int ticks, boolean mirrored) {
 		if (client.world == null || !(client.world.getEntityById(entityId) instanceof AbstractClientPlayerEntity player)) {
 			return;
+		}
+		if (clip != null) {
+			for (ClipListener listener : LISTENERS) {
+				listener.started(player, clip, ticks);
+			}
 		}
 		ModifierLayer<IAnimation> layer = layer(player);
 		if (layer == null) {
