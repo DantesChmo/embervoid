@@ -62,8 +62,8 @@ public final class ScourgeLashes {
 	/** The Scourge's model in a hand: the handle; the inventory icon is the whole coiled whip. */
 	public static final Identifier IN_HAND_MODEL = Embervoid.id("item/wardens_scourge_in_hand");
 	private static final Identifier TEXTURE = Embervoid.id("textures/entity/wardens_scourge_lash.png");
-	/** Where the lash leaves the handle in the in-hand model (the sprite's pixel (9, 6), mid-depth). */
-	private static final Vector4f ROOT = new Vector4f(9.5f / 16, 9.5f / 16, 0.5f, 1);
+	/** Where the lash leaves the handle in the in-hand model: the tip ring of tools/weapon_model_art.py's handle, mid-depth. */
+	private static final Vector4f ROOT = new Vector4f(8.8f / 16, 8.8f / 16, 0.5f, 1);
 	private static final int LINKS = 20;
 	/** Lash length hanging from the hand when nothing is swung, blocks. */
 	private static final double IDLE_LENGTH = 0.8;
@@ -119,8 +119,7 @@ public final class ScourgeLashes {
 
 	/** Whether {@code stack} is drawn with {@link #IN_HAND_MODEL} in {@code mode}. */
 	public static boolean inHand(ItemStack stack, ModelTransformationMode mode) {
-		return stack.isOf(GearWeapons.WARDENS_SCOURGE) && mode != ModelTransformationMode.GUI
-				&& mode != ModelTransformationMode.GROUND && mode != ModelTransformationMode.FIXED;
+		return stack.isOf(GearWeapons.WARDENS_SCOURGE) && InHandModels.isHand(mode);
 	}
 
 	/** The entity whose held item is being drawn ({@code null} after it), from {@code GearItemRendererMixin}. */
