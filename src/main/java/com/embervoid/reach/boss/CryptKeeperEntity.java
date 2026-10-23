@@ -67,6 +67,24 @@ public class CryptKeeperEntity extends ReachBoss {
 	public static final double LANTERN_REACH = 4;
 	/** Damage taken in the dark (P2, P3). */
 	public static final float DARK_DAMAGE = 0.5f;
+	/** Windup of each move in ticks (the balance model reads them, PLAN 18.1); the combo's hits follow each other. */
+	public static final int SWING_1_WINDUP = 14;
+	public static final int SWING_2_WINDUP = 10;
+	public static final int OVERHEAD_WINDUP = 22;
+	public static final int SWEEP_WINDUP = 24;
+	public static final int LANTERN_WINDUP = 20;
+	public static final int THRUST_WINDUP = 18;
+	/** Ticks until the brain picks the next move after one, close and at range, in P1 and from P2 on (faster). */
+	public static final int CLOSE_COOLDOWN = 35;
+	public static final int CLOSE_COOLDOWN_LATE = 25;
+	public static final int RANGED_COOLDOWN = 40;
+	public static final int RANGED_COOLDOWN_LATE = 30;
+	/** The pause after a phase change. */
+	public static final int PHASE_PAUSE = 30;
+	/** Ticks between two waves of moths while a brazier burns. */
+	public static final int MOTH_INTERVAL = 300;
+	/** Restless Bones rising in P3, plus one per fighter beyond the first. */
+	public static final int RISEN_BONES = 3;
 
 	public static final String SWING_1 = "attack.halberd_1";
 	public static final String SWING_2 = "attack.halberd_2";
@@ -89,13 +107,10 @@ public class CryptKeeperEntity extends ReachBoss {
 
 	/** Water: the flood reaches this far from the centre (the sinkhole floor, up to the pit wall). */
 	private static final int FLOOD_MARGIN = 7;
-	/** Ticks between two waves of moths while a brazier burns, and the most at once. */
-	private static final int MOTH_INTERVAL = 300;
+	/** The most moths at once. */
 	private static final int MAX_MOTHS = 4;
 	/** How close a moth gets to a lit brazier to smother it. */
 	private static final double SMOTHER_DISTANCE = 1.6;
-	/** Restless Bones rising in P3, plus one per fighter beyond the first. */
-	private static final int RISEN_BONES = 3;
 
 	private static final DustParticleEffect UNBLOCKABLE = new DustParticleEffect(new Vector3f(0.85f, 0.1f, 0.1f), 1.5f);
 
@@ -157,7 +172,7 @@ public class CryptKeeperEntity extends ReachBoss {
 			return;
 		}
 		Telegraph.cancel(this);
-		moveCooldown = 30;
+		moveCooldown = PHASE_PAUSE;
 		int flood = fight.spec().radius() + FLOOD_MARGIN;
 		if (phase == 1) {
 			playAnimation(LANTERN_SHATTER);
@@ -200,7 +215,7 @@ public class CryptKeeperEntity extends ReachBoss {
 			} else {
 				comboSwing(target, 1);
 			}
-			return late ? 25 : 35;
+			return late ? CLOSE_COOLDOWN_LATE : CLOSE_COOLDOWN;
 		}
 		if (squaredDistance <= 16 * 16) {
 			if (late) {
@@ -208,7 +223,7 @@ public class CryptKeeperEntity extends ReachBoss {
 			} else {
 				lanternThrow(target);
 			}
-			return late ? 30 : 40;
+			return late ? RANGED_COOLDOWN_LATE : RANGED_COOLDOWN;
 		}
 		return -1;
 	}
@@ -219,12 +234,12 @@ public class CryptKeeperEntity extends ReachBoss {
 		Vec3d facing = directionTo(target.getPos());
 		if (hit < 3) {
 			TelegraphShape cone = TelegraphShape.cone(getPos(), facing, SWING_RANGE, 55);
-			int windup = hit == 1 ? 14 : 10;
+			int windup = hit == 1 ? SWING_1_WINDUP : SWING_2_WINDUP;
 			telegraph(cone, windup, hit == 1 ? SWING_1 : SWING_2, ReachBossSounds.CRYPT_KEEPER_SWING, ParticleTypes.SOUL_FIRE_FLAME,
 					player -> player.damage(getDamageSources().mobAttack(this), SWING_DAMAGE));
 		} else {
 			TelegraphShape line = TelegraphShape.line(getPos(), getPos().add(facing.multiply(6.5)), 1.1);
-			telegraph(line, 22, OVERHEAD, ReachBossSounds.CRYPT_KEEPER_OVERHEAD, UNBLOCKABLE, player -> {
+			telegraph(line, OVERHEAD_WINDUP, OVERHEAD, ReachBossSounds.CRYPT_KEEPER_OVERHEAD, UNBLOCKABLE, player -> {
 				BossHits.shieldBreaking(this, player, OVERHEAD_DAMAGE);
 				player.addVelocity(0, 0.3, 0);
 				player.velocityModified = true;
@@ -251,7 +266,7 @@ public class CryptKeeperEntity extends ReachBoss {
 
 	public void sweep() {
 		Vec3d at = getPos();
-		telegraph(TelegraphShape.ring(at, SWEEP_RADIUS), 24, SWEEP, ReachBossSounds.CRYPT_KEEPER_SWEEP, ParticleTypes.SOUL_FIRE_FLAME,
+		telegraph(TelegraphShape.ring(at, SWEEP_RADIUS), SWEEP_WINDUP, SWEEP, ReachBossSounds.CRYPT_KEEPER_SWEEP, ParticleTypes.SOUL_FIRE_FLAME,
 				player -> {
 					player.damage(getDamageSources().mobAttack(this), SWEEP_DAMAGE);
 					knockAway(player, 1.0, 0.35);
@@ -263,12 +278,12 @@ public class CryptKeeperEntity extends ReachBoss {
 		face(target.getPos());
 		Vec3d landing = target.getPos();
 		TelegraphShape shadow = TelegraphShape.shadow(landing, FIRE_POOL_RADIUS);
-		telegraph(shadow, 20, LANTERN_THROW, ReachBossSounds.CRYPT_KEEPER_LANTERN_THROW, ParticleTypes.FLAME, player -> {
+		telegraph(shadow, LANTERN_WINDUP, LANTERN_THROW, ReachBossSounds.CRYPT_KEEPER_LANTERN_THROW, ParticleTypes.FLAME, player -> {
 			player.damage(getDamageSources().mobAttack(this), LANTERN_DAMAGE);
 			player.setOnFireFor(2);
 		});
 		// The pool itself starts when the throw lands (after the hit above).
-		Telegraph.windup(this, 20, null, null, ParticleTypes.FLAME, 0, () -> {
+		Telegraph.windup(this, LANTERN_WINDUP, null, null, ParticleTypes.FLAME, 0, () -> {
 			BossFight fight = fight();
 			if (fight != null && getWorld() instanceof ServerWorld world) {
 				world.playSound(null, landing.x, landing.y, landing.z, ReachMobSounds.FIRE_FLASK_IGNITE, SoundCategory.HOSTILE, 1.5f, 1.0f);
@@ -283,13 +298,13 @@ public class CryptKeeperEntity extends ReachBoss {
 		face(target.getPos());
 		Vec3d facing = directionTo(target.getPos());
 		Vec3d end = getPos().add(facing.multiply(9));
-		telegraph(TelegraphShape.line(getPos(), end, 1.0), 18, THRUST, ReachBossSounds.CRYPT_KEEPER_THRUST, ParticleTypes.SOUL_FIRE_FLAME,
+		telegraph(TelegraphShape.line(getPos(), end, 1.0), THRUST_WINDUP, THRUST, ReachBossSounds.CRYPT_KEEPER_THRUST, ParticleTypes.SOUL_FIRE_FLAME,
 				player -> {
 					player.damage(getDamageSources().mobAttack(this), THRUST_DAMAGE);
 					knockAway(player, 0.6, 0.2);
 				});
 		// The lunge carries it forward with the thrust.
-		Telegraph.windup(this, 18, null, null, ParticleTypes.SOUL_FIRE_FLAME, 0, () -> {
+		Telegraph.windup(this, THRUST_WINDUP, null, null, ParticleTypes.SOUL_FIRE_FLAME, 0, () -> {
 			setVelocity(facing.x * 1.4, 0.1, facing.z * 1.4);
 			velocityModified = true;
 		});

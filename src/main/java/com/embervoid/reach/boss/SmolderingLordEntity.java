@@ -72,6 +72,26 @@ public class SmolderingLordEntity extends ReachBoss {
 	public static final int DARK_TICKS = 300;
 	public static final float FOG_DENSITY = 0.8f;
 	public static final int FOG_COLOR = 0x402418;
+	/** Windup of each move in ticks (the balance model reads them, PLAN 18.1); the combo's hits follow each other. */
+	public static final int SWING_1_WINDUP = 14;
+	public static final int SWING_2_WINDUP = 10;
+	public static final int SLAM_WINDUP = 20;
+	public static final int LUNGE_WINDUP = 18;
+	public static final int MORTAR_WINDUP = 40;
+	public static final int FLAME_LINE_WINDUP = 30;
+	public static final int DESCEND_WINDUP = 30;
+	public static final int STORM_WINDUP = 30;
+	/** Ticks until the brain picks the next move after one, close and at range, in P1 and in P2 (faster). */
+	public static final int COMBO_COOLDOWN = 30;
+	public static final int COMBO_COOLDOWN_P2 = 22;
+	public static final int LUNGE_COOLDOWN = 40;
+	public static final int LUNGE_COOLDOWN_P2 = 30;
+	/** The pause after landing and after the armor shatters. */
+	public static final int PHASE_PAUSE = 30;
+	/** Ticks between two attacks from the wall (P0). */
+	public static final int WALL_ATTACK_INTERVAL = 60;
+	/** The ash storm hazard (P2): how long it blows. */
+	public static final int STORM_TICKS = 120;
 
 	public static final String SWING_1 = "attack.greatsword_1";
 	public static final String SWING_2 = "attack.greatsword_2";
@@ -90,7 +110,6 @@ public class SmolderingLordEntity extends ReachBoss {
 	private static final float MORTAR_DAMAGE = 8;
 	private static final float FLAME_LINE_DAMAGE = 8;
 	private static final float LANDING_DAMAGE = 8;
-	private static final int WALL_ATTACK_INTERVAL = 60;
 
 	private final List<BlockPos> braziers = new ArrayList<>();
 	private int wallAttackTimer = WALL_ATTACK_INTERVAL;
@@ -189,7 +208,7 @@ public class SmolderingLordEntity extends ReachBoss {
 			world.spawnParticles(ParticleTypes.LAVA, getX(), getY() + 2, getZ(), 30, 0.5, 0.8, 0.5, 0);
 			getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(4);
 			getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).setBaseValue(0.32);
-			moveCooldown = 30;
+			moveCooldown = PHASE_PAUSE;
 		}
 	}
 
@@ -220,7 +239,7 @@ public class SmolderingLordEntity extends ReachBoss {
 		Vec3d landing = fight.centerPos();
 		TelegraphShape ring = TelegraphShape.ring(landing, LANDING_RADIUS);
 		getWorld().playSound(null, getX(), getY(), getZ(), ReachBossSounds.SMOLDERING_LORD_DESCEND, SoundCategory.HOSTILE, 2.0f, 1.0f);
-		Telegraph.windup(this, ring, 30, DESCEND, null, ParticleTypes.FLAME, () -> {
+		Telegraph.windup(this, ring, DESCEND_WINDUP, DESCEND, null, ParticleTypes.FLAME, () -> {
 			descending = false;
 			requestTeleport(landing.x, landing.y, landing.z);
 			if (getWorld() instanceof ServerWorld world) {
@@ -233,7 +252,7 @@ public class SmolderingLordEntity extends ReachBoss {
 				player.damage(getDamageSources().mobAttack(this), LANDING_DAMAGE);
 				knockAway(player, 1.2, 0.5);
 			}
-			moveCooldown = 30;
+			moveCooldown = PHASE_PAUSE;
 		});
 	}
 
@@ -299,11 +318,11 @@ public class SmolderingLordEntity extends ReachBoss {
 		boolean fast = isArmorShattered();
 		if (squaredDistance <= 5 * 5) {
 			comboSwing(target, 1);
-			return fast ? 22 : 30;
+			return fast ? COMBO_COOLDOWN_P2 : COMBO_COOLDOWN;
 		}
 		if (squaredDistance <= 14 * 14) {
 			lunge(target);
-			return fast ? 30 : 40;
+			return fast ? LUNGE_COOLDOWN_P2 : LUNGE_COOLDOWN;
 		}
 		return -1;
 	}
@@ -323,7 +342,7 @@ public class SmolderingLordEntity extends ReachBoss {
 		for (int i = 0; i < shells; i++) {
 			ServerPlayerEntity target = fighters.remove(random.nextInt(fighters.size()));
 			TelegraphShape ring = TelegraphShape.ring(target.getPos(), 3);
-			Telegraph.windup(this, ring, 40, null, null, ParticleTypes.FLAME, () -> {
+			Telegraph.windup(this, ring, MORTAR_WINDUP, null, null, ParticleTypes.FLAME, () -> {
 				Vec3d at = target.getPos();
 				fight.world().playSound(null, at.x, at.y, at.z, ReachBossSounds.SMOLDERING_LORD_MORTAR_IMPACT, SoundCategory.HOSTILE, 1.5f, 1.0f);
 				fight.world().spawnParticles(ParticleTypes.EXPLOSION, at.x, at.y + 0.3, at.z, 2, 1, 0.1, 1, 0);
@@ -345,11 +364,11 @@ public class SmolderingLordEntity extends ReachBoss {
 		Vec3d direction = new Vec3d(target.getX() - start.x, 0, target.getZ() - start.z);
 		direction = direction.lengthSquared() < 1e-4 ? new Vec3d(0, 0, -1) : direction.normalize();
 		TelegraphShape line = TelegraphShape.line(start, start.add(direction.multiply(fight.spec().radius() * 2)), 1.2);
-		telegraph(line, 30, FLAME_LINE, ReachBossSounds.SMOLDERING_LORD_FLAME_LINE, ParticleTypes.FLAME, player -> {
+		telegraph(line, FLAME_LINE_WINDUP, FLAME_LINE, ReachBossSounds.SMOLDERING_LORD_FLAME_LINE, ParticleTypes.FLAME, player -> {
 			player.damage(BossHits.source(this, DamageTypes.IN_FIRE), FLAME_LINE_DAMAGE);
 			player.setOnFireFor(3);
 		});
-		Telegraph.windup(this, 30, null, null, ParticleTypes.FLAME, 0, () -> fight.addHazard(new AreaHazard(line, 60, 10,
+		Telegraph.windup(this, FLAME_LINE_WINDUP, null, null, ParticleTypes.FLAME, 0, () -> fight.addHazard(new AreaHazard(line, 60, 10,
 				BossHits.source(this, DamageTypes.IN_FIRE), TRAIL_DAMAGE, ParticleTypes.FLAME, player -> player.setOnFireFor(2))));
 	}
 
@@ -360,13 +379,13 @@ public class SmolderingLordEntity extends ReachBoss {
 		face(target.getPos());
 		Vec3d facing = directionTo(target.getPos());
 		if (hit < 3) {
-			telegraph(TelegraphShape.cone(getPos(), facing, 5, 60), hit == 1 ? 14 : 10, hit == 1 ? SWING_1 : SWING_2,
+			telegraph(TelegraphShape.cone(getPos(), facing, 5, 60), hit == 1 ? SWING_1_WINDUP : SWING_2_WINDUP, hit == 1 ? SWING_1 : SWING_2,
 					ReachBossSounds.SMOLDERING_LORD_SWING, ParticleTypes.FLAME, player -> {
 						player.damage(getDamageSources().mobAttack(this), SWING_DAMAGE);
 						player.setOnFireFor(2);
 					});
 		} else {
-			telegraph(TelegraphShape.ring(getPos().add(facing.multiply(2.5)), 3.5), 20, SLAM, ReachBossSounds.SMOLDERING_LORD_SLAM,
+			telegraph(TelegraphShape.ring(getPos().add(facing.multiply(2.5)), 3.5), SLAM_WINDUP, SLAM, ReachBossSounds.SMOLDERING_LORD_SLAM,
 					ParticleTypes.LAVA, player -> {
 						BossHits.shieldBreaking(this, player, SLAM_DAMAGE);
 						knockAway(player, 1.0, 0.5);
@@ -404,11 +423,11 @@ public class SmolderingLordEntity extends ReachBoss {
 		Vec3d facing = directionTo(target.getPos());
 		double length = Math.max(6, Math.min(14, Math.sqrt(squaredDistanceTo(target)) + 1.5));
 		TelegraphShape line = TelegraphShape.line(getPos(), getPos().add(facing.multiply(length)), 1.2);
-		telegraph(line, 18, LUNGE, ReachBossSounds.SMOLDERING_LORD_LUNGE, ParticleTypes.FLAME, player -> {
+		telegraph(line, LUNGE_WINDUP, LUNGE, ReachBossSounds.SMOLDERING_LORD_LUNGE, ParticleTypes.FLAME, player -> {
 			player.damage(getDamageSources().mobAttack(this), LUNGE_DAMAGE);
 			knockAway(player, 0.8, 0.3);
 		});
-		Telegraph.windup(this, 18, null, null, ParticleTypes.FLAME, 0, () -> {
+		Telegraph.windup(this, LUNGE_WINDUP, null, null, ParticleTypes.FLAME, 0, () -> {
 			setVelocity(facing.x * 1.6, 0.1, facing.z * 1.6);
 			velocityModified = true;
 			BossFight fight = fight();
@@ -429,8 +448,8 @@ public class SmolderingLordEntity extends ReachBoss {
 		}
 		playAnimation(HAZARD);
 		switch (which) {
-			case 0 -> Telegraph.windup(this, 30, null, ReachBossSounds.SMOLDERING_LORD_STORM, ParticleTypes.ASH, 6,
-					() -> fight.addHazard(new AshStormHazard(this, 120, 2)));
+			case 0 -> Telegraph.windup(this, STORM_WINDUP, null, ReachBossSounds.SMOLDERING_LORD_STORM, ParticleTypes.ASH, 6,
+					() -> fight.addHazard(new AshStormHazard(this, STORM_TICKS, 2)));
 			case 1 -> {
 				playSound(ReachBossSounds.SMOLDERING_LORD_FOG, 2.0f, 1.0f);
 				fogTicks = FOG_TICKS;
