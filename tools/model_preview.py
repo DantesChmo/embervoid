@@ -20,6 +20,8 @@ Run from the repository root. Pure Python (no numpy / PIL): a small software ras
     python3 tools/model_preview.py structure NAME... [--view top,iso,eye|all] [--eye X,Y,Z] [--look N|E|S|W|YAW]
                                                      [--pitch DEG] [--ground Y|none]
     python3 tools/model_preview.py structures [PREFIX...]  every template (whose path starts with a prefix)
+    python3 tools/model_preview.py player [CLIP...] [--no-gif]   player attack animations (assets/embervoid/
+                                                     player_animation, PLAN 17.1) on the vanilla player model
 
 Output goes to build/model-preview/ unless --out is given. For an entity it writes
   <name>.png        rest pose from six angles with the hitbox (green wireframe, read from ReachMobs / ModEntities
@@ -60,6 +62,17 @@ the ground layer (y = 0; START_DEPTH and the Citadel's FOUNDATION are read from 
 leaves it out. Not shown: processors (decay rules, the casing gap), uvlock (a turned stair's top shows its texture
 turned), light levels and ambient occlusion, emissive textures, entity models (only pins), translucency (water is
 opaque).
+
+player renders each playerAnimator clip (all without names) on Steve as playerAnimator poses him: the keyed parts
+set absolutely (degrees, Z-Y-X like a ModelPart), "body" turning the whole player around a point 0.7 blocks up,
+keys interpolated with their easing, held after the last key and blended back into the standing pose (the right arm
+holding an item) from endTick to stopTick. The held item is a sword-sized bar through the vanilla handheld
+third-person transform and the clip's rightItem turn, not the weapon's own model. Into build/model-preview/:
+  player_<clip>.png         per view (SIDE from the front right, ABOVE from behind and above) a trail cell and every
+                            tick (every second tick past 24)
+  player_<clip>.gif         both views side by side at 20 fps (game time)
+Not shown: the fade-in from the pose before (2 ticks), the client stretching a clip to the attack speed, mirroring
+for the left hand, bends, first person (stays vanilla), walking legs under the clip.
 
 Vanilla parents and textures (block models, the armor model, reference items) come from Loom's local copy of the
 1.20.1 client jar in ~/.gradle/caches; nothing is downloaded.
@@ -2169,6 +2182,208 @@ def motion_sheet(name, out, hidden=(), anims="all", fps=10, yaw=35, gif=True, gi
         print("wrote", path)
 
 
+# --- Player attack animations (playerAnimator, PLAN 17.1) ----------------------------------------------------------
+
+PLAYER_ANIMS = os.path.join(ASSETS, MOD, "player_animation")
+# Vanilla player model parts (wide arms, 64x64 skin): cube origin and size in Bedrock units (y up, feet at 0), box UV,
+# and the part's pivot in vanilla model space (y down, 24 at the feet).
+PLAYER_PARTS = {
+    "head": ([-4, 24, -4], [8, 8, 8], [0, 0], (0, 0, 0)),
+    "torso": ([-4, 12, -2], [8, 12, 4], [16, 16], (0, 0, 0)),
+    "rightArm": ([-8, 12, -2], [4, 12, 4], [40, 16], (-5, 2, 0)),
+    "leftArm": ([4, 12, -2], [4, 12, 4], [32, 48], (5, 2, 0)),
+    "rightLeg": ([-3.9, 0, -2], [4, 12, 4], [0, 16], (-1.9, 12, 0)),
+    "leftLeg": ([-0.1, 0, -2], [4, 12, 4], [16, 48], (1.9, 12, 0)),
+}
+# The pose a part has when a clip does not key it: standing, the right arm holding an item (vanilla ArmPose.ITEM).
+PLAYER_REST = {"rightArm": {"pitch": -18}}
+# Vanilla model space -> render space (x mirrored and y flipped as LivingEntityRenderer does, feet at y = 0) and back.
+MODEL_TO_RENDER = mul(translate(0, 24, 0), scale_m(-1, -1, 1))
+RENDER_TO_MODEL = mul(scale_m(-1, -1, 1), translate(0, -24, 0))
+EASINGS = {
+    "linear": lambda f: f, "step": lambda f: 0.0, "constant": lambda f: 0.0,
+    "insine": lambda f: 1 - math.cos(f * math.pi / 2), "outsine": lambda f: math.sin(f * math.pi / 2),
+    "inoutsine": lambda f: -(math.cos(math.pi * f) - 1) / 2,
+    "inquad": lambda f: f * f, "outquad": lambda f: 1 - (1 - f) ** 2,
+    "inoutquad": lambda f: 2 * f * f if f < 0.5 else 1 - (-2 * f + 2) ** 2 / 2,
+    "incubic": lambda f: f ** 3, "outcubic": lambda f: 1 - (1 - f) ** 3,
+    "inoutcubic": lambda f: 4 * f ** 3 if f < 0.5 else 1 - (-2 * f + 2) ** 3 / 2,
+}
+
+
+def player_clip_names():
+    return sorted(os.path.basename(p)[:-5] for p in glob.glob(os.path.join(PLAYER_ANIMS, "*.json")))
+
+
+def load_player_clip(name):
+    """An Emotecraft-format clip as {part: {axis: [(tick, value, ease)]}} plus its end and stop ticks."""
+    with open(os.path.join(PLAYER_ANIMS, name + ".json"), encoding="utf-8") as f:
+        emote = json.load(f)["emote"]
+    if not emote.get("degrees", True):
+        raise SystemExit("%s: radians are not supported here" % name)
+    tracks = {}
+    for move in emote["moves"]:
+        ease = move.get("easing", "linear").lower()
+        ease = ease[4:] if ease.startswith("ease") else ease
+        for part, axes in move.items():
+            if part in ("tick", "easing", "turn", "comment"):
+                continue
+            for axis, value in axes.items():
+                tracks.setdefault(part, {}).setdefault(axis, []).append((move["tick"], float(value), ease))
+    for axes in tracks.values():
+        for keys in axes.values():
+            keys.sort(key=lambda k: k[0])
+    end = emote["endTick"]
+    stop = emote.get("stopTick", end)
+    stop = stop if stop > end else end + 3
+    return tracks, end, stop, emote.get("easeBeforeKeyframe", False)
+
+
+def player_axis(keys, t, end, stop, rest, ease_before):
+    """One axis at tick t, as playerAnimator's KeyframeAnimationPlayer: held before the first and after the last key,
+    and from endTick to stopTick blended linearly back into the vanilla value."""
+    if t >= end:
+        last = keys[-1][1]
+        return last + (rest - last) * min(1.0, (t - end) / max(1, stop - end))
+    if t <= keys[0][0]:
+        return keys[0][1]
+    for (ta, va, ea), (tb, vb, eb) in zip(keys, keys[1:]):
+        if ta <= t <= tb:
+            f = (t - ta) / (tb - ta) if tb > ta else 1.0
+            return va + (vb - va) * EASINGS.get(eb if ease_before else ea, EASINGS["linear"])(f)
+    return keys[-1][1]
+
+
+def player_pose(clip, t):
+    """{part: {axis: value}} at tick t: keyed parts from the clip, the rest at the standing pose."""
+    tracks, end, stop, ease_before = clip
+    pose = {}
+    for part in list(PLAYER_PARTS) + ["body", "rightItem"]:
+        rest = PLAYER_REST.get(part, {})
+        defaults = {"x": 0.0, "y": 0.0, "z": 0.0}
+        if part in PLAYER_PARTS and part != "torso":
+            defaults = dict(zip("xyz", PLAYER_PARTS[part][3]))
+        values = {}
+        for axis in ("pitch", "yaw", "roll", "x", "y", "z"):
+            base = rest.get(axis, defaults.get(axis, 0.0))
+            keys = tracks.get(part, {}).get(axis)
+            values[axis] = player_axis(keys, t, end, stop, base, ease_before) if keys else base
+        pose[part] = values
+    return pose
+
+
+def part_rotation(v):
+    """A vanilla ModelPart rotation (rotationZYX(roll, yaw, pitch)), degrees."""
+    return mul(mul(rot_z(math.radians(v["roll"])), rot_y(math.radians(v["yaw"]))), rot_x(math.radians(v["pitch"])))
+
+
+def stick_quads(m, a, b, width, color):
+    """A square bar from a to b (item model pixels) through matrix m, flat colour."""
+    d = (b[0] - a[0], b[1] - a[1], b[2] - a[2])
+    length = math.sqrt(sum(c * c for c in d)) or 1
+    u = (-d[1] / length * width, d[0] / length * width, 0) if abs(d[2]) < length * 0.9 else (width, 0, 0)
+    w = (0, 0, width)
+    p = apply(m, (a[0] - (u[0] + w[0]) / 2, a[1] - (u[1] + w[1]) / 2, a[2] - (u[2] + w[2]) / 2))
+    ed, eu, ew = apply_dir(m, d), apply_dir(m, u), apply_dir(m, w)
+    far = tuple(p[i] + ed[i] + eu[i] + ew[i] for i in range(3))
+    neg = tuple(-c for c in ed), tuple(-c for c in eu), tuple(-c for c in ew)
+
+    def quad(o, e1, e2, shade):
+        c = tuple(int(x * shade) for x in color)
+        return Quad(o, e1, e2, (0, 0), (0, 0), (0, 0), None, color=lambda _a, _b: c)
+
+    return [quad(p, ed, eu, 0.8), quad(p, eu, ew, 0.7), quad(p, ew, ed, 0.95),
+            quad(far, neg[0], neg[1], 0.8), quad(far, neg[1], neg[2], 0.7), quad(far, neg[2], neg[0], 0.95)]
+
+
+def player_quads(pose, skin):
+    """Render-space quads of the player in a pose, with a sword-sized bar for the item in the right hand (the vanilla
+    handheld transform, then the clip's rightItem turn)."""
+    b = pose["body"]
+    # The whole-body turn: around a point 0.7 blocks up, in the entity's own frame (y up), position in blocks.
+    body_m = translate(b["x"] * 16, b["y"] * 16 + 11.2, b["z"] * 16)
+    body_m = mul(body_m, mul(mul(rot_z(math.radians(b["roll"])), rot_y(math.radians(b["yaw"]))), rot_x(math.radians(b["pitch"]))))
+    body_m = mul(body_m, translate(0, -11.2, 0))
+    quads, arm_model = [], None
+    for part, (origin, size, uv, rest_pivot) in PLAYER_PARTS.items():
+        v = pose[part]
+        pivot = (v["x"], v["y"], v["z"]) if part != "torso" else rest_pivot
+        model = mul(translate(*pivot), part_rotation(v))
+        if part == "rightArm":
+            arm_model = model
+        bone = mul(mul(mul(body_m, MODEL_TO_RENDER), mul(model, translate(-rest_pivot[0], -rest_pivot[1], -rest_pivot[2]))),
+                   RENDER_TO_MODEL)
+        quads += cube_quads({"origin": origin, "size": size, "uv": uv}, bone, skin, None)
+    # HeldItemFeatureRenderer: X -90, Y 180, (1, 2, -10) px; playerAnimator's rightItem; the handheld display transform
+    # (thirdperson_righthand: translation (0, 4, 0.5), rotation XYZ (0, -90, 55), scale 0.85); the item centred.
+    m = mul(arm_model, mul(rot_x(math.radians(-90)), rot_y(math.radians(180))))
+    m = mul(m, translate(1, 2, -10))
+    m = mul(m, part_rotation(pose["rightItem"]))
+    m = mul(m, translate(0, 4, 0.5))
+    m = mul(m, mul(mul(rot_x(0), rot_y(math.radians(-90))), rot_z(math.radians(55))))
+    m = mul(m, mul(scale_m(0.85, 0.85, 0.85), translate(-8, -8, -8)))
+    m = mul(mul(body_m, MODEL_TO_RENDER), m)
+    quads += stick_quads(m, (1, 1, 8), (4, 4, 8), 1.6, (110, 70, 40))     # grip
+    quads += stick_quads(m, (4, 4, 8), (15.5, 15.5, 8), 1.2, (205, 210, 220))  # blade, tip at the sprite's top right
+    return quads
+
+
+def player_motion_sheet(names, out, gif=True, cols=12, cell=150):
+    """player_<clip>.png: per clip a trail cell and every frame from the side and from above; player_<clip>.gif."""
+    skin = texture("minecraft", "entity/player/wide/steve")
+    if skin is None:
+        raise SystemExit("no vanilla skin: the 1.20.1 client jar is not in ~/.gradle/caches/fabric-loom")
+    prepare(skin, 64, 64)
+    views = [View(35, 15, "SIDE"), View(180, 80, "ABOVE")]
+    for name in names:
+        clip = load_player_clip(name)
+        stop = clip[2]
+        step = 1 if stop <= 24 else 2
+        ticks = list(range(0, stop + 1, step))
+        if ticks[-1] != stop:
+            ticks.append(stop)
+        sets = [player_quads(player_pose(clip, t), skin) for t in ticks]
+        cell_w, cell_h = cell, int(cell * 1.2)
+        fit = fit_for(sets, views, cell_w, cell_h, None, 0.85)
+        rows = math.ceil((len(ticks) + 1) / (cols + 1))
+        label_h = 22
+        sheet = Image(cell_w * (cols + 1), (label_h + cell_h * rows) * len(views) + 4)
+        y = 0
+        for view in views:
+            sheet.fill(0, y, sheet.width, label_h, (34, 36, 42))
+            sheet.text(6, y + 4, "%s  %d TICKS (%.2fS)  KEYS END AT %d  %s" % (name, stop, stop / 20, clip[1], view.label))
+            cells = [trail_cell(sets, view, cell_w, cell_h, fit, None)]
+            cells[0].text(4, cell_h - 22, "TRAIL", (230, 230, 230))
+            for t, qs in zip(ticks, sets):
+                img = render_cell(qs, view, cell_w, cell_h, fit)
+                img.text(4, cell_h - 14, "T %d" % t, (210, 210, 210))
+                cells.append(img)
+            for i, img in enumerate(cells):
+                sheet.blit(img, (i % (cols + 1)) * cell_w, y + label_h + (i // (cols + 1)) * cell_h)
+            y += label_h + cell_h * rows
+        os.makedirs(out, exist_ok=True)
+        sheet.save(os.path.join(out, "player_%s.png" % name))
+        if not gif:
+            continue
+        gw, gh = 260, 320
+        gfit = fit_for(sets, views, gw, gh, None, 0.85)
+        frames = []
+        for t in range(stop + 1):
+            qs = player_quads(player_pose(clip, t), skin)
+            img = Image(gw * 2, gh)
+            for k, view in enumerate(views):
+                img.blit(render_cell(qs, view, gw, gh, gfit), k * gw, 0)
+            img.text(6, 6, name, (235, 235, 235))
+            img.text(6, gh - 30, "T %d / %d" % (t, stop), (220, 220, 220))
+            img.fill(6, gh - 12, int((gw * 2 - 12) * t / stop), 4, (255, 180, 80))
+            frames.append(img.px)
+        delays = [5] * len(frames)
+        delays[-1] += 50
+        path = os.path.join(out, "player_%s.gif" % name)
+        write_gif(path, gw * 2, gh, frames, delays)
+        print("wrote", path)
+
+
 # --- GIF -----------------------------------------------------------------------------------------------------------
 
 def median_cut(hist, colors=256):
@@ -2547,6 +2762,8 @@ def main(argv):
     elif cmd == "motion":
         for n in names:
             motion_sheet(n, out, hidden, anims, fps, yaw, gif, gif_fps)
+    elif cmd == "player":
+        player_motion_sheet(names or player_clip_names(), out, gif)
     elif cmd == "structure":
         for n in names:
             structure_sheets(n, out, views, eye, look, pitch, ground)
