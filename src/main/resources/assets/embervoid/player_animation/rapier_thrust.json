@@ -1,0 +1,168 @@
+{
+  "name": "rapier_thrust",
+  "description": "Rapier thrust: chambered at the hip, straight out",
+  "author": "Embervoid",
+  "emote": {
+    "beginTick": 0,
+    "endTick": 7,
+    "stopTick": 10,
+    "isLoop": false,
+    "returnTick": 0,
+    "degrees": true,
+    "easeBeforeKeyframe": true,
+    "moves": [
+      {
+        "tick": 0,
+        "easing": "linear",
+        "body": {
+          "pitch": 0,
+          "yaw": -15,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "leftArm": {
+          "pitch": 20,
+          "yaw": 0,
+          "roll": -25,
+          "z": 0
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "rightArm": {
+          "pitch": -70,
+          "yaw": 15,
+          "roll": 0,
+          "z": 3
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "rightItem": {
+          "pitch": -60,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 2,
+        "easing": "outQuad",
+        "body": {
+          "pitch": 0,
+          "yaw": 15,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 2,
+        "easing": "outQuad",
+        "leftArm": {
+          "pitch": 30,
+          "yaw": 0,
+          "roll": -30,
+          "z": 0
+        }
+      },
+      {
+        "tick": 2,
+        "easing": "outQuad",
+        "rightArm": {
+          "pitch": -88,
+          "yaw": -5,
+          "roll": 0,
+          "z": -3
+        }
+      },
+      {
+        "tick": 2,
+        "easing": "outQuad",
+        "rightItem": {
+          "pitch": -78,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 4,
+        "easing": "outSine",
+        "body": {
+          "pitch": 0,
+          "yaw": 12,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 4,
+        "easing": "outSine",
+        "leftArm": {
+          "pitch": 28,
+          "yaw": 0,
+          "roll": -28,
+          "z": 0
+        }
+      },
+      {
+        "tick": 4,
+        "easing": "outSine",
+        "rightArm": {
+          "pitch": -85,
+          "yaw": -5,
+          "roll": 0,
+          "z": -2
+        }
+      },
+      {
+        "tick": 4,
+        "easing": "outSine",
+        "rightItem": {
+          "pitch": -75,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 7,
+        "easing": "inOutSine",
+        "body": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 7,
+        "easing": "inOutSine",
+        "leftArm": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0,
+          "z": 0
+        }
+      },
+      {
+        "tick": 7,
+        "easing": "inOutSine",
+        "rightArm": {
+          "pitch": -18,
+          "yaw": 0,
+          "roll": 0,
+          "z": 0
+        }
+      },
+      {
+        "tick": 7,
+        "easing": "inOutSine",
+        "rightItem": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        }
+      }
+    ]
+  }
+}

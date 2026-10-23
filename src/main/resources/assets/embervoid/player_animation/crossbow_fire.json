@@ -1,0 +1,103 @@
+{
+  "name": "crossbow_fire",
+  "description": "Crossbow shot: the recoil throws the arms up",
+  "author": "Embervoid",
+  "emote": {
+    "beginTick": 0,
+    "endTick": 5,
+    "stopTick": 8,
+    "isLoop": false,
+    "returnTick": 0,
+    "degrees": true,
+    "easeBeforeKeyframe": true,
+    "moves": [
+      {
+        "tick": 0,
+        "easing": "linear",
+        "body": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "leftArm": {
+          "pitch": -90,
+          "yaw": 25,
+          "roll": 0,
+          "z": 0
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "rightArm": {
+          "pitch": -90,
+          "yaw": -5,
+          "roll": 0,
+          "z": 0
+        }
+      },
+      {
+        "tick": 1,
+        "easing": "outQuad",
+        "body": {
+          "pitch": 6,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 1,
+        "easing": "outQuad",
+        "leftArm": {
+          "pitch": -108,
+          "yaw": 25,
+          "roll": 0,
+          "z": 2
+        }
+      },
+      {
+        "tick": 1,
+        "easing": "outQuad",
+        "rightArm": {
+          "pitch": -110,
+          "yaw": -5,
+          "roll": 0,
+          "z": 2
+        }
+      },
+      {
+        "tick": 5,
+        "easing": "inOutSine",
+        "body": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 5,
+        "easing": "inOutSine",
+        "leftArm": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0,
+          "z": 0
+        }
+      },
+      {
+        "tick": 5,
+        "easing": "inOutSine",
+        "rightArm": {
+          "pitch": -18,
+          "yaw": 0,
+          "roll": 0,
+          "z": 0
+        }
+      }
+    ]
+  }
+}

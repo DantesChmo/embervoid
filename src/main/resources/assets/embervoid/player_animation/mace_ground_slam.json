@@ -1,0 +1,132 @@
+{
+  "name": "mace_ground_slam",
+  "description": "Ground Slam: both hands up, the mace driven into the ground",
+  "author": "Embervoid",
+  "emote": {
+    "beginTick": 0,
+    "endTick": 15,
+    "stopTick": 18,
+    "isLoop": false,
+    "returnTick": 0,
+    "degrees": true,
+    "easeBeforeKeyframe": true,
+    "moves": [
+      {
+        "tick": 0,
+        "easing": "linear",
+        "body": {
+          "pitch": 10,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "leftArm": {
+          "pitch": -160,
+          "yaw": 0,
+          "roll": -10,
+          "z": 0
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "rightArm": {
+          "pitch": -175,
+          "yaw": 0,
+          "roll": 5,
+          "z": 0
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "inQuad",
+        "body": {
+          "pitch": -25,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "inQuad",
+        "leftArm": {
+          "pitch": -30,
+          "yaw": 0,
+          "roll": 0,
+          "z": 0
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "inQuad",
+        "rightArm": {
+          "pitch": -20,
+          "yaw": 0,
+          "roll": 0,
+          "z": 0
+        }
+      },
+      {
+        "tick": 8,
+        "easing": "linear",
+        "body": {
+          "pitch": -22,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 8,
+        "easing": "linear",
+        "leftArm": {
+          "pitch": -28,
+          "yaw": 0,
+          "roll": 0,
+          "z": 0
+        }
+      },
+      {
+        "tick": 8,
+        "easing": "linear",
+        "rightArm": {
+          "pitch": -22,
+          "yaw": 0,
+          "roll": 0,
+          "z": 0
+        }
+      },
+      {
+        "tick": 15,
+        "easing": "inOutSine",
+        "body": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 15,
+        "easing": "inOutSine",
+        "leftArm": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0,
+          "z": 0
+        }
+      },
+      {
+        "tick": 15,
+        "easing": "inOutSine",
+        "rightArm": {
+          "pitch": -18,
+          "yaw": 0,
+          "roll": 0,
+          "z": 0
+        }
+      }
+    ]
+  }
+}

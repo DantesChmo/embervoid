@@ -1,0 +1,132 @@
+{
+  "name": "whip_crack",
+  "description": "Whip crack: thrown from over the right shoulder, snapped down",
+  "author": "Embervoid",
+  "emote": {
+    "beginTick": 0,
+    "endTick": 20,
+    "stopTick": 23,
+    "isLoop": false,
+    "returnTick": 0,
+    "degrees": true,
+    "easeBeforeKeyframe": true,
+    "moves": [
+      {
+        "tick": 0,
+        "easing": "linear",
+        "body": {
+          "pitch": 0,
+          "yaw": -20,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "leftArm": {
+          "pitch": 10,
+          "yaw": 0,
+          "roll": -15,
+          "z": 0
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "rightArm": {
+          "pitch": -150,
+          "yaw": 40,
+          "roll": 30,
+          "z": 0
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "outQuad",
+        "body": {
+          "pitch": 0,
+          "yaw": 15,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "outQuad",
+        "leftArm": {
+          "pitch": -10,
+          "yaw": 0,
+          "roll": -15,
+          "z": 0
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "outQuad",
+        "rightArm": {
+          "pitch": -70,
+          "yaw": -10,
+          "roll": 0,
+          "z": 0
+        }
+      },
+      {
+        "tick": 5,
+        "easing": "outSine",
+        "body": {
+          "pitch": 0,
+          "yaw": 18,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 5,
+        "easing": "outSine",
+        "leftArm": {
+          "pitch": -5,
+          "yaw": 0,
+          "roll": -12,
+          "z": 0
+        }
+      },
+      {
+        "tick": 5,
+        "easing": "outSine",
+        "rightArm": {
+          "pitch": -55,
+          "yaw": -20,
+          "roll": -5,
+          "z": 0
+        }
+      },
+      {
+        "tick": 20,
+        "easing": "inOutSine",
+        "body": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 20,
+        "easing": "inOutSine",
+        "leftArm": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0,
+          "z": 0
+        }
+      },
+      {
+        "tick": 20,
+        "easing": "inOutSine",
+        "rightArm": {
+          "pitch": -18,
+          "yaw": 0,
+          "roll": 0,
+          "z": 0
+        }
+      }
+    ]
+  }
+}

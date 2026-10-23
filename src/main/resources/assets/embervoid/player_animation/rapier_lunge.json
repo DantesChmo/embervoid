@@ -1,0 +1,224 @@
+{
+  "name": "rapier_lunge",
+  "description": "Lunge: a long step with the thrust at its end",
+  "author": "Embervoid",
+  "emote": {
+    "beginTick": 0,
+    "endTick": 9,
+    "stopTick": 12,
+    "isLoop": false,
+    "returnTick": 0,
+    "degrees": true,
+    "easeBeforeKeyframe": true,
+    "moves": [
+      {
+        "tick": 0,
+        "easing": "linear",
+        "body": {
+          "pitch": 5,
+          "yaw": -25,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "leftArm": {
+          "pitch": 25,
+          "yaw": 0,
+          "roll": -30,
+          "z": 0
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "leftLeg": {
+          "pitch": 0
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "rightArm": {
+          "pitch": -60,
+          "yaw": 20,
+          "roll": 0,
+          "z": 4
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "rightItem": {
+          "pitch": -50,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "rightLeg": {
+          "pitch": 0
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "outQuad",
+        "body": {
+          "pitch": -15,
+          "yaw": 20,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "outQuad",
+        "leftArm": {
+          "pitch": 40,
+          "yaw": 0,
+          "roll": -35,
+          "z": 0
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "outQuad",
+        "leftLeg": {
+          "pitch": 35
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "outQuad",
+        "rightArm": {
+          "pitch": -88,
+          "yaw": -5,
+          "roll": 0,
+          "z": -4
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "outQuad",
+        "rightItem": {
+          "pitch": -78,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "outQuad",
+        "rightLeg": {
+          "pitch": -45
+        }
+      },
+      {
+        "tick": 7,
+        "easing": "outSine",
+        "body": {
+          "pitch": -12,
+          "yaw": 18,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 7,
+        "easing": "outSine",
+        "leftArm": {
+          "pitch": 38,
+          "yaw": 0,
+          "roll": -32,
+          "z": 0
+        }
+      },
+      {
+        "tick": 7,
+        "easing": "outSine",
+        "leftLeg": {
+          "pitch": 30
+        }
+      },
+      {
+        "tick": 7,
+        "easing": "outSine",
+        "rightArm": {
+          "pitch": -86,
+          "yaw": -5,
+          "roll": 0,
+          "z": -3
+        }
+      },
+      {
+        "tick": 7,
+        "easing": "outSine",
+        "rightItem": {
+          "pitch": -76,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 7,
+        "easing": "outSine",
+        "rightLeg": {
+          "pitch": -40
+        }
+      },
+      {
+        "tick": 9,
+        "easing": "inOutSine",
+        "body": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 9,
+        "easing": "inOutSine",
+        "leftArm": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0,
+          "z": 0
+        }
+      },
+      {
+        "tick": 9,
+        "easing": "inOutSine",
+        "leftLeg": {
+          "pitch": 0
+        }
+      },
+      {
+        "tick": 9,
+        "easing": "inOutSine",
+        "rightArm": {
+          "pitch": -18,
+          "yaw": 0,
+          "roll": 0,
+          "z": 0
+        }
+      },
+      {
+        "tick": 9,
+        "easing": "inOutSine",
+        "rightItem": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 9,
+        "easing": "inOutSine",
+        "rightLeg": {
+          "pitch": 0
+        }
+      }
+    ]
+  }
+}

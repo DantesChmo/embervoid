@@ -1,0 +1,132 @@
+{
+  "name": "sword_swing_1",
+  "description": "Longsword forehand: high right to low left",
+  "author": "Embervoid",
+  "emote": {
+    "beginTick": 0,
+    "endTick": 10,
+    "stopTick": 13,
+    "isLoop": false,
+    "returnTick": 0,
+    "degrees": true,
+    "easeBeforeKeyframe": true,
+    "moves": [
+      {
+        "tick": 0,
+        "easing": "linear",
+        "body": {
+          "pitch": 0,
+          "yaw": -20,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "leftArm": {
+          "pitch": 10,
+          "yaw": 0,
+          "roll": -10,
+          "z": 0
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "rightArm": {
+          "pitch": -150,
+          "yaw": 50,
+          "roll": 20,
+          "z": 0
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "outQuad",
+        "body": {
+          "pitch": 0,
+          "yaw": 25,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "outQuad",
+        "leftArm": {
+          "pitch": -20,
+          "yaw": 0,
+          "roll": -15,
+          "z": 0
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "outQuad",
+        "rightArm": {
+          "pitch": -60,
+          "yaw": -50,
+          "roll": -10,
+          "z": 0
+        }
+      },
+      {
+        "tick": 6,
+        "easing": "outSine",
+        "body": {
+          "pitch": 0,
+          "yaw": 30,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 6,
+        "easing": "outSine",
+        "leftArm": {
+          "pitch": -10,
+          "yaw": 0,
+          "roll": -10,
+          "z": 0
+        }
+      },
+      {
+        "tick": 6,
+        "easing": "outSine",
+        "rightArm": {
+          "pitch": -35,
+          "yaw": -60,
+          "roll": -5,
+          "z": 0
+        }
+      },
+      {
+        "tick": 10,
+        "easing": "inOutSine",
+        "body": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 10,
+        "easing": "inOutSine",
+        "leftArm": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0,
+          "z": 0
+        }
+      },
+      {
+        "tick": 10,
+        "easing": "inOutSine",
+        "rightArm": {
+          "pitch": -18,
+          "yaw": 0,
+          "roll": 0,
+          "z": 0
+        }
+      }
+    ]
+  }
+}
