@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Renders Embervoid models and textures to PNG contact sheets without a Minecraft client (PLAN R40.2a).
+"""Renders Embervoid models, textures, structure templates and animation motion to PNG / GIF without a Minecraft client
+(PLAN R40.2a, 19.1).
 
 Run from the repository root. Pure Python (no numpy / PIL): a small software rasteriser with a z-buffer.
 
@@ -11,7 +12,14 @@ Run from the repository root. Pure Python (no numpy / PIL): a small software ras
     python3 tools/model_preview.py gui [names]          GUI textures (4x)
     python3 tools/model_preview.py texture PATH...      any PNG, upscaled
     python3 tools/model_preview.py check [names]        what code relies on: animations, toggled bones, head,
-                                                        windups, size against tools/model_bounds.json
+                                                        windups, size against tools/model_bounds.json; without
+                                                        names the self-check below runs first
+    python3 tools/model_preview.py self-check           the tool's own parts (GIF coder, cameras) and every
+                                                        structure template read, its block states resolved
+    python3 tools/model_preview.py motion NAME... [--anims a,b] [--fps 10] [--gif-fps 20] [--yaw 35] [--no-gif]
+    python3 tools/model_preview.py structure NAME... [--view top,iso,eye|all] [--eye X,Y,Z] [--look N|E|S|W|YAW]
+                                                     [--pitch DEG] [--ground Y|none]
+    python3 tools/model_preview.py structures [PREFIX...]  every template (whose path starts with a prefix)
 
 Output goes to build/model-preview/ unless --out is given. For an entity it writes
   <name>.png        rest pose from six angles with the hitbox (green wireframe, read from ReachMobs / ModEntities
@@ -26,10 +34,39 @@ is cutout without culling, the glowmask is added full bright (AutoGlowingGeoLaye
 entity lights (ambient 0.4). What it cannot show: in-game light levels, fog, particles, render-time code (head
 turning, bones the entity class hides or shows at times), animation blending and timing feel.
 
+motion writes (PLAN 19.1, to judge timing, secondary motion, hit and death animations, not only key poses)
+  <name>_motion.png         per animation a TRAIL cell (the first frame dimmed under the outlines of 8 evenly spaced
+                            frames, blue at the start to orange at the end: where outlines fan out, that part moves),
+                            then every frame at --fps (10 a row at 10 fps), one camera and scale for the whole sheet
+  <name>_<anim>.gif         the animation looping at --gif-fps (a one-shot holds its last frame half a second), with
+                            the time and a progress bar; a pure-Python GIF writer (median-cut palette, no dithering)
+Keyframes are interpolated linearly (no file of ours uses catmullrom or easing yet); molang is evaluated per frame.
+
+structure renders a template (.nbt under data/embervoid/structures, named by its path or a unique tail of it:
+ashen_reach/fields/barn, fields/barn, barn) into build/model-preview/structures/:
+  <path>_top.png            straight down, north up, rulers in blocks (the X / Z to give --eye), lower surfaces
+                            darker with an edge where the height steps; the placed-enemy key on the right
+  <path>_iso.png            orthographic from above the south-east and the north-west corner, the template's box
+  <path>_eye.png            perspective at eye level (1.62 above the ground, vertical FOV 70, fog from 24 blocks)
+                            walking up from each side; with --eye X,Y,Z (feet in that block, Y = the ground layer
+                            + 1 to stand on it) one large view from there, facing --look (default: the middle) and
+                            --pitch (> 0 looks down)
+Placed enemies (realm.placed markers, PLAN 9.2) and template entities are numbered pins: a stalk two blocks up from
+the feet (on top views a dot), a tick toward the facing, dashed with a hollow label when something is in front of or
+above it. Blocks come from their blockstates and models (variants, multipart, x / y rotation, element rotation, biome
+tint by a fixed colour), faces against an opaque full cube are culled; chests, skulls and fluids are boxes with a
+texture, any other model without elements a full cube with its particle texture. The ground plane sits at the top of
+the ground layer (y = 0; START_DEPTH and the Citadel's FOUNDATION are read from the template classes), --ground none
+leaves it out. Not shown: processors (decay rules, the casing gap), uvlock (a turned stair's top shows its texture
+turned), light levels and ambient occlusion, emissive textures, entity models (only pins), translucency (water is
+opaque).
+
 Vanilla parents and textures (block models, the armor model, reference items) come from Loom's local copy of the
 1.20.1 client jar in ~/.gradle/caches; nothing is downloaded.
 """
+import collections
 import glob
+import gzip
 import json
 import math
 import os
@@ -995,7 +1032,14 @@ def resolve_texture(textures, ref, depth=0):
     return texture(ns, path)
 
 
-def element_quads(elements, textures):
+class BlockQuad(Quad):
+    """A block model face in block space: its outward normal, cullface direction, biome tint and shade flag."""
+    __slots__ = ("n", "cull", "tint", "flat")
+
+
+def element_quads(elements, textures, block_space=False):
+    """Quads of model elements: in the entity frame used by the views, or (block_space) as BlockQuads in block space
+    (0..16, x east, y up, z south)."""
     out = []
     for el in elements:
         (x1, y1, z1), (x2, y2, z2) = el["from"], el["to"]
@@ -1028,7 +1072,15 @@ def element_quads(elements, textures):
             ua = (corners[1][0] - uv0[0], corners[1][1] - uv0[1])
             ub = (corners[3][0] - uv0[0], corners[3][1] - uv0[1])
             # Texels are 1/16 of the face's 16 uv units for a 16x texture; prepare() scales larger ones.
-            out.append(Quad(apply(m, p), apply_dir(m, ea), apply_dir(m, eb), uv0, ua, ub, tex))
+            if not block_space:
+                out.append(Quad(apply(m, p), apply_dir(m, ea), apply_dir(m, eb), uv0, ua, ub, tex))
+                continue
+            q = BlockQuad(apply(m, p), apply_dir(m, ea), apply_dir(m, eb), uv0, ua, ub, tex)
+            q.n, q.cull = apply_dir(m, FACE_DIRS[name]), face.get("cullface")
+            q.tint, q.flat = "tintindex" in face, el.get("shade") is False
+            out.append(q)
+    if block_space:
+        return out
     # Block space (0..16, x east, z south) to the entity frame used by the views: centre on x/z, north = front.
     for q in out:
         q.p0 = (8 - q.p0[0], q.p0[1], q.p0[2] - 8)
@@ -1271,6 +1323,1003 @@ def armor_sheet(materials, out, title="armor"):
     sheet.save(os.path.join(out, title + ".png"))
 
 
+# --- NBT -----------------------------------------------------------------------------------------------------------
+
+def read_nbt(data):
+    """An NBT file (gzipped or not) as Python values: compounds as dicts, lists and arrays as lists."""
+    if data[:2] == b"\x1f\x8b":
+        data = gzip.decompress(data)
+    pos = 0
+    scalars = {1: ">b", 2: ">h", 3: ">i", 4: ">q", 5: ">f", 6: ">d"}
+
+    def take(n):
+        nonlocal pos
+        pos += n
+        return data[pos - n:pos]
+
+    def string():
+        return take(struct.unpack(">H", take(2))[0]).decode("utf-8", "replace")
+
+    def payload(tag):
+        if tag in scalars:
+            fmt = scalars[tag]
+            return struct.unpack(fmt, take(struct.calcsize(fmt)))[0]
+        if tag == 8:
+            return string()
+        if tag == 9:
+            inner, n = struct.unpack(">bi", take(5))
+            return [payload(inner) for _ in range(n)]
+        if tag == 10:
+            out = {}
+            while True:
+                inner = take(1)[0]
+                if inner == 0:
+                    return out
+                key = string()
+                out[key] = payload(inner)
+        n = struct.unpack(">i", take(4))[0]
+        fmt = {7: "b", 11: "i", 12: "q"}[tag]
+        return list(struct.unpack(">%d%s" % (n, fmt), take(n * struct.calcsize(fmt))))
+
+    tag = take(1)[0]
+    string()
+    return payload(tag)
+
+
+# --- Structure templates -------------------------------------------------------------------------------------------
+
+FACE_DIRS = {"north": (0, 0, -1), "south": (0, 0, 1), "east": (1, 0, 0), "west": (-1, 0, 0), "up": (0, 1, 0),
+             "down": (0, -1, 0)}
+DIR_NAMES = {v: k for k, v in FACE_DIRS.items()}
+STRUCTURE_ROOTS = [os.path.join("src", "main", base, "data", MOD, d) for base in ("resources", "generated")
+                   for d in ("structures", "structure")]
+NOT_DRAWN = {"minecraft:air", "minecraft:cave_air", "minecraft:void_air", "minecraft:structure_void",
+             "minecraft:barrier", "minecraft:light", "minecraft:structure_block"}
+MARKER_BLOCK = MOD + ":placed_enemy"
+# Blocks the game draws in code (block entities, fluids): a box in block pixels and the texture to put on it.
+CODE_DRAWN = {
+    "chest": ((1, 0, 1, 15, 14, 15), "minecraft:block/oak_planks"),
+    "trapped_chest": ((1, 0, 1, 15, 14, 15), "minecraft:block/oak_planks"),
+    "ender_chest": ((1, 0, 1, 15, 14, 15), "minecraft:block/obsidian"),
+    "skeleton_skull": ((4, 0, 4, 12, 8, 12), "minecraft:block/bone_block_side"),
+    "wither_skeleton_skull": ((4, 0, 4, 12, 8, 12), "minecraft:block/blackstone"),
+    "water": ((0, 0, 0, 16, 14, 16), "minecraft:block/water_still"),
+    "lava": ((0, 0, 0, 16, 14, 16), "minecraft:block/lava_still"),
+}
+FOLIAGE_TINT, GRASS_TINT, WATER_TINT = (72, 181, 24), (145, 189, 89), (63, 118, 228)
+SKY_TOP, SKY_HORIZON = (44, 46, 62), (118, 108, 112)
+PIN_COLORS = [(255, 96, 80), (255, 204, 64), (110, 216, 255), (196, 136, 255), (120, 236, 140), (255, 140, 214),
+              (255, 164, 90), (210, 210, 210)]
+NEAR = 0.05
+
+
+def parse_state(s):
+    """'minecraft:stone_stairs[facing=east,half=top]' -> (name, {property: value})."""
+    m = re.match(r"([^\[]+)(?:\[(.*)\])?$", s.strip())
+    props = dict(kv.split("=", 1) for kv in (m.group(2) or "").split(",") if "=" in kv)
+    return m.group(1), props
+
+
+def yaw_facing(yaw):
+    return ("south", "west", "north", "east")[int(round(yaw / 90)) % 4]
+
+
+class Marker:
+    """A placed enemy (or a template entity): feet position in block units, entity id, facing, extra tags."""
+
+    def __init__(self, pos, entity, facing, tags):
+        self.pos, self.entity, self.facing, self.tags = pos, entity, facing, tags
+
+
+class Template:
+    """A structure template: drawn blocks by position (a jigsaw block as its final state), placed-enemy markers
+    (PLAN 9.2, realm.placed) and template entities as markers, loot chests counted."""
+
+    def __init__(self, name, path):
+        with open(path, "rb") as f:
+            nbt = read_nbt(f.read())
+        self.name, self.path = name, path
+        self.size = tuple(nbt["size"])
+        palette = nbt.get("palette") or (nbt.get("palettes") or [[]])[0]
+        states = [(s["Name"], s.get("Properties", {})) for s in palette]
+        self.blocks, self.markers, self.chests = {}, [], 0
+        for b in nbt.get("blocks", []):
+            name, props = states[b["state"]]
+            extra = b.get("nbt") or {}
+            x, y, z = b["pos"]
+            if name == MARKER_BLOCK:
+                self.markers.append(Marker((x + 0.5, y, z + 0.5), extra.get("entity", "?"),
+                                           props.get("facing", "north"), extra.get("tags", [])))
+                continue
+            if name == "minecraft:jigsaw":
+                name, props = parse_state(extra.get("final_state", "minecraft:air"))
+            if "LootTable" in extra:
+                self.chests += 1
+            if name not in NOT_DRAWN:
+                self.blocks[(x, y, z)] = (name, props)
+        for e in nbt.get("entities", []):
+            data = e.get("nbt", {})
+            yaw = (data.get("Rotation") or [0])[0]
+            self.markers.append(Marker(tuple(e["pos"]), data.get("id", "?"), yaw_facing(yaw), ["entity"]))
+
+
+def structure_names():
+    names = set()
+    for root in STRUCTURE_ROOTS:
+        for p in glob.glob(os.path.join(root, "**", "*.nbt"), recursive=True):
+            names.add(os.path.relpath(p, root)[:-4].replace(os.sep, "/"))
+    return sorted(names)
+
+
+def structure_file(name):
+    """Path of a template: its id path (ashen_reach/fields/barn), a unique tail of it (fields/barn, barn) or a file."""
+    if name.endswith(".nbt") and os.path.exists(name):
+        return name, os.path.basename(name)[:-4]
+    name = split_id(name, MOD)[1]
+    names = structure_names()
+    found = [n for n in names if n == name] or [n for n in names if n.endswith("/" + name)]
+    if len(found) != 1:
+        raise SystemExit("structure %s: %s" % (name, "ambiguous: " + ", ".join(found) if found else "not found"))
+    for root in STRUCTURE_ROOTS:
+        p = os.path.join(root, found[0] + ".nbt")
+        if os.path.exists(p):
+            return p, found[0]
+
+
+def start_depths():
+    """Template path part -> how far its y = 0 lies below the ground layer: START_DEPTH maps in the template classes,
+    the Citadel's FOUNDATION (CitadelLayout) for every citadel/ piece."""
+    out = {}
+    for path in glob.glob(os.path.join("src", "**", "*Templates.java"), recursive=True):
+        with open(path, encoding="utf-8") as f:
+            src = f.read()
+        for m in re.finditer(r"START_DEPTH\s*=\s*Map\.of\(([^)]*)\)", src):
+            for k, v in re.findall(r'"([a-z0-9_/]+)"\s*,\s*(\d+)', m.group(1)):
+                out[k] = int(v)
+    for path in glob.glob(os.path.join("src", "**", "CitadelLayout.java"), recursive=True):
+        with open(path, encoding="utf-8") as f:
+            m = re.search(r"\bFOUNDATION\s*=\s*(\d+)\s*;", f.read())
+        if m:
+            out["citadel/"] = int(m.group(1))
+    return out
+
+
+def ground_level(tpl):
+    """The y of the ground surface around a template: the top of its ground layer (y = 0 unless start_depths says)."""
+    for part, depth in start_depths().items():
+        if "/" + part in "/" + tpl.name:
+            return depth + 1
+    return 1
+
+
+def when_holds(cond, props):
+    if not cond:
+        return True
+    if "OR" in cond:
+        return any(when_holds(c, props) for c in cond["OR"])
+    if "AND" in cond:
+        return all(when_holds(c, props) for c in cond["AND"])
+    return all(props.get(k) in (str(v).lower() if isinstance(v, bool) else str(v)).split("|") for k, v in cond.items())
+
+
+def blockstate_models(name, props):
+    """[(model id, x, y)] the blockstate file picks for these properties (variants: the first key that matches,
+    multipart: every part whose condition holds; the first of weighted alternatives); None without a blockstate."""
+    ns, path = split_id(name)
+    data = resource(ns, "blockstates/%s.json" % path)
+    if data is None:
+        return None
+    bs = json.loads(data)
+    picks = []
+    for key, v in bs.get("variants", {}).items():
+        if all(props.get(k) == val for k, val in (kv.split("=", 1) for kv in key.split(",") if kv)):
+            picks.append(v)
+            break
+    for part in bs.get("multipart", []):
+        if when_holds(part.get("when"), props):
+            picks.append(part["apply"])
+    out = []
+    for v in picks:
+        v = v[0] if isinstance(v, list) else v
+        out.append((v["model"], v.get("x", 0), v.get("y", 0)))
+    return out
+
+
+def turn(v, rx, ry, centre=0):
+    """A block-space point (centre 8) or direction (centre 0) turned like a blockstate's x, then y rotation
+    (x = 90 turns north to down, y = 90 turns north to east)."""
+    x, y, z = v[0] - centre, v[1] - centre, v[2] - centre
+    for _ in range(rx // 90 % 4):
+        y, z = z, -y
+    for _ in range(ry // 90 % 4):
+        x, z = -z, x
+    return (x + centre, y + centre, z + centre)
+
+
+_SHAPES = {}
+_OPAQUE = {}
+_MISSING = None
+
+
+def missing_texture():
+    global _MISSING
+    if _MISSING is None:
+        _MISSING = Texture(16, 16)
+        for y in range(16):
+            for x in range(16):
+                i = (y * 16 + x) * 4
+                _MISSING.data[i:i + 4] = bytes((248, 0, 248, 255) if (x // 8 + y // 8) % 2 else (0, 0, 0, 255))
+        prepare(_MISSING, 16, 16)
+    return _MISSING
+
+
+def opaque(tex):
+    if id(tex) not in _OPAQUE:
+        _OPAQUE[id(tex)] = tex is not None and min(tex.data[3::4]) == 255
+    return _OPAQUE[id(tex)]
+
+
+def block_shape(name, props):
+    """(BlockQuads in block space, opaque full cube?) of a block state, cached. Models come from the blockstate
+    (x / y rotation; uvlock is not applied, so a turned stair's top shows its texture turned). A block the game draws
+    in code (chest, skull, fluid) is a box with a texture; any other model without elements a full cube with its
+    particle texture, a block without a blockstate a magenta cube."""
+    key = (name, tuple(sorted(props.items())))
+    if key in _SHAPES:
+        return _SHAPES[key]
+    path = split_id(name)[1]
+    models = blockstate_models(name, props) or []
+    quads, full, particle = [], False, None
+    for model_id, rx, ry in models:
+        textures, elements = load_block_model(model_id, "minecraft")
+        particle = particle or textures.get("particle")
+        while particle and particle.startswith("#"):
+            particle = textures.get(particle[1:])
+        mq = element_quads(elements, textures, True)
+        for q in mq:
+            if rx or ry:
+                q.p0, q.ea, q.eb = turn(q.p0, rx, ry, 8), turn(q.ea, rx, ry), turn(q.eb, rx, ry)
+                q.n = turn(q.n, rx, ry)
+                q.cull = DIR_NAMES.get(turn(FACE_DIRS[q.cull], rx, ry)) if q.cull else None
+        quads += mq
+        if len(models) == 1 and len(elements) == 1 and "rotation" not in elements[0]:
+            full = (elements[0]["from"], elements[0]["to"]) == ([0, 0, 0], [16, 16, 16]) and len(mq) == 6 \
+                   and all(opaque(q.tex) for q in mq)
+    if not quads:
+        box, ref = CODE_DRAWN.get(path, ((0, 0, 0, 16, 16, 16), particle))
+        element = {"from": list(box[:3]), "to": list(box[3:]), "faces": {f: {"texture": "#t"} for f in FACE_DIRS}}
+        quads = element_quads([element], {"t": ref}, True) if ref else []
+        if not quads:
+            quads = element_quads([element], {"t": "minecraft:block/stone"}, True)
+            for q in quads:
+                q.tex = missing_texture()
+        for q in quads:
+            q.tint = path == "water"
+    _SHAPES[key] = (quads, full)
+    return _SHAPES[key]
+
+
+def tint_for(name):
+    path = split_id(name)[1]
+    if path == "water":
+        return WATER_TINT
+    if "leaves" in path or path == "vine":
+        return FOLIAGE_TINT
+    return GRASS_TINT
+
+
+def structure_quads(tpl):
+    """World quads (block units) of a template; faces against an opaque full cube neighbour are left out."""
+    shapes = {pos: block_shape(name, props) for pos, (name, props) in tpl.blocks.items()}
+    out = []
+    for (x, y, z), (quads, _) in shapes.items():
+        tint = tint_for(tpl.blocks[(x, y, z)][0])
+        for q in quads:
+            if q.cull:
+                d = FACE_DIRS[q.cull]
+                neighbour = shapes.get((x + d[0], y + d[1], z + d[2]))
+                if neighbour and neighbour[1]:
+                    continue
+            w = BlockQuad((x + q.p0[0] / 16, y + q.p0[1] / 16, z + q.p0[2] / 16),
+                          (q.ea[0] / 16, q.ea[1] / 16, q.ea[2] / 16), (q.eb[0] / 16, q.eb[1] / 16, q.eb[2] / 16),
+                          q.uv0, q.ua, q.ub, q.tex)
+            w.n, w.cull, w.flat, w.tint = q.n, None, q.flat, tint if q.tint else None
+            out.append(w)
+    return out
+
+
+def ground_plane(x0, z0, x1, z1, y):
+    """A flat ash-grey ground with a 1-block grid, just under y."""
+
+    def color(a, b):
+        gx, gz = x0 + a * (x1 - x0), z0 + b * (z1 - z0)
+        if gx % 1 < 0.05 or gz % 1 < 0.05:
+            return (98, 94, 90)
+        return (84, 80, 76) if (math.floor(gx) + math.floor(gz)) % 2 else (79, 75, 71)
+
+    q = BlockQuad((x0, y - 0.003, z0), (x1 - x0, 0, 0), (0, 0, z1 - z0), (0, 0), (0, 0), (0, 0), None, color=color)
+    q.n, q.cull, q.flat, q.tint = (0, 1, 0), None, True, None
+    return q
+
+
+# --- Camera and scene rasteriser -----------------------------------------------------------------------------------
+
+class Camera:
+    """A camera in block units (x east, y up, z south). yaw as in Minecraft (0 looks south, 90 west, 180 north),
+    pitch > 0 looks down. With fov (vertical degrees) it is a perspective camera, else orthographic at scale pixels
+    per block, shift (camera-space x, y) at the image centre."""
+
+    def __init__(self, eye, yaw, pitch, width, height, fov=None, scale=16.0, shift=(0.0, 0.0)):
+        ya, pa = math.radians(yaw), math.radians(pitch)
+        self.f = (-math.sin(ya) * math.cos(pa), -math.sin(pa), math.cos(ya) * math.cos(pa))
+        self.r = (-math.cos(ya), 0.0, -math.sin(ya))
+        r, f = self.r, self.f
+        self.u = (r[1] * f[2] - r[2] * f[1], r[2] * f[0] - r[0] * f[2], r[0] * f[1] - r[1] * f[0])
+        self.eye, self.yaw, self.pitch = eye, yaw, pitch
+        self.width, self.height = width, height
+        self.focal = height / 2 / math.tan(math.radians(fov) / 2) if fov else None
+        self.scale, self.shift = scale, shift
+
+    def cam(self, p):
+        dx, dy, dz = p[0] - self.eye[0], p[1] - self.eye[1], p[2] - self.eye[2]
+        r, u, f = self.r, self.u, self.f
+        return (dx * r[0] + dy * r[1] + dz * r[2], dx * u[0] + dy * u[1] + dz * u[2],
+                dx * f[0] + dy * f[1] + dz * f[2])
+
+    def screen(self, c):
+        """Screen position of a camera-space point; None behind a perspective camera."""
+        if self.focal:
+            if c[2] < NEAR * 0.5:
+                return None
+            return self.width / 2 + c[0] * self.focal / c[2], self.height / 2 - c[1] * self.focal / c[2]
+        return (self.width / 2 + (c[0] - self.shift[0]) * self.scale,
+                self.height / 2 - (c[1] - self.shift[1]) * self.scale)
+
+
+def clip_near(poly):
+    """A camera-space polygon of (x, y, z, a, b) cut to z >= NEAR."""
+    out = []
+    for i, p in enumerate(poly):
+        q = poly[(i + 1) % len(poly)]
+        if p[2] >= NEAR:
+            out.append(p)
+        if (p[2] >= NEAR) != (q[2] >= NEAR):
+            t = (NEAR - p[2]) / (q[2] - p[2])
+            out.append(tuple(p[k] + (q[k] - p[k]) * t for k in range(5)))
+    return out
+
+
+def draw_scene(frame, quads, cam, light=1.0):
+    """BlockQuads into a Frame through a Camera: back faces culled (as the game culls block faces), perspective-
+    correct texturing, cutout at alpha 0.1, vanilla block face shading, biome tint; the depth buffer keeps
+    camera-space depth in blocks."""
+    W, H = frame.width, frame.height
+    depth, base = frame.depth, frame.base
+    persp = cam.focal is not None
+    ex, ey, ez = cam.eye
+    fx, fy, fz = cam.f
+    work = []
+    for q in quads:
+        n = q.n
+        if persp:
+            if (q.p0[0] - ex) * n[0] + (q.p0[1] - ey) * n[1] + (q.p0[2] - ez) * n[2] >= 0:
+                continue
+        elif fx * n[0] + fy * n[1] + fz * n[2] >= -1e-9:
+            continue
+        p0, ea, eb = q.p0, q.ea, q.eb
+        corners = ((p0, 0, 0), ((p0[0] + ea[0], p0[1] + ea[1], p0[2] + ea[2]), 1, 0),
+                   ((p0[0] + ea[0] + eb[0], p0[1] + ea[1] + eb[1], p0[2] + ea[2] + eb[2]), 1, 1),
+                   ((p0[0] + eb[0], p0[1] + eb[1], p0[2] + eb[2]), 0, 1))
+        poly = [cam.cam(p) + (a, b) for p, a, b in corners]
+        if persp:
+            poly = clip_near(poly)
+            if len(poly) < 3:
+                continue
+        work.append((sum(p[2] for p in poly) / len(poly), q, poly))
+    work.sort(key=lambda w: w[0])  # near first: hidden texels fail the depth test before they are looked up
+    for _, q, poly in work:
+        verts = []
+        for x, y, z, a, b in poly:
+            sx, sy = cam.screen((x, y, z))
+            if persp:
+                w = 1 / z
+                verts.append((sx, sy, w, a * w, b * w, z))
+            else:
+                verts.append((sx, sy, 1.0, a, b, z))
+        xs, ys = [v[0] for v in verts], [v[1] for v in verts]
+        if max(xs) < 0 or min(xs) >= W or max(ys) < 0 or min(ys) >= H:
+            continue
+        shade = (1.0 if q.flat else block_light(q.n)) * light
+        tex, color, tint = q.tex, q.color, q.tint
+        u0, v0 = q.uv0
+        uax, uay = q.ua
+        ubx, uby = q.ub
+        cu_lo, cu_hi, cv_lo, cv_hi = q.clamp
+        cu_hi = max(cu_lo, math.ceil(cu_hi) - 1)
+        cv_hi = max(cv_lo, math.ceil(cv_hi) - 1)
+        cu_lo, cv_lo = int(math.floor(cu_lo)), int(math.floor(cv_lo))
+        if tex is not None:
+            tw, th, td = tex.width, tex.height, tex.data
+            sx_t, sy_t = tex.sx, tex.sy
+        if tint:
+            tr, tg, tb = tint[0] / 255 * shade, tint[1] / 255 * shade, tint[2] / 255 * shade
+        else:
+            tr = tg = tb = shade
+        for k in range(1, len(verts) - 1):
+            A, B, C = verts[0], verts[k], verts[k + 1]
+            area = (B[0] - A[0]) * (C[1] - A[1]) - (B[1] - A[1]) * (C[0] - A[0])
+            if abs(area) < 1e-9:
+                continue
+            x_lo, x_hi = max(0, int(min(A[0], B[0], C[0]))), min(W - 1, int(max(A[0], B[0], C[0])) + 1)
+            y_lo, y_hi = max(0, int(min(A[1], B[1], C[1]))), min(H - 1, int(max(A[1], B[1], C[1])) + 1)
+            # Barycentric weights of A and B are linear in the pixel position.
+            da_x, db_x = -(C[1] - B[1]) / area, -(A[1] - C[1]) / area
+            for py in range(y_lo, y_hi + 1):
+                cy = py + 0.5
+                cx = x_lo + 0.5
+                wa = ((C[0] - B[0]) * (cy - B[1]) - (C[1] - B[1]) * (cx - B[0])) / area
+                wb = ((A[0] - C[0]) * (cy - C[1]) - (A[1] - C[1]) * (cx - C[0])) / area
+                row = py * W
+                for px in range(x_lo, x_hi + 1):
+                    if px > x_lo:
+                        wa += da_x
+                        wb += db_x
+                    wc = 1 - wa - wb
+                    if wa < -1e-7 or wb < -1e-7 or wc < -1e-7:
+                        continue
+                    if persp:
+                        qq = wa * A[2] + wb * B[2] + wc * C[2]
+                        z = 1 / qq
+                        a = (wa * A[3] + wb * B[3] + wc * C[3]) * z
+                        b = (wa * A[4] + wb * B[4] + wc * C[4]) * z
+                    else:
+                        z = wa * A[5] + wb * B[5] + wc * C[5]
+                        a = wa * A[3] + wb * B[3] + wc * C[3]
+                        b = wa * A[4] + wb * B[4] + wc * C[4]
+                    i = row + px
+                    if z > depth[i] + 1e-6:
+                        continue
+                    a = 0.0 if a < 0 else (1.0 if a > 1 else a)
+                    b = 0.0 if b < 0 else (1.0 if b > 1 else b)
+                    if color is not None:
+                        c = color(a, b)
+                        if c is not None:
+                            depth[i] = z
+                            base[i] = c
+                        continue
+                    tu = int(math.floor(u0 + uax * a + ubx * b))
+                    tv = int(math.floor(v0 + uay * a + uby * b))
+                    tu = cu_lo if tu < cu_lo else (cu_hi if tu > cu_hi else tu)
+                    tv = cv_lo if tv < cv_lo else (cv_hi if tv > cv_hi else tv)
+                    xi, yi = int(tu * sx_t), int(tv * sy_t)
+                    if xi < 0 or yi < 0 or xi >= tw or yi >= th:
+                        continue
+                    o = (yi * tw + xi) * 4
+                    if td[o + 3] < 26:
+                        continue
+                    depth[i] = z
+                    base[i] = (min(255, int(td[o] * tr)), min(255, int(td[o + 1] * tg)), min(255, int(td[o + 2] * tb)))
+
+
+# --- Structure views -----------------------------------------------------------------------------------------------
+
+def sky_frame(width, height):
+    frame = Frame(width, height, SKY_TOP)
+    for y in range(height):
+        t = min(1.0, y / (height * 0.55))
+        c = tuple(int(SKY_TOP[k] + (SKY_HORIZON[k] - SKY_TOP[k]) * t) for k in range(3))
+        frame.base[y * width:(y + 1) * width] = [c] * width
+    return frame
+
+
+def fogged(frame, start, end, strength=0.65):
+    """The frame as an image, faded toward the horizon colour with depth (the Realm's fog, roughly)."""
+    img = frame.image()
+    for i, d in enumerate(frame.depth):
+        if d != math.inf and d > start:
+            t = min(1.0, (d - start) / (end - start)) * strength
+            c = img.px[i]
+            img.px[i] = tuple(int(c[k] + (SKY_HORIZON[k] - c[k]) * t) for k in range(3))
+    return img
+
+
+def relief(frame):
+    """A top-down frame as an image: lower surfaces darker, a dark edge where the height steps."""
+    img = frame.image()
+    W, H = frame.width, frame.height
+    depth = frame.depth
+    finite = [d for d in depth if d != math.inf]
+    if not finite:
+        return img
+    lo, hi = min(finite), max(finite)
+    span = max(1.0, hi - lo)
+    for i, d in enumerate(depth):
+        if d == math.inf:
+            continue
+        k = 1.0 - 0.35 * (d - lo) / span
+        x, y = i % W, i // W
+        for j in (i + 1 if x + 1 < W else None, i + W if y + 1 < H else None, i - 1 if x else None,
+                  i - W if y else None):
+            if j is not None and depth[j] < d - 0.6:
+                k *= 0.55
+                break
+        c = img.px[i]
+        img.px[i] = (int(c[0] * k), int(c[1] * k), int(c[2] * k))
+    return img
+
+
+def pin_colors(markers):
+    out = {}
+    for m in markers:
+        out.setdefault(m.entity, PIN_COLORS[len(out) % len(PIN_COLORS)])
+    return out
+
+
+def hidden_from(frame, cam, point):
+    """True when the depth buffer has something in front of a world point."""
+    c = cam.cam(point)
+    s = cam.screen(c)
+    if s is None:
+        return True
+    x, y = int(s[0]), int(s[1])
+    if not (0 <= x < frame.width and 0 <= y < frame.height):
+        return False
+    return frame.depth[y * frame.width + x] < c[2] - 0.3
+
+
+def draw_pins(img, frame, cam, markers, colors, top=False):
+    """Numbered pins over a rendered view: a stalk from the feet up two blocks (on top views a dot), a tick toward
+    the facing; dashed stalk and hollow label when the spot is behind or under something."""
+    for i, m in enumerate(markers, 1):
+        x, y, z = m.pos
+        color = colors[m.entity]
+        foot = cam.screen(cam.cam((x, y, z)))
+        head = cam.screen(cam.cam((x, y + (0 if top else 2.2), z)))
+        if foot is None or head is None:
+            continue
+        hidden = hidden_from(frame, cam, (x, y + 0.9, z))
+        d = FACE_DIRS.get(m.facing, (0, 0, 0))
+        tip = cam.screen(cam.cam((x + d[0] * 0.9, y, z + d[2] * 0.9)))
+        if tip:
+            img.line(foot[0], foot[1], tip[0], tip[1], color, 1.0)
+            img.line(foot[0] + 1, foot[1], tip[0] + 1, tip[1], color, 1.0)
+        if not top:
+            img.line(foot[0], foot[1], head[0], head[1], color, 0.9, dash=3 if hidden else 0)
+        img.fill(int(foot[0]) - 2, int(foot[1]) - 2, 5, 5, color)
+        label = str(i)
+        w, h = text_width(label) + 4, 14
+        lx, ly = int(head[0]) - w // 2, int(head[1]) - (h + 4 if not top else h // 2 + 10)
+        if hidden:
+            img.fill(lx, ly, w, h, (24, 24, 28))
+            for xx in range(lx, lx + w):
+                img.set(xx, ly, color)
+                img.set(xx, ly + h - 1, color)
+            for yy in range(ly, ly + h):
+                img.set(lx, yy, color)
+                img.set(lx + w - 1, yy, color)
+            img.text(lx + 3, ly + 2, label, color)
+        else:
+            img.fill(lx, ly, w, h, color)
+            img.text(lx + 3, ly + 2, label, (16, 16, 20))
+
+
+def legend(markers, colors, width):
+    """The pins' key: number, entity, feet position, facing, tags."""
+    img = Image(width, 30 + 16 * max(1, len(markers)), (34, 36, 42))
+    img.text(8, 8, "PLACED ENEMIES %d" % len(markers))
+    if not markers:
+        img.text(8, 30, "NONE", (170, 170, 170))
+    for i, m in enumerate(markers, 1):
+        y = 30 + (i - 1) * 16
+        img.fill(8, y, 10, 10, colors[m.entity])
+        tags = ",".join(t.replace(MOD + ".placed.", "") for t in m.tags if t != MOD + ".placed")
+        pos = "%g,%g,%g" % (math.floor(m.pos[0]), m.pos[1], math.floor(m.pos[2]))
+        line = "%d %s %s %s %s" % (i, split_id(m.entity, MOD)[1], pos, m.facing[0].upper(), tags)
+        img.text(24, y, line[:(width - 30) // 8], (225, 225, 225))
+    return img
+
+
+def template_box(tpl):
+    sx, sy, sz = tpl.size
+    return [(x, y, z) for x in (0, sx) for y in (0, sy) for z in (0, sz)]
+
+
+def draw_box(img, cam, tpl, color=(240, 200, 120)):
+    pts = [cam.screen(cam.cam(p)) for p in template_box(tpl)]
+    for i in range(8):
+        for j in range(i + 1, 8):
+            if bin(i ^ j).count("1") == 1 and pts[i] and pts[j]:
+                img.line(pts[i][0], pts[i][1], pts[j][0], pts[j][1], color, 0.5, dash=4)
+
+
+def top_view(tpl, quads, ground, max_px=1100):
+    """Straight down, north up, rulers in blocks along the top and left edges."""
+    sx, sy, sz = tpl.size
+    margin = 2
+    s = max(4, min(32, int(min(max_px / (sx + 2 * margin), max_px / (sz + 2 * margin)))))
+    W, H = (sx + 2 * margin) * s, (sz + 2 * margin) * s
+    cam = Camera((sx / 2, sy + 64, sz / 2), 180, 90, W, H, scale=s)
+    frame = Frame(W, H, (30, 32, 38))
+    scene = list(quads)
+    if ground is not None:
+        scene.append(ground_plane(-margin, -margin, sx + margin, sz + margin, ground))
+    draw_scene(frame, scene, cam)
+    img = relief(frame)
+    step = 1 if s >= 8 else 2
+    label_step = 4 if s >= 12 else (8 if s >= 6 else 16)
+    small = 1 if s < 12 else 2
+    for x in range(0, sx + 1, step):
+        px = int(W / 2 + (x - sx / 2) * s)
+        img.line(px, 0, px, 4 if x % label_step else 9, (220, 220, 220))
+        if x % label_step == 0 and x < sx:
+            img.text(px + 2, 2, str(x), (220, 220, 220), small)
+    for z in range(0, sz + 1, step):
+        py = int(H / 2 + (z - sz / 2) * s)
+        img.line(0, py, 4 if z % label_step else 9, py, (220, 220, 220))
+        if z % label_step == 0 and z < sz:
+            img.text(2, py + 2, str(z), (220, 220, 220), small)
+    img.text(W - 26, 6, "N", (255, 255, 255))
+    img.line(W - 22, 18, W - 22, 34, (255, 255, 255))
+    return img, frame, cam
+
+
+def iso_view(tpl, quads, ground, yaw, width, height):
+    """Orthographic from above a corner, fitted to the template's box."""
+    sx, sy, sz = tpl.size
+    centre = (sx / 2, sy / 2, sz / 2)
+    probe = Camera(centre, yaw, 30, width, height)
+    cs = [probe.cam(p) for p in template_box(tpl)]
+    xs, ys = [c[0] for c in cs], [c[1] for c in cs]
+    s = min(width * 0.9 / max(1e-3, max(xs) - min(xs)), (height - 30) * 0.9 / max(1e-3, max(ys) - min(ys)))
+    cam = Camera(centre, yaw, 30, width, height, scale=s,
+                 shift=((max(xs) + min(xs)) / 2, (max(ys) + min(ys)) / 2 - 12 / s))
+    frame = Frame(width, height, BACKGROUND)
+    scene = list(quads)
+    if ground is not None:
+        scene.append(ground_plane(-3, -3, sx + 3, sz + 3, ground))
+    draw_scene(frame, scene, cam)
+    img = frame.image()
+    draw_box(img, cam, tpl)
+    return img, frame, cam
+
+
+def look_yaw(dx, dz):
+    """Minecraft yaw looking along (dx, dz)."""
+    return math.degrees(math.atan2(-dx, dz))
+
+
+def approach_cameras(tpl, ground, width, height):
+    """Eye-level cameras walking up to the template from each side, aimed at its middle."""
+    sx, sy, sz = tpl.size
+    out = []
+    for label, dx, dz, half_w, half_d in (("FROM SOUTH", 0, 1, sx / 2, sz / 2), ("FROM EAST", 1, 0, sz / 2, sx / 2),
+                                          ("FROM NORTH", 0, -1, sx / 2, sz / 2), ("FROM WEST", -1, 0, sz / 2, sx / 2)):
+        dist = half_d + max(6, half_w * 1.05, sy - ground - 1)  # the whole facade in a 70 degree, 16:10 view
+        eye = (sx / 2 + dx * dist, ground + 1.62, sz / 2 + dz * dist)
+        target = ground + max(0, sy - ground) * 0.35
+        pitch = max(-30, min(15, -math.degrees(math.atan2(target - eye[1], dist))))
+        out.append((label, Camera(eye, look_yaw(-dx, -dz), pitch, width, height, fov=70)))
+    return out
+
+
+def eye_render(tpl, quads, ground, cam):
+    frame = sky_frame(cam.width, cam.height)
+    scene = list(quads)
+    if ground is not None:
+        sx, _, sz = tpl.size
+        scene.append(ground_plane(-96, -96, sx + 96, sz + 96, ground))
+    draw_scene(frame, scene, cam)
+    return fogged(frame, 24, 120), frame
+
+
+def structure_sheets(name, out, views=("top", "iso", "eye"), eye=None, look=None, pitch=0.0, ground="auto"):
+    path, name = structure_file(name)
+    tpl = Template(name, path)
+    flat = name.replace("/", "_")
+    gy = ground_level(tpl) if ground == "auto" else (None if ground == "none" else float(ground))
+    quads = structure_quads(tpl)
+    colors = pin_colors(tpl.markers)
+    sx, sy, sz = tpl.size
+    title = "%s  %dx%dx%d  blocks %d  faces %d  enemies %d  loot %d  ground %s" % (
+        name.upper(), sx, sy, sz, len(tpl.blocks), len(quads), len(tpl.markers), tpl.chests,
+        "none" if gy is None else "%g" % gy)
+    target = os.path.join(out, "structures")
+    if "top" in views:
+        img, frame, cam = top_view(tpl, quads, gy)
+        draw_pins(img, frame, cam, tpl.markers, colors, top=True)
+        key = legend(tpl.markers, colors, 380)
+        sheet = Image(img.width + key.width + 10, max(img.height, key.height) + 30)
+        sheet.text(8, 8, title + "  TOP, N UP")
+        sheet.blit(img, 0, 30)
+        sheet.blit(key, img.width + 10, 30)
+        sheet.save(os.path.join(target, flat + "_top.png"))
+    if "iso" in views:
+        cells = []
+        for yaw, label in ((135, "FROM SE"), (-45, "FROM NW")):
+            img, frame, cam = iso_view(tpl, quads, gy, yaw, 760, 560)
+            draw_pins(img, frame, cam, tpl.markers, colors)
+            img.text(6, img.height - 16, label, (220, 220, 220))
+            cells.append(img)
+        key = legend(tpl.markers, colors, 380)
+        sheet = Image(760 * 2 + key.width + 10, max(560, key.height) + 30)
+        sheet.text(8, 8, title + "  ISO")
+        for i, img in enumerate(cells):
+            sheet.blit(img, i * 760, 30)
+        sheet.blit(key, 1530, 30)
+        sheet.save(os.path.join(target, flat + "_iso.png"))
+    if "eye" in views:
+        if eye is not None:
+            ex, ey, ez = eye
+            feet = (ex + 0.5, ey, ez + 0.5)
+            yaw = look if look is not None else look_yaw(sx / 2 - feet[0], sz / 2 - feet[2] or 1e-6)
+            cam = Camera((feet[0], ey + 1.62, feet[2]), yaw, pitch, 1280, 720, fov=70)
+            img, frame = eye_render(tpl, quads, gy, cam)
+            draw_pins(img, frame, cam, tpl.markers, colors)
+            sheet = Image(1280, 750)
+            sheet.text(8, 8, title + "  EYE %g,%g,%g YAW %d PITCH %d" % (ex, ey, ez, round(yaw), round(pitch)))
+            sheet.blit(img, 0, 30)
+            suffix = "_eye_%d_%d_%d" % (ex, ey, ez)
+        else:
+            sheet = Image(640 * 2, 400 * 2 + 30)
+            sheet.text(8, 8, title + "  EYE LEVEL, PINS AS ON TOP")
+            for i, (label, cam) in enumerate(approach_cameras(tpl, 1 if gy is None else gy, 640, 400)):
+                img, frame = eye_render(tpl, quads, gy, cam)
+                draw_pins(img, frame, cam, tpl.markers, colors)
+                img.text(6, img.height - 16, label, (240, 240, 240))
+                sheet.blit(img, (i % 2) * 640, 30 + (i // 2) * 400)
+            suffix = "_eye"
+        sheet.save(os.path.join(target, flat + suffix + ".png"))
+
+
+# --- Motion: animation strips and GIFs -----------------------------------------------------------------------------
+
+def frame_times(animation, fps):
+    """(length, loops?, times) sampling an animation at a fixed rate; a loop leaves out its end (= its start), a
+    one-shot ends on its last frame."""
+    length = float(animation.get("animation_length", 0) or 0) or max(key_times(animation, 999)) or 1.0
+    loop = animation.get("loop") in (True, "loop", "true")
+    times = [k / fps for k in range(int(math.floor(length * fps + 1e-6)) + 1)]
+    if loop and len(times) > 1 and length - times[-1] < 1e-6:
+        times.pop()
+    elif not loop and length - times[-1] > 1e-6:
+        times.append(length)
+    return length, loop, times
+
+
+def trail_tint(t):
+    return (int(70 + 185 * t), int(150 - 10 * t), int(255 - 205 * t))
+
+
+def trail_cell(sets, view, w, h, fit, hb, ghosts=8):
+    """The first frame dimmed, under the outlines of up to `ghosts` evenly spaced frames coloured blue (start) to
+    orange (end): where the outlines fan out, that part moves."""
+    scale, mx, my = fit
+    n = len(sets)
+    picks = sorted({round(i * (n - 1) / (ghosts - 1)) for i in range(ghosts)}) if n > 1 else [0]
+    img = render_cell(sets[0], view, w, h, fit, hb)
+    img.px = [(c[0] * 9 // 20, c[1] * 9 // 20, c[2] * 9 // 20) for c in img.px]
+    for k in picks:
+        frame = Frame(w, h, BACKGROUND)
+        frame.draw(sets[k], view, scale, w / 2 - mx * scale, h / 2 + my * scale)
+        d, inf = frame.depth, math.inf
+        color = trail_tint(k / max(1, n - 1))
+        for i, z in enumerate(d):
+            if z == inf:
+                continue
+            x = i % w
+            if x == 0 or x == w - 1 or i < w or i >= len(d) - w or inf in (d[i - 1], d[i + 1], d[i - w], d[i + w]):
+                img.px[i] = color
+    for x in range(w - 12):
+        img.fill(6 + x, h - 6, 1, 3, trail_tint(x / (w - 13)))
+    return img
+
+
+def motion_sheet(name, out, hidden=(), anims="all", fps=10, yaw=35, gif=True, gif_fps=20, cols=10, cell=170):
+    """<name>_motion.png: per animation a trail cell, then frames at a fixed rate (cols per row); and per animation a
+    looping GIF at gif_fps (a one-shot holds its last frame half a second)."""
+    model, tex, glow, animations = load_entity(name)
+    hb = hitboxes().get(name)
+    view = View(yaw, 15)
+    names = list(animations) if anims == "all" else [a for a in anims.split(",") if a in animations]
+    if not names:
+        raise SystemExit("%s: no animations %s" % (name, anims))
+    rows = []
+    for an in names:
+        length, loop, times = frame_times(animations[an], fps)
+        rows.append((an, length, loop, times, [model.quads(pose_at(animations[an], t), hidden, tex, glow) for t in times]))
+    cell_w, cell_h = cell, int(cell * 1.2)
+    all_sets = [qs for row in rows for qs in row[4]]
+    fit = fit_for(all_sets, [view], cell_w, cell_h, hb, 0.9)
+    label_h = 22
+    lines = [math.ceil((len(row[3]) + 1) / (cols + 1)) for row in rows]
+    sheet = Image(cell_w * (cols + 1), sum(label_h + cell_h * k for k in lines) + 4)
+    y = 0
+    for (an, length, loop, times, sets), k in zip(rows, lines):
+        sheet.fill(0, y, sheet.width, label_h, (34, 36, 42))
+        sheet.text(6, y + 4, "%s  %.2fS  %s  %d FPS, %d FRAMES" % (an, length, "LOOP" if loop else "ONCE", fps,
+                                                                    len(times)))
+        cells = [trail_cell(sets, view, cell_w, cell_h, fit, hb)]
+        cells[0].text(4, cell_h - 22, "TRAIL", (230, 230, 230))
+        for t, qs in zip(times, sets):
+            img = render_cell(qs, view, cell_w, cell_h, fit, hb)
+            img.text(4, cell_h - 14, "T %.2f" % t, (210, 210, 210))
+            cells.append(img)
+        for i, img in enumerate(cells):
+            sheet.blit(img, (i % (cols + 1)) * cell_w, y + label_h + (i // (cols + 1)) * cell_h)
+        y += label_h + cell_h * k
+    sheet.save(os.path.join(out, name + "_motion.png"))
+    if not gif:
+        return
+    gw, gh = 320, 400
+    gfit = fit_for(all_sets, [view], gw, gh, hb, 0.9)
+    for an, length, loop, _, _ in rows:
+        _, _, times = frame_times(animations[an], gif_fps)
+        frames = []
+        for t in times:
+            img = render_cell(model.quads(pose_at(animations[an], t), hidden, tex, glow), view, gw, gh, gfit, hb)
+            img.text(6, 6, an, (235, 235, 235))
+            img.text(6, gh - 30, "T %.2f / %.2f" % (t, length), (220, 220, 220))
+            img.fill(6, gh - 12, int((gw - 12) * (t / length if length else 0)), 4, (255, 180, 80))
+            frames.append(img.px)
+        delays = [max(2, round(100 / gif_fps))] * len(frames)
+        if not loop:
+            delays[-1] += 50
+        path = os.path.join(out, "%s_%s.gif" % (name, an.replace(".", "_")))
+        write_gif(path, gw, gh, frames, delays)
+        print("wrote", path)
+
+
+# --- GIF -----------------------------------------------------------------------------------------------------------
+
+def median_cut(hist, colors=256):
+    """A palette for a histogram of 15-bit colours: boxes split at the weighted median of their widest channel,
+    largest (pixels x extent) first. Returns (palette, lookup from 15-bit colour to palette index)."""
+
+    def chan(k, axis):
+        return (k >> (10 - 5 * axis)) & 31
+
+    def score(items):
+        extent = max(max(chan(k, a) for k, _ in items) - min(chan(k, a) for k, _ in items) for a in range(3))
+        return extent * sum(c for _, c in items) if len(items) > 1 else -1
+
+    boxes = [(score(list(hist.items())), list(hist.items()))]
+    while len(boxes) < colors:
+        boxes.sort(key=lambda b: b[0])
+        if boxes[-1][0] <= 0:
+            break
+        _, items = boxes.pop()
+        ranges = [max(chan(k, a) for k, _ in items) - min(chan(k, a) for k, _ in items) for a in range(3)]
+        axis = ranges.index(max(ranges))
+        items.sort(key=lambda kc: chan(kc[0], axis))
+        half, acc, cut = sum(c for _, c in items) / 2, 0, 1
+        for i, (_, c) in enumerate(items):
+            acc += c
+            if acc >= half:
+                cut = i + 1
+                break
+        cut = min(max(cut, 1), len(items) - 1)
+        boxes += [(score(items[:cut]), items[:cut]), (score(items[cut:]), items[cut:])]
+    palette, lut = [], [0] * 32768
+    for idx, (_, items) in enumerate(boxes):
+        total = sum(c for _, c in items)
+        palette.append(tuple(int(sum((chan(k, a) * 8 + 4) * c for k, c in items) / total) for a in range(3)))
+        for k, _ in items:
+            lut[k] = idx
+    return palette, lut
+
+
+def lzw_encode(indices, min_size=8):
+    """GIF LZW (variable code size up to 12 bits, a clear code when the table is full), packed LSB first."""
+    clear, end = 1 << min_size, (1 << min_size) + 1
+    size, next_code = min_size + 1, end + 1
+    table = {}
+    out = bytearray()
+    acc, nbits = clear, size
+    prefix = indices[0]
+    for k in indices[1:]:
+        key = prefix << 8 | k
+        c = table.get(key)
+        if c is not None:
+            prefix = c
+            continue
+        acc |= prefix << nbits
+        nbits += size
+        while nbits >= 8:
+            out.append(acc & 255)
+            acc >>= 8
+            nbits -= 8
+        if next_code < 4096:
+            table[key] = next_code
+            next_code += 1
+            if next_code > (1 << size) and size < 12:
+                size += 1
+        else:
+            acc |= clear << nbits
+            nbits += size
+            table = {}
+            size, next_code = min_size + 1, end + 1
+        prefix = k
+    for code in (prefix, end):
+        acc |= code << nbits
+        nbits += size
+        while nbits >= 8:
+            out.append(acc & 255)
+            acc >>= 8
+            nbits -= 8
+        if code == prefix and next_code < 4096:
+            next_code += 1  # the decoder adds the last entry on reading this code, which may widen the end code
+            if next_code > (1 << size) and size < 12:
+                size += 1
+    if nbits:
+        out.append(acc & 255)
+    return bytes(out)
+
+
+def lzw_decode(data, min_size=8):
+    """The inverse of lzw_encode (the self-check runs one through the other)."""
+    clear, end = 1 << min_size, (1 << min_size) + 1
+    size, next_code = min_size + 1, end + 1
+    table = [bytes((i,)) for i in range(clear)] + [b"", b""]
+    out = bytearray()
+    acc = nbits = pos = 0
+    prev = None
+    while True:
+        while nbits < size:
+            if pos >= len(data):
+                return bytes(out)
+            acc |= data[pos] << nbits
+            pos += 1
+            nbits += 8
+        code = acc & ((1 << size) - 1)
+        acc >>= size
+        nbits -= size
+        if code == clear:
+            size, next_code = min_size + 1, end + 1
+            del table[end + 1:]
+            prev = None
+            continue
+        if code == end:
+            return bytes(out)
+        if prev is None:
+            entry = table[code]
+        else:
+            entry = table[code] if code < next_code else prev + prev[:1]
+            if next_code < 4096:
+                table.append(prev + entry[:1])
+                next_code += 1
+                if next_code == (1 << size) and size < 12:
+                    size += 1
+        out += entry
+        prev = entry
+
+
+def write_gif(path, width, height, frames, delays):
+    """An animated GIF that loops: frames are flat lists of (r, g, b), one median-cut palette for all of them (no
+    dithering), delays in 1/100 s."""
+    keyed = [[(r >> 3) << 10 | (g >> 3) << 5 | b >> 3 for r, g, b in px] for px in frames]
+    hist = {}
+    for keys in keyed:
+        for k, c in collections.Counter(keys).items():
+            hist[k] = hist.get(k, 0) + c
+    palette, lut = median_cut(hist)
+    palette += [(0, 0, 0)] * (256 - len(palette))
+    data = bytearray(b"GIF89a" + struct.pack("<HHBBB", width, height, 0xF7, 0, 0))
+    for c in palette:
+        data += bytes(c)
+    data += b"\x21\xff\x0bNETSCAPE2.0\x03\x01\x00\x00\x00"
+    for keys, delay in zip(keyed, delays):
+        data += b"\x21\xf9\x04\x04" + struct.pack("<H", delay) + b"\x00\x00"
+        data += b"\x2c" + struct.pack("<HHHHB", 0, 0, width, height, 0) + b"\x08"
+        lz = lzw_encode(bytes(map(lut.__getitem__, keys)))
+        for i in range(0, len(lz), 255):
+            data += bytes((len(lz[i:i + 255]),)) + lz[i:i + 255]
+        data += b"\x00"
+    data += b"\x3b"
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    with open(path, "wb") as f:
+        f.write(data)
+
+
 # --- Asset check: what code relies on ------------------------------------------------------------------------------
 
 BOUNDS_FILE = os.path.join("tools", "model_bounds.json")
@@ -1319,6 +2368,59 @@ def rest_bounds(model):
             ys.append(p[1])
             zs.append(p[2])
     return [round(max(xs) - min(xs), 2), round(max(ys) - min(ys), 2), round(max(zs) - min(zs), 2)]
+
+
+def self_check():
+    """The tool's own parts, cheaply: the GIF LZW coder round trip, a stone cube through the top-down and the eye
+    camera, every structure template read and each of its block states resolved to a model (a mod block without a
+    blockstate is a problem). Returns problems."""
+    problems = []
+    seed, noise = 12345, bytearray()
+    for i in range(70000):
+        seed = (seed * 1103515245 + 12345) & 0x7FFFFFFF
+        noise.append((seed >> 16) & 255 if i % 3 else 7)
+    for sample in (bytes(noise) + bytes(9000), b"\x05", bytes(range(256)) * 3):
+        if lzw_decode(lzw_encode(sample)) != sample:
+            problems.append("self-check: GIF LZW round trip of %d bytes differs" % len(sample))
+    cube = Template.__new__(Template)
+    cube.blocks = {(0, 0, 0): ("minecraft:stone", {})}
+    quads = structure_quads(cube)
+    for label, cam, want in (("top", Camera((0.5, 10, 0.5), 180, 90, 41, 41, scale=10), 9.0),
+                             ("eye", Camera((0.5, 0.5, -3), 0, 0, 41, 41, fov=70), 3.0),
+                             ("eye looking away", Camera((0.5, 0.5, -3), 180, 0, 41, 41, fov=70), math.inf)):
+        frame = Frame(41, 41, BACKGROUND)
+        draw_scene(frame, quads, cam)
+        got = frame.depth[20 * 41 + 20]
+        if not (got == want or abs(got - want) < 1e-3):
+            problems.append("self-check: cube seen %s at depth %s, expected %s" % (label, got, want))
+    known = set(entity_classes(java_sources()))
+    states, boxes, enemies, unknown = set(), set(), 0, set()
+    names = structure_names()
+    for name in names:
+        path, _ = structure_file(name)
+        tpl = Template(name, path)
+        for (x, y, z), state in tpl.blocks.items():
+            if not (0 <= x < tpl.size[0] and 0 <= y < tpl.size[1] and 0 <= z < tpl.size[2]):
+                problems.append("%s: block at %d,%d,%d outside its size" % (name, x, y, z))
+            key = (state[0], tuple(sorted(state[1].items())))
+            if key in states:
+                continue
+            states.add(key)
+            ns, block = split_id(state[0])
+            models = blockstate_models(*state)
+            if models is None and (ns == MOD or vanilla_jar()):
+                problems.append("%s: no blockstate for %s" % (name, state[0]))
+            elif not models or not any(load_block_model(m, "minecraft")[1] for m, _, _ in models):
+                boxes.add(block)
+        enemies += len(tpl.markers)
+        unknown |= {m.entity for m in tpl.markers if m.entity.startswith(MOD + ":") and split_id(m.entity)[1] not in known}
+    print("self-check: %d templates, %d block states (as boxes: %s), %d placed enemies" % (
+        len(names), len(states), ", ".join(sorted(boxes)) or "none", enemies))
+    for e in sorted(unknown):
+        print("note: placed enemy %s is not registered (it spawns nothing until it is)" % e)
+    if not vanilla_jar():
+        print("note: no Minecraft client jar in ~/.gradle/caches, vanilla blocks drawn as missing")
+    return problems
 
 
 def check(names, write_bounds=False):
@@ -1396,6 +2498,8 @@ def entity_names():
 
 def main(argv):
     out, hidden, anims, rest = DEFAULT_OUT, (), "all", []
+    views, eye, look, pitch, ground = ("top", "iso", "eye"), None, None, 0.0, "auto"
+    fps, yaw, gif, gif_fps = 10, 35, True, 20
     i = 0
     while i < len(argv):
         a = argv[i]
@@ -1407,6 +2511,26 @@ def main(argv):
             anims, i = argv[i + 1], i + 2
         elif a == "--no-anims":
             anims, i = "", i + 1
+        elif a == "--view":
+            views, i = ("top", "iso", "eye") if argv[i + 1] == "all" else tuple(argv[i + 1].split(",")), i + 2
+        elif a == "--eye":
+            eye, i = tuple(float(c) for c in argv[i + 1].split(",")), i + 2
+        elif a == "--look":
+            sides = {"S": 0.0, "W": 90.0, "N": 180.0, "E": 270.0}
+            v = argv[i + 1].upper()
+            look, i = sides[v] if v in sides else float(v), i + 2
+        elif a == "--pitch":
+            pitch, i = float(argv[i + 1]), i + 2
+        elif a == "--ground":
+            ground, i = argv[i + 1], i + 2
+        elif a == "--fps":
+            fps, i = int(argv[i + 1]), i + 2
+        elif a == "--gif-fps":
+            gif_fps, i = int(argv[i + 1]), i + 2
+        elif a == "--yaw":
+            yaw, i = float(argv[i + 1]), i + 2
+        elif a == "--no-gif":
+            gif, i = False, i + 1
         else:
             rest.append(a)
             i += 1
@@ -1420,8 +2544,27 @@ def main(argv):
     elif cmd == "entities":
         for n in names or entity_names():
             entity_sheet(n, out, hidden, anims)
+    elif cmd == "motion":
+        for n in names:
+            motion_sheet(n, out, hidden, anims, fps, yaw, gif, gif_fps)
+    elif cmd == "structure":
+        for n in names:
+            structure_sheets(n, out, views, eye, look, pitch, ground)
+    elif cmd == "structures":
+        for n in structure_names():
+            if not names or any(n.startswith(p) for p in names):
+                structure_sheets(n, out, views, None, None, 0.0, ground)
+    elif cmd == "self-check":
+        problems = self_check()
+        for p in problems:
+            print("PROBLEM", p)
+        if problems:
+            sys.exit(1)
     elif cmd in ("check", "record-bounds"):
-        if not check(names or entity_names(), cmd == "record-bounds"):
+        problems = self_check() if cmd == "check" and not names else []
+        for p in problems:
+            print("PROBLEM", p)
+        if not check(names or entity_names(), cmd == "record-bounds") or problems:
             sys.exit(1)
     elif cmd == "items":
         names = names or mod_item_names()

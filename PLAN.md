@@ -746,7 +746,7 @@ Mobs for bosses.
 
 | ID | Task | Size | Depends on | Status |
 |----|------|------|------------|--------|
-| 19.1 | **Offline viewer: structures and motion** | M | — | todo |
+| 19.1 | **Offline viewer: structures and motion** | M | — | done (`tools/model_preview.py structure` / `motion` / `self-check`; no three.js page, the GIFs and trail strips are enough) |
 | 19.2 | **Combat effects**: camera shake, swing trails, hit flashes | M | — | todo |
 | 19.3 | **Death, hit and stagger animations for the 24 mobs** (3 parts) | L | 19.1 | todo |
 | 19.4 | **Boss remodels** (one task per boss) | XL | 19.1, 19.2 | todo |
