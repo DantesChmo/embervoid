@@ -40,7 +40,7 @@ import java.util.List;
  *   <li><b>P1.</b> Rooted in the middle of the grove. Its bark turns every blade and arrow unless it is stunned
  *   (PLAN 18.4: a trunk that took a little was most of the fight's openings). {@value #LANTERNS} lanterns hang in its
  *   branches ({@link TreeLanternEntity}): a projectile breaks one, and so does a melee hit on the branch it lowers
- *   after a branch sweep. A broken lantern stuns it for 2.5 s (trunk ×{@value #STUNNED_DAMAGE}, no moves) and lifts
+ *   after a branch sweep. A broken lantern stuns it for 2.2 s (trunk ×{@value #STUNNED_DAMAGE}, no moves) and lifts
  *   the fog for 6 s. Moves: root lines bursting from the ground at
  *   the fighters, a branch sweep in front, Withered Thralls dropping from the branches.</li>
  *   <li><b>P2 at 50 %.</b> It uproots and walks slowly; new lanterns hang on its own branches and move with it; the
@@ -55,7 +55,7 @@ public class GrievingTreeEntity extends ReachBoss {
 	public static final float STUNNED_DAMAGE = 1.5f;
 	public static final int LANTERNS = 5;
 	public static final int P2_LANTERNS = 4;
-	public static final int STUN_TICKS = 50;
+	public static final int STUN_TICKS = 44;
 	public static final int FOG_LIFT_TICKS = 120;
 	/** Arena fog: grey-green, thicker once it walks. */
 	public static final float FOG_DENSITY = 0.55f;
@@ -194,7 +194,7 @@ public class GrievingTreeEntity extends ReachBoss {
 		return lanternsBroken;
 	}
 
-	/** A lantern broke: stunned 2.5 s, the fog lifts 6 s. */
+	/** A lantern broke: stunned 2.2 s, the fog lifts 6 s. */
 	void onLanternBroken(TreeLanternEntity lantern) {
 		lanterns.remove(lantern);
 		lanternsBroken++;
