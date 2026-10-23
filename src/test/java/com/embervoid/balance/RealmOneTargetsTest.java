@@ -1,9 +1,14 @@
 package com.embervoid.balance;
 
+import com.embervoid.balance.BalanceData.Beat;
 import com.embervoid.balance.BalanceModel.Playthrough;
+import com.embervoid.balance.FightLength.BossStage;
+import com.embervoid.balance.FightLength.PhaseLength;
 import com.embervoid.balance.FightTargets.Scope;
+import com.embervoid.reach.boss.GrievingTreeEntity;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -48,5 +53,32 @@ class RealmOneTargetsTest {
 	@Test
 	void bigBossHitsAreWoundUpAndTold() {
 		assertNone(FightTargets.windupRule(RUN, Scope.REALM_ONE));
+	}
+
+	/**
+	 * The Grieving Tree's openings are its stuns, one per broken lantern: the lanterns hanging when a phase starts and
+	 * those growing back in it must cover the stuns the model counts on, or the player waits under bare branches.
+	 */
+	@Test
+	void treeLanternsCoverItsStuns() {
+		List<String> misses = new ArrayList<>();
+		for (BossStage stage : FightLength.bossStages(RUN)) {
+			if (stage.cadence() != BalanceData.GRIEVING_TREE_CADENCE) {
+				continue;
+			}
+			List<PhaseLength> phases = FightLength.length(stage.cadence(), stage.player(), 1).phases();
+			for (int i = 0; i < phases.size(); i++) {
+				PhaseLength phase = phases.get(i);
+				double stuns = phase.loops() * phase.phase().beats().stream().filter(b -> b.name().startsWith("stun"))
+						.mapToDouble(Beat::weight).sum();
+				double lanterns = (i == 0 ? GrievingTreeEntity.LANTERNS : GrievingTreeEntity.P2_LANTERNS)
+						+ phase.ticks() / GrievingTreeEntity.REHANG_INTERVAL;
+				if (stuns > lanterns) {
+					misses.add(stage.name() + ", " + FightTargets.who(stage.player()) + ", " + phase.phase().name() + ": "
+							+ FightTargets.f(stuns) + " stuns, " + FightTargets.f(lanterns) + " lanterns");
+				}
+			}
+		}
+		assertNone(misses);
 	}
 }

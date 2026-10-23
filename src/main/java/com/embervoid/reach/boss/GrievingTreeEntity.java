@@ -74,9 +74,12 @@ public class GrievingTreeEntity extends ReachBoss {
 	public static final int ROOTED_MIN_COOLDOWN = 20;
 	/** The pause after uprooting (P2 starts). */
 	public static final int UPROOT_PAUSE = 40;
-	/** Ticks between two drops of Withered Thralls, and between two lanterns growing back. */
+	/**
+	 * Ticks between two drops of Withered Thralls, and between two lanterns growing back while fewer than two hang
+	 * (PLAN 18.4: about one per stun the fight needs; at 600 the short stuns ran the branches bare).
+	 */
 	public static final int THRALL_INTERVAL = 500;
-	public static final int REHANG_INTERVAL = 600;
+	public static final int REHANG_INTERVAL = 160;
 
 	public static final String ROOT_LINES = "attack.roots";
 	public static final String BRANCH_SWEEP = "attack.branch";
