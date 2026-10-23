@@ -42,7 +42,8 @@ motion writes (PLAN 19.1, to judge timing, secondary motion, hit and death anima
                             then every frame at --fps (10 a row at 10 fps), one camera and scale for the whole sheet
   <name>_<anim>.gif         the animation looping at --gif-fps (a one-shot holds its last frame half a second), with
                             the time and a progress bar; a pure-Python GIF writer (median-cut palette, no dithering)
-Keyframes are interpolated linearly (no file of ours uses catmullrom or easing yet); molang is evaluated per frame.
+Keyframes are interpolated with their GeckoLib easing (a key's easing shapes the segment into it; catmullrom
+drawn as linear); molang is evaluated per frame.
 
 structure renders a template (.nbt under data/embervoid/structures, named by its path or a unique tail of it:
 ashen_reach/fields/barn, fields/barn, barn) into build/model-preview/structures/:
@@ -753,9 +754,84 @@ def molang(value, t):
         return 0.0
 
 
+def ease(name, k):
+    """GeckoLib's easing functions (EasingType), k in 0..1."""
+    name = (name or "linear").lower()
+    if name == "step":
+        return 0.0 if k < 1 else 1.0
+    if name in ("linear", "catmullrom"):
+        return k
+    c1 = 1.70158
+    c3 = c1 + 1
+    pows = {"quad": 2, "cubic": 3, "quart": 4, "quint": 5}
+    for key, n in pows.items():
+        if name == "easein" + key:
+            return k ** n
+        if name == "easeout" + key:
+            return 1 - (1 - k) ** n
+        if name == "easeinout" + key:
+            return 2 ** (n - 1) * k ** n if k < 0.5 else 1 - (-2 * k + 2) ** n / 2
+    if name == "easeinsine":
+        return 1 - math.cos(k * math.pi / 2)
+    if name == "easeoutsine":
+        return math.sin(k * math.pi / 2)
+    if name == "easeinoutsine":
+        return -(math.cos(math.pi * k) - 1) / 2
+    if name == "easeinexpo":
+        return 0 if k == 0 else 2 ** (10 * k - 10)
+    if name == "easeoutexpo":
+        return 1 if k == 1 else 1 - 2 ** (-10 * k)
+    if name == "easeinoutexpo":
+        if k in (0, 1):
+            return k
+        return 2 ** (20 * k - 10) / 2 if k < 0.5 else (2 - 2 ** (-20 * k + 10)) / 2
+    if name == "easeincirc":
+        return 1 - math.sqrt(max(0, 1 - k * k))
+    if name == "easeoutcirc":
+        return math.sqrt(max(0, 1 - (k - 1) ** 2))
+    if name == "easeinoutcirc":
+        return (1 - math.sqrt(max(0, 1 - (2 * k) ** 2))) / 2 if k < 0.5 else (math.sqrt(max(0, 1 - (-2 * k + 2) ** 2)) + 1) / 2
+    if name == "easeinback":
+        return c3 * k ** 3 - c1 * k * k
+    if name == "easeoutback":
+        return 1 + c3 * (k - 1) ** 3 + c1 * (k - 1) ** 2
+    if name == "easeinoutback":
+        c2 = c1 * 1.525
+        return ((2 * k) ** 2 * ((c2 + 1) * 2 * k - c2)) / 2 if k < 0.5 else ((2 * k - 2) ** 2 * ((c2 + 1) * (k * 2 - 2) + c2) + 2) / 2
+    if name == "easeinelastic":
+        return k if k in (0, 1) else -(2 ** (10 * k - 10)) * math.sin((k * 10 - 10.75) * 2 * math.pi / 3)
+    if name == "easeoutelastic":
+        return k if k in (0, 1) else 2 ** (-10 * k) * math.sin((k * 10 - 0.75) * 2 * math.pi / 3) + 1
+    if name == "easeinoutelastic":
+        if k in (0, 1):
+            return k
+        c5 = 2 * math.pi / 4.5
+        return -(2 ** (20 * k - 10) * math.sin((20 * k - 11.125) * c5)) / 2 if k < 0.5 else (2 ** (-20 * k + 10) * math.sin((20 * k - 11.125) * c5)) / 2 + 1
+
+    def bounce_out(x):
+        n1, d1 = 7.5625, 2.75
+        if x < 1 / d1:
+            return n1 * x * x
+        if x < 2 / d1:
+            x -= 1.5 / d1
+            return n1 * x * x + 0.75
+        if x < 2.5 / d1:
+            x -= 2.25 / d1
+            return n1 * x * x + 0.9375
+        x -= 2.625 / d1
+        return n1 * x * x + 0.984375
+    if name == "easeoutbounce":
+        return bounce_out(k)
+    if name == "easeinbounce":
+        return 1 - bounce_out(1 - k)
+    if name == "easeinoutbounce":
+        return (1 - bounce_out(1 - 2 * k)) / 2 if k < 0.5 else (1 + bounce_out(2 * k - 1)) / 2
+    return k
+
+
 def channel_value(channel, t):
-    """A bone channel (rotation / position / scale) at time t: constant, or keyframes interpolated linearly
-    (catmullrom drawn as linear)."""
+    """A bone channel (rotation / position / scale) at time t: constant, or keyframes interpolated with the easing
+    of the key the segment runs into (GeckoLib; catmullrom drawn as linear)."""
     if isinstance(channel, (list, int, float, str)):
         vec = channel if isinstance(channel, list) else [channel] * 3
         return tuple(molang(c, t) for c in vec)
@@ -765,16 +841,18 @@ def channel_value(channel, t):
             time = float(key)
         except ValueError:
             continue
+        easing = None
         if isinstance(value, dict):
             pre = value.get("pre", value.get("post", value.get("vector")))
             post = value.get("post", value.get("pre", value.get("vector")))
+            easing = value.get("easing")
         else:
             pre = post = value
         if isinstance(pre, dict):
             pre = pre.get("vector")
         if isinstance(post, dict):
             post = post.get("vector")
-        frames.append((time, pre, post))
+        frames.append((time, pre, post, easing))
     if not frames:
         return None
     frames.sort(key=lambda f: f[0])
@@ -785,11 +863,11 @@ def channel_value(channel, t):
 
     if t <= frames[0][0]:
         return vec(frames[0][1] if t < frames[0][0] else frames[0][2])
-    for (ta, _, pa), (tb, qb, _) in zip(frames, frames[1:]):
+    for (ta, _, pa, _), (tb, qb, _, easing) in zip(frames, frames[1:]):
         if ta <= t <= tb:
             if tb == ta:
                 return vec(qb)
-            k = (t - ta) / (tb - ta)
+            k = ease(easing, (t - ta) / (tb - ta))
             a, b = vec(pa), vec(qb)
             return tuple(a[i] + (b[i] - a[i]) * k for i in range(3))
     return vec(frames[-1][2])

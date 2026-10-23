@@ -31,11 +31,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.constant.DefaultAnimations;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.animation.RawAnimation;
-import software.bernie.geckolib.core.object.PlayState;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -92,10 +87,6 @@ public class FallenSisterEntity extends ReachBoss {
 	public static final String SPIN = "attack.spin";
 	public static final String BACKSTEP = "misc.backstep";
 	public static final String VEIL_BURN = "misc.veil_burn";
-	public static final String HURT = "misc.hurt";
-	public static final String DEATH = "misc.death";
-	/** The controller of the hit reaction, under the move animations. */
-	public static final String HURT_CONTROLLER = "hurt";
 
 	private static final float ARC_DAMAGE = 4;
 	private static final float SLAM_DAMAGE = 6;
@@ -125,7 +116,6 @@ public class FallenSisterEntity extends ReachBoss {
 	private int flockTimer;
 	private int diveTimer;
 	private int flocks;
-	private int lastHurtAnimation = -100;
 	@Nullable
 	private Vec3d slamAt;
 
@@ -475,13 +465,7 @@ public class FallenSisterEntity extends ReachBoss {
 		if (veilBurnLeft > 0 && !source.isOf(DamageTypes.GENERIC_KILL) && !source.isOf(DamageTypes.OUT_OF_WORLD)) {
 			return false;
 		}
-		boolean hurt = super.damage(source, amount);
-		// A flinch between moves; never over a windup.
-		if (hurt && isAlive() && !Telegraph.isWindingUp(this) && age - lastHurtAnimation > 10) {
-			lastHurtAnimation = age;
-			triggerAnim(HURT_CONTROLLER, HURT);
-		}
-		return hurt;
+		return super.damage(source, amount);
 	}
 
 	/**
@@ -494,8 +478,6 @@ public class FallenSisterEntity extends ReachBoss {
 		if (!(getWorld() instanceof ServerWorld world)) {
 			return;
 		}
-		Telegraph.cancel(this);
-		playAnimation(DEATH);
 		if (arenaCenter != null) {
 			SanctumBossArena.markCleared(world, arenaCenter);
 		}
@@ -509,44 +491,25 @@ public class FallenSisterEntity extends ReachBoss {
 	}
 
 	@Override
-	protected int deathTicks() {
+	public int deathTicks() {
 		return DEATH_TICKS;
 	}
 
 	@Override
-	protected void updatePostDeath() {
-		deathTime++;
-		if (!(getWorld() instanceof ServerWorld world) || isRemoved()) {
-			return;
-		}
+	protected void tickDeath(ServerWorld world, int deathTime) {
 		if (deathTime % 4 == 0) {
-			world.spawnParticles(ParticleTypes.SMALL_FLAME, getX(), getY() + 1.2, getZ(), 3, 0.3, 0.6, 0.3, 0.01);
+			world.spawnParticles(ParticleTypes.SMALL_FLAME, getX(), getY() + 1.2, getZ(), 3, 0.3, 0.6, 0.3, 0.01); // TODO own particle (ember)
 		}
 		if (deathTime >= DEATH_TICKS) {
 			// The last embers go out: what is left of her falls to ash.
-			world.spawnParticles(ParticleTypes.WHITE_ASH, getX(), getY() + 0.8, getZ(), 60, 0.5, 0.6, 0.5, 0.02);
-			world.spawnParticles(ParticleTypes.SOUL, getX(), getY() + 0.8, getZ(), 12, 0.4, 0.4, 0.4, 0.04);
-			world.sendEntityStatus(this, (byte) 60);
-			remove(RemovalReason.KILLED);
+			world.spawnParticles(ParticleTypes.WHITE_ASH, getX(), getY() + 0.8, getZ(), 60, 0.5, 0.6, 0.5, 0.02); // TODO own particle (ash flake)
+			world.spawnParticles(ParticleTypes.SOUL, getX(), getY() + 0.8, getZ(), 12, 0.4, 0.4, 0.4, 0.04); // TODO own particle (soul wisp)
 		}
 	}
 
 	@Override
 	protected List<String> actionAnimations() {
-		return List.of(ARC_1, ARC_2, SLAM, SPIN, BACKSTEP, VEIL_BURN, DEATH);
-	}
-
-	/** Walk / idle first, then the hit reaction, then the moves, so a move's animation wins over a flinch. */
-	@Override
-	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-		controllers.add(DefaultAnimations.genericWalkIdleController(this));
-		controllers.add(new AnimationController<>(this, HURT_CONTROLLER, 0, state -> PlayState.STOP)
-				.triggerableAnim(HURT, RawAnimation.begin().thenPlay(HURT)));
-		AnimationController<FallenSisterEntity> action = new AnimationController<>(this, ACTION, 0, state -> PlayState.STOP);
-		for (String name : actionAnimations()) {
-			action.triggerableAnim(name, RawAnimation.begin().thenPlay(name));
-		}
-		controllers.add(action);
+		return List.of(ARC_1, ARC_2, SLAM, SPIN, BACKSTEP, VEIL_BURN);
 	}
 
 	/** Not a giant: her sounds carry like a player's. */

@@ -20,7 +20,12 @@ public final class VampireClient {
 		});
 		EntityRendererRegistry.register(VampireEntities.VAMPIRE_BOSS, context -> {
 			GeoEntityRenderer<VampireBossEntity> renderer =
-					new GeoEntityRenderer<>(context, new DefaultedEntityGeoModel<>(Embervoid.id("vampire_boss"), true));
+					new GeoEntityRenderer<>(context, new DefaultedEntityGeoModel<>(Embervoid.id("vampire_boss"), true)) {
+						@Override
+						protected float getDeathMaxRotation(VampireBossEntity boss) {
+							return 0; // its own death animation
+						}
+					};
 			renderer.withScale(1.2f);
 			renderer.addRenderLayer(new AutoGlowingGeoLayer<>(renderer));
 			return renderer;

@@ -49,7 +49,8 @@
 			"com.embervoid.gametest.CombatFxTests",
 			"com.embervoid.gametest.PropTests",
 			"com.embervoid.gametest.AttackAnimationTests",
-			"com.embervoid.gametest.WardensScourgeTests"
+			"com.embervoid.gametest.WardensScourgeTests",
+			"com.embervoid.gametest.BossAnimationTests"
 		]
 	},
 	"mixins": [

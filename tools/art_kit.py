@@ -173,8 +173,9 @@ class Material:
     edge: steps darker on the outermost pixel ring of each face (separates boxes)."""
 
     def __init__(self, colors, base=None, noise=0.7, cell=2.5, grad=0.8, top=0.6, bottom=-0.8, grain=None,
-                 speck=0.0, edge=0.0, seed=0, glow=None, decal=None):
+                 speck=0.0, edge=0.0, seed=0, glow=None, decal=None, bevel=0.0):
         self.colors = colors
+        self.bevel = bevel    # steps lighter on a face's top and left pixel edge, darker on its bottom and right
         self.base = (len(colors) - 1) / 2 if base is None else base
         self.noise, self.cell, self.grad, self.top, self.bottom = noise, cell, grad, top, bottom
         self.grain, self.speck, self.edge, self.seed = grain, speck, edge, seed
@@ -208,6 +209,12 @@ class Material:
             lv += 1.2 if hash01(x, y, seed + 13) < 0.5 else -1.2
         if self.edge and (x == 0 or y == 0 or x == face.w - 1 or y == face.h - 1):
             lv -= self.edge
+        if self.bevel and face.w > 2 and face.h > 2 and face.name != "bottom":
+            # Light from the top-left (art direction §1.2): a raised form's lit edge and its shadow edge.
+            if x == 0 or y == 0:
+                lv += self.bevel
+            if x == face.w - 1 or y == face.h - 1:
+                lv -= self.bevel
         return lv
 
     def color_at(self, lv):
@@ -401,9 +408,25 @@ def write_model(name, bones, animations, bounds, tex_w=64, seed=None, glow_extra
 ZERO = [0, 0, 0]
 
 
+def e(easing, vec):
+    """A keyframe value with GeckoLib easing into it: keys(0, ZERO, 0.4, e("easeOutBack", [-90, 0, 0])). The
+    easing names are GeckoLib's (easeInSine, easeOutCubic, easeInOutQuad, easeOutBack, easeOutElastic,
+    easeOutBounce, ...); it applies to the segment that ends at this key."""
+    return (easing, vec)
+
+
 def keys(*pairs):
-    """keys(0, [x,y,z], 0.5, [...]) -> {"0.0": [...], "0.5": [...]}"""
-    return {str(float(round(pairs[i], 4))): [round(v, 3) for v in pairs[i + 1]] for i in range(0, len(pairs), 2)}
+    """keys(0, [x,y,z], 0.5, [...]) -> {"0.0": [...], "0.5": [...]}; a value wrapped by e() writes a vector with
+    its easing."""
+    out = {}
+    for i in range(0, len(pairs), 2):
+        value = pairs[i + 1]
+        key = str(float(round(pairs[i], 4)))
+        if isinstance(value, tuple):
+            out[key] = {"vector": [round(v, 3) for v in value[1]], "easing": value[0]}
+        else:
+            out[key] = [round(v, 3) for v in value]
+    return out
 
 
 def rot(*pairs):
@@ -505,3 +528,195 @@ def outline_shadow(face, d=-18):
         return
     for x in range(face.w):
         face.tint(x, face.h - 1, d)
+
+
+# --- Dense forms (art direction §2) ------------------------------------------------------------------------------
+
+def chamfered(origin, size, mat, decals=None, c=1.0, inflate=0.0, rotation=None, pivot=None, axes="xyz"):
+    """A box with its edges knocked off: three boxes, each shrunk by c on two of the axes, so the union is the box
+    with a c-wide chamfer on every edge (a sculpted form instead of a cube). axes limits the chamfer: "xz" keeps
+    the top and bottom edges square (a plinth). Every part paints like a box; the inset faces hide each other."""
+    x, y, z = origin
+    w, h, d = size
+    parts = []
+    cx, cy, cz = (c if "x" in axes else 0), (c if "y" in axes else 0), (c if "z" in axes else 0)
+    specs = [([x, y + cy, z + cz], [w, h - 2 * cy, d - 2 * cz]),
+             ([x + cx, y, z + cz], [w - 2 * cx, h, d - 2 * cz]),
+             ([x + cx, y + cy, z], [w - 2 * cx, h - 2 * cy, d])]
+    for o, sz in specs:
+        if min(sz) <= 0:
+            continue
+        parts.append(Box(o, sz, mat, decals, inflate=inflate, rotation=rotation, pivot=pivot))
+    return parts
+
+
+def octagon(origin, size, mat, decals=None, axis="y", inflate=0.0, shrink=0.78, rotation=None, pivot=None):
+    """A rounder form: the box plus a copy turned 45 degrees about axis on the box's centre and narrowed to
+    shrink of its two other sizes, so the corners of each stick out a little past the other's faces."""
+    x, y, z = origin
+    w, h, d = size
+    centre = [x + w / 2, y + h / 2, z + d / 2]
+    first = Box(origin, size, mat, decals, inflate=inflate, rotation=rotation, pivot=pivot)
+    if axis == "y":
+        sz = [w * shrink, h, d * shrink]
+        rot = [0, 45, 0]
+    elif axis == "x":
+        sz = [w, h * shrink, d * shrink]
+        rot = [45, 0, 0]
+    else:
+        sz = [w * shrink, h * shrink, d]
+        rot = [0, 0, 45]
+    o = [centre[i] - sz[i] / 2 for i in range(3)]
+    if rotation:
+        rot = [rot[i] + rotation[i] for i in range(3)]
+    second = Box(o, sz, mat, decals, inflate=inflate, rotation=rot, pivot=pivot or centre)
+    return [first, second]
+
+
+def plate(origin, size, mat, decals=None, inflate=0.5, rotation=None, pivot=None):
+    """A thin layered plate over a body (armor, bark, scales): a 1–2 px box inflated so it floats off the surface."""
+    return Box(origin, size, mat, decals, inflate=inflate, rotation=rotation, pivot=pivot)
+
+
+def chain_bones(name, parent, pivot, segments, length, mat, decals=None, thickness=1.0, down=True, rotation=None,
+                box=None):
+    """A hanging chain of bones (a cape's folds, a chain, a rope, a tail): segments bones named name_1..name_n,
+    each pivoting where the one above ends, each with one box of thickness x length (hanging down from its pivot
+    when down, else out along -z). box(i, origin, size) may build the segment's boxes instead."""
+    bones = []
+    px, py, pz = pivot
+    for i in range(segments):
+        bone_name = "%s_%d" % (name, i + 1)
+        par = parent if i == 0 else "%s_%d" % (name, i)
+        if down:
+            origin = [px - thickness / 2, py - length, pz - thickness / 2]
+            size = [thickness, length, thickness]
+        else:
+            origin = [px - thickness / 2, py - thickness / 2, pz - length]
+            size = [thickness, thickness, length]
+        boxes = box(i, origin, size) if box else [Box(origin, size, mat, decals)]
+        bones.append(Bone(bone_name, [px, py, pz], par, rotation if i == 0 else None, boxes))
+        if down:
+            py -= length
+        else:
+            pz -= length
+    return bones
+
+
+def chain_names(name, segments):
+    return ["%s_%d" % (name, i + 1) for i in range(segments)]
+
+
+def lag_sway(names, length, amp, axis=0, lag=0.08, gain=0.9, phase=0.0, steps=4, base=None):
+    """A looping sway for a chain of bones: each later bone lags lag of a cycle behind the one above and swings
+    gain as far (secondary motion in idle and walk). base: a rest rotation added to every key."""
+    out = {}
+    for i, n in enumerate(names):
+        frames = sway(length, amp * gain ** i, axis, phase - lag * i, steps)
+        if base:
+            frames = {k: [v[j] + base[j] for j in range(3)] for k, v in frames.items()}
+        out[n] = {"rotation": frames}
+    return out
+
+
+def whip(names, t0, amp, axis=0, lag=0.05, gain=1.15, settle=0.55, rest=None, start=None):
+    """The whip-back of a chain of bones after a strike at t0: flung amp degrees on axis (later bones later and
+    further), back past the rest pose and settled by t0 + settle. start: the chain's pose before the strike (the
+    windup held it there); rest: where it ends (ZERO)."""
+    rest = rest or ZERO
+    out = {}
+    for i, n in enumerate(names):
+        d = lag * i
+        a = amp * gain ** i
+
+        def v(k):
+            r = list(rest)
+            r[axis] += k
+            return r
+
+        out[n] = {"rotation": keys(t0 + d, start or rest, t0 + d + 0.12, e("easeOutCubic", v(a)),
+                                   t0 + d + 0.32, e("easeInOutSine", v(-a * 0.45)), t0 + d + settle,
+                                   e("easeOutSine", rest))}
+    return out
+
+
+def hold(names, t, rot_values):
+    """Keys that hold a pose on several bones at time t (a windup held until the strike)."""
+    return {n: {"rotation": keys(t, rot_values)} for n in names}
+
+
+def fingers(x, y, z, count, size, mat, spread=1.0, curl=20, thumb=None, decals=None):
+    """A hand's fingers hanging from a palm whose underside is at y: count boxes of size (w, l, d) side by side
+    from x to the right (+x), each bent curl degrees forward at its root; thumb: (dx, dz) of a thumb box set
+    apart at the palm's side."""
+    w, l, d = size
+    boxes = []
+    for i in range(count):
+        fx = x + i * (w + spread)
+        boxes.append(Box([fx, y - l, z], [w, l, d], mat, decals, rotation=[curl, 0, 0], pivot=[fx + w / 2, y, z + d / 2]))
+    if thumb:
+        tx, tz = thumb
+        boxes.append(Box([x + tx, y - l * 0.8, z + tz], [w, l * 0.8, d], mat, decals, rotation=[curl * 0.6, 0, 30],
+                         pivot=[x + tx + w / 2, y, z + tz + d / 2]))
+    return boxes
+
+
+def fold_lines(face, rng, step=3, d=-16, direction="v", jitter=True):
+    """Cloth folds: darker lines across a side face that follow the body (vertical for hanging cloth), each
+    wandering a pixel now and then (art direction §1.8)."""
+    if not face.side():
+        return
+    if direction == "v":
+        for x0 in range(1, face.w - 1, step):
+            x = x0
+            for y in range(face.h):
+                face.tint(x, y, d)
+                if jitter and rng.random() < 0.15:
+                    x = min(face.w - 1, max(0, x + rng.choice((-1, 1))))
+    else:
+        for y0 in range(1, face.h - 1, step):
+            y = y0
+            for x in range(face.w):
+                face.tint(x, y, d)
+                if jitter and rng.random() < 0.15:
+                    y = min(face.h - 1, max(0, y + rng.choice((-1, 1))))
+
+
+def grain(face, rng, dark, light=None, step=2, length=(3, 9)):
+    """Wood or bone grain: broken vertical streaks, a knot now and then."""
+    if not face.side():
+        return
+    for x in range(0, face.w, step):
+        y = rng.randrange(face.h)
+        for _ in range(rng.randint(*length)):
+            if y >= face.h:
+                break
+            face.set(x, y, dark)
+            y += 1
+        if light is not None and rng.random() < 0.4:
+            face.set(min(face.w - 1, x + 1), rng.randrange(face.h), light)
+
+
+def sutures(face, rng, color, count=2):
+    """Bone sutures: jagged lines wandering across a face."""
+    for _ in range(count):
+        x, y = rng.randrange(face.w), rng.randrange(face.h)
+        for _ in range(rng.randint(3, max(4, face.w))):
+            face.set(x, y, color)
+            x += 1
+            y += rng.choice((-1, 0, 0, 1))
+            if not face.inside(x, y):
+                break
+
+
+def rivet_ring(face, color, light=None, inset=1, step=3):
+    """Rivets around a plate's edge, each with a lit pixel on its top-left when light is given."""
+    pts = []
+    for x in range(inset, face.w - inset, step):
+        pts += [(x, inset), (x, face.h - 1 - inset)]
+    for y in range(inset + step, face.h - inset - 1, step):
+        pts += [(inset, y), (face.w - 1 - inset, y)]
+    for x, y in pts:
+        face.set(x, y, color)
+        if light is not None and face.inside(x - 1, y - 1):
+            face.set(x - 1, y - 1, light)
