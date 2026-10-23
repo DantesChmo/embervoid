@@ -5,6 +5,7 @@ import com.embervoid.client.mob.MobDataGen;
 import com.embervoid.client.reach.boss.datagen.ReachBossDataGen;
 import com.embervoid.client.reach.citadel.CitadelTemplateProvider;
 import com.embervoid.client.nightmob.NightMobDataGen;
+import com.embervoid.client.prop.PropDataGen;
 import com.embervoid.client.reach.mob.ReachMobDataGen;
 import com.embervoid.client.reach.world.ReachWorldDataGen;
 import com.embervoid.client.reliquary.ReliquaryDataGen;
@@ -69,6 +70,7 @@ public class EmbervoidDataGenerator implements DataGeneratorEntrypoint {
 		ReliquaryDataGen.addProviders(pack);
 		ReachWorldDataGen.addProviders(pack);
 		pack.addProvider(CitadelTemplateProvider::new);
+		PropDataGen.addProviders(pack);
 	}
 
 	private static class Models extends FabricModelProvider {
@@ -165,6 +167,7 @@ public class EmbervoidDataGenerator implements DataGeneratorEntrypoint {
 
 			getOrCreateTagBuilder(BlockTags.SHOVEL_MINEABLE).add(ASH_SOIL);
 			ReachWorldDataGen.vanillaBlockTags(this::getOrCreateTagBuilder);
+			PropDataGen.vanillaBlockTags(this::getOrCreateTagBuilder);
 		}
 	}
 

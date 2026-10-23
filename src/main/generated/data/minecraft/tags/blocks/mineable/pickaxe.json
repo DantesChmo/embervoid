@@ -28,6 +28,12 @@
     "embervoid:kingsroad_kerb",
     "embervoid:cinder_ore",
     "embervoid:amber_vein",
-    "embervoid:grave_iron_ore"
+    "embervoid:grave_iron_ore",
+    "embervoid:iron_cage",
+    "embervoid:grave_cross",
+    "embervoid:leaning_gravestone",
+    "embervoid:bone_pile",
+    "embervoid:ash_urns",
+    "embervoid:rubble_pile"
   ]
 }

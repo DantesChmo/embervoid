@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "embervoid:burnt_straw"
+    "embervoid:burnt_straw",
+    "embervoid:grain_sacks"
   ]
 }
