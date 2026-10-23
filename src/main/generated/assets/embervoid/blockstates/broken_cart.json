@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=east,part=foot": {
+      "model": "embervoid:block/prop/broken_cart_foot",
+      "y": 90
+    },
+    "facing=east,part=head": {
+      "model": "embervoid:block/prop/broken_cart_head",
+      "y": 90
+    },
+    "facing=north,part=foot": {
+      "model": "embervoid:block/prop/broken_cart_foot"
+    },
+    "facing=north,part=head": {
+      "model": "embervoid:block/prop/broken_cart_head"
+    },
+    "facing=south,part=foot": {
+      "model": "embervoid:block/prop/broken_cart_foot",
+      "y": 180
+    },
+    "facing=south,part=head": {
+      "model": "embervoid:block/prop/broken_cart_head",
+      "y": 180
+    },
+    "facing=west,part=foot": {
+      "model": "embervoid:block/prop/broken_cart_foot",
+      "y": 270
+    },
+    "facing=west,part=head": {
+      "model": "embervoid:block/prop/broken_cart_head",
+      "y": 270
+    }
+  }
+}

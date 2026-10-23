@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "embervoid:broken_cart",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "part": "foot"
+              }
+            }
+          ],
+          "name": "embervoid:broken_cart"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ]
+}
