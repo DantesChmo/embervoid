@@ -247,6 +247,7 @@
 	"item.embervoid.flask_ember.tooltip": "A spark of the king's hoarded flame. Fed to the flask, it strengthens every sip",
 	"key.categories.embervoid": "Embervoid",
 	"key.embervoid.reliquary": "Open Reliquary",
+	"options.embervoid.boss_music": "Boss Music",
 	"embervoid.reliquary.title": "Reliquary",
 	"embervoid.reliquary.button": "Reliquary (%s)",
 	"embervoid.reliquary.slot.artifact": "Artifact",

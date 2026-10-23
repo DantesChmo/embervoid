@@ -247,6 +247,7 @@
 	"item.embervoid.flask_ember.tooltip": "Искра присвоенного королём пламени. Отданная фляге, усиливает каждый глоток",
 	"key.categories.embervoid": "Embervoid",
 	"key.embervoid.reliquary": "Открыть реликварий",
+	"options.embervoid.boss_music": "Музыка боссов",
 	"embervoid.reliquary.title": "Реликварий",
 	"embervoid.reliquary.button": "Реликварий (%s)",
 	"embervoid.reliquary.slot.artifact": "Артефакт",

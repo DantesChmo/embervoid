@@ -14,6 +14,7 @@
 		"client": ["com.embervoid.client.EmbervoidClient"],
 		"fabric-datagen": ["com.embervoid.client.EmbervoidDataGenerator"]
 	},
+	"accessWidener": "embervoid.accesswidener",
 	"mixins": [
 		"embervoid.mixins.json",
 		{

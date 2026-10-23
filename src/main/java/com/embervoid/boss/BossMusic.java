@@ -23,5 +23,18 @@ public final class BossMusic {
 		play(player, null);
 	}
 
+	/**
+	 * The volume the client gives the boss track: the Boss music slider (0..1). The track plays in the Master
+	 * category, so the Music slider never mutes it.
+	 */
+	public static float trackVolume(double bossMusic) {
+		return (float) Math.max(0.0, Math.min(1.0, bossMusic));
+	}
+
+	/** How loud the track is heard: the sound engine scales Master sounds by the Master slider alone. */
+	public static float heardVolume(double master, double bossMusic) {
+		return (float) Math.max(0.0, Math.min(1.0, master)) * trackVolume(bossMusic);
+	}
+
 	private BossMusic() {}
 }
