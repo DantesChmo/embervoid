@@ -30,6 +30,8 @@ public final class OutpostTemplates {
 	private static final BlockState BRICKS = ModBlocks.ASH_BRICKS.getDefaultState();
 	private static final BlockState CRACKED = ModBlocks.CRACKED_ASH_BRICKS.getDefaultState();
 	private static final BlockState COBBLES = ModBlocks.COBBLED_ASH_STONE.getDefaultState();
+	private static final BlockState FLAGSTONES = ReachBlocks.KINGSROAD_FLAGSTONES.getDefaultState();
+	private static final BlockState KERB = ReachBlocks.KINGSROAD_KERB.getDefaultState();
 	private static final BlockState POLISHED = ModBlocks.POLISHED_ASH_STONE.getDefaultState();
 	private static final BlockState PLANKS = ModBlocks.DEAD_PLANKS.getDefaultState();
 	private static final BlockState FENCE = ModBlocks.DEAD_FENCE.getDefaultState();
@@ -49,7 +51,7 @@ public final class OutpostTemplates {
 	static TemplateBuilder tollGate(ReachZoneKit zone) {
 		Random random = ReachZoneKit.random("toll_gate_" + zone.name());
 		TemplateBuilder t = new TemplateBuilder(11, 9, 9);
-		road(t, random, 3, 7, 9);
+		road(t, 3, 7, 9);
 		// Towers: left 6 high, right broken at 4.
 		tower(t, random, 0, 3, 6);
 		tower(t, random, 8, 3, 4);
@@ -74,7 +76,7 @@ public final class OutpostTemplates {
 	static TemplateBuilder watchtower(ReachZoneKit zone) {
 		Random random = ReachZoneKit.random("watchtower_" + zone.name());
 		TemplateBuilder t = new TemplateBuilder(21, 14, 9);
-		road(t, random, 8, 12, 9);
+		road(t, 8, 12, 9);
 		// Walls x 15–19, z 2–6, dead-log corners, a doorway towards the road.
 		for (int y = 0; y <= 9; y++) {
 			for (int x = 15; x <= 19; x++) {
@@ -124,13 +126,11 @@ public final class OutpostTemplates {
 		return t;
 	}
 
-	/** The paved road through the template: bricks in the middle, cobbles at the edges, air above. */
-	private static void road(TemplateBuilder t, Random random, int x0, int x1, int length) {
+	/** The paved road through the template, as the road feature paves it (PLAN 14.2): flagstones, a kerb, air above. */
+	private static void road(TemplateBuilder t, int x0, int x1, int length) {
 		for (int x = x0; x <= x1; x++) {
 			for (int z = 0; z < length; z++) {
-				boolean edge = x == x0 || x == x1;
-				BlockState paving = edge ? COBBLES : (random.nextInt(4) == 0 ? CRACKED : BRICKS);
-				t.set(x, 0, z, paving);
+				t.set(x, 0, z, x == x0 || x == x1 ? KERB : FLAGSTONES);
 				t.fill(x, 1, z, x, 3, z, AIR);
 			}
 		}

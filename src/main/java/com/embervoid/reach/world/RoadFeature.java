@@ -19,7 +19,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.Heightmap;
@@ -34,9 +33,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Feature {@code embervoid:realm_roads} (PLAN 9.6), run once per chunk: paints the part of each road
- * ({@link RealmRoads}) that crosses the chunk (ash bricks in the middle, cobbles at the edges, a few gaps), sets the
- * milestones and places the outposts whose centre lies in the chunk. An outpost template is centred on the road with
+ * Feature {@code embervoid:realm_roads} (PLAN 9.6, 14.2), run once per chunk: paints the part of each road
+ * ({@link RealmRoads}) that crosses the chunk (Kingsroad flagstones in the middle, a solid pale kerb at the edges, so
+ * it stands out from every zone's ground), sets the milestones and lantern posts and places the outposts whose centre
+ * lies in the chunk. An outpost template is centred on the road with
  * its y = 0 layer on the ground, its +Z side turned along the road towards the arena; the road is not painted under it
  * (the template paves its own stretch).
  */
@@ -91,11 +91,8 @@ public class RoadFeature extends Feature<DefaultFeatureConfig> {
 					if (y <= world.getBottomY()) {
 						continue;
 					}
-					BlockState paving = paving(Math.sqrt(d), MathHelper.hashCode(x, 0, z));
-					if (paving != null) {
-						world.setBlockState(pos.set(x, y, z), paving, 2);
-						changed = true;
-					}
+					world.setBlockState(pos.set(x, y, z), paving(Math.sqrt(d)), 2);
+					changed = true;
 					for (int up = 1; up <= 2; up++) {
 						if (!world.getBlockState(pos.set(x, y + up, z)).isAir()) {
 							world.setBlockState(pos, Blocks.AIR.getDefaultState(), 2);
@@ -112,6 +109,15 @@ public class RoadFeature extends Feature<DefaultFeatureConfig> {
 					Direction facing = Direction.getFacing(milestone.faceX(), 0, milestone.faceZ());
 					world.setBlockState(new BlockPos(milestone.x(), y, milestone.z()),
 							ReachBlocks.MILESTONE.getDefaultState().with(HorizontalFacingBlock.FACING, facing), 2);
+					changed = true;
+				}
+			}
+		}
+
+		for (RoadLayout.Road road : roads) {
+			for (RoadLayout.Post post : road.posts()) {
+				if ((post.x() >> 4) == chunk.x && (post.z() >> 4) == chunk.z) {
+					placePost(world, post);
 					changed = true;
 				}
 			}
@@ -194,19 +200,18 @@ public class RoadFeature extends Feature<DefaultFeatureConfig> {
 		template.place(world, origin, origin, data, random, 2);
 	}
 
-	/** Road block at a distance from the centre line; null leaves the ground (a gap in an old road). */
-	static BlockState paving(double distance, long hash) {
-		int roll = (int) Math.floorMod(hash >> 8, 100);
-		if (distance <= 1.5) {
-			if (roll < 70) {
-				return ModBlocks.ASH_BRICKS.getDefaultState();
-			}
-			return roll < 90 ? ModBlocks.CRACKED_ASH_BRICKS.getDefaultState() : ModBlocks.COBBLED_ASH_STONE.getDefaultState();
-		}
-		if (roll < 60) {
-			return ModBlocks.COBBLED_ASH_STONE.getDefaultState();
-		}
-		return roll < 85 ? ModBlocks.ASH_STONE.getDefaultState() : null;
+	/** Road block at a distance from the centre line: flagstones in the middle, the kerb at the edges, no gaps. */
+	static BlockState paving(double distance) {
+		return (distance <= 1.5 ? ReachBlocks.KINGSROAD_FLAGSTONES : ReachBlocks.KINGSROAD_KERB).getDefaultState();
+	}
+
+	/** A lantern post like the plaza's: two ash-brick wall blocks on the ground, an ember lantern on top. */
+	private static void placePost(StructureWorldAccess world, RoadLayout.Post post) {
+		int y = world.getTopY(Heightmap.Type.WORLD_SURFACE_WG, post.x(), post.z());
+		BlockPos base = new BlockPos(post.x(), y, post.z());
+		world.setBlockState(base, ModBlocks.ASH_BRICK_WALL.getDefaultState(), 2);
+		world.setBlockState(base.up(), ModBlocks.ASH_BRICK_WALL.getDefaultState(), 2);
+		world.setBlockState(base.up(2), ModBlocks.EMBER_LANTERN.getDefaultState(), 2);
 	}
 
 	/** Road segments with an end within reach of the chunk. */

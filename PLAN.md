@@ -564,7 +564,7 @@ touches no game code).
 | ID | Task | Size | Depends on | Status |
 |----|------|------|------------|--------|
 | 14.1 | **Boss music volume of its own** | S | — | done (JUnit `BossMusicTest`; the slider not seen, the music not heard) |
-| 14.2 | **Roads you can see** | S–M | — | todo |
+| 14.2 | **Roads you can see** | S–M | — | done (JUnit + GameTest + server check: 20 / 27 / 25 posts, all lit; paving previewed next to ash soil; how it reads from afar at dusk not seen) |
 
 - **14.1 Boss music volume.** Boss tracks play in `SoundCategory.MUSIC` (`client.realm.BossMusicClient`), so Music
   at 0 % mutes them; the user keeps vanilla music off but wants the boss themes. A "Boss music" slider in vanilla's

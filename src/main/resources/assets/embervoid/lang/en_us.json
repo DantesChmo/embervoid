@@ -343,6 +343,8 @@
 	"item.embervoid.huntsmans_crossbow.passive": "Slow to load; bolts hit harder, knock back hard and pierce a foe",
 	"block.embervoid.burnt_straw": "Burnt Straw",
 	"block.embervoid.milestone": "Milestone",
+	"block.embervoid.kingsroad_flagstones": "Kingsroad Flagstones",
+	"block.embervoid.kingsroad_kerb": "Kingsroad Kerb",
 	"block.embervoid.gravestone": "Gravestone",
 	"block.embervoid.ember_crack": "Ember Crack",
 	"block.embervoid.smoldering_log": "Smoldering Log",

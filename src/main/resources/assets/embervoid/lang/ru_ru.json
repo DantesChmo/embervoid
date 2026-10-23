@@ -343,6 +343,8 @@
 	"item.embervoid.huntsmans_crossbow.passive": "Долго заряжается; болты бьют сильнее, мощно отбрасывают и пробивают врага",
 	"block.embervoid.burnt_straw": "Горелая солома",
 	"block.embervoid.milestone": "Верстовой камень",
+	"block.embervoid.kingsroad_flagstones": "Плиты королевского тракта",
+	"block.embervoid.kingsroad_kerb": "Бордюр королевского тракта",
 	"block.embervoid.gravestone": "Надгробие",
 	"block.embervoid.ember_crack": "Тлеющая трещина",
 	"block.embervoid.smoldering_log": "Тлеющее бревно",
