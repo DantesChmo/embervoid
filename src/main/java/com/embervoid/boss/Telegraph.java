@@ -95,6 +95,11 @@ public final class Telegraph {
 		return ACTIVE.stream().anyMatch(windup -> windup.caster() == caster);
 	}
 
+	/** Full lengths in ticks of the caster's running windups, oldest first (tests read a move's windup). */
+	public static List<Integer> windups(LivingEntity caster) {
+		return ACTIVE.stream().filter(windup -> windup.caster() == caster).map(Windup::total).toList();
+	}
+
 	/** Drops the caster's running windups without their attacks (a stun, a phase change). */
 	public static void cancel(LivingEntity caster) {
 		ACTIVE.removeIf(windup -> windup.caster() == caster);
