@@ -2,6 +2,7 @@ package com.embervoid.gametest;
 
 import com.embervoid.config.EmbervoidConfig;
 import com.embervoid.entity.AshRemnantEntity;
+import com.embervoid.fx.CombatFx;
 import com.embervoid.mob.MobLevels;
 import com.embervoid.moon.MoonNightManager;
 import com.embervoid.moon.api.MoonNight;
@@ -283,6 +284,32 @@ public final class VampireTests implements FabricGameTest {
 			context.assertTrue(stage(fight.server) == VampireState.Stage.NONE, "stage " + stage(fight.server));
 			context.assertTrue(!MoonNights.holds(fight.server).contains(VampireNight.HOLD), "night held with no Vampires");
 			fight.finish();
+		});
+	}
+
+	/** The Blood Leap's landing shakes and flashes for the fighter (PLAN 19.2), not before it comes down. */
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "vampire_leap_fx", tickLimit = FORM_LIMIT + 200)
+	public void leapLandingShakes(TestContext context) {
+		Fight fight = new Fight(context, null);
+		BossArena.FogRecorder connection = new BossArena.FogRecorder();
+		ServerPlayerEntity player = fight.add(TestPlayers.join(context, 2, 2, connection));
+		// Creative: the boss leaves them alone, so the only leap is the test's.
+		player.changeGameMode(GameMode.CREATIVE);
+		fight.step(() -> {
+			MoonNightManager.forceStart(fight.server, MoonNight.BLOOD_NEW_MOON);
+			player.attack(vampires(context).get(0));
+		});
+		fight.awaitBoss(boss -> {
+			context.assertTrue(connection.fx.isEmpty(), "effects before the leap: " + connection.fx.size());
+			boss.startLeap(boss.getPos().add(6, 0, 0));
+			context.waitAndRun(10, () -> fight.step(() -> {
+				context.assertTrue(connection.fx.isEmpty(), "effects in the leap's windup: " + connection.fx.size());
+				fight.await(() -> connection.fx(CombatFx.SHAKE_PACKET) > 0, 80, "the landing to shake", () -> {
+					context.assertTrue(connection.fx(CombatFx.SHAKE_PACKET) == 1 && connection.fx(CombatFx.FLASH_PACKET) == 1,
+							connection.fx(CombatFx.SHAKE_PACKET) + " shakes, " + connection.fx(CombatFx.FLASH_PACKET) + " flashes");
+					fight.finish();
+				});
+			}));
 		});
 	}
 
