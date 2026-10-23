@@ -1,5 +1,7 @@
 package com.embervoid.reach.gear;
 
+import com.embervoid.anim.AttackAnimations;
+import com.embervoid.anim.WeaponKind;
 import com.embervoid.registry.ModItems;
 import com.embervoid.stats.WeaponScaling;
 import net.minecraft.enchantment.Enchantment;
@@ -50,6 +52,10 @@ public final class GearWeapons {
 	static void register() {
 		WeaponScaling.addMeleeRule(stack -> stack.getItem() instanceof GearWeaponItem weapon ? weapon.spec().scaling() : null);
 		WeaponScaling.addRangedRule(stack -> stack.getItem() instanceof HuntsmansCrossbowItem ? WeaponScaling.Scaling.HYBRID : null);
+		AttackAnimations.register(ASHEN_SCYTHE, WeaponKind.SCYTHE);
+		AttackAnimations.register(WARDENS_SCOURGE, WeaponKind.WHIP);
+		AttackAnimations.register(ROYAL_ASH_RAPIER, WeaponKind.RAPIER);
+		AttackAnimations.register(HUNTSMANS_CROSSBOW, WeaponKind.CROSSBOW);
 	}
 
 	private GearWeapons() {}
