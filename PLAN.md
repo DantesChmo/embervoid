@@ -553,6 +553,9 @@ On top of the rules at the top of this file:
   the user, everything else is decided there and marked as such. The milestone's build tasks start after it.
 - Nobody plays: every task names its check (GameTest, JUnit, the server check, rendered previews) and what stays
   unverified.
+- Track sessions do not run the full suite (the user, 2026-10-23): they compile, run `runDatagen` when assets change
+  and run their own new or changed JUnit; they still write their GameTests and server-check steps. The coordinator
+  runs the full regression (datagen, build, all GameTests, `balanceTargets`, the server check) once per merged batch.
 - Worlds from earlier versions keep working: a task that removes or moves something (the Sanctum core, the depths
   dimension) carries its migration and a GameTest on old data.
 
