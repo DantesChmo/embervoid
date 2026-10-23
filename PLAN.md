@@ -735,7 +735,7 @@ attack animations; the Warden's Scourge as a real whip.
 | 17.0 | **Design: loot ladder, weapons, fight length** (with the user) | M | — | done (DESIGN §5.5, §6, §6.1, §10.14) |
 | 17.1 | **Player attack animations** (playerAnimator) | M | 17.0 | done – not seen in game (playerAnimator 1.0.2-rc1+1.20 required; `com.embervoid.anim.AttackAnimations` sends the clip to the player and everyone tracking them on a swing, a special and the crossbow's load and shot, vanilla weapons untouched; 13 clips by `tools/player_anim_art.py`, swings as long as the attack cooldown; JUnit `WeaponKindTest`, GameTests `AttackAnimationTests`; motion seen only in `model_preview player` sheets) |
 | 17.2 | **Weapon models in hand** | M | 17.0 | todo |
-| 17.3 | **Weapon stats and identities** | M | 17.0, 18.1 | todo |
+| 17.3 | **Weapon stats and identities** | M | 17.0, 18.1 | done – feel not played (DESIGN §6.1 numbers in `GearWeapons`; Scythe 3 stamina back per enemy a sweep or Harvest catches, Rapier ramp `RapierRamp`, Crossbow 1.6 s / bolt 16 / pierce 2 / ×1.5 opener; zone uniques from soul + 4 zone material + part, the Rapier keeps its ingots; Smoldering Plate at netherite; `BalanceTargetsTest.realmUniquesBeatNetherite`, the weapon target of `./gradlew balanceTargets` green; GameTests in `GearTests`; the Scourge's tip waits for 17.4) |
 | 17.4 | **Warden's Scourge as a real whip** | L | 17.1 | todo |
 
 - **17.0 Design** (one pass for milestones 17 and 18; they share the numbers). *Done 2026-10-23:* DESIGN §5.5 (fight
@@ -762,6 +762,16 @@ attack animations; the Warden's Scourge as a real whip.
 - **17.3 Weapon stats and identities.** DESIGN §6.1 (identities, starting numbers, and the zone uniques' new recipes
   without Smoldering Ingots) and §6 (Smoldering Plate to netherite). Numbers from 17.0 / 18.1 (damage, speed, reach, sweep, specials) for the
   Realm 1 and Sanctum weapons, each unique's passive. `BalanceTargetsTest` to the new ladder.
+  *Built:* the numbers as §6.1 has them (Scythe 12 / 1.1 / reach 3.5, Rapier 7 / 2.2 / 3.5, Scourge 10 / 1.0 / 6,
+  Crossbow 32 ticks, bolt 16 without the vanilla crit roll, pierce 2, Punch III), all in `gear.weapons` /
+  `gear.crossbow` config. The Rapier's ramp counts full-charge hits only (a low-charge hit neither builds nor breaks
+  it; decided here); a miss is a swing packet with no attack that tick, a hit taken is any damage with an attacker.
+  The Crossbow opener is for mobs only (`MobEntity.getTarget()` not the shooter). Harvest and Lunge now mark the
+  swing that follows their use, so it is not a free reach hit (the Scythe and Rapier now reach past 3); Lash still
+  gets one (17.4's). The Furnace Heart Cuirass follows the Plate (toughness 3, knockback 0.1). Found: at speed 2.2 the
+  Rapier's full charge (9.1 ticks) comes before a mob's hurt cooldown ends (10), so on one target it lands at most 2
+  full hits a second: 14 per second, about 18 ramped (`docs/balance-0.5.0.md` §4). The zone uniques still repair
+  with a Smoldering Ingot. Old config files keep their old `gear.crossbow` charge and pierce until deleted.
 - **17.4 Warden's Scourge as a real whip.** Long and segmented, bends through the air on a swing (bone chain with
   secondary motion or a client-side rope); hits along an arc line (server samples along the arc, no hit through
   walls); the tip cracks for more damage with its own sound and particles; Lash still pulls. GameTests: several
