@@ -39,7 +39,8 @@
 			"com.embervoid.gametest.HollowTests",
 			"com.embervoid.gametest.OverworldSoundTests",
 			"com.embervoid.gametest.SanctumGearTests",
-			"com.embervoid.gametest.HubTests"
+			"com.embervoid.gametest.HubTests",
+			"com.embervoid.gametest.CleftSteleTests"
 		]
 	},
 	"mixins": [

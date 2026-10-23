@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "embervoid:block/stele_crack_ns"
+    },
+    "axis=z": {
+      "model": "embervoid:block/stele_crack_ew"
+    }
+  }
+}

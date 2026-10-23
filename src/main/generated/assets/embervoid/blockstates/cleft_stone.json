@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "kindled=false": {
+      "model": "embervoid:block/cleft_stone"
+    },
+    "kindled=true": {
+      "model": "embervoid:block/cleft_stone_kindled"
+    }
+  }
+}
