@@ -126,6 +126,8 @@
 	"item.embervoid.ashbearers_mace.passive": "Swung with Strength; breaks a Hollow's raised guard like an axe",
 	"embervoid.ability.wide_cleave": "Wide Cleave",
 	"embervoid.ability.ground_slam": "Ground Slam",
+	"subtitles.embervoid.item.sanctum_longsword.wide_cleave": "Longsword cleaves wide",
+	"subtitles.embervoid.item.ashbearers_mace.ground_slam": "Mace slams the ground",
 	"entity.embervoid.ashen_maiden": "Ashen Maiden",
 	"item.embervoid.ashen_maiden_spawn_egg": "Ashen Maiden Spawn Egg",
 	"embervoid.maiden.greeting": "Ashen Maiden: Rest, wanderer. The ember will keep.",

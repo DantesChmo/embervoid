@@ -25,8 +25,10 @@ Owns `com.embervoid.sanctum.gear` (main), `com.embervoid.client.sanctum.gear` (d
     - Ground Slam: ring r 3, ±1 block, 0.75×, knockback 0.8 (vanilla's damage knockback 0.4 comes on top), Slowness
       **II** (amplifier 1) for 40 ticks — decided: Slowness I (−15 %) is hardly felt in 2 s; 30 stamina, 100 ticks.
     - All numbers in the new config section `sanctumGear` (README config reference: coordinator, L8).
-    - Sounds: vanilla events (sweep; a quiet high-pitched explosion for the slam). Own `embervoid:` events are
-      left-audio's call (L3).
+    - Sounds (coordinator's request after L3): own events in `SanctumGearSounds` (registered from `ModSounds`),
+      `item.sanctum_longsword.wide_cleave` (vanilla sweeps at pitch 0.8) and `item.ashbearers_mace.ground_slam`
+      (explosions at volume 0.5, pitch 1.4); subtitles en + ru in the track's lang block; checked in
+      `SanctumGearTests` through `SoundLog` and by `SoundTests` (every event resolves, has subtitles). Not heard.
   - Guard break: new item tag `#embervoid:breaks_guard` (the mace), `HollowEntity.breaksGuard(stack)` = an axe or the
     tag. One-line change in `HollowEntity.damage` plus the tag constant and the helper (separate from left-audio's
     sound hooks).

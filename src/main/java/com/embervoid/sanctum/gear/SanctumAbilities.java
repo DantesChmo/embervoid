@@ -14,7 +14,6 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
@@ -58,8 +57,8 @@ public final class SanctumAbilities {
 				Vec3d at = player.getPos().add(look.multiply(1.6)).add(side.multiply(i * 0.6)).add(0, player.getHeight() * 0.6, 0);
 				world.spawnParticles(ParticleTypes.SWEEP_ATTACK, at.x, at.y, at.z, 1, 0, 0, 0, 0);
 			}
-			world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP,
-					SoundCategory.PLAYERS, 1.2f, 0.8f);
+			world.playSound(null, player.getX(), player.getY(), player.getZ(), SanctumGearSounds.WIDE_CLEAVE,
+					SoundCategory.PLAYERS, 1.2f, 1.0f);
 		}
 	};
 
@@ -107,8 +106,8 @@ public final class SanctumAbilities {
 				}
 			}
 			world.spawnParticles(ParticleTypes.EXPLOSION, player.getX(), player.getY() + 0.2, player.getZ(), 1, 0, 0, 0, 0);
-			world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENTITY_GENERIC_EXPLODE,
-					SoundCategory.PLAYERS, 0.5f, 1.4f);
+			world.playSound(null, player.getX(), player.getY(), player.getZ(), SanctumGearSounds.GROUND_SLAM,
+					SoundCategory.PLAYERS, 1.0f, 1.0f);
 		}
 	};
 
