@@ -716,7 +716,8 @@ B puts A out. Leaving an obelisk lands in the hub; the hub's exit leads to the a
   framework (`com.embervoid.boss`: arena, fog wall, telegraphs, music, loot), without rematch: each dungeon's boss
   is beaten once per world and every credited player gets a Crying Soul. Model and animations through the art scripts
   at final quality in this task (robe, veil and chain motion; death, hit and phase animations, see milestone 19).
-  Fought by a level 1 player in vanilla gear; level band about 8–12. GameTests: start and reset, telegraphs land only
+  Fought by a level 1 player in vanilla gear; level band about 8–12; cadence built for about 20 % uptime (DESIGN
+  §5.5, `docs/balance-0.5.0.md`). GameTests: start and reset, telegraphs land only
   after their wind-up, the soul drops for every credited player, a cleared dungeon stays cleared; a row in the
   balance model.
 - **16.4 Overworld balance re-run.** The overworld route (`docs/balance-overworld.md`) re-run with more dungeons
@@ -758,8 +759,8 @@ attack animations; the Warden's Scourge as a real whip.
 - **17.2 Weapon models in hand.** Bigger own models for the six weapons (GeckoLib item renderer or JSON with display
   transforms), first and third person; inventory icons stay readable. Through the art scripts, checked with
   `tools/model_preview.py`; not seen in hand.
-- **17.3 Weapon stats and identities.** DESIGN §6.1 (identities, starting numbers) and §6 (Smoldering Plate to
-  netherite). Numbers from 17.0 / 18.1 (damage, speed, reach, sweep, specials) for the
+- **17.3 Weapon stats and identities.** DESIGN §6.1 (identities, starting numbers, and the zone uniques' new recipes
+  without Smoldering Ingots) and §6 (Smoldering Plate to netherite). Numbers from 17.0 / 18.1 (damage, speed, reach, sweep, specials) for the
   Realm 1 and Sanctum weapons, each unique's passive. `BalanceTargetsTest` to the new ladder.
 - **17.4 Warden's Scourge as a real whip.** Long and segmented, bends through the air on a swing (bone chain with
   secondary motion or a client-side rope); hits along an arc line (server samples along the arc, no hit through
@@ -794,8 +795,12 @@ stats, weapons.
   46–63 % for the Tree and the Vampire (their cadence must change first); the Lord is furthest off (72 clean hits,
   5.4–6.4 min); uniques cannot be crafted before the Citadel today (2 Smoldering Ingots), against §5.5's reference.
 - **18.3 Retune: overworld, dungeon, moon nights.** Overworld mobs, dungeon guards and boss, moon-night mobs and the
-  Vampire boss to the targets; `OverworldTargetsTest`, `BalanceFightTests`.
-- **18.4 Retune: Realm 1.** Zone and Citadel mobs and the four bosses: HP to the fight length, damage per hit under
+  Vampire boss to the targets; the Vampire boss gets fewer openings first (wind-ups and recoveries on its claws;
+  about 63 % uptime today, DESIGN §5.5), then HP. `OverworldTargetsTest`, `BalanceFightTests`, `./gradlew
+  balanceTargets` for the stages it covers.
+- **18.4 Retune: Realm 1.** Work list in `docs/balance-0.5.0.md` §5. The Grieving Tree's cadence first (its stun
+  after every sweep is most of the fight; DESIGN §5.5), then zone and Citadel mobs and the four bosses: HP to the
+  fight length, damage per hit under
   the wind-up rule, checked by a test over every boss move (damage, wind-up ticks); the player's stat curve (VIT,
   END) only where the targets need it. Measured in engine by `BalanceFightTests`; feel not played.
 

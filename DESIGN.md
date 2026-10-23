@@ -464,7 +464,8 @@ The Minecraft way: an ore in each open zone → material → consumables and arm
 
 **Weapons** — all unique; each comes from one boss's soul or, rarely, from a treasure chest of its zone.
 - **Soul** = the boss's first-kill personal drop (the Ember Heart of §4.3, one per boss). Helping a friend on a
-  repeat kill: 25 % chance of the soul. Recipe: soul + 2 Smoldering Ingot + a zone part, crafting table.
+  repeat kill: 25 % chance of the soul. Recipe: soul + 2 Smoldering Ingot + a zone part, crafting table (0.4.0;
+  from 0.5.0 a zone boss's unique needs no Smoldering Ingot, §6.1).
 - **Chest:** 4 % in the zone's treasure chest (Fields granary vault, Woods hunting lodge, Necropolis lower crypt,
   Citadel keep treasury); first come, first served in the shared dimension.
 - The numbers below are 0.4.0's; 0.5.0 moves the weapons above netherite with new identities (§6.1).
@@ -666,7 +667,11 @@ stage with that stage's reference weapon, Normal difficulty.
 
 How: boss HP down to the hit count, boss damage down by move class; the player's HP scale stays vanilla-like
 (hearts stay readable) and the VIT curve changes only if the targets cannot be met otherwise. The balance model
-turns hits into seconds with an uptime factor per boss from its move cadence (about 25–35 %).
+turns hits into seconds with an uptime factor per boss from its move cadence. The model (PLAN 18.1,
+`docs/balance-0.5.0.md`) shows both targets meet only at an uptime of about 8–24 % with a sword and 13–43 % with a
+slower unique, so **bosses that give too many openings get fewer** rather than a shorter target (the user,
+2026-10-23): the Grieving Tree (stunned after every sweep, about 50 % uptime), the Vampire boss (about 63 %) and the
+Fallen Sister (built at about 20 %) are reworked in their cadence; the others only lose HP.
 
 ## 6. The carrot: loot ladder
 
@@ -713,6 +718,13 @@ Numbers are the starting point for PLAN 17.3; the balance model (PLAN 18.1) may 
 
 Bleeding stays the 0.4.0 placeholder (a vanilla effect, §4.5) until the status-effects system in 0.6.0; the
 rebalance counts it as it is. The Sanctum Longsword and Ashbearer's Mace keep their place between iron and diamond.
+
+**Uniques during the realm, not after it** (the user, 2026-10-23): the balance model found that every unique needed
+2 Smoldering Ingots, and an ingot needs all three zones' materials, so no unique existed before the Citadel. A zone
+boss's unique is now crafted from its soul + its zone's material + the zone part (Ashen Scythe: soul + 4 Cinder
+Shard + the part; Huntsman's Crossbow: soul + 4 Royal Amber + the part; Warden's Scourge: soul + 4 Grave Iron Ingot
++ the part), so the 2nd and 3rd zone bosses are fought with a unique. The Royal Ash Rapier, the Smoldering Lord's,
+keeps the Smoldering Ingots. The 4 % chest drop stays.
 
 ## 7. Core mechanics (carried over)
 
