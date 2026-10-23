@@ -1,17 +1,19 @@
 package com.embervoid.reach.gear;
 
+import com.embervoid.player.StaminaManager;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.Vec3d;
 
 /**
  * Ashen Scythe: every hit sweeps the mobs around the target at 75 % of its damage; a fully charged hit also sends an
- * ash wave forward (ember damage).
+ * ash wave forward (ember damage). Each enemy a sweep or Harvest catches gives stamina back (DESIGN §6.1).
  */
 public class AshenScytheItem extends GearWeaponItem {
 	public AshenScytheItem(Settings settings, Spec spec) {
@@ -28,13 +30,26 @@ public class AshenScytheItem extends GearWeaponItem {
 		float sweep = (float) player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE)
 				* WeaponRules.chargeFactor(charge) * config.sweepShare();
 		float radius = config.sweepRadius();
+		int caught = 0;
 		for (LivingEntity other : world.getEntitiesByClass(LivingEntity.class, target.getBoundingBox().expand(radius, 0.5, radius),
 				e -> e != target && e != player && e.isAlive() && !player.isTeammate(e) && e.squaredDistanceTo(target) <= radius * radius)) {
-			other.damage(world.getDamageSources().playerAttack(player), sweep);
+			if (other.damage(world.getDamageSources().playerAttack(player), sweep)) {
+				caught++;
+			}
+		}
+		if (player instanceof ServerPlayerEntity serverPlayer) {
+			refundStamina(serverPlayer, caught);
 		}
 		world.spawnParticles(ParticleTypes.SWEEP_ATTACK, target.getX(), target.getBodyY(0.5), target.getZ(), 1, 0, 0, 0, 0);
 		if (WeaponRules.fullyCharged(charge)) {
 			ashWave(world, player, target, config);
+		}
+	}
+
+	/** {@code gear.weapons.sweepStamina} back for each of {@code caught} enemies, up to the pool. */
+	static void refundStamina(ServerPlayerEntity player, int caught) {
+		if (caught > 0) {
+			StaminaManager.set(player, StaminaManager.get(player) + caught * GearConfig.get().weapons().sweepStamina());
 		}
 	}
 

@@ -56,7 +56,7 @@ class FightLengthTest {
 
 	@Test
 	void everyStageHasAFiniteFightAndMoreFightersEndItSooner() {
-		for (BossStage stage : FightLength.bossStages(Playthrough.NORMAL, false)) {
+		for (BossStage stage : FightLength.bossStages(Playthrough.NORMAL)) {
 			Length solo = FightLength.length(stage.cadence(), stage.player(), 1);
 			String who = stage.cadence().boss().name() + " " + stage.name();
 			assertTrue(solo.seconds() > 0 && Double.isFinite(solo.seconds()), who);
@@ -65,12 +65,5 @@ class FightLengthTest {
 				assertTrue(FightLength.length(stage.cadence(), stage.player(), n).seconds() < solo.seconds(), who + " with " + n);
 			}
 		}
-	}
-
-	/** The §6.1 starting numbers PLAN 17.3 builds meet §6.1's own weapon target. */
-	@Test
-	void proposedUniquesBeatNetherite() {
-		List<String> misses = FightTargets.uniquesAboveNetherite(BalanceModel.REALM_MELEE_PROPOSED);
-		assertTrue(misses.isEmpty(), String.join("\n", misses));
 	}
 }

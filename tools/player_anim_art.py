@@ -81,7 +81,7 @@ CLIPS = {
         (7, "outSine", {"rightItem": item(-45), "rightArm": arm(-70, -95, -15),
                         "leftArm": arm(5, 0, -20), "body": body(45)}),
     ]),
-    # Royal Ash Rapier (speed 2.0): the duellist's thrust, blade laid forward along the arm.
+    # Royal Ash Rapier (speed 2.2, a 10-tick cooldown as at 2.0): the duellist's thrust, blade laid forward along the arm.
     "rapier_thrust": (10, "Rapier thrust: chambered at the hip, straight out", [
         (0, "linear", {"rightArm": arm(-70, 15, 0, 3), "rightItem": item(-60), "leftArm": arm(20, 0, -25),
                        "body": body(-15)}),
@@ -136,8 +136,8 @@ CLIPS = {
         (8, "linear", {"rightItem": item(-75), "rightArm": arm(-22, 0, 0),
                        "leftArm": arm(-28, 0, 0), "body": body(0, -22)}),
     ]),
-    # Warden's Scourge (speed 0.9): the whip cracked from over the shoulder.
-    "whip_crack": (23, "Whip crack: thrown from over the right shoulder, snapped down", [
+    # Warden's Scourge (speed 1.0): the whip cracked from over the shoulder.
+    "whip_crack": (20, "Whip crack: thrown from over the right shoulder, snapped down", [
         (0, "linear", {"rightItem": item(-20), "rightArm": arm(-150, 40, 30),
                        "leftArm": arm(10, 0, -15), "body": body(-20)}),
         (3, "outQuad", {"rightItem": item(-60), "rightArm": arm(-70, -10, 0),
@@ -154,11 +154,11 @@ CLIPS = {
                        "leftArm": arm(15, 0, -20), "body": body(-20, 8)}),
     ]),
     # Huntsman's Crossbow: the string drawn over the charge time; the shot kicks back.
-    "crossbow_load": (40, "Crossbow load: the left hand draws the string to the body", [
+    "crossbow_load": (32, "Crossbow load: the left hand draws the string to the body", [
         (0, "linear", {"rightArm": arm(-50, -20, 0), "leftArm": arm(-70, 30, 0), "body": body(0, 0)}),
-        (20, "inOutSine", {"rightArm": arm(-55, -20, 0), "leftArm": arm(-40, 10, 0), "body": body(0, -5)}),
-        (34, "inOutSine", {"rightArm": arm(-60, -15, 0), "leftArm": arm(-30, 0, 0), "body": body(0, -3)}),
-        (37, "inOutSine", {"rightArm": arm(-90, -5, 0), "leftArm": arm(-90, 25, 0), "body": body(0, 0)}),
+        (16, "inOutSine", {"rightArm": arm(-55, -20, 0), "leftArm": arm(-40, 10, 0), "body": body(0, -5)}),
+        (26, "inOutSine", {"rightArm": arm(-60, -15, 0), "leftArm": arm(-30, 0, 0), "body": body(0, -3)}),
+        (29, "inOutSine", {"rightArm": arm(-90, -5, 0), "leftArm": arm(-90, 25, 0), "body": body(0, 0)}),
     ]),
     "crossbow_fire": (8, "Crossbow shot: the recoil throws the arms up", [
         (0, "linear", {"rightArm": arm(-90, -5, 0), "leftArm": arm(-90, 25, 0), "body": body(0, 0)}),

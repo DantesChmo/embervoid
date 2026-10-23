@@ -40,7 +40,7 @@ final class FightTargets {
 	/** Solo boss fights last 1.5–2.5 min with dodging. */
 	static List<String> bossFightLength(Playthrough run) {
 		List<String> misses = new ArrayList<>();
-		for (BossStage stage : FightLength.bossStages(run, false)) {
+		for (BossStage stage : FightLength.bossStages(run)) {
 			Length length = FightLength.length(stage.cadence(), stage.player(), 1);
 			double s = length.seconds();
 			if (s < FightLength.MIN_SECONDS || s > FightLength.MAX_SECONDS) {
@@ -54,7 +54,7 @@ final class FightTargets {
 	/** Solo boss fights take 20–35 clean hits with the stage's reference weapon. */
 	static List<String> bossCleanHits(Playthrough run) {
 		List<String> misses = new ArrayList<>();
-		for (BossStage stage : FightLength.bossStages(run, false)) {
+		for (BossStage stage : FightLength.bossStages(run)) {
 			int hits = (int) Math.ceil(FightLength.length(stage.cadence(), stage.player(), 1).hitsEach() - 1e-6);
 			if (hits < FightLength.MIN_HITS || hits > FightLength.MAX_HITS) {
 				misses.add(stage.cadence().boss().name() + " (" + stage.name() + ", " + who(stage.player()) + "): " + hits
@@ -67,7 +67,7 @@ final class FightTargets {
 	/** Mobs die in their band's hits: fodder 2–3, ambushers, ranged and flyers 3–4, tanks and elites 6–10. */
 	static List<String> mobHitsToKill(Playthrough run) {
 		List<String> misses = new ArrayList<>();
-		for (MobStage stage : FightLength.mobStages(run, false)) {
+		for (MobStage stage : FightLength.mobStages(run)) {
 			Band band = FightLength.bandOf(stage.mob());
 			int hits = stage.fight().hitsToKillMob();
 			if (hits < band.minHits || hits > band.maxHits) {
@@ -81,7 +81,7 @@ final class FightTargets {
 	/** Mobs need at least their band's hits to kill the player from full health: fodder 6, skirmishers 5, elites 4. */
 	static List<String> mobHitsOnPlayer(Playthrough run) {
 		List<String> misses = new ArrayList<>();
-		for (MobStage stage : FightLength.mobStages(run, false)) {
+		for (MobStage stage : FightLength.mobStages(run)) {
 			Band band = FightLength.bandOf(stage.mob());
 			Fight fight = stage.fight();
 			if (fight.hitsToKillPlayer() < band.minHitsOnPlayer) {

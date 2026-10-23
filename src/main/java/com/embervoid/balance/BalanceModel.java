@@ -62,8 +62,8 @@ public final class BalanceModel {
 	public static final Armor DIAMOND = new Armor("diamond", 20, 8, 0);
 	/** Necropolis Warden (3/8/6/3, toughness 2 per piece): diamond's numbers. */
 	public static final Armor WARDEN = new Armor("Necropolis Warden", 20, 8, 0);
-	/** Smoldering Plate (3/8/6/3, toughness 2.5 per piece, −8 % fire per piece). */
-	public static final Armor SMOLDERING = new Armor("Smoldering Plate", 20, 10, 4);
+	/** Smoldering Plate (netherite since 0.5.0: 3/8/6/3, toughness 3 per piece; −8 % fire per piece). */
+	public static final Armor SMOLDERING = new Armor("Smoldering Plate", 20, 12, 4);
 
 	/**
 	 * A melee weapon: damage as the attribute total (player base 1 included), attacks per second.
@@ -80,24 +80,18 @@ public final class BalanceModel {
 	/** Sharpness V adds 3 (vanilla 0.5 + 0.5 per level). */
 	public static final Weapon NETHERITE_SWORD_SHARP_V = new Weapon("netherite sword, Sharpness V", 11, 1.6, WeaponScaling.Scaling.DEXTERITY, 0);
 	public static final Weapon DIAMOND_AXE = new Weapon("diamond axe", 9, 1.0, WeaponScaling.Scaling.STRENGTH, 0);
-	/** {@code reach.gear.GearWeapons}: 10 damage, speed 1.1, STR 0.6 / DEX 0.4. */
-	public static final Weapon ASHEN_SCYTHE = new Weapon("Ashen Scythe", 10, 1.1, new WeaponScaling.Scaling(0.6f, 0.4f), 0);
-	public static final Weapon WARDENS_SCOURGE = new Weapon("Warden's Scourge", 9, 0.9, WeaponScaling.Scaling.DEXTERITY, 0);
-	public static final Weapon ROYAL_ASH_RAPIER = new Weapon("Royal Ash Rapier", 6, 2.0, new WeaponScaling.Scaling(0, 0.7f), 0.3f);
+	/**
+	 * {@code reach.gear.GearWeapons}, DESIGN §6.1's numbers (PLAN 17.3): Scythe 12 at 1.1 (STR 0.6 / DEX 0.4), Scourge 10
+	 * at 1.0 (DEX 1), Rapier 7 at 2.2 (DEX 0.7, the ember part KIN).
+	 */
+	public static final Weapon ASHEN_SCYTHE = new Weapon("Ashen Scythe", 12, 1.1, new WeaponScaling.Scaling(0.6f, 0.4f), 0);
+	public static final Weapon WARDENS_SCOURGE = new Weapon("Warden's Scourge", 10, 1.0, WeaponScaling.Scaling.DEXTERITY, 0);
+	public static final Weapon ROYAL_ASH_RAPIER = new Weapon("Royal Ash Rapier", 7, 2.2, new WeaponScaling.Scaling(0, 0.7f), 0.3f);
 	/** {@code sanctum.gear.SanctumWeapons} (PLAN L1): 6.5 damage, speed 1.6, DEX 1; Wide Cleave. */
 	public static final Weapon SANCTUM_LONGSWORD = new Weapon("Sanctum Longsword", 6.5, 1.6, WeaponScaling.Scaling.DEXTERITY, 0);
 	/** 8 damage, speed 0.9, STR 1; Ground Slam. */
 	public static final Weapon ASHBEARERS_MACE = new Weapon("Ashbearer's Mace", 8, 0.9, WeaponScaling.Scaling.STRENGTH, 0);
 	public static final List<Weapon> REALM_MELEE = List.of(ASHEN_SCYTHE, WARDENS_SCOURGE, ROYAL_ASH_RAPIER);
-	/**
-	 * DESIGN §6.1 starting numbers, "0.5.0 proposed" (PLAN 17.3 builds them): Scythe 12 at 1.1, Scourge 10 at 1.0,
-	 * Rapier 7 at 2.2, scaling unchanged. The fight-length model shows them next to today's.
-	 */
-	public static final Weapon ASHEN_SCYTHE_PROPOSED = new Weapon("Ashen Scythe (0.5.0 proposed)", 12, 1.1, ASHEN_SCYTHE.scaling(), 0);
-	public static final Weapon WARDENS_SCOURGE_PROPOSED = new Weapon("Warden's Scourge (0.5.0 proposed)", 10, 1.0, WARDENS_SCOURGE.scaling(), 0);
-	public static final Weapon ROYAL_ASH_RAPIER_PROPOSED = new Weapon("Royal Ash Rapier (0.5.0 proposed)", 7, 2.2, ROYAL_ASH_RAPIER.scaling(),
-			ROYAL_ASH_RAPIER.kindlingShare());
-	public static final List<Weapon> REALM_MELEE_PROPOSED = List.of(ASHEN_SCYTHE_PROPOSED, WARDENS_SCOURGE_PROPOSED, ROYAL_ASH_RAPIER_PROPOSED);
 	public static final List<Weapon> SANCTUM_MELEE = List.of(SANCTUM_LONGSWORD, ASHBEARERS_MACE);
 
 	// --- The player ----------------------------------------------------------------------------------------------
@@ -450,8 +444,8 @@ public final class BalanceModel {
 
 	/**
 	 * The gear expected when entering a stage: a zone entered first with iron armor and an iron sword (the floor),
-	 * later zones in diamond with a diamond sword, the depths in the Smoldering Plate with the first zone boss's
-	 * weapon (all three zone materials are needed for a Smoldering Ingot, so neither exists earlier).
+	 * later zones in diamond with a diamond sword, the depths in the Smoldering Plate (a Smoldering Ingot needs all
+	 * three zone materials, so it does not exist earlier) with the first zone boss's weapon.
 	 */
 	public static Player expectedPlayer(Stage stage, boolean floor) {
 		int flask = FLASK.baseCharges() + stage.before().size();

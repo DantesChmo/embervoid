@@ -60,8 +60,7 @@ final class FightLengthReport {
 
 	String render() {
 		cadences();
-		bosses(false);
-		bosses(true);
+		bosses();
 		multiplayer();
 		hitsForTheTime();
 		hitSizes();
@@ -104,15 +103,11 @@ final class FightLengthReport {
 		line("");
 	}
 
-	private void bosses(boolean proposed) {
-		line(proposed ? "### Boss fights, solo, with the uniques at DESIGN §6.1's proposed numbers (later stages only)"
-				: "### Boss fights, solo (today's numbers)");
+	private void bosses() {
+		line("### Boss fights, solo (today's numbers)");
 		line("");
 		header("Boss", "Stage", "Player", "Boss HP", "Clean hit (P1)", "Clean hits", "Swinging (s)", "Uptime", "Fight (min)", "Hits / time ok");
-		for (BossStage stage : FightLength.bossStages(run, proposed)) {
-			if (proposed && !stage.player().weapon().name().contains("proposed")) {
-				continue;
-			}
+		for (BossStage stage : FightLength.bossStages(run)) {
 			Length length = FightLength.length(stage.cadence(), stage.player(), 1);
 			int hits = (int) Math.ceil(length.hitsEach() - 1e-6);
 			boolean hitsOk = hits >= FightLength.MIN_HITS && hits <= FightLength.MAX_HITS;
@@ -128,7 +123,7 @@ final class FightLengthReport {
 		line("### Boss fights with 2–3 players (each like the stage's player; HP ×1.5 / ×2, one add per extra fighter)");
 		line("");
 		header("Boss", "Stage", "Players", "Boss HP", "Clean hits each", "Uptime", "Adds (s)", "Fight (min)");
-		List<BossStage> stages = FightLength.bossStages(run, false);
+		List<BossStage> stages = FightLength.bossStages(run);
 		for (Cadence cadence : BalanceData.CADENCES) {
 			List<BossStage> of = stages.stream().filter(s -> s.cadence() == cadence).toList();
 			// The first player who fights it and the last (strongest).
@@ -149,7 +144,7 @@ final class FightLengthReport {
 		line("");
 		header("Boss", "Stage", "Weapon", "Swing (s)", "Uptime", "Clean hits for 1.5 min", "for 2.5 min", "Boss HP for 1.5–2.5 min (× today)",
 				"Hits meeting both bands", "Boss HP for those (× today)");
-		for (BossStage stage : FightLength.bossStages(run, false)) {
+		for (BossStage stage : FightLength.bossStages(run)) {
 			Length length = FightLength.length(stage.cadence(), stage.player(), 1);
 			double swing = stage.player().attackTicks() / 20;
 			// Fixed time (the Lord's wall, phase pauses) does not scale with HP.
@@ -206,7 +201,7 @@ final class FightLengthReport {
 		line("### Mobs: hits both ways against the stage's player");
 		line("");
 		header("Stage", "Mob", "Lv", "Band", "Player", "Mob HP", "Hits to kill (want)", "Its hit", "Hits to kill the player (want)");
-		for (MobStage stage : FightLength.mobStages(run, false)) {
+		for (MobStage stage : FightLength.mobStages(run)) {
 			Fight fight = stage.fight();
 			Band band = FightLength.bandOf(stage.mob());
 			boolean hitsOk = fight.hitsToKillMob() >= band.minHits && fight.hitsToKillMob() <= band.maxHits;
@@ -228,19 +223,17 @@ final class FightLengthReport {
 		header("Weapon", "Damage", "Speed", "Per second", "Own use", "Per second in own use", "vs netherite", "One target");
 		List<Weapon> weapons = new ArrayList<>(List.of(BalanceModel.IRON_SWORD, BalanceModel.DIAMOND_SWORD, BalanceModel.NETHERITE_SWORD));
 		weapons.addAll(BalanceModel.REALM_MELEE);
-		weapons.addAll(BalanceModel.REALM_MELEE_PROPOSED);
 		weapons.addAll(BalanceModel.SANCTUM_MELEE);
 		for (Weapon weapon : weapons) {
 			double single = FightLength.perSecond(weapon);
 			double own = single * FightLength.ownUse(weapon);
 			row(weapon.name(), f(weapon.damage()), f(weapon.speed()), f(single),
-					"×" + java.math.BigDecimal.valueOf(FightLength.ownUse(weapon)).stripTrailingZeros().toPlainString(), f(own),
+					"×" + java.math.BigDecimal.valueOf(Math.round(FightLength.ownUse(weapon) * 100) / 100.0).stripTrailingZeros().toPlainString(), f(own),
 					String.format(Locale.ROOT, "%+.0f %%", (own / FightLength.NETHERITE_PER_SECOND - 1) * 100),
 					f(single * FightLength.oneTarget(weapon)));
 		}
 		line("");
-		List<String> proposed = FightTargets.uniquesAboveNetherite(BalanceModel.REALM_MELEE_PROPOSED);
-		line("The proposed numbers against the same target: " + (proposed.isEmpty() ? "no misses." : String.join("; ", proposed)));
+		line("The Scourge's ×1.6 is its tip crack, built in PLAN 17.4; until then it hits one target at ×1.");
 		line("");
 	}
 

@@ -179,10 +179,10 @@ final class BalanceReport {
 		line("");
 		Map<String, Double> found = LootBudget.beforeLord(run);
 		header("Goal (before the Lord)", "Grave Iron needed", "Cinder needed", "Amber needed", "Ore blocks to mine (GI / Cinder / Amber)");
-		for (int weapons : new int[]{0, 1, 3}) {
-			Map<String, Double> need = LootBudget.need(found, weapons);
+		for (boolean zoneWeapons : new boolean[]{false, true}) {
+			Map<String, Double> need = LootBudget.need(found, zoneWeapons);
 			Map<String, Double> mine = LootBudget.oreToMine(found, need);
-			row("Smoldering Plate + " + weapons + " weapon(s)", f(need.get(LootBudget.RAW_GRAVE_IRON)), f(need.get(LootBudget.CINDER)),
+			row(zoneWeapons ? "Smoldering Plate + the three zone uniques" : "Smoldering Plate", f(need.get(LootBudget.RAW_GRAVE_IRON)), f(need.get(LootBudget.CINDER)),
 					f(need.get(LootBudget.AMBER)), String.format(Locale.ROOT, "%.0f / %.0f / %.0f", mine.get(LootBudget.RAW_GRAVE_IRON),
 							mine.get(LootBudget.CINDER), mine.get(LootBudget.AMBER)));
 		}

@@ -22,9 +22,12 @@ public final class GearArmor {
 	/** Equipment slots of the four armor pieces, helmet first (the order of {@link ArmorItem.Type}). */
 	public static final List<EquipmentSlot> SLOTS = List.of(EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET);
 
-	/** Diamond protection, toughness 2.5, ~1.15× diamond durability; fire reduction and the set bonus in {@link GearDamage}. */
+	/**
+	 * Netherite's numbers (DESIGN §6, 0.5.0): protection 3/8/6/3, toughness 3 and knockback resistance 0.1 per piece,
+	 * ~1.15× diamond durability; fire reduction and the set bonus in {@link GearDamage}.
+	 */
 	public static final GearArmorMaterial SMOLDERING = new GearArmorMaterial("smoldering", 38, new int[]{3, 8, 6, 3}, 12,
-			SoundEvents.ITEM_ARMOR_EQUIP_NETHERITE, 2.5f, 0, () -> Ingredient.ofItems(GearItems.SMOLDERING_INGOT));
+			SoundEvents.ITEM_ARMOR_EQUIP_NETHERITE, 3, 0.1f, () -> Ingredient.ofItems(GearItems.SMOLDERING_INGOT));
 	/** Fields: armor 15, toughness 0; set +10 % move speed. */
 	public static final GearArmorMaterial REAPER = new GearArmorMaterial("reaper", 15, new int[]{2, 6, 5, 2}, 12,
 			SoundEvents.ITEM_ARMOR_EQUIP_LEATHER, 0, 0, () -> Ingredient.ofItems(GearItems.CINDER_SHARD));
@@ -43,7 +46,7 @@ public final class GearArmor {
 	public static final GearArmorMaterial DROWNED = new GearArmorMaterial("drowned_sabatons", 30, new int[]{0, 0, 0, 3}, 10,
 			SoundEvents.ITEM_ARMOR_EQUIP_IRON, 2, 0, () -> Ingredient.ofItems(GearItems.GRAVE_IRON_INGOT));
 	public static final GearArmorMaterial FURNACE_HEART = new GearArmorMaterial("furnace_heart", 38, new int[]{0, 8, 0, 0}, 12,
-			SoundEvents.ITEM_ARMOR_EQUIP_NETHERITE, 2.5f, 0, () -> Ingredient.ofItems(GearItems.SMOLDERING_INGOT));
+			SoundEvents.ITEM_ARMOR_EQUIP_NETHERITE, 3, 0.1f, () -> Ingredient.ofItems(GearItems.SMOLDERING_INGOT));
 
 	public static final List<Item> SMOLDERING_PLATE = set(SMOLDERING, "smoldering",
 			new Item.Settings().fireproof().rarity(Rarity.UNCOMMON), true, true);

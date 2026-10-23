@@ -51,6 +51,12 @@ public final class GearDamage {
 		}
 		if (source.getAttacker() instanceof PlayerEntity player) {
 			amount *= kindling(player, source, config.weapons().kindlingPerPoint());
+			if (source.isOf(DamageTypes.PLAYER_ATTACK) && source.getSource() == player && RapierRamp.holdsRapier(player)) {
+				amount *= RapierRamp.multiplier(player, target);
+			}
+		}
+		if (HuntsmansCrossbowItem.isOpener(target, source)) {
+			amount *= config.crossbow().openerMultiplier();
 		}
 		if (source.isIn(DamageTypeTags.IS_FALL) && GearArmor.wears(target, GearArmor.HUNTSMAN_GREAVES_ITEM)) {
 			amount = Math.max(0, amount - config.uniques().greavesSafeFallDamage());

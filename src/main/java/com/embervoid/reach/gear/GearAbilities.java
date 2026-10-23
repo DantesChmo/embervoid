@@ -12,7 +12,7 @@ import net.minecraft.util.math.Vec3d;
 
 /** The realm weapons' right-click special attacks (DESIGN §4.5, contract §8.1). Numbers in {@code gear.weapons}. */
 public final class GearAbilities {
-	/** Ashen Scythe: a 360° spin hitting everything around at the weapon's damage. */
+	/** Ashen Scythe: a 360° spin hitting everything around at the weapon's damage; stamina back per enemy caught. */
 	public static final SpecialAbility HARVEST = new SpecialAbility() {
 		@Override
 		public String id() {
@@ -33,11 +33,17 @@ public final class GearAbilities {
 		public void perform(ServerWorld world, ServerPlayerEntity player, ItemStack stack) {
 			float radius = GearConfig.get().weapons().harvestRadius();
 			float damage = (float) player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
+			// The spin is the swing: the swing packet that follows the use is no reach attack (the Scythe reaches 3.5).
+			GearReach.noteAttack(player);
+			int caught = 0;
 			for (LivingEntity target : around(world, player, radius)) {
-				target.damage(world.getDamageSources().playerAttack(player), damage);
+				if (target.damage(world.getDamageSources().playerAttack(player), damage)) {
+					caught++;
+				}
 				Vec3d away = target.getPos().subtract(player.getPos());
 				target.takeKnockback(0.5, -away.x, -away.z);
 			}
+			AshenScytheItem.refundStamina(player, caught);
 			for (int i = 0; i < 16; i++) {
 				double angle = i * Math.PI * 2 / 16;
 				world.spawnParticles(ParticleTypes.SWEEP_ATTACK, player.getX() + Math.cos(angle) * radius * 0.6,
@@ -115,6 +121,8 @@ public final class GearAbilities {
 			double reach = stack.getItem() instanceof GearWeaponItem weapon && weapon.spec().reach() > 0
 					? weapon.spec().reach() : GearReach.VANILLA_REACH;
 			LivingEntity target = GearReach.raycast(player, dash + reach);
+			// The thrust is the swing: the swing packet that follows is neither a second hit nor a miss for the ramp.
+			GearReach.noteAttack(player);
 			player.setVelocity(look.multiply(WeaponRules.slideSpeed(dash)).add(0, 0.1, 0));
 			player.velocityModified = true;
 			world.spawnParticles(ParticleTypes.CLOUD, player.getX(), player.getY() + 0.2, player.getZ(), 6, 0.3, 0.1, 0.3, 0.02);

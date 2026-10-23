@@ -151,6 +151,7 @@ public record GearConfig(Bleeding bleeding, Smoldering smoldering, Sets sets, Un
 	 * @param kindlingPerPoint  ember damage bonus per effective KIN point above 10 (like STR/DEX's 2 %)
 	 * @param sweepRadius       Ashen Scythe: sweep radius around the target
 	 * @param sweepShare        Ashen Scythe: share of the hit the sweep deals
+	 * @param sweepStamina      Ashen Scythe: stamina given back per enemy a sweep or Harvest catches
 	 * @param waveLength        Ashen Scythe: ash wave length from a fully charged hit
 	 * @param waveWidth         Ashen Scythe: ash wave width
 	 * @param waveDamage        Ashen Scythe: ash wave ember damage
@@ -163,17 +164,23 @@ public record GearConfig(Bleeding bleeding, Smoldering smoldering, Sets sets, Un
 	 * @param lungeDash         Lunge: dash length, blocks
 	 * @param lungeStamina      Lunge: stamina cost
 	 * @param lungeCooldown     Lunge: cooldown, ticks
+	 * @param rampPerHit        Royal Ash Rapier: damage added per full-charge hit in a row on the same target
+	 * @param rampMax           Royal Ash Rapier: the most the ramp adds
+	 * @param rampWindowTicks   Royal Ash Rapier: longest gap between two hits that keeps the ramp
 	 */
-	public record Weapons(float kindlingPerPoint, float sweepRadius, float sweepShare, float waveLength, float waveWidth,
-			float waveDamage, float harvestRadius, float harvestStamina, int harvestCooldown, float lashPull,
-			float lashStamina, int lashCooldown, float lungeDash, float lungeStamina, int lungeCooldown) {
-		static final Weapons DEFAULTS = new Weapons(0.02f, 2.5f, 0.75f, 6, 3, 3, 3.5f, 25, 80, 4, 20, 100, 4, 20, 60);
+	public record Weapons(float kindlingPerPoint, float sweepRadius, float sweepShare, float sweepStamina, float waveLength,
+			float waveWidth, float waveDamage, float harvestRadius, float harvestStamina, int harvestCooldown, float lashPull,
+			float lashStamina, int lashCooldown, float lungeDash, float lungeStamina, int lungeCooldown, float rampPerHit,
+			float rampMax, int rampWindowTicks) {
+		static final Weapons DEFAULTS = new Weapons(0.02f, 2.5f, 0.75f, 3, 6, 3, 3, 3.5f, 25, 80, 4, 20, 100, 4, 20, 60,
+				0.1f, 0.3f, 30);
 
 		static Weapons read(SectionReader in) {
 			return new Weapons(
 					in.readFloat("kindlingPerPoint", DEFAULTS.kindlingPerPoint, 0, 1),
 					in.readFloat("sweepRadius", DEFAULTS.sweepRadius, 0, 8),
 					in.readFloat("sweepShare", DEFAULTS.sweepShare, 0, 2),
+					in.readFloat("sweepStamina", DEFAULTS.sweepStamina, 0, 1000),
 					in.readFloat("waveLength", DEFAULTS.waveLength, 0, 16),
 					in.readFloat("waveWidth", DEFAULTS.waveWidth, 0, 8),
 					in.readFloat("waveDamage", DEFAULTS.waveDamage, 0, 100),
@@ -185,7 +192,10 @@ public record GearConfig(Bleeding bleeding, Smoldering smoldering, Sets sets, Un
 					in.readInt("lashCooldown", DEFAULTS.lashCooldown, 0, 1200),
 					in.readFloat("lungeDash", DEFAULTS.lungeDash, 0, 12),
 					in.readFloat("lungeStamina", DEFAULTS.lungeStamina, 0, 1000),
-					in.readInt("lungeCooldown", DEFAULTS.lungeCooldown, 0, 1200));
+					in.readInt("lungeCooldown", DEFAULTS.lungeCooldown, 0, 1200),
+					in.readFloat("rampPerHit", DEFAULTS.rampPerHit, 0, 2),
+					in.readFloat("rampMax", DEFAULTS.rampMax, 0, 10),
+					in.readInt("rampWindowTicks", DEFAULTS.rampWindowTicks, 1, 1200));
 		}
 
 		JsonObject write() {
@@ -193,6 +203,7 @@ public record GearConfig(Bleeding bleeding, Smoldering smoldering, Sets sets, Un
 			out.addProperty("kindlingPerPoint", kindlingPerPoint);
 			out.addProperty("sweepRadius", sweepRadius);
 			out.addProperty("sweepShare", sweepShare);
+			out.addProperty("sweepStamina", sweepStamina);
 			out.addProperty("waveLength", waveLength);
 			out.addProperty("waveWidth", waveWidth);
 			out.addProperty("waveDamage", waveDamage);
@@ -205,33 +216,40 @@ public record GearConfig(Bleeding bleeding, Smoldering smoldering, Sets sets, Un
 			out.addProperty("lungeDash", lungeDash);
 			out.addProperty("lungeStamina", lungeStamina);
 			out.addProperty("lungeCooldown", lungeCooldown);
+			out.addProperty("rampPerHit", rampPerHit);
+			out.addProperty("rampMax", rampMax);
+			out.addProperty("rampWindowTicks", rampWindowTicks);
 			return out;
 		}
 	}
 
 	/**
-	 * @param chargeTicks          charge time without Quick Charge (vanilla 25)
-	 * @param boltDamageMultiplier bolt damage against a vanilla crossbow's
-	 * @param punch                knockback level of the bolts (Punch)
-	 * @param pierce               extra mobs a bolt passes through
+	 * @param chargeTicks      charge time without Quick Charge (vanilla 25)
+	 * @param boltDamage       damage of a bolt hitting at its full launch speed (a vanilla crossbow's is 7, plus the
+	 *                         crit roll ours do not get)
+	 * @param punch            knockback level of the bolts (Punch)
+	 * @param pierce           extra mobs a bolt passes through
+	 * @param openerMultiplier damage of a bolt into a mob that is not targeting the shooter
 	 */
-	public record Crossbow(int chargeTicks, float boltDamageMultiplier, int punch, int pierce) {
-		static final Crossbow DEFAULTS = new Crossbow(40, 1.5f, 3, 1);
+	public record Crossbow(int chargeTicks, float boltDamage, int punch, int pierce, float openerMultiplier) {
+		static final Crossbow DEFAULTS = new Crossbow(32, 16, 3, 2, 1.5f);
 
 		static Crossbow read(SectionReader in) {
 			return new Crossbow(
 					in.readInt("chargeTicks", DEFAULTS.chargeTicks, 5, 200),
-					in.readFloat("boltDamageMultiplier", DEFAULTS.boltDamageMultiplier, 0, 10),
+					in.readFloat("boltDamage", DEFAULTS.boltDamage, 0, 200),
 					in.readInt("punch", DEFAULTS.punch, 0, 10),
-					in.readInt("pierce", DEFAULTS.pierce, 0, 10));
+					in.readInt("pierce", DEFAULTS.pierce, 0, 10),
+					in.readFloat("openerMultiplier", DEFAULTS.openerMultiplier, 0, 10));
 		}
 
 		JsonObject write() {
 			JsonObject out = new JsonObject();
 			out.addProperty("chargeTicks", chargeTicks);
-			out.addProperty("boltDamageMultiplier", boltDamageMultiplier);
+			out.addProperty("boltDamage", boltDamage);
 			out.addProperty("punch", punch);
 			out.addProperty("pierce", pierce);
+			out.addProperty("openerMultiplier", openerMultiplier);
 			return out;
 		}
 	}

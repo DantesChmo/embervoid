@@ -18,19 +18,19 @@ import java.util.List;
 public enum WeaponKind {
 	/** Sanctum Longsword, speed 1.6: two swings in turn (forehand, backhand); Wide Cleave. */
 	SWORD(List.of(new Clip("sword_swing_1", 13), new Clip("sword_swing_2", 13)), new Clip("sword_wide_cleave", 14)),
-	/** Royal Ash Rapier, speed 2.0: a thrust, no sweep; Lunge. */
+	/** Royal Ash Rapier, speed 2.2 (a 10-tick cooldown, as at 2.0): a thrust, no sweep; Lunge. */
 	RAPIER(List.of(new Clip("rapier_thrust", 10)), new Clip("rapier_lunge", 12)),
 	/** Ashen Scythe, speed 1.1: a wide sweep; Harvest (a full spin). */
 	SCYTHE(List.of(new Clip("scythe_sweep", 19)), new Clip("scythe_harvest", 16)),
 	/** Ashbearer's Mace, speed 0.9: an overhead blow; Ground Slam. */
 	MACE(List.of(new Clip("mace_overhead", 23)), new Clip("mace_ground_slam", 18)),
-	/** Warden's Scourge, speed 0.9: a crack; Lash (a pull). */
-	WHIP(List.of(new Clip("whip_crack", 23)), new Clip("whip_lash", 14)),
+	/** Warden's Scourge, speed 1.0: a crack; Lash (a pull). */
+	WHIP(List.of(new Clip("whip_crack", 20)), new Clip("whip_lash", 14)),
 	/** Huntsman's Crossbow: no swing of its own (left-click stays vanilla), {@link #CROSSBOW_LOAD} and {@link #CROSSBOW_FIRE}. */
 	CROSSBOW(List.of(), null);
 
 	/** Loading the Huntsman's Crossbow: its charge time (config {@code gear.crossbow.chargeTicks}). */
-	public static final Clip CROSSBOW_LOAD = new Clip("crossbow_load", 40);
+	public static final Clip CROSSBOW_LOAD = new Clip("crossbow_load", 32);
 	/** The shot and the recoil. */
 	public static final Clip CROSSBOW_FIRE = new Clip("crossbow_fire", 8);
 

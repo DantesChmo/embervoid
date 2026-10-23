@@ -22,10 +22,12 @@ import java.util.WeakHashMap;
  * Weapon reach other than vanilla's (1.20.1 has no reach attribute) and the charge of the swing a weapon effect
  * belongs to.
  *
- * <p>Longer reach (the Scourge's 6 blocks) is a server raycast on the swing: the client only attacks entities within 3
- * blocks, but it always sends the swing, so {@code GearServerPlayNetworkHandlerMixin} hands it here and an entity in
- * reach and in sight gets a normal {@link PlayerEntity#attack}. A swing that already came with a vanilla attack this
- * tick (or the one before, if the packets straddle a tick) is left alone. Shorter reach (the Rapier's 2.5) refuses vanilla attacks beyond it.
+ * <p>Longer reach (the Scourge's 6 blocks, the Scythe's and the Rapier's 3.5) is a server raycast on the swing: the
+ * client only attacks entities within 3 blocks, but it always sends the swing, so {@code
+ * GearServerPlayNetworkHandlerMixin} hands it here and an entity in reach and in sight gets a normal {@link
+ * PlayerEntity#attack}. A swing that already came with a vanilla attack this tick (or the one before, if the packets
+ * straddle a tick) is left alone; with the Rapier, a swing that hits nothing at all is a miss and ends its ramp
+ * ({@link RapierRamp}). Shorter reach than vanilla's (none since 0.5.0) refuses vanilla attacks beyond it.
  */
 public final class GearReach {
 	/** Vanilla survival attack reach. */
@@ -66,16 +68,33 @@ public final class GearReach {
 		return beforeAttack(player, target);
 	}
 
-	/** A swing packet: attacks what a long-reach weapon points at, unless the swing already hit something. */
+	/**
+	 * Marks an attack that did not come through {@link #beforeAttack} (Lunge's thrust), so the swing packet the client
+	 * sends after the use is neither a second hit nor a miss.
+	 */
+	static void noteAttack(PlayerEntity player) {
+		LAST_ATTACK_TICK.put(player, player.getWorld().getTime());
+	}
+
+	private static boolean attackedJustNow(PlayerEntity player) {
+		return player.getWorld().getTime() - LAST_ATTACK_TICK.getOrDefault(player, Long.MIN_VALUE / 2) <= 1;
+	}
+
+	/**
+	 * A swing packet: attacks what a long-reach weapon points at, unless the swing already hit something; a Rapier
+	 * swing that hits nothing ends the ramp.
+	 */
 	public static void onSwing(ServerPlayerEntity player, Hand hand) {
-		double reach = reach(player);
-		if (hand != Hand.MAIN_HAND || reach <= VANILLA_REACH || player.isSpectator()
-				|| player.getWorld().getTime() - LAST_ATTACK_TICK.getOrDefault(player, Long.MIN_VALUE / 2) <= 1) {
+		if (hand != Hand.MAIN_HAND || player.isSpectator() || attackedJustNow(player)) {
 			return;
 		}
-		LivingEntity target = raycast(player, reach);
+		double reach = reach(player);
+		LivingEntity target = reach > VANILLA_REACH ? raycast(player, reach) : null;
 		if (target != null && beforeAttack(player, target) == ActionResult.PASS) {
 			player.attack(target);
+		}
+		if (RapierRamp.holdsRapier(player) && !attackedJustNow(player)) {
+			RapierRamp.reset(player);
 		}
 	}
 

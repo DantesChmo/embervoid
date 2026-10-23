@@ -154,12 +154,13 @@ public final class GearDataGen {
 						.offerTo(exporter, getItemPath(result) + "_smithing");
 			}
 
-			// Weapons: the boss's soul + 2 Smoldering Ingot + a part from its zone (a reaper's hoe, a crypt chain, a
-			// courtier's gilded blade, a hunter's crossbow). The crossbow's models are hand-written resources.
-			weapon(exporter, GearWeapons.ASHEN_SCYTHE, ASH_COLOSSUS_SOUL, Items.IRON_HOE);
-			weapon(exporter, GearWeapons.WARDENS_SCOURGE, CRYPT_KEEPER_SOUL, Items.CHAIN);
-			weapon(exporter, GearWeapons.ROYAL_ASH_RAPIER, SMOLDERING_LORD_SOUL, Items.GOLDEN_SWORD);
-			weapon(exporter, GearWeapons.HUNTSMANS_CROSSBOW, GRIEVING_TREE_SOUL, Items.CROSSBOW);
+			// Weapons: the boss's soul + a part from its zone (a reaper's hoe, a crypt chain, a hunter's crossbow, a
+			// courtier's gilded blade) + 4 of the zone's material, so a zone boss's unique comes during the realm (DESIGN
+			// §6.1); the Smoldering Lord's Rapier takes 2 Smoldering Ingots. The crossbow's models are hand-written resources.
+			weapon(exporter, GearWeapons.ASHEN_SCYTHE, ASH_COLOSSUS_SOUL, CINDER_SHARD, 4, Items.IRON_HOE);
+			weapon(exporter, GearWeapons.WARDENS_SCOURGE, CRYPT_KEEPER_SOUL, GRAVE_IRON_INGOT, 4, Items.CHAIN);
+			weapon(exporter, GearWeapons.HUNTSMANS_CROSSBOW, GRIEVING_TREE_SOUL, ROYAL_AMBER, 4, Items.CROSSBOW);
+			weapon(exporter, GearWeapons.ROYAL_ASH_RAPIER, SMOLDERING_LORD_SOUL, SMOLDERING_INGOT, 2, Items.GOLDEN_SWORD);
 
 			// Consumables: cinder for fire, amber for healing and light, grave iron for the whetstone.
 			ShapelessRecipeJsonBuilder.create(RecipeCategory.COMBAT, GearConsumables.ASH_BOMB, 2)
@@ -199,10 +200,10 @@ public final class GearDataGen {
 		}
 	}
 
-	static void weapon(Consumer<RecipeJsonProvider> exporter, Item weapon, Item soul, Item part) {
+	static void weapon(Consumer<RecipeJsonProvider> exporter, Item weapon, Item soul, Item material, int count, Item part) {
 		ShapelessRecipeJsonBuilder.create(RecipeCategory.COMBAT, weapon)
 				.input(soul)
-				.input(SMOLDERING_INGOT, 2)
+				.input(material, count)
 				.input(part)
 				.criterion(FabricRecipeProvider.hasItem(soul), FabricRecipeProvider.conditionsFromItem(soul))
 				.offerTo(exporter);

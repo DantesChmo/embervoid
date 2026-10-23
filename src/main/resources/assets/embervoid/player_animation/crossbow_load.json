@@ -4,8 +4,8 @@
   "author": "Embervoid",
   "emote": {
     "beginTick": 0,
-    "endTick": 37,
-    "stopTick": 40,
+    "endTick": 29,
+    "stopTick": 32,
     "isLoop": false,
     "returnTick": 0,
     "degrees": true,
@@ -41,7 +41,7 @@
         }
       },
       {
-        "tick": 20,
+        "tick": 16,
         "easing": "inOutSine",
         "body": {
           "pitch": -5,
@@ -50,7 +50,7 @@
         }
       },
       {
-        "tick": 20,
+        "tick": 16,
         "easing": "inOutSine",
         "leftArm": {
           "pitch": -40,
@@ -60,7 +60,7 @@
         }
       },
       {
-        "tick": 20,
+        "tick": 16,
         "easing": "inOutSine",
         "rightArm": {
           "pitch": -55,
@@ -70,7 +70,7 @@
         }
       },
       {
-        "tick": 34,
+        "tick": 26,
         "easing": "inOutSine",
         "body": {
           "pitch": -3,
@@ -79,7 +79,7 @@
         }
       },
       {
-        "tick": 34,
+        "tick": 26,
         "easing": "inOutSine",
         "leftArm": {
           "pitch": -30,
@@ -89,7 +89,7 @@
         }
       },
       {
-        "tick": 34,
+        "tick": 26,
         "easing": "inOutSine",
         "rightArm": {
           "pitch": -60,
@@ -99,7 +99,7 @@
         }
       },
       {
-        "tick": 37,
+        "tick": 29,
         "easing": "inOutSine",
         "body": {
           "pitch": 0,
@@ -108,7 +108,7 @@
         }
       },
       {
-        "tick": 37,
+        "tick": 29,
         "easing": "inOutSine",
         "leftArm": {
           "pitch": -90,
@@ -118,7 +118,7 @@
         }
       },
       {
-        "tick": 37,
+        "tick": 29,
         "easing": "inOutSine",
         "rightArm": {
           "pitch": -90,
