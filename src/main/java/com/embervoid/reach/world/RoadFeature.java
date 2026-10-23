@@ -84,7 +84,9 @@ public class RoadFeature extends Feature<DefaultFeatureConfig> {
 					for (double[][] segment : near) {
 						d = Math.min(d, RoadLayout.segmentDistanceSquared(segment[0], segment[1], x + 0.5, z + 0.5));
 					}
-					if (d > RealmRoads.HALF_WIDTH * RealmRoads.HALF_WIDTH || underOutpost(outposts, x, z)) {
+					if (d > RealmRoads.HALF_WIDTH * RealmRoads.HALF_WIDTH || underOutpost(outposts, x, z)
+							|| road.arena() == RoadLayout.GATE && Math.hypot(x + 0.5, z + 0.5) < RealmRoads.PLAZA_RADIUS + 0.5) {
+						// The gate road starts behind the Citadel Gate on the plaza rim (PLAN 21.2).
 						continue;
 					}
 					int y = world.getTopY(Heightmap.Type.WORLD_SURFACE_WG, x, z) - 1;

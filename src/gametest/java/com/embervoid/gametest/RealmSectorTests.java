@@ -110,9 +110,9 @@ public final class RealmSectorTests implements FabricGameTest {
 	}
 
 	/**
-	 * The landing plaza, built the way worldgen does: the Citadel Gate stands on it on the side facing the final
-	 * sector, the return obelisk opposite, and the plaza wall opens with two lantern posts onto the gate road, which is
-	 * paved out to the sector.
+	 * The landing plaza, built the way worldgen does: the Citadel Gate's fog wall stands on its rim on the side facing
+	 * the final sector (PLAN 21.2), the return obelisk opposite, and the plaza wall opens with two lantern posts onto
+	 * the gate road, which is paved from behind the gate out to the sector.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 1200)
 	public void citadelGateStandsOnThePlazaFacingTheFinalSector(TestContext context) {
@@ -132,26 +132,30 @@ public final class RealmSectorTests implements FabricGameTest {
 
 		List<BlockPos> gates = new ArrayList<>();
 		int r = RealmFeaturePiece.LANDING_RADIUS;
-		for (BlockPos pos : BlockPos.iterate(center.add(-r, 1, -r), center.add(r, 6, r))) {
+		for (BlockPos pos : BlockPos.iterate(center.add(-r - 1, 1, -r - 1), center.add(r + 1, 6, r + 1))) {
 			if (realm.getBlockState(pos).isOf(RealmBlocks.CITADEL_GATE)) {
 				gates.add(pos.toImmutable());
 			}
 		}
-		context.assertTrue(gates.size() == 3, "expected a 3-high Citadel Gate on the plaza, found " + gates.size());
+		int width = RealmFeaturePiece.GATE_HALF_WIDTH * 2 + 1;
+		context.assertTrue(gates.size() == width * RealmFeaturePiece.GATE_HEIGHT, "expected a " + width + " × "
+				+ RealmFeaturePiece.GATE_HEIGHT + " Citadel Gate on the plaza rim, found " + gates.size() + " blocks");
 		for (BlockPos gate : gates) {
 			double dx = gate.getX() - center.getX();
 			double dz = gate.getZ() - center.getZ();
-			context.assertTrue(Math.hypot(dx, dz) <= r, "gate off the plaza at " + gate.toShortString());
+			context.assertTrue(Math.hypot(dx, dz) <= r + 1 && Math.hypot(dx, dz) >= r - 0.5, "gate off the plaza rim at " + gate.toShortString());
 			double off = Math.abs(Math.toDegrees(RealmLayout.normalize(Math.atan2(dz, dx) - toFinal + Math.PI) - Math.PI));
-			context.assertTrue(off < 45, "the gate at " + gate.toShortString() + " is " + off + "° off the final sector");
+			context.assertTrue(off < 20, "the gate at " + gate.toShortString() + " is " + off + "° off the final sector");
 		}
-		BlockPos obelisk = center.up().offset(RealmFeaturePiece.gateSide(realm).getOpposite(), RealmFeaturePiece.GATE_DISTANCE);
+		BlockPos obelisk = center.up().offset(RealmFeaturePiece.gateSide(realm).getOpposite(), RealmFeaturePiece.OBELISK_DISTANCE);
 		context.assertTrue(realm.getBlockState(obelisk).isOf(RealmBlocks.RETURN_OBELISK), "no return obelisk opposite the gate");
 
 		RoadLayout.Road gateRoad = RealmRoads.gate(realm);
 		context.assertTrue(gateRoad != null, "no gate road");
 		BlockPos rim = center.add((int) Math.round(Math.cos(toFinal) * r), 1, (int) Math.round(Math.sin(toFinal) * r));
-		context.assertTrue(realm.getBlockState(rim).isAir(), "the plaza wall blocks the gate road at " + rim);
+		context.assertTrue(realm.getBlockState(rim).isOf(RealmBlocks.CITADEL_GATE), "no Citadel Gate across the gate road at " + rim);
+		context.assertTrue(realm.getBlockState(rim.offset(RealmFeaturePiece.gateSide(realm).getOpposite())).isAir(),
+				"the plaza is blocked in front of the gate at " + rim);
 		int lanterns = 0;
 		for (BlockPos pos : BlockPos.iterate(rim.add(-7, 0, -7), rim.add(7, 3, 7))) {
 			if (realm.getBlockState(pos).isOf(ModBlocks.EMBER_LANTERN)) {

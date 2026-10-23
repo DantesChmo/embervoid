@@ -16,6 +16,7 @@ public final class RealmInit {
 		RealmPlayerData.register();
 		RealmItems.register();
 		RealmEvents.register();
+		FinalZoneLock.register();
 		RealmMobLevels.register();
 		RealmCommands.register();
 		BossInit.register();

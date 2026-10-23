@@ -6,6 +6,7 @@
 		"TestServerDimensionsMixin",
 		"ServerPlayerEntityAccessor",
 		"LivingEntityAccessor",
+		"EntityAccessor",
 		"ServerWorldSoundMixin"
 	],
 	"injectors": {

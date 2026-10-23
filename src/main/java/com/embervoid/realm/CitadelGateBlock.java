@@ -1,10 +1,13 @@
 package com.embervoid.realm;
 
-import com.embervoid.progress.ProgressManager;
 import com.embervoid.realm.api.RealmTeleports;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.EntityShapeContext;
+import net.minecraft.block.ShapeContext;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
@@ -12,20 +15,55 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
 /**
- * The Citadel Gate (DESIGN §4.1): stands at the landing plaza, facing the final zone's sector, and opens onto the
- * final zone for a player who has beaten all the realm's zone bosses (each player for themselves). In the final zone
- * the same gate leads back to the landing.
+ * The Citadel Gate (DESIGN §4.1, PLAN 21.2): a fog wall on the landing plaza's rim where the gate road leaves for the
+ * final zone's sector, drifting ash like a boss arena's fog wall and nothing else to see. It opens for each player on
+ * their own: solid to a player the {@link FinalZoneLock} keeps out (and to anything that is not a player), open to one
+ * who has beaten all the realm's zone bosses, who walks through it into the sector. The client knows the clearance
+ * too (progress is synced), so both sides agree on the collision.
  *
- * <p>Until PLAN 21.3 the Smoldering Citadel is still in the depths dimension, so an open gate teleports there as the
- * Sealed Gate did; 21.2 turns the gate into a fog wall onto the sector and locks the sector on the server, 21.3
- * removes the depths branch below.
+ * <p>Until PLAN 21.3 the Smoldering Citadel is still in the depths dimension, so using the gate with clearance also
+ * teleports there as the Sealed Gate did, and in the depths the same gate leads back to the landing; 21.3 removes the
+ * depths branches below.
  */
 public class CitadelGateBlock extends Block {
 	public CitadelGateBlock(Settings settings) {
 		super(settings);
+	}
+
+	@Override
+	@SuppressWarnings("deprecation")
+	public BlockRenderType getRenderType(BlockState state) {
+		return BlockRenderType.INVISIBLE;
+	}
+
+	@Override
+	@SuppressWarnings("deprecation")
+	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+		if (context instanceof EntityShapeContext entityContext && entityContext.getEntity() instanceof PlayerEntity player
+				&& !FinalZoneLock.isLocked(player)) {
+			return VoxelShapes.empty();
+		}
+		return VoxelShapes.fullCube();
+	}
+
+	@Override
+	public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
+		// The arena fog wall's ash (FogWallBlock, BossFight).
+		for (int i = 0; i < 6; i++) {
+			world.addParticle(ParticleTypes.WHITE_ASH, pos.getX() + random.nextDouble(), pos.getY() + random.nextDouble(),
+					pos.getZ() + random.nextDouble(), 0, 0, 0);
+		}
+		if (random.nextInt(3) == 0) {
+			world.addParticle(ParticleTypes.ASH, pos.getX() + random.nextDouble(), pos.getY() + random.nextDouble(),
+					pos.getZ() + random.nextDouble(), 0, 0.01, 0);
+		}
 	}
 
 	@Override
@@ -59,6 +97,6 @@ public class CitadelGateBlock extends Block {
 	}
 
 	public static long remainingZoneBosses(ServerPlayerEntity player, RealmDefinition realm) {
-		return realm.zoneBosses().stream().filter(boss -> !ProgressManager.hasBeatenBoss(player, boss)).count();
+		return FinalZoneLock.remainingZoneBosses(player, realm);
 	}
 }

@@ -21,7 +21,10 @@
 		"GearServerPlayNetworkHandlerMixin",
 		"GearCrossbowItemMixin",
 		"ReliquaryLivingEntityMixin",
-		"ReliquaryPlayerEntityMixin"
+		"ReliquaryPlayerEntityMixin",
+		"RealmEnderPearlEntityMixin",
+		"RealmChorusFruitItemMixin",
+		"RealmTridentItemMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

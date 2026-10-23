@@ -90,6 +90,7 @@
 	"embervoid.realm.gate.sealed": "Врата запечатаны. Стражей осталось: %s",
 	"embervoid.realm.gate.forming": "Врата поддаются, но цитадель за ними ещё не обрела форму",
 	"embervoid.realm.void": "Пустота отталкивает вас",
+	"embervoid.realm.final.locked": "Тлеющий туман преграждает путь. Стражей осталось: %s",
 	"biome.embervoid.ashen_reach_citadel": "Тлеющая цитадель",
 	"embervoid.zone.ashen_reach.final": "Тлеющая цитадель",
 	"subtitles.embervoid.block.citadel_gate.open": "Врата цитадели открываются",

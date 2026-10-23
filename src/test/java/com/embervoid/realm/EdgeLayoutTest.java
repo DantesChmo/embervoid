@@ -55,4 +55,48 @@ class EdgeLayoutTest {
 		assertEquals(1150, at[0], 1e-9);
 		assertEquals(-2, at[1], 1e-9);
 	}
+
+	@Test
+	void borderWallHasGapsLowAndWholeStretches() {
+		for (int border = 0; border < 2; border++) {
+			int gaps = 0;
+			int whole = 0;
+			int segments = 0;
+			for (double along = 24; along < 1236; along += EdgeLayout.BORDER_SEGMENT) {
+				int h = EdgeLayout.borderWallHeight(7L, border, along);
+				assertTrue(h == 0 || h >= 2 && h <= 7, "height " + h);
+				assertEquals(h, EdgeLayout.borderWallHeight(7L, border, along + EdgeLayout.BORDER_SEGMENT - 0.01
+						- along % EdgeLayout.BORDER_SEGMENT), "a stretch changes height inside");
+				gaps += h == 0 ? 1 : 0;
+				whole += h >= 5 ? 1 : 0;
+				segments++;
+			}
+			assertTrue(gaps > segments / 10 && gaps < segments / 3, gaps + " of " + segments + " gaps");
+			assertTrue(whole > segments / 3, whole + " of " + segments + " whole");
+		}
+		// The two borders are not the same wall.
+		int same = 0;
+		for (double along = 24; along < 1236; along += EdgeLayout.BORDER_SEGMENT) {
+			same += EdgeLayout.borderWallHeight(7L, 0, along) == EdgeLayout.borderWallHeight(7L, 1, along) ? 1 : 0;
+		}
+		assertTrue(same < 150, same + " stretches alike");
+	}
+
+	@Test
+	void borderTowersStandEverySixtyFourBlocks() {
+		assertTrue(!EdgeLayout.isBorderTower(0) && !EdgeLayout.isBorderTower(30));
+		assertTrue(EdgeLayout.isBorderTower(64) && EdgeLayout.isBorderTower(68.9) && !EdgeLayout.isBorderTower(69.1));
+		assertTrue(EdgeLayout.isBorderTower(128.5) && !EdgeLayout.isBorderTower(100));
+	}
+
+	@Test
+	void borderCoordinatesFollowTheRay() {
+		double[] at = EdgeLayout.borderCoordinates(Math.PI / 2, 2, 300);
+		assertEquals(300, at[0], 1e-9);
+		assertEquals(-2, at[1], 1e-9);
+		double a = Math.toRadians(60);
+		at = EdgeLayout.borderCoordinates(a, Math.cos(a) * 500 - Math.sin(a) * 1.5, Math.sin(a) * 500 + Math.cos(a) * 1.5);
+		assertEquals(500, at[0], 1e-9);
+		assertEquals(1.5, at[1], 1e-9);
+	}
 }

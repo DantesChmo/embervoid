@@ -46,8 +46,11 @@ public class RealmFeaturePiece extends StructurePiece {
 	private static final int HEADROOM = 14;
 	/** Deepest a floor column is extended down to reach the ground. */
 	private static final int MAX_FOUNDATION = 24;
-	/** How far from the landing centre the Citadel Gate and the return obelisk stand. */
-	public static final int GATE_DISTANCE = 6;
+	/** How far from the landing centre the return obelisk stands (opposite the Citadel Gate). */
+	public static final int OBELISK_DISTANCE = 6;
+	/** The Citadel Gate's fog wall: this many blocks either side of its middle, this high (PLAN 21.2). */
+	public static final int GATE_HALF_WIDTH = 5;
+	public static final int GATE_HEIGHT = 4;
 	/** How far outside the fog wall an arena's shrine stands. */
 	private static final int SHRINE_DISTANCE = 4;
 
@@ -182,26 +185,41 @@ public class RealmFeaturePiece extends StructurePiece {
 		}
 		put(world, chunkBox, shrinePos(), SanctumBlocks.EMBER_SHRINE.getDefaultState());
 
-		// The Citadel Gate on the side facing the final zone's sector, the return obelisk opposite, lanterns on the
-		// diagonals.
+		// The Citadel Gate on the rim facing the final zone's sector, across the gate road's exit (PLAN 21.2): its fog
+		// wall between two pillars under a lintel. The return obelisk opposite, lanterns on the diagonals.
 		Direction gateSide = gateSide(world.toServerWorld());
 		Direction across = gateSide.rotateYClockwise();
-		BlockPos obelisk = center.up().offset(gateSide.getOpposite(), GATE_DISTANCE);
+		BlockPos obelisk = center.up().offset(gateSide.getOpposite(), OBELISK_DISTANCE);
 		put(world, chunkBox, obelisk, RealmBlocks.RETURN_OBELISK.getDefaultState());
 		put(world, chunkBox, obelisk.up(), RealmBlocks.RETURN_OBELISK.getDefaultState());
-		BlockPos gate = center.offset(gateSide, GATE_DISTANCE);
-		for (int dy = 1; dy <= 3; dy++) {
-			put(world, chunkBox, gate.up(dy), RealmBlocks.CITADEL_GATE.getDefaultState());
-			put(world, chunkBox, gate.up(dy).offset(across, -1), ModBlocks.ASH_BRICKS.getDefaultState());
-			put(world, chunkBox, gate.up(dy).offset(across, 1), ModBlocks.ASH_BRICKS.getDefaultState());
-		}
-		for (int d = -1; d <= 1; d++) {
-			put(world, chunkBox, gate.up(4).offset(across, d), ModBlocks.ASH_BRICK_SLAB.getDefaultState());
+		BlockPos gate = gatePos(world.toServerWorld(), center);
+		for (int d = -GATE_HALF_WIDTH - 1; d <= GATE_HALF_WIDTH + 1; d++) {
+			BlockPos column = gate.offset(across, d);
+			boolean pillar = Math.abs(d) > GATE_HALF_WIDTH;
+			put(world, chunkBox, column, ModBlocks.ASH_BRICKS.getDefaultState());
+			for (int dy = 1; dy <= GATE_HEIGHT; dy++) {
+				put(world, chunkBox, column.up(dy), pillar ? masonry(column.up(dy)) : RealmBlocks.CITADEL_GATE.getDefaultState());
+			}
+			put(world, chunkBox, column.up(GATE_HEIGHT + 1), pillar ? ModBlocks.CHISELED_ASH_STONE.getDefaultState()
+					: masonry(column.up(GATE_HEIGHT + 1)));
+			if (!pillar && Math.floorMod(d, 2) == 0) {
+				put(world, chunkBox, column.up(GATE_HEIGHT + 2), ModBlocks.ASH_BRICK_SLAB.getDefaultState());
+			}
 		}
 		for (int[] d : new int[][]{{5, 5}, {-5, 5}, {5, -5}, {-5, -5}}) {
 			put(world, chunkBox, center.add(d[0], 1, d[1]), ModBlocks.ASH_BRICK_WALL.getDefaultState());
 			put(world, chunkBox, center.add(d[0], 2, d[1]), ModBlocks.EMBER_LANTERN.getDefaultState());
 		}
+	}
+
+	/** The floor block under the middle of the Citadel Gate: on the plaza rim on the {@link #gateSide}. */
+	public static BlockPos gatePos(ServerWorld world, BlockPos center) {
+		return center.offset(gateSide(world), LANDING_RADIUS);
+	}
+
+	private static BlockState masonry(BlockPos pos) {
+		return Math.floorMod(MathHelper.hashCode(pos), 4) == 0 ? ModBlocks.CRACKED_ASH_BRICKS.getDefaultState()
+				: ModBlocks.ASH_BRICKS.getDefaultState();
 	}
 
 	/**
