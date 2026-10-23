@@ -2,6 +2,7 @@ package com.embervoid.gametest;
 
 import com.embervoid.Embervoid;
 import com.embervoid.item.HealingFlaskItem;
+import com.embervoid.player.StaminaManager;
 import com.embervoid.reach.gear.AshBombEntity;
 import com.embervoid.reach.gear.Bleeding;
 import com.embervoid.reach.gear.GearAbilities;
@@ -14,6 +15,7 @@ import com.embervoid.reach.gear.GearLootTables;
 import com.embervoid.reach.gear.GearReach;
 import com.embervoid.reach.gear.GearWeapons;
 import com.embervoid.reach.gear.HuntsmansCrossbowItem;
+import com.embervoid.reach.gear.RapierRamp;
 import com.embervoid.registry.ModBlocks;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
@@ -27,12 +29,15 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.HuskEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.Item;
@@ -48,6 +53,7 @@ import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -273,8 +279,8 @@ public final class GearTests implements FabricGameTest {
 		assertRecipe(context, "ashen_scythe", GearWeapons.ASHEN_SCYTHE);
 		assertRecipe(context, "wardens_scourge", GearWeapons.WARDENS_SCOURGE);
 		assertRecipe(context, "royal_ash_rapier", GearWeapons.ROYAL_ASH_RAPIER);
-		// DESIGN §4.5, Scythe and Scourge raised in R40.1c.
-		float[][] numbers = {{10, 1.1f}, {9, 0.9f}, {6, 2.0f}};
+		// DESIGN §6.1 (0.5.0).
+		float[][] numbers = {{12, 1.1f}, {10, 1.0f}, {7, 2.2f}};
 		for (int i = 0; i < GearWeapons.MELEE.size(); i++) {
 			ItemStack stack = new ItemStack(GearWeapons.MELEE.get(i));
 			double damage = 1 + modifier(stack, EntityAttributes.GENERIC_ATTACK_DAMAGE);
@@ -286,28 +292,118 @@ public final class GearTests implements FabricGameTest {
 	}
 
 	/**
-	 * The Scourge hits a mob 5 blocks away on a swing (server raycast) and makes it bleed; the Rapier refuses a target
-	 * beyond 2.5 blocks.
+	 * DESIGN §6.1: the zone uniques craft from the soul, 4 of the zone's material and the zone part, without a
+	 * Smoldering Ingot (the 0.4.0 recipe no longer works); the Rapier still takes 2 Smoldering Ingots.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void uniqueRecipesCraftDuringTheRealm(TestContext context) {
+		Map<Item, List<ItemStack>> recipes = Map.of(
+				GearWeapons.ASHEN_SCYTHE, List.of(new ItemStack(GearItems.ASH_COLOSSUS_SOUL), new ItemStack(GearItems.CINDER_SHARD, 4),
+						new ItemStack(Items.IRON_HOE)),
+				GearWeapons.HUNTSMANS_CROSSBOW, List.of(new ItemStack(GearItems.GRIEVING_TREE_SOUL), new ItemStack(GearItems.ROYAL_AMBER, 4),
+						new ItemStack(Items.CROSSBOW)),
+				GearWeapons.WARDENS_SCOURGE, List.of(new ItemStack(GearItems.CRYPT_KEEPER_SOUL), new ItemStack(GearItems.GRAVE_IRON_INGOT, 4),
+						new ItemStack(Items.CHAIN)),
+				GearWeapons.ROYAL_ASH_RAPIER, List.of(new ItemStack(GearItems.SMOLDERING_LORD_SOUL),
+						new ItemStack(GearItems.SMOLDERING_INGOT, 2), new ItemStack(Items.GOLDEN_SWORD)));
+		recipes.forEach((weapon, ingredients) -> {
+			ItemStack made = craft(context, ingredients);
+			context.assertTrue(made.isOf(weapon), ingredients + " made " + made + ", not " + weapon);
+		});
+		ItemStack old = craft(context, List.of(new ItemStack(GearItems.ASH_COLOSSUS_SOUL), new ItemStack(GearItems.SMOLDERING_INGOT, 2),
+				new ItemStack(Items.IRON_HOE)));
+		context.assertTrue(old.isEmpty(), "the 0.4.0 Scythe recipe still makes " + old);
+		context.complete();
+	}
+
+	/** What a crafting grid holding {@code ingredients} (one item per slot) makes, or empty. */
+	static ItemStack craft(TestContext context, List<ItemStack> ingredients) {
+		CraftingInventory grid = new CraftingInventory(new ScreenHandler(null, 0) {
+			@Override
+			public ItemStack quickMove(PlayerEntity player, int slot) {
+				return ItemStack.EMPTY;
+			}
+
+			@Override
+			public boolean canUse(PlayerEntity player) {
+				return true;
+			}
+		}, 3, 3);
+		int slot = 0;
+		for (ItemStack stack : ingredients) {
+			for (int i = 0; i < stack.getCount(); i++) {
+				grid.setStack(slot++, stack.copyWithCount(1));
+			}
+		}
+		ServerWorld world = context.getWorld();
+		return world.getRecipeManager().getFirstMatch(RecipeType.CRAFTING, grid, world)
+				.map(recipe -> recipe.craft(grid, world.getRegistryManager())).orElse(ItemStack.EMPTY);
+	}
+
+	/**
+	 * DESIGN §6: each Smoldering Plate piece has netherite's protection (3/8/6/3), toughness 3 and knockback resistance
+	 * 0.1; the full set gives armor 20, toughness 12 and knockback resistance 0.4.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 40)
+	public void smolderingPlateHasNetheriteNumbers(TestContext context) {
+		int[] protection = {3, 8, 6, 3};
+		for (int i = 0; i < GearArmor.SLOTS.size(); i++) {
+			ItemStack piece = new ItemStack(GearArmor.SMOLDERING_PLATE.get(i));
+			EquipmentSlot slot = GearArmor.SLOTS.get(i);
+			double armor = modifier(piece, slot, EntityAttributes.GENERIC_ARMOR);
+			double toughness = modifier(piece, slot, EntityAttributes.GENERIC_ARMOR_TOUGHNESS);
+			double knockback = modifier(piece, slot, EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE);
+			context.assertTrue(armor == protection[i] && Math.abs(toughness - 3) < 1e-6 && Math.abs(knockback - 0.1) < 1e-6,
+					piece.getItem() + ": armor " + armor + ", toughness " + toughness + ", knockback resistance " + knockback);
+		}
+		HuskEntity husk = husk(context, 2, 2);
+		equip(husk, GearArmor.SMOLDERING_PLATE);
+		// Worn armor reaches the attributes on the wearer's next tick.
+		context.waitAndRun(2, () -> {
+			// The husk's own armor (2) comes on top.
+			double armor = husk.getAttributeValue(EntityAttributes.GENERIC_ARMOR) - husk.getAttributeBaseValue(EntityAttributes.GENERIC_ARMOR);
+			context.assertTrue(armor == 20, "full set armor " + armor);
+			context.assertTrue(Math.abs(husk.getAttributeValue(EntityAttributes.GENERIC_ARMOR_TOUGHNESS) - 12) < 1e-6,
+					"full set toughness " + husk.getAttributeValue(EntityAttributes.GENERIC_ARMOR_TOUGHNESS));
+			context.assertTrue(Math.abs(husk.getAttributeValue(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE) - 0.4) < 1e-6,
+					"full set knockback resistance " + husk.getAttributeValue(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE));
+			context.complete();
+		});
+	}
+
+	/**
+	 * The Scourge hits a mob 5 blocks away on a swing (server raycast) and makes it bleed; the Rapier hits at 2 blocks
+	 * (burning and bleeding it) and, on a later swing, at 3.3 blocks, but not at 3.9.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 100)
 	public void weaponReach(TestContext context) {
 		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
 		withPlayers(context, () -> {
 			HuskEntity far = husk(context, 2, 7);
-			HuskEntity mid = husk(context, 4, 6);
 			HuskEntity near = husk(context, 0, 4);
 			hold(player, GearWeapons.WARDENS_SCOURGE);
 			GearReach.onSwing(player, Hand.MAIN_HAND);
 			context.assertTrue(far.getHealth() < far.getMaxHealth(), "the Scourge did not reach 5 blocks");
 			context.assertTrue(Bleeding.level(far) == 1, "the Scourge's hit did not bleed");
+			far.discard();
 
 			hold(player, GearWeapons.ROYAL_ASH_RAPIER);
-			context.assertTrue(GearReach.beforeAttackForTest(player, mid) == ActionResult.FAIL, "the Rapier hit beyond 2.5 blocks");
 			context.assertTrue(GearReach.beforeAttackForTest(player, near) == ActionResult.PASS, "the Rapier missed at 2 blocks");
 			player.attack(near);
 			context.assertTrue(near.isOnFire() && Bleeding.level(near) == 1, "the Rapier's hit did not burn and bleed");
+			near.discard();
 		}, player);
-		TestPlayers.complete(context, player);
+		// A swing right after an attack is that attack's own packet, so the reach swings come later.
+		context.waitAndRun(5, () -> withPlayers(context, () -> {
+			HuskEntity beyond = husk(context, 2, 6);
+			beyond.setPosition(player.getX(), beyond.getY(), player.getZ() + 4.2);
+			GearReach.onSwing(player, Hand.MAIN_HAND);
+			context.assertTrue(beyond.getHealth() == beyond.getMaxHealth(), "the Rapier reached 3.9 blocks");
+			beyond.setPosition(player.getX(), beyond.getY(), player.getZ() + 3.6);
+			GearReach.onSwing(player, Hand.MAIN_HAND);
+			context.assertTrue(beyond.getHealth() < beyond.getMaxHealth(), "the Rapier did not reach 3.3 blocks");
+			TestPlayers.complete(context, player);
+		}, player));
 	}
 
 	/** A fully charged Scythe hit sweeps the mob beside the target and sends an ash wave to a mob further ahead. */
@@ -329,6 +425,147 @@ public final class GearTests implements FabricGameTest {
 			context.assertTrue(ahead.getHealth() < ahead.getMaxHealth(), "the ash wave missed the mob 5 blocks ahead");
 		}, player);
 		TestPlayers.complete(context, player);
+	}
+
+	/**
+	 * DESIGN §6.1: each enemy a Scythe sweep catches gives 3 stamina back (the struck target does not), and so does each
+	 * enemy Harvest catches.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 100)
+	public void scytheRefundsStaminaPerEnemyCaught(TestContext context) {
+		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
+		withPlayers(context, () -> {
+			float refund = GearConfig.get().weapons().sweepStamina();
+			HuskEntity target = husk(context, 2, 4);
+			List<HuskEntity> beside = List.of(husk(context, 4, 4), husk(context, 0, 4));
+			hold(player, GearWeapons.ASHEN_SCYTHE);
+			StaminaManager.set(player, 10);
+			GearReach.beforeAttackForTest(player, target);
+			player.attack(target);
+			for (HuskEntity husk : beside) {
+				context.assertTrue(husk.getHealth() < husk.getMaxHealth(), "the sweep missed a mob beside the target");
+			}
+			context.assertTrue(StaminaManager.get(player) == 10 + 2 * refund,
+					"two swept: stamina " + StaminaManager.get(player) + ", expected " + (10 + 2 * refund));
+			target.discard();
+			beside.forEach(HuskEntity::discard);
+
+			// Fresh mobs: the ones above are still in their hurt cooldown.
+			List<HuskEntity> around = List.of(husk(context, 0, 2), husk(context, 2, 0), husk(context, 4, 2));
+			StaminaManager.set(player, 10);
+			GearAbilities.HARVEST.perform(context.getWorld(), player, player.getMainHandStack());
+			context.assertTrue(StaminaManager.get(player) == 10 + 3 * refund,
+					"Harvest on three: stamina " + StaminaManager.get(player) + ", expected " + (10 + 3 * refund));
+			around.forEach(HuskEntity::discard);
+		}, player);
+		TestPlayers.complete(context, player);
+	}
+
+	/**
+	 * DESIGN §6.1: full-charge Rapier hits in a row on one target deal ×1.0, ×1.1, ×1.2, ×1.3 and stay at ×1.3; a hit
+	 * at low charge neither builds nor breaks it; another target, a swing that hits nothing, a gap over 1.5 s or a hit
+	 * taken start it over.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 300)
+	public void rapierRampBuildsAndResets(TestContext context) {
+		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
+		IronGolemEntity golem = context.spawnEntity(EntityType.IRON_GOLEM, 2, 1, 4);
+		golem.setAiDisabled(true);
+		IronGolemEntity other = context.spawnEntity(EntityType.IRON_GOLEM, 0, 1, 4);
+		other.setAiDisabled(true);
+		// After the join invulnerability, so a hit on the player lands.
+		context.waitAndRun(JOIN_INVULNERABLE_TICKS, () -> withPlayers(context, () -> {
+			hold(player, GearWeapons.ROYAL_ASH_RAPIER);
+			float first = rapierHit(player, golem, true);
+			float[] expected = {1.1f, 1.2f, 1.3f, 1.3f};
+			for (float factor : expected) {
+				float hit = rapierHit(player, golem, true);
+				context.assertTrue(Math.abs(hit / first - factor) < 0.01, "ramp ×" + (hit / first) + ", expected ×" + factor);
+			}
+			float weak = rapierHit(player, golem, false);
+			context.assertTrue(RapierRamp.hitsOn(player, golem) == 5, "a low-charge hit changed the ramp to " + RapierRamp.hitsOn(player, golem));
+			context.assertTrue(weak < first, "the low-charge hit was not weaker");
+			context.assertTrue(Math.abs(rapierHit(player, other, true) / first - 1) < 0.01, "the ramp carried over to another target");
+			context.assertTrue(RapierRamp.hitsOn(player, golem) == 0, "the ramp on the first target survived a hit on another");
+			rapierHit(player, golem, true);
+			rapierHit(player, golem, true);
+			context.assertTrue(RapierRamp.hitsOn(player, golem) == 2, "ramp " + RapierRamp.hitsOn(player, golem) + " after two hits");
+		}, player));
+		// A swing at the air (the player turned away) is a miss.
+		context.waitAndRun(JOIN_INVULNERABLE_TICKS + 5, () -> withPlayers(context, () -> {
+			player.setYaw(180);
+			player.setHeadYaw(180);
+			GearReach.onSwing(player, Hand.MAIN_HAND);
+			context.assertTrue(RapierRamp.hitsOn(player, golem) == 0, "a miss kept the ramp");
+			player.setYaw(0);
+			player.setHeadYaw(0);
+			rapierHit(player, golem, true);
+			rapierHit(player, golem, true);
+		}, player));
+		context.waitAndRun(JOIN_INVULNERABLE_TICKS + 5 + 31, () -> withPlayers(context, () -> {
+			context.assertTrue(RapierRamp.hitsOn(player, golem) == 0, "the ramp outlived 1.5 s without a hit");
+			rapierHit(player, golem, true);
+			rapierHit(player, golem, true);
+			HuskEntity husk = husk(context, 4, 2);
+			// Ember damage does not scale with difficulty, so it lands on Peaceful too.
+			context.assertTrue(player.damage(GearDamage.ember(husk, null), 1), "the player was not hit");
+			context.assertTrue(RapierRamp.hitsOn(player, golem) == 0, "a hit taken kept the ramp");
+			husk.discard();
+			TestPlayers.complete(context, player);
+		}, player));
+	}
+
+	/**
+	 * Health {@code target} loses to one Rapier hit at full charge (or at a fifth of it), past its hurt cooldown; the
+	 * attack goes through {@link GearReach#beforeAttackForTest} like a real one.
+	 */
+	private static float rapierHit(ServerPlayerEntity player, LivingEntity target, boolean full) {
+		((com.embervoid.gametest.mixin.LivingEntityAccessor) player).embervoid$setLastAttackedTicks(full ? 100 : 1);
+		player.setOnGround(true);
+		player.fallDistance = 0;
+		target.timeUntilRegen = 0;
+		target.setHealth(target.getMaxHealth());
+		GearReach.beforeAttackForTest(player, target);
+		float before = target.getHealth();
+		player.attack(target);
+		return before - target.getHealth();
+	}
+
+	/**
+	 * DESIGN §6.1: a Huntsman's bolt into a mob that is not targeting the shooter deals ×1.5; into one that is, ×1; a
+	 * plain arrow never.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 100)
+	public void huntsmansOpenerOnlyOnUnawareMobs(TestContext context) {
+		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
+		withPlayers(context, () -> {
+			ServerWorld world = context.getWorld();
+			IronGolemEntity aware = context.spawnEntity(EntityType.IRON_GOLEM, 0, 1, 5);
+			aware.setAiDisabled(true);
+			aware.setTarget(player);
+			IronGolemEntity unaware = context.spawnEntity(EntityType.IRON_GOLEM, 4, 1, 5);
+			unaware.setAiDisabled(true);
+			ArrowEntity bolt = new ArrowEntity(world, player);
+			HuntsmansCrossbowItem.strengthen(bolt);
+			ArrowEntity arrow = new ArrowEntity(world, player);
+			float onAware = lost(aware, world.getDamageSources().arrow(bolt, player), 10);
+			float onUnaware = lost(unaware, world.getDamageSources().arrow(bolt, player), 10);
+			context.assertTrue(Math.abs(onAware - 10) < 0.01, "bolt into a mob targeting the shooter: " + onAware);
+			context.assertTrue(Math.abs(onUnaware - 15) < 0.01, "bolt into a mob not targeting the shooter: " + onUnaware);
+			float plain = lost(unaware, world.getDamageSources().arrow(arrow, player), 10);
+			context.assertTrue(Math.abs(plain - 10) < 0.01, "a plain arrow got the opener: " + plain);
+			aware.discard();
+			unaware.discard();
+		}, player);
+		TestPlayers.complete(context, player);
+	}
+
+	/** Health {@code target} loses to {@code amount} of {@code source}, past its hurt cooldown. */
+	private static float lost(LivingEntity target, DamageSource source, float amount) {
+		target.timeUntilRegen = 0;
+		target.setHealth(target.getMaxHealth());
+		target.damage(source, amount);
+		return target.getMaxHealth() - target.getHealth();
 	}
 
 	/** Harvest hits all around, Lash pulls a mob 5 blocks away closer, Lunge dashes and bleeds its target twice. */
@@ -357,12 +594,12 @@ public final class GearTests implements FabricGameTest {
 		TestPlayers.complete(context, player);
 	}
 
-	/** Huntsman's Crossbow: 2 s charge, and its bolts deal 1.5× with Punch III and pierce one mob. */
+	/** Huntsman's Crossbow: 1.6 s charge, and its bolts deal 16 (no crit roll) with Punch III and pierce two mobs. */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 100)
 	public void huntsmansCrossbowBolts(TestContext context) {
 		assertRecipe(context, "huntsmans_crossbow", GearWeapons.HUNTSMANS_CROSSBOW);
 		ItemStack crossbow = new ItemStack(GearWeapons.HUNTSMANS_CROSSBOW);
-		context.assertTrue(CrossbowItem.getPullTime(crossbow) == 40, "charge " + CrossbowItem.getPullTime(crossbow));
+		context.assertTrue(CrossbowItem.getPullTime(crossbow) == 32, "charge " + CrossbowItem.getPullTime(crossbow));
 		context.assertTrue(CrossbowItem.getPullTime(new ItemStack(Items.CROSSBOW)) == 25, "vanilla crossbow charge changed");
 		// The client's crossbow poses ask this (GearPlayerEntityRendererMixin, GearHeldItemRendererMixin).
 		context.assertTrue(HuntsmansCrossbowItem.countsAsCrossbow(crossbow, Items.CROSSBOW)
@@ -381,9 +618,11 @@ public final class GearTests implements FabricGameTest {
 					player.getBoundingBox().expand(4), bolt -> bolt.getOwner() == player);
 			context.assertTrue(bolts.size() == 1, "expected one bolt, got " + bolts.size());
 			PersistentProjectileEntity bolt = bolts.get(0);
-			context.assertTrue(Math.abs(bolt.getDamage() - 3.0) < 1e-6, "bolt damage " + bolt.getDamage() + ", expected 3.0");
-			context.assertTrue(bolt.getPunch() == 3 && bolt.getPierceLevel() == 1,
+			int hit = (int) Math.ceil(bolt.getVelocity().length() * bolt.getDamage());
+			context.assertTrue(hit == 16 && !bolt.isCritical(), "bolt hits for " + hit + ", critical " + bolt.isCritical());
+			context.assertTrue(bolt.getPunch() == 3 && bolt.getPierceLevel() == 2,
 					"punch " + bolt.getPunch() + ", pierce " + bolt.getPierceLevel());
+			context.assertTrue(bolt.getCommandTags().contains(HuntsmansCrossbowItem.BOLT_TAG), "the bolt is not marked");
 			bolt.discard();
 		}, player);
 		TestPlayers.complete(context, player);
@@ -576,7 +815,11 @@ public final class GearTests implements FabricGameTest {
 	}
 
 	static double modifier(ItemStack stack, EntityAttribute attribute) {
-		return stack.getAttributeModifiers(EquipmentSlot.MAINHAND).get(attribute).stream()
+		return modifier(stack, EquipmentSlot.MAINHAND, attribute);
+	}
+
+	static double modifier(ItemStack stack, EquipmentSlot slot, EntityAttribute attribute) {
+		return stack.getAttributeModifiers(slot).get(attribute).stream()
 				.mapToDouble(EntityAttributeModifier::getValue).sum();
 	}
 

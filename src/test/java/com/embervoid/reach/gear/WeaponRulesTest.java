@@ -43,4 +43,24 @@ class WeaponRulesTest {
 		}
 		assertEquals(4, covered, 1e-6);
 	}
+
+	@Test
+	void rapierRampsTenPercentAHitUpToThirty() {
+		assertEquals(1.0f, WeaponRules.rampMultiplier(0, 0.1f, 0.3f), 1e-6);
+		assertEquals(1.1f, WeaponRules.rampMultiplier(1, 0.1f, 0.3f), 1e-6);
+		assertEquals(1.2f, WeaponRules.rampMultiplier(2, 0.1f, 0.3f), 1e-6);
+		assertEquals(1.3f, WeaponRules.rampMultiplier(3, 0.1f, 0.3f), 1e-6);
+		assertEquals(1.3f, WeaponRules.rampMultiplier(7, 0.1f, 0.3f), 1e-6);
+		assertTrue(WeaponRules.keepsRamp(30, 30));
+		assertFalse(WeaponRules.keepsRamp(31, 30));
+	}
+
+	@Test
+	void boltDealsItsDamageAtLaunchSpeed() {
+		double base = WeaponRules.boltBaseDamage(16, WeaponRules.CROSSBOW_ARROW_SPEED);
+		// Vanilla: ceil(speed × base), the speed a little off by the launch's spread.
+		for (double speed : new double[]{3.10, 3.15, 3.20}) {
+			assertEquals(16, (int) Math.ceil(speed * base));
+		}
+	}
 }

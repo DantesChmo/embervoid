@@ -38,5 +38,30 @@ public final class WeaponRules {
 		return blocks * (1 - 0.546);
 	}
 
+	/**
+	 * The Rapier's ramp: damage multiplier of a hit after {@code hitsBefore} full-charge hits in a row on the same
+	 * target, {@code perHit} more for each, at most {@code max} more.
+	 */
+	public static float rampMultiplier(int hitsBefore, float perHit, float max) {
+		return 1 + Math.min(Math.max(0, hitsBefore) * perHit, max);
+	}
+
+	/** Whether a hit {@code gapTicks} after the last one on the same target keeps the ramp ({@code window} ticks). */
+	public static boolean keepsRamp(long gapTicks, int window) {
+		return gapTicks >= 0 && gapTicks <= window;
+	}
+
+	/** A vanilla crossbow launches arrows at this speed (blocks per tick); a firework goes slower. */
+	public static final float CROSSBOW_ARROW_SPEED = 3.15f;
+
+	/**
+	 * The base damage that makes a bolt deal {@code boltDamage} when it hits at {@code speed}: vanilla deals
+	 * ceil(speed × base), so the base aims half a point low to stay on {@code boltDamage} through the launch's
+	 * small random spread.
+	 */
+	public static double boltBaseDamage(float boltDamage, float speed) {
+		return Math.max(0, boltDamage - 0.5) / speed;
+	}
+
 	private WeaponRules() {}
 }

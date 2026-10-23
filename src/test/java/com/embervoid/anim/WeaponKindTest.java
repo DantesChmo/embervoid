@@ -28,10 +28,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class WeaponKindTest {
 	private static final Path DIR = Path.of("src", "main", "resources", "assets", "embervoid", "player_animation");
 	/** The weapons' attack speeds (DESIGN §6.1, §10.10), one per kind with a swing. */
-	private static final Map<WeaponKind, Double> SPEEDS = Map.of(WeaponKind.SWORD, 1.6, WeaponKind.RAPIER, 2.0,
-			WeaponKind.SCYTHE, 1.1, WeaponKind.MACE, 0.9, WeaponKind.WHIP, 0.9);
+	private static final Map<WeaponKind, Double> SPEEDS = Map.of(WeaponKind.SWORD, 1.6, WeaponKind.RAPIER, 2.2,
+			WeaponKind.SCYTHE, 1.1, WeaponKind.MACE, 0.9, WeaponKind.WHIP, 1.0);
 	/** The Huntsman's Crossbow charge time (config {@code gear.crossbow.chargeTicks}). */
-	private static final int CROSSBOW_CHARGE_TICKS = 40;
+	private static final int CROSSBOW_CHARGE_TICKS = 32;
 
 	@Test
 	void everyClipIsAFileOfItsLength() throws IOException {

@@ -3,6 +3,8 @@ package com.embervoid.reach.gear;
 import com.embervoid.anim.AttackAnimations;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.CrossbowItem;
@@ -20,9 +22,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * Huntsman's Crossbow (DESIGN §4.5): a slower vanilla crossbow (2.0 s charge) whose bolts hit ≈ 1.5× as hard, knock
- * back like Punch III and pierce one mob. The charge time and the bolt are set in {@code GearCrossbowItemMixin}, since
- * vanilla reads them from static methods. No special attack: right-click loads, as on any crossbow.
+ * Huntsman's Crossbow (DESIGN §6.1): a slower vanilla crossbow (1.6 s charge) whose bolts deal 16, knock back like
+ * Punch III and pierce two mobs; a bolt into a mob that is not targeting the shooter deals ×1.5 (the opener, in
+ * {@link GearDamage}). The charge time and the bolt are set in {@code GearCrossbowItemMixin}, since vanilla reads them
+ * from static methods. No special attack: right-click loads, as on any crossbow.
  */
 public class HuntsmansCrossbowItem extends CrossbowItem {
 	/** Vanilla crossbow charge time without Quick Charge. */
@@ -37,12 +40,27 @@ public class HuntsmansCrossbowItem extends CrossbowItem {
 		return GearConfig.get().crossbow().chargeTicks() - VANILLA_PULL_TICKS;
 	}
 
-	/** Makes a freshly made bolt of this crossbow heavier: more damage, Punch III knockback, pierces one more mob. */
+	/** Command tag on this crossbow's bolts, so the opener knows them when they land. */
+	public static final String BOLT_TAG = "embervoid.huntsman_bolt";
+
+	/**
+	 * Makes a freshly made bolt of this crossbow heavier: {@code gear.crossbow.boltDamage} at a crossbow's launch speed
+	 * (with no crit roll on top), Punch III knockback, pierces two more mobs.
+	 */
 	public static void strengthen(PersistentProjectileEntity bolt) {
 		GearConfig.Crossbow config = GearConfig.get().crossbow();
-		bolt.setDamage(bolt.getDamage() * config.boltDamageMultiplier());
+		bolt.setDamage(WeaponRules.boltBaseDamage(config.boltDamage(), WeaponRules.CROSSBOW_ARROW_SPEED));
+		bolt.setCritical(false);
 		bolt.setPunch(Math.max(bolt.getPunch(), config.punch()));
 		bolt.setPierceLevel((byte) Math.min(127, bolt.getPierceLevel() + config.pierce()));
+		bolt.addCommandTag(BOLT_TAG);
+	}
+
+	/** Whether {@code source} is this crossbow's bolt landing on a mob that is not targeting the shooter. */
+	public static boolean isOpener(LivingEntity target, DamageSource source) {
+		return source.getSource() instanceof PersistentProjectileEntity bolt && bolt.getCommandTags().contains(BOLT_TAG)
+				&& source.getAttacker() instanceof LivingEntity shooter
+				&& target instanceof MobEntity mob && mob.getTarget() != shooter;
 	}
 
 	/**

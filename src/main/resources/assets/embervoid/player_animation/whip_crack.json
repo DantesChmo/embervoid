@@ -4,8 +4,8 @@
   "author": "Embervoid",
   "emote": {
     "beginTick": 0,
-    "endTick": 20,
-    "stopTick": 23,
+    "endTick": 17,
+    "stopTick": 20,
     "isLoop": false,
     "returnTick": 0,
     "degrees": true,
@@ -126,7 +126,7 @@
         }
       },
       {
-        "tick": 20,
+        "tick": 17,
         "easing": "inOutSine",
         "body": {
           "pitch": 0,
@@ -135,7 +135,7 @@
         }
       },
       {
-        "tick": 20,
+        "tick": 17,
         "easing": "inOutSine",
         "leftArm": {
           "pitch": 0,
@@ -145,7 +145,7 @@
         }
       },
       {
-        "tick": 20,
+        "tick": 17,
         "easing": "inOutSine",
         "rightArm": {
           "pitch": -18,
@@ -155,7 +155,7 @@
         }
       },
       {
-        "tick": 20,
+        "tick": 17,
         "easing": "inOutSine",
         "rightItem": {
           "pitch": 0,

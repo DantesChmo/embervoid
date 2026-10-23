@@ -64,6 +64,9 @@ public final class GearEffects {
 	 * chestplate).
 	 */
 	public static void afterDamage(LivingEntity entity, DamageSource source) {
+		if (entity instanceof PlayerEntity hurt && source.getAttacker() != null && source.getAttacker() != hurt) {
+			RapierRamp.reset(hurt);
+		}
 		if (source.isOf(DamageTypes.PLAYER_ATTACK) && source.getAttacker() instanceof PlayerEntity attacker
 				&& source.getSource() == attacker
 				&& GearConsumables.resinBurning(attacker.getMainHandStack(), attacker.getWorld().getTime())) {
