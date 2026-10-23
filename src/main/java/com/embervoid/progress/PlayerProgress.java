@@ -12,40 +12,37 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Per-player progression: attunement to the Ember Sanctum, unlocked and completed realms, beaten bosses.
- * Lives on the player as its own data attachment (see {@link ProgressManager}).
+ * Per-player progression: unlocked and completed realms, beaten bosses. Lives on the player as its own data
+ * attachment (see {@link ProgressManager}).
  *
  * <p>Realms and bosses are plain ids owned by the realms track (e.g. {@code embervoid:realm_1}). Mutate through
  * {@link ProgressManager} on the server so the change is synced; the getters here are safe on both sides.
+ *
+ * <p>The {@code attuned} flag of 0.4.x saves is ignored: attunement is gone (PLAN 15.2). A player attuned then has
+ * Realm 1 among the unlocked realms anyway.
  */
 public final class PlayerProgress {
+	// Unknown keys are skipped, so the old "attuned" is dropped on load.
 	public static final Codec<PlayerProgress> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-			Codec.BOOL.optionalFieldOf("attuned", false).forGetter(p -> p.attuned),
 			Identifier.CODEC.listOf().optionalFieldOf("unlocked_realms", List.of()).forGetter(p -> List.copyOf(p.unlockedRealms)),
 			Identifier.CODEC.listOf().optionalFieldOf("completed_realms", List.of()).forGetter(p -> List.copyOf(p.completedRealms)),
 			Identifier.CODEC.listOf().optionalFieldOf("beaten_bosses", List.of()).forGetter(p -> List.copyOf(p.beatenBosses))
 	).apply(instance, PlayerProgress::new));
 
-	boolean attuned;
 	// Insertion-ordered so saves and debug output are stable.
 	final Set<Identifier> unlockedRealms;
 	final Set<Identifier> completedRealms;
 	final Set<Identifier> beatenBosses;
 
-	public PlayerProgress(boolean attuned, List<Identifier> unlockedRealms, List<Identifier> completedRealms, List<Identifier> beatenBosses) {
-		this.attuned = attuned;
+	public PlayerProgress(List<Identifier> unlockedRealms, List<Identifier> completedRealms, List<Identifier> beatenBosses) {
 		this.unlockedRealms = new LinkedHashSet<>(unlockedRealms);
 		this.completedRealms = new LinkedHashSet<>(completedRealms);
 		this.beatenBosses = new LinkedHashSet<>(beatenBosses);
 	}
 
-	/** A player who has never reached a Sanctum core. */
+	/** A player who has never reached the hub. */
 	public static PlayerProgress createDefault() {
-		return new PlayerProgress(false, List.of(), List.of(), List.of());
-	}
-
-	public boolean isAttuned() {
-		return attuned;
+		return new PlayerProgress(List.of(), List.of(), List.of());
 	}
 
 	public boolean isRealmUnlocked(Identifier realm) {
@@ -73,22 +70,20 @@ public final class PlayerProgress {
 	}
 
 	public void write(PacketByteBuf buf) {
-		buf.writeBoolean(attuned);
 		buf.writeCollection(unlockedRealms, PacketByteBuf::writeIdentifier);
 		buf.writeCollection(completedRealms, PacketByteBuf::writeIdentifier);
 		buf.writeCollection(beatenBosses, PacketByteBuf::writeIdentifier);
 	}
 
 	public static PlayerProgress read(PacketByteBuf buf) {
-		return new PlayerProgress(buf.readBoolean(),
-				buf.readCollection(ArrayList::new, PacketByteBuf::readIdentifier),
+		return new PlayerProgress(buf.readCollection(ArrayList::new, PacketByteBuf::readIdentifier),
 				buf.readCollection(ArrayList::new, PacketByteBuf::readIdentifier),
 				buf.readCollection(ArrayList::new, PacketByteBuf::readIdentifier));
 	}
 
 	@Override
 	public String toString() {
-		return "attuned=" + attuned + ", unlockedRealms=" + unlockedRealms
+		return "unlockedRealms=" + unlockedRealms
 				+ ", completedRealms=" + completedRealms + ", beatenBosses=" + beatenBosses;
 	}
 }

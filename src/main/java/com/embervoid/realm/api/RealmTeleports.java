@@ -1,5 +1,7 @@
 package com.embervoid.realm.api;
 
+import com.embervoid.hub.Hub;
+import com.embervoid.hub.HubTravel;
 import com.embervoid.progress.ProgressManager;
 import com.embervoid.realm.RealmDefinition;
 import com.embervoid.realm.RealmLayout;
@@ -24,13 +26,14 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Travel into, inside and out of realms. Entry point for the Sanctum's Void Obelisks: {@link #enterRealm}.
+ * Travel into, inside and out of realms. Entry point for the Void Obelisks: {@link #enterRealm}; the way out leads to
+ * the hub: {@link #leaveRealm}.
  * All methods run on the server thread.
  */
 public final class RealmTeleports {
 	/**
-	 * Takes the player into a realm, remembering where they came from (the Sanctum) so the return obelisk brings them
-	 * back there.
+	 * Takes the player into a realm. Coming from the overworld (an old world's Sanctum core), the spot is remembered as
+	 * the hub's way out ({@link HubTravel#noteDeparture}); the way back from a realm is always the hub.
 	 *
 	 * @param toLastShrine arrive at the last Ember Shrine rested at in the realm's open zones instead of the landing;
 	 *                     falls back to the landing when there is none
@@ -49,11 +52,7 @@ public final class RealmTeleports {
 			refuse(player);
 			return false;
 		}
-		RealmPlayerData data = RealmPlayerData.get(player);
-		if (Realms.byWorld(player.getWorld().getRegistryKey()) == null) {
-			data.returnPoint = GlobalPos.create(player.getWorld().getRegistryKey(), player.getBlockPos());
-			data.returnYaw = player.getYaw();
-		}
+		HubTravel.noteDeparture(player);
 		if (!(toLastShrine && toShrine(player, realm.world()))) {
 			toLanding(player, realm.world());
 		}
@@ -67,19 +66,16 @@ public final class RealmTeleports {
 		return realm != null && RealmPlayerData.get(player).shrines.containsKey(realm.world().getValue());
 	}
 
-	/** Back to where the player entered the realm from; the overworld spawn if that is unknown. */
+	/**
+	 * Out of the realm to the hub's landing (DESIGN §2): the return obelisk and {@code /embervoid realm leave}. With no
+	 * hub (a broken datapack) the hub's own way out instead ({@link HubTravel#leave}).
+	 */
 	public static void leaveRealm(ServerPlayerEntity player) {
-		RealmPlayerData data = RealmPlayerData.get(player);
-		ServerWorld world = data.returnPoint == null ? null : player.getServer().getWorld(data.returnPoint.getDimension());
-		if (world != null) {
-			BlockPos pos = data.returnPoint.getPos();
-			teleport(player, world, Vec3d.ofBottomCenter(pos), data.returnYaw);
+		if (Hub.sendToLanding(player)) {
+			travelled(player);
 		} else {
-			ServerWorld overworld = player.getServer().getOverworld();
-			teleport(player, overworld, Vec3d.ofBottomCenter(overworld.getSpawnPos()), 0);
+			HubTravel.leave(player);
 		}
-		data.returnPoint = null;
-		travelled(player);
 	}
 
 	/** The obelisk's travel sound, heard by the player where they arrive. */

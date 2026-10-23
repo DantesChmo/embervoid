@@ -12,8 +12,8 @@ writing content: every new mob, boss, zone, weapon or structure is described aga
 ## 1. The loop as it plays today
 
 1. A harder overworld: every hostile mob has a level, Easy hits like vanilla Normal, three new hostiles.
-2. The player finds an **Ember Sanctum** (by exploring or a Sanctum Map), fights through its outer halls, steps
-   into the core and is **attuned**. Realm 1 unlocks.
+2. The player finds an **Ember Sanctum** (by exploring or a Sanctum Map), fights through its outer halls and steps
+   into the core. (0.5.0: the core moves to the hub dimension; Realm 1 unlocks on the first hub visit, PLAN 15.2.)
 3. In the core: the **Ashen Maiden** sells stat points for vanilla XP points; the **Ember Shrine** heals and
    refills the flask; the lit **Void Obelisk** sends the player to **Ashen Reach** (Realm 1).
 4. In the realm: three zones, one boss arena each. Beating all three opens the **Sealed Gate** to the depths and
@@ -175,7 +175,7 @@ sections `moon`, `nightMobs`, `vampire`.
   breaks a Hollow's guard; Ground Slam, a ring with Slowness). Numbers in config section `sanctumGear`;
   `docs/balance-overworld.md` places them between iron and diamond and below the realm weapons.
 - **Core:** no hostile spawns (spawn-proof Sanctum Flagstone floor); shrine, obelisks and floor unbreakable.
-  First step onto the floor attunes the player ("Attuned") and unlocks Realm 1; any later Sanctum greets them.
+  Attunement is gone (PLAN 15.2): Realm 1 unlocks on the first arrival in the hub; old cores keep working.
 - **Ashen Maiden:** invulnerable NPC facing the entrance; right-click opens the level-up screen (closes beyond
   8 blocks). GeckoLib, script-made model (`tools/overworld_mob_art.py`).
 - **Ember Shrine** (`embervoid:ember_shrine`): rest = full health + flask refill; in a realm it also sets the
@@ -194,8 +194,8 @@ sections `moon`, `nightMobs`, `vampire`.
 ### 5.1 Ashen Reach (Realm 1)
 - Dimension `embervoid:ashen_reach`, entered from the Sanctum obelisk. Bounded: terrain ends in cliffs at
   ~1200 blocks; past ~1230 the void pushes survival players back; falling in is a void death.
-- **Landing** at 0,0: Ember Shrine in the centre, Return Obelisk north (back to the Sanctum the player came
-  from), Sealed Gate south. Mob level 15. Protected from building.
+- **Landing** at 0,0: Ember Shrine in the centre, Return Obelisk north (to the hub; in 0.4.x back to the Sanctum
+  the player came from), Sealed Gate south. Mob level 15. Protected from building.
 - **Zones:** three 120° sectors around the landing with noise-warped borders, decided by the biome source
   `embervoid:realm_zones`: **Ashen Fields** (zone_a, Lv 15–18, low plain), **Royal Woods** (zone_b, 18–21, hills and
   ravines), **Sunken Necropolis** (zone_c, 21–25, sinkhole basin, the only water), terrain from the density function
@@ -303,7 +303,8 @@ the bar name, point the arena JSON's `boss.entity` at it, add its id to the real
 | `/embervoid stamina [spend|set]`, `/embervoid data` | Stamina and player data |
 | `/embervoid remnant` | Put your items and XP into a remnant here |
 | `/embervoid moblevel <targets> [level]` | Show or set mob levels |
-| `/embervoid progress <player> [attune|reset|unlock|complete|boss <id>]` | Progress flags |
+| `/embervoid progress <player> [reset|unlock|complete|boss <id>]` | Progress flags |
+| `/embervoid hub [check|leave]` | To the hub, check it, the hub's way out |
 | `/embervoid realm enter <realm> [toShrine] | leave | where | arenas | data` | Realm travel and layout |
 | `/embervoid boss fights` | Running boss fights |
 | `/embervoid moon status | start full|blood | stop | setcycle <n> | curse <player> <stacks>` | Moon nights |

@@ -43,7 +43,7 @@ DEFAULT_SCENARIO = """
 msg "/embervoid stats"
 msg "/embervoid data"
 # Realm travel
-msg "/embervoid progress Offline attune"
+msg "/embervoid progress Offline unlock embervoid:realm_1"
 msg "/embervoid realm enter embervoid:realm_1"
 wait 10
 msg "/embervoid realm where"

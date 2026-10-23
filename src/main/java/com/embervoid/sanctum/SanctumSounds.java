@@ -7,7 +7,6 @@ import net.minecraft.sound.SoundEvent;
 public final class SanctumSounds {
 	public static final SoundEvent SHRINE_REST = ModSounds.register("block.ember_shrine.rest");
 	public static final SoundEvent FLASK_SHARD_OFFER = ModSounds.register("item.flask_shard.offer");
-	public static final SoundEvent ATTUNE = ModSounds.register("block.sanctum_flagstone.attune");
 	public static final SoundEvent MAIDEN_GREET = ModSounds.register("entity.ashen_maiden.greet");
 	public static final SoundEvent MAIDEN_LEVEL_UP = ModSounds.register("entity.ashen_maiden.level_up");
 

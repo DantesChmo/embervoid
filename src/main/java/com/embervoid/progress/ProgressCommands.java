@@ -18,7 +18,7 @@ import static net.minecraft.server.command.CommandManager.literal;
  * Operator-only debug commands under {@code /embervoid progress <player>}. Output is not translated on purpose.
  * <ul>
  *   <li>{@code /embervoid progress <player>}: show</li>
- *   <li>{@code /embervoid progress <player> attune | reset}</li>
+ *   <li>{@code /embervoid progress <player> reset}</li>
  *   <li>{@code /embervoid progress <player> unlock | complete | boss <id>}</li>
  * </ul>
  */
@@ -34,11 +34,6 @@ final class ProgressCommands {
 						.then(literal("progress")
 								.then(argument("player", EntityArgumentType.player())
 										.executes(context -> show(context, target(context)))
-										.then(literal("attune").executes(context -> {
-											ServerPlayerEntity player = target(context);
-											ProgressManager.attune(player);
-											return show(context, player);
-										}))
 										.then(literal("reset").executes(context -> {
 											ServerPlayerEntity player = target(context);
 											ProgressManager.reset(player);

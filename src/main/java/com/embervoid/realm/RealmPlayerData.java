@@ -8,25 +8,22 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.GlobalPos;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
- * Per-player realm travel state, server-side only: where to return when leaving a realm, and the last Ember Shrine
- * rested at in each realm dimension (the respawn point there). Progress (bosses, realms) is not here; see
- * {@link com.embervoid.progress.ProgressManager}.
+ * Per-player realm travel state, server-side only: the last Ember Shrine rested at in each realm dimension (the respawn
+ * point there). The way out of a realm is the hub ({@link com.embervoid.hub.HubTravel}); the {@code return_point} of
+ * 0.4.x saves is ignored. Progress (bosses, realms) is not here; see {@link com.embervoid.progress.ProgressManager}.
  */
 public final class RealmPlayerData {
+	// Unknown keys are skipped, so the old return_point / return_yaw are dropped on load.
 	public static final Codec<RealmPlayerData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-			GlobalPos.CODEC.optionalFieldOf("return_point").forGetter(data -> Optional.ofNullable(data.returnPoint)),
-			Codec.FLOAT.optionalFieldOf("return_yaw", 0f).forGetter(data -> data.returnYaw),
 			Codec.unboundedMap(Identifier.CODEC, GlobalPos.CODEC).optionalFieldOf("shrines", Map.of()).forGetter(data -> data.shrines)
-	).apply(instance, (returnPoint, returnYaw, shrines) -> new RealmPlayerData(returnPoint.orElse(null), returnYaw, shrines)));
+	).apply(instance, RealmPlayerData::new));
 
-	// Persistent and copied on death: a realm death must still know the shrine and the way home.
+	// Persistent and copied on death: a realm death must still know the shrine.
 	@SuppressWarnings("UnstableApiUsage")
 	public static final AttachmentType<RealmPlayerData> ATTACHMENT = AttachmentRegistry.<RealmPlayerData>builder()
 			.persistent(CODEC)
@@ -34,20 +31,14 @@ public final class RealmPlayerData {
 			.copyOnDeath()
 			.buildAndRegister(Embervoid.id("realm_player"));
 
-	/** Where the player entered the current realm from (a Sanctum), or null. */
-	@Nullable
-	public GlobalPos returnPoint;
-	public float returnYaw;
 	/** Realm dimension id → last shrine block rested at in that dimension (open zones and final zone apart). */
 	public final Map<Identifier, GlobalPos> shrines;
 
 	public RealmPlayerData() {
-		this(null, 0, Map.of());
+		this(Map.of());
 	}
 
-	private RealmPlayerData(@Nullable GlobalPos returnPoint, float returnYaw, Map<Identifier, GlobalPos> shrines) {
-		this.returnPoint = returnPoint;
-		this.returnYaw = returnYaw;
+	private RealmPlayerData(Map<Identifier, GlobalPos> shrines) {
 		this.shrines = new HashMap<>(shrines);
 	}
 
@@ -62,6 +53,6 @@ public final class RealmPlayerData {
 
 	@Override
 	public String toString() {
-		return "RealmPlayerData{returnPoint=" + returnPoint + ", shrines=" + shrines + "}";
+		return "RealmPlayerData{shrines=" + shrines + "}";
 	}
 }

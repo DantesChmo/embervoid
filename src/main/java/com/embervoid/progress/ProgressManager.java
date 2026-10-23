@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * The {@code progress} API: per-player attunement, unlocked / completed realms and beaten bosses.
+ * The {@code progress} API: per-player unlocked / completed realms and beaten bosses.
  *
  * <p>Read with {@link #get} on either side (the client holds a synced copy of its own player's progress).
  * Change only on the server through the mutators below: each one saves, syncs to the owning client and fires
@@ -29,10 +29,10 @@ public final class ProgressManager {
 	/** S2C: the full {@link PlayerProgress} of the receiving player. */
 	public static final Identifier SYNC_PACKET = Embervoid.id("progress");
 
-	/** The first realm; unlocked for every player on attunement. Its content is owned by the realms track. */
+	/** The first realm; unlocked on a player's first arrival in the hub ({@code HubTravel}). Owned by the realms track. */
 	public static final Identifier REALM_1 = Embervoid.id("realm_1");
 	/**
-	 * The realms of the Sanctum's obelisks, in order (DESIGN §4.4). Only Realm 1 is built; the others can still be
+	 * The realms of the hub's obelisks, in order (DESIGN §4.4). Only Realm 1 is built; the others can still be
 	 * unlocked, so their obelisk lights up before its realm exists.
 	 */
 	public static final List<Identifier> REALM_ORDER = List.of(REALM_1, Embervoid.id("realm_2"),
@@ -70,10 +70,6 @@ public final class ProgressManager {
 		player.setAttached(PROGRESS, progress);
 	}
 
-	public static boolean isAttuned(PlayerEntity player) {
-		return get(player).isAttuned();
-	}
-
 	public static boolean isRealmUnlocked(PlayerEntity player, Identifier realm) {
 		return get(player).isRealmUnlocked(realm);
 	}
@@ -91,18 +87,6 @@ public final class ProgressManager {
 	public static Identifier nextRealm(Identifier realm) {
 		int index = REALM_ORDER.indexOf(realm);
 		return index >= 0 && index + 1 < REALM_ORDER.size() ? REALM_ORDER.get(index + 1) : null;
-	}
-
-	/** Attunes the player and unlocks {@link #REALM_1}. Returns false if they were already attuned. */
-	public static boolean attune(ServerPlayerEntity player) {
-		PlayerProgress progress = get(player);
-		if (progress.attuned) {
-			return false;
-		}
-		progress.attuned = true;
-		progress.unlockedRealms.add(REALM_1);
-		changed(player, progress);
-		return true;
 	}
 
 	public static boolean unlockRealm(ServerPlayerEntity player, Identifier realm) {

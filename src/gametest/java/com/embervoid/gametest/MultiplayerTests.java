@@ -94,7 +94,7 @@ public final class MultiplayerTests implements FabricGameTest {
 	private static final int RADIUS = 6;
 
 	/**
-	 * Three players, one attuned veteran (A), one attuned newcomer (B), one not attuned (C). A beats the three zone
+	 * Three players, a veteran (A) and a newcomer (B) with Realm 1 unlocked, one without (C). A beats the three zone
 	 * bosses alone; then A helps B with one. Each keeps their own beaten bosses and obelisks, only the owner hears of
 	 * a change, and the Sealed Gate lets A through while it stays sealed for B and C.
 	 */
@@ -109,11 +109,11 @@ public final class MultiplayerTests implements FabricGameTest {
 			ServerPlayerEntity a = arena.join(4, 6, sync[0]);
 			ServerPlayerEntity b = arena.join(30, 3, sync[1]);
 			ServerPlayerEntity c = arena.join(30, 5, sync[2]);
-			ProgressManager.attune(a);
-			ProgressManager.attune(b);
+			ProgressManager.unlockRealm(a, ProgressManager.REALM_1);
+			ProgressManager.unlockRealm(b, ProgressManager.REALM_1);
 			context.assertTrue(glow(a, ProgressManager.REALM_1) == Glow.LIT && glow(b, ProgressManager.REALM_1) == Glow.LIT,
-					"Realm 1 not lit for the attuned players");
-			context.assertTrue(glow(c, ProgressManager.REALM_1) == Glow.DARK, "Realm 1 lit for a player who was never attuned");
+					"Realm 1 not lit for the players who unlocked it");
+			context.assertTrue(glow(c, ProgressManager.REALM_1) == Glow.DARK, "Realm 1 lit for a player who never unlocked it");
 
 			int bBefore = sync[1].count(ProgressManager.SYNC_PACKET);
 			int cBefore = sync[2].count(ProgressManager.SYNC_PACKET);
@@ -367,7 +367,7 @@ public final class MultiplayerTests implements FabricGameTest {
 			PlayerStats.set(owner, Stat.VITALITY, 14);
 			PlayerDataManager.get(owner).flaskCharges = 0;
 			HealingFlaskItem.refill(owner);
-			ProgressManager.attune(owner);
+			ProgressManager.unlockRealm(owner, ProgressManager.REALM_1);
 			ProgressManager.markBossBeaten(owner, ReachBosses.WOODS);
 
 			List<Identifier> toOwner = ownerSync.channels.subList(ownerBefore, ownerSync.channels.size());
@@ -379,7 +379,7 @@ public final class MultiplayerTests implements FabricGameTest {
 			context.assertTrue(leaked.isEmpty(), "another player was sent " + leaked);
 			context.assertTrue(ReliquaryManager.get(other).get(SlotKinds.ARTIFACT, 0).isEmpty(), "the other player wears the artifact");
 			context.assertTrue(PlayerStats.get(other, Stat.VITALITY) == 10, "the other player's Vitality changed");
-			context.assertTrue(!ProgressManager.isAttuned(other), "the other player got attuned");
+			context.assertTrue(!ProgressManager.isRealmUnlocked(other, ProgressManager.REALM_1), "the other player got Realm 1");
 			arena.finish();
 		});
 	}

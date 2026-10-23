@@ -45,7 +45,8 @@ import java.util.List;
  *   <li>The hub structure is placed once per world, when the server first starts with the dimension
  *   ({@link HubState} remembers it); nothing rebuilds it later.</li>
  *   <li>Outside creative nothing can be broken or built in the whole dimension, like in arenas.</li>
- *   <li>For now {@code /embervoid hub} is the only way in (tasks 15.2 and 15.4 add the real travel).</li>
+ *   <li>Leaving a realm lands here; the way in from the overworld is the Cleft Stele (task 15.4), until then
+ *   {@code /embervoid hub}. Travel in and out: {@link HubTravel}.</li>
  * </ul>
  */
 public final class Hub {
@@ -67,6 +68,7 @@ public final class Hub {
 			return isProtected(world, player) && stack.getItem() instanceof BucketItem
 					? TypedActionResult.fail(stack) : TypedActionResult.pass(stack);
 		});
+		HubTravel.register();
 		HubCommands.register();
 	}
 
