@@ -42,7 +42,8 @@
 			"com.embervoid.gametest.HubTests",
 			"com.embervoid.gametest.CleftSteleTests",
 			"com.embervoid.gametest.CombatFxTests",
-			"com.embervoid.gametest.PropTests"
+			"com.embervoid.gametest.PropTests",
+			"com.embervoid.gametest.AttackAnimationTests"
 		]
 	},
 	"mixins": [
