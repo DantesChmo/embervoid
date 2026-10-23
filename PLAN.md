@@ -596,20 +596,22 @@ B puts A out. Leaving an obelisk lands in the hub; the hub's exit leads to the a
 
 | ID | Task | Size | Depends on | Status |
 |----|------|------|------------|--------|
-| 15.0 | **Design: hub, stele, dungeon, old worlds** (with the user) | M | — | todo |
+| 15.0 | **Design: hub, stele, dungeon, old worlds** (with the user) | M | — | done (DESIGN §1, §2, §10.13) |
 | 15.1 | **Hub dimension** | M | 15.0 | todo |
 | 15.2 | **Realm travel through the hub** | M | 15.1 | todo |
 | 15.3 | **Cleft Stele: blocks, frame, activation** | M | 15.0 | todo |
 | 15.4 | **Active stele and travel** | M | 15.2, 15.3 | todo |
 | 15.5 | **Worlds from 0.4.x** | S–M | 15.2, 16.1 | todo |
 
-- **15.0 Design.** DESIGN §1 (journey), §2 rewritten, §10 updated. Big choices for the user: the dungeon boss (2–3
-  pitches: concept, arena, moves); one active stele per world or per player (per world: one player's new stele puts
-  out another's); whether the dungeon keeps an Ember Shrine. Decided in the pass: the hub's layout and size (the
-  Sanctum core: Maiden, obelisk ring, shrine, on an island in a void dimension, protected like arenas), where a player
-  lands and the exit, the exit with no active stele (bed or world spawn), death in the hub, the stele pattern and
-  block names, dungeon variants (2–3), the Sanctum Map leading to the nearest dungeon, Attunement dropped (unlocks stay
-  per-player progress), what happens to Sanctums already generated in old worlds (recommended: their core keeps
+- **15.0 Design.** *Done 2026-10-23:* DESIGN §1, §2 and §10.13. The user picked the **Fallen Sister** as the dungeon
+  boss, **one lit stele per world** and an **Ember Shrine at the boss door**; the rest was decided in the pass and is
+  listed in §2. The original brief: DESIGN §1 (journey), §2 rewritten, §10 updated. Big choices for the user: the
+  dungeon boss (2–3 pitches: concept, arena, moves); one active stele per world or per player (per world: one player's
+  new stele puts out another's); whether the dungeon keeps an Ember Shrine. Decided in the pass: the hub's layout and
+  size (the Sanctum core: Maiden, obelisk ring, shrine, on an island in a void dimension, protected like arenas), where
+  a player lands and the exit, the exit with no active stele (bed or world spawn), death in the hub, the stele pattern
+  and block names, dungeon variants (2–3), the Sanctum Map leading to the nearest dungeon, Attunement dropped (unlocks
+  stay per-player progress), what happens to Sanctums already generated in old worlds (recommended: their core keeps
   working, nothing is destroyed).
 - **15.1 Hub dimension.** Datapack dimension `embervoid:hub` (fixed time, no weather, no natural spawns, bounded);
   the hub structure placed once at a fixed spot when the dimension first loads; Maiden, Void Obelisks with their
@@ -621,12 +623,13 @@ B puts A out. Leaving an obelisk lands in the hub; the hub's exit leads to the a
 - **15.3 Cleft Stele: blocks, frame, activation.** Stele stone and its kindled variant (glowmask), the crack block
   (mist, particles); frame detection 5 × 6 on both axes per the 15.0 pattern; right-click with `crying_soul` on a
   valid frame uses it up and kindles the blocks, with a sound; the soul's only source until 16.3 is creative / a
-  command. Art through `tools/art_kit.py`, checked with `tools/model_preview.py`. GameTests: valid and invalid frames
+  command. Cleft Stone is crafted (8 stone bricks around 1 coal or charcoal → 8, DESIGN §2). Art through
+  `tools/art_kit.py`, checked with `tools/model_preview.py`. GameTests: valid and invalid frames
   on both axes, the soul taken only on a valid frame, breaking a frame block puts the stele out.
 - **15.4 Active stele and travel.** World state (`PersistentState`): the active stele (dimension, position, axis);
-  activating B puts A out; right-click on the active stele → hub, the hub exit → the active stele (none: per 15.0);
-  the multiplayer rule per 15.0. GameTests: round trip, B replaces A, a broken active stele, two players, a stele
-  in the Nether.
+  activating B puts A out; right-click on the active stele → hub, the hub exit → the active stele (none: per 15.0); one
+  lit stele per world (DESIGN §2). GameTests: round trip, B replaces A (also when another player kindles B), a broken
+  active stele, two players, a stele in the Nether.
 - **15.5 Worlds from 0.4.x.** Per 15.0: Sanctum cores already generated, players standing in a Sanctum or holding an
   old return point when the world is updated, attunement flags. GameTests on old-format player data and an old
   Sanctum template placed in the test world.
@@ -641,19 +644,22 @@ B puts A out. Leaving an obelisk lands in the hub; the hub's exit leads to the a
 | 16.4 | **Overworld balance re-run** | M | 15.1–16.3 | todo |
 
 - **16.1 Sanctum → dungeon.** The `ember_sanctum` structure keeps its outer halls, guards (Hollows and the rest) and
-  loot (Flask Shards, Sanctum weapons); the core with the Maiden and the obelisks goes, a boss arena takes its place.
-  Structure id kept or renamed per 15.0 (renaming loses `/locate` in old worlds). GameTests: a fresh dungeon has no
+  loot (Flask Shards, Sanctum weapons); the core with the Maiden and the obelisks goes. An Ember Shrine at the boss
+  door, then a fog wall and the boss arena with a cold, protected Cleft Stele at its far end (DESIGN §2). Structure id
+  stays `embervoid:ember_sanctum`; the name becomes Ruined Sanctum. GameTests: a fresh dungeon has no
   Maiden or obelisk, guards and chests as before; `SanctumTests` updated.
 - **16.2 Variants and frequency.** The user found three villages, three shrines and about five ruined portals before
   one Sanctum (`spacing` 48 / `separation` 16 chunks, about one per 768 blocks). Target: about one per 300–400 blocks
   (`spacing` ~22 / `separation` ~8), 2–3 variants (separate start pools sharing the halls) so it does not repeat; the
   Sanctum Map leads to the nearest dungeon. Check: JUnit on the structure set; the server check counts dungeons
   within 1500 blocks on two seeds; variants rendered by 19.1 once it exists.
-- **16.3 The dungeon boss.** The boss from 15.0 on the boss framework (`com.embervoid.boss`: arena, fog wall,
-  telegraphs, music, per-player loot, rematch); model and animations through the art scripts at final quality in
-  this task (death, hit and phase animations included, see milestone 19); level band about 8–12; drops the Crying
-  Soul (first kill personal; repeat kills per 15.0). GameTests: start and reset, telegraphs land only after their
-  wind-up, the soul drops, multiplayer loot; a row in the balance model.
+- **16.3 The dungeon boss.** The **Fallen Sister** (DESIGN §2: look, phases, crying souls, drops) on the boss
+  framework (`com.embervoid.boss`: arena, fog wall, telegraphs, music, loot), without rematch: each dungeon's boss
+  is beaten once per world and every credited player gets a Crying Soul. Model and animations through the art scripts
+  at final quality in this task (robe, veil and chain motion; death, hit and phase animations, see milestone 19).
+  Fought by a level 1 player in vanilla gear; level band about 8–12. GameTests: start and reset, telegraphs land only
+  after their wind-up, the soul drops for every credited player, a cleared dungeon stays cleared; a row in the
+  balance model.
 - **16.4 Overworld balance re-run.** The overworld route (`docs/balance-overworld.md`) re-run with more dungeons
   (guard XP, Flask Shards, Sanctum weapons) and the boss; the server check covers the hub. Feeds 18.3.
 

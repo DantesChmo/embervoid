@@ -34,7 +34,7 @@ Full list with status in [DESIGN.md](DESIGN.md). The ones that shape the roadmap
 
 | Topic | Decision |
 |---|---|
-| Structure | Hub (Ember Sanctum) in the overworld (moves to its own dimension in 0.5.0) → obelisks → realm dimensions with 4 zones each; final zone locked behind the 3 zone bosses (a fog wall inside the realm from 0.5.0); realm N+1 locked behind realm N |
+| Structure | Hub (Ember Sanctum) in the overworld (in its own dimension from 0.5.0, reached through a Cleft Stele) → obelisks → realm dimensions with 4 zones each; final zone locked behind the 3 zone bosses (a fog wall inside the realm from 0.5.0); realm N+1 locked behind realm N |
 | Classes | None. Everyone starts as the Deprived: level 1, all 7 stats at 10 |
 | Leveling | At the Ashen Maiden, paid in vanilla XP points, growing cost per level |
 | Difficulty | Every hostile mob has a level; vanilla mobs hit harder even on Easy; new overworld hostiles |
@@ -324,9 +324,9 @@ visuals; the quick fixes fit in anywhere. Milestones 15, 17 and 21 start with a 
 
 ## 15. Hub dimension and the Cleft Stele
 
-**Status:** To do (design first, PLAN 15.0 rewrites DESIGN §2).
+**Status:** Design done (DESIGN §2); build to do.
 
-- [ ] Design: hub, stele, dungeon boss, old worlds (DESIGN §1, §2, §10)
+- [x] Design: hub, stele, dungeon boss (**Fallen Sister**), old worlds — DESIGN §1, §2, §10.13
 - [ ] Hub dimension with the Ashen Maiden, the obelisk ring and an Ember Shrine; realms return to it
 - [ ] **Cleft Stele**: a 5 × 6 slab frame, kindled by the Crying Soul, one active stele per world, stele ⇄ hub
 - [ ] Worlds from 0.4.x keep working
@@ -337,7 +337,7 @@ visuals; the quick fixes fit in anywhere. Milestones 15, 17 and 21 start with a 
 
 - [ ] The overworld Sanctum becomes a dungeon: outer halls, guards and loot stay, the core gives way to a boss arena
 - [ ] 2–3 variants, about one per 300–400 blocks; the Sanctum Map leads to the nearest
-- [ ] Dungeon boss (designed from scratch), drops the **Crying Soul**
+- [ ] Dungeon boss **Fallen Sister**, drops the **Crying Soul**
 - [ ] Overworld balance re-run
 
 ## 17. Weapons above netherite

@@ -22,57 +22,119 @@ the user decides otherwise. **Open** — needs a decision before the milestone t
 ## 1. Player journey
 
 ```
- Overworld (harder)          Ember Sanctum (hub)                 Realm N
- ──────────────────          ───────────────────                 ───────
- survive, mine, craft  ──►   find it (rare, like a village) ──►  obelisk N teleports you in
- stronger vanilla mobs       fight through its outer halls        3 zones, any order, 1 boss each
- + new hostile mobs          reach the core: safe room            ─► Sealed Gate opens
- earn vanilla XP             level up at the Ashen Maiden         final zone + realm boss
-          ▲                   obelisks: 1 lit, the rest dark      ─► obelisk N+1 lights up
-          └──────────── return home any time, spend XP, repeat ◄──┘
+ Overworld (harder)        Ruined Sanctum (dungeon)     Ember Sanctum (hub)       Realm N
+ ──────────────────        ────────────────────────     ───────────────────       ───────
+ survive, mine, craft ──►  common, like a village   ──► Maiden: level up     ──►  obelisk N teleports you in
+ stronger vanilla mobs     fight through the halls      obelisk ring              3 zones, any order, 1 boss each
+ + new hostile mobs        Fallen Sister → Crying Soul  Ember Shrine              ─► the final zone opens
+ earn vanilla XP           kindle the Cleft Stele ──────►                         final zone + realm boss
+          ▲                                             ▲                         ─► obelisk N+1 lights up
+          └─────── hub exit → the lit stele ◄───────────┴──── leaving a realm ◄───┘
 ```
 
 1. **Overworld.** The player starts in a normal Minecraft world and plays it as usual. The world is harder
    than vanilla (the stick, §3): vanilla mobs hit harder even on Easy, and new hostile mobs appear. Vanilla XP
    is now worth more than enchanting — it is what the player levels up with.
-2. **Finding the hub.** The **Ember Sanctum** is a structure that generates with village-like rarity. The
-   player has to go looking for it. The outer part is a real dungeon; the core is a safe room.
-3. **The hub.** In the core: the **Ashen Maiden** (leveling NPC), a ring of **Void Obelisks** (one per realm)
-   and a rest point. The first obelisk is lit; the others are dark until the previous realm is completed.
-4. **Realms.** Each obelisk leads to its own **realm**, a separate dimension with a full visual identity.
+2. **The dungeon.** **Ruined Sanctums** generate about as often as villages. Their outer halls are a real dungeon;
+   where the core used to be, the **Fallen Sister** guards a cold **Cleft Stele**. She drops the **Crying Soul**.
+3. **The way in.** The Crying Soul kindles a Cleft Stele (the one in the dungeon, or one the player builds); a lit
+   stele leads to the hub. One stele burns per world at a time (§2).
+4. **The hub.** The **Ember Sanctum** lies in its own dimension: the **Ashen Maiden** (leveling NPC), a ring of
+   **Void Obelisks** (one per realm) and an Ember Shrine. The first obelisk is lit; the others are dark until the
+   previous realm is completed.
+5. **Realms.** Each obelisk leads to its own **realm**, a separate dimension with a full visual identity.
    A realm has 4 zones (biomes). The first 3 can be done in any order; each ends in a zone boss. Beating all
-   three opens the **Sealed Gate** to the final zone and the realm boss.
-5. **Reward (the carrot, §6).** Each realm drops better gear than the previous one and better than what the
+   three opens the final zone and the realm boss.
+6. **Reward (the carrot, §6).** Each realm drops better gear than the previous one and better than what the
    player could get before it. XP from realm mobs feeds leveling.
-6. **Loop.** Back to the Sanctum, level up, gear up, next realm.
+7. **Loop.** Back to the hub, level up, gear up, next realm; out through the lit stele to the overworld.
+
+The first level-up comes only after the Fallen Sister: she is fought by a level 1 player in vanilla gear, the
+gatekeeper of the mod (like the Asylum Demon).
 
 There is still no storyline and no quest chain. Progression is structural: places, gates, bosses.
 Lore lives in item descriptions and the environment.
 
 ---
 
-## 2. Ember Sanctum (hub)
+## 2. Ember Sanctum (hub) and the Ruined Sanctum (dungeon)
 
-Being replaced in 0.5.0: the hub moves to its own dimension reached through a Cleft Stele, the overworld structure
-becomes a dungeon with a boss ([PLAN.md](PLAN.md) milestone 15; 15.0 rewrites this section).
+Decided 2026-10-23 (the 0.4.1 playtest, PLAN 15.0): the player should not depend on finding one generated Sanctum.
+The overworld structure becomes a dungeon, the Maiden and the obelisks move to a hub dimension. Built in 0.5.0
+(PLAN milestones 15–16).
+
+### The hub: Ember Sanctum
 
 | Topic | Design | Status |
 |---|---|---|
-| Spawning | Overworld structure, any land biome. Spacing ~48 chunks, separation ~16 (rarer than villages: roughly one per 750 blocks). Tunable through the `structure_set` datapack file | Proposed |
-| Layout | **Outer halls**: surface ruin + descent, guarded (Hollows, traps, loot). **Core**: hostile-spawn-free room with the Maiden, the obelisk ring, an Ember Shrine. Size: jigsaw depth 4 and a light guard (a fresh player must be able to fight through it); the descent is a closed shaft cased in rock that never opens into caves | Decided |
-| Finding it | Pure exploration, plus a rare **Sanctum Map** (explorer-map style) injected into vanilla chest loot (villages, ruined portals, shipwrecks) | Proposed |
-| Attunement | The first time a player reaches a core, they are *attuned*. From then on **any** Sanctum works for them; progress is per player, not per structure | Proposed |
-| Return point | Leaving a realm returns you to the Sanctum you entered from | Proposed |
-| Protection | Core blocks (obelisks, shrine, floor of the obelisk ring) are unbreakable. The Maiden is invulnerable and never despawns. Outer halls are normal blocks | Proposed |
+| Place | Dimension `embervoid:hub`: one shared hub for all players, an island in a void under eternal dusk (fixed time, no weather, no natural spawns, bounded). The hub structure is placed once at a fixed spot when the dimension first loads | Decided |
+| Contents | The old Sanctum core: the Ashen Maiden, the ring of Void Obelisks, an Ember Shrine (rest, flask refill, Flask Shards; it does not set the respawn point); the hub's own Cleft Stele, always lit, is the exit | Decided |
+| Getting in | Through a lit Cleft Stele (below). Leaving a realm, by the Return Obelisk or after the realm boss, always lands in the hub | Decided |
+| Exit | The hub's stele leads to the world's lit stele. With none lit (broken or never kindled): to the spot the player last left the overworld from; failing that, their bed or the world spawn | Decided |
+| Death | No hostile mobs; a fall into the void kills. Respawn as in the overworld (bed or world spawn) | Decided |
+| Protection | The whole hub island: no breaking, no building (like arenas). The Maiden is invulnerable and never despawns | Decided |
+| Progress | Per player, as before: obelisk states and unlocks come from `PlayerProgress`. **Attunement is dropped**; there is one hub, so "any Sanctum works" no longer applies | Decided |
+
+### The Cleft Stele
+
+| Topic | Design | Status |
+|---|---|---|
+| Shape | A wide flat slab the size of a nether portal, **5 wide and 6 tall**, split top to bottom: two columns of Cleft Stone on each side, the middle column is the crack (the passage). Wide and flat so it reads as a stele, not a pillar. Detected like a nether portal frame, on either axis | Decided |
+| Blocks | **Cleft Stone** (24 per stele): crafted, 8 stone bricks around 1 coal or charcoal → 8. Cheap on purpose: the soul is the gate, not the stone. A cold stele already stands in every dungeon arena (protected, not minable) | Decided |
+| Kindling | Right-click a valid frame with the **Crying Soul**: the soul is used up, the stone turns kindled (glowing cracks), mist and particles fill the crack, a sound plays. No crafting and no moon-night ingredients | Decided |
+| Use | Right-click on a lit stele (or walk into the crack) → the hub | Decided |
+| **One per world** | The world has at most one lit stele (besides the hub's own). Kindling another puts the old one out. On a server one player's new stele puts it out for everyone; accepted (the user, 2026-10-23) | Decided |
+| Breaking | Breaking any stone of a lit stele puts it out; the hub exit then falls back as above | Decided |
+| Where | Overworld, Nether and End alike; not in realms or the hub | Decided |
+
+### The dungeon: Ruined Sanctum
+
+| Topic | Design | Status |
+|---|---|---|
+| Spawning | Overworld structure, any land biome, about one per 300–400 blocks (`spacing` ~22 / `separation` ~8 chunks; was 48 / 16). Structure id stays `embervoid:ember_sanctum`, so `/locate` and old Sanctum Maps keep working. Tunable through the `structure_set` datapack file | Decided |
+| Variants | 2–3 start pools sharing the halls, so it does not repeat; one boss for all | Decided |
+| Layout | **Outer halls** as before: surface ruin + descent (a closed shaft cased in rock), guards (Hollows, skeleton archers), traps, loot (Flask Shards, the Sanctum weapons). An **Ember Shrine at the boss door** (rest, flask refill, Flask Shards; respawn stays at the bed). Behind a fog wall, the **boss arena** in place of the old core, with a cold Cleft Stele at its far end | Decided |
+| Finding it | Exploration, plus the rare **Sanctum Map** in vanilla chest loot (villages, ruined portals, shipwrecks), now pointing at the nearest dungeon | Decided |
+| Clearing | Each dungeon's boss is its own: beaten once per world (by whoever is in the fight), then the dungeon is cleared and the boss does not return. Every credited player gets a Crying Soul. Frequent dungeons mean a new soul is a short trip away | Decided |
+| Names | The dungeon is the **Ruined Sanctum** (Разорённое Святилище), the hub the **Ember Sanctum** (Святилище Углей) | Decided |
+
+### Fallen Sister (dungeon boss)
+
+The Maiden's twin, burnt out trying to keep the flame alive. Her tears are what is left of her: the Crying Soul.
+Concept decided (the user, 2026-10-23); moves and numbers are the first draft for PLAN 16.3.
+
+- **Look:** tall (about 3 blocks), thin, a ragged ash-grey robe and veil, a censer on a long chain; embers drip from
+  under the veil. Secondary motion on the robe, veil and chain; death, hit-reaction and phase-change animations
+  from the start (PLAN milestone 19 sets the bar).
+- **Fight:** a level 1 player in iron or diamond, solo, about 1.5–2 minutes with dodging (about 20–30 clean hits
+  with an iron sword). No hit takes two thirds of the player's health without a clear wind-up; nothing one-shots a
+  full-health player in iron on Normal.
+- **Phase 1:** censer swings in wide arcs (wind-up: the chain winds around her arm), a slam that leaves a puddle of
+  embers for a few seconds, a short backstep away from a player behind her.
+- **Phase 2** (below half health): the veil burns away; 3–4 **crying souls** circle her and dive at the player one
+  by one, each with a shriek and a glowing trail before the dive (dodgeable, killable with one hit); the censer
+  spins around her (ring telegraph).
+- **Arena:** the old core room, dim, with the cold stele behind her; braziers that light up as she loses health.
+- **Drops:** the Crying Soul for every credited player; Sanctum-tier loot, a Flask Shard on the first clear; XP like a
+  strong overworld mob pack. Level band and HP through the balance model (PLAN 16.3 / 18.3).
+- **Music:** the shared zone-boss theme until she gets her own.
+
+### Worlds from 0.4.x
+
+Nothing generated is destroyed. Sanctum cores already in the world keep their Maiden (she still levels players)
+and obelisks (they still lead to realms); leaving a realm lands in the hub, and the hub exit, with no lit stele,
+leads back to the spot the player last left the overworld from, which is that old core. Attunement flags and old
+return points are ignored.
 
 ### Ashen Maiden (leveling NPC)
 - Talk → **level-up screen**: all stats, their current derived values (HP, stamina, damage bonus…), a preview
   of what the next point gives, the cost in XP points, and how much XP the player has.
 - Points are bought **one at a time** and applied immediately.
+- Stands in the hub (and in old worlds' Sanctum cores).
 - Later (not 0.x): respec item, merchant role ([BACKLOG.md](BACKLOG.md)).
 
 ### Void Obelisks
-- One per realm, placed in a ring. States: **dark** (locked, tooltip hint "the flame has not reached it"),
+- One per realm, placed in a ring in the hub. States: **dark** (locked, tooltip hint "the flame has not reached it"),
   **lit** (unlocked), **kindled** (realm completed).
 - Right-click a lit obelisk → teleport to that realm's landing point (or to the last Ember Shrine you rested
   at in that realm — the player chooses).
@@ -209,17 +271,17 @@ Demon's Souls gives an archstone shard after each boss. We do the same:
 - Each zone boss leaves an **Ember Shrine** in its arena. The landing has one from the start. An arena shrine
   stands outside the fog wall and is dormant (cannot be rested at) for players who have not beaten that boss
   (**Proposed — built as recommended**, §10.8).
-- Resting at a shrine: refills flasks, sets the **realm respawn point**, allows teleport to the Sanctum.
+- Resting at a shrine: refills flasks, sets the **realm respawn point**, allows teleport to the hub.
 - Dying **in a realm**: respawn at the last shrine rested at in that dimension of the realm (the open zones and
   the final zone count separately); with no rested shrine there, at that dimension's landing. Your overworld bed spawn is not
   touched. (**Decided**)
 - Dying **in the overworld**: vanilla respawn.
 - The **Ash Remnant** (§7) applies everywhere: your XP — your currency — waits where you died.
-- This reverses the old "no bonfire" decision. Shrines exist only in realms and the Sanctum; the overworld
-  keeps beds.
+- This reverses the old "no bonfire" decision. Shrines exist only in realms, the hub and at the dungeon's boss
+  door (the last two never set a respawn point); the overworld keeps beds.
 
 ### 4.3 Bosses and multiplayer
-Progress (attunement, beaten bosses, unlocked realms) is **per player**. A realm dimension is shared.
+Progress (beaten bosses, unlocked realms) is **per player**. A realm dimension is shared.
 
 - Entering an arena whose boss is not alive summons it **if any player inside has not beaten it yet**.
   A fog wall closes the arena until the fight ends.
@@ -589,7 +651,7 @@ Each realm has its own **material tier** and gear set. Rough position against va
 | Source | Tier | Status |
 |---|---|---|
 | Overworld | Vanilla up to diamond / netherite | — |
-| Sanctum outer halls | Flask shards, the Sanctum Longsword and Ashbearer's Mace (§10.10), vanilla loot; the Wanderer's Cloak moved to [BACKLOG.md](BACKLOG.md) | Proposed — built as recommended |
+| Ruined Sanctum (dungeon) | The Crying Soul from the Fallen Sister (§2); in the outer halls flask shards, the Sanctum Longsword and Ashbearer's Mace (§10.10), vanilla loot; the Wanderer's Cloak moved to [BACKLOG.md](BACKLOG.md) | Proposed — built as recommended |
 | Realm 1 | Smoldering Ingot ≈ diamond+: Smoldering Plate (diamond protection, more toughness, fire resistance), unique weapons, rings and artifacts (§4.5) | Decided |
 | Realm 2 | ≈ netherite | Proposed |
 | Realm 3 | above netherite | Proposed |
@@ -657,7 +719,7 @@ The part of the weapons doc every special attack follows:
 - Realm dimensions: datapack `dimension` / `dimension_type` / noise settings + Java `BiomeSource` and a custom
   `StructurePlacement` for guaranteed per-zone arenas. Final zones are their own dimensions.
 - Teleports between dimensions with `FabricDimensions.teleport` and a `TeleportTarget` (no portal search).
-- Player data (stats, level, attunement, beaten bosses, unlocked realms, realm respawn points, flask
+- Player data (stats, level, beaten bosses, unlocked realms, realm respawn points, flask
   charges and upgrades, remnant id) is saved on the player, copied across death and dimension change, synced
   to the owning client. Storage: Fabric Data Attachment API (in Fabric API 0.92.x it persists and copies on
   death, but does not sync — sync is our own S2C packet, re-sent on join, respawn and dimension change).
@@ -743,10 +805,19 @@ Each question names the milestone that cannot start without an answer.
     - *Player kills* do not add curse stacks; only a direct kill by a hostile mob (or its projectile) does.
     - *Remnant in the arena.* When the arena closes, a remnant left there moves to its owner's return point (where
       they were pulled from). Nothing is destroyed. A player killed there respawns as usual and stays out.
-    - *Who is pulled.* Every player in the overworld outside a Sanctum core. Players in realms, the Nether, the
+    - *Who is pulled.* Every player in the overworld outside a Sanctum core (from 0.5.0: in the overworld; the hub
+      is its own dimension). Players in realms, the Nether, the
       End or a boss fight are not pulled and do not take part.
     - *Vampires in multiplayer.* One Vampire group per cluster of overworld players (players within 64 blocks
       share one). The first hit on any Vampire turns that one; all the others vanish.
     - *One shared night.* The night is held while any overworld player's zombies or ghosts are alive. A player
       outside the overworld gets their wave on return only while the night is still on. The 30-minute fallback
       ends it for everyone.
+13. **The hub and the dungeon** (the 0.4.1 playtest): the Maiden and the obelisks move out of the overworld
+    Sanctum. Where to, how the player gets in, who guards the way, multiplayer, old worlds.
+    *Needed by:* milestone 15 (PLAN 15.0).
+    **Decided** (2026-10-23, §2): a hub dimension reached through a **Cleft Stele** kindled by the **Crying Soul**;
+    the overworld structure is the **Ruined Sanctum** dungeon guarded by the **Fallen Sister** (the user's pick of
+    three concepts); **one lit stele per world** (the user's pick over one per player); an **Ember Shrine at the boss
+    door** (the user's pick). The rest (hub layout, exit fallback, Cleft Stone recipe, per-dungeon clearing, names,
+    old worlds) decided in the same pass, easy to change.
