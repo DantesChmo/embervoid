@@ -605,7 +605,7 @@ B puts A out. Leaving an obelisk lands in the hub; the hub's exit leads to the a
 | ID | Task | Size | Depends on | Status |
 |----|------|------|------------|--------|
 | 15.0 | **Design: hub, stele, dungeon, old worlds** (with the user) | M | — | done (DESIGN §1, §2, §10.13) |
-| 15.1 | **Hub dimension** | M | 15.0 | todo |
+| 15.1 | **Hub dimension** | M | 15.0 | done (JUnit `HubLayoutTest`, GameTests `HubTests`, server check: hub whole, one Maiden; not seen in game: the dusk sky and light on the island, the layout at eye level, arriving by `/embervoid hub`) |
 | 15.2 | **Realm travel through the hub** | M | 15.1 | todo |
 | 15.3 | **Cleft Stele: blocks, frame, activation** | M | 15.0 | todo |
 | 15.4 | **Active stele and travel** | M | 15.2, 15.3 | todo |
@@ -625,6 +625,11 @@ B puts A out. Leaving an obelisk lands in the hub; the hub's exit leads to the a
   the hub structure placed once at a fixed spot when the dimension first loads; Maiden, Void Obelisks with their
   per-player states, Ember Shrine; breaking and building refused like in arenas. GameTests: placed exactly once, the
   Maiden and the obelisk ring present, obelisk states per player, building refused.
+  *Done:* package `hub` (`Hub`, `HubLayout`, `HubState`, `/embervoid hub [check]`); template `hub/ember_sanctum`
+  (`hub.datagen.HubTemplates`), the open core on a floating island at 0 64 0, placed on the first server start and
+  never again. The hub's Cleft Stele goes at `HubLayout.STELE_CRACK_BOTTOM` (0 65 -16, 5 wide along x, an empty spot on
+  a chiseled pad); the landing is 0 65 -13 facing the core. The whole dimension refuses building outside creative.
+  The sky still dims while it rains in the overworld (no rain or lightning falls), as in the realms.
 - **15.2 Realm travel through the hub.** Hub obelisks → realms as now; the Return Obelisk and leaving a realm → the
   hub (`RealmPlayerData.returnPoint` no longer points at a Sanctum); `Attunement` removed or reduced to the first hub
   visit. GameTests: hub → realm → hub, realm respawn unchanged, two players.
