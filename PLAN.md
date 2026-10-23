@@ -606,7 +606,7 @@ B puts A out. Leaving an obelisk lands in the hub; the hub's exit leads to the a
 |----|------|------|------------|--------|
 | 15.0 | **Design: hub, stele, dungeon, old worlds** (with the user) | M | — | done (DESIGN §1, §2, §10.13) |
 | 15.1 | **Hub dimension** | M | 15.0 | done (JUnit `HubLayoutTest`, GameTests `HubTests`, server check: hub whole, one Maiden; not seen in game: the dusk sky and light on the island, the layout at eye level, arriving by `/embervoid hub`) |
-| 15.2 | **Realm travel through the hub** | M | 15.1 | todo |
+| 15.2 | **Realm travel through the hub** | M | 15.1 | done (GameTests `HubTravelTests` + `HubTests`, JUnit `PlayerProgressTest`, server check bot travel; not seen in game: arriving in the hub from a realm, the travel sound there) |
 | 15.3 | **Cleft Stele: blocks, frame, activation** | M | 15.0 | done (JUnit `SteleFrameTest` + GameTests `CleftSteleTests`; textures previewed; the glow, mist and particles not seen in game, the sounds not heard) |
 | 15.4 | **Active stele and travel** | M | 15.2, 15.3 | todo |
 | 15.5 | **Worlds from 0.4.x** | S–M | 15.2, 16.1 | todo |
@@ -633,6 +633,21 @@ B puts A out. Leaving an obelisk lands in the hub; the hub's exit leads to the a
 - **15.2 Realm travel through the hub.** Hub obelisks → realms as now; the Return Obelisk and leaving a realm → the
   hub (`RealmPlayerData.returnPoint` no longer points at a Sanctum); `Attunement` removed or reduced to the first hub
   visit. GameTests: hub → realm → hub, realm respawn unchanged, two players.
+  *Built:* `hub.HubTravel`. Leaving a realm (the Return Obelisk, `/embervoid realm leave`) lands at the hub's
+  landing; with no hub (broken datapack) it falls back to the hub's way out. `RealmPlayerData` keeps only the shrines;
+  its old `return_point` / `return_yaw` are dropped on load. The spot a player last left "the overworld" from (any
+  dimension not in the `embervoid` namespace, so never the hub, a realm or the Vampire arena) is recorded by
+  `HubTravel.noteDeparture`, called by `HubTravel.enter` (the way into the hub, `/embervoid hub` for now) and
+  `RealmTeleports.enterRealm` (an old world's core); a vanilla `/tp` records nothing. Attachment
+  `embervoid:overworld_exit` (dimension, exact position, yaw; copied on death). API for 15.4:
+  `HubTravel.lastOverworldExit(player)`, `HubTravel.leave(player)` (that spot, else a still-standing bed or charged
+  anchor, else the world spawn), `HubTravel.enter(player)`; op command `/embervoid hub leave`. **Attunement is gone**
+  (`sanctum.Attunement`, its title, welcome line, sound event and lang keys, `/embervoid progress … attune`): Realm 1
+  unlocks without a word on the first arrival in the hub (any world change into it, or joining there); the old
+  `attuned` flag is ignored, and players attuned in 0.4.x already have Realm 1 unlocked. Old cores keep the Maiden
+  and obelisks; a player who never reached a 0.4.x core sees its Realm 1 obelisk dark until their first hub visit.
+  Moon nights only take overworld players, so the hub is left alone; the "in a Sanctum core" exception moved to
+  `Sanctum.isInCore` (old cores still count). Not seen in game: arriving in the hub from a realm, the sound there.
 - **15.3 Cleft Stele: blocks, frame, activation.** Stele stone and its kindled variant (glowmask), the crack block
   (mist, particles); frame detection 5 × 6 on both axes per the 15.0 pattern; right-click with `crying_soul` on a
   valid frame uses it up and kindles the blocks, with a sound; the soul's only source until 16.3 is creative / a

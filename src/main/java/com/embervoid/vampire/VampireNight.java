@@ -1,10 +1,10 @@
 package com.embervoid.vampire;
 
 import com.embervoid.Embervoid;
-import com.embervoid.sanctum.Attunement;
 import com.embervoid.vampire.VampireState.Stage;
 import com.embervoid.moon.api.MoonNight;
 import com.embervoid.moon.api.MoonNights;
+import com.embervoid.sanctum.Sanctum;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.entity.SpawnReason;
@@ -92,7 +92,7 @@ public final class VampireNight {
 	static List<ServerPlayerEntity> candidates(MinecraftServer server) {
 		List<ServerPlayerEntity> players = new ArrayList<>();
 		for (ServerPlayerEntity player : server.getOverworld().getPlayers()) {
-			if (player.isAlive() && !player.isSpectator() && !Attunement.isInCore(player)) {
+			if (player.isAlive() && !player.isSpectator() && !Sanctum.isInCore(player)) {
 				players.add(player);
 			}
 		}

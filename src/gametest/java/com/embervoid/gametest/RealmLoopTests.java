@@ -23,7 +23,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 /**
- * The whole Realm 1 loop as progress sees it (PLAN 13.5): attunement lights the Realm 1 obelisk; the three zone
+ * The whole Realm 1 loop as progress sees it (PLAN 13.5): unlocking Realm 1 (the first hub visit) lights its obelisk; the three zone
  * bosses open the Sealed Gate; the Smoldering Lord, beaten in the depths, completes the realm (its obelisk kindled)
  * and lights the Realm 2 obelisk, which leads nowhere yet. The framework's test boss stands in for every boss (rewards
  * and completion follow the progress id and the world); each boss's own fight has its own tests.
@@ -42,8 +42,9 @@ public final class RealmLoopTests implements FabricGameTest {
 			arena.floor(4, 4, RADIUS + 1);
 			ServerPlayerEntity player = arena.join(4, 6);
 
-			ProgressManager.attune(player);
-			context.assertTrue(glow(player, ProgressManager.REALM_1) == Glow.LIT, "Realm 1 obelisk not lit on attunement");
+			context.assertTrue(glow(player, ProgressManager.REALM_1) == Glow.DARK, "Realm 1 obelisk lit before the hub");
+			ProgressManager.unlockRealm(player, ProgressManager.REALM_1);
+			context.assertTrue(glow(player, ProgressManager.REALM_1) == Glow.LIT, "Realm 1 obelisk not lit when unlocked");
 			context.assertTrue(glow(player, REALM_2) == Glow.DARK, "Realm 2 obelisk lit too early");
 			context.assertTrue(SealedGateBlock.remainingZoneBosses(player, Realms.ASHEN_REACH) == 3, "gate not sealed by three bosses");
 

@@ -36,7 +36,7 @@ public final class RealmCommands {
 								.executes(context -> enter(context, false))
 								.then(argument("toShrine", BoolArgumentType.bool())
 										.executes(context -> enter(context, BoolArgumentType.getBool(context, "toShrine"))))))
-						// /embervoid realm leave: what the return obelisk does.
+						// /embervoid realm leave: what the return obelisk does (to the hub).
 						.then(literal("leave").executes(context -> {
 							RealmTeleports.leaveRealm(context.getSource().getPlayerOrThrow());
 							return 1;

@@ -4,6 +4,7 @@ import com.embervoid.Embervoid;
 import com.embervoid.progress.ProgressManager;
 import com.embervoid.sanctum.gear.SanctumGear;
 import com.embervoid.sanctum.leveling.LevelUpNetworking;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 
 import java.util.Objects;
@@ -20,8 +21,16 @@ public final class Sanctum {
 		SanctumGear.register();
 		SanctumEntities.register();
 		SanctumLoot.register();
-		Attunement.register();
 		LevelUpNetworking.register();
+	}
+
+	/**
+	 * Whether the player stands in a Sanctum core: on its {@link SanctumBlocks#SANCTUM_FLAGSTONE} floor (the hub's
+	 * core and the cores of 0.4.x worlds). Moon nights leave such players alone.
+	 */
+	public static boolean isInCore(PlayerEntity player) {
+		return player.getWorld().getBlockState(player.getBlockPos().down()).isOf(SanctumBlocks.SANCTUM_FLAGSTONE)
+				|| player.getWorld().getBlockState(player.getSteppingPos()).isOf(SanctumBlocks.SANCTUM_FLAGSTONE);
 	}
 
 	/** Whether a structure template is one of the Sanctum's jigsaw pieces ({@code embervoid:sanctum/...}). */

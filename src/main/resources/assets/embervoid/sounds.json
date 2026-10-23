@@ -1713,12 +1713,6 @@
 			{"name": "minecraft:block/amethyst/resonate4"}
 		]
 	},
-	"block.sanctum_flagstone.attune": {
-		"subtitle": "subtitles.embervoid.block.sanctum_flagstone.attune",
-		"sounds": [
-			{"name": "minecraft:block/beacon/activate"}
-		]
-	},
 	"entity.ashen_maiden.greet": {
 		"subtitle": "subtitles.embervoid.entity.ashen_maiden.greet",
 		"sounds": [

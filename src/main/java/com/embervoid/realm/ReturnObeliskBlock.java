@@ -11,7 +11,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-/** Stands at every landing: takes the player back to the Sanctum they came from. */
+/** Stands at every landing: takes the player to the hub (DESIGN §2). */
 public class ReturnObeliskBlock extends Block {
 	public ReturnObeliskBlock(Settings settings) {
 		super(settings);

@@ -16,7 +16,8 @@ What it does:
    Vampire arena, checks the hub (placed on start, whole, one Ashen Maiden; PLAN 15.1), then has a bot player join
    (PLAN L6): a stat set over RCON reaches its attributes and its client,
    a point bought at a summoned Ashen Maiden through her screen's real packets costs exactly the shown XP, and a death
-   leaves an Ash Remnant that gives the items and XP back when the bot right-clicks it; waits for generation, saves,
+   leaves an Ash Remnant that gives the items and XP back when the bot right-clicks it; the bot travels to the hub
+   (Realm 1 unlocks), into Realm 1, back to the hub and out to where it left (PLAN 15.2); waits for generation, saves,
    stops the server. Commands with an expected answer fail the check when
    the answer does not match.
 3. Scans the whole output (build + server log) for crashes, mixin failures, ERROR lines and datapack load errors.
@@ -457,7 +458,8 @@ def total_xp(rcon, name):
 def exercise_player(rcon, run, expect, expect_eventually):
     """PLAN L6 (2.11, 3.8): a real player on the dedicated server. A bot joins; a stat is set (attributes and the sync
     packet), a point is bought at a summoned Ashen Maiden through her screen's real packets (XP taken exactly), and the
-    bot dies with items and XP, respawns and takes everything back from its Ash Remnant by right-clicking it."""
+    bot dies with items and XP, respawns and takes everything back from its Ash Remnant by right-clicking it. Then it
+    travels: overworld -> hub -> Realm 1 -> hub -> back to the overworld spot it left from (PLAN 15.2)."""
     name = "Bot"
     bot = Bot(name, SERVER_PORT)
     try:
@@ -534,6 +536,23 @@ def exercise_player(rcon, run, expect, expect_eventually):
             if xp != 150:
                 FAILED_EXPECTATIONS.append(f"Remnant: XP back {xp}, expected 150")
             expect("Remnant gone", "execute unless entity @e[type=embervoid:ash_remnant]", r"Test passed")
+
+        # Realm travel through the hub (PLAN 15.2): the first hub visit unlocks Realm 1, the realm's way out is the
+        # hub, the hub's way out (no lit stele) is the overworld spot the bot left from.
+        travel = [
+            ("Travel: to the hub", "embervoid hub", "embervoid:hub"),
+            ("Travel: into Realm 1", "embervoid realm enter embervoid:realm_1", "embervoid:ashen_reach"),
+            ("Travel: out of the realm", "embervoid realm leave", "embervoid:hub"),
+        ]
+        for label, command, dimension in travel:
+            run(label, f"execute as {name} run {command}")
+            time.sleep(1)
+            expect(label, f"data get entity {name} Dimension", rf'"{dimension}"')
+            if dimension == "embervoid:hub":
+                expect("Travel: Realm 1 unlocked", f"embervoid progress {name}", r"unlockedRealms=\[embervoid:realm_1")
+        expect("Travel: out of the hub", f"execute as {name} run embervoid hub leave", r"To minecraft:overworld ")
+        time.sleep(1)
+        expect("Travel: back in the overworld", f"data get entity {name} Dimension", r'"minecraft:overworld"')
         if bot.reason:
             FAILED_EXPECTATIONS.append(f"bot {name} disconnected: {bot.reason}")
     finally:

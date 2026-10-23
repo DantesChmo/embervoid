@@ -88,8 +88,9 @@ public final class HubTests implements FabricGameTest {
 	}
 
 	/**
-	 * Two players in the hub see the same obelisks in their own states (dark, lit, kindled from their own progress); the
-	 * Realm 1 obelisk refuses the player who has not unlocked it and takes the one who has.
+	 * Two players in the hub see the same obelisks in their own states (dark, lit, kindled from their own progress).
+	 * Realm 1 lights for both on their first visit (PLAN 15.2); the Realm 2 obelisk refuses the player who has not
+	 * unlocked it, and the Realm 1 obelisk takes a player into the realm.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "hub_obelisks", tickLimit = 200)
 	public void obeliskStatesArePerPlayer(TestContext context) {
@@ -97,19 +98,22 @@ public final class HubTests implements FabricGameTest {
 		ServerPlayerEntity lit = inHub(context, 2, 2);
 		ServerPlayerEntity dark = inHub(context, 4, 2);
 		step(context, () -> {
-			ProgressManager.unlockRealm(lit, ProgressManager.REALM_1);
 			VoidObeliskBlockEntity first = obelisk(hub, HubLayout.OBELISKS.get(0));
 			context.assertTrue(first.getRealm().equals(ProgressManager.REALM_1), "first obelisk leads to " + first.getRealm());
+			HubLayout.Obelisk second = HubLayout.OBELISKS.get(1);
+			ProgressManager.unlockRealm(lit, second.realm());
 			for (HubLayout.Obelisk obelisk : HubLayout.OBELISKS) {
-				Glow expected = obelisk.realm().equals(ProgressManager.REALM_1) ? Glow.LIT : Glow.DARK;
-				context.assertTrue(glow(lit, obelisk) == expected, "unlocked player sees " + obelisk.realm() + " " + glow(lit, obelisk));
-				context.assertTrue(glow(dark, obelisk) == Glow.DARK, "other player sees " + obelisk.realm() + " " + glow(dark, obelisk));
+				boolean realm1 = obelisk.realm().equals(ProgressManager.REALM_1);
+				Glow expected = realm1 || obelisk == second ? Glow.LIT : Glow.DARK;
+				context.assertTrue(glow(lit, obelisk) == expected, "unlocking player sees " + obelisk.realm() + " " + glow(lit, obelisk));
+				context.assertTrue(glow(dark, obelisk) == (realm1 ? Glow.LIT : Glow.DARK), "other player sees " + obelisk.realm()
+						+ " " + glow(dark, obelisk));
 			}
 			ProgressManager.completeRealm(lit, ProgressManager.REALM_1);
 			context.assertTrue(glow(lit, HubLayout.OBELISKS.get(0)) == Glow.KINDLED, "completed realm not kindled");
-			context.assertTrue(glow(dark, HubLayout.OBELISKS.get(0)) == Glow.DARK, "the other player's obelisk changed");
+			context.assertTrue(glow(dark, HubLayout.OBELISKS.get(0)) == Glow.LIT, "the other player's obelisk changed");
 
-			use(dark, hub, HubLayout.OBELISKS.get(0).pos());
+			use(dark, hub, second.pos());
 			context.assertTrue(dark.getServerWorld() == hub, "a dark obelisk took the player away");
 			use(lit, hub, HubLayout.OBELISKS.get(0).pos());
 			context.assertTrue(lit.getServerWorld() != hub, "the lit obelisk kept the player in the hub");
