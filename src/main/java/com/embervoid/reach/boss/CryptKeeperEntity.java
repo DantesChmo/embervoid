@@ -57,7 +57,7 @@ import java.util.List;
  * </ul>
  *
  * Base damage per move (level 24 and Normal scale it ×2.69): swings 5, thrust 7, sweep 7, overhead 10, lantern 5 +
- * a fire pool of 2 per second. Base HP 180 (~428 at Lv 24). Every block it changes (water, braziers) comes back when
+ * a fire pool of 2 per second. Base HP 102 (~243 at Lv 24; PLAN 18.4). Every block it changes (water, braziers) comes back when
  * the fight ends.
  */
 public class CryptKeeperEntity extends ReachBoss {
@@ -74,9 +74,12 @@ public class CryptKeeperEntity extends ReachBoss {
 	public static final int SWEEP_WINDUP = 24;
 	public static final int LANTERN_WINDUP = 20;
 	public static final int THRUST_WINDUP = 18;
-	/** Ticks until the brain picks the next move after one, close and at range, in P1 and from P2 on (faster). */
-	public static final int CLOSE_COOLDOWN = 35;
-	public static final int CLOSE_COOLDOWN_LATE = 25;
+	/**
+	 * Ticks until the brain picks the next move after one, close and at range, in P1 and from P2 on (faster). Close it
+	 * presses on (PLAN 18.4: 35 / 25 left too many openings for the diamond sword and the Scythe to share a band).
+	 */
+	public static final int CLOSE_COOLDOWN = 28;
+	public static final int CLOSE_COOLDOWN_LATE = 22;
 	public static final int RANGED_COOLDOWN = 40;
 	public static final int RANGED_COOLDOWN_LATE = 30;
 	/** The pause after a phase change. */
@@ -127,9 +130,9 @@ public class CryptKeeperEntity extends ReachBoss {
 
 	public static DefaultAttributeContainer.Builder createAttributes() {
 		return HostileEntity.createHostileAttributes()
-				.add(EntityAttributes.GENERIC_MAX_HEALTH, 180)
+				.add(EntityAttributes.GENERIC_MAX_HEALTH, 102)
 				.add(EntityAttributes.GENERIC_ATTACK_DAMAGE, SWING_DAMAGE)
-				.add(EntityAttributes.GENERIC_ARMOR, 8)
+				.add(EntityAttributes.GENERIC_ARMOR, 4)
 				.add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.22)
 				.add(EntityAttributes.GENERIC_FOLLOW_RANGE, 48)
 				.add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, 1.0);

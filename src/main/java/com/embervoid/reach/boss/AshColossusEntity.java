@@ -53,7 +53,7 @@ import java.util.List;
  *
  * Damage taken by where it comes from: front (±60° of its facing) ×{@value #FRONT_DAMAGE}, back (beyond ±120°)
  * ×{@value #BACK_DAMAGE} with the core covered (P1), ×{@value #CORE_DAMAGE} with it exposed (P2), sides ×1.
- * Base damage (Lv 18 on Normal ×2.31): fist 8, leap 9, boulder 7, drag 6, cinders 5. Base HP 180 (~364 at Lv 18).
+ * Base damage (Lv 18 on Normal ×2.31): fist 8, leap 9, boulder 7, drag 6, cinders 5. Base HP 105 (~212 at Lv 18; PLAN 18.4).
  */
 public class AshColossusEntity extends ReachBoss {
 	public static final float FRONT_DAMAGE = 0.5f;
@@ -125,7 +125,7 @@ public class AshColossusEntity extends ReachBoss {
 
 	public static DefaultAttributeContainer.Builder createAttributes() {
 		return HostileEntity.createHostileAttributes()
-				.add(EntityAttributes.GENERIC_MAX_HEALTH, 180)
+				.add(EntityAttributes.GENERIC_MAX_HEALTH, 105)
 				.add(EntityAttributes.GENERIC_ATTACK_DAMAGE, FIST_DAMAGE)
 				.add(EntityAttributes.GENERIC_ARMOR, 10)
 				.add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.2)

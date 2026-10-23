@@ -160,7 +160,7 @@ public final class BalanceData {
 			double sideFactor, double bestFactor, String bestWhen, double phase2At, double phase2Armor, double phase2Side,
 			double phase2Best, String scalingAdd, List<Hit> hits) {}
 
-	public static final Boss ASH_COLOSSUS = new Boss("ash_colossus", "Ash Colossus", Zone.FIELDS, 18, 180, 10, 8, 150,
+	public static final Boss ASH_COLOSSUS = new Boss("ash_colossus", "Ash Colossus", Zone.FIELDS, 18, 105, 10, 8, 150,
 			1, AshColossusEntity.BACK_DAMAGE, "back (P2: the bare core)", 0.5, 3, 1, AshColossusEntity.CORE_DAMAGE, "cinder_husk", List.of(
 					melee("fist cone", 8, 60),
 					melee("leap ring", 9, 0),
@@ -174,17 +174,17 @@ public final class BalanceData {
 					melee("branch sweep", 8, 60),
 					melee("root line", 7, 0),
 					melee("root cage (P2)", 4, 0)));
-	public static final Boss CRYPT_KEEPER = new Boss("crypt_keeper", "Crypt Keeper", Zone.NECROPOLIS, 24, 180, 8, 5, 190,
-			1, 1, "in brazier light (dark: ×" + CryptKeeperEntity.DARK_DAMAGE + ")", 0.6, 8, 1, 1, "restless_bones", List.of(
+	public static final Boss CRYPT_KEEPER = new Boss("crypt_keeper", "Crypt Keeper", Zone.NECROPOLIS, 24, 102, 4, 5, 190,
+			1, 1, "in brazier light (dark: ×" + CryptKeeperEntity.DARK_DAMAGE + ")", 0.6, 4, 1, 1, "restless_bones", List.of(
 					melee("halberd swing", 5, 40),
 					new Hit("overhead (3rd hit)", 10, HitKind.UNBLOCKABLE, 0),
 					melee("sweep ring", 7, 0),
 					melee("thrust", 7, 0),
 					melee("lantern throw", 5, 0),
 					hazard("fire pool, per 0.5 s", 2, HitKind.FIRE)));
-	public static final Boss SMOLDERING_LORD = new Boss("smoldering_lord", "Smoldering Lord", Zone.CITADEL, 30, 260, 12, 8, 300,
+	public static final Boss SMOLDERING_LORD = new Boss("smoldering_lord", "Smoldering Lord", Zone.CITADEL, 30, 100, 12, 5, 300,
 			1, 1, "-", 0.5, 4, SmolderingLordEntity.SHATTERED_DAMAGE, SmolderingLordEntity.SHATTERED_DAMAGE, "cinder_hound", List.of(
-					melee("greatsword swing", 8, 50),
+					melee("greatsword swing", 5, 50),
 					new Hit("overhead slam", 10, HitKind.UNBLOCKABLE, 0),
 					melee("lunge", 8, 0),
 					melee("landing ring", 8, 0),
