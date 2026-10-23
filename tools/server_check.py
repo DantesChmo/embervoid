@@ -17,7 +17,9 @@ What it does:
    (PLAN L6): a stat set over RCON reaches its attributes and its client,
    a point bought at a summoned Ashen Maiden through her screen's real packets costs exactly the shown XP, and a death
    leaves an Ash Remnant that gives the items and XP back when the bot right-clicks it; the bot travels to the hub
-   (Realm 1 unlocks), into Realm 1, back to the hub and out to where it left (PLAN 15.2); waits for generation, saves,
+   (Realm 1 unlocks), into Realm 1, back to the hub and out to where it left (PLAN 15.2), then builds a Cleft Stele
+   beside itself, kindles it by the debug command, walks into its crack to the hub and through the hub's crack back
+   out in front of it, and breaking a stone leaves no lit stele (PLAN 15.4); waits for generation, saves,
    stops the server. Commands with an expected answer fail the check when
    the answer does not match.
 3. Scans the whole output (build + server log) for crashes, mixin failures, ERROR lines and datapack load errors.
@@ -37,6 +39,7 @@ The first run needs --accept-eula (Minecraft EULA, https://aka.ms/MinecraftEULA)
 """
 import argparse
 import json
+import math
 import os
 import platform
 import re
@@ -470,7 +473,8 @@ def exercise_player(rcon, run, expect, expect_eventually):
     """PLAN L6 (2.11, 3.8): a real player on the dedicated server. A bot joins; a stat is set (attributes and the sync
     packet), a point is bought at a summoned Ashen Maiden through her screen's real packets (XP taken exactly), and the
     bot dies with items and XP, respawns and takes everything back from its Ash Remnant by right-clicking it. Then it
-    travels: overworld -> hub -> Realm 1 -> hub -> back to the overworld spot it left from (PLAN 15.2)."""
+    travels: overworld -> hub -> Realm 1 -> hub -> back to the overworld spot it left from (PLAN 15.2), and through a
+    Cleft Stele: its crack -> the hub -> the hub's crack -> in front of the stele (PLAN 15.4)."""
     name = "Bot"
     bot = Bot(name, SERVER_PORT)
     try:
@@ -564,10 +568,39 @@ def exercise_player(rcon, run, expect, expect_eventually):
         expect("Travel: out of the hub", f"execute as {name} run embervoid hub leave", r"To minecraft:overworld ")
         time.sleep(1)
         expect("Travel: back in the overworld", f"data get entity {name} Dimension", r'"minecraft:overworld"')
+        stele_round_trip(run, expect, name)
         if bot.reason:
             FAILED_EXPECTATIONS.append(f"bot {name} disconnected: {bot.reason}")
     finally:
         bot.close()
+
+
+def stele_round_trip(run, expect, name):
+    """PLAN 15.4: a stele along Z three blocks east of the bot, on a cleared stone pad; kindled by the debug command (the
+    bot cannot use items). Walking in is the bot standing in the crack: its position reports move it on the server,
+    which is what makes the crack feel it."""
+    pos = parse_numbers(r"\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]", run("Stele: bot position", f"data get entity {name} Pos"))
+    if not pos:
+        FAILED_EXPECTATIONS.append("Stele: no bot position")
+        return
+    x, y, z = int(math.floor(pos[0])) + 3, int(math.floor(pos[1])), int(math.floor(pos[2]))
+    run("Stele: room", f"fill {x - 3} {y} {z - 3} {x + 3} {y + 6} {z + 3} minecraft:air")
+    run("Stele: pad", f"fill {x - 3} {y - 1} {z - 3} {x + 3} {y - 1} {z + 3} minecraft:stone")
+    run("Stele: stones", f"fill {x} {y} {z - 2} {x} {y + 5} {z + 2} embervoid:cleft_stone")
+    run("Stele: crack", f"fill {x} {y} {z} {x} {y + 5} {z} minecraft:air")
+    expect("Stele: kindle", f"embervoid stele kindle {x} {y} {z - 2}", r"^Kindled")
+    expect("Stele: lit", "embervoid stele", rf"Lit stele: minecraft:overworld {x}, {y}, {z} along z")
+    run("Stele: walk in", f"tp {name} {x + 0.5} {y} {z + 0.5}")
+    time.sleep(3)  # a position report or two
+    expect("Stele: in the hub", f"data get entity {name} Dimension", r'"embervoid:hub"')
+    run("Stele: the hub's crack", f"execute in embervoid:hub run tp {name} 0.5 65 -15.5")
+    time.sleep(3)
+    expect("Stele: back out", f"data get entity {name} Dimension", r'"minecraft:overworld"')
+    expect("Stele: in front of it", f"execute positioned {x + 0.5} {y} {z + 0.5} if entity @a[name={name},distance=..2]",
+           r"Test passed")
+    run("Stele: break a stone", f"setblock {x} {y + 2} {z - 2} minecraft:air")
+    expect("Stele: put out", "embervoid stele", r"No lit stele")
+    run("Stele: clean up", f"fill {x} {y} {z - 2} {x} {y + 5} {z + 2} minecraft:air")
 
 
 def perf_areas(rcon, log):

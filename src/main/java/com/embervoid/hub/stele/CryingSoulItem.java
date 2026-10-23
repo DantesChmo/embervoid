@@ -1,10 +1,12 @@
 package com.embervoid.hub.stele;
 
+import com.embervoid.realm.api.RealmTeleports;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -16,7 +18,8 @@ import java.util.List;
 
 /**
  * Crying Soul: what is left of the Fallen Sister (DESIGN §2). Used on a cold Cleft Stele it kindles the stele and is
- * used up; on anything else nothing happens and it is kept.
+ * used up; on anything else, or in a world where steles do not burn ({@link CleftStele#canKindleIn}), nothing happens
+ * and it is kept.
  */
 public class CryingSoulItem extends Item {
 	public CryingSoulItem(Settings settings) {
@@ -28,6 +31,14 @@ public class CryingSoulItem extends Item {
 		World world = context.getWorld();
 		if (CleftStele.coldFrame(world, context.getBlockPos()).isEmpty()) {
 			return ActionResult.PASS;
+		}
+		if (!CleftStele.canKindleIn(world)) {
+			// A realm, the hub or an arena: the soul is kept and nothing burns.
+			if (context.getPlayer() instanceof ServerPlayerEntity player) {
+				player.sendMessage(Text.translatable("embervoid.stele.not_here"), true);
+				RealmTeleports.refuse(player);
+			}
+			return ActionResult.FAIL;
 		}
 		if (world instanceof ServerWorld serverWorld && CleftStele.tryKindle(serverWorld, context.getBlockPos(), context.getPlayer())) {
 			PlayerEntity player = context.getPlayer();

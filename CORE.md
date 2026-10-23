@@ -304,7 +304,8 @@ the bar name, point the arena JSON's `boss.entity` at it, add its id to the real
 | `/embervoid remnant` | Put your items and XP into a remnant here |
 | `/embervoid moblevel <targets> [level]` | Show or set mob levels |
 | `/embervoid progress <player> [reset|unlock|complete|boss <id>]` | Progress flags |
-| `/embervoid hub [check|leave]` | To the hub, check it, the hub's way out |
+| `/embervoid hub [check|leave]` | To the hub, check it, the hub's fallback way out (no stele) |
+| `/embervoid stele [kindle <pos>]` | The world's lit Cleft Stele; kindle a cold one |
 | `/embervoid realm enter <realm> [toShrine] | leave | where | arenas | data` | Realm travel and layout |
 | `/embervoid boss fights` | Running boss fights |
 | `/embervoid moon status | start full|blood | stop | setcycle <n> | curse <player> <stacks>` | Moon nights |

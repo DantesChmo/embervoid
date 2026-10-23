@@ -28,7 +28,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * The Cleft Stele (PLAN 15.3): a Crying Soul used on a built frame kindles it on either axis and is used up; on a broken,
- * wrong or blocked frame it is kept; breaking a stone of a lit stele puts it out.
+ * wrong or blocked frame it is kept; breaking a stone of a lit stele puts it out. A world has one lit stele
+ * (PLAN 15.4), so every test that kindles one has its own batch.
  */
 public final class CleftSteleTests implements FabricGameTest {
 	private static final List<SteleFrame> KINDLED = new CopyOnWriteArrayList<>();
@@ -39,12 +40,12 @@ public final class CleftSteleTests implements FabricGameTest {
 		CleftStele.PUT_OUT.register((world, lostStone) -> PUT_OUT.add(lostStone));
 	}
 
-	@GameTest(templateName = EMPTY_STRUCTURE)
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "stele_kindle_x")
 	public void soulKindlesAFrameAlongX(TestContext context) {
 		kindlesAFrame(context, Direction.Axis.X);
 	}
 
-	@GameTest(templateName = EMPTY_STRUCTURE)
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "stele_kindle_z")
 	public void soulKindlesAFrameAlongZ(TestContext context) {
 		kindlesAFrame(context, Direction.Axis.Z);
 	}
@@ -74,10 +75,11 @@ public final class CleftSteleTests implements FabricGameTest {
 		context.assertTrue(SoundLog.heard(world, SteleSounds.KINDLE, middle, 2), "no kindle sound");
 		context.assertTrue(KINDLED.contains(frame), "no kindle event for " + frame);
 
-		// A lit stele takes no second soul.
+		// A lit stele takes no second soul: the click goes through it to the hub (PLAN 15.4) instead.
 		use(player, frame.at(0, 0));
 		context.assertTrue(player.getMainHandStack().getCount() == 1, "a lit stele took another soul");
-		TestPlayers.complete(context, player);
+		ServerPlayerEntity now = world.getServer().getPlayerManager().getPlayer(player.getUuid());
+		TestPlayers.complete(context, now == null ? player : now);
 	}
 
 	@GameTest(templateName = EMPTY_STRUCTURE)
@@ -117,7 +119,7 @@ public final class CleftSteleTests implements FabricGameTest {
 				what + ": the crack filled");
 	}
 
-	@GameTest(templateName = EMPTY_STRUCTURE)
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "stele_break")
 	public void breakingAStonePutsTheSteleOut(TestContext context) {
 		ServerWorld world = context.getWorld();
 		SteleFrame frame = build(context, Direction.Axis.Z);

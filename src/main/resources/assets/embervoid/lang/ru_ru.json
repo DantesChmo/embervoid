@@ -606,5 +606,9 @@
 	"item.embervoid.crying_soul.tooltip": "Используйте на Расколотой стеле, чтобы разжечь её",
 	"subtitles.embervoid.block.cleft_stele.kindle": "Расколотая стела разгорается",
 	"subtitles.embervoid.block.cleft_stele.put_out": "Расколотая стела гаснет",
-	"subtitles.embervoid.block.stele_crack.ambient": "Трещина стелы шепчет"
+	"subtitles.embervoid.block.stele_crack.ambient": "Трещина стелы шепчет",
+	"subtitles.embervoid.block.cleft_stele.enter": "Кто-то уходит в стелу",
+	"subtitles.embervoid.block.cleft_stele.leave": "Кто-то выходит из стелы",
+	"embervoid.stele.not_here": "Здесь стела не разгорится",
+	"embervoid.stele.replaced": "Ваша Расколотая стела погасла: зажгли другую"
 }
