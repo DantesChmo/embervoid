@@ -179,20 +179,23 @@ public final class FightLength {
 	/** A boss fight of the 0.5.0 targets: who fights it, with what. */
 	public record BossStage(String name, Cadence cadence, Player player) {}
 
-	/** The melee unique a zone's boss leaves (its soul), or null (the Woods: the Huntsman's Crossbow, not modelled). */
-	public static Weapon uniqueOf(Zone zone, boolean proposed) {
+	/**
+	 * The melee unique a zone's boss leaves, crafted from its soul and the zone's material during the realm (DESIGN
+	 * §6.1), or null (the Woods: the Huntsman's Crossbow, not modelled).
+	 */
+	public static Weapon uniqueOf(Zone zone) {
 		return switch (zone) {
-			case FIELDS -> proposed ? BalanceModel.ASHEN_SCYTHE_PROPOSED : BalanceModel.ASHEN_SCYTHE;
-			case NECROPOLIS -> proposed ? BalanceModel.WARDENS_SCOURGE_PROPOSED : BalanceModel.WARDENS_SCOURGE;
+			case FIELDS -> BalanceModel.ASHEN_SCYTHE;
+			case NECROPOLIS -> BalanceModel.WARDENS_SCOURGE;
 			default -> null;
 		};
 	}
 
 	/** The melee uniques of the bosses beaten before {@code stage}. */
-	public static List<Weapon> uniquesBefore(Stage stage, boolean proposed) {
+	public static List<Weapon> uniquesBefore(Stage stage) {
 		List<Weapon> weapons = new ArrayList<>();
 		for (Zone zone : stage.before()) {
-			Weapon weapon = uniqueOf(zone, proposed);
+			Weapon weapon = uniqueOf(zone);
 			if (weapon != null) {
 				weapons.add(weapon);
 			}
@@ -216,9 +219,8 @@ public final class FightLength {
 	 * Every boss fight of the targets, in the order of the game: the Fallen Sister at level 1 in iron, the Vampire boss,
 	 * each zone boss entered first (level 10, diamond, diamond sword) and later (diamond and each melee unique of a boss
 	 * beaten before, or the diamond sword when there is none), the Smoldering Lord with each melee unique.
-	 * {@code proposed}: the uniques at DESIGN §6.1's numbers instead of today's.
 	 */
-	public static List<BossStage> bossStages(Playthrough run, boolean proposed) {
+	public static List<BossStage> bossStages(Playthrough run) {
 		List<BossStage> stages = new ArrayList<>();
 		stages.add(new BossStage("Ruined Sanctum", BalanceData.FALLEN_SISTER_CADENCE, DUNGEON_PLAYER));
 		stages.add(new BossStage("blood new moon", BalanceData.VAMPIRE_CADENCE, MOON_PLAYER));
@@ -234,7 +236,7 @@ public final class FightLength {
 					stages.add(new BossStage(stage.name(), cadence, player));
 					continue;
 				}
-				List<Weapon> uniques = uniquesBefore(stage, proposed);
+				List<Weapon> uniques = uniquesBefore(stage);
 				if (uniques.isEmpty()) {
 					stages.add(new BossStage(stage.name() + ", no melee unique yet", cadence, holding(player, BalanceModel.DIAMOND_SWORD)));
 				}
@@ -248,7 +250,7 @@ public final class FightLength {
 
 	/** The first (weakest) expected player who fights each boss: the one its hit sizes are judged against. */
 	public static Player weakestPlayer(Cadence cadence, Playthrough run) {
-		return bossStages(run, false).stream().filter(s -> s.cadence() == cadence).findFirst().orElseThrow().player();
+		return bossStages(run).stream().filter(s -> s.cadence() == cadence).findFirst().orElseThrow().player();
 	}
 
 	// --- Hit sizes -----------------------------------------------------------------------------------------------
@@ -342,7 +344,7 @@ public final class FightLength {
 	 * the player entering it first (level 10, diamond sword) and at its top against the player entering it third (with
 	 * a unique), the Citadel's at both ends against the depths player.
 	 */
-	public static List<MobStage> mobStages(Playthrough run, boolean proposed) {
+	public static List<MobStage> mobStages(Playthrough run) {
 		List<MobStage> stages = new ArrayList<>();
 		for (OverworldMob mob : OverworldData.MOBS) {
 			if (mob != OverworldData.HOLLOW) {
@@ -359,7 +361,7 @@ public final class FightLength {
 		for (Zone zone : Zone.values()) {
 			Stage first = all.stream().filter(s -> s.zone() == zone).findFirst().orElseThrow();
 			Stage last = all.stream().filter(s -> s.zone() == zone).reduce((a, b) -> b).orElseThrow();
-			List<Weapon> uniques = uniquesBefore(last, proposed);
+			List<Weapon> uniques = uniquesBefore(last);
 			Player late = uniques.isEmpty() ? BalanceModel.expectedPlayer(last, false) : holding(BalanceModel.expectedPlayer(last, false), uniques.get(0));
 			// The depths are one stage: the player there already holds a unique.
 			Player early = zone == Zone.CITADEL ? late : BalanceModel.expectedPlayer(first, false);
@@ -380,25 +382,28 @@ public final class FightLength {
 
 	/**
 	 * A unique's damage factor in its own use (DESIGN §6.1): the Scythe on two enemies (its sweep hits the second at
-	 * 75 %), the proposed Scourge at its tip (×1.6), the proposed Rapier fully ramped (+30 %). Today's Scourge and Rapier
-	 * have neither the tip nor the ramp.
+	 * {@code gear.weapons.sweepShare}), the Scourge at its tip (×1.6, built in PLAN 17.4), the Rapier fully ramped
+	 * ({@code gear.weapons.rampMax}).
 	 */
 	public static double ownUse(Weapon weapon) {
-		if (weapon == BalanceModel.ASHEN_SCYTHE || weapon == BalanceModel.ASHEN_SCYTHE_PROPOSED) {
-			return 1.75;
+		if (weapon == BalanceModel.ASHEN_SCYTHE) {
+			return 1 + BalanceModel.GEAR.weapons().sweepShare();
 		}
-		if (weapon == BalanceModel.WARDENS_SCOURGE_PROPOSED) {
-			return 1.6;
+		if (weapon == BalanceModel.WARDENS_SCOURGE) {
+			return SCOURGE_TIP;
 		}
-		if (weapon == BalanceModel.ROYAL_ASH_RAPIER_PROPOSED) {
-			return 1.3;
+		if (weapon == BalanceModel.ROYAL_ASH_RAPIER) {
+			return 1 + BalanceModel.GEAR.weapons().rampMax();
 		}
 		return 1;
 	}
 
+	/** The Scourge's tip crack (DESIGN §6.1); PLAN 17.4 builds it, until then the Scourge hits one target plainly. */
+	public static final double SCOURGE_TIP = 1.6;
+
 	/** {@link #ownUse} on a single target: the same but for the Scythe, whose sweep needs a second enemy. */
 	public static double oneTarget(Weapon weapon) {
-		return weapon == BalanceModel.ASHEN_SCYTHE || weapon == BalanceModel.ASHEN_SCYTHE_PROPOSED ? 1 : ownUse(weapon);
+		return weapon == BalanceModel.ASHEN_SCYTHE ? 1 : ownUse(weapon);
 	}
 
 	/** Attribute damage per second at full charge, no stats (DESIGN §6.1 compares weapons this way). */

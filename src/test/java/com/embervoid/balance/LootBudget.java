@@ -123,16 +123,18 @@ final class LootBudget {
 	}
 
 	/**
-	 * What the Smoldering Plate plus {@code weapons} realm weapons cost in raw materials, after the Smoldering Ingots and
-	 * templates found: grave iron (ingots and raw count the same), cinder, amber, by item.
+	 * What the Smoldering Plate (plus the three zone uniques when {@code zoneWeapons}: each 4 of its zone's material
+	 * since 0.5.0) costs in raw materials, after the Smoldering Ingots and templates found: grave iron (ingots and raw
+	 * count the same), cinder, amber, by item.
 	 */
-	static Map<String, Double> need(Map<String, Double> found, int weapons) {
-		double ingots = Math.max(0, 4 + 2 * weapons - found.getOrDefault(SMOLDERING_INGOT, 0.0));
+	static Map<String, Double> need(Map<String, Double> found, boolean zoneWeapons) {
+		double ingots = Math.max(0, 4 - found.getOrDefault(SMOLDERING_INGOT, 0.0));
 		double templates = Math.max(0, 4 - found.getOrDefault(TEMPLATE, 0.0));
+		int weapon = zoneWeapons ? 4 : 0;
 		Map<String, Double> need = new LinkedHashMap<>();
-		need.put(RAW_GRAVE_IRON, 4 * ingots);
-		need.put(CINDER, 2 * ingots + 6 * templates);
-		need.put(AMBER, 2 * ingots);
+		need.put(RAW_GRAVE_IRON, 4 * ingots + weapon);
+		need.put(CINDER, 2 * ingots + 6 * templates + weapon);
+		need.put(AMBER, 2 * ingots + weapon);
 		return need;
 	}
 

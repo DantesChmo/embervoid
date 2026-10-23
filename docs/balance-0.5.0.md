@@ -18,18 +18,21 @@ On top of the 0.4.0 model in `com.embervoid.balance` (same formulas, same expect
 - `FightLength` (main, pure) turns hits to kill into seconds of a fight with dodging (§2), solo and with 2–3 players,
   and holds the 0.5.0 stages: who fights each boss and mob, with which reference weapon (§5.5), and every boss move as
   a share of that player's max health.
-- `BalanceModel` has the §6.1 starting numbers of the uniques as "0.5.0 proposed" next to today's.
+- `BalanceModel` had the §6.1 starting numbers of the uniques as "0.5.0 proposed" next to the 0.4.0 ones; PLAN 17.3
+  built them, so the model now has only the uniques as they are (and the Smoldering Plate at netherite's toughness).
 - `FightLengthTargetsTest` (JUnit, tag `targets-0.5.0`) checks the targets of §3 on today's numbers. It is **red** and
   kept out of `./gradlew build`; `./gradlew balanceTargets` runs it alone and lists every miss. 18.3 / 18.4 drop the
   `excludeTags` line in `build.gradle` once it is green. `FightTargets` holds the checks (shared with the report).
 - `FightLengthTest` (JUnit, in the build): the data is whole (a timing per boss move, phases going down), the openings
-  follow the dodge, every fight is finite and shorter with more players, and the §6.1 proposed numbers meet §6.1.
+  follow the dodge, every fight is finite and shorter with more players. (The check that the §6.1 numbers meet §6.1
+  moved to `BalanceTargetsTest.realmUniquesBeatNetherite` once 17.3 built them.)
 - `BalanceReportTest` writes the tables of §7 to `build/balance/fight-length.md`.
 - `BalanceFightTests.bossWindupsAreTheEntities` (GameTest) starts every boss move by hand and reads its wind-up back
   from `Telegraph` (new read-only `Telegraph.windups`), so the model's wind-ups are the ones the moves run.
 
-`BalanceTargetsTest` and `OverworldTargetsTest` are unchanged and green: they hold the 0.4.0 targets until 18.3 / 18.4
-replace them.
+`BalanceTargetsTest` and `OverworldTargetsTest` are green and hold the 0.4.0 targets until 18.3 / 18.4 replace them;
+17.3 moved `BalanceTargetsTest`'s weapons to the 0.5.0 ladder (`realmUniquesBeatNetherite`: every unique above
+netherite as in §3; the Sanctum weapons still between iron and diamond).
 
 ## 2. Assumptions
 
@@ -49,10 +52,12 @@ Levels, stat build and flasks are the 0.4.0 playthrough's (`Playthrough.NORMAL`)
 for hit sizes against the **first (weakest) player who fights them**: the Sister and the Vampire against their
 players above, zone bosses against level 10 in diamond, the Lord against the depths player.
 
-**Conflict found:** §5.5 fights the 2nd and 3rd zone bosses with a unique, but today a unique is crafted from its soul
-and **2 Smoldering Ingots**, and an ingot needs all three zones' materials (DESIGN §4.5). So no unique exists before
-the Citadel. Either the recipe changes in 17.3 (e.g. soul + zone materials only) or those fights keep the diamond
-sword. The tables show both where it matters (the "no melee unique yet" rows are the diamond sword).
+**Conflict found, settled:** §5.5 fights the 2nd and 3rd zone bosses with a unique, but in 0.4.0 a unique was crafted
+from its soul and **2 Smoldering Ingots**, and an ingot needs all three zones' materials (DESIGN §4.5), so no unique
+existed before the Citadel. The user's answer (DESIGN §6.1 "Uniques during the realm, not after it"), built in 17.3:
+a zone boss's unique is its soul + 4 of its zone's material + the zone part (the Scythe 4 Cinder Shard, the Crossbow
+4 Royal Amber, the Scourge 4 Grave Iron Ingot); the Rapier keeps its 2 Smoldering Ingots. The "no melee unique yet"
+rows are a player whose only earlier boss was the Grieving Tree (its Crossbow is not modelled).
 
 ### Fight length
 
@@ -85,7 +90,8 @@ the fight spent swinging is the **uptime**. DESIGN §5.5 expected "about 25–35
 | Fallen Sister (placeholder) | 25 % | Placeholder cadence (two censer arcs 18 + 12, a slam with an ember puddle she fights from, a backstep; P2 censer spin and crying soul dives). |
 
 Not modelled, all in the player's favour: crits, blocking, enchantments, potions, the Scourge's tip and the Rapier's
-ramp in boss fights (they count only in the weapon check). Also not modelled: flask sips, the Colossus's front (×0.5)
+ramp in boss fights (they count only in the weapon check), the Scythe's stamina back per enemy a sweep or Harvest
+catches. Also not modelled: flask sips, the Colossus's front (×0.5)
 and back (×1.5; a clean hit is a flank hit), arrows at the Tree's lanterns (it is fought in melee), the Lord's
 marksmen, water slowing the player in the Keeper's P3. The Tree's lantern supply (5, then 4, plus one per 30 s when
 fewer than two hang) is not a limit at today's HP: the fight needs about three stuns per phase.
@@ -106,8 +112,8 @@ Decided in this task (small, marked here): flyers sit with ambushers and ranged,
 fodder, ambushers and ranged, elites); the Ghost (twice an Ashen Zombie, the full moon's punishment) counts as an
 elite; "≥ 5" for the middle band between fodder's 6 and elites' 4. A move's class is its role: combo hits and quick
 swings light, telegraphed areas, lunges and throws heavy, each boss's unblockable or signature move its biggest.
-Own use: the Scythe on two enemies (its sweep hits the second at 75 %), the proposed Scourge at its tip (×1.6), the
-proposed Rapier fully ramped (+30 %); today's Scourge and Rapier have neither. Multiplayer has no target in §5.5; its
+Own use: the Scythe on two enemies (its sweep hits the second at 75 %), the Scourge at its tip (×1.6; the tip is PLAN
+17.4, until then it hits one target plainly), the Rapier fully ramped (+30 %, built in 17.3). Multiplayer has no target in §5.5; its
 fights are shown, not tested.
 
 ## 4. Results: today against the targets
@@ -117,10 +123,12 @@ fights are shown, not tested.
 Clean hits = seconds × uptime ÷ swing time. For 20–35 clean hits to fill 1.5–2.5 min the boss needs an uptime of
 **8–24 %** with a sword (0.6 s a swing) and **13–43 %** with a 1.0–1.1-speed unique. So:
 
-- The **Colossus, the Keeper and the Lord** (19–22 %) can meet both (table "What 1.5–2.5 min means"): with the
-  diamond sword 27–35 clean hits at the Colossus and 32–35 at the Keeper, with the Scourge 20–26, with the Scythe
-  21–35 at the Keeper and 20–31 at the Lord. Their HP goes **down**, to about ×0.47–0.61 (Colossus, diamond sword),
-  ×0.46–0.50 (Keeper, diamond sword) and ×0.28–0.44 (Lord) of today.
+- The **Colossus, the Keeper and the Lord** (18–22 %) can meet both (table "What 1.5–2.5 min means"): with the
+  diamond sword 27–35 clean hits at the Colossus and 32–35 at the Keeper, with the Scourge 20–29 at the Colossus and
+  20–28 at the Lord, with the Scythe 22–35 at the Keeper and 20–31 at the Lord. Their HP goes **down**, to about
+  ×0.47–0.61 (Colossus, diamond sword; ×0.57–0.82 with the Scourge), ×0.46–0.50 (Keeper, diamond sword; ×0.61–0.96
+  with the Scythe) and ×0.35–0.45 (Lord, both uniques) of today; the first visit with the diamond sword is the
+  tighter bound.
 - The **Grieving Tree** (46–53 %), the **Vampire** (63 %) and the **Fallen Sister** placeholder (25 % with a sword)
   cannot: at their uptime 1.5 min takes 36–90 clean hits. Their HP alone cannot fix it; their cadence must close
   openings (the Tree: shorter or rarer stuns, or a recovery that is not an opening; the Vampire: wind-ups and
@@ -132,16 +140,15 @@ This is the main finding for 18.4 and 16.3, and the reason both bands are tested
 
 | Boss | Today (first player) | Against the target |
 |---|---|---|
-| Smoldering Lord | 72 clean hits, **5.4–6.4 min** | furthest off: 2× the hits, 2.2–2.6× the time |
-| Crypt Keeper | 70 hits with the diamond sword, 46 with the Scythe, **2.9–3.2 min** | 2× the hits at its first stage |
-| Ash Colossus | 58 hits with the diamond sword, 38–40 with the Scourge, **2.9–3.8 min** | |
-| Grieving Tree | 37–54 hits, **1.0–1.5 min** | wrong shape: too many hits and too short at once (the stun loop) |
+| Smoldering Lord | 58–63 clean hits, **4.4–5.2 min** | furthest off: 1.7–1.8× the hits, 1.8–2.1× the time |
+| Crypt Keeper | 70 hits with the diamond sword, 36–37 with the Scythe, **2.4–3.2 min** | 2× the hits at its first stage |
+| Ash Colossus | 58 hits with the diamond sword, 34–35 with the Scourge, **2.9–3.2 min** | |
+| Grieving Tree | 31–54 hits, **0.8–1.1 min** | wrong shape: too many hits and too short at once (the stun loop) |
 | Vampire boss | 66 hits, **1.1 min** | wrong shape: a trade fight |
 | Fallen Sister (placeholder) | 30 hits, 1.2 min | placeholder: its hits meet the band, its time does not (see above) |
 
-With the §6.1 proposed uniques the later stages drop to 31–37 hits (the Keeper 36–37 with the proposed Scythe at
-2.4 min; the Colossus 34–35 with the proposed Scourge, still 2.9–3.0 min), and the Lord to 58–63 hits, 4.4–5.2 min.
-With 2–3 players every fight gets shorter (HP ×1.5 / ×2 split two or three ways, and a fighter the boss is not aiming
+The uniques at §6.1's numbers (17.3) took the later stages from 37–46 hits to 31–37 and the Lord from 72 to 58–63
+(the table above is with them). With 2–3 players every fight gets shorter (HP ×1.5 / ×2 split two or three ways, and a fighter the boss is not aiming
 at swings through cones and lines): the Colossus 3.2 → 1.5 → 1.2 min, the Lord 5.4 → 1.8 → 1.4 min.
 
 ### Boss hit sizes and the wind-up rule
@@ -151,47 +158,58 @@ Three moves break their class, all against the weakest player who meets them:
 - **Vampire boss claw** 27 % of a level 10 player in iron (light, ≤ 20 %), with no wind-up at all (vanilla melee). It
   stays under ⅓, so the wind-up rule holds, by a hair.
 - **Vampire boss leap** 43 % (heavy, ≤ 35 %).
-- **Smoldering Lord greatsword swing** 33 % of the depths player (light, ≤ 20 %); its second swing winds up 10 ticks,
-  so at 34 % it would also break the wind-up rule.
+- **Smoldering Lord greatsword swing** 32 % of the depths player (light, ≤ 20 %; 33 % before the Smoldering Plate got
+  netherite's toughness in 17.3); its second swing winds up 10 ticks, so at 34 % it would also break the wind-up rule.
 
 The wind-up rule holds everywhere today. The biggest hits: the Crypt Keeper's overhead 52 % of a level 10 player in
-diamond (22-tick wind-up, a line: allowed), the Lord's slam 47 % of the depths player, the Vampire's nova 47 % of a
+diamond (22-tick wind-up, a line: allowed), the Lord's slam 44 % of the depths player, the Vampire's nova 47 % of a
 level 10 player in iron. The overhead and any heavy hit after it kill a fresh level 10 player in diamond: the
 playtest's "a boss kills in about two hits", which §5.5 allows only for the biggest move plus a heavy one.
 
 ### Mobs
 
-29 mobs miss their hits-to-kill band and 7 kill the player too fast (§7 lists them). The furthest off:
+27 mobs miss their hits-to-kill band and 6 kill the player too fast (§7 lists them; with 17.3's uniques, 29 and 7
+before). The furthest off:
 
-- **Elites take 2–3× their hits:** the Grave Warden 29 at the Necropolis first (21 later), the Furnace Golem 22–25,
-  the Smoldering Knight 21–24, the Hollow Sentinel 18 / 13, the Bark Hollow 17 / 12; the Ruined Sanctum's Hollow 11 and
-  the Enderman 12 for a level 1 player.
-- **Fodder takes about twice its hits:** Restless Bones 6 / 5 (the bone pile included), the Ashen Zombie 6, the
-  Withered Thrall 5 / 4, Cinder Husk and Cinder Hound 4, the overworld zombie 4.
+- **Elites take 2–3× their hits:** the Grave Warden 29 at the Necropolis first (17 later), the Furnace Golem and the
+  Smoldering Knight 17–19, the Hollow Sentinel 18 / 11, the Bark Hollow 17 at the Woods first (10 later, in its band);
+  the Ruined Sanctum's Hollow 11 and the Enderman 12 for a level 1 player.
+- **Fodder takes about twice its hits:** Restless Bones 6 / 4 (the bone pile included), the Ashen Zombie 6, the
+  Withered Thrall 5 / 4, the Cinder Husk and the overworld zombie 4. The Crypt Moth now dies in 2 to the Scythe (3–4
+  wanted).
 - **Too deadly:** the creeper's blast at 2 blocks kills a level 1 player in iron outright (33 HP), the Vindicator in 2,
-  the witch, the Enderman and the full moon Ghost in 3, the Furnace Golem kills the depths player in 3.
+  the witch, the Enderman and the full moon Ghost in 3, the Furnace Golem at level 30 kills the depths player in 3.
 
 ### Weapons (§6.1)
 
-Today every unique misses: the Scythe 11 per second on one target (netherite 12.8), the Scourge 8.1, the Rapier 12. The
-§6.1 starting numbers pass (Scythe 13.2 on one target, 23.1 on two; Scourge 16 at the tip; Rapier 15.4, 20 ramped),
-so 17.3 can build them as they are. The Sanctum Longsword (10.4) and Ashbearer's Mace (7.2) stay between iron and
-diamond as §6.1 wants.
+Built in 17.3 at §6.1's starting numbers, and they pass: the Scythe 13.2 per second on one target and 23.1 on two
+(+80 %), the Scourge 16 at the tip (+25 %), the Rapier 15.4 and 20 ramped (+56 %), against netherite's 12.8. The 0.4.0
+uniques all missed (the Scythe 11 on one target, the Scourge 8.1, the Rapier 12). The Sanctum Longsword (10.4) and
+Ashbearer's Mace (7.2) stay between iron and diamond as §6.1 wants.
+
+Two things the per-second numbers do not show:
+
+- **The Scourge's tip is PLAN 17.4.** Until it lands the Scourge hits one target plainly, 10 per second, below
+  netherite; the check above counts the tip as designed.
+- **The Rapier is capped by the hurt cooldown.** A mob takes a second hit within 10 ticks of the first only for the
+  difference, and at speed 2.2 a full charge comes every 9.1 ticks, so on one target the Rapier lands at most 2 full
+  hits per second: 14 per second, about 18 ramped (still +9 % / +42 % over netherite). 18.4 can raise its damage a
+  little if that feels short.
 
 ## 5. Work list for 18.3 / 18.4 (and 16.3, 17.3)
 
-1. **Lord, Keeper, Colossus HP** down to the overlap of both bands (§4, about ×0.3–0.6), after 17.3's weapons are in
-   (they change the hits). Lord first: furthest off.
+1. **Lord, Keeper, Colossus HP** down to the overlap of both bands (§4, about ×0.35–0.6, with 17.3's weapons in).
+   Lord first: furthest off.
 2. **Tree and Vampire cadence:** fewer openings, then HP. The Tree's stun after every sweep is most of the fight.
-3. **Uniques before the Citadel:** settle the recipe conflict (§2) in 17.3, or keep the diamond sword as the 2nd / 3rd
-   zone boss reference.
+3. **Uniques before the Citadel:** done in 17.3 (§2: soul + 4 of the zone's material + the part).
 4. **Vampire claw and leap, Lord's greatsword swing** under their class limits (and the swing's 10-tick follow-up if
    it stays near ⅓).
 5. **Mob HP:** elites to 6–10 hits, fodder to 2–3 (Realm 1 in 18.4; overworld, dungeon guards and the moon waves in
    18.3, where vanilla mobs are touched only through their level curve or not at all — 18.3 decides).
 6. **Mob damage:** the creeper, Vindicator, witch, Enderman (overworld, 18.3), the Ghost (moon), the Furnace Golem.
 7. **16.3:** the Fallen Sister's placeholder is a start: 30 clean hits and every move inside its class, but 1.2 min.
-8. **17.3:** the §6.1 numbers as proposed (they pass §6.1's own target).
+8. **17.3:** done — the §6.1 numbers as proposed, the Scythe's stamina back, the Rapier's ramp, the Crossbow's opener,
+   the Smoldering Plate at netherite. The Scourge's tip waits for 17.4.
 
 ## 6. Running it
 
@@ -277,34 +295,19 @@ the GameTest `bossWindupsAreTheEntities` (`./gradlew runGametest`).
 | Vampire boss | blood new moon | Lv 10 iron, iron sword | 404.8 | 6.2 | 66 | 40.5 | 63 % | 1.1 | **no** / **no** |
 | Ash Colossus | Ashen Fields 1st | Lv 10 diamond, diamond sword | 363.6 | 5.6 | 58 | 35.6 | 19 % | 3.2 | **no** / **no** |
 | Ash Colossus | Ashen Fields 2nd (after Royal Woods), no melee unique yet | Lv 19 diamond, diamond sword | 363.6 | 6.1 | 54 | 32.2 | 19 % | 2.9 | **no** / **no** |
-| Ash Colossus | Ashen Fields 2nd (after Sunken Necropolis) | Lv 22 diamond, Warden's Scourge | 363.6 | 8.4 | 40 | 42.1 | 19 % | 3.8 | **no** / **no** |
-| Ash Colossus | Ashen Fields 3rd (after Royal Woods + Sunken Necropolis) | Lv 27 diamond, Warden's Scourge | 363.6 | 8.8 | 38 | 40.1 | 19 % | 3.6 | **no** / **no** |
+| Ash Colossus | Ashen Fields 2nd (after Sunken Necropolis) | Lv 22 diamond, Warden's Scourge | 363.6 | 9.7 | 35 | 33.6 | 18 % | 3.0 | yes / **no** |
+| Ash Colossus | Ashen Fields 3rd (after Royal Woods + Sunken Necropolis) | Lv 27 diamond, Warden's Scourge | 363.6 | 10.1 | 34 | 32.0 | 18 % | 2.9 | yes / **no** |
 | Grieving Tree | Royal Woods 1st | Lv 10 diamond, diamond sword | 374.0 | 1.8 | 54 | 33.0 | 53 % | 1.0 | **no** / **no** |
-| Grieving Tree | Royal Woods 2nd (after Ashen Fields) | Lv 17 diamond, Ashen Scythe | 374.0 | 2.6 | 38 | 33.4 | 50 % | 1.1 | **no** / **no** |
-| Grieving Tree | Royal Woods 2nd (after Sunken Necropolis) | Lv 22 diamond, Warden's Scourge | 374.0 | 2.6 | 38 | 40.6 | 46 % | 1.5 | **no** / **no** |
-| Grieving Tree | Royal Woods 3rd (after Ashen Fields + Sunken Necropolis) | Lv 26 diamond, Ashen Scythe | 374.0 | 2.7 | 37 | 32.2 | 50 % | 1.1 | **no** / **no** |
-| Grieving Tree | Royal Woods 3rd (after Ashen Fields + Sunken Necropolis) | Lv 26 diamond, Warden's Scourge | 374.0 | 2.6 | 38 | 39.7 | 46 % | 1.4 | **no** / **no** |
+| Grieving Tree | Royal Woods 2nd (after Ashen Fields) | Lv 17 diamond, Ashen Scythe | 374.0 | 3.2 | 32 | 27.8 | 55 % | 0.8 | yes / **no** |
+| Grieving Tree | Royal Woods 2nd (after Sunken Necropolis) | Lv 22 diamond, Warden's Scourge | 374.0 | 2.9 | 35 | 32.8 | 48 % | 1.1 | yes / **no** |
+| Grieving Tree | Royal Woods 3rd (after Ashen Fields + Sunken Necropolis) | Lv 26 diamond, Ashen Scythe | 374.0 | 3.2 | 31 | 26.8 | 55 % | 0.8 | yes / **no** |
+| Grieving Tree | Royal Woods 3rd (after Ashen Fields + Sunken Necropolis) | Lv 26 diamond, Warden's Scourge | 374.0 | 2.9 | 34 | 32.1 | 49 % | 1.1 | yes / **no** |
 | Crypt Keeper | Sunken Necropolis 1st | Lv 10 diamond, diamond sword | 428.4 | 6.1 | 70 | 42.9 | 22 % | 3.2 | **no** / **no** |
-| Crypt Keeper | Sunken Necropolis 2nd (after Ashen Fields) | Lv 17 diamond, Ashen Scythe | 428.4 | 9.3 | 46 | 40.6 | 21 % | 3.2 | **no** / **no** |
+| Crypt Keeper | Sunken Necropolis 2nd (after Ashen Fields) | Lv 17 diamond, Ashen Scythe | 428.4 | 11.7 | 37 | 32.3 | 22 % | 2.4 | **no** / yes |
 | Crypt Keeper | Sunken Necropolis 2nd (after Royal Woods), no melee unique yet | Lv 19 diamond, diamond sword | 428.4 | 6.7 | 64 | 38.6 | 22 % | 2.9 | **no** / **no** |
-| Crypt Keeper | Sunken Necropolis 3rd (after Ashen Fields + Royal Woods) | Lv 23 diamond, Ashen Scythe | 428.4 | 9.5 | 46 | 39.4 | 21 % | 3.1 | **no** / **no** |
-| Smoldering Lord | depths | Lv 30 Smoldering Plate, Ashen Scythe | 712.4 | 8.0 | 72 | 62.0 | 19 % | 5.4 | **no** / **no** |
-| Smoldering Lord | depths | Lv 30 Smoldering Plate, Warden's Scourge | 712.4 | 8.0 | 72 | 75.3 | 19 % | 6.4 | **no** / **no** |
-
-### Boss fights, solo, with the uniques at DESIGN §6.1's proposed numbers (later stages only)
-
-| Boss | Stage | Player | Boss HP | Clean hit (P1) | Clean hits | Swinging (s) | Uptime | Fight (min) | Hits / time ok |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Ash Colossus | Ashen Fields 2nd (after Sunken Necropolis) | Lv 22 diamond, Warden's Scourge (0.5.0 proposed) | 363.6 | 9.7 | 35 | 33.6 | 18 % | 3.0 | yes / **no** |
-| Ash Colossus | Ashen Fields 3rd (after Royal Woods + Sunken Necropolis) | Lv 27 diamond, Warden's Scourge (0.5.0 proposed) | 363.6 | 10.1 | 34 | 32.0 | 18 % | 2.9 | yes / **no** |
-| Grieving Tree | Royal Woods 2nd (after Ashen Fields) | Lv 17 diamond, Ashen Scythe (0.5.0 proposed) | 374.0 | 3.2 | 32 | 27.8 | 55 % | 0.8 | yes / **no** |
-| Grieving Tree | Royal Woods 2nd (after Sunken Necropolis) | Lv 22 diamond, Warden's Scourge (0.5.0 proposed) | 374.0 | 2.9 | 35 | 32.8 | 48 % | 1.1 | yes / **no** |
-| Grieving Tree | Royal Woods 3rd (after Ashen Fields + Sunken Necropolis) | Lv 26 diamond, Ashen Scythe (0.5.0 proposed) | 374.0 | 3.2 | 31 | 26.8 | 55 % | 0.8 | yes / **no** |
-| Grieving Tree | Royal Woods 3rd (after Ashen Fields + Sunken Necropolis) | Lv 26 diamond, Warden's Scourge (0.5.0 proposed) | 374.0 | 2.9 | 34 | 32.1 | 49 % | 1.1 | yes / **no** |
-| Crypt Keeper | Sunken Necropolis 2nd (after Ashen Fields) | Lv 17 diamond, Ashen Scythe (0.5.0 proposed) | 428.4 | 11.7 | 37 | 32.3 | 22 % | 2.4 | **no** / yes |
-| Crypt Keeper | Sunken Necropolis 3rd (after Ashen Fields + Royal Woods) | Lv 23 diamond, Ashen Scythe (0.5.0 proposed) | 428.4 | 11.9 | 36 | 31.4 | 22 % | 2.4 | **no** / yes |
-| Smoldering Lord | depths | Lv 30 Smoldering Plate, Ashen Scythe (0.5.0 proposed) | 712.4 | 10.1 | 58 | 49.9 | 19 % | 4.4 | **no** / **no** |
-| Smoldering Lord | depths | Lv 30 Smoldering Plate, Warden's Scourge (0.5.0 proposed) | 712.4 | 9.2 | 63 | 59.8 | 19 % | 5.2 | **no** / **no** |
+| Crypt Keeper | Sunken Necropolis 3rd (after Ashen Fields + Royal Woods) | Lv 23 diamond, Ashen Scythe | 428.4 | 11.9 | 36 | 31.4 | 22 % | 2.4 | **no** / yes |
+| Smoldering Lord | depths | Lv 30 Smoldering Plate, Ashen Scythe | 712.4 | 10.1 | 58 | 49.9 | 19 % | 4.4 | **no** / **no** |
+| Smoldering Lord | depths | Lv 30 Smoldering Plate, Warden's Scourge | 712.4 | 9.2 | 63 | 59.8 | 19 % | 5.2 | **no** / **no** |
 
 ### Boss fights with 2–3 players (each like the stage's player; HP ×1.5 / ×2, one add per extra fighter)
 
@@ -319,27 +322,27 @@ the GameTest `bossWindupsAreTheEntities` (`./gradlew runGametest`).
 | Ash Colossus | Ashen Fields 1st, diamond sword | 1 | 363.6 | 57.8 | 19 % | 0 | 3.2 |
 | Ash Colossus | Ashen Fields 1st, diamond sword | 2 | 545.4 | 43.4 | 30 % | 1.2 | 1.5 |
 | Ash Colossus | Ashen Fields 1st, diamond sword | 3 | 727.2 | 38.6 | 34 % | 1.6 | 1.2 |
-| Ash Colossus | Ashen Fields 3rd (after Royal Woods + Sunken Necropolis), Warden's Scourge | 1 | 363.6 | 37.9 | 19 % | 0 | 3.6 |
-| Ash Colossus | Ashen Fields 3rd (after Royal Woods + Sunken Necropolis), Warden's Scourge | 2 | 545.4 | 28.4 | 30 % | 1.6 | 1.7 |
-| Ash Colossus | Ashen Fields 3rd (after Royal Woods + Sunken Necropolis), Warden's Scourge | 3 | 727.2 | 25.3 | 33 % | 2.1 | 1.3 |
+| Ash Colossus | Ashen Fields 3rd (after Royal Woods + Sunken Necropolis), Warden's Scourge | 1 | 363.6 | 33.6 | 18 % | 0 | 2.9 |
+| Ash Colossus | Ashen Fields 3rd (after Royal Woods + Sunken Necropolis), Warden's Scourge | 2 | 545.4 | 25.2 | 30 % | 1.4 | 1.3 |
+| Ash Colossus | Ashen Fields 3rd (after Royal Woods + Sunken Necropolis), Warden's Scourge | 3 | 727.2 | 22.4 | 33 % | 1.9 | 1.1 |
 | Grieving Tree | Royal Woods 1st, diamond sword | 1 | 374.0 | 53.5 | 53 % | 0 | 1.0 |
 | Grieving Tree | Royal Woods 1st, diamond sword | 2 | 561.0 | 43.0 | 64 % | 1.5 | 0.7 |
 | Grieving Tree | Royal Woods 1st, diamond sword | 3 | 748.0 | 39.1 | 67 % | 2.1 | 0.6 |
-| Grieving Tree | Royal Woods 3rd (after Ashen Fields + Sunken Necropolis), Warden's Scourge | 1 | 374.0 | 37.3 | 46 % | 0 | 1.4 |
-| Grieving Tree | Royal Woods 3rd (after Ashen Fields + Sunken Necropolis), Warden's Scourge | 2 | 561.0 | 30.0 | 61 % | 2.1 | 0.9 |
-| Grieving Tree | Royal Woods 3rd (after Ashen Fields + Sunken Necropolis), Warden's Scourge | 3 | 748.0 | 27.2 | 65 % | 2.8 | 0.7 |
+| Grieving Tree | Royal Woods 3rd (after Ashen Fields + Sunken Necropolis), Warden's Scourge | 1 | 374.0 | 33.6 | 49 % | 0 | 1.1 |
+| Grieving Tree | Royal Woods 3rd (after Ashen Fields + Sunken Necropolis), Warden's Scourge | 2 | 561.0 | 27.0 | 61 % | 1.9 | 0.7 |
+| Grieving Tree | Royal Woods 3rd (after Ashen Fields + Sunken Necropolis), Warden's Scourge | 3 | 748.0 | 24.5 | 64 % | 2.6 | 0.6 |
 | Crypt Keeper | Sunken Necropolis 1st, diamond sword | 1 | 428.4 | 69.7 | 22 % | 0 | 3.2 |
 | Crypt Keeper | Sunken Necropolis 1st, diamond sword | 2 | 642.6 | 52.3 | 42 % | 1.8 | 1.3 |
 | Crypt Keeper | Sunken Necropolis 1st, diamond sword | 3 | 856.8 | 46.5 | 49 % | 2.5 | 1.0 |
-| Crypt Keeper | Sunken Necropolis 3rd (after Ashen Fields + Royal Woods), Ashen Scythe | 1 | 428.4 | 45.1 | 21 % | 0 | 3.1 |
-| Crypt Keeper | Sunken Necropolis 3rd (after Ashen Fields + Royal Woods), Ashen Scythe | 2 | 642.6 | 33.8 | 41 % | 1.7 | 1.2 |
-| Crypt Keeper | Sunken Necropolis 3rd (after Ashen Fields + Royal Woods), Ashen Scythe | 3 | 856.8 | 30.1 | 47 % | 2.3 | 0.9 |
-| Smoldering Lord | depths, Ashen Scythe | 1 | 712.4 | 71.8 | 19 % | 0 | 5.4 |
-| Smoldering Lord | depths, Ashen Scythe | 2 | 1068.6 | 53.8 | 43 % | 1.7 | 1.8 |
-| Smoldering Lord | depths, Ashen Scythe | 3 | 1424.8 | 47.8 | 49 % | 2.3 | 1.4 |
-| Smoldering Lord | depths, Warden's Scourge | 1 | 712.4 | 71.4 | 19 % | 0 | 6.4 |
-| Smoldering Lord | depths, Warden's Scourge | 2 | 1068.6 | 53.5 | 45 % | 2.1 | 2.1 |
-| Smoldering Lord | depths, Warden's Scourge | 3 | 1424.8 | 47.6 | 51 % | 2.8 | 1.7 |
+| Crypt Keeper | Sunken Necropolis 3rd (after Ashen Fields + Royal Woods), Ashen Scythe | 1 | 428.4 | 35.9 | 22 % | 0 | 2.4 |
+| Crypt Keeper | Sunken Necropolis 3rd (after Ashen Fields + Royal Woods), Ashen Scythe | 2 | 642.6 | 26.9 | 40 % | 1.7 | 1.0 |
+| Crypt Keeper | Sunken Necropolis 3rd (after Ashen Fields + Royal Woods), Ashen Scythe | 3 | 856.8 | 23.9 | 46 % | 2.3 | 0.8 |
+| Smoldering Lord | depths, Ashen Scythe | 1 | 712.4 | 57.7 | 19 % | 0 | 4.4 |
+| Smoldering Lord | depths, Ashen Scythe | 2 | 1068.6 | 43.3 | 42 % | 1.3 | 1.5 |
+| Smoldering Lord | depths, Ashen Scythe | 3 | 1424.8 | 38.5 | 47 % | 1.7 | 1.2 |
+| Smoldering Lord | depths, Warden's Scourge | 1 | 712.4 | 63.0 | 19 % | 0 | 5.2 |
+| Smoldering Lord | depths, Warden's Scourge | 2 | 1068.6 | 47.2 | 43 % | 1.4 | 1.7 |
+| Smoldering Lord | depths, Warden's Scourge | 3 | 1424.8 | 42.0 | 49 % | 1.9 | 1.4 |
 
 ### What 1.5–2.5 min means in clean hits (at each fight's own uptime and swing)
 
@@ -349,19 +352,19 @@ the GameTest `bossWindupsAreTheEntities` (`./gradlew runGametest`).
 | Vampire boss | blood new moon | iron sword | 0.6 | 63 % | 92.0 | 153.4 | ×1.40–2.33 | **none** | - |
 | Ash Colossus | Ashen Fields 1st | diamond sword | 0.6 | 19 % | 27.1 | 45.5 | ×0.47–0.79 | 27.1–35 | ×0.47–0.61 |
 | Ash Colossus | Ashen Fields 2nd (after Royal Woods), no melee unique yet | diamond sword | 0.6 | 19 % | 27.6 | 46.3 | ×0.52–0.87 | 27.6–35 | ×0.52–0.66 |
-| Ash Colossus | Ashen Fields 2nd (after Sunken Necropolis) | Warden's Scourge | 1.1 | 19 % | 15.5 | 25.9 | ×0.39–0.66 | 20–25.9 | ×0.51–0.66 |
-| Ash Colossus | Ashen Fields 3rd (after Royal Woods + Sunken Necropolis) | Warden's Scourge | 1.1 | 19 % | 15.6 | 26.2 | ×0.41–0.69 | 20–26.2 | ×0.53–0.69 |
+| Ash Colossus | Ashen Fields 2nd (after Sunken Necropolis) | Warden's Scourge | 1.0 | 18 % | 17.1 | 28.7 | ×0.49–0.82 | 20–28.7 | ×0.57–0.82 |
+| Ash Colossus | Ashen Fields 3rd (after Royal Woods + Sunken Necropolis) | Warden's Scourge | 1.0 | 18 % | 17.3 | 29.0 | ×0.51–0.86 | 20–29.0 | ×0.60–0.86 |
 | Grieving Tree | Royal Woods 1st | diamond sword | 0.6 | 53 % | 77.7 | 130.7 | ×1.45–2.44 | **none** | - |
-| Grieving Tree | Royal Woods 2nd (after Ashen Fields) | Ashen Scythe | 0.9 | 50 % | 51.6 | 86.8 | ×1.36–2.29 | **none** | - |
-| Grieving Tree | Royal Woods 2nd (after Sunken Necropolis) | Warden's Scourge | 1.1 | 46 % | 39.1 | 65.8 | ×1.03–1.73 | **none** | - |
-| Grieving Tree | Royal Woods 3rd (after Ashen Fields + Sunken Necropolis) | Ashen Scythe | 0.9 | 50 % | 52.7 | 88.6 | ×1.42–2.40 | **none** | - |
-| Grieving Tree | Royal Woods 3rd (after Ashen Fields + Sunken Necropolis) | Warden's Scourge | 1.1 | 46 % | 39.4 | 66.2 | ×1.06–1.78 | **none** | - |
+| Grieving Tree | Royal Woods 2nd (after Ashen Fields) | Ashen Scythe | 0.9 | 55 % | 56.7 | 95.3 | ×1.80–3.03 | **none** | - |
+| Grieving Tree | Royal Woods 2nd (after Sunken Necropolis) | Warden's Scourge | 1.0 | 48 % | 45.7 | 76.9 | ×1.34–2.25 | **none** | - |
+| Grieving Tree | Royal Woods 3rd (after Ashen Fields + Sunken Necropolis) | Ashen Scythe | 0.9 | 55 % | 57.7 | 97.1 | ×1.88–3.16 | **none** | - |
+| Grieving Tree | Royal Woods 3rd (after Ashen Fields + Sunken Necropolis) | Warden's Scourge | 1.0 | 49 % | 46.0 | 77.4 | ×1.37–2.31 | **none** | - |
 | Crypt Keeper | Sunken Necropolis 1st | diamond sword | 0.6 | 22 % | 32.0 | 54.1 | ×0.46–0.78 | 32.0–35 | ×0.46–0.50 |
-| Crypt Keeper | Sunken Necropolis 2nd (after Ashen Fields) | Ashen Scythe | 0.9 | 21 % | 20.9 | 35.3 | ×0.45–0.77 | 20.9–35 | ×0.45–0.76 |
+| Crypt Keeper | Sunken Necropolis 2nd (after Ashen Fields) | Ashen Scythe | 0.9 | 22 % | 22.1 | 37.4 | ×0.61–1.02 | 22.1–35 | ×0.61–0.96 |
 | Crypt Keeper | Sunken Necropolis 2nd (after Royal Woods), no melee unique yet | diamond sword | 0.6 | 22 % | 32.6 | 55.0 | ×0.51–0.86 | 32.6–35 | ×0.51–0.55 |
-| Crypt Keeper | Sunken Necropolis 3rd (after Ashen Fields + Royal Woods) | Ashen Scythe | 0.9 | 21 % | 21.1 | 35.7 | ×0.47–0.79 | 21.1–35 | ×0.47–0.78 |
-| Smoldering Lord | depths | Ashen Scythe | 0.9 | 19 % | 17.3 | 31.4 | ×0.24–0.44 | 20–31.4 | ×0.28–0.44 |
-| Smoldering Lord | depths | Warden's Scourge | 1.1 | 19 % | 14.2 | 25.7 | ×0.20–0.36 | 20–25.7 | ×0.28–0.36 |
+| Crypt Keeper | Sunken Necropolis 3rd (after Ashen Fields + Royal Woods) | Ashen Scythe | 0.9 | 22 % | 22.3 | 37.7 | ×0.62–1.05 | 22.3–35 | ×0.62–0.98 |
+| Smoldering Lord | depths | Ashen Scythe | 0.9 | 19 % | 17.2 | 31.2 | ×0.30–0.54 | 20–31.2 | ×0.35–0.54 |
+| Smoldering Lord | depths | Warden's Scourge | 1.0 | 19 % | 15.7 | 28.4 | ×0.25–0.45 | 20–28.4 | ×0.32–0.45 |
 
 ### Boss moves as a share of the expected player's max health (the first, weakest player who fights them)
 
@@ -387,12 +390,12 @@ the GameTest `bossWindupsAreTheEntities` (`./gradlew runGametest`).
 | Crypt Keeper | sweep ring | heavy | 24 | shape | Lv 10 diamond, diamond sword (24 HP) | 7.3 | 30 % | 35 % | - |
 | Crypt Keeper | thrust | heavy | 18 | shape | Lv 10 diamond, diamond sword (24 HP) | 7.3 | 30 % | 35 % | - |
 | Crypt Keeper | lantern throw | light | 20 | shape | Lv 10 diamond, diamond sword (24 HP) | 4.5 | 19 % | 20 % | - |
-| Smoldering Lord | greatsword swing | light | 10 | shape | Lv 30 Smoldering Plate, Ashen Scythe (30.5 HP) | 10.1 | 33 % | 20 % | **light above 20 %** |
-| Smoldering Lord | overhead slam | biggest | 20 | shape | Lv 30 Smoldering Plate, Ashen Scythe (30.5 HP) | 14.3 | 47 % | 67 % | - |
-| Smoldering Lord | lunge | heavy | 18 | shape | Lv 30 Smoldering Plate, Ashen Scythe (30.5 HP) | 10.1 | 33 % | 35 % | - |
-| Smoldering Lord | landing ring | heavy | 30 | shape | Lv 30 Smoldering Plate, Ashen Scythe (30.5 HP) | 10.1 | 33 % | 35 % | - |
-| Smoldering Lord | mortar (P0) | heavy | 40 | shape | Lv 30 Smoldering Plate, Ashen Scythe (30.5 HP) | 5.5 | 18 % | 35 % | - |
-| Smoldering Lord | flame line (P0) | heavy | 30 | shape | Lv 30 Smoldering Plate, Ashen Scythe (30.5 HP) | 5.5 | 18 % | 35 % | - |
+| Smoldering Lord | greatsword swing | light | 10 | shape | Lv 30 Smoldering Plate, Ashen Scythe (30.5 HP) | 9.6 | 32 % | 20 % | **light above 20 %** |
+| Smoldering Lord | overhead slam | biggest | 20 | shape | Lv 30 Smoldering Plate, Ashen Scythe (30.5 HP) | 13.5 | 44 % | 67 % | - |
+| Smoldering Lord | lunge | heavy | 18 | shape | Lv 30 Smoldering Plate, Ashen Scythe (30.5 HP) | 9.6 | 32 % | 35 % | - |
+| Smoldering Lord | landing ring | heavy | 30 | shape | Lv 30 Smoldering Plate, Ashen Scythe (30.5 HP) | 9.6 | 32 % | 35 % | - |
+| Smoldering Lord | mortar (P0) | heavy | 40 | shape | Lv 30 Smoldering Plate, Ashen Scythe (30.5 HP) | 5.3 | 17 % | 35 % | - |
+| Smoldering Lord | flame line (P0) | heavy | 30 | shape | Lv 30 Smoldering Plate, Ashen Scythe (30.5 HP) | 5.3 | 17 % | 35 % | - |
 
 ### Hazards (per tick, outside the classes) on the same player
 
@@ -401,7 +404,7 @@ the GameTest `bossWindupsAreTheEntities` (`./gradlew runGametest`).
 | Fallen Sister (placeholder) | ember puddle, per 0.5 s | 0.8 | 4 % |
 | Ash Colossus | ash storm, per s (magic) | 2 | 8 % |
 | Crypt Keeper | fire pool, per 0.5 s | 1.3 | 6 % |
-| Smoldering Lord | fire trail, per 0.5 s | 1.0 | 3 % |
+| Smoldering Lord | fire trail, per 0.5 s | 0.9 | 3 % |
 
 ### Mobs: hits both ways against the stage's player
 
@@ -429,25 +432,25 @@ the GameTest `bossWindupsAreTheEntities` (`./gradlew runGametest`).
 | Royal Woods 1st | Withered Thrall | 18 | fodder | Lv 10 diamond, diamond sword | 36.4 | **5** (2–3) | 2.3 | 11 (≥ 6) |
 | Royal Woods 3rd (after Ashen Fields + Sunken Necropolis) | Withered Thrall | 21 | fodder | Lv 26 diamond, Ashen Scythe | 39.6 | **4** (2–3) | 2.5 | 12 (≥ 6) |
 | Royal Woods 1st | Lantern Hag | 18 | skirmisher | Lv 10 diamond, diamond sword | 32.3 | **5** (3–4) | 2.7 | 9 (≥ 5) |
-| Royal Woods 3rd (after Ashen Fields + Sunken Necropolis) | Lantern Hag | 21 | skirmisher | Lv 26 diamond, Ashen Scythe | 35.2 | 4 (3–4) | 3.0 | 11 (≥ 5) |
+| Royal Woods 3rd (after Ashen Fields + Sunken Necropolis) | Lantern Hag | 21 | skirmisher | Lv 26 diamond, Ashen Scythe | 35.2 | 3 (3–4) | 3.0 | 11 (≥ 5) |
 | Royal Woods 1st | Bark Hollow | 18 | elite | Lv 10 diamond, diamond sword | 101.0 | **17** (6–10) | 5.8 | 5 (≥ 4) |
-| Royal Woods 3rd (after Ashen Fields + Sunken Necropolis) | Bark Hollow | 21 | elite | Lv 26 diamond, Ashen Scythe | 110.0 | **12** (6–10) | 6.5 | 5 (≥ 4) |
+| Royal Woods 3rd (after Ashen Fields + Sunken Necropolis) | Bark Hollow | 21 | elite | Lv 26 diamond, Ashen Scythe | 110.0 | 10 (6–10) | 6.5 | 5 (≥ 4) |
 | Sunken Necropolis 1st | Restless Bones | 21 | fodder | Lv 10 diamond, diamond sword | 41.2 | **6** (2–3) | 3.0 | 9 (≥ 6) |
-| Sunken Necropolis 3rd (after Ashen Fields + Royal Woods) | Restless Bones | 25 | fodder | Lv 23 diamond, Ashen Scythe | 45.0 | **5** (2–3) | 3.4 | 9 (≥ 6) |
+| Sunken Necropolis 3rd (after Ashen Fields + Royal Woods) | Restless Bones | 25 | fodder | Lv 23 diamond, Ashen Scythe | 45.0 | **4** (2–3) | 3.4 | 9 (≥ 6) |
 | Sunken Necropolis 1st | Crypt Moth | 21 | skirmisher | Lv 10 diamond, diamond sword | 22.0 | 3 (3–4) | 1.2 | 20 (≥ 5) |
-| Sunken Necropolis 3rd (after Ashen Fields + Royal Woods) | Crypt Moth | 25 | skirmisher | Lv 23 diamond, Ashen Scythe | 24.4 | 3 (3–4) | 1.4 | 21 (≥ 5) |
+| Sunken Necropolis 3rd (after Ashen Fields + Royal Woods) | Crypt Moth | 25 | skirmisher | Lv 23 diamond, Ashen Scythe | 24.4 | **2** (3–4) | 1.4 | 21 (≥ 5) |
 | Sunken Necropolis 1st | Hollow Sentinel | 21 | elite | Lv 10 diamond, diamond sword | 99.0 | **18** (6–10) | 6.5 | 4 (≥ 4) |
-| Sunken Necropolis 3rd (after Ashen Fields + Royal Woods) | Hollow Sentinel | 25 | elite | Lv 23 diamond, Ashen Scythe | 109.8 | **13** (6–10) | 7.5 | 4 (≥ 4) |
+| Sunken Necropolis 3rd (after Ashen Fields + Royal Woods) | Hollow Sentinel | 25 | elite | Lv 23 diamond, Ashen Scythe | 109.8 | **11** (6–10) | 7.5 | 4 (≥ 4) |
 | Sunken Necropolis 1st | Grave Warden | 21 | elite | Lv 10 diamond, diamond sword | 176.0 | **29** (6–10) | 8.0 | 4 (≥ 4) |
-| Sunken Necropolis 3rd (after Ashen Fields + Royal Woods) | Grave Warden | 25 | elite | Lv 23 diamond, Ashen Scythe | 195.2 | **21** (6–10) | 9.2 | 4 (≥ 4) |
-| depths | Cinder Hound | 25 | fodder | Lv 30 Smoldering Plate, Ashen Scythe | 34.2 | **4** (2–3) | 2.2 | 14 (≥ 6) |
-| depths | Cinder Hound | 30 | fodder | Lv 30 Smoldering Plate, Ashen Scythe | 38.4 | **4** (2–3) | 2.6 | 12 (≥ 6) |
-| depths | Sparking Marksman | 25 | skirmisher | Lv 30 Smoldering Plate, Ashen Scythe | 58.6 | **6** (3–4) | 5.7 | 6 (≥ 5) |
-| depths | Sparking Marksman | 30 | skirmisher | Lv 30 Smoldering Plate, Ashen Scythe | 65.8 | **7** (3–4) | 6.6 | 5 (≥ 5) |
-| depths | Furnace Golem | 25 | elite | Lv 30 Smoldering Plate, Ashen Scythe | 170.8 | **22** (6–10) | 10.3 | **3** (≥ 4) |
-| depths | Furnace Golem | 30 | elite | Lv 30 Smoldering Plate, Ashen Scythe | 191.8 | **25** (6–10) | 12.2 | **3** (≥ 4) |
-| depths | Smoldering Knight | 25 | elite | Lv 30 Smoldering Plate, Ashen Scythe | 183.0 | **21** (6–10) | 8.6 | 4 (≥ 4) |
-| depths | Smoldering Knight | 30 | elite | Lv 30 Smoldering Plate, Ashen Scythe | 205.5 | **24** (6–10) | 10.1 | 4 (≥ 4) |
+| Sunken Necropolis 3rd (after Ashen Fields + Royal Woods) | Grave Warden | 25 | elite | Lv 23 diamond, Ashen Scythe | 195.2 | **17** (6–10) | 9.2 | 4 (≥ 4) |
+| depths | Cinder Hound | 25 | fodder | Lv 30 Smoldering Plate, Ashen Scythe | 34.2 | 3 (2–3) | 2.2 | 14 (≥ 6) |
+| depths | Cinder Hound | 30 | fodder | Lv 30 Smoldering Plate, Ashen Scythe | 38.4 | 3 (2–3) | 2.5 | 13 (≥ 6) |
+| depths | Sparking Marksman | 25 | skirmisher | Lv 30 Smoldering Plate, Ashen Scythe | 58.6 | **5** (3–4) | 5.4 | 6 (≥ 5) |
+| depths | Sparking Marksman | 30 | skirmisher | Lv 30 Smoldering Plate, Ashen Scythe | 65.8 | **6** (3–4) | 6.3 | 5 (≥ 5) |
+| depths | Furnace Golem | 25 | elite | Lv 30 Smoldering Plate, Ashen Scythe | 170.8 | **17** (6–10) | 9.8 | 4 (≥ 4) |
+| depths | Furnace Golem | 30 | elite | Lv 30 Smoldering Plate, Ashen Scythe | 191.8 | **19** (6–10) | 11.5 | **3** (≥ 4) |
+| depths | Smoldering Knight | 25 | elite | Lv 30 Smoldering Plate, Ashen Scythe | 183.0 | **17** (6–10) | 8.2 | 4 (≥ 4) |
+| depths | Smoldering Knight | 30 | elite | Lv 30 Smoldering Plate, Ashen Scythe | 205.5 | **19** (6–10) | 9.6 | 4 (≥ 4) |
 
 ### Weapons per second (attribute damage × speed, no stats; DESIGN §6.1, netherite 12.8)
 
@@ -456,59 +459,48 @@ the GameTest `bossWindupsAreTheEntities` (`./gradlew runGametest`).
 | iron sword | 6 | 1.6 | 9.6 | ×1 | 9.6 | -25 % | 9.6 |
 | diamond sword | 7 | 1.6 | 11.2 | ×1 | 11.2 | -13 % | 11.2 |
 | netherite sword | 8 | 1.6 | 12.8 | ×1 | 12.8 | +0 % | 12.8 |
-| Ashen Scythe | 10 | 1.1 | 11 | ×1.75 | 19.3 | +50 % | 11 |
-| Warden's Scourge | 9 | 0.9 | 8.1 | ×1 | 8.1 | -37 % | 8.1 |
-| Royal Ash Rapier | 6 | 2 | 12 | ×1 | 12 | -6 % | 12 |
-| Ashen Scythe (0.5.0 proposed) | 12 | 1.1 | 13.2 | ×1.75 | 23.1 | +80 % | 13.2 |
-| Warden's Scourge (0.5.0 proposed) | 10 | 1 | 10 | ×1.6 | 16 | +25 % | 16 |
-| Royal Ash Rapier (0.5.0 proposed) | 7 | 2.2 | 15.4 | ×1.3 | 20.0 | +56 % | 20.0 |
+| Ashen Scythe | 12 | 1.1 | 13.2 | ×1.75 | 23.1 | +80 % | 13.2 |
+| Warden's Scourge | 10 | 1 | 10 | ×1.6 | 16 | +25 % | 16 |
+| Royal Ash Rapier | 7 | 2.2 | 15.4 | ×1.3 | 20.0 | +56 % | 20.0 |
 | Sanctum Longsword | 6.5 | 1.6 | 10.4 | ×1 | 10.4 | -19 % | 10.4 |
 | Ashbearer's Mace | 8 | 0.9 | 7.2 | ×1 | 7.2 | -44 % | 7.2 |
 
-The proposed numbers against the same target: no misses.
+The Scourge's ×1.6 is its tip crack, built in PLAN 17.4; until then it hits one target at ×1.
 
 ### Misses of the 0.5.0 targets (today's numbers; `./gradlew balanceTargets`)
 
-**Boss fight length, solo (1.5–2.5 min)**: 17 misses.
+**Boss fight length, solo (1.5–2.5 min)**: 15 misses.
 
 - Fallen Sister (placeholder) (Ruined Sanctum, Lv 1 iron, iron sword): 1.2 min, want 1.5–2.5
 - Vampire boss (blood new moon, Lv 10 iron, iron sword): 1.1 min, want 1.5–2.5
 - Ash Colossus (Ashen Fields 1st, Lv 10 diamond, diamond sword): 3.2 min, want 1.5–2.5
 - Ash Colossus (Ashen Fields 2nd (after Royal Woods), no melee unique yet, Lv 19 diamond, diamond sword): 2.9 min, want 1.5–2.5
-- Ash Colossus (Ashen Fields 2nd (after Sunken Necropolis), Lv 22 diamond, Warden's Scourge): 3.8 min, want 1.5–2.5
-- Ash Colossus (Ashen Fields 3rd (after Royal Woods + Sunken Necropolis), Lv 27 diamond, Warden's Scourge): 3.6 min, want 1.5–2.5
+- Ash Colossus (Ashen Fields 2nd (after Sunken Necropolis), Lv 22 diamond, Warden's Scourge): 3.0 min, want 1.5–2.5
+- Ash Colossus (Ashen Fields 3rd (after Royal Woods + Sunken Necropolis), Lv 27 diamond, Warden's Scourge): 2.9 min, want 1.5–2.5
 - Grieving Tree (Royal Woods 1st, Lv 10 diamond, diamond sword): 1.0 min, want 1.5–2.5
-- Grieving Tree (Royal Woods 2nd (after Ashen Fields), Lv 17 diamond, Ashen Scythe): 1.1 min, want 1.5–2.5
-- Grieving Tree (Royal Woods 2nd (after Sunken Necropolis), Lv 22 diamond, Warden's Scourge): 1.5 min, want 1.5–2.5
-- Grieving Tree (Royal Woods 3rd (after Ashen Fields + Sunken Necropolis), Lv 26 diamond, Ashen Scythe): 1.1 min, want 1.5–2.5
-- Grieving Tree (Royal Woods 3rd (after Ashen Fields + Sunken Necropolis), Lv 26 diamond, Warden's Scourge): 1.4 min, want 1.5–2.5
+- Grieving Tree (Royal Woods 2nd (after Ashen Fields), Lv 17 diamond, Ashen Scythe): 0.8 min, want 1.5–2.5
+- Grieving Tree (Royal Woods 2nd (after Sunken Necropolis), Lv 22 diamond, Warden's Scourge): 1.1 min, want 1.5–2.5
+- Grieving Tree (Royal Woods 3rd (after Ashen Fields + Sunken Necropolis), Lv 26 diamond, Ashen Scythe): 0.8 min, want 1.5–2.5
+- Grieving Tree (Royal Woods 3rd (after Ashen Fields + Sunken Necropolis), Lv 26 diamond, Warden's Scourge): 1.1 min, want 1.5–2.5
 - Crypt Keeper (Sunken Necropolis 1st, Lv 10 diamond, diamond sword): 3.2 min, want 1.5–2.5
-- Crypt Keeper (Sunken Necropolis 2nd (after Ashen Fields), Lv 17 diamond, Ashen Scythe): 3.2 min, want 1.5–2.5
 - Crypt Keeper (Sunken Necropolis 2nd (after Royal Woods), no melee unique yet, Lv 19 diamond, diamond sword): 2.9 min, want 1.5–2.5
-- Crypt Keeper (Sunken Necropolis 3rd (after Ashen Fields + Royal Woods), Lv 23 diamond, Ashen Scythe): 3.1 min, want 1.5–2.5
-- Smoldering Lord (depths, Lv 30 Smoldering Plate, Ashen Scythe): 5.4 min, want 1.5–2.5
-- Smoldering Lord (depths, Lv 30 Smoldering Plate, Warden's Scourge): 6.4 min, want 1.5–2.5
+- Smoldering Lord (depths, Lv 30 Smoldering Plate, Ashen Scythe): 4.4 min, want 1.5–2.5
+- Smoldering Lord (depths, Lv 30 Smoldering Plate, Warden's Scourge): 5.2 min, want 1.5–2.5
 
-**Boss clean hits, solo (20–35)**: 16 misses.
+**Boss clean hits, solo (20–35)**: 10 misses.
 
 - Vampire boss (blood new moon, Lv 10 iron, iron sword): 66 clean hits, want 20–35
 - Ash Colossus (Ashen Fields 1st, Lv 10 diamond, diamond sword): 58 clean hits, want 20–35
 - Ash Colossus (Ashen Fields 2nd (after Royal Woods), no melee unique yet, Lv 19 diamond, diamond sword): 54 clean hits, want 20–35
-- Ash Colossus (Ashen Fields 2nd (after Sunken Necropolis), Lv 22 diamond, Warden's Scourge): 40 clean hits, want 20–35
-- Ash Colossus (Ashen Fields 3rd (after Royal Woods + Sunken Necropolis), Lv 27 diamond, Warden's Scourge): 38 clean hits, want 20–35
 - Grieving Tree (Royal Woods 1st, Lv 10 diamond, diamond sword): 54 clean hits, want 20–35
-- Grieving Tree (Royal Woods 2nd (after Ashen Fields), Lv 17 diamond, Ashen Scythe): 38 clean hits, want 20–35
-- Grieving Tree (Royal Woods 2nd (after Sunken Necropolis), Lv 22 diamond, Warden's Scourge): 38 clean hits, want 20–35
-- Grieving Tree (Royal Woods 3rd (after Ashen Fields + Sunken Necropolis), Lv 26 diamond, Ashen Scythe): 37 clean hits, want 20–35
-- Grieving Tree (Royal Woods 3rd (after Ashen Fields + Sunken Necropolis), Lv 26 diamond, Warden's Scourge): 38 clean hits, want 20–35
 - Crypt Keeper (Sunken Necropolis 1st, Lv 10 diamond, diamond sword): 70 clean hits, want 20–35
-- Crypt Keeper (Sunken Necropolis 2nd (after Ashen Fields), Lv 17 diamond, Ashen Scythe): 46 clean hits, want 20–35
+- Crypt Keeper (Sunken Necropolis 2nd (after Ashen Fields), Lv 17 diamond, Ashen Scythe): 37 clean hits, want 20–35
 - Crypt Keeper (Sunken Necropolis 2nd (after Royal Woods), no melee unique yet, Lv 19 diamond, diamond sword): 64 clean hits, want 20–35
-- Crypt Keeper (Sunken Necropolis 3rd (after Ashen Fields + Royal Woods), Lv 23 diamond, Ashen Scythe): 46 clean hits, want 20–35
-- Smoldering Lord (depths, Lv 30 Smoldering Plate, Ashen Scythe): 72 clean hits, want 20–35
-- Smoldering Lord (depths, Lv 30 Smoldering Plate, Warden's Scourge): 72 clean hits, want 20–35
+- Crypt Keeper (Sunken Necropolis 3rd (after Ashen Fields + Royal Woods), Lv 23 diamond, Ashen Scythe): 36 clean hits, want 20–35
+- Smoldering Lord (depths, Lv 30 Smoldering Plate, Ashen Scythe): 58 clean hits, want 20–35
+- Smoldering Lord (depths, Lv 30 Smoldering Plate, Warden's Scourge): 63 clean hits, want 20–35
 
-**Mob hits to kill (fodder 2–3, skirmishers 3–4, elites 6–10)**: 29 misses.
+**Mob hits to kill (fodder 2–3, skirmishers 3–4, elites 6–10)**: 27 misses.
 
 - Zombie Lv 3 (overworld, Lv 1 iron, iron sword): dies in 4, want 2–3
 - Creeper Lv 6 (overworld, Lv 1 iron, iron sword): dies in 5, want 3–4
@@ -524,45 +516,36 @@ The proposed numbers against the same target: no misses.
 - Withered Thrall Lv 21 (Royal Woods 3rd (after Ashen Fields + Sunken Necropolis), Lv 26 diamond, Ashen Scythe): dies in 4, want 2–3
 - Lantern Hag Lv 18 (Royal Woods 1st, Lv 10 diamond, diamond sword): dies in 5, want 3–4
 - Bark Hollow Lv 18 (Royal Woods 1st, Lv 10 diamond, diamond sword): dies in 17, want 6–10
-- Bark Hollow Lv 21 (Royal Woods 3rd (after Ashen Fields + Sunken Necropolis), Lv 26 diamond, Ashen Scythe): dies in 12, want 6–10
 - Restless Bones Lv 21 (Sunken Necropolis 1st, Lv 10 diamond, diamond sword): dies in 6, want 2–3
-- Restless Bones Lv 25 (Sunken Necropolis 3rd (after Ashen Fields + Royal Woods), Lv 23 diamond, Ashen Scythe): dies in 5, want 2–3
+- Restless Bones Lv 25 (Sunken Necropolis 3rd (after Ashen Fields + Royal Woods), Lv 23 diamond, Ashen Scythe): dies in 4, want 2–3
+- Crypt Moth Lv 25 (Sunken Necropolis 3rd (after Ashen Fields + Royal Woods), Lv 23 diamond, Ashen Scythe): dies in 2, want 3–4
 - Hollow Sentinel Lv 21 (Sunken Necropolis 1st, Lv 10 diamond, diamond sword): dies in 18, want 6–10
-- Hollow Sentinel Lv 25 (Sunken Necropolis 3rd (after Ashen Fields + Royal Woods), Lv 23 diamond, Ashen Scythe): dies in 13, want 6–10
+- Hollow Sentinel Lv 25 (Sunken Necropolis 3rd (after Ashen Fields + Royal Woods), Lv 23 diamond, Ashen Scythe): dies in 11, want 6–10
 - Grave Warden Lv 21 (Sunken Necropolis 1st, Lv 10 diamond, diamond sword): dies in 29, want 6–10
-- Grave Warden Lv 25 (Sunken Necropolis 3rd (after Ashen Fields + Royal Woods), Lv 23 diamond, Ashen Scythe): dies in 21, want 6–10
-- Cinder Hound Lv 25 (depths, Lv 30 Smoldering Plate, Ashen Scythe): dies in 4, want 2–3
-- Cinder Hound Lv 30 (depths, Lv 30 Smoldering Plate, Ashen Scythe): dies in 4, want 2–3
-- Sparking Marksman Lv 25 (depths, Lv 30 Smoldering Plate, Ashen Scythe): dies in 6, want 3–4
-- Sparking Marksman Lv 30 (depths, Lv 30 Smoldering Plate, Ashen Scythe): dies in 7, want 3–4
-- Furnace Golem Lv 25 (depths, Lv 30 Smoldering Plate, Ashen Scythe): dies in 22, want 6–10
-- Furnace Golem Lv 30 (depths, Lv 30 Smoldering Plate, Ashen Scythe): dies in 25, want 6–10
-- Smoldering Knight Lv 25 (depths, Lv 30 Smoldering Plate, Ashen Scythe): dies in 21, want 6–10
-- Smoldering Knight Lv 30 (depths, Lv 30 Smoldering Plate, Ashen Scythe): dies in 24, want 6–10
+- Grave Warden Lv 25 (Sunken Necropolis 3rd (after Ashen Fields + Royal Woods), Lv 23 diamond, Ashen Scythe): dies in 17, want 6–10
+- Sparking Marksman Lv 25 (depths, Lv 30 Smoldering Plate, Ashen Scythe): dies in 5, want 3–4
+- Sparking Marksman Lv 30 (depths, Lv 30 Smoldering Plate, Ashen Scythe): dies in 6, want 3–4
+- Furnace Golem Lv 25 (depths, Lv 30 Smoldering Plate, Ashen Scythe): dies in 17, want 6–10
+- Furnace Golem Lv 30 (depths, Lv 30 Smoldering Plate, Ashen Scythe): dies in 19, want 6–10
+- Smoldering Knight Lv 25 (depths, Lv 30 Smoldering Plate, Ashen Scythe): dies in 17, want 6–10
+- Smoldering Knight Lv 30 (depths, Lv 30 Smoldering Plate, Ashen Scythe): dies in 19, want 6–10
 
-**Mob hits to kill the player (fodder ≥ 6, skirmishers ≥ 5, elites ≥ 4)**: 7 misses.
+**Mob hits to kill the player (fodder ≥ 6, skirmishers ≥ 5, elites ≥ 4)**: 6 misses.
 
 - Creeper Lv 6 (overworld, Lv 1 iron, iron sword): kills in 1 (33 of 20), want ≥ 5
 - Witch Lv 6 (overworld, Lv 1 iron, iron sword): kills in 3 (9.4 of 20), want ≥ 5
 - Enderman Lv 12 (overworld, Lv 1 iron, iron sword): kills in 3 (9.1 of 20), want ≥ 4
 - Vindicator Lv 4 (overworld, Lv 1 iron, iron sword): kills in 2 (14.5 of 20), want ≥ 4
 - Ghost Lv 9 (full moon, Lv 5 iron, iron sword): kills in 3 (9.5 of 22), want ≥ 4
-- Furnace Golem Lv 25 (depths, Lv 30 Smoldering Plate, Ashen Scythe): kills in 3 (10.3 of 30.5), want ≥ 4
-- Furnace Golem Lv 30 (depths, Lv 30 Smoldering Plate, Ashen Scythe): kills in 3 (12.2 of 30.5), want ≥ 4
+- Furnace Golem Lv 30 (depths, Lv 30 Smoldering Plate, Ashen Scythe): kills in 3 (11.5 of 30.5), want ≥ 4
 
 **Boss hit sizes (light ≤ 20 %, heavy ≤ 35 %, biggest ≤ ⅔)**: 3 misses.
 
 - Vampire boss claw: 27 % of Lv 10 iron, iron sword (6.5 HP), light wants ≤ 20 %
 - Vampire boss leap: 43 % of Lv 10 iron, iron sword (10.3 HP), heavy wants ≤ 35 %
-- Smoldering Lord greatsword swing: 33 % of Lv 30 Smoldering Plate, Ashen Scythe (10.1 HP), light wants ≤ 20 %
+- Smoldering Lord greatsword swing: 32 % of Lv 30 Smoldering Plate, Ashen Scythe (9.6 HP), light wants ≤ 20 %
 
 **Wind-up rule (≥ ⅓: 12 ticks + tell; ≥ ½: 20 ticks + shape or sound)**: none.
 
-**Uniques above netherite (≥ +20 % in own use, ≥ netherite on one target)**: 5 misses.
-
-- Ashen Scythe: 11 per second on one target, below netherite's 12.8
-- Warden's Scourge: 8.1 per second in its own use, want ≥ 15.4 (netherite 12.8)
-- Warden's Scourge: 8.1 per second on one target, below netherite's 12.8
-- Royal Ash Rapier: 12 per second in its own use, want ≥ 15.4 (netherite 12.8)
-- Royal Ash Rapier: 12 per second on one target, below netherite's 12.8
+**Uniques above netherite (≥ +20 % in own use, ≥ netherite on one target)**: none.
 
