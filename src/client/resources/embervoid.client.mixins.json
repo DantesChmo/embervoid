@@ -12,7 +12,10 @@
 		"GearPlayerEntityRendererMixin",
 		"GearHeldItemRendererMixin",
 		"GameOptionsBossMusicMixin",
-		"SoundOptionsScreenMixin"
+		"SoundOptionsScreenMixin",
+		"CameraShakeMixin",
+		"GameOptionsCombatFxMixin",
+		"AccessibilityOptionsScreenMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

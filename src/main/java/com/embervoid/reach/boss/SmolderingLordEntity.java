@@ -6,6 +6,8 @@ import com.embervoid.boss.BossFight;
 import com.embervoid.boss.BossHits;
 import com.embervoid.boss.Telegraph;
 import com.embervoid.boss.TelegraphShape;
+import com.embervoid.fx.CombatFx;
+import com.embervoid.fx.SwingArc;
 import com.embervoid.reach.boss.arena.ArenaFrame;
 import com.embervoid.reach.boss.arena.ReachArenas;
 import com.embervoid.reach.mob.ReachMob;
@@ -225,6 +227,7 @@ public class SmolderingLordEntity extends ReachBoss {
 				world.playSound(null, landing.x, landing.y, landing.z, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.HOSTILE, 2.0f, 0.6f);
 				world.spawnParticles(ParticleTypes.EXPLOSION, landing.x, landing.y + 0.5, landing.z, 8, LANDING_RADIUS / 2, 0.2, LANDING_RADIUS / 2, 0);
 				world.spawnParticles(ParticleTypes.FLAME, landing.x, landing.y + 0.5, landing.z, 60, LANDING_RADIUS / 2, 0.3, LANDING_RADIUS / 2, 0.05);
+				CombatFx.impact(world, landing, 1.2f, (float) LANDING_RADIUS, 40, CombatFx.EMBER);
 			}
 			for (PlayerEntity player : Telegraph.playersIn(this, ring)) {
 				player.damage(getDamageSources().mobAttack(this), LANDING_DAMAGE);
@@ -373,6 +376,7 @@ public class SmolderingLordEntity extends ReachBoss {
 
 	@Override
 	protected void afterStrike(String animation) {
+		greatswordFx(animation);
 		LivingEntity target = getTarget();
 		if (target == null || !target.isAlive()) {
 			return;
@@ -381,6 +385,16 @@ public class SmolderingLordEntity extends ReachBoss {
 			comboSwing(target, 2);
 		} else if (animation.equals(SWING_2)) {
 			comboSwing(target, 3);
+		}
+	}
+
+	/** The greatsword's trail as a swing lands; the slam also shakes and flashes where the blade hits the ground. */
+	private void greatswordFx(String animation) {
+		if (animation.equals(SWING_1) || animation.equals(SWING_2)) {
+			CombatFx.trail(this, SwingArc.sweep(4.5f, 2.2f, animation.equals(SWING_1), 5, CombatFx.EMBER));
+		} else if (animation.equals(SLAM) && getWorld() instanceof ServerWorld world) {
+			CombatFx.trail(this, SwingArc.overhead(3.5f, 2.6f, 6, CombatFx.EMBER));
+			CombatFx.impact(world, getPos().add(Vec3d.fromPolar(0, getYaw()).multiply(2.5)), 0.8f, 3.5f, 24, CombatFx.EMBER);
 		}
 	}
 

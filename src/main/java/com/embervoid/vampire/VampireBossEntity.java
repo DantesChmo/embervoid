@@ -2,6 +2,7 @@ package com.embervoid.vampire;
 
 import com.embervoid.boss.ArenaBoss;
 import com.embervoid.boss.Telegraph;
+import com.embervoid.fx.CombatFx;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
@@ -135,10 +136,14 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 			Telegraph.windup(this, MIST_WINDUP, "misc.mist", VampireSounds.VAMPIRE_BOSS_MIST, ParticleTypes.SMOKE, 0, this::mistStep);
 		} else if (leapCooldown <= 0 && distance > 25 && distance < 256) {
 			leapCooldown = phase >= 1 ? 100 : 140;
-			Vec3d landing = target.getPos();
-			Telegraph.windup(this, LEAP_WINDUP, "attack.leap", VampireSounds.VAMPIRE_BOSS_LEAP, BLOOD, 0, () -> leap(landing));
-			markLanding(landing);
+			startLeap(target.getPos());
 		}
+	}
+
+	/** Blood Leap: crouches with rings marking {@code landing}, then leaps there. */
+	public void startLeap(Vec3d landing) {
+		Telegraph.windup(this, LEAP_WINDUP, "attack.leap", VampireSounds.VAMPIRE_BOSS_LEAP, BLOOD, 0, () -> leap(landing));
+		markLanding(landing);
 	}
 
 	private void markLanding(Vec3d landing) {
@@ -170,6 +175,7 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 			leapTarget = null;
 			world.playSound(null, getX(), getY(), getZ(), VampireSounds.VAMPIRE_BOSS_LAND, SoundCategory.HOSTILE, 1.0f, 1.3f);
 			world.spawnParticles(BLOOD, getX(), getY() + 0.3, getZ(), 40, LEAP_RADIUS / 2, 0.2, LEAP_RADIUS / 2, 0);
+			CombatFx.impact(world, getPos(), 0.7f, (float) LEAP_RADIUS, 24, CombatFx.BLOOD);
 			for (PlayerEntity player : playersWithin(world, LEAP_RADIUS)) {
 				player.damage(getDamageSources().mobAttack(this), LEAP_DAMAGE);
 				player.addVelocity(0, 0.5, 0);

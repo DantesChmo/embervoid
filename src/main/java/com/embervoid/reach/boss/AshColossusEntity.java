@@ -5,6 +5,8 @@ import com.embervoid.boss.BossFight;
 import com.embervoid.boss.BossHits;
 import com.embervoid.boss.Telegraph;
 import com.embervoid.boss.TelegraphShape;
+import com.embervoid.fx.CombatFx;
+import com.embervoid.fx.SwingArc;
 import com.embervoid.reach.mob.ReachMobs;
 import com.embervoid.registry.ModBlocks;
 import net.minecraft.block.BlockState;
@@ -240,6 +242,13 @@ public class AshColossusEntity extends ReachBoss {
 				});
 	}
 
+	@Override
+	protected void afterStrike(String animation) {
+		if (animation.equals(DRAG)) {
+			CombatFx.trail(this, SwingArc.sweep(6, 1.4f, true, 6, CombatFx.EMBER));
+		}
+	}
+
 	/** Crouches with a ring at the target's spot, then leaps there; the landing hurts everyone in the ring. */
 	public void leap(LivingEntity target) {
 		face(target.getPos());
@@ -273,6 +282,7 @@ public class AshColossusEntity extends ReachBoss {
 			leapTarget = null;
 			world.playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.HOSTILE, 1.5f, 0.6f);
 			world.spawnParticles(ParticleTypes.EXPLOSION, getX(), getY() + 0.5, getZ(), 6, LEAP_RADIUS / 2, 0.2, LEAP_RADIUS / 2, 0);
+			CombatFx.impact(world, getPos(), 1.0f, (float) LEAP_RADIUS, 32, CombatFx.EMBER);
 			for (PlayerEntity player : Telegraph.playersIn(this, ring)) {
 				player.damage(getDamageSources().mobAttack(this), LEAP_DAMAGE);
 				knockAway(player, 1.0, 0.6);

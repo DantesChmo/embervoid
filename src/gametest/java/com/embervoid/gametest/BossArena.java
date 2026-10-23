@@ -5,6 +5,7 @@ import com.embervoid.boss.ArenaManager;
 import com.embervoid.boss.ArenaSpec;
 import com.embervoid.boss.BossFight;
 import com.embervoid.config.EmbervoidConfig;
+import com.embervoid.fx.CombatFx;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
@@ -30,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
 
@@ -201,9 +203,14 @@ final class BossArena {
 		server.setDifficulty(difficulty, true);
 	}
 
-	/** A connection that records the arena fog packets sent to it ({density, colour}; density < 0 = clear). */
+	/**
+	 * A connection that records the arena fog packets sent to it ({density, colour}; density < 0 = clear) and the
+	 * combat effects ({@link CombatFx}, by channel).
+	 */
 	static final class FogRecorder extends ClientConnection {
+		private static final Set<Identifier> FX = Set.of(CombatFx.SHAKE_PACKET, CombatFx.TRAIL_PACKET, CombatFx.FLASH_PACKET);
 		final List<float[]> fog = new ArrayList<>();
+		final List<CustomPayloadS2CPacket> fx = new ArrayList<>();
 
 		FogRecorder() {
 			super(NetworkSide.SERVERBOUND);
@@ -220,7 +227,14 @@ final class BossArena {
 				PacketByteBuf buf = new PacketByteBuf(payload.getData().copy());
 				buf.readIdentifier();
 				fog.add(new float[]{buf.readFloat(), buf.readInt()});
+			} else if (packet instanceof CustomPayloadS2CPacket payload && FX.contains(payload.getChannel())) {
+				fx.add(payload);
 			}
+		}
+
+		/** Combat effect packets sent on {@code channel} so far. */
+		int fx(Identifier channel) {
+			return (int) fx.stream().filter(payload -> payload.getChannel().equals(channel)).count();
 		}
 	}
 }
