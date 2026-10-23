@@ -6,6 +6,7 @@ import com.embervoid.player.StaminaManager;
 import com.embervoid.reach.gear.GearWeaponItem;
 import com.embervoid.reach.gear.GearWeapons;
 import com.embervoid.sanctum.gear.SanctumGearConfig;
+import com.embervoid.sanctum.gear.SanctumGearSounds;
 import com.embervoid.sanctum.gear.SanctumWeapons;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Blocks;
@@ -37,7 +38,7 @@ import java.util.List;
 
 /**
  * The Sanctum weapons (PLAN L1, DESIGN §10.10): both special attacks through the real right-click (stamina, cooldown,
- * who they hit, damage through {@code damage()}, never through a wall), the mace breaking a Hollow's guard, the item
+ * who they hit, damage through {@code damage()}, never through a wall, their own sound), the mace breaking a Hollow's guard, the item
  * numbers and the outer-hall loot.
  */
 public final class SanctumGearTests implements FabricGameTest {
@@ -64,6 +65,8 @@ public final class SanctumGearTests implements FabricGameTest {
 			context.assertTrue(used.isAccepted(), "Wide Cleave was refused with full stamina: " + used);
 			context.assertTrue(StaminaManager.get(player) == max - config.cleaveStamina(),
 					"stamina after Wide Cleave: " + StaminaManager.get(player));
+			context.assertTrue(SoundLog.heard(context.getWorld(), SanctumGearSounds.WIDE_CLEAVE, player.getPos(), 1),
+					"Wide Cleave played no " + SanctumGearSounds.WIDE_CLEAVE.getId());
 			float expected = 6.5f * config.cleaveMultiplier();
 			hitFor(context, front, expected, "the mob in front");
 			hitFor(context, diagonal, expected, "the mob 27° off the look");
@@ -120,6 +123,8 @@ public final class SanctumGearTests implements FabricGameTest {
 			context.assertTrue(used.isAccepted(), "Ground Slam was refused with full stamina: " + used);
 			context.assertTrue(StaminaManager.get(player) == max - config.slamStamina(),
 					"stamina after Ground Slam: " + StaminaManager.get(player));
+			context.assertTrue(SoundLog.heard(context.getWorld(), SanctumGearSounds.GROUND_SLAM, player.getPos(), 1),
+					"Ground Slam played no " + SanctumGearSounds.GROUND_SLAM.getId());
 			float expected = 8 * config.slamMultiplier();
 			for (HuskEntity hit : List.of(front, behind, beside)) {
 				hitFor(context, hit, expected, "a mob in the ring");
