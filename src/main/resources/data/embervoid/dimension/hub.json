@@ -1,0 +1,13 @@
+{
+  "type": "embervoid:hub",
+  "generator": {
+    "type": "minecraft:flat",
+    "settings": {
+      "biome": "embervoid:hub",
+      "features": false,
+      "lakes": false,
+      "layers": [],
+      "structure_overrides": []
+    }
+  }
+}
