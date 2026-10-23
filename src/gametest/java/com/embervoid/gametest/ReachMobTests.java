@@ -114,16 +114,18 @@ public final class ReachMobTests implements FabricGameTest {
 				ReachMobs.RESTLESS_BONES, ReachMobs.CRYPT_MOTH, ReachMobs.HOLLOW_SENTINEL, ReachMobs.GRAVE_WARDEN,
 				ReachMobs.CINDER_HOUND, ReachMobs.SPARKING_MARKSMAN, ReachMobs.FURNACE_GOLEM, ReachMobs.SMOLDERING_KNIGHT);
 		List<ReachMob> placed = new ArrayList<>();
-		int x = 1;
+		// A 4 × 4 grid inside the test area: a mob placed far outside it (in a row out to x = 40) can land in a chunk
+		// that does not tick entities, never ticks, and so never takes its placed state.
+		int i = 0;
 		for (EntityType<? extends ReachMob> type : types) {
 			boolean caged = type == ReachMobs.WITHERED_THRALL;
-			BlockPos pos = context.getAbsolutePos(new BlockPos(x, caged ? 4 : 0, 2));
+			BlockPos pos = context.getAbsolutePos(new BlockPos(1 + (i % 4) * 2, caged ? 4 : 0, 1 + (i / 4) * 2));
 			NbtCompound marker = PlacedEnemies.markerNbt(EntityType.getId(type), null,
 					caged ? List.of(WitheredThrallEntity.CAGE_TAG) : List.of());
 			Entity entity = PlacedEnemies.spawn(context.getWorld(), pos, 0, marker);
 			context.assertTrue(entity instanceof ReachMob, "nothing placed for " + EntityType.getId(type));
 			placed.add(ReachTests.own(context, (ReachMob) entity));
-			x += 3;
+			i++;
 		}
 		context.waitAndRun(3, ReachTests.guard(context, () -> {
 			for (ReachMob mob : placed) {

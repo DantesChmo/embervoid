@@ -91,6 +91,7 @@ public final class SanctumGearTests implements FabricGameTest {
 			for (HuskEntity husk : List.of(front, diagonal, beside, behind, far)) {
 				husk.discard();
 			}
+			clearWall(context, 4, 4);
 			arena.finish();
 		});
 	}
@@ -135,6 +136,7 @@ public final class SanctumGearTests implements FabricGameTest {
 			for (HuskEntity husk : List.of(front, behind, beside, far, walled)) {
 				husk.discard();
 			}
+			clearWall(context, 3, 3);
 			arena.finish();
 		});
 	}
@@ -208,6 +210,15 @@ public final class SanctumGearTests implements FabricGameTest {
 		context.assertTrue(swords >= 180 && swords <= 300 && maces >= 180 && maces <= 300,
 				"outer hall: longsword in " + swords + ", mace in " + maces + " of " + rolls + " chests, expected ~240");
 		context.complete();
+	}
+
+	/**
+	 * Removes a two-high test wall: test areas of later batches overlap this one, and a mob placed into a leftover wall
+	 * suffocates.
+	 */
+	private static void clearWall(TestContext context, int x, int z) {
+		context.setBlockState(x, 1, z, Blocks.AIR);
+		context.setBlockState(x, 2, z, Blocks.AIR);
 	}
 
 	private static void face(ServerPlayerEntity player) {
