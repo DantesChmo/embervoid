@@ -747,7 +747,7 @@ Mobs for bosses.
 | ID | Task | Size | Depends on | Status |
 |----|------|------|------------|--------|
 | 19.1 | **Offline viewer: structures and motion** | M | — | done (`tools/model_preview.py structure` / `motion` / `self-check`; no three.js page, the GIFs and trail strips are enough) |
-| 19.2 | **Combat effects**: camera shake, swing trails, hit flashes | M | — | todo |
+| 19.2 | **Combat effects**: camera shake, swing trails, hit flashes | M | — | done (`com.embervoid.fx.CombatFx`: `shake` / `trail` / `flash` / `impact`; Camera Shake slider and Hit Flashes toggle in Accessibility; wired into the Colossus leap and drag, the Lord's landing, swings and slam, the Vampire leap; GameTests on range and on those moves, JUnit on the curves; looks not seen in game) |
 | 19.3 | **Death, hit and stagger animations for the 24 mobs** (3 parts) | L | 19.1 | todo |
 | 19.4 | **Boss remodels** (one task per boss) | XL | 19.1, 19.2 | todo |
 | 19.5 | **Photo tour** (optional) | M | — | todo |
