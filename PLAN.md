@@ -775,7 +775,7 @@ stats, weapons.
 
 | ID | Task | Size | Depends on | Status |
 |----|------|------|------------|--------|
-| 18.1 | **Balance model on fight length** | M | 17.0 | todo |
+| 18.1 | **Balance model on fight length** | M | 17.0 | done (JUnit `FightLengthTest` in the build; the 0.5.0 targets in `FightLengthTargetsTest`, tag `targets-0.5.0`, run by `./gradlew balanceTargets`: 6 of 7 red, 80 misses listed in `docs/balance-0.5.0.md`; GameTest `bossWindupsAreTheEntities`; nothing played) |
 | 18.3 | **Retune: overworld, dungeon, moon nights** | M | 18.1, 16.4 | todo |
 | 18.4 | **Retune: Realm 1 mobs and bosses, player stats** | L | 18.1, 17.3 | todo |
 
@@ -783,6 +783,16 @@ stats, weapons.
   uptime factor per boss for dodging) next to the 17.0 targets, for every stage: overworld, dungeon boss, moon
   nights, the three zones, the Citadel. New `docs/balance-0.5.0.md` (the old write-ups stay as history);
   `BalanceTargetsTest` gets the new targets (red until 18.3 and 18.4).
+  *Built:* `BalanceData` has a cadence per boss (each move's wind-up, class and tell; per phase the beats with the
+  brain's cooldowns, pauses and downtime), the wind-ups and cooldowns now public constants of the boss classes (no
+  value changed); the Fallen Sister as a placeholder. `FightLength` gives seconds, clean hits and uptime solo and with
+  2–3 players, the 0.5.0 stages with §5.5's reference players and weapons, and every boss move as a share of the
+  weakest expected player's health; the §6.1 uniques sit next to today's as "0.5.0 proposed". The new targets went
+  into their own tagged class instead of `BalanceTargetsTest` (which stays on the 0.4.0 targets and green, like
+  `OverworldTargetsTest`); 18.3 / 18.4 drop the `excludeTags` line in `build.gradle` once they pass. Findings: the
+  derived uptime is 19–22 % for the Colossus, Keeper and Lord (they can meet both bands with HP about ×0.3–0.6), but
+  46–63 % for the Tree and the Vampire (their cadence must change first); the Lord is furthest off (72 clean hits,
+  5.4–6.4 min); uniques cannot be crafted before the Citadel today (2 Smoldering Ingots), against §5.5's reference.
 - **18.3 Retune: overworld, dungeon, moon nights.** Overworld mobs, dungeon guards and boss, moon-night mobs and the
   Vampire boss to the targets; `OverworldTargetsTest`, `BalanceFightTests`.
 - **18.4 Retune: Realm 1.** Zone and Citadel mobs and the four bosses: HP to the fight length, damage per hit under

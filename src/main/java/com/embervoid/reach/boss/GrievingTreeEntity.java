@@ -61,6 +61,20 @@ public class GrievingTreeEntity extends ReachBoss {
 	public static final int FOG_COLOR = 0x3c4640;
 	/** How long a branch stays lowered after a sweep. */
 	public static final int LOWERED_TICKS = 60;
+	/** Windup of each move in ticks (the balance model reads them, PLAN 18.1). */
+	public static final int ROOT_WINDUP = 26;
+	public static final int SWEEP_WINDUP = 20;
+	public static final int CAGE_WINDUP = 24;
+	/** Ticks until the brain picks the next move after one; rooted, never fewer than {@value #ROOTED_MIN_COOLDOWN}. */
+	public static final int SWEEP_COOLDOWN = 40;
+	public static final int CAGE_COOLDOWN = 45;
+	public static final int ROOT_COOLDOWN = 50;
+	public static final int ROOTED_MIN_COOLDOWN = 20;
+	/** The pause after uprooting (P2 starts). */
+	public static final int UPROOT_PAUSE = 40;
+	/** Ticks between two drops of Withered Thralls, and between two lanterns growing back. */
+	public static final int THRALL_INTERVAL = 500;
+	public static final int REHANG_INTERVAL = 600;
 
 	public static final String ROOT_LINES = "attack.roots";
 	public static final String BRANCH_SWEEP = "attack.branch";
@@ -75,8 +89,6 @@ public class GrievingTreeEntity extends ReachBoss {
 	private static final float CAGE_DAMAGE = 4;
 	private static final double ROOT_LENGTH = 18;
 	private static final double SWEEP_RANGE = 8;
-	private static final int THRALL_INTERVAL = 500;
-	private static final int REHANG_INTERVAL = 600;
 
 	private final List<TreeLanternEntity> lanterns = new ArrayList<>();
 	private int stunTicks;
@@ -139,7 +151,7 @@ public class GrievingTreeEntity extends ReachBoss {
 		// P2: uproots. The old lanterns fall; new ones hang on its own, lower branches and walk with it.
 		Telegraph.cancel(this);
 		endStun();
-		moveCooldown = 40;
+		moveCooldown = UPROOT_PAUSE;
 		playAnimation(UPROOT);
 		world.playSound(null, getX(), getY(), getZ(), ReachBossSounds.GRIEVING_TREE_UPROOT, SoundCategory.HOSTILE, 2.0f, 1.0f);
 		world.playSound(null, getX(), getY(), getZ(), SoundEvents.BLOCK_ROOTED_DIRT_BREAK, SoundCategory.HOSTILE, 2.0f, 0.5f);
@@ -242,7 +254,7 @@ public class GrievingTreeEntity extends ReachBoss {
 				moveCooldown--;
 			} else {
 				int cooldown = chooseMove(getTarget(), squaredDistanceTo(getTarget()));
-				moveCooldown = Math.max(cooldown, 20);
+				moveCooldown = Math.max(cooldown, ROOTED_MIN_COOLDOWN);
 			}
 		}
 	}
@@ -259,14 +271,14 @@ public class GrievingTreeEntity extends ReachBoss {
 		}
 		if (squaredDistance <= SWEEP_RANGE * SWEEP_RANGE && random.nextInt(3) != 0) {
 			branchSweep(target);
-			return 40;
+			return SWEEP_COOLDOWN;
 		}
 		if (!isRooted() && random.nextInt(3) == 0) {
 			rootCage(target);
-			return 45;
+			return CAGE_COOLDOWN;
 		}
 		rootLines();
-		return 50;
+		return ROOT_COOLDOWN;
 	}
 
 	// --- Moves ---
@@ -278,7 +290,7 @@ public class GrievingTreeEntity extends ReachBoss {
 		for (LivingEntity target : targets) {
 			Vec3d direction = directionTo(target.getPos());
 			TelegraphShape line = TelegraphShape.line(getPos(), getPos().add(direction.multiply(ROOT_LENGTH)), 1.0);
-			telegraph(line, 26, first ? ROOT_LINES : null, first ? ReachBossSounds.GRIEVING_TREE_ROOT_LINES : null, ParticleTypes.MYCELIUM,
+			telegraph(line, ROOT_WINDUP, first ? ROOT_LINES : null, first ? ReachBossSounds.GRIEVING_TREE_ROOT_LINES : null, ParticleTypes.MYCELIUM,
 					player -> {
 						player.damage(getDamageSources().mobAttack(this), ROOT_DAMAGE);
 						player.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 40, 2), this);
@@ -293,12 +305,12 @@ public class GrievingTreeEntity extends ReachBoss {
 	public void branchSweep(LivingEntity target) {
 		face(target.getPos());
 		Vec3d direction = directionTo(target.getPos());
-		telegraph(TelegraphShape.cone(getPos(), direction, SWEEP_RANGE, 50), 20, BRANCH_SWEEP, ReachBossSounds.GRIEVING_TREE_BRANCH_SWEEP,
+		telegraph(TelegraphShape.cone(getPos(), direction, SWEEP_RANGE, 50), SWEEP_WINDUP, BRANCH_SWEEP, ReachBossSounds.GRIEVING_TREE_BRANCH_SWEEP,
 				ParticleTypes.MYCELIUM, player -> {
 					player.damage(getDamageSources().mobAttack(this), SWEEP_DAMAGE);
 					knockAway(player, 1.1, 0.4);
 				});
-		Telegraph.windup(this, 20, null, null, ParticleTypes.MYCELIUM, 0, () -> {
+		Telegraph.windup(this, SWEEP_WINDUP, null, null, ParticleTypes.MYCELIUM, 0, () -> {
 			Vec3d reach = getPos().add(direction.multiply(4));
 			lanterns().stream().min(Comparator.comparingDouble(l -> l.squaredDistanceTo(reach))).ifPresent(l -> l.lower(LOWERED_TICKS));
 		});
@@ -307,7 +319,7 @@ public class GrievingTreeEntity extends ReachBoss {
 	/** P2: roots close in a ring around the target; anyone inside is held fast. */
 	public void rootCage(LivingEntity target) {
 		Vec3d at = target.getPos();
-		telegraph(TelegraphShape.ring(at, 2.5), 24, ROOT_CAGE, ReachBossSounds.GRIEVING_TREE_ROOT_CAGE, ParticleTypes.MYCELIUM, player -> {
+		telegraph(TelegraphShape.ring(at, 2.5), CAGE_WINDUP, ROOT_CAGE, ReachBossSounds.GRIEVING_TREE_ROOT_CAGE, ParticleTypes.MYCELIUM, player -> {
 			player.damage(getDamageSources().mobAttack(this), CAGE_DAMAGE);
 			player.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 60, 5), this);
 		});

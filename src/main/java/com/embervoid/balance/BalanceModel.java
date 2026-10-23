@@ -89,6 +89,15 @@ public final class BalanceModel {
 	/** 8 damage, speed 0.9, STR 1; Ground Slam. */
 	public static final Weapon ASHBEARERS_MACE = new Weapon("Ashbearer's Mace", 8, 0.9, WeaponScaling.Scaling.STRENGTH, 0);
 	public static final List<Weapon> REALM_MELEE = List.of(ASHEN_SCYTHE, WARDENS_SCOURGE, ROYAL_ASH_RAPIER);
+	/**
+	 * DESIGN §6.1 starting numbers, "0.5.0 proposed" (PLAN 17.3 builds them): Scythe 12 at 1.1, Scourge 10 at 1.0,
+	 * Rapier 7 at 2.2, scaling unchanged. The fight-length model shows them next to today's.
+	 */
+	public static final Weapon ASHEN_SCYTHE_PROPOSED = new Weapon("Ashen Scythe (0.5.0 proposed)", 12, 1.1, ASHEN_SCYTHE.scaling(), 0);
+	public static final Weapon WARDENS_SCOURGE_PROPOSED = new Weapon("Warden's Scourge (0.5.0 proposed)", 10, 1.0, WARDENS_SCOURGE.scaling(), 0);
+	public static final Weapon ROYAL_ASH_RAPIER_PROPOSED = new Weapon("Royal Ash Rapier (0.5.0 proposed)", 7, 2.2, ROYAL_ASH_RAPIER.scaling(),
+			ROYAL_ASH_RAPIER.kindlingShare());
+	public static final List<Weapon> REALM_MELEE_PROPOSED = List.of(ASHEN_SCYTHE_PROPOSED, WARDENS_SCOURGE_PROPOSED, ROYAL_ASH_RAPIER_PROPOSED);
 	public static final List<Weapon> SANCTUM_MELEE = List.of(SANCTUM_LONGSWORD, ASHBEARERS_MACE);
 
 	// --- The player ----------------------------------------------------------------------------------------------

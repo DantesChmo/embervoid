@@ -9,6 +9,7 @@ import com.embervoid.reach.mob.FurnaceGolemEntity;
 import com.embervoid.reach.mob.HollowSentinelEntity;
 import com.embervoid.reach.mob.RestlessBonesEntity;
 import com.embervoid.reach.mob.SparkingMarksmanEntity;
+import com.embervoid.vampire.VampireBossEntity;
 
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,11 @@ import java.util.Map;
  *
  * <p>Everything else the model needs (stat curve, level cost, mob levels, difficulty, boss scaling, armor) comes from
  * the real formula classes in {@link BalanceModel}.
+ *
+ * <p>For the fight-length model ({@link FightLength}, PLAN 18.1) each boss also has a {@link Cadence}: its moves'
+ * wind-ups and the brain's cooldowns, read from the entity classes' public constants (the {@code BalanceFightTests}
+ * GameTest runs the moves and checks the wind-ups), its phases and its downtime. The Fallen Sister is not built yet:
+ * her boss and cadence are placeholders (PLAN 16.3).
  */
 public final class BalanceData {
 	/** A realm zone with its mob level band (DESIGN §4.5; {@code realm.Realms}, checked by the GameTest). */
@@ -197,6 +203,311 @@ public final class BalanceData {
 					melee("claw", 5, 30),
 					melee("leap", 7, 0),
 					melee("blood nova (heals 25 %)", 7.5, 0)));
+
+	// --- Fight length (PLAN 18.1, DESIGN §5.5) --------------------------------------------------------------------
+
+	/** What the player gets before a move lands (DESIGN §5.5 wind-up rule), weakest first. */
+	public enum Tell {
+		/** Nothing: a vanilla melee swing. */
+		NONE,
+		/** The move's animation only. */
+		ANIMATION,
+		/** Animation and a sound cue. */
+		SOUND,
+		/** Animation and a marked shape on the ground (ring, line, cone, falling shadow), mostly with a sound. */
+		SHAPE
+	}
+
+	/**
+	 * A boss move's class (DESIGN §5.5): light moves (combo hits, quick swings) at most 20 % of the expected player's
+	 * max health, heavy moves (telegraphed areas, lunges, throws) at most 35 %, the boss's biggest at most two thirds.
+	 */
+	public enum Size { LIGHT, HEAVY, BIGGEST }
+
+	/**
+	 * When the boss may be hit around a move: {@link #MELEE} next to the player (its windup until the player has to
+	 * leave and its recovery after they are back are openings), {@link #CLOSING} from range onto the player (a leap, a
+	 * lunge: only the recovery after it lands), {@link #RANGED} from range and staying there (a throw: nothing).
+	 */
+	public enum Range { MELEE, CLOSING, RANGED }
+
+	/**
+	 * Whom a move makes dodge: its target only (a cone, a line, a shadow at the target), every fighter (a ring around
+	 * the boss, root lines at everyone), or nobody (a stun, claws traded hit for hit).
+	 */
+	public enum Aim { TARGET, ALL, NONE }
+
+	/**
+	 * Timing of one boss {@link Hit}, for the hit-size and wind-up checks.
+	 *
+	 * @param hit    the hit's name in its boss's {@link Boss#hits()}
+	 * @param windup ticks from its tell to the hit (a combo's follow-up: from the hit before)
+	 */
+	public record Timing(String hit, int windup, Size size, Tell tell) {}
+
+	/**
+	 * One beat of a boss's loop in a phase: a move (or an opening, a stun) and the brain's cooldown after it.
+	 *
+	 * @param name     what it is called in the write-up
+	 * @param lead     ticks from its tell to its first hit (the part of the windup the player can still swing in)
+	 * @param busy     ticks from its tell to its last hit (a combo: all its hits; a leap: windup and flight)
+	 * @param recovery ticks after its last hit until the next move starts (the brain's cooldown)
+	 * @param weight   how many of it one loop of the phase holds
+	 * @param factor   damage the boss takes from a clean hit during it (NaN: the phase's)
+	 */
+	public record Beat(String name, int lead, int busy, int recovery, double weight, Aim aim, Range range, double factor) {
+		public int ticks() {
+			return busy + recovery;
+		}
+	}
+
+	/**
+	 * Fight time with no hitting: {@code ticks} every {@code every} ticks of the phase (0: once, when it starts), plus
+	 * the time to kill {@code count} of mob {@code add} (null for none) at the boss's add level.
+	 */
+	public record Downtime(String name, double ticks, double every, String add, double count) {
+		public static Downtime every(String name, double ticks, double every) {
+			return new Downtime(name, ticks, every, null, 0);
+		}
+
+		public static Downtime adds(String name, String add, double count, double every) {
+			return new Downtime(name, 0, every, add, count);
+		}
+	}
+
+	/**
+	 * One phase of a boss fight for the fight-length model.
+	 *
+	 * @param from   boss health fraction where it starts (the next phase's is where it ends; a phase that starts where
+	 *               the next does, the Lord on the wall, costs no health)
+	 * @param armor  the boss's armor in it
+	 * @param factor damage the boss takes from a clean hit in it (a flank: neither the Colossus's front nor its back)
+	 * @param pause  fixed ticks at its start in which the boss cannot be hit (a phase animation, the Lord on the wall)
+	 */
+	public record Phase(String name, double from, double armor, double factor, int pause, List<Beat> beats, List<Downtime> downtime) {}
+
+	/**
+	 * A boss's fight as the fight-length model sees it.
+	 *
+	 * @param scaled  max health scales with the fighters (arena bosses; the Vampire is one shared boss)
+	 * @param timings one per {@link Hit} that is not a hazard
+	 */
+	public record Cadence(Boss boss, boolean scaled, List<Timing> timings, List<Phase> phases) {
+		public Timing timing(String hit) {
+			return timings.stream().filter(t -> t.hit().equals(hit)).findFirst().orElseThrow(() -> new IllegalArgumentException(hit));
+		}
+	}
+
+	/** Vanilla's {@code MeleeAttackGoal}: one swing per 20 ticks, no windup (the Vampire's claws). */
+	public static final int VANILLA_MELEE_COOLDOWN = 20;
+	/**
+	 * Share of a boss's picks made with the player out of melee range (pushed off by a hit, backing off to drink the
+	 * flask, a dodge that went too far): the boss's moves at range get this weight in a loop.
+	 */
+	public static final double OUT_OF_MELEE = 0.2;
+
+	private static Beat melee(String name, int windup, int recovery, double weight, Aim aim) {
+		return new Beat(name, windup, windup, recovery, weight, aim, Range.MELEE, Double.NaN);
+	}
+
+	private static Beat combo(String name, int lead, int busy, int recovery, double weight) {
+		return new Beat(name, lead, busy, recovery, weight, Aim.TARGET, Range.MELEE, Double.NaN);
+	}
+
+	private static Beat closing(String name, int busy, int recovery, double weight, Aim aim) {
+		return new Beat(name, busy, busy, recovery, weight, aim, Range.CLOSING, Double.NaN);
+	}
+
+	private static Beat ranged(String name, int windup, int recovery, double weight) {
+		return new Beat(name, windup, windup, recovery, weight, Aim.TARGET, Range.RANGED, Double.NaN);
+	}
+
+	/** An opening with no move (a stun): the player walks up to the boss first, like after a dodge. */
+	private static Beat opening(String name, int ticks, double weight, double factor) {
+		return new Beat(name, 0, 0, ticks, weight, Aim.ALL, Range.MELEE, factor);
+	}
+
+	/**
+	 * The Fallen Sister, the Ruined Sanctum's boss (DESIGN §2, PLAN 16.3): not built yet. **Every number is a
+	 * placeholder** drafted to the §5.5 targets for a level 1 player in iron with an iron sword (level 10 in the band
+	 * 8–12; HP for about 30 clean hits; damage by move class), for 16.3 to start from.
+	 */
+	public static final Boss FALLEN_SISTER = new Boss("fallen_sister", "Fallen Sister (placeholder)", null, 10, 110, 4, 4, 60,
+			1, 1, "-", 0.5, 4, 1, 1, "-", List.of(
+					melee("censer swing", 4, 0),
+					melee("censer slam", 6, 0),
+					melee("crying soul dive (P2)", 3, 0),
+					melee("censer spin (P2)", 6, 0),
+					hazard("ember puddle, per 0.5 s", 1, HitKind.FIRE)));
+
+	/**
+	 * Ash Colossus. The player stays at its flank: the front takes ×{@value AshColossusEntity#FRONT_DAMAGE}, the back
+	 * ×{@value AshColossusEntity#BACK_DAMAGE}, and it turns to its target on every move, so a clean hit is a side hit.
+	 */
+	public static final Cadence ASH_COLOSSUS_CADENCE = new Cadence(ASH_COLOSSUS, true, List.of(
+			new Timing("fist cone", AshColossusEntity.FIST_WINDUP, Size.HEAVY, Tell.SHAPE),
+			new Timing("leap ring", AshColossusEntity.LEAP_WINDUP, Size.BIGGEST, Tell.SHAPE),
+			new Timing("boulder", AshColossusEntity.BOULDER_WINDUP, Size.HEAVY, Tell.SHAPE),
+			new Timing("arm drag", AshColossusEntity.DRAG_WINDUP, Size.LIGHT, Tell.SHAPE),
+			new Timing("falling cinder (P2)", AshColossusEntity.CINDER_WINDUP, Size.LIGHT, Tell.SHAPE)), List.of(
+			new Phase("P1", 1, ASH_COLOSSUS.armor(), ASH_COLOSSUS.sideFactor(), 0, List.of(
+					melee("fist cone", AshColossusEntity.FIST_WINDUP, AshColossusEntity.MELEE_COOLDOWN, (1 - OUT_OF_MELEE) * 2 / 3, Aim.TARGET),
+					melee("arm drag", AshColossusEntity.DRAG_WINDUP, AshColossusEntity.MELEE_COOLDOWN, (1 - OUT_OF_MELEE) / 3, Aim.TARGET),
+					closing("leap ring", AshColossusEntity.LEAP_WINDUP + AshColossusEntity.LEAP_FLIGHT_TICKS,
+							AshColossusEntity.RANGED_COOLDOWN, OUT_OF_MELEE / 2, Aim.TARGET),
+					ranged("boulder", AshColossusEntity.BOULDER_WINDUP, AshColossusEntity.RANGED_COOLDOWN, OUT_OF_MELEE / 2)), List.of(
+					Downtime.every("ash storm: roar, then behind a pillar", AshColossusEntity.STORM_WINDUP + AshColossusEntity.STORM_TICKS,
+							AshColossusEntity.STORM_INTERVAL))),
+			new Phase("P2 (stone shed)", ASH_COLOSSUS.phase2At(), ASH_COLOSSUS.phase2Armor(), ASH_COLOSSUS.phase2Side(),
+					AshColossusEntity.SHED_PAUSE, List.of(
+					melee("fist cone", AshColossusEntity.FIST_WINDUP, AshColossusEntity.MELEE_COOLDOWN_P2, (1 - OUT_OF_MELEE) * 2 / 3, Aim.TARGET),
+					melee("arm drag", AshColossusEntity.DRAG_WINDUP, AshColossusEntity.MELEE_COOLDOWN_P2, (1 - OUT_OF_MELEE) / 3, Aim.TARGET),
+					closing("leap ring", AshColossusEntity.LEAP_WINDUP + AshColossusEntity.LEAP_FLIGHT_TICKS,
+							AshColossusEntity.RANGED_COOLDOWN_P2, OUT_OF_MELEE / 2, Aim.TARGET),
+					ranged("boulder", AshColossusEntity.BOULDER_WINDUP, AshColossusEntity.RANGED_COOLDOWN_P2, OUT_OF_MELEE / 2)), List.of(
+					Downtime.every("ash storm: roar, then behind a pillar", AshColossusEntity.STORM_WINDUP + AshColossusEntity.STORM_TICKS,
+							AshColossusEntity.STORM_INTERVAL),
+					// A cinder falls near each fighter every interval; about a third of them on the player's spot.
+					Downtime.every("falling cinders: a step out of the shadow", FightLength.REENGAGE_TICKS / 3.0,
+							AshColossusEntity.CINDER_INTERVAL)))));
+
+	/**
+	 * Grieving Tree. Rooted (P1) it never walks; the branch it lowers after each sweep holds a lantern a melee hit can
+	 * break, so each sweep buys a stun ({@value GrievingTreeEntity#STUN_TICKS} ticks at ×{@value
+	 * GrievingTreeEntity#STUNNED_DAMAGE}). Otherwise the trunk takes ×{@value GrievingTreeEntity#TRUNK_DAMAGE}.
+	 */
+	public static final Cadence GRIEVING_TREE_CADENCE = new Cadence(GRIEVING_TREE, true, List.of(
+			new Timing("branch sweep", GrievingTreeEntity.SWEEP_WINDUP, Size.BIGGEST, Tell.SHAPE),
+			new Timing("root line", GrievingTreeEntity.ROOT_WINDUP, Size.HEAVY, Tell.SHAPE),
+			new Timing("root cage (P2)", GrievingTreeEntity.CAGE_WINDUP, Size.LIGHT, Tell.SHAPE)), List.of(
+			new Phase("P1 (rooted)", 1, GRIEVING_TREE.armor(), GRIEVING_TREE.sideFactor(), 0, List.of(
+					melee("branch sweep", GrievingTreeEntity.SWEEP_WINDUP, GrievingTreeEntity.SWEEP_COOLDOWN, 2 / 3.0, Aim.TARGET),
+					melee("root lines", GrievingTreeEntity.ROOT_WINDUP, GrievingTreeEntity.ROOT_COOLDOWN, 1 / 3.0, Aim.ALL),
+					opening("stun (lowered lantern broken)", GrievingTreeEntity.STUN_TICKS, 2 / 3.0, GRIEVING_TREE.bestFactor())), List.of(
+					Downtime.adds("Withered Thralls dropping (2)", "withered_thrall", 2, GrievingTreeEntity.THRALL_INTERVAL))),
+			new Phase("P2 (walking)", GRIEVING_TREE.phase2At(), GRIEVING_TREE.phase2Armor(), GRIEVING_TREE.phase2Side(),
+					GrievingTreeEntity.UPROOT_PAUSE, List.of(
+					melee("branch sweep", GrievingTreeEntity.SWEEP_WINDUP, GrievingTreeEntity.SWEEP_COOLDOWN, 2 / 3.0, Aim.TARGET),
+					melee("root cage", GrievingTreeEntity.CAGE_WINDUP, GrievingTreeEntity.CAGE_COOLDOWN, 1 / 9.0, Aim.TARGET),
+					melee("root lines", GrievingTreeEntity.ROOT_WINDUP, GrievingTreeEntity.ROOT_COOLDOWN, 2 / 9.0, Aim.ALL),
+					opening("stun (lowered lantern broken)", GrievingTreeEntity.STUN_TICKS, 2 / 3.0, GRIEVING_TREE.phase2Best())), List.of(
+					Downtime.adds("Withered Thralls dropping (2)", "withered_thrall", 2, GrievingTreeEntity.THRALL_INTERVAL)))));
+
+	/**
+	 * Crypt Keeper. In P2 and P3 the player fights it in brazier light (the lesson; in the dark it takes ×{@value
+	 * CryptKeeperEntity#DARK_DAMAGE}); moths come for a lit brazier and are swatted.
+	 */
+	public static final Cadence CRYPT_KEEPER_CADENCE = new Cadence(CRYPT_KEEPER, true, List.of(
+			// The two swings share a hit; the second follows the first after its shorter windup.
+			new Timing("halberd swing", CryptKeeperEntity.SWING_2_WINDUP, Size.LIGHT, Tell.SHAPE),
+			new Timing("overhead (3rd hit)", CryptKeeperEntity.OVERHEAD_WINDUP, Size.BIGGEST, Tell.SHAPE),
+			new Timing("sweep ring", CryptKeeperEntity.SWEEP_WINDUP, Size.HEAVY, Tell.SHAPE),
+			new Timing("thrust", CryptKeeperEntity.THRUST_WINDUP, Size.HEAVY, Tell.SHAPE),
+			new Timing("lantern throw", CryptKeeperEntity.LANTERN_WINDUP, Size.LIGHT, Tell.SHAPE)), List.of(
+			new Phase("P1", 1, CRYPT_KEEPER.armor(), 1, 0, keeperBeats(CryptKeeperEntity.CLOSE_COOLDOWN, ranged("lantern throw",
+					CryptKeeperEntity.LANTERN_WINDUP, CryptKeeperEntity.RANGED_COOLDOWN, OUT_OF_MELEE)), List.of()),
+			new Phase("P2 (dark, braziers)", CRYPT_KEEPER.phase2At(), CRYPT_KEEPER.phase2Armor(), 1, CryptKeeperEntity.PHASE_PAUSE,
+					keeperBeats(CryptKeeperEntity.CLOSE_COOLDOWN_LATE, closing("thrust", CryptKeeperEntity.THRUST_WINDUP,
+							CryptKeeperEntity.RANGED_COOLDOWN_LATE, OUT_OF_MELEE, Aim.TARGET)), List.of(
+					Downtime.adds("Crypt Moths at a lit brazier (1.5)", "crypt_moth", 1.5, CryptKeeperEntity.MOTH_INTERVAL))),
+			new Phase("P3 (flooded)", 0.3, CRYPT_KEEPER.phase2Armor(), 1, CryptKeeperEntity.PHASE_PAUSE,
+					keeperBeats(CryptKeeperEntity.CLOSE_COOLDOWN_LATE, closing("thrust", CryptKeeperEntity.THRUST_WINDUP,
+							CryptKeeperEntity.RANGED_COOLDOWN_LATE, OUT_OF_MELEE, Aim.TARGET)), List.of(
+					Downtime.adds("Crypt Moths at a lit brazier (1.5)", "crypt_moth", 1.5, CryptKeeperEntity.MOTH_INTERVAL),
+					Downtime.adds("Restless Bones rising", "restless_bones", CryptKeeperEntity.RISEN_BONES, 0)))));
+
+	/** Close: the halberd combo two times in three, the sweep ring otherwise (always with two players close). */
+	private static List<Beat> keeperBeats(int closeCooldown, Beat atRange) {
+		return List.of(
+				combo("halberd combo (2 swings + overhead)", CryptKeeperEntity.SWING_1_WINDUP, CryptKeeperEntity.SWING_1_WINDUP
+						+ CryptKeeperEntity.SWING_2_WINDUP + CryptKeeperEntity.OVERHEAD_WINDUP, closeCooldown, (1 - OUT_OF_MELEE) * 2 / 3),
+				melee("sweep ring", CryptKeeperEntity.SWEEP_WINDUP, closeCooldown, (1 - OUT_OF_MELEE) / 3, Aim.ALL),
+				atRange);
+	}
+
+	/**
+	 * Smoldering Lord. On the wall (P0) he cannot be touched: the player lights the three signal braziers, each a run
+	 * of about 8 blocks (30 ticks), a light (10) and a wall attack dodged on the way (40), then he lands.
+	 */
+	public static final int LORD_WALL_TICKS = 3 * (30 + 10 + 40) + SmolderingLordEntity.DESCEND_WINDUP;
+
+	public static final Cadence SMOLDERING_LORD_CADENCE = new Cadence(SMOLDERING_LORD, true, List.of(
+			new Timing("greatsword swing", SmolderingLordEntity.SWING_2_WINDUP, Size.LIGHT, Tell.SHAPE),
+			new Timing("overhead slam", SmolderingLordEntity.SLAM_WINDUP, Size.BIGGEST, Tell.SHAPE),
+			new Timing("lunge", SmolderingLordEntity.LUNGE_WINDUP, Size.HEAVY, Tell.SHAPE),
+			new Timing("landing ring", SmolderingLordEntity.DESCEND_WINDUP, Size.HEAVY, Tell.SHAPE),
+			new Timing("mortar (P0)", SmolderingLordEntity.MORTAR_WINDUP, Size.HEAVY, Tell.SHAPE),
+			new Timing("flame line (P0)", SmolderingLordEntity.FLAME_LINE_WINDUP, Size.HEAVY, Tell.SHAPE)), List.of(
+			new Phase("P0 (on the wall)", 1, SMOLDERING_LORD.armor(), 0, LORD_WALL_TICKS, List.of(), List.of()),
+			new Phase("P1", 1, SMOLDERING_LORD.armor(), 1, SmolderingLordEntity.PHASE_PAUSE,
+					lordBeats(SmolderingLordEntity.COMBO_COOLDOWN, SmolderingLordEntity.LUNGE_COOLDOWN), List.of()),
+			new Phase("P2 (armor shattered)", SMOLDERING_LORD.phase2At(), SMOLDERING_LORD.phase2Armor(), SMOLDERING_LORD.phase2Side(),
+					SmolderingLordEntity.PHASE_PAUSE, lordBeats(SmolderingLordEntity.COMBO_COOLDOWN_P2, SmolderingLordEntity.LUNGE_COOLDOWN_P2),
+					List.of(
+							// One zone hazard per interval, in turn.
+							Downtime.every("ash storm: roar, then behind cover", SmolderingLordEntity.STORM_WINDUP + SmolderingLordEntity.STORM_TICKS,
+									3 * SmolderingLordEntity.HAZARD_INTERVAL),
+							Downtime.every("fog: a quarter of it spent finding him", SmolderingLordEntity.FOG_TICKS / 4.0,
+									3 * SmolderingLordEntity.HAZARD_INTERVAL)))));
+
+	private static List<Beat> lordBeats(int comboCooldown, int lungeCooldown) {
+		return List.of(
+				combo("greatsword combo (2 swings + slam)", SmolderingLordEntity.SWING_1_WINDUP, SmolderingLordEntity.SWING_1_WINDUP
+						+ SmolderingLordEntity.SWING_2_WINDUP + SmolderingLordEntity.SLAM_WINDUP, comboCooldown, 1 - OUT_OF_MELEE),
+				closing("lunge", SmolderingLordEntity.LUNGE_WINDUP, lungeCooldown, OUT_OF_MELEE, Aim.TARGET));
+	}
+
+	/**
+	 * Vampire boss: a melee chaser that trades claws (no windup), with the nova on its own cooldown from P1 on and its
+	 * leap and mist step only when the player is away. One shared boss, not scaled by the number of players.
+	 */
+	public static final Cadence VAMPIRE_CADENCE = new Cadence(VAMPIRE, false, List.of(
+			new Timing("claw", 0, Size.LIGHT, Tell.NONE),
+			new Timing("leap", VampireBossEntity.LEAP_WINDUP, Size.HEAVY, Tell.SHAPE),
+			new Timing("blood nova (heals 25 %)", VampireBossEntity.NOVA_WINDUP, Size.BIGGEST, Tell.SHAPE)), List.of(
+			new Phase("P0", 1, VAMPIRE.armor(), 1, 0, List.of(
+					melee("claws, traded", 0, VANILLA_MELEE_COOLDOWN, 1 - OUT_OF_MELEE, Aim.NONE),
+					closing("leap", VampireBossEntity.LEAP_WINDUP + 14, 0, OUT_OF_MELEE, Aim.TARGET)), List.of()),
+			new Phase("P1 (nova)", 0.6, VAMPIRE.armor(), 1, 0, vampireBeats(VampireBossEntity.NOVA_COOLDOWN), List.of()),
+			new Phase("P2 (mist step)", 0.3, VAMPIRE.armor(), 1, 0, vampireBeats(VampireBossEntity.NOVA_COOLDOWN_P2), List.of())));
+
+	/** One nova per its cooldown; claws traded the rest of it; a leap now and then when the player backs off. */
+	private static List<Beat> vampireBeats(int novaCooldown) {
+		double claws = (novaCooldown - VampireBossEntity.NOVA_WINDUP) / (double) VANILLA_MELEE_COOLDOWN;
+		return List.of(
+				melee("claws, traded", 0, VANILLA_MELEE_COOLDOWN, claws * (1 - OUT_OF_MELEE), Aim.NONE),
+				melee("blood nova", VampireBossEntity.NOVA_WINDUP, 0, 1, Aim.ALL),
+				closing("leap / mist step", VampireBossEntity.LEAP_WINDUP + 14, 0, claws * OUT_OF_MELEE, Aim.TARGET));
+	}
+
+	/**
+	 * The Fallen Sister's cadence, as placeholder as her numbers (DESIGN §2): in phase 1 two censer arcs at a time (the
+	 * chain winds around her arm first), a slam whose ember puddle she fights from for a while, a backstep; in phase 2
+	 * the censer spins around her and 3–4 crying souls dive one by one, each a dodge and one swing to kill, a new flock
+	 * every 20 s.
+	 */
+	public static final Cadence FALLEN_SISTER_CADENCE = new Cadence(FALLEN_SISTER, true, List.of(
+			new Timing("censer swing", 12, Size.LIGHT, Tell.SHAPE),
+			new Timing("censer slam", 22, Size.HEAVY, Tell.SHAPE),
+			new Timing("crying soul dive (P2)", 20, Size.LIGHT, Tell.SHAPE),
+			new Timing("censer spin (P2)", 24, Size.BIGGEST, Tell.SHAPE)), List.of(
+			new Phase("P1 (censer)", 1, FALLEN_SISTER.armor(), 1, 0, List.of(
+					combo("two censer arcs", 18, 18 + 12, 26, 0.6),
+					melee("censer slam", 22, 30, 0.3, Aim.TARGET),
+					ranged("backstep", 10, 20, 0.1)), List.of(
+					Downtime.every("ember puddle: waiting for it to cool", 40, 175))),
+			new Phase("P2 (veil burnt, crying souls)", FALLEN_SISTER.phase2At(), FALLEN_SISTER.phase2Armor(), 1, 40, List.of(
+					combo("two censer arcs", 18, 18 + 12, 26, 0.7),
+					melee("censer spin", 24, 30, 0.3, Aim.ALL)), List.of(
+					Downtime.every("crying souls: 3.5 dives dodged, each soul killed with one swing",
+							3.5 * (FightLength.ESCAPE_TICKS + FightLength.REENGAGE_TICKS + 16), 400)))));
+
+	public static final List<Cadence> CADENCES = List.of(FALLEN_SISTER_CADENCE, VAMPIRE_CADENCE, ASH_COLOSSUS_CADENCE,
+			GRIEVING_TREE_CADENCE, CRYPT_KEEPER_CADENCE, SMOLDERING_LORD_CADENCE);
+
+	public static Cadence cadenceOf(Boss boss) {
+		return CADENCES.stream().filter(c -> c.boss() == boss).findFirst().orElseThrow(() -> new IllegalArgumentException(boss.id()));
+	}
 
 	// --- Where the XP comes from (R40.1a "a normal playthrough") ------------------------------------------------
 

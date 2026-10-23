@@ -65,6 +65,28 @@ public class AshColossusEntity extends ReachBoss {
 	public static final int STORM_TICKS = 120;
 	/** Ash storm damage per second to a player it can see (magic, not scaled by level). */
 	public static final float STORM_DAMAGE = 2;
+	/** Windup of each move in ticks (the balance model reads them, PLAN 18.1). */
+	public static final int FIST_WINDUP = 18;
+	public static final int DRAG_WINDUP = 16;
+	public static final int LEAP_WINDUP = 22;
+	public static final int BOULDER_WINDUP = 30;
+	public static final int SMASH_WINDUP = 20;
+	public static final int CINDER_WINDUP = 30;
+	/** Ticks until the brain picks the next move after one, by kind of move, in P1 and in P2 (faster). */
+	public static final int SMASH_COOLDOWN = 30;
+	public static final int SMASH_COOLDOWN_P2 = 20;
+	public static final int MELEE_COOLDOWN = 32;
+	public static final int MELEE_COOLDOWN_P2 = 22;
+	public static final int RANGED_COOLDOWN = 50;
+	public static final int RANGED_COOLDOWN_P2 = 35;
+	public static final int FAR_COOLDOWN = 60;
+	public static final int FAR_COOLDOWN_P2 = 40;
+	/** The pause after shedding its stone (P2 starts). */
+	public static final int SHED_PAUSE = 30;
+	/** Ticks a leap takes from take-off to over its mark. */
+	public static final int LEAP_FLIGHT_TICKS = 14;
+	/** Ticks between two cinder falls in P2. */
+	public static final int CINDER_INTERVAL = 50;
 
 	public static final String FIST = "attack.fist";
 	public static final String DRAG = "attack.drag";
@@ -80,11 +102,8 @@ public class AshColossusEntity extends ReachBoss {
 	private static final float DRAG_DAMAGE = 6;
 	private static final float CINDER_DAMAGE = 5;
 	private static final double LEAP_RADIUS = 4.5;
-	/** Ticks a leap takes from take-off to over its mark. */
-	private static final int LEAP_FLIGHT_TICKS = 14;
 	private static final double BOULDER_RADIUS = 2.5;
 	private static final double CINDER_RADIUS = 2;
-	private static final int CINDER_INTERVAL = 50;
 	/** How far it reaches to smash a pillar (from its centre to the block). */
 	private static final double SMASH_REACH = 5;
 	/** A smashed pillar: every block within this of the hit column, floor + 1 up to this high. */
@@ -147,7 +166,7 @@ public class AshColossusEntity extends ReachBoss {
 		}
 		Telegraph.cancel(this);
 		leapTarget = null;
-		moveCooldown = 30;
+		moveCooldown = SHED_PAUSE;
 		playAnimation(SHED);
 		world.playSound(null, getX(), getY(), getZ(), ReachBossSounds.ASH_COLOSSUS_SHED, SoundCategory.HOSTILE, 2.0f, 1.0f);
 		world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, ModBlocks.ASH_STONE.getDefaultState()),
@@ -193,7 +212,7 @@ public class AshColossusEntity extends ReachBoss {
 		BlockPos cover = coverOf(target);
 		if (cover != null && cover.getSquaredDistance(getPos()) <= SMASH_REACH * SMASH_REACH) {
 			smash(cover);
-			return fast ? 20 : 30;
+			return fast ? SMASH_COOLDOWN_P2 : SMASH_COOLDOWN;
 		}
 		if (squaredDistance <= 5.5 * 5.5) {
 			if (random.nextInt(3) == 0) {
@@ -201,7 +220,7 @@ public class AshColossusEntity extends ReachBoss {
 			} else {
 				fist(target);
 			}
-			return fast ? 22 : 32;
+			return fast ? MELEE_COOLDOWN_P2 : MELEE_COOLDOWN;
 		}
 		if (squaredDistance >= 8 * 8 && squaredDistance <= 22 * 22) {
 			if (random.nextBoolean()) {
@@ -209,14 +228,14 @@ public class AshColossusEntity extends ReachBoss {
 			} else {
 				boulder(target);
 			}
-			return fast ? 35 : 50;
+			return fast ? RANGED_COOLDOWN_P2 : RANGED_COOLDOWN;
 		}
 		if (cover != null) {
 			return -1; // walk up to the pillar the target hides behind
 		}
 		if (squaredDistance > 22 * 22) {
 			boulder(target);
-			return fast ? 40 : 60;
+			return fast ? FAR_COOLDOWN_P2 : FAR_COOLDOWN;
 		}
 		return -1;
 	}
@@ -225,7 +244,7 @@ public class AshColossusEntity extends ReachBoss {
 
 	public void fist(LivingEntity target) {
 		face(target.getPos());
-		telegraph(TelegraphShape.cone(getPos(), directionTo(target.getPos()), 5.5, 45), 18, FIST, ReachBossSounds.ASH_COLOSSUS_FIST,
+		telegraph(TelegraphShape.cone(getPos(), directionTo(target.getPos()), 5.5, 45), FIST_WINDUP, FIST, ReachBossSounds.ASH_COLOSSUS_FIST,
 				ParticleTypes.FLAME, player -> {
 					player.damage(getDamageSources().mobAttack(this), FIST_DAMAGE);
 					knockAway(player, 1.2, 0.4);
@@ -235,7 +254,7 @@ public class AshColossusEntity extends ReachBoss {
 	/** A wide low sweep that drags the players it catches towards it. */
 	public void drag(LivingEntity target) {
 		face(target.getPos());
-		telegraph(TelegraphShape.cone(getPos(), directionTo(target.getPos()), 6, 70), 16, DRAG, ReachBossSounds.ASH_COLOSSUS_DRAG,
+		telegraph(TelegraphShape.cone(getPos(), directionTo(target.getPos()), 6, 70), DRAG_WINDUP, DRAG, ReachBossSounds.ASH_COLOSSUS_DRAG,
 				ParticleTypes.ASH, player -> {
 					player.damage(getDamageSources().mobAttack(this), DRAG_DAMAGE);
 					knockAway(player, -0.9, 0.1);
@@ -254,7 +273,7 @@ public class AshColossusEntity extends ReachBoss {
 		face(target.getPos());
 		Vec3d landing = target.getPos();
 		TelegraphShape ring = TelegraphShape.ring(landing, LEAP_RADIUS);
-		Telegraph.windup(this, ring, 22, LEAP, ReachBossSounds.ASH_COLOSSUS_LEAP, ParticleTypes.FLAME, () -> {
+		Telegraph.windup(this, ring, LEAP_WINDUP, LEAP, ReachBossSounds.ASH_COLOSSUS_LEAP, ParticleTypes.FLAME, () -> {
 			Vec3d delta = landing.subtract(getPos());
 			setVelocity(delta.x / LEAP_FLIGHT_TICKS, 0.9 + Math.max(0, delta.y) * 0.08, delta.z / LEAP_FLIGHT_TICKS);
 			velocityModified = true;
@@ -294,12 +313,12 @@ public class AshColossusEntity extends ReachBoss {
 	public void boulder(LivingEntity target) {
 		face(target.getPos());
 		Vec3d impact = target.getPos();
-		telegraph(TelegraphShape.shadow(impact, BOULDER_RADIUS), 30, BOULDER, ReachBossSounds.ASH_COLOSSUS_BOULDER, ParticleTypes.SMOKE,
+		telegraph(TelegraphShape.shadow(impact, BOULDER_RADIUS), BOULDER_WINDUP, BOULDER, ReachBossSounds.ASH_COLOSSUS_BOULDER, ParticleTypes.SMOKE,
 				player -> {
 					player.damage(getDamageSources().mobAttack(this), BOULDER_DAMAGE);
 					knockAway(player, 0.6, 0.4);
 				});
-		Telegraph.windup(this, 30, null, null, ParticleTypes.SMOKE, 0, () -> {
+		Telegraph.windup(this, BOULDER_WINDUP, null, null, ParticleTypes.SMOKE, 0, () -> {
 			if (getWorld() instanceof ServerWorld world) {
 				world.playSound(null, impact.x, impact.y, impact.z, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.HOSTILE, 1.0f, 0.9f);
 				world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, ModBlocks.ASH_STONE.getDefaultState()),
@@ -311,12 +330,12 @@ public class AshColossusEntity extends ReachBoss {
 	/** Smashes the pillar (or any cover) at {@code block}: every block around that column goes; it comes back after the fight. */
 	public void smash(BlockPos block) {
 		face(Vec3d.ofCenter(block));
-		telegraph(TelegraphShape.cone(getPos(), directionTo(Vec3d.ofCenter(block)), SMASH_REACH + 1, 40), 20, SMASH,
+		telegraph(TelegraphShape.cone(getPos(), directionTo(Vec3d.ofCenter(block)), SMASH_REACH + 1, 40), SMASH_WINDUP, SMASH,
 				ReachBossSounds.ASH_COLOSSUS_SMASH, ParticleTypes.FLAME, player -> {
 					player.damage(getDamageSources().mobAttack(this), FIST_DAMAGE);
 					knockAway(player, 1.2, 0.4);
 				});
-		Telegraph.windup(this, 20, null, null, ParticleTypes.FLAME, 0, () -> breakCover(block));
+		Telegraph.windup(this, SMASH_WINDUP, null, null, ParticleTypes.FLAME, 0, () -> breakCover(block));
 	}
 
 	private void breakCover(BlockPos block) {
@@ -372,7 +391,7 @@ public class AshColossusEntity extends ReachBoss {
 			Vec3d at = player.getPos().add(random.nextDouble() * 6 - 3, 0, random.nextDouble() * 6 - 3);
 			TelegraphShape shadow = TelegraphShape.shadow(at, CINDER_RADIUS);
 			cindersDropped++;
-			Telegraph.windup(this, shadow, 30, null, null, ParticleTypes.FLAME, () -> {
+			Telegraph.windup(this, shadow, CINDER_WINDUP, null, null, ParticleTypes.FLAME, () -> {
 				fight.world().spawnParticles(ParticleTypes.LAVA, at.x, at.y + 0.2, at.z, 8, 0.6, 0.1, 0.6, 0);
 				for (PlayerEntity hit : Telegraph.playersIn(this, shadow)) {
 					hit.damage(BossHits.source(this, DamageTypes.IN_FIRE), CINDER_DAMAGE);

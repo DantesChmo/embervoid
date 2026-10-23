@@ -55,14 +55,20 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 	public static final Identifier MUSIC = new Identifier("music.nether.crimson_forest");
 	private static final DustParticleEffect BLOOD = new DustParticleEffect(new Vector3f(0.6f, 0.02f, 0.05f), 1.6f);
 
-	private static final int LEAP_WINDUP = 20;
+	/** Windups and cooldowns in ticks (the balance model reads them, PLAN 18.1); later phases are faster. */
+	public static final int LEAP_WINDUP = 20;
+	public static final int NOVA_WINDUP = 30;
+	public static final int MIST_WINDUP = 12;
+	public static final int LEAP_COOLDOWN = 140;
+	public static final int LEAP_COOLDOWN_LATE = 100;
+	public static final int NOVA_COOLDOWN = 160;
+	public static final int NOVA_COOLDOWN_P2 = 120;
+	public static final int MIST_COOLDOWN = 100;
 	private static final double LEAP_RADIUS = 3.5;
 	private static final float LEAP_DAMAGE = 7;
-	private static final int NOVA_WINDUP = 30;
 	private static final double NOVA_RADIUS = 6;
 	private static final float NOVA_DAMAGE = 7.5f;
 	private static final float NOVA_HEAL = 0.25f;
-	private static final int MIST_WINDUP = 12;
 
 	private final AnimatableInstanceCache animations = GeckoLibUtil.createInstanceCache(this);
 	private int phase;
@@ -129,13 +135,13 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 		}
 		double distance = squaredDistanceTo(target);
 		if (phase >= 1 && novaCooldown <= 0 && distance < NOVA_RADIUS * NOVA_RADIUS) {
-			novaCooldown = phase >= 2 ? 120 : 160;
+			novaCooldown = phase >= 2 ? NOVA_COOLDOWN_P2 : NOVA_COOLDOWN;
 			Telegraph.windup(this, NOVA_WINDUP, "attack.nova", VampireSounds.VAMPIRE_BOSS_NOVA_WINDUP, BLOOD, NOVA_RADIUS, this::nova);
 		} else if (phase >= 2 && mistCooldown <= 0 && distance > 9) {
-			mistCooldown = 100;
+			mistCooldown = MIST_COOLDOWN;
 			Telegraph.windup(this, MIST_WINDUP, "misc.mist", VampireSounds.VAMPIRE_BOSS_MIST, ParticleTypes.SMOKE, 0, this::mistStep);
 		} else if (leapCooldown <= 0 && distance > 25 && distance < 256) {
-			leapCooldown = phase >= 1 ? 100 : 140;
+			leapCooldown = phase >= 1 ? LEAP_COOLDOWN_LATE : LEAP_COOLDOWN;
 			startLeap(target.getPos());
 		}
 	}
