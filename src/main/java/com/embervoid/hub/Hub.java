@@ -1,6 +1,11 @@
 package com.embervoid.hub;
 
 import com.embervoid.Embervoid;
+import com.embervoid.hub.stele.CleftStele;
+import com.embervoid.hub.stele.CleftStoneBlock;
+import com.embervoid.hub.stele.HubStele;
+import com.embervoid.hub.stele.SteleBlocks;
+import com.embervoid.hub.stele.SteleFrame;
 import com.embervoid.realm.api.RealmTeleports;
 import com.embervoid.sanctum.SanctumBlocks;
 import com.embervoid.sanctum.VoidObeliskBlockEntity;
@@ -45,8 +50,8 @@ import java.util.List;
  *   <li>The hub structure is placed once per world, when the server first starts with the dimension
  *   ({@link HubState} remembers it); nothing rebuilds it later.</li>
  *   <li>Outside creative nothing can be broken or built in the whole dimension, like in arenas.</li>
- *   <li>Leaving a realm lands here; the way in from the overworld is the Cleft Stele (task 15.4), until then
- *   {@code /embervoid hub}. Travel in and out: {@link HubTravel}.</li>
+ *   <li>Leaving a realm lands here; the way in from the overworld is the world's lit Cleft Stele, the way out the
+ *   hub's own ({@code hub.stele.SteleTravel}, PLAN 15.4). Travel in and out: {@link HubTravel}.</li>
  * </ul>
  */
 public final class Hub {
@@ -140,12 +145,13 @@ public final class Hub {
 
 	/** Blocks used with a right click: holding a block while using one must not count as building. */
 	private static boolean isInteractive(BlockState state) {
-		return state.isOf(SanctumBlocks.EMBER_SHRINE) || state.isOf(SanctumBlocks.VOID_OBELISK);
+		return state.isOf(SanctumBlocks.EMBER_SHRINE) || state.isOf(SanctumBlocks.VOID_OBELISK)
+				|| state.isOf(SteleBlocks.CLEFT_STONE) || state.isOf(SteleBlocks.STELE_CRACK);
 	}
 
 	/**
-	 * Checks the placed hub for the debug command, the server check and the GameTests: shrine, obelisk ring with its realms, an
-	 * empty stele spot on its pad, void below. Returns null if it is whole, else what is wrong.
+	 * Checks the placed hub for the debug command, the server check and the GameTests: shrine, obelisk ring with its realms, the
+	 * hub's lit Cleft Stele on its pad, void below. Returns null if it is whole, else what is wrong.
 	 */
 	@Nullable
 	public static String verify(ServerWorld hub) {
@@ -166,14 +172,13 @@ public final class Hub {
 		if (!hub.getBlockState(HubLayout.SHRINE.down()).isOf(SanctumBlocks.SANCTUM_FLAGSTONE)) {
 			wrong.add("no flagstone under the shrine");
 		}
-		for (BlockPos pos : BlockPos.iterate(HubLayout.STELE_CRACK_BOTTOM.add(-HubLayout.STELE_WIDTH / 2, 0, 0),
-				HubLayout.STELE_CRACK_BOTTOM.add(HubLayout.STELE_WIDTH / 2, HubLayout.STELE_HEIGHT - 1, 0))) {
-			// Task 15.3 builds the stele here; until then the spot is empty on a solid pad.
-			if (!hub.getBlockState(pos).isAir()) {
-				wrong.add("stele spot " + pos.toShortString() + " is " + hub.getBlockState(pos).getBlock());
-			}
-			if (pos.getY() == HubLayout.STELE_CRACK_BOTTOM.getY() && hub.getBlockState(pos.down()).isAir()) {
-				wrong.add("no pad under the stele spot at " + pos.down().toShortString());
+		if (!CleftStele.isLit(hub, HubStele.FRAME) || HubStele.FRAME.stones().stream().anyMatch(pos -> !isKindledStone(hub.getBlockState(pos)))) {
+			wrong.add("the hub's stele at " + HubLayout.STELE_CRACK_BOTTOM.toShortString() + " is not whole and lit");
+		}
+		for (int column = 0; column < SteleFrame.WIDTH; column++) {
+			BlockPos pad = HubStele.FRAME.at(column, -1);
+			if (hub.getBlockState(pad).isAir()) {
+				wrong.add("no pad under the stele at " + pad.toShortString());
 			}
 		}
 		if (!hub.getBlockState(HubLayout.LANDING.down()).isSolidBlock(hub, HubLayout.LANDING.down())
@@ -184,6 +189,10 @@ public final class Hub {
 			wrong.add("no void below the island");
 		}
 		return wrong.isEmpty() ? null : String.join("; ", wrong);
+	}
+
+	private static boolean isKindledStone(BlockState state) {
+		return state.isOf(SteleBlocks.CLEFT_STONE) && state.get(CleftStoneBlock.KINDLED);
 	}
 
 	private Hub() {}
