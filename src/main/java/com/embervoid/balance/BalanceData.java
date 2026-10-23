@@ -93,7 +93,8 @@ public final class BalanceData {
 	 *
 	 * @param id           entity id path
 	 * @param health       max health at level 1; extra lives (a bone pile) are in {@code extraHealth}
-	 * @param extraHealth  health to beat after the first death (Restless Bones' pile), not scaled by level
+	 * @param extraHealth  health to beat after the first death at level 1 (Restless Bones' pile: a share of its max
+	 *                     health, so it scales with level like it)
 	 * @param armor        armor points
 	 * @param attack       {@code generic.attack_damage} (checked against the entity)
 	 * @param xp           base XP

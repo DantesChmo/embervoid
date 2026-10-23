@@ -227,9 +227,12 @@ public final class BalanceModel {
 	}
 
 	public static Fight fight(Mob mob, int level, Player player, Difficulty difficulty) {
-		double health = mobHealth(mob.health(), level) + mob.extraHealth();
+		double first = mobHealth(mob.health(), level);
+		double extra = mobHealth(mob.extraHealth(), level);
+		double health = first + extra;
 		double perHit = playerHit(player, mob.armor(), 1);
-		int hits = hitsToKill(health, perHit);
+		// The killing blow's overflow is lost: the bone pile takes hits of its own.
+		int hits = hitsToKill(first, perHit) + (extra > 0 ? hitsToKill(extra, perHit) : 0);
 		Hit main = mob.mainHit();
 		double taken = hitOnPlayer(main, level, player, difficulty);
 		double ticks = (hits - 1) * player.attackTicks();
