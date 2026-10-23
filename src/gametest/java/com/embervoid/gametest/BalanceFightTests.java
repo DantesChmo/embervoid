@@ -376,6 +376,41 @@ public final class BalanceFightTests implements FabricGameTest {
 		finish(context, misses);
 	}
 
+	/**
+	 * PLAN 18.4: Restless Bones die in the model's hits counting the pile (a share of its levelled max health that
+	 * takes hits of its own), for the Necropolis player entering it first and third.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "balance_zone_mobs")
+	public void bonePileDiesInTheModelsHits(TestContext context) {
+		List<String> misses = new ArrayList<>();
+		Mob bones = BalanceData.mob("restless_bones");
+		for (FightLength.MobStage stage : FightLength.mobStages(BalanceModel.Playthrough.NORMAL)) {
+			if (stage.mob() != bones) {
+				continue;
+			}
+			ServerPlayerEntity player = player(context, 1, 1);
+			stats(player, stage.player());
+			equip(player, stage.player().armor(), stage.player().weapon());
+			MobEntity entity = spawn(context, bones.id(), stage.level());
+			int hits = 0;
+			while (entity.isAlive() && hits < 20) {
+				entity.timeUntilRegen = 0;
+				((LivingEntityAccessor) player).embervoid$setLastAttackedTicks(100);
+				player.fallDistance = 0;
+				player.setOnGround(true);
+				player.setSprinting(false);
+				player.attack(entity);
+				hits++;
+			}
+			same(misses, "Restless Bones Lv " + stage.level() + " vs " + stage.player().describe() + ": hits to kill",
+					stage.fight().hitsToKillMob(), hits);
+			entity.discard();
+			TestPlayers.complete(context, player);
+		}
+		context.assertTrue(misses.isEmpty(), String.join("; ", misses));
+		context.complete();
+	}
+
 	/** The Citadel's mobs at both ends of the band against the depths player. */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "balance_citadel_mobs")
 	public void citadelMobsHitAsModelled(TestContext context) {
