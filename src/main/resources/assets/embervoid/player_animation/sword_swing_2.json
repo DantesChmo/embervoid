@@ -41,6 +41,15 @@
         }
       },
       {
+        "tick": 0,
+        "easing": "linear",
+        "rightItem": {
+          "pitch": -40,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
         "tick": 3,
         "easing": "outQuad",
         "body": {
@@ -67,6 +76,15 @@
           "yaw": 45,
           "roll": 25,
           "z": 0
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "outQuad",
+        "rightItem": {
+          "pitch": -45,
+          "yaw": 0,
+          "roll": 0
         }
       },
       {
@@ -99,6 +117,15 @@
         }
       },
       {
+        "tick": 6,
+        "easing": "outSine",
+        "rightItem": {
+          "pitch": -35,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
         "tick": 10,
         "easing": "inOutSine",
         "body": {
@@ -125,6 +152,15 @@
           "yaw": 0,
           "roll": 0,
           "z": 0
+        }
+      },
+      {
+        "tick": 10,
+        "easing": "inOutSine",
+        "rightItem": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
         }
       }
     ]
