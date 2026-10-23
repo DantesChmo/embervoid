@@ -5,6 +5,46 @@ by track sessions at once. Each track has its own git worktree and branch. The *
 main checkout; the session that started the tracks, `startedBy` in the session list) merges tracks into `main`,
 owns the docs, and is the only place where the game is launched.
 
+## Tracks — 0.5.0 visual overhaul (the night of 2026-10-24)
+
+**Read this first in a new session.** The user (2026-10-24, evening): the mod must look as modern as Create. Better
+textures everywhere, denser models, many more blocks used in every structure, moving machinery (the Fields windmill
+turning, Create-style), boss arenas that move with the fight, far more effects (the whip and the scythe must be
+*very* effective and unique), a far richer fog wall. The bar: [docs/art-direction.md](docs/art-direction.md). The
+coordinator was left for the night with no questions allowed: every session decides for itself, the coordinator
+merges, regresses once at the end and writes the docs. At most **3 track sessions** at once (the app runs out of
+memory above that), the coordinator in the main checkout on `main`.
+
+| Track | Session | Owns | Does |
+|---|---|---|---|
+| V-A | `art-blocks` | `tools/palette.py`, `tools/block_art.py` (replaces `reach_world_placeholders.py`, `road_art.py`, the block parts of `stele_art.py`), `tools/prop_art.py`, `textures/block/**` except `setpiece/`, `registry/ModBlocks`, `reach/world/ReachBlocks`, the block datagen in `EmbervoidDataGenerator` / `ReachWorldDataGen`, the template builders (`SanctumTemplates`, `HubTemplates`, `MinorTemplates`, `OutpostTemplates`, `CryptTemplates`, `CitadelTemplates`, `CityBuilder`, `Ruin`, `TemplateBuilder`), their JUnit, lang | Every block texture redrawn to the art direction; about 25 new building blocks; every structure rebuilt from the wider palette with decay gradients; props restyled |
+| V-B | `bosses` | `tools/reach_boss_art.py`, `tools/sanctum_boss_art.py`, the Vampire boss's art script, the six bosses' `geo` / `animations` / `textures`, `reach/boss/*Entity`, `sanctum/boss/FallenSisterEntity`, `vampire/VampireBossEntity`, their client renderers and layers, `boss/Telegraph*` | Boss remodels to 80–140 cubes with secondary motion, death / hurt / stagger / phase animations, heavier `CombatFx` and particles on every move |
+| V-C | `setpieces` | new `block/setpiece` + `client/setpiece`, `tools/setpiece_art.py`, `geo/block/**`, `animations/block/**`, `textures/block/setpiece/**`, `ArenaTemplates`, an arena-events hook in `boss/BossFight` (one small commit), set-piece *placement* lines in V-A's template files (last step, after `git merge main`) | 20.1 framework, 20.2 moving set pieces, boss arenas that react to the fight |
+| — | coordinator (this checkout) | `reach/gear/*`, `sanctum/gear/*`, `client/reach/gear/*`, `client/sanctum/gear/*`, `fx/**`, `client/fx/**`, new particles (`fx/particle`, `textures/particle/**`, `particles/**`), `client/realm/FogCurtain`, the fog wall's look (`BossFight`'s wall drawing moves to the client), weapon in-hand models (PLAN 17.2), docs | Weapon signatures and behaviour, own particles, fog walls, merges, the final regression |
+
+Wave 2, when a track finishes (the coordinator starts them): `art-items` (every item, armor and GUI texture to the art
+direction, `tools/reach_item_art.py` and friends) and `mobs` (the 24 non-boss mobs to 30–80 cubes with PLAN 19.3's
+hurt / death / stagger animations, `tools/reach_mob_art.py`, `tools/overworld_mob_art.py`).
+
+### Rules for the overhaul tracks
+
+Everything under "How the work runs" above, plus:
+
+- **Never run** `./gradlew build`, `runGametest`, `tools/server_check.py`, a client or HeadlessMc. Check with
+  `./gradlew compileJava compileClientJava compileTestJava compileGametestJava`, `./gradlew runDatagen` whenever
+  assets or data change (commit `src/main/generated`), and `./gradlew test --tests '<your classes>'`. Write
+  GameTests for new behaviour; the coordinator runs them once at the end.
+- **Look at your output.** Render with `tools/model_preview.py` and read the PNGs; iterate until it meets
+  docs/art-direction.md. A track that reports without having looked has not finished.
+- **No questions, no waiting.** Decide, note the decision in `plans/<track>.md`, go on. Nothing needs approval.
+- **Keep the game as it plays:** hitboxes, move timings, damage, loot, structure footprints, jigsaw names, placed
+  enemies and chests stay; `EntityModelFilesTest`, the template JUnit and `python3 tools/model_preview.py check`
+  stay green.
+- **Shared files:** lang keys as one contiguous block per track; one registration line each in `Embervoid` /
+  `EmbervoidClient` / the datagen entry point / the GameTest list; `src/main/generated` is regenerated, never edited.
+- **Done:** commit per task on the own branch, then `SendMessage` to the coordinator with `MERGE REQUEST`, the branch,
+  the commits and what was not seen offline. Then stop; the coordinator deletes the session after the merge.
+
 ## Tracks — 0.5.0 (the 0.4.1 playtest)
 
 **Read this first in a new session.** State as of 2026-10-24. Tasks and their status lines: PLAN.md "Playtest 0.4.1 —
