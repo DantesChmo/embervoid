@@ -10,6 +10,7 @@ import com.embervoid.client.reach.world.ReachWorldDataGen;
 import com.embervoid.client.reliquary.ReliquaryDataGen;
 import com.embervoid.client.reach.gear.GearDataGen;
 import com.embervoid.client.sanctum.gear.SanctumGearDataGen;
+import com.embervoid.hub.datagen.HubTemplateProvider;
 import com.embervoid.sanctum.datagen.SanctumTemplateProvider;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
@@ -63,6 +64,7 @@ public class EmbervoidDataGenerator implements DataGeneratorEntrypoint {
 		NightMobDataGen.addProviders(pack);
 		ReachMobDataGen.addProviders(pack);
 		pack.addProvider(SanctumTemplateProvider::new);
+		pack.addProvider(HubTemplateProvider::new);
 		ReachBossDataGen.addProviders(pack);
 		GearDataGen.addProviders(pack);
 		SanctumGearDataGen.addProviders(pack);

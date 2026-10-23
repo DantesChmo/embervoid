@@ -13,7 +13,8 @@ What it does:
    force-loads a minor structure of each zone and a crypt, two bridges at the world edge, locates the Smoldering
    Citadel and force-loads its whole route (then expects the keep's treasure chest and every placed Citadel mob),
    force-loads the Vampire arena, starts and stops a full moon and a blood new moon, opens, checks and closes the
-   Vampire arena, then has a bot player join (PLAN L6): a stat set over RCON reaches its attributes and its client,
+   Vampire arena, checks the hub (placed on start, whole, one Ashen Maiden; PLAN 15.1), then has a bot player join
+   (PLAN L6): a stat set over RCON reaches its attributes and its client,
    a point bought at a summoned Ashen Maiden through her screen's real packets costs exactly the shown XP, and a death
    leaves an Ash Remnant that gives the items and XP back when the bot right-clicks it; waits for generation, saves,
    stops the server. Commands with an expected answer fail the check when
@@ -408,6 +409,11 @@ def exercise(rcon):
            r"Test passed")
     expect("Vampire arena close", "embervoid vampire arena close", r"Vampire arena closed")
     expect("Vampire arena closed", "embervoid vampire arena check", r"Vampire arena intact, chunks not forced")
+    # The hub (PLAN 15.1): placed once when the server started, whole, with its one Ashen Maiden.
+    generate_around("Hub", "embervoid:hub", (0, 0), 24)
+    expect("Hub", "embervoid hub check", r"^Hub intact")
+    expect_eventually("Hub Maiden", "execute in embervoid:hub if entity @e[type=embervoid:ashen_maiden]",
+                      r"Test passed, count: 1$")
     for night in ("full", "blood"):
         run(f"Moon {night}", f"embervoid moon start {night}")
         run(f"Moon {night} status", "embervoid moon status")
