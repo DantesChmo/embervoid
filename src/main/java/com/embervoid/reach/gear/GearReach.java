@@ -122,9 +122,13 @@ public final class GearReach {
 		return hit == null ? null : (LivingEntity) hit.getEntity();
 	}
 
-	/** A click on an entity: with the Scourge, a crack along the whole lash instead of one vanilla attack. */
+	/**
+	 * A click on an entity: with the Scourge, a crack along the whole lash instead of one vanilla attack. The crack's
+	 * own attacks fire this event again (Fabric invokes it from {@code PlayerEntity.attack}); those pass through.
+	 */
 	static ActionResult onAttackEntity(PlayerEntity player, Entity target) {
-		if (player instanceof ServerPlayerEntity serverPlayer && !player.isSpectator() && WardensScourgeItem.holds(player)) {
+		if (player instanceof ServerPlayerEntity serverPlayer && !player.isSpectator() && WardensScourgeItem.holds(player)
+				&& !WardensScourgeItem.cracking(player)) {
 			WardensScourgeItem.crack(serverPlayer, target);
 			return ActionResult.FAIL;
 		}

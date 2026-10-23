@@ -165,6 +165,11 @@ public class WardensScourgeItem extends GearWeaponItem {
 		return TIP.get(player) == target;
 	}
 
+	/** Whether {@code player} is in the middle of a crack: its own attacks must not start another one. */
+	public static boolean cracking(PlayerEntity player) {
+		return WORN.containsKey(player);
+	}
+
 	/** The first mob a crack hits costs the durability; the others are the same swing. */
 	@Override
 	protected void wear(ItemStack stack, LivingEntity attacker) {
