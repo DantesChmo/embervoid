@@ -37,23 +37,25 @@ import java.util.List;
  * branches, Lv 21, in arena fog. What it teaches: shoot the lanterns, keep orientation in fog.
  *
  * <ul>
- *   <li><b>P1.</b> Rooted in the middle of the grove. Its trunk takes {@value #TRUNK_DAMAGE}× damage unless it is
- *   stunned. {@value #LANTERNS} lanterns hang in its branches ({@link TreeLanternEntity}): a projectile breaks one,
- *   and so does a melee hit on the branch it lowers after a branch sweep. A broken lantern stuns it for 5 s (trunk
- *   ×{@value #STUNNED_DAMAGE}, no moves) and lifts the fog for 6 s. Moves: root lines bursting from the ground at
+ *   <li><b>P1.</b> Rooted in the middle of the grove. Its bark turns every blade and arrow unless it is stunned
+ *   (PLAN 18.4: a trunk that took a little was most of the fight's openings). {@value #LANTERNS} lanterns hang in its
+ *   branches ({@link TreeLanternEntity}): a projectile breaks one, and so does a melee hit on the branch it lowers
+ *   after a branch sweep. A broken lantern stuns it for 2.5 s (trunk ×{@value #STUNNED_DAMAGE}, no moves) and lifts
+ *   the fog for 6 s. Moves: root lines bursting from the ground at
  *   the fighters, a branch sweep in front, Withered Thralls dropping from the branches.</li>
  *   <li><b>P2 at 50 %.</b> It uproots and walks slowly; new lanterns hang on its own branches and move with it; the
  *   fog thickens; root cages close around a fighter.</li>
  * </ul>
  *
- * Base damage (Lv 21 on Normal ×2.5): root line 7, branch sweep 8, root cage 4. Base HP 170 (~374 at Lv 21).
+ * Base damage (Lv 21 on Normal ×2.5): root line 7, branch sweep 8, root cage 4. Base HP 165 (~363 at Lv 21).
  */
 public class GrievingTreeEntity extends ReachBoss {
-	public static final float TRUNK_DAMAGE = 0.3f;
+	/** Damage the trunk takes outside a stun: none, the bark turns it (PLAN 18.4). */
+	public static final float TRUNK_DAMAGE = 0;
 	public static final float STUNNED_DAMAGE = 1.5f;
 	public static final int LANTERNS = 5;
 	public static final int P2_LANTERNS = 4;
-	public static final int STUN_TICKS = 100;
+	public static final int STUN_TICKS = 50;
 	public static final int FOG_LIFT_TICKS = 120;
 	/** Arena fog: grey-green, thicker once it walks. */
 	public static final float FOG_DENSITY = 0.55f;
@@ -104,7 +106,7 @@ public class GrievingTreeEntity extends ReachBoss {
 
 	public static DefaultAttributeContainer.Builder createAttributes() {
 		return HostileEntity.createHostileAttributes()
-				.add(EntityAttributes.GENERIC_MAX_HEALTH, 170)
+				.add(EntityAttributes.GENERIC_MAX_HEALTH, 165)
 				.add(EntityAttributes.GENERIC_ATTACK_DAMAGE, SWEEP_DAMAGE)
 				.add(EntityAttributes.GENERIC_ARMOR, 6)
 				.add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0)
@@ -192,7 +194,7 @@ public class GrievingTreeEntity extends ReachBoss {
 		return lanternsBroken;
 	}
 
-	/** A lantern broke: stunned 5 s, the fog lifts 6 s. */
+	/** A lantern broke: stunned 2.5 s, the fog lifts 6 s. */
 	void onLanternBroken(TreeLanternEntity lantern) {
 		lanterns.remove(lantern);
 		lanternsBroken++;
@@ -343,6 +345,13 @@ public class GrievingTreeEntity extends ReachBoss {
 	public boolean damage(DamageSource source, float amount) {
 		if (!getWorld().isClient && !source.isOf(DamageTypes.GENERIC_KILL) && !source.isOf(DamageTypes.OUT_OF_WORLD)) {
 			amount *= isStunned() ? STUNNED_DAMAGE : TRUNK_DAMAGE;
+			if (amount <= 0) {
+				// The bark turns it: a dull knock tells the player to go for the lanterns.
+				if (source.getAttacker() != null) {
+					getWorld().playSound(null, getX(), getY() + 2, getZ(), SoundEvents.ITEM_SHIELD_BLOCK, SoundCategory.HOSTILE, 1.0f, 0.6f);
+				}
+				return false;
+			}
 		}
 		return super.damage(source, amount);
 	}

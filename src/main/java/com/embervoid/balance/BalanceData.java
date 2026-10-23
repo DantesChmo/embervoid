@@ -167,7 +167,7 @@ public final class BalanceData {
 					melee("arm drag", 6, 0),
 					new Hit("falling cinder (P2)", 5, HitKind.FIRE, 0),
 					hazard("ash storm, per s (magic)", AshColossusEntity.STORM_DAMAGE, HitKind.FLAT)));
-	public static final Boss GRIEVING_TREE = new Boss("grieving_tree", "Grieving Tree", Zone.WOODS, 21, 170, 6, 8, 170,
+	public static final Boss GRIEVING_TREE = new Boss("grieving_tree", "Grieving Tree", Zone.WOODS, 21, 165, 6, 8, 170,
 			GrievingTreeEntity.TRUNK_DAMAGE, GrievingTreeEntity.STUNNED_DAMAGE, "stunned (lanterns shot)", 0.5, 6,
 			GrievingTreeEntity.TRUNK_DAMAGE, GrievingTreeEntity.STUNNED_DAMAGE, "withered_thrall", List.of(
 					melee("branch sweep", 8, 60),
@@ -376,7 +376,8 @@ public final class BalanceData {
 	/**
 	 * Grieving Tree. Rooted (P1) it never walks; the branch it lowers after each sweep holds a lantern a melee hit can
 	 * break, so each sweep buys a stun ({@value GrievingTreeEntity#STUN_TICKS} ticks at ×{@value
-	 * GrievingTreeEntity#STUNNED_DAMAGE}). Otherwise the trunk takes ×{@value GrievingTreeEntity#TRUNK_DAMAGE}.
+	 * GrievingTreeEntity#STUNNED_DAMAGE}). Otherwise the bark turns every hit (×{@value GrievingTreeEntity#TRUNK_DAMAGE},
+	 * PLAN 18.4), so the stuns are its only openings.
 	 */
 	public static final Cadence GRIEVING_TREE_CADENCE = new Cadence(GRIEVING_TREE, true, List.of(
 			new Timing("branch sweep", GrievingTreeEntity.SWEEP_WINDUP, Size.BIGGEST, Tell.SHAPE),

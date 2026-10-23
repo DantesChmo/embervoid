@@ -526,9 +526,9 @@ def grieving_tree():
         "misc.thralls": anim(1.0, {
             "crown": rot(0, ZERO, 0.3, [0, 0, 6], 0.6, [0, 0, -6], 1.0, ZERO),
         }, loop=False),
-        "misc.stunned": anim(5.0, {
-            "trunk": rot(0, ZERO, 0.4, [12, 0, 0], 4.5, [12, 0, 0], 5.0, ZERO),
-            "crown": rot(0, ZERO, 0.4, [8, 0, 0], 4.5, [8, 0, 0], 5.0, ZERO),
+        "misc.stunned": anim(2.5, {  # GrievingTreeEntity.STUN_TICKS
+            "trunk": rot(0, ZERO, 0.3, [12, 0, 0], 2.1, [12, 0, 0], 2.5, ZERO),
+            "crown": rot(0, ZERO, 0.3, [8, 0, 0], 2.1, [8, 0, 0], 2.5, ZERO),
         }, loop=False),
         "misc.uproot": anim(2.0, {
             "root": pos(0, ZERO, 0.6, [0, -4, 0], 1.2, [0, 6, 0], 2.0, ZERO),

@@ -206,7 +206,11 @@ public final class SoundTests implements FabricGameTest {
 		expect(context, tree, ReachBossSounds.GRIEVING_TREE_ROOT_LINES, "tree root lines", problems);
 		tree.branchSweep(target);
 		expect(context, tree, ReachBossSounds.GRIEVING_TREE_BRANCH_SWEEP, "tree branch sweep", problems);
-		voice(context, tree, ReachBossSounds.GRIEVING_TREE_AMBIENT, ReachBossSounds.GRIEVING_TREE_HURT, problems);
+		// Its bark turns every hit outside a stun (PLAN 18.4); a kill-type hit gets through to its hurt sound.
+		tree.playAmbientSound();
+		expect(context, tree, ReachBossSounds.GRIEVING_TREE_AMBIENT, "ambient", problems);
+		tree.damage(context.getWorld().getDamageSources().genericKill(), 1);
+		expect(context, tree, ReachBossSounds.GRIEVING_TREE_HURT, "hurt", problems);
 
 		CryptKeeperEntity keeper = boss(context, ReachBossEntities.CRYPT_KEEPER, 26);
 		keeper.sweep();
