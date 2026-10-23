@@ -10,7 +10,9 @@
 		"MoonRenderMixin",
 		"RealmFogMixin",
 		"GearPlayerEntityRendererMixin",
-		"GearHeldItemRendererMixin"
+		"GearHeldItemRendererMixin",
+		"GameOptionsBossMusicMixin",
+		"SoundOptionsScreenMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

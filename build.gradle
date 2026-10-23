@@ -35,6 +35,7 @@ sourceSets {
 
 loom {
 	splitEnvironmentSourceSets()
+	accessWidenerPath = file("src/main/resources/embervoid.accesswidener")
 
 	mods {
 		"embervoid" {

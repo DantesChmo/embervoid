@@ -563,7 +563,7 @@ touches no game code).
 
 | ID | Task | Size | Depends on | Status |
 |----|------|------|------------|--------|
-| 14.1 | **Boss music volume of its own** | S | — | todo |
+| 14.1 | **Boss music volume of its own** | S | — | done (JUnit `BossMusicTest`; the slider not seen, the music not heard) |
 | 14.2 | **Roads you can see** | S–M | — | todo |
 
 - **14.1 Boss music volume.** Boss tracks play in `SoundCategory.MUSIC` (`client.realm.BossMusicClient`), so Music
@@ -573,6 +573,14 @@ touches no game code).
   slider, following it while playing). No new `SoundCategory` (extending the enum breaks other mods). Check: JUnit
   on the volume rule (Music 0 / Boss 100 → audible, Boss 0 → silent, Master scales it); the screen not seen, the
   music not heard.
+  *Built:* a "Boss Music" slider (`client.realm.BossMusicOption`, options.txt key `embervoid_bossMusic`, default
+  100 %) appended to the Music & Sounds per-category sliders (`SoundOptionsScreenMixin`, filling the ninth slider's
+  empty half-row) and loaded/saved by `GameOptionsBossMusicMixin` on `GameOptions.accept` (its `Visitor` opened by
+  the new `embervoid.accesswidener`). `BossMusicClient` plays a tickable `MASTER` track whose volume is
+  `BossMusic.trackVolume(slider)` every tick, so it follows the slider mid-fight; it starts even at 0 % so turning
+  the slider up brings it in. Vanilla music is still stopped every tick during a fight. Master at 0 % stops the track
+  for the rest of the fight (as the sound system does for any category at 0 %). The screen not seen, the music not
+  heard.
 - **14.2 Roads you can see.** The trail to the Ash Colossus is the ordinary road (`reach.world.RoadFeature`, PLAN
   9.6): ash bricks on ash soil, 15 % gaps in the edge band, a milestone every 100 blocks. It exists but has no
   contrast, on all three roads. In `RoadFeature.paving` and `RoadLayout`: a paving that stands out from ash soil
