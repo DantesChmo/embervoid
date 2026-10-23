@@ -1,12 +1,12 @@
 package com.embervoid.item.ability;
 
+import com.embervoid.player.PlayerSounds;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 
 /** Pushes every living entity in a frontal arc away from the player. No damage. */
@@ -38,6 +38,6 @@ public record KnockbackSweepAbility(float staminaCost, int cooldownTicks, double
 		Vec3d center = player.getEyePos().add(look.multiply(1.5)).subtract(0, 0.5, 0);
 		world.spawnParticles(ParticleTypes.SWEEP_ATTACK, center.x, center.y, center.z, 1, 0, 0, 0, 0);
 		world.playSound(null, player.getX(), player.getY(), player.getZ(),
-				SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, SoundCategory.PLAYERS, 1.0f, 0.8f);
+				PlayerSounds.DEBUG_SWEEP, SoundCategory.PLAYERS, 1.0f, 0.8f);
 	}
 }

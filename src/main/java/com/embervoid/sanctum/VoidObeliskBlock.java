@@ -90,6 +90,7 @@ public class VoidObeliskBlock extends BlockWithEntity {
 		Identifier realm = obelisk.getRealm();
 		if (Glow.of(ProgressManager.get(player), realm) == Glow.DARK) {
 			player.sendMessage(Text.translatable("embervoid.obelisk.dark").formatted(Formatting.DARK_GRAY), true);
+			RealmTeleports.refuse(serverPlayer);
 		} else {
 			// With a rested shrine in that realm the player goes back to it; sneaking picks the landing instead.
 			// enterRealm tells the player if the realm cannot be entered yet.

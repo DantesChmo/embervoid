@@ -31,7 +31,6 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -150,6 +149,9 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 		stanceTicks = ticks;
 		EntityAttributeInstance speed = getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED);
 		speed.removeModifier(STANCE_SLOW_ID);
+		if (stance == STANCE_GUARD) {
+			playSound(MobSounds.HOLLOW_GUARD, 0.8f, 1.0f);
+		}
 		if (stance != STANCE_NONE) {
 			speed.addTemporaryModifier(new EntityAttributeModifier(STANCE_SLOW_ID, "Hollow stance",
 					stance == STANCE_GUARD ? -0.5 : -0.6, EntityAttributeModifier.Operation.MULTIPLY_TOTAL));
@@ -167,7 +169,7 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 		windup = WINDUP_TICKS;
 		attackCooldown = ATTACK_INTERVAL_TICKS;
 		triggerAnim("attack", "swing");
-		playSound(SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, 0.6f, 0.6f);
+		playSound(MobSounds.HOLLOW_SWING, 0.6f, 0.6f);
 		return true;
 	}
 
@@ -202,15 +204,15 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 	public boolean damage(DamageSource source, float amount) {
 		if (!getWorld().isClient && isGuarding() && !source.isIn(DamageTypeTags.BYPASSES_SHIELD) && isInFront(source)) {
 			if (source.isIn(DamageTypeTags.IS_PROJECTILE)) {
-				playSound(SoundEvents.ITEM_SHIELD_BLOCK, 1.0f, 0.8f);
+				playSound(MobSounds.HOLLOW_BLOCK, 1.0f, 0.8f);
 				return false;
 			}
 			if (source.getAttacker() instanceof LivingEntity attacker && attacker.getMainHandStack().getItem() instanceof AxeItem) {
-				playSound(SoundEvents.ITEM_SHIELD_BREAK, 1.0f, 0.8f);
+				playSound(MobSounds.HOLLOW_GUARD_BREAK, 1.0f, 0.8f);
 				setStance(STANCE_STAGGERED, STAGGER_TICKS);
 				windup = -1;
 			} else {
-				playSound(SoundEvents.ITEM_SHIELD_BLOCK, 1.0f, 0.8f);
+				playSound(MobSounds.HOLLOW_BLOCK, 1.0f, 0.8f);
 				amount *= GUARDED_MELEE_FACTOR;
 			}
 		}
@@ -257,22 +259,22 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.ENTITY_SKELETON_AMBIENT;
+		return MobSounds.HOLLOW_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_WITHER_SKELETON_HURT;
+		return MobSounds.HOLLOW_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_WITHER_SKELETON_DEATH;
+		return MobSounds.HOLLOW_DEATH;
 	}
 
 	@Override
 	protected void playStepSound(BlockPos pos, BlockState state) {
-		playSound(SoundEvents.ENTITY_IRON_GOLEM_STEP, 0.3f, 1.4f);
+		playSound(MobSounds.HOLLOW_STEP, 0.3f, 1.4f);
 	}
 
 	@Override

@@ -22,7 +22,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -130,7 +129,7 @@ public final class VampireFight {
 		state.markDirty();
 		world.spawnEntity(boss);
 		MobLevels.setLevel(boss, level);
-		world.playSound(null, boss.getBlockPos(), SoundEvents.ENTITY_WITHER_SPAWN, SoundCategory.HOSTILE, 1.0f, 1.2f);
+		world.playSound(null, boss.getBlockPos(), VampireSounds.VAMPIRE_TURNED, SoundCategory.HOSTILE, 1.0f, 1.2f);
 		emptyTicks = 0;
 		DEATHS.clear();
 		for (ServerPlayerEntity player : near) {
@@ -317,7 +316,7 @@ public final class VampireFight {
 			player.sendMessage(Text.translatable(message).formatted(Formatting.DARK_RED), false);
 		}
 		if (world != null) {
-			world.playSound(null, state.fightCenter, SoundEvents.ENTITY_WITCH_CELEBRATE, SoundCategory.HOSTILE, 2.0f, 0.5f);
+			world.playSound(null, state.fightCenter, VampireSounds.VAMPIRE_BOSS_TRIUMPH, SoundCategory.HOSTILE, 2.0f, 0.5f);
 		}
 		finish(server, state);
 	}

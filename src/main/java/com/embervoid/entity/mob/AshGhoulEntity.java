@@ -27,7 +27,6 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.LightType;
 import net.minecraft.world.LocalDifficulty;
@@ -190,7 +189,7 @@ public class AshGhoulEntity extends HostileEntity implements GeoEntity {
 		world.spawnEntity(cloud);
 		world.spawnParticles(ParticleTypes.ASH, getX(), getBodyY(0.5), getZ(), 80, 1.0, 0.8, 1.0, 0.02);
 		world.spawnParticles(ParticleTypes.LARGE_SMOKE, getX(), getBodyY(0.5), getZ(), 20, 0.6, 0.5, 0.6, 0.02);
-		world.playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.HOSTILE, 1.0f, 0.6f);
+		world.playSound(null, getX(), getY(), getZ(), MobSounds.ASH_GHOUL_BURST, SoundCategory.HOSTILE, 1.0f, 0.6f);
 	}
 
 	@Override
@@ -200,17 +199,17 @@ public class AshGhoulEntity extends HostileEntity implements GeoEntity {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.ENTITY_HUSK_AMBIENT;
+		return MobSounds.ASH_GHOUL_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_HUSK_HURT;
+		return MobSounds.ASH_GHOUL_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_HUSK_DEATH;
+		return MobSounds.ASH_GHOUL_DEATH;
 	}
 
 	@Override

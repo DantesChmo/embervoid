@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
@@ -42,6 +43,7 @@ public final class FlaskRefill {
 			if (start >= 0 && nightSkipped(start, player.getWorld().getTimeOfDay())) {
 				HealingFlaskItem.refill(player);
 				player.sendMessage(Text.translatable("embervoid.flask.refilled").formatted(Formatting.GOLD), true);
+				player.playSound(PlayerSounds.FLASK_REFILL, SoundCategory.PLAYERS, 1.0f, 1.0f);
 			}
 		});
 	}
