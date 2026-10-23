@@ -2,6 +2,7 @@ package com.embervoid.gametest;
 
 import com.embervoid.balance.BalanceData;
 import com.embervoid.balance.BalanceData.Boss;
+import com.embervoid.balance.BalanceData.Cadence;
 import com.embervoid.balance.BalanceData.Hit;
 import com.embervoid.balance.BalanceData.Mob;
 import com.embervoid.balance.BalanceData.Zone;
@@ -12,16 +13,22 @@ import com.embervoid.balance.OverworldData;
 import com.embervoid.balance.OverworldData.OverworldMob;
 import com.embervoid.balance.OverworldModel;
 import com.embervoid.boss.BossHits;
+import com.embervoid.boss.Telegraph;
 import com.embervoid.gametest.mixin.LivingEntityAccessor;
 import com.embervoid.gametest.mixin.ServerPlayerEntityAccessor;
 import com.embervoid.mob.MobLevels;
+import com.embervoid.reach.boss.AshColossusEntity;
+import com.embervoid.reach.boss.CryptKeeperEntity;
+import com.embervoid.reach.boss.GrievingTreeEntity;
 import com.embervoid.reach.boss.ReachBoss;
+import com.embervoid.reach.boss.SmolderingLordEntity;
 import com.embervoid.reach.gear.GearArmor;
 import com.embervoid.reach.gear.GearWeapons;
 import com.embervoid.reach.mob.ReachMob;
 import com.embervoid.sanctum.gear.SanctumWeapons;
 import com.embervoid.stats.PlayerStats;
 import com.embervoid.stats.Stat;
+import com.embervoid.vampire.VampireBossEntity;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
@@ -134,6 +141,63 @@ public final class BalanceFightTests implements FabricGameTest {
 			}
 		}
 		finish(context, misses);
+	}
+
+	/**
+	 * PLAN 18.1: the wind-ups the fight-length model takes from the boss classes are the ones their moves run. Each move
+	 * is started by hand on a boss with its AI off, and the longest windup it put on {@link Telegraph} is read back.
+	 * (The Lord's wall moves and the Colossus's cinders need a running fight; they use the same constants directly.)
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void bossWindupsAreTheEntities(TestContext context) {
+		List<String> misses = new ArrayList<>();
+		ServerPlayerEntity player = player(context, 1, 1);
+		Cadence colossus = BalanceData.ASH_COLOSSUS_CADENCE;
+		AshColossusEntity ash = (AshColossusEntity) spawn(context, "ash_colossus", 18);
+		windup(misses, ash, "Ash Colossus fist cone", colossus.timing("fist cone").windup(), () -> ash.fist(player));
+		windup(misses, ash, "Ash Colossus arm drag", colossus.timing("arm drag").windup(), () -> ash.drag(player));
+		windup(misses, ash, "Ash Colossus leap ring", colossus.timing("leap ring").windup(), () -> ash.leap(player));
+		windup(misses, ash, "Ash Colossus boulder", colossus.timing("boulder").windup(), () -> ash.boulder(player));
+		ash.discard();
+		Cadence tree = BalanceData.GRIEVING_TREE_CADENCE;
+		GrievingTreeEntity oak = (GrievingTreeEntity) spawn(context, "grieving_tree", 21);
+		oak.setTarget(player);
+		windup(misses, oak, "Grieving Tree branch sweep", tree.timing("branch sweep").windup(), () -> oak.branchSweep(player));
+		windup(misses, oak, "Grieving Tree root line", tree.timing("root line").windup(), oak::rootLines);
+		windup(misses, oak, "Grieving Tree root cage", tree.timing("root cage (P2)").windup(), () -> oak.rootCage(player));
+		oak.discard();
+		Cadence keeper = BalanceData.CRYPT_KEEPER_CADENCE;
+		CryptKeeperEntity crypt = (CryptKeeperEntity) spawn(context, "crypt_keeper", 24);
+		windup(misses, crypt, "Crypt Keeper combo, first swing", keeper.phases().get(0).beats().get(0).lead(), () -> crypt.comboSwing(player, 1));
+		windup(misses, crypt, "Crypt Keeper halberd swing (2nd)", keeper.timing("halberd swing").windup(), () -> crypt.comboSwing(player, 2));
+		windup(misses, crypt, "Crypt Keeper overhead", keeper.timing("overhead (3rd hit)").windup(), () -> crypt.comboSwing(player, 3));
+		windup(misses, crypt, "Crypt Keeper sweep ring", keeper.timing("sweep ring").windup(), crypt::sweep);
+		windup(misses, crypt, "Crypt Keeper lantern throw", keeper.timing("lantern throw").windup(), () -> crypt.lanternThrow(player));
+		windup(misses, crypt, "Crypt Keeper thrust", keeper.timing("thrust").windup(), () -> crypt.thrust(player));
+		crypt.discard();
+		Cadence lord = BalanceData.SMOLDERING_LORD_CADENCE;
+		SmolderingLordEntity king = (SmolderingLordEntity) spawn(context, "smoldering_lord", 30);
+		windup(misses, king, "Smoldering Lord combo, first swing", lord.phases().get(1).beats().get(0).lead(), () -> king.comboSwing(player, 1));
+		windup(misses, king, "Smoldering Lord greatsword swing (2nd)", lord.timing("greatsword swing").windup(), () -> king.comboSwing(player, 2));
+		windup(misses, king, "Smoldering Lord overhead slam", lord.timing("overhead slam").windup(), () -> king.comboSwing(player, 3));
+		windup(misses, king, "Smoldering Lord lunge", lord.timing("lunge").windup(), () -> king.lunge(player));
+		king.discard();
+		VampireBossEntity vampire = (VampireBossEntity) spawn(context, "vampire_boss", 15);
+		windup(misses, vampire, "Vampire boss leap", BalanceData.VAMPIRE_CADENCE.timing("leap").windup(), () -> vampire.startLeap(player.getPos()));
+		vampire.discard();
+		context.assertTrue(misses.isEmpty(), String.join("; ", misses));
+		TestPlayers.complete(context, player);
+	}
+
+	/** Starts one move on {@code boss} and checks the longest windup it runs against the model's. */
+	private static void windup(List<String> misses, MobEntity boss, String what, int expected, Runnable move) {
+		Telegraph.cancel(boss);
+		move.run();
+		int actual = Telegraph.windups(boss).stream().mapToInt(Integer::intValue).max().orElse(-1);
+		Telegraph.cancel(boss);
+		if (actual != expected) {
+			misses.add(what + " windup: model " + expected + ", entity " + actual);
+		}
 	}
 
 	@GameTest(templateName = EMPTY_STRUCTURE)
