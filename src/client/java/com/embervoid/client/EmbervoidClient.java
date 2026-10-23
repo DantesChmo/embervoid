@@ -9,6 +9,7 @@ import com.embervoid.client.reach.boss.ReachBossClient;
 import com.embervoid.client.mob.MobLevelClient;
 import com.embervoid.client.mob.MobRenderers;
 import com.embervoid.client.nightmob.NightMobClient;
+import com.embervoid.client.prop.PropClient;
 import com.embervoid.client.moon.MoonClient;
 import com.embervoid.client.reach.mob.ReachMobClient;
 import com.embervoid.client.realm.RealmClient;
@@ -63,6 +64,7 @@ public class EmbervoidClient implements ClientModInitializer {
 		ArenaShrinesClient.register();
 		ReachBossClient.register();
 		CombatFxClient.register();
+		PropClient.register();
 		// Particles and the name label only; a model comes with the art pass.
 		EntityRendererRegistry.register(ModEntities.ASH_REMNANT, EmptyEntityRenderer::new);
 		FabricModelPredicateProviderRegistry.register(ModItems.HEALING_FLASK, Embervoid.id("empty"),

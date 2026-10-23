@@ -1,5 +1,6 @@
 package com.embervoid;
 
+import com.embervoid.block.prop.Props;
 import com.embervoid.command.ModCommands;
 import com.embervoid.command.PerfCommands;
 import com.embervoid.config.ConfigSync;
@@ -51,6 +52,7 @@ public class Embervoid implements ModInitializer {
 		// Order matters: blocks before items (BlockItems), items before item groups.
 		ModSounds.register();
 		ModBlocks.register();
+		Props.register();
 		ModItems.register();
 		DebugItems.register();
 		ModEntities.register();

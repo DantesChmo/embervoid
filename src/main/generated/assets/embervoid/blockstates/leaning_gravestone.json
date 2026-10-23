@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "embervoid:block/prop/leaning_gravestone",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "embervoid:block/prop/leaning_gravestone"
+    },
+    "facing=south": {
+      "model": "embervoid:block/prop/leaning_gravestone",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "embervoid:block/prop/leaning_gravestone",
+      "y": 270
+    }
+  }
+}

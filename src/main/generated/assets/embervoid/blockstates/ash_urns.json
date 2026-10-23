@@ -1,0 +1,49 @@
+{
+  "variants": {
+    "count=1,facing=east": {
+      "model": "embervoid:block/prop/ash_urns_1",
+      "y": 90
+    },
+    "count=1,facing=north": {
+      "model": "embervoid:block/prop/ash_urns_1"
+    },
+    "count=1,facing=south": {
+      "model": "embervoid:block/prop/ash_urns_1",
+      "y": 180
+    },
+    "count=1,facing=west": {
+      "model": "embervoid:block/prop/ash_urns_1",
+      "y": 270
+    },
+    "count=2,facing=east": {
+      "model": "embervoid:block/prop/ash_urns_2",
+      "y": 90
+    },
+    "count=2,facing=north": {
+      "model": "embervoid:block/prop/ash_urns_2"
+    },
+    "count=2,facing=south": {
+      "model": "embervoid:block/prop/ash_urns_2",
+      "y": 180
+    },
+    "count=2,facing=west": {
+      "model": "embervoid:block/prop/ash_urns_2",
+      "y": 270
+    },
+    "count=3,facing=east": {
+      "model": "embervoid:block/prop/ash_urns_3",
+      "y": 90
+    },
+    "count=3,facing=north": {
+      "model": "embervoid:block/prop/ash_urns_3"
+    },
+    "count=3,facing=south": {
+      "model": "embervoid:block/prop/ash_urns_3",
+      "y": 180
+    },
+    "count=3,facing=west": {
+      "model": "embervoid:block/prop/ash_urns_3",
+      "y": 270
+    }
+  }
+}

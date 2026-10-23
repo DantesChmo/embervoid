@@ -29,6 +29,12 @@
     "embervoid:cinder_ore",
     "embervoid:amber_vein",
     "embervoid:grave_iron_ore",
-    "embervoid:cleft_stone"
+    "embervoid:cleft_stone",
+    "embervoid:iron_cage",
+    "embervoid:grave_cross",
+    "embervoid:leaning_gravestone",
+    "embervoid:bone_pile",
+    "embervoid:ash_urns",
+    "embervoid:rubble_pile"
   ]
 }

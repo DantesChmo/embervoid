@@ -799,7 +799,7 @@ moving machinery.
 |----|------|------|------------|--------|
 | 20.1 | **Animated set-piece framework** | M | 19.1 | todo |
 | 20.2 | **Moving set pieces** | L | 20.1 | todo |
-| 20.3 | **3D props** | M–L | 19.1 | todo |
+| 20.3 | **3D props** | M–L | 19.1 | done – not verified in game (14 props in `block.prop.Props`, models and textures by `tools/prop_art.py`; shapes checked by `PropShapesTest`, placing, turning and drops by `PropTests`; looks seen only in `model_preview` sheets) |
 | 20.4 | **Structure variety** | M | 20.3 | todo |
 
 - **20.1 Set-piece framework.** GeckoLib block entities for moving machinery: always on or triggered, no server
