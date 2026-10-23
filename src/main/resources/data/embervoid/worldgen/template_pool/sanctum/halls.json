@@ -27,6 +27,15 @@
 				"projection": "rigid",
 				"processors": "embervoid:sanctum_decay"
 			}
+		},
+		{
+			"weight": 2,
+			"element": {
+				"element_type": "minecraft:single_pool_element",
+				"location": "embervoid:sanctum/hall_storeroom",
+				"projection": "rigid",
+				"processors": "embervoid:sanctum_decay"
+			}
 		}
 	]
 }

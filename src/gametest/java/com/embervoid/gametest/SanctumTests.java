@@ -1,12 +1,17 @@
 package com.embervoid.gametest;
 
 import com.embervoid.Embervoid;
+import com.embervoid.boss.ArenaManager;
+import com.embervoid.boss.BossFight;
 import com.embervoid.entity.mob.MobEntities;
 import com.embervoid.hub.stele.CleftStele;
 import com.embervoid.hub.stele.SteleBlocks;
 import com.embervoid.sanctum.SanctumArena;
 import com.embervoid.sanctum.SanctumBlocks;
 import com.embervoid.sanctum.SanctumEntities;
+import com.embervoid.sanctum.SanctumVariants;
+import com.embervoid.sanctum.boss.FallenSisterEntity;
+import com.embervoid.sanctum.boss.SanctumBossArena;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -19,15 +24,19 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.PoolStructurePiece;
 import net.minecraft.structure.StructurePiece;
+import net.minecraft.structure.StructurePiecesList;
 import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.structure.StructureTemplate;
 import net.minecraft.test.GameTest;
+import net.minecraft.test.GameTestException;
 import net.minecraft.test.TestContext;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
@@ -38,7 +47,7 @@ import java.util.Map;
 
 /**
  * The Ruined Sanctum as worldgen builds it, placed the way {@code /place structure} does, then its contents counted
- * inside the structure's bounding box (PLAN 16.1).
+ * inside the structure's bounding box (PLAN 16.1, the variants 16.2).
  */
 public final class SanctumTests implements FabricGameTest {
 	/** Far from the test grid so the Sanctum never overlaps another test. */
@@ -54,10 +63,62 @@ public final class SanctumTests implements FabricGameTest {
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 200)
 	public void dungeonHasArenaInsteadOfCore(TestContext context) {
+		assertDungeon(context, place(context, ORIGIN));
+		context.complete();
+	}
+
+	/**
+	 * Each variant (PLAN 16.2), found among fresh plans and moved to its own spot: its own surface ruin and guarded hall,
+	 * the same boss wing as {@link #dungeonHasArenaInsteadOfCore} checks, and a player stepping into its arena summons
+	 * the Fallen Sister.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "sanctum_variant_ruin", tickLimit = PlacedFight.LOAD_LIMIT + 200)
+	public void ruinVariantIsWhole(TestContext context) {
+		variantIsWhole(context, SanctumVariants.RUIN, "sanctum/gate_hall", new BlockPos(-3000, 0, -3000));
+	}
+
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "sanctum_variant_chapel", tickLimit = PlacedFight.LOAD_LIMIT + 200)
+	public void chapelVariantIsWhole(TestContext context) {
+		variantIsWhole(context, SanctumVariants.CHAPEL, "sanctum/nave", new BlockPos(0, 0, -6000));
+	}
+
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "sanctum_variant_cloister", tickLimit = PlacedFight.LOAD_LIMIT + 200)
+	public void cloisterVariantIsWhole(TestContext context) {
+		variantIsWhole(context, SanctumVariants.CLOISTER, "sanctum/cloister_walk", new BlockPos(6000, 0, -6000));
+	}
+
+	private static void variantIsWhole(TestContext context, Identifier variant, String hall, BlockPos origin) {
+		BossArena arena = new BossArena(context, null);
+		arena.step(() -> {
+			ServerWorld world = context.getWorld();
+			StructureStart start = placeVariant(context, variant, origin);
+			register(world, start);
+			long halls = start.getChildren().stream().filter(piece -> SanctumArena.isPiece(piece, Embervoid.id(hall))).count();
+			context.assertTrue(halls == 1, "the " + variant + " Sanctum has " + halls + " " + hall + " pieces in " + start.getChildren().size());
+			assertDungeon(context, start);
+			StructurePiece piece = start.getChildren().stream().filter(p -> SanctumArena.isPiece(p, SanctumArena.TEMPLATE)).findFirst().orElseThrow();
+			BlockPos center = SanctumBossArena.center(piece);
+			arena.forceChunks(center, 16);
+			arena.await(() -> world.shouldTickEntity(center.up()), PlacedFight.LOAD_LIMIT, "the arena chunks to tick", () -> {
+				arena.joinAt(Vec3d.ofBottomCenter(center.up()).add(0, 0, 3));
+				arena.await(() -> ArenaManager.fightAt(world, center) != null, 40, "the summon rule to start her fight", () -> {
+					BossFight fight = ArenaManager.fightAt(world, center);
+					arena.track(fight);
+					context.assertTrue(fight.boss() instanceof FallenSisterEntity, "the " + variant + " arena summoned " + fight.boss());
+					arena.finish();
+				});
+			});
+		});
+	}
+
+	/**
+	 * A placed dungeon: guards and loot in the outer halls as before; no Maiden, obelisks or Sanctum Flagstone; the
+	 * boss wing with one Ember Shrine, the fog wall in its doorway and a cold Cleft Stele, and no marker entity.
+	 */
+	private static void assertDungeon(TestContext context, StructureStart start) {
 		ServerWorld world = context.getWorld();
-		StructureStart start = place(context, ORIGIN);
 		BlockBox box = start.getBoundingBox();
-		String where = start.getChildren().size() + " pieces in " + box;
+		String where = SanctumVariants.of(start) + ", " + start.getChildren().size() + " pieces in " + box;
 
 		int[] chests = {0};
 		int[] obelisks = {0};
@@ -113,7 +174,6 @@ public final class SanctumTests implements FabricGameTest {
 		context.assertTrue(markers == 0, "a marker entity in the dungeon; " + counts);
 		context.assertTrue(hollows >= 1, "no Hollow guard (the gate hall always has one); " + counts);
 		context.assertTrue(chests[0] >= 1, "no loot chests; " + counts);
-		context.complete();
 	}
 
 	/**
@@ -246,6 +306,27 @@ public final class SanctumTests implements FabricGameTest {
 		StructureStart start = lifted(context, plan(world, new ChunkPos(origin)));
 		placeAll(world, start, start.getBoundingBox());
 		return start;
+	}
+
+	/**
+	 * Plans fresh Sanctums from {@code origin} outwards until one is the given variant (each is about one in three),
+	 * moves it to {@code origin}'s chunk, lifts and places it.
+	 */
+	static StructureStart placeVariant(TestContext context, Identifier variant, BlockPos origin) {
+		ServerWorld world = context.getWorld();
+		ChunkPos home = new ChunkPos(origin);
+		for (int i = 0; i < 64; i++) {
+			ChunkPos chunk = new ChunkPos(home.x + i * 11, home.z - i * 7);
+			StructureStart planned = plan(world, chunk);
+			if (!variant.equals(SanctumVariants.of(planned))) {
+				continue;
+			}
+			planned.getChildren().forEach(piece -> piece.translate(home.getStartX() - chunk.getStartX(), 0, home.getStartZ() - chunk.getStartZ()));
+			StructureStart start = lifted(context, new StructureStart(planned.getStructure(), home, 0, new StructurePiecesList(planned.getChildren())));
+			placeAll(world, start, start.getBoundingBox());
+			return start;
+		}
+		throw new GameTestException("no " + variant + " Sanctum among 64 fresh plans from " + home);
 	}
 
 	private static void placeAll(ServerWorld world, StructureStart start, BlockBox box) {

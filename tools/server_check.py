@@ -7,7 +7,9 @@ What it does:
 1. Starts `./gradlew runServerCheck` (run dir run/server-check, a fresh world each time unless --keep-world) with
    RCON on a local port, and waits for "Done".
 2. Over RCON: locates the nearest Ruined Sanctum and force-loads the chunks around it (so it is really generated in
-   overworld terrain; later its boss arena must be there and no Ashen Maiden, PLAN 16.1), force-loads the Ashen Reach landing and depths centre, locates the three zone arenas and the
+   overworld terrain; later its boss arena must be there and no Ashen Maiden, PLAN 16.1), counts the Ruined Sanctums
+   planned within 1500 blocks of 0 0 on two fixed seeds and how far the land there is from the nearest one (PLAN
+   16.2), force-loads the Ashen Reach landing and depths centre, locates the three zone arenas and the
    depths arena and force-loads them too, force-loads every road outpost and checks each got its chest, force-loads
    the chunk of every road's lantern posts and counts them lit per road (PLAN 14.2), checks the Citadel Gate on the
    plaza, the gate road and the final sector's biome (PLAN 21.1), locates and
@@ -60,6 +62,15 @@ SERVER_PORT = 25599
 RCON_PORT = 25598
 BOOT_TIMEOUT = 600
 GENERATION_WAIT = 20
+# Seeds the Ruined Sanctum survey plans dungeons on (PLAN 16.2; two of ten tried with about half land or more around
+# 0 0, the first two tried were mostly sea), and what it must find within SURVEY_RADIUS of 0 0: at least
+# SURVEY_MIN_COUNT dungeons, from the land there a mean distance to the nearest of at most SURVEY_MAX_MEAN blocks and
+# at least SURVEY_MIN_WITHIN_400 % with one within 400 blocks.
+SURVEY_SEEDS = (123456789, 8675309)
+SURVEY_RADIUS = 1500
+SURVEY_MIN_COUNT = 20
+SURVEY_MAX_MEAN = 250
+SURVEY_MIN_WITHIN_400 = 90
 STOP_TIMEOUT = 120
 PERF_OUTPUT = os.path.join(RUN_DIR, "perf.json")
 PERF_JFR = os.path.join(RUN_DIR, "perf.jfr")
@@ -373,6 +384,17 @@ def exercise(rcon):
         generate_around("Sanctum", "minecraft:overworld", sanctum, 96)
     else:
         FAILED_EXPECTATIONS.append("Sanctum: not located")
+    # How common the dungeon is (PLAN 16.2): planned, not generated, on two fixed seeds around 0 0.
+    for seed in SURVEY_SEEDS:
+        response = run(f"Sanctum survey {seed}",
+                       f"execute positioned 0 0 0 run embervoid sanctum survey {SURVEY_RADIUS} {seed}")
+        m = re.search(r"\): (\d+) \(.*nearest from \d+ land points \(\d+ % of the circle\): mean (\d+), max \d+, "
+                      r"\d+ % within 300, (\d+) % within 400", response)
+        if not m or int(m.group(1)) < SURVEY_MIN_COUNT or int(m.group(2)) > SURVEY_MAX_MEAN \
+                or int(m.group(3)) < SURVEY_MIN_WITHIN_400:
+            FAILED_EXPECTATIONS.append(f"Sanctum survey {seed}: expected at least {SURVEY_MIN_COUNT} dungeons, a mean "
+                                       f"of at most {SURVEY_MAX_MEAN} and {SURVEY_MIN_WITHIN_400} % within 400, got "
+                                       f"{response.strip()!r}")
     generate_around("Ashen Reach landing", "embervoid:ashen_reach", (0, 0))
     for arena in ("a", "b", "c"):
         pos = located(run(f"Arena {arena.upper()}", "execute in embervoid:ashen_reach run locate structure "
