@@ -8,7 +8,10 @@ import net.minecraft.util.Identifier;
 
 import java.util.Objects;
 
-/** Entry point of the Ember Sanctum (milestone 5): one call from {@code Embervoid.onInitialize}. */
+/**
+ * Entry point of the Sanctum (milestone 5; the overworld dungeon, the Ruined Sanctum, since PLAN 16.1): one call from
+ * {@code Embervoid.onInitialize}.
+ */
 public final class Sanctum {
 	public static void register() {
 		// Registers the sanctum.* config section before clients join.
@@ -16,6 +19,7 @@ public final class Sanctum {
 		ProgressManager.register();
 		SanctumBlocks.register();
 		SanctumStructures.register();
+		SanctumArena.register();
 		SanctumItems.register();
 		SanctumGear.register();
 		SanctumEntities.register();

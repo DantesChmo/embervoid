@@ -664,7 +664,7 @@ B puts A out. Leaving an obelisk lands in the hub; the hub's exit leads to the a
 
 | ID | Task | Size | Depends on | Status |
 |----|------|------|------------|--------|
-| 16.1 | **Sanctum → dungeon** | M | 15.0 | todo |
+| 16.1 | **Sanctum → dungeon** | M | 15.0 | done (GameTests `SanctumTests` + server check; the arena previewed; not seen in game: the fog wall's ash, the dim light, the arena at eye level) |
 | 16.2 | **Dungeon variants and frequency** | M | 16.1 | todo |
 | 16.3 | **The dungeon boss** | L | 15.0, 16.1 | todo |
 | 16.4 | **Overworld balance re-run** | M | 15.1–16.3 | todo |
@@ -674,6 +674,24 @@ B puts A out. Leaving an obelisk lands in the hub; the hub's exit leads to the a
   door, then a fog wall and the boss arena with a cold, protected Cleft Stele at its far end (DESIGN §2). Structure id
   stays `embervoid:ember_sanctum`; the name becomes Ruined Sanctum. GameTests: a fresh dungeon has no
   Maiden or obelisk, guards and chests as before; `SanctumTests` updated.
+  *Built:* the gate hall's far door now leads to one new piece, `sanctum/arena` (21 × 11 × 30, pool `sanctum/arena`,
+  `SanctumTemplates.arena`), so the boss wing is placed in the same step as the side halls and nothing later takes
+  its place: a 9 × 7 × 10 shrine room with an Ember Shrine (rest, flasks, shards; no respawn point, as everywhere
+  outside realms), a 3 × 3 **fog wall** in its far doorway (`fog_wall`, `sanctum.FogWallBlock`: no model, outline or
+  collision, white ash like a fight's fog wall, unbreakable, no item; players walk through it) and the arena, the
+  core's 21 × 21 hall ruined and dim: no chiseled stone but around the door and the dais, six unlit campfire
+  braziers on wall posts for 16.3 to light, a cold Cleft Stele (along X, 24 stones, the crack open) on a dais at the
+  far end, tallow candles and one high lantern so every floor block has block light ≥ 1 and nothing spawns. The
+  Fallen Sister's spawn is a `minecraft:marker` tagged `embervoid.sanctum_boss_spawn` at the arena centre (template
+  10 1 19); 16.3 swaps it for the summon rule. `sanctum.SanctumArena` refuses mining Cleft Stone inside an arena
+  piece outside creative (found through the world's structure starts; message `embervoid.sanctum.stele_bound`);
+  explosions are not refused (stone-brick resistance). The gate hall keeps its size and blocks, and the old core's
+  template and pool `sanctum/core` stay, so Sanctums planned before 0.5.0 finish as they were. Name: Ruined Sanctum
+  / Разорённое Святилище on the Sanctum Map, which got a lore line. Checks: GameTests (no Maiden, obelisk or
+  flagstone; one shrine, nine fog blocks, a whole cold stele, one marker, guards and chests; the stele refused in
+  survival, mined in creative, the same stone outside breaks; twelve fresh starts all with the arena and no core;
+  the old template and pool load), the server check (the marker near the located Sanctum, no Maiden), previews in
+  `build/model-preview/sanctum-16.1/`. README and CORE still describe the core (release docs, 21.5).
 - **16.2 Variants and frequency.** The user found three villages, three shrines and about five ruined portals before
   one Sanctum (`spacing` 48 / `separation` 16 chunks, about one per 768 blocks). Target: about one per 300–400 blocks
   (`spacing` ~22 / `separation` ~8), 2–3 variants (separate start pools sharing the halls) so it does not repeat; the

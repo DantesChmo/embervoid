@@ -10,6 +10,7 @@ class SanctumTest {
 	@Test
 	void sanctumPieces() {
 		assertTrue(Sanctum.isSanctumPiece(new Identifier("embervoid", "sanctum/gate_hall")));
+		assertTrue(Sanctum.isSanctumPiece(new Identifier("embervoid", "sanctum/arena")));
 		assertFalse(Sanctum.isSanctumPiece(new Identifier("embervoid", "realm/arena")));
 		assertFalse(Sanctum.isSanctumPiece(new Identifier("minecraft", "sanctum/gate_hall")));
 	}

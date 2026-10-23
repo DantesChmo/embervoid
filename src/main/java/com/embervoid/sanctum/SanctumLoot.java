@@ -8,17 +8,19 @@ import net.minecraft.loot.LootPool;
 import net.minecraft.loot.condition.RandomChanceLootCondition;
 import net.minecraft.loot.entry.ItemEntry;
 import net.minecraft.loot.function.ExplorationMapLootFunction;
+import net.minecraft.loot.function.SetLoreLootFunction;
 import net.minecraft.loot.function.SetNameLootFunction;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.gen.structure.Structure;
 
 import java.util.Map;
 
 /**
- * Puts the Sanctum Map (an explorer map to the nearest Ember Sanctum) into vanilla chest loot. The Sanctum's own
+ * Puts the Sanctum Map (an explorer map to the nearest Ruined Sanctum) into vanilla chest loot. The Sanctum's own
  * chests use the data-driven table {@code embervoid:chests/sanctum_outer_hall}.
  */
 public final class SanctumLoot {
@@ -48,7 +50,9 @@ public final class SanctumLoot {
 									.withDecoration(MapIcon.Type.RED_X)
 									.withZoom((byte) 2)
 									.searchRadius(config.mapSearchRadius()))
-							.apply(SetNameLootFunction.builder(Text.translatable("item.embervoid.sanctum_map")))));
+							.apply(SetNameLootFunction.builder(Text.translatable("item.embervoid.sanctum_map")))
+							.apply(SetLoreLootFunction.builder().lore(Text.translatable("item.embervoid.sanctum_map.desc")
+									.styled(style -> style.withItalic(false).withColor(Formatting.GRAY))))));
 		});
 	}
 
