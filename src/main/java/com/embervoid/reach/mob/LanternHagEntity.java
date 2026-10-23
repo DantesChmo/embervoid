@@ -39,7 +39,7 @@ public class LanternHagEntity extends ReachMob {
 
 	public static DefaultAttributeContainer.Builder createAttributes() {
 		return HostileEntity.createHostileAttributes()
-				.add(EntityAttributes.GENERIC_MAX_HEALTH, 16)
+				.add(EntityAttributes.GENERIC_MAX_HEALTH, 13)
 				.add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 2)
 				.add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.25)
 				.add(EntityAttributes.GENERIC_FOLLOW_RANGE, 24);

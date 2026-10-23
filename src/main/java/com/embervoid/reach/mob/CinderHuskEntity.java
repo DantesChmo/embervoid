@@ -22,7 +22,7 @@ public class CinderHuskEntity extends ReachMob {
 
 	public static DefaultAttributeContainer.Builder createAttributes() {
 		return HostileEntity.createHostileAttributes()
-				.add(EntityAttributes.GENERIC_MAX_HEALTH, 16)
+				.add(EntityAttributes.GENERIC_MAX_HEALTH, 10)
 				.add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 3)
 				.add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.23)
 				.add(EntityAttributes.GENERIC_FOLLOW_RANGE, 32);

@@ -61,8 +61,8 @@ public class BarkHollowEntity extends ReachMob {
 
 	public static DefaultAttributeContainer.Builder createAttributes() {
 		return HostileEntity.createHostileAttributes()
-				.add(EntityAttributes.GENERIC_MAX_HEALTH, 50)
-				.add(EntityAttributes.GENERIC_ARMOR, 8)
+				.add(EntityAttributes.GENERIC_MAX_HEALTH, 32)
+				.add(EntityAttributes.GENERIC_ARMOR, 4)
 				.add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, 0.8)
 				.add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 7)
 				.add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.18)
