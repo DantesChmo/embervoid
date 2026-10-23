@@ -37,6 +37,7 @@
 			"com.embervoid.gametest.SoundTests",
 			"com.embervoid.gametest.StaminaTests",
 			"com.embervoid.gametest.HollowTests",
+			"com.embervoid.gametest.OverworldSoundTests",
 			"com.embervoid.gametest.SanctumGearTests"
 		]
 	},

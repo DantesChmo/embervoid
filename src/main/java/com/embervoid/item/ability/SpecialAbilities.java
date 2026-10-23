@@ -1,13 +1,13 @@
 package com.embervoid.item.ability;
 
 import com.embervoid.player.PlayerDataManager;
+import com.embervoid.player.PlayerSounds;
 import com.embervoid.player.StaminaManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
@@ -29,7 +29,7 @@ public final class SpecialAbilities {
 			// tryConsume also tells the client about a failure, which flashes the stamina bar.
 			if (!StaminaManager.tryConsume(serverPlayer, ability.staminaCost())) {
 				serverPlayer.sendMessage(Text.translatable("embervoid.ability.no_stamina").formatted(Formatting.RED), true);
-				serverPlayer.playSound(SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.PLAYERS, 0.4f, 1.6f);
+				serverPlayer.playSound(PlayerSounds.STAMINA_EMPTY, SoundCategory.PLAYERS, 0.4f, 1.6f);
 				return TypedActionResult.fail(stack);
 			}
 			ability.perform((ServerWorld) world, serverPlayer, stack);

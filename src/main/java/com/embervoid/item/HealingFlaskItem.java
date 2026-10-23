@@ -3,6 +3,7 @@ package com.embervoid.item;
 import com.embervoid.config.EmbervoidConfig;
 import com.embervoid.player.PlayerData;
 import com.embervoid.player.PlayerDataManager;
+import com.embervoid.player.PlayerSounds;
 import com.embervoid.registry.ModItems;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
@@ -10,6 +11,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
@@ -102,6 +105,9 @@ public class HealingFlaskItem extends Item {
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
 		ItemStack stack = user.getStackInHand(hand);
 		if (charges(user) <= 0) {
+			if (!world.isClient) {
+				world.playSound(null, user.getX(), user.getY(), user.getZ(), PlayerSounds.FLASK_EMPTY, SoundCategory.PLAYERS, 1.0f, 1.0f);
+			}
 			return TypedActionResult.fail(stack);
 		}
 		if (user.isSprinting()) {
@@ -145,6 +151,11 @@ public class HealingFlaskItem extends Item {
 	@Override
 	public UseAction getUseAction(ItemStack stack) {
 		return UseAction.DRINK;
+	}
+
+	@Override
+	public SoundEvent getDrinkSound() {
+		return PlayerSounds.FLASK_DRINK;
 	}
 
 	@Override

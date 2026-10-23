@@ -18,7 +18,6 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
@@ -95,14 +94,14 @@ public class VampireEntity extends PathAwareEntity implements GeoEntity {
 		setAiDisabled(true);
 		getNavigation().stop();
 		triggerAnim("transform", "transform");
-		getWorld().playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_EVOKER_PREPARE_SUMMON, SoundCategory.HOSTILE, 2.0f, 0.6f);
+		getWorld().playSound(null, getX(), getY(), getZ(), VampireSounds.VAMPIRE_TRANSFORM, SoundCategory.HOSTILE, 2.0f, 0.6f);
 	}
 
 	/** Leaves without a trace but a puff of smoke (the others, once one is provoked). */
 	void vanish() {
 		if (getWorld() instanceof ServerWorld world) {
 			world.spawnParticles(ParticleTypes.LARGE_SMOKE, getX(), getY() + 1, getZ(), 20, 0.3, 0.6, 0.3, 0.02);
-			world.playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_ILLUSIONER_MIRROR_MOVE, SoundCategory.NEUTRAL, 1.0f, 0.7f);
+			world.playSound(null, getX(), getY(), getZ(), VampireSounds.VAMPIRE_VANISH, SoundCategory.NEUTRAL, 1.0f, 0.7f);
 		}
 		discard();
 	}
@@ -126,7 +125,7 @@ public class VampireEntity extends PathAwareEntity implements GeoEntity {
 			world.spawnParticles(ParticleTypes.SMOKE, getX(), getY() + 1.2, getZ(), 1, 0.3, 0.5, 0.3, 0.01);
 			if (turnTicks == 0) {
 				world.spawnParticles(BLOOD, getX(), getY() + 1, getZ(), 60, 0.6, 1.0, 0.6, 0);
-				world.playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_WITHER_SPAWN, SoundCategory.HOSTILE, 1.5f, 1.2f);
+				world.playSound(null, getX(), getY(), getZ(), VampireSounds.VAMPIRE_TURNED, SoundCategory.HOSTILE, 1.5f, 1.2f);
 				VampireNight.onTurned(this);
 			}
 		}

@@ -9,7 +9,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
@@ -42,7 +41,7 @@ public class FlaskShardItem extends Item {
 		if (!player.getAbilities().creativeMode) {
 			stack.decrement(1);
 		}
-		player.getServerWorld().playSound(null, shrinePos, SoundEvents.BLOCK_AMETHYST_BLOCK_RESONATE,
+		player.getServerWorld().playSound(null, shrinePos, SanctumSounds.FLASK_SHARD_OFFER,
 				SoundCategory.BLOCKS, 1.0f, 0.8f);
 		player.sendMessage(Text.translatable("embervoid.flask_shard.offered",
 				HealingFlaskItem.maxCharges(player)).formatted(Formatting.GOLD), true);

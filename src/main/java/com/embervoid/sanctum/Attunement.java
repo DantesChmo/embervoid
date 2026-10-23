@@ -8,7 +8,6 @@ import net.minecraft.network.packet.s2c.play.TitleFadeS2CPacket;
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
@@ -57,7 +56,7 @@ public final class Attunement {
 					Text.translatable("embervoid.sanctum.attuned.subtitle").formatted(Formatting.GRAY)));
 			player.networkHandler.sendPacket(new TitleS2CPacket(
 					Text.translatable("embervoid.sanctum.attuned").formatted(Formatting.GOLD)));
-			player.getServerWorld().playSound(null, player.getBlockPos(), SoundEvents.BLOCK_BEACON_ACTIVATE,
+			player.getServerWorld().playSound(null, player.getBlockPos(), SanctumSounds.ATTUNE,
 					SoundCategory.PLAYERS, 1.0f, 0.7f);
 		} else {
 			player.sendMessage(Text.translatable("embervoid.sanctum.welcome").formatted(Formatting.GOLD), true);
