@@ -5,22 +5,39 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Pure layout of a realm's roads (PLAN 9.6): one road from the landing plaza's edge to each arena site's edge, with a
- * seeded gentle wobble, a milestone every {@value #MILESTONE_SPACING} blocks and two outposts. No Minecraft types, so
- * it is unit-tested directly; the road feature paints it.
+ * Pure layout of a realm's roads (PLAN 9.6, 14.2): one road from the landing plaza's edge to each arena site's edge,
+ * with a seeded gentle wobble, a milestone every {@value #MILESTONE_SPACING} blocks, a lantern post every
+ * {@value #POST_SPACING} blocks on alternating sides and two outposts. No Minecraft types, so it is unit-tested
+ * directly; the road feature paints it.
  */
 public final class RoadLayout {
 	/** Blocks between path points. */
 	public static final double STEP = 2;
-	public static final int MILESTONE_SPACING = 100;
+	public static final int MILESTONE_SPACING = 50;
 	/** Milestones stand this far from the road's centre line (the road is {@code 2·halfWidth + 1} wide). */
 	public static final int MILESTONE_OFFSET = 4;
 	/** Outposts at these fractions of a road's length: a toll gate, then a watchtower. */
 	public static final double[] OUTPOST_AT = {0.3, 0.65};
 	public static final String[] OUTPOST_KINDS = {"toll_gate", "watchtower"};
+	/** Blocks of road between lantern posts. */
+	public static final int POST_SPACING = 20;
+	/** Lantern posts stand this far from the centre line, just past the kerb. */
+	public static final int POST_OFFSET = 4;
+	/**
+	 * Milestones and posts keep this far from an outpost's centre (the widest template, the watchtower, reaches 10
+	 * blocks across the road and 4 along it; outposts light themselves).
+	 */
+	public static final double OUTPOST_CLEARANCE = 12;
+	/** Posts keep this far outside an arena site and the landing plaza. */
+	public static final double SITE_CLEARANCE = 4;
+	/**
+	 * A post's block centre keeps this far from every road's centre line (the kerb ends at 2.5); on the inside of a bend
+	 * it steps one block further out first, and is left out only if that is not enough.
+	 */
+	public static final double POST_ROAD_CLEARANCE = 3;
 
 	/** A road: its points from the plaza to the arena, and what stands along it. */
-	public record Road(int arena, List<double[]> points, List<Milestone> milestones, List<Outpost> outposts) {
+	public record Road(int arena, List<double[]> points, List<Milestone> milestones, List<Outpost> outposts, List<Post> posts) {
 		public double length() {
 			return (points.size() - 1) * STEP;
 		}
@@ -31,6 +48,12 @@ public final class RoadLayout {
 
 	/** An outpost centred on the road at x, z; {@code dirX, dirZ} is the road's direction there (towards the arena). */
 	public record Outpost(String kind, int x, int z, double dirX, double dirZ) {}
+
+	/**
+	 * A lantern post at x, z, {@code along} blocks of road from the plaza, on the right ({@code side} 1) or left (-1)
+	 * walking out.
+	 */
+	public record Post(int x, int z, double along, int side) {}
 
 	/**
 	 * The roads of a realm.
@@ -44,7 +67,67 @@ public final class RoadLayout {
 		for (int i = 0; i < arenas.size(); i++) {
 			roads.add(road(seed, i, arenas.get(i), siteRadii.get(i), plazaRadius, wobble));
 		}
-		return roads;
+		// Posts last: they keep clear of every road, outpost and arena site, not only their own road's.
+		List<Road> lit = new ArrayList<>();
+		for (Road road : roads) {
+			lit.add(new Road(road.arena(), road.points(), road.milestones(), road.outposts(),
+					posts(road, roads, arenas, siteRadii, plazaRadius)));
+		}
+		return lit;
+	}
+
+	/**
+	 * Lantern posts every {@value #POST_SPACING} blocks, alternating sides; one that would share a spot with a milestone
+	 * moves across the road. Left out near outposts, arena sites, the plaza and other roads.
+	 */
+	static List<Post> posts(Road road, List<Road> roads, List<int[]> arenas, List<Integer> siteRadii, double plazaRadius) {
+		List<Post> posts = new ArrayList<>();
+		List<double[]> points = road.points();
+		int index = 0;
+		for (int s = POST_SPACING; s < road.length(); s += POST_SPACING, index++) {
+			int k = (int) Math.round(s / STEP);
+			double[] p = points.get(k);
+			double[] dir = direction(points, k);
+			int side = index % 2 == 0 ? 1 : -1;
+			for (Milestone milestone : road.milestones()) {
+				if (side == 1 && Math.hypot(milestone.x() - p[0], milestone.z() - p[1]) < POST_OFFSET + 3) {
+					side = -1;
+				}
+			}
+			// Right of the direction of travel is (-dirZ, dirX), as for the milestones.
+			for (int offset = POST_OFFSET; offset <= POST_OFFSET + 1; offset++) {
+				int x = (int) Math.floor(p[0] - side * dir[1] * offset);
+				int z = (int) Math.floor(p[1] + side * dir[0] * offset);
+				if (clear(x + 0.5, z + 0.5, roads, arenas, siteRadii, plazaRadius)) {
+					posts.add(new Post(x, z, s, side));
+					break;
+				}
+			}
+		}
+		return posts;
+	}
+
+	private static boolean clear(double x, double z, List<Road> roads, List<int[]> arenas, List<Integer> siteRadii,
+			double plazaRadius) {
+		if (Math.hypot(x, z) < plazaRadius + SITE_CLEARANCE) {
+			return false;
+		}
+		for (int i = 0; i < arenas.size(); i++) {
+			if (Math.hypot(x - arenas.get(i)[0], z - arenas.get(i)[1]) < siteRadii.get(i) + SITE_CLEARANCE) {
+				return false;
+			}
+		}
+		for (Road road : roads) {
+			if (distanceSquared(road, x, z) < POST_ROAD_CLEARANCE * POST_ROAD_CLEARANCE) {
+				return false;
+			}
+			for (Outpost outpost : road.outposts()) {
+				if (Math.hypot(x - outpost.x(), z - outpost.z()) < OUTPOST_CLEARANCE) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	static Road road(long seed, int index, int[] arena, int siteRadius, double plazaRadius, double wobble) {
@@ -85,16 +168,6 @@ public final class RoadLayout {
 			carried = segment - (along - STEP);
 		}
 
-		List<Milestone> milestones = new ArrayList<>();
-		for (int s = MILESTONE_SPACING; s < (points.size() - 1) * STEP - 30; s += MILESTONE_SPACING) {
-			int k = (int) Math.round(s / STEP);
-			double[] dir = direction(points, k);
-			// On the right-hand side walking out, facing back to the road.
-			double[] p = points.get(k);
-			milestones.add(new Milestone((int) Math.floor(p[0] - dir[1] * MILESTONE_OFFSET),
-					(int) Math.floor(p[1] + dir[0] * MILESTONE_OFFSET), dir[1], -dir[0]));
-		}
-
 		List<Outpost> outposts = new ArrayList<>();
 		for (int o = 0; o < OUTPOST_AT.length; o++) {
 			int k = (int) Math.round(OUTPOST_AT[o] * (points.size() - 1));
@@ -102,7 +175,20 @@ public final class RoadLayout {
 			double[] dir = direction(points, k);
 			outposts.add(new Outpost(OUTPOST_KINDS[o], (int) Math.floor(p[0]), (int) Math.floor(p[1]), dir[0], dir[1]));
 		}
-		return new Road(index, points, milestones, outposts);
+
+		List<Milestone> milestones = new ArrayList<>();
+		for (int s = MILESTONE_SPACING; s < (points.size() - 1) * STEP - 30; s += MILESTONE_SPACING) {
+			int k = (int) Math.round(s / STEP);
+			double[] dir = direction(points, k);
+			// On the right-hand side walking out, facing back to the road; none on an outpost's ground.
+			double[] p = points.get(k);
+			int x = (int) Math.floor(p[0] - dir[1] * MILESTONE_OFFSET);
+			int z = (int) Math.floor(p[1] + dir[0] * MILESTONE_OFFSET);
+			if (outposts.stream().allMatch(o -> Math.hypot(x - o.x(), z - o.z()) >= OUTPOST_CLEARANCE)) {
+				milestones.add(new Milestone(x, z, dir[1], -dir[0]));
+			}
+		}
+		return new Road(index, points, milestones, outposts, List.of());
 	}
 
 	/** Unit direction of the road at point k (towards the arena). */

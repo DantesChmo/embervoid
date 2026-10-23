@@ -8,7 +8,8 @@ What it does:
    RCON on a local port, and waits for "Done".
 2. Over RCON: locates the nearest Ember Sanctum and force-loads the chunks around it (so it is really generated in
    overworld terrain), force-loads the Ashen Reach landing and depths centre, locates the three zone arenas and the
-   depths arena and force-loads them too, force-loads every road outpost and checks each got its chest, locates and
+   depths arena and force-loads them too, force-loads every road outpost and checks each got its chest, force-loads
+   the chunk of every road's lantern posts and counts them lit per road (PLAN 14.2), locates and
    force-loads a minor structure of each zone and a crypt, two bridges at the world edge, locates the Smoldering
    Citadel and force-loads its whole route (then expects the keep's treasure chest and every placed Citadel mob),
    force-loads the Vampire arena, starts and stops a full moon and a blood new moon, opens, checks and closes the
@@ -373,6 +374,11 @@ def exercise(rcon):
     roads = run("Roads", "execute in embervoid:ashen_reach run embervoid realm roads")
     for kind, x, z in re.findall(r"(toll_gate|watchtower) at (-?\d+) (-?\d+)", roads):
         generate_around(f"Outpost {kind}", "embervoid:ashen_reach", (int(x), int(z)), 24)
+    # Lantern posts (PLAN 14.2): the chunk of every post, counted lit per road once generated (below).
+    posts = run("Road posts", "execute in embervoid:ashen_reach run embervoid realm roads posts")
+    for road, coords in re.findall(r"road (\d+):([^\n]*)", posts):
+        for x, z in re.findall(r"(-?\d+) (-?\d+);", coords):
+            rcon.command(f"execute in embervoid:ashen_reach run forceload add {x} {z}")
     # Minor structures (PLAN 9.7): one per zone, and a Necropolis crypt (9.8), located and generated.
     for structure in ("fields/barn", "woods/hanging_cages", "necropolis/chapel", "necropolis/crypt"):
         pos = located(run(f"Minor {structure}", "execute in embervoid:ashen_reach run locate structure "
@@ -419,6 +425,10 @@ def exercise(rcon):
                           rf"Test passed, count: {count}$")
     expect("Road outposts built", "execute in embervoid:ashen_reach run embervoid realm roads",
            r"^(?![\s\S]*(missing|not loaded))3 roads")
+    # Every post of every road generated with its lantern; a road of ~600 blocks has ~25.
+    road_lit = r"\nroad \d+: [^\n]*?, ([2-9]\d|1[5-9]) posts \(\{} lit\)[^\n]*"
+    expect_eventually("Road posts lit", "execute in embervoid:ashen_reach run embervoid realm roads",
+                      r"^3 roads" + "".join(road_lit.format(g) for g in (1, 2, 3)) + "$")
     run("Save", "save-all flush")
     return log
 

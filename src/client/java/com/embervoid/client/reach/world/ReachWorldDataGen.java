@@ -53,7 +53,7 @@ public final class ReachWorldDataGen {
 		@Override
 		public void generateBlockStateModels(BlockStateModelGenerator gen) {
 			for (Block block : new Block[]{ReachBlocks.CINDER_ORE, ReachBlocks.AMBER_VEIN, ReachBlocks.GRAVE_IRON_ORE,
-					ReachBlocks.EMBER_CRACK, ReachBlocks.WET_CRYPT_STONE}) {
+					ReachBlocks.EMBER_CRACK, ReachBlocks.WET_CRYPT_STONE, ReachBlocks.KINGSROAD_FLAGSTONES, ReachBlocks.KINGSROAD_KERB}) {
 				gen.registerSimpleCubeAll(block);
 			}
 			gen.registerAxisRotated(ReachBlocks.BURNT_STRAW, TexturedModel.CUBE_COLUMN);
@@ -86,7 +86,8 @@ public final class ReachWorldDataGen {
 		@Override
 		public void generate() {
 			for (Block block : new Block[]{ReachBlocks.BURNT_STRAW, ReachBlocks.MILESTONE, ReachBlocks.GRAVESTONE,
-					ReachBlocks.EMBER_CRACK, ReachBlocks.SMOLDERING_LOG, ReachBlocks.WET_CRYPT_STONE}) {
+					ReachBlocks.EMBER_CRACK, ReachBlocks.SMOLDERING_LOG, ReachBlocks.WET_CRYPT_STONE,
+					ReachBlocks.KINGSROAD_FLAGSTONES, ReachBlocks.KINGSROAD_KERB}) {
 				addDrop(block);
 			}
 			addDrop(ReachBlocks.CINDER_ORE, block -> countedOre(block, GearItems.CINDER_SHARD, 1, 3));
@@ -108,7 +109,8 @@ public final class ReachWorldDataGen {
 	 */
 	public static void vanillaBlockTags(Function<TagKey<Block>, FabricTagProvider<Block>.FabricTagBuilder> tags) {
 		tags.apply(BlockTags.PICKAXE_MINEABLE).add(ReachBlocks.MILESTONE, ReachBlocks.GRAVESTONE, ReachBlocks.EMBER_CRACK,
-				ReachBlocks.WET_CRYPT_STONE, ReachBlocks.CINDER_ORE, ReachBlocks.AMBER_VEIN, ReachBlocks.GRAVE_IRON_ORE);
+				ReachBlocks.WET_CRYPT_STONE, ReachBlocks.KINGSROAD_FLAGSTONES, ReachBlocks.KINGSROAD_KERB,
+				ReachBlocks.CINDER_ORE, ReachBlocks.AMBER_VEIN, ReachBlocks.GRAVE_IRON_ORE);
 		tags.apply(BlockTags.AXE_MINEABLE).add(ReachBlocks.SMOLDERING_LOG);
 		tags.apply(BlockTags.HOE_MINEABLE).add(ReachBlocks.BURNT_STRAW);
 		tags.apply(BlockTags.NEEDS_IRON_TOOL).add(ReachBlocks.CINDER_ORE, ReachBlocks.AMBER_VEIN);

@@ -345,7 +345,7 @@ public final class ReachWorldTests implements FabricGameTest {
 		}
 		context.complete();
 	}
-	/** Roads (PLAN 9.6): paved along the line, a milestone beside it, outposts with their chest. */
+	/** Roads (PLAN 9.6, 14.2): paved along the line, a milestone and lit lantern posts beside it, outposts with their chest. */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 2400)
 	public void roadsArePavedWithMilestonesAndOutposts(TestContext context) {
 		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
@@ -369,6 +369,11 @@ public final class ReachWorldTests implements FabricGameTest {
 		BlockPos stone = new BlockPos(milestone.x(), 0, milestone.z());
 		realm.getChunk(stone);
 		context.assertTrue(columnHas(realm, stone, state -> state.isOf(ReachBlocks.MILESTONE)), "no milestone at " + stone);
+		for (RoadLayout.Post post : road.posts().subList(0, 2)) {
+			BlockPos column = new BlockPos(post.x(), 0, post.z());
+			realm.getChunk(column);
+			context.assertTrue(columnHas(realm, column, state -> state.isOf(ModBlocks.EMBER_LANTERN)), "no lantern post at " + column);
+		}
 
 		RealmArenas.Location arena = RealmRoads.arenas(realm).get(road.arena());
 		String table = "embervoid:chests/ashen_reach/" + ReachZones.zoneName(arena.spec().bossId()) + "_common";
@@ -424,8 +429,7 @@ public final class ReachWorldTests implements FabricGameTest {
 		context.complete();
 	}
 
-	private static final Set<Block> ROAD_BLOCKS = Set.of(ModBlocks.ASH_BRICKS, ModBlocks.CRACKED_ASH_BRICKS,
-			ModBlocks.COBBLED_ASH_STONE, ModBlocks.ASH_STONE);
+	private static final Set<Block> ROAD_BLOCKS = Set.of(ReachBlocks.KINGSROAD_FLAGSTONES, ReachBlocks.KINGSROAD_KERB);
 
 	/** Whether any of the top 12 blocks of a column matches. */
 	private static boolean columnHas(ServerWorld world, BlockPos column, Predicate<BlockState> test) {

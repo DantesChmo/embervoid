@@ -4,6 +4,7 @@ import com.embervoid.progress.ProgressManager;
 import com.embervoid.realm.api.RealmTeleports;
 import com.embervoid.realm.worldgen.RealmFeatures;
 import com.embervoid.realm.worldgen.RealmRoads;
+import com.embervoid.registry.ModBlocks;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -18,6 +19,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.Heightmap;
 
 import java.util.List;
 
@@ -43,8 +45,10 @@ public final class RealmCommands {
 						.then(literal("where").executes(RealmCommands::where))
 						// /embervoid realm arenas: every arena of the current world and whether the caller beat it.
 						.then(literal("arenas").executes(RealmCommands::arenas))
-						// /embervoid realm roads: the roads of the current world, their milestones and outposts.
-						.then(literal("roads").executes(RealmCommands::roads))
+						// /embervoid realm roads: the roads of the current world, their milestones, lantern posts and outposts.
+						.then(literal("roads").executes(RealmCommands::roads)
+								// /embervoid realm roads posts: where each road's lantern posts stand.
+								.then(literal("posts").executes(RealmCommands::posts)))
 						// /embervoid realm data: the caller's realm travel data.
 						.then(literal("data").executes(context -> {
 							ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
@@ -94,13 +98,59 @@ public final class RealmCommands {
 		List<RoadLayout.Road> roads = RealmRoads.of(world);
 		StringBuilder text = new StringBuilder(roads.size() + " roads");
 		for (RoadLayout.Road road : roads) {
-			text.append(String.format("%nroad %d: %.0f blocks, %d milestones", road.arena(), road.length(), road.milestones().size()));
+			text.append(String.format("%nroad %d: %.0f blocks, %d milestones, %d posts (%s)", road.arena(), road.length(),
+					road.milestones().size(), road.posts().size(), postStates(world, road)));
 			for (RoadLayout.Outpost outpost : road.outposts()) {
 				text.append(String.format(", %s at %d %d (%s)", outpost.kind(), outpost.x(), outpost.z(), outpostState(world, outpost)));
 			}
 		}
 		context.getSource().sendFeedback(() -> Text.literal(text.toString()), false);
 		return roads.size();
+	}
+
+	/** Lantern post positions, one line per road. */
+	private static int posts(CommandContext<ServerCommandSource> context) {
+		List<RoadLayout.Road> roads = RealmRoads.of(context.getSource().getWorld());
+		StringBuilder text = new StringBuilder();
+		for (RoadLayout.Road road : roads) {
+			text.append(text.isEmpty() ? "" : "\n").append("road ").append(road.arena()).append(":");
+			for (RoadLayout.Post post : road.posts()) {
+				text.append(" ").append(post.x()).append(" ").append(post.z()).append(";");
+			}
+		}
+		context.getSource().sendFeedback(() -> Text.literal(text.toString()), false);
+		return roads.size();
+	}
+
+	/** How many of a road's posts carry their lantern ("lit"), stand without it ("dark") or are not generated yet. */
+	private static String postStates(ServerWorld world, RoadLayout.Road road) {
+		int lit = 0;
+		int dark = 0;
+		int unloaded = 0;
+		for (RoadLayout.Post post : road.posts()) {
+			if (!world.isChunkLoaded(post.x() >> 4, post.z() >> 4)) {
+				unloaded++;
+				continue;
+			}
+			int top = world.getTopY(Heightmap.Type.WORLD_SURFACE, post.x(), post.z());
+			boolean lantern = false;
+			for (int y = top; y > top - 6; y--) {
+				lantern |= world.getBlockState(new BlockPos(post.x(), y, post.z())).isOf(ModBlocks.EMBER_LANTERN);
+			}
+			if (lantern) {
+				lit++;
+			} else {
+				dark++;
+			}
+		}
+		String text = lit + " lit";
+		if (dark > 0) {
+			text += ", " + dark + " dark";
+		}
+		if (unloaded > 0) {
+			text += ", " + unloaded + " unloaded";
+		}
+		return text;
 	}
 
 	/** "chest" when the outpost's chest is there, "missing" when its chunks are loaded without it, else "not loaded". */

@@ -29,9 +29,15 @@ public final class ReachBlocks {
 	/** Ashen Fields: scorched bales in the furrows and on scarecrows. */
 	public static final Block BURNT_STRAW = register("burnt_straw", new PillarBlock(AbstractBlock.Settings.copy(Blocks.HAY_BLOCK)
 			.mapColor(MapColor.BLACK).sounds(ReachBlockSounds.BURNT_STRAW)));
-	/** Road milestone: a knee-high carved post every ~100 blocks. */
+	/** Road milestone: a knee-high carved post every ~50 blocks. */
 	public static final Block MILESTONE = register("milestone", new MarkerStoneBlock(AbstractBlock.Settings.copy(ModBlocks.ASH_BRICKS)
 			.nonOpaque(), MarkerStoneBlock.MILESTONE_SHAPE));
+	/** Realm roads (PLAN 14.2): warm sandstone flags down the middle, lighter than every zone's ground. */
+	public static final Block KINGSROAD_FLAGSTONES = register("kingsroad_flagstones", new Block(AbstractBlock.Settings.copy(ModBlocks.ASH_BRICKS)
+			.mapColor(MapColor.TERRACOTTA_YELLOW)));
+	/** Realm roads (PLAN 14.2): the pale kerb along both edges. */
+	public static final Block KINGSROAD_KERB = register("kingsroad_kerb", new Block(AbstractBlock.Settings.copy(ModBlocks.ASH_BRICKS)
+			.mapColor(MapColor.OFF_WHITE)));
 	/** Sunken Necropolis: a thin headstone. */
 	public static final Block GRAVESTONE = register("gravestone", new MarkerStoneBlock(AbstractBlock.Settings.copy(ModBlocks.ASH_STONE)
 			.nonOpaque(), MarkerStoneBlock.GRAVESTONE_SHAPE));
@@ -56,7 +62,7 @@ public final class ReachBlocks {
 			.mapColor(MapColor.BLACK).sounds(ReachBlockSounds.GRAVE_IRON_ORE), ConstantIntProvider.create(0)));
 
 	public static final List<Block> ORES = List.of(CINDER_ORE, AMBER_VEIN, GRAVE_IRON_ORE);
-	public static final List<Block> ALL = List.of(BURNT_STRAW, MILESTONE, GRAVESTONE, EMBER_CRACK, SMOLDERING_LOG,
+	public static final List<Block> ALL = List.of(BURNT_STRAW, MILESTONE, KINGSROAD_FLAGSTONES, KINGSROAD_KERB, GRAVESTONE, EMBER_CRACK, SMOLDERING_LOG,
 			WET_CRYPT_STONE, CINDER_ORE, AMBER_VEIN, GRAVE_IRON_ORE);
 
 	public static void register() {
