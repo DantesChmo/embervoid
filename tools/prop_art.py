@@ -10,6 +10,10 @@ Writes models/block/prop/<model>.json and textures/block/prop/<texture>.png. The
 tags come from datagen (PropDataGen); the hitboxes are in com.embervoid.block.prop.Props, checked against these models
 by PropShapesTest.
 
+Textures (0.5.0 art pass) follow docs/art-direction.md §1 on the shared ramps of tools/palette.py: planks with grain
+and knots, basket-weave sackcloth, riveted iron with a specular edge, cloth with fold lines, clay with throwing rings.
+The models and their UVs are unchanged (PropShapesTest checks the hitboxes against them).
+
 Coordinates are pixels with the prop facing north (its front at z = 0). A two-block prop is built whole and split:
 two tall ones (y 0..32) into _lower and _upper, two long ones (z 0..32, the head to the north) into _head and _foot,
 plus an _item model of both halves centred on the block for the inventory. Faces get 1:1 UVs: by default the face's
@@ -21,7 +25,10 @@ import math
 import os
 import random
 
-from art_kit import ROOT, CLEAR, Canvas, hash01, hexc, mix, ramp, shade, value_noise
+from art_kit import ROOT, CLEAR, Canvas, hash01, mix, shade, value_noise
+import palette as P
+from palette import (bevel_edges, cellular, dither_fill, dither_level, moss_patch, rivet, shift, soot_stain, step,
+                     wood_grain)
 
 TEXTURES = os.path.join(ROOT, "textures", "block", "prop")
 MODELS = os.path.join(ROOT, "models", "block", "prop")
@@ -274,33 +281,27 @@ def write_split(name, model, axis, parts):
 
 
 # --- Palettes ---------------------------------------------------------------------------------------------------
+# All ramps come from tools/palette.py (the art direction's shared palette); HOT / WARM are the ember accents.
 
-# Bleached field wood (dead planks' range, a little warmer so it reads against ash).
-FIELD_WOOD = ramp("3b332c", "4f463c", "625649", "766857", "8a7a66", "9d8c76")
-# Wood that went through the fire: soot black to scorched brown.
-CHARRED = ramp("19140f", "241c16", "30251c", "3e3024", "4e3c2d", "604a37")
-# Dark stained coffin boards.
-COFFIN = ramp("1e1714", "2a201b", "372a22", "45352a", "544034", "644d3e")
-# Sackcloth, ochre gone grey under the ash.
-BURLAP = ramp("4a3e2c", "5d4f39", "6f5f45", "817051", "93815e", "a5926c")
-# Rusted iron: cold grey with brown blooms.
-IRON = ramp("1f1e21", "2c2b2f", "3a393d", "4b4a4e", "5d5c60", "706f72")
-RUST = ramp("3d2216", "573020", "6f3f28", "87512f")
-# Blade steel, brighter than the rusted fittings.
-STEEL = ramp("3f4146", "565960", "6e727a", "888c93", "a3a7ad", "c0c3c8")
-# Pale weathered limestone of the graves, with lichen.
-GRAVE = ramp("4f4e4c", "625f5b", "75716b", "88837b", "9a948b", "aba59b")
-LICHEN = ramp("4c5340", "5e6650", "727a5e")
-BONE = ramp("6f6656", "8a8170", "a39a87", "bab19c", "cdc5ae", "ddd6c0")
-ASH = ramp("2c2928", "373433", "43403e", "504c4a", "5e5a57", "6c6865")
-TALLOW = ramp("8a7a58", "a4936b", "baa97e", "cbbb8f", "d9caa0", "e6d9b2")
-CLOTH = ramp("2e1210", "431915", "5a211b", "702a21", "863428", "9a4030")
-GILT = ramp("4a3514", "6a4d1c", "8b6826", "a98330", "c49f44", "dabb62")
-CLAY = ramp("3e2519", "523121", "673e29", "7c4c31", "91593a", "a46845")
-FELT = ramp("1c1a1a", "262323", "302c2b", "3b3634")
-STRAW = ramp("2e2216", "3a2c1c", "4a3824", "5a462d", "6c5536")
-HOT = hexc("e8892e")
-WARM = hexc("a8481c")
+FIELD_WOOD = P.DEAD_WOOD
+CHARRED = P.CHARRED_WOOD
+COFFIN = P.CHARRED_WOOD
+BURLAP = P.BURLAP
+IRON = P.GRAVE_IRON
+RUST = P.RUST
+STEEL = P.STEEL
+GRAVE = P.KERB_STONE
+LICHEN = P.MOSS[1:4]
+BONE = P.BONE
+ASH = P.ASH_SOIL
+TALLOW = P.TALLOW
+CLOTH = P.CRIMSON_CLOTH
+GILT = P.GOLD_TRIM
+CLAY = P.CLAY
+FELT = P.SOOT
+STRAW = P.STRAW
+HOT = P.EMBER[4]
+WARM = P.EMBER[2]
 
 
 def level(colors, v):
@@ -308,66 +309,60 @@ def level(colors, v):
 
 
 def paint(fn, colors, w=16, h=16):
+    """A canvas from fn(x, y) -> level in 0..1 (None leaves the pixel clear), quantised with the ordered dither."""
     c = Canvas(w, h)
     for y in range(h):
         for x in range(w):
             v = fn(x, y)
             if v is not None:
-                c.set(x, y, level(colors, v))
+                c.set(x, y, dither_level(colors, v * len(colors) - 0.5, x, y))
     return c
 
 
-def grain(seed, base=0.5, plank=None, vertical=True, amp=0.5):
-    """Wood: streaks along the grain, plank joints across it, a light edge and a dark edge per plank."""
-    def fn(x, y):
-        a, b = (x, y) if vertical else (y, x)
-        v = base + (value_noise(a * 2.5, b * 0.35, seed, 1.5) - 0.5) * amp + (hash01(a, b // 4, seed) - 0.5) * 0.12
-        if plank:
-            k = a % plank
-            if k == plank - 1:
-                return 0.02
-            if k == 0:
-                v += 0.12
-            elif k == plank - 2:
-                v -= 0.1
-            v += (hash01(a // plank, 0, seed + 3) - 0.5) * 0.25
-        return v
-    return fn
+def planks(seed, colors, plank=4, vertical=False, base=3.4, knots=1, w=16, h=16, spread=1.0):
+    """Boards with grain streaks, a joint per board and a knot (palette.wood_grain)."""
+    c = Canvas(w, h)
+    wood_grain(c, colors, seed, plank=plank, vertical=vertical, base=base, spread=spread, knots=knots)
+    return c
 
 
-def burlap_fn(seed, base=0.5):
-    def fn(x, y):
-        v = base + (value_noise(x, y, seed, 4) - 0.5) * 0.35
-        if (x + y) % 2 == 0 and hash01(x, y, seed + 1) < 0.5:
-            v += 0.07
-        if y % 4 == 3 and hash01(x, y, seed + 2) < 0.6:
-            v -= 0.08
-        return v
-    return fn
+def burlap(seed, base=3.2, w=16, h=16):
+    """Sackcloth: a basket weave of 2 px threads, each over-thread lit on its upper-left, the weave sagging a little
+    with noise; a loose thread or two."""
+    c = Canvas(w, h)
+    for y in range(h):
+        for x in range(w):
+            over = ((x // 2) + (y // 2)) % 2 == 0
+            k = (x % 2, y % 2)
+            v = base + (value_noise(x, y, seed, 4.0) - 0.5) * 1.2
+            if over:
+                v += 0.9 if k == (0, 0) else 0.3 if k[0] == 0 else -0.5
+            else:
+                v += 0.4 if k == (0, 0) else -0.2 if k[1] == 0 else -1.0
+            c.set(x, y, dither_level(BURLAP, v, x, y))
+    for k in range(2):
+        x = int(hash01(k, 1, seed + 7) * w)
+        for y in range(int(hash01(k, 2, seed + 7) * h), h):
+            if hash01(x, y, seed + 8) < 0.7:
+                c.set(x, y, step(BURLAP, 1))
+    return c
 
 
-def stone_fn(seed, base=0.55):
-    def fn(x, y):
-        return base + (value_noise(x, y, seed, 3) - 0.5) * 0.45 + (hash01(x, y, seed) - 0.5) * 0.12
-    return fn
+def stone(seed, colors, base=3.3, points=9, w=16, h=16):
+    c = Canvas(w, h)
+    cellular(c, colors, seed, points=points, base=base, spread=1.2)
+    return c
 
 
 def lichen(c, rng, count):
     for _ in range(count):
-        x, y = rng.randrange(16), rng.randrange(16)
-        for dx, dy in ((0, 0), (1, 0), (0, 1), (-1, 0), (1, 1)):
-            if rng.random() < 0.7:
-                c.set(x + dx, y + dy, rng.choice(LICHEN))
+        moss_patch(c, rng.randrange(1 << 16), rng.randrange(16), rng.randrange(16), 1 + rng.randrange(2),
+                   colors=P.MOSS, density=0.85, base=2.2)
 
 
 def soot(c, rng, rows, strength=40):
-    """Darkens toward the bottom rows (ash creeping up) where rows = (first, last)."""
-    first, last = rows
-    for y in range(first, last + 1):
-        t = (y - first + 1) / (last - first + 1)
-        for x in range(16):
-            if hash01(x, y, 91) < 0.35 + 0.5 * t:
-                c.set(x, y, shade(c.get(x, y), -int(strength * t)))
+    """Darkens toward the last of rows = (first, last): ash creeping up from the ground."""
+    soot_stain(c, rng.randrange(1 << 16), rows, strength=max(1, strength // 20))
 
 
 def embers(c, rng, count, length=(2, 4)):
@@ -399,15 +394,46 @@ def tear(c, rng, bottom, depth=3, holes=0):
                     c.set(x + dx, y + dy, shade(p, -28))
 
 
+def folds(c, seed, colors, count=3, w=16, h=16):
+    """Cloth folds: 1-2 px darker lines that hang down and drift, a lit ridge beside each."""
+    for k in range(count):
+        x = int(hash01(k, 1, seed) * w)
+        for y in range(h):
+            if c.get(x % w, y)[3]:
+                shift(c, colors, x % w, y, -2)
+                shift(c, colors, (x + 1) % w, y, 1)
+            if hash01(x, y, seed + k) < 0.2:
+                x += 1 if hash01(x, y, seed + 9) < 0.5 else -1
+
+
+def iron_plate(seed, rivets=True, rust=3, w=16, h=16):
+    """A rusted iron plate: flat face with a specular line on its lit edges, rivets, rust blooms from the bottom."""
+    c = Canvas(w, h)
+    dither_fill(c, IRON, lambda x, y: 3.0 + (value_noise(x, y, seed, 3.0) - 0.5) * 1.0, 0, 0, w, h)
+    bevel_edges(c, 0, 0, w, h, colors=IRON)
+    for x in range(1, w - 1, 3):
+        c.set(x, 0, P.GRAVE_IRON_SPECULAR)
+    if rivets:
+        for (x, y) in ((2, 2), (w - 4, 2), (2, h - 4), (w - 4, h - 4)):
+            rivet(c, x, y, IRON)
+    for k in range(rust):
+        x, y = int(hash01(k, 1, seed + 3) * w), h - 1 - int(hash01(k, 2, seed + 3) * (h // 2))
+        for dy in range(-1, 2):
+            for dx in range(-2, 3):
+                if hash01(x + dx, y + dy, seed + 4) < 0.7:
+                    c.set((x + dx) % w, max(0, min(h - 1, y + dy)), step(RUST, 1 + int(hash01(x + dx, y + dy, seed + 5) * 3)))
+    return c
+
+
 # --- Textures ---------------------------------------------------------------------------------------------------
 
 def textures(rng):
     t = {}
 
-    t["sack"] = paint(burlap_fn(11), BURLAP)
-    sack = paint(burlap_fn(11), BURLAP)
+    t["sack"] = burlap(11)
+    sack = burlap(11)
     # A faded grain-tithe mark: a wheat sheaf under a crown, stencilled in soot.
-    ink = hexc("3a2c20")
+    ink = step(P.SOOT, 3)
     for x, y in ((7, 1), (9, 1), (11, 1), (7, 2), (8, 2), (9, 2), (10, 2), (11, 2)):
         sack.set(x, y + 5, mix(sack.get(x, y + 5), ink, 0.8))
     for y in range(4, 9):
@@ -415,31 +441,25 @@ def textures(rng):
     for x, y in ((8, 10), (10, 10), (7, 9), (11, 9), (8, 12), (10, 12)):
         sack.set(x, y - 1, mix(sack.get(x, y - 1), ink, 0.75))
     t["sack_marked"] = sack
-    cord = paint(lambda x, y: 0.3 + 0.4 * ((x + y) % 3 == 0) + (hash01(x, y, 4) - 0.5) * 0.2, STRAW)
-    t["cord"] = cord
+    t["cord"] = paint(lambda x, y: 0.35 + 0.4 * ((x + y) % 3 == 0) + (hash01(x, y, 4) - 0.5) * 0.2, STRAW)
 
-    staves = paint(grain(21, 0.5, plank=4), CHARRED)
+    staves = planks(21, CHARRED, plank=4, vertical=True, base=3.3, knots=0)
     soot(staves, rng, (0, 4), 25)
     embers(staves, rng, 1, (2, 3))
     t["barrel_side"] = staves
-    top = paint(stone_fn(22, 0.45), ASH)
+    top = stone(22, ASH, base=3.0, points=12)
     for y in range(16):
         for x in range(16):
             d = math.hypot(x - 7.5, y - 7.5)
             if d > 5.6:
-                top.set(x, y, level(CHARRED, 0.25 + (hash01(x, y, 5) - 0.5) * 0.3))
+                top.set(x, y, dither_level(CHARRED, 2.0 + (hash01(x, y, 5) - 0.5) * 1.6, x, y))
             elif d < 2.2 and hash01(x, y, 6) < 0.45:
                 top.set(x, y, HOT if hash01(x, y, 7) < 0.4 else WARM)
     t["barrel_top"] = top
 
-    iron = paint(stone_fn(31, 0.5), IRON)
-    for _ in range(14):
-        x, y = rng.randrange(16), rng.randrange(16)
-        iron.set(x, y, rng.choice(RUST))
-        iron.set(x + 1, y, rng.choice(RUST))
-    t["rusted_iron"] = iron
+    t["rusted_iron"] = iron_plate(31)
 
-    t["cart_wood"] = paint(grain(41, 0.55, plank=5, vertical=False), FIELD_WOOD)
+    t["cart_wood"] = planks(41, FIELD_WOOD, plank=5, vertical=False, base=3.6)
     wheel = Canvas(16, 16)
     for y in range(16):
         for x in range(16):
@@ -450,20 +470,19 @@ def textures(rng):
             spoke = d < 4.8 and min(abs(math.sin(ang * 3)), 1) < 0.9 / max(d, 0.6) * 1.6
             hub = d < 1.6
             if rim or spoke or hub:
-                v = 0.55 + (hash01(x, y, 42) - 0.5) * 0.3 - (0.18 if d > 5.6 else 0)
-                wheel.set(x, y, level(FIELD_WOOD, v))
+                v = 3.6 + (hash01(x, y, 42) - 0.5) * 1.4 - (1.2 if d > 5.6 else 0) + (1.0 if dx + dy < -2 and rim else 0)
+                wheel.set(x, y, dither_level(FIELD_WOOD, v, x, y))
             if 5.7 < d < 6.3 and hash01(x, y, 43) < 0.6:
-                wheel.set(x, y, level(IRON, 0.4 + hash01(x, y, 44) * 0.3))
+                wheel.set(x, y, dither_level(IRON, 2.5 + hash01(x, y, 44) * 2, x, y))
             if hub:
-                wheel.set(x, y, level(IRON, 0.35 + hash01(x, y, 45) * 0.3))
-    # A broken stretch of rim.
+                wheel.set(x, y, dither_level(IRON, 2.2 + hash01(x, y, 45) * 2 + (1.5 if dx + dy < -0.5 else 0), x, y))
     for x, y in ((12, 3), (13, 4), (13, 5)):
         wheel.set(x, y, CLEAR)
     t["cart_wheel"] = wheel
 
-    t["post_wood"] = paint(grain(51, 0.5), FIELD_WOOD)
-    face = paint(burlap_fn(52, 0.62), BURLAP)
-    stitch = hexc("221a14")
+    t["post_wood"] = planks(51, FIELD_WOOD, plank=16, vertical=True, base=3.3, knots=1)
+    face = burlap(52, base=3.8)
+    stitch = step(P.SOOT, 2)
     for x, y in ((6, 6), (8, 6), (7, 7), (6, 8), (8, 8), (11, 6), (13, 6), (12, 7), (11, 8), (13, 8)):
         face.set(x - 1, y - 1, stitch)  # X eyes
     for x in range(6, 12):
@@ -471,107 +490,133 @@ def textures(rng):
         if x % 2 == 0:
             face.set(x - 1, 11 - (1 if x in (6, 11) else 0), shade(stitch, 20))
     t["scarecrow_face"] = face
-    coat = paint(grain(53, 0.45, amp=0.3), CLOTH)
+    coat = paint(lambda x, y: 0.45 + (value_noise(x, y, 53, 3) - 0.5) * 0.3, CLOTH)
     for x in range(16):
         for y in range(16):
-            coat.set(x, y, mix(coat.get(x, y), BURLAP[1], 0.45))
+            coat.set(x, y, mix(coat.get(x, y), BURLAP[1], 0.4))
+    folds(coat, 53, CLOTH, count=3)
     for y in range(2, 14, 3):
-        coat.set(8, y, GILT[1])  # tarnished buttons
-    # A patch.
-    for x in range(10, 14):
+        coat.set(8, y, GILT[2])  # tarnished buttons
+        coat.set(9, y + 1, step(CLOTH, 0))
+    for x in range(10, 14):  # a patch
         for y in range(3, 7):
-            coat.set(x, y, level(BURLAP, 0.4 + hash01(x, y, 54) * 0.3))
+            coat.set(x, y, dither_level(BURLAP, 2.6 + hash01(x, y, 54) * 1.6, x, y))
     t["scarecrow_coat"] = coat
-    rag = paint(grain(55, 0.42, amp=0.35), CLOTH)
+    rag = paint(lambda x, y: 0.42 + (value_noise(x, y, 55, 3) - 0.5) * 0.3, CLOTH)
     for x in range(16):
         for y in range(16):
-            rag.set(x, y, mix(rag.get(x, y), BURLAP[1], 0.45))
+            rag.set(x, y, mix(rag.get(x, y), BURLAP[1], 0.4))
+    folds(rag, 55, CLOTH, count=4)
     tear(rag, rng, 15, depth=8, holes=2)
     t["scarecrow_rag"] = rag
     t["straw"] = paint(lambda x, y: 0.5 + (hash01(x, y // 3, 61) - 0.5) * 0.8, STRAW)
-    t["felt"] = paint(stone_fn(62, 0.5), FELT)
+    t["felt"] = paint(lambda x, y: 0.5 + (value_noise(x, y, 62, 3) - 0.5) * 0.4, FELT)
 
-    t["coffin_wood"] = paint(grain(71, 0.5, plank=6, vertical=False), COFFIN)
-    t["coffin_lid"] = paint(grain(72, 0.55, plank=4), COFFIN)
-    t["coffin_inside"] = paint(lambda x, y: 0.12 + hash01(x, y, 73) * 0.2, COFFIN)
+    t["coffin_wood"] = planks(71, COFFIN, plank=6, vertical=False, base=3.6, knots=1)
+    lid = planks(72, COFFIN, plank=4, vertical=True, base=3.8, knots=0)
+    bevel_edges(lid, 0, 0, 16, 16, colors=COFFIN)
+    t["coffin_lid"] = lid
+    t["coffin_inside"] = paint(lambda x, y: 0.1 + hash01(x, y, 73) * 0.2, COFFIN)
 
-    stone = paint(stone_fn(81, 0.55), GRAVE)
-    lichen(stone, rng, 5)
-    t["grave_stone"] = stone
-    carved = paint(stone_fn(82, 0.6), GRAVE)
+    grave = stone(81, GRAVE, base=3.4, points=6)
+    lichen(grave, rng, 3)
+    t["grave_stone"] = grave
+    carved = Canvas(16, 16)
+    dither_fill(carved, GRAVE, lambda x, y: 3.6 + (value_noise(x, y, 82, 3.5) - 0.5) * 0.8)
+    bevel_edges(carved, 0, 0, 16, 16, colors=GRAVE)
     groove = GRAVE[0]
-    # A cross over three worn lines of an inscription.
+    # A cross over three worn lines of an inscription, each groove lit along its lower-right.
     for y in range(1, 6):
         carved.set(4, y, groove)
+        shift(carved, GRAVE, 5, y, 1)
     for x in range(2, 7):
         carved.set(x, 2, groove)
+        shift(carved, GRAVE, x, 3, 1) if x != 4 else None
     for row, (x0, x1) in enumerate(((1, 8), (2, 7), (1, 6))):
         for x in range(x0, x1):
             if hash01(x, row, 83) < 0.7:
                 carved.set(x, 7 + row * 2, groove)
-    lichen(carved, rng, 3)
+    lichen(carved, rng, 2)
     soot(carved, rng, (12, 15), 25)
     t["grave_carved"] = carved
-    earth = paint(stone_fn(84, 0.45), ASH)
+    earth = stone(84, ASH, base=3.0, points=20)
     for _ in range(8):
         earth.set(rng.randrange(16), rng.randrange(16), rng.choice(STRAW[1:4]))
     t["grave_earth"] = earth
 
-    t["bone"] = paint(lambda x, y: 0.62 + (value_noise(x, y, 91, 2) - 0.5) * 0.5, BONE)
-    skull = paint(lambda x, y: 0.64 + (value_noise(x, y, 92, 2.5) - 0.5) * 0.4, BONE)
-    hole = hexc("191512")
+    bone = Canvas(16, 16)
+    dither_fill(bone, BONE, lambda x, y: 3.8 + (value_noise(x * 0.4, y, 91, 2) - 0.5) * 1.6)
+    for y in range(16):
+        shift(bone, BONE, 0, y, 1)
+        shift(bone, BONE, 15, y, -2)
+    t["bone"] = bone
+    skull = Canvas(16, 16)
+    dither_fill(skull, BONE, lambda x, y: 4.0 + (value_noise(x, y, 92, 2.5) - 0.5) * 1.4 - (1.5 if x + y > 20 else 0))
+    hole = step(P.SOOT, 1)
     for x, y in ((1, 1), (2, 1), (1, 2), (2, 2), (5, 1), (6, 1), (5, 2), (6, 2), (3, 3), (4, 3)):
         skull.set(x + 4, y + 4, hole)  # sockets and the nose, at (4..11, 4..8)
     for x in range(5, 11):
         skull.set(x, 9, hole if x % 2 else BONE[1])
-    skull.set(9, 5, shade(BONE[2], -10))
+    # A suture across the brow.
+    for i in range(6):
+        skull.set(5 + i, 2 + (i % 2), BONE[1])
     t["skull"] = skull
-    ash = paint(stone_fn(93, 0.55), ASH)
+    ash = stone(93, ASH, base=3.0, points=20)
     for _ in range(4):
         ash.set(rng.randrange(16), rng.randrange(16), BONE[3])
     t["ash_heap"] = ash
 
-    tallow = paint(lambda x, y: 0.6 + (value_noise(x, y * 0.4, 101, 2) - 0.5) * 0.45, TALLOW)
+    tallow = Canvas(16, 16)
+    dither_fill(tallow, TALLOW, lambda x, y: 3.8 + (value_noise(x, y * 0.4, 101, 2) - 0.5) * 1.4)
+    for y in range(16):
+        shift(tallow, TALLOW, 0, y, 1)
+        shift(tallow, TALLOW, 15, y, -2)
     for x in range(16):
         if hash01(x, 0, 102) < 0.4:  # runs of wax
             for y in range(rng.randint(2, 6)):
-                tallow.set(x, y, TALLOW[5])
+                tallow.set(x, y, TALLOW[6])
+                shift(tallow, TALLOW, x + 1, y, -1)
     t["tallow"] = tallow
     t["wick"] = paint(lambda x, y: 0.1 + hash01(x, y, 103) * 0.2, CHARRED)
-    t["wick_lit"] = paint(lambda x, y: 0.4 + hash01(x, y, 104) * 0.6, ramp("a8481c", "e8892e", "f6c25a", "ffe39a"))
+    t["wick_lit"] = paint(lambda x, y: 0.5 + hash01(x, y, 104) * 0.5, P.EMBER[2:])
 
-    t["rack_wood"] = paint(grain(111, 0.45, plank=8), CHARRED[2:] + FIELD_WOOD[2:4])
-    t["steel"] = paint(lambda x, y: 0.55 + (value_noise(x * 0.3, y, 112, 2) - 0.5) * 0.6, STEEL)
-    t["leather"] = paint(lambda x, y: 0.4 + 0.3 * (y % 2) + (hash01(x, y, 113) - 0.5) * 0.2, ramp("2a1a12", "3a241a", "4b3022"))
+    t["rack_wood"] = planks(111, CHARRED, plank=8, vertical=True, base=3.6, knots=0)
+    steel = Canvas(16, 16)
+    dither_fill(steel, STEEL, lambda x, y: 3.2 + (value_noise(x * 0.3, y, 112, 2) - 0.5) * 2.2)
+    for x in range(16):
+        steel.set(x, 0, STEEL[6])
+    t["steel"] = steel
+    t["leather"] = paint(lambda x, y: 0.4 + 0.3 * (y % 2) + (hash01(x, y, 113) - 0.5) * 0.2, P.CLAY[:4])
 
     bars = Canvas(16, 16)
     for y in range(16):
         for x in range(16):
             if x % 3 == 1 or y in (0, 15):
-                v = 0.45 + (hash01(x, y, 121) - 0.5) * 0.4
-                bars.set(x, y, level(IRON, v) if hash01(x, y, 122) > 0.15 else RUST[1])
+                v = 2.6 + (hash01(x, y, 121) - 0.5) * 1.0 + (1.6 if y == 0 or (x % 3 == 1 and y % 4 == 1) else 0)
+                bars.set(x, y, dither_level(IRON, v, x, y) if hash01(x, y, 122) > 0.12 else RUST[2])
             elif y in (7, 8) and x % 3 == 0:
-                bars.set(x, y, level(IRON, 0.3))
+                bars.set(x, y, step(IRON, 2))
     t["cage_bars"] = bars
 
     for name, rows in (("standard_cloth_top", None), ("standard_cloth_bottom", 7)):
-        cloth = paint(lambda x, y: 0.55 + (value_noise(x, y, 131 if rows is None else 132, 3) - 0.5) * 0.4
+        cloth = paint(lambda x, y: 0.55 + (value_noise(x, y, 131 if rows is None else 132, 3) - 0.5) * 0.3
                       - (0.15 if x in (0, 10) else 0), CLOTH, 11, 16)
+        folds(cloth, 131 if rows is None else 132, CLOTH, count=2, w=11)
         if rows is None:
             # Gold trim at the top and the Greedy King's crown holding a flame.
             for x in range(11):
-                cloth.set(x, 0, GILT[2])
-                cloth.set(x, 1, GILT[1])
+                cloth.set(x, 0, GILT[5])
+                cloth.set(x, 1, GILT[2])
             crown = ["...........", "..#.#.#....", "..#####....", "..#####....", "...........",
                      "....o......", "...ooo.....", "...o*o.....", "....o......"]
             for y, row in enumerate(crown):
                 for x, ch in enumerate(row):
                     if ch == "#":
-                        cloth.set(x + 1, y + 2, GILT[4] if hash01(x, y, 133) > 0.3 else GILT[3])
+                        cloth.set(x + 1, y + 2, GILT[5] if hash01(x, y, 133) > 0.3 else GILT[3])
                     elif ch == "o":
-                        cloth.set(x + 1, y + 2, hexc("c2611f"))
+                        cloth.set(x + 1, y + 2, P.EMBER[3])
                     elif ch == "*":
-                        cloth.set(x + 1, y + 2, hexc("e8a540"))
+                        cloth.set(x + 1, y + 2, P.EMBER[5])
             for x in range(11):
                 for y in range(11, 16):
                     if hash01(x, y, 134) < 0.08:
@@ -588,26 +633,35 @@ def textures(rng):
             for y in range(16):
                 full.set(x, y, cloth.get(x, y))
         t[name] = full
-    gilt = paint(stone_fn(135, 0.6), GILT)
+    gilt = Canvas(16, 16)
+    dither_fill(gilt, GILT, lambda x, y: 3.8 + (value_noise(x, y, 135, 3) - 0.5) * 1.2)
+    bevel_edges(gilt, 0, 0, 16, 16, colors=GILT)
     t["gilt"] = gilt
 
-    clay = paint(lambda x, y: 0.55 + (value_noise(x, y, 141, 3) - 0.5) * 0.35, CLAY)
+    def thrown(seed, base=3.4):
+        """Thrown clay: horizontal throwing rings, one in three a step lighter, a chip or two."""
+        c = Canvas(16, 16)
+        dither_fill(c, CLAY, lambda x, y: base + (value_noise(x, y, seed, 3) - 0.5) * 0.8 + (0.8 if y % 3 == 0 else -0.3 if y % 3 == 2 else 0))
+        return c
+
+    clay = thrown(141)
     for _ in range(3):  # chips
         x, y = rng.randrange(16), rng.randrange(16)
-        clay.set(x, y, CLAY[5])
+        clay.set(x, y, CLAY[6])
+        clay.set(x + 1, y + 1, CLAY[0])
     t["urn_clay"] = clay
-    # The belly: a soot-black band with a row of dots under it, painted before the fire.
-    band = paint(lambda x, y: 0.55 + (value_noise(x, y, 144, 3) - 0.5) * 0.35, CLAY)
+    band = thrown(144)
     for x in range(16):
-        band.set(x, 3, hexc("1f1612"))
+        band.set(x, 3, step(P.SOOT, 1))
+        band.set(x, 4, step(P.SOOT, 3))
         if x % 3 == 1:
-            band.set(x, 5, hexc("2a1c15"))
+            band.set(x, 6, step(P.SOOT, 2))
     t["urn_band"] = band
-    mouth = paint(stone_fn(142, 0.5), CLAY)
+    mouth = thrown(142)
     for y in range(16):
         for x in range(16):
             if math.hypot(x - 7.5, y - 7.5) < 3.2:
-                mouth.set(x, y, level(ASH, 0.45 + hash01(x, y, 143) * 0.3))
+                mouth.set(x, y, dither_level(ASH, 2.4 + hash01(x, y, 143) * 1.4, x, y))
     t["urn_mouth"] = mouth
     return t
 

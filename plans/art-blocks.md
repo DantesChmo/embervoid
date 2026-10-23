@@ -5,8 +5,8 @@ overhaul", bar: docs/art-direction.md. Nobody answers questions tonight: decisio
 
 ## Task list
 
-1. [ ] `tools/palette.py`: the shared ramps and the drawing helpers.
-2. [ ] `tools/block_art.py`: every block texture redrawn (replaces `reach_world_placeholders.py`, `road_art.py`, the
+1. [x] `tools/palette.py`: the shared ramps and the drawing helpers.
+2. [x] `tools/block_art.py`: every block texture redrawn (replaces `reach_world_placeholders.py`, `road_art.py`, the
    block part of `stele_art.py`); `tools/prop_art.py` restyled.
 3. [ ] About 25 new building blocks with datagen and lang.
 4. [ ] Every structure builder rebuilt from the wider palette; helpers in `Ruin` / `TemplateBuilder`.
@@ -44,7 +44,11 @@ overhaul", bar: docs/art-direction.md. Nobody answers questions tonight: decisio
 
 ## Status
 
-(filled in as steps land)
+- Step 1 committed: 30 ramps, self-checked (`python3 tools/palette.py`).
+- Step 2 committed: 72 block textures from `block_art.py` (42 redrawn, 30 for the new blocks of step 3), the 44 prop
+  textures restyled; `reach_world_placeholders.py` and `road_art.py` deleted, `stele_art.py` keeps the Crying Soul.
+  `block_art.py` prints a report per texture; `--sheet` writes a contact sheet with the 3x3 tiling. Looked at on the
+  sheets: every family reads as drawn (bevelled plates, bricks of their own tone, ridged bark, bone, riveted iron).
 
 ## What was seen, what could not be seen
 

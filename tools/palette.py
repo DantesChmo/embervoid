@@ -64,6 +64,12 @@ RUST = ramp("3a1f12", "56301b", "724326", "8c5731", "a46b3c", "b8824b", "c89a5e"
 ROAD_STONE = ramp("5a4433", "6d5440", "80654d", "93775a", "a68a68", "b89d78", "c8af8a")
 KERB_STONE = ramp("5e5a58", "726e68", "87817a", "9c958b", "b0a89b", "c2baaa", "d2cbbb")
 SANDSTONE_JOINT = hexc("2c2119")
+# Cleft Stone of the steles: dressed ashlar of a cool violet-grey, the fissures the darkest colour.
+CLEFT_STONE = ramp("262330", "34313d", "43404c", "53505c", "64606a", "77717a", "8c8589")
+# Sackcloth gone grey under the ash; blade steel; tallow candles.
+BURLAP = ramp("3e3324", "524433", "665642", "7a6a52", "8e7d62", "a09074", "b2a388")
+STEEL = ramp("34363e", "4a4d56", "60646d", "787c85", "92969e", "aeb1b7", "cbcdd0")
+TALLOW = ramp("7a6a46", "95845b", "ab9b6e", "bfaf80", "d0c293", "ded3a8", "ebe3bf")
 CLAY = ramp("3a2217", "50301f", "653f29", "7a4e33", "905e3e", "a46f4a", "b68359")
 
 ALL_RAMPS = {name: value for name, value in list(globals().items())
