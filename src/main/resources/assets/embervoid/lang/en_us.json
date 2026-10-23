@@ -632,5 +632,20 @@
 	"subtitles.embervoid.block.cleft_stele.enter": "Someone passes into the stele",
 	"subtitles.embervoid.block.cleft_stele.leave": "Someone steps out of the stele",
 	"embervoid.stele.not_here": "The stele will not kindle here",
-	"embervoid.stele.replaced": "Your Cleft Stele has gone out: another one was kindled"
+	"embervoid.stele.replaced": "Your Cleft Stele has gone out: another one was kindled",
+	"block.embervoid.windmill_sails": "Windmill Sails",
+	"block.embervoid.windmill_sails_torn": "Torn Windmill Sails",
+	"block.embervoid.granary_hoist": "Granary Hoist",
+	"block.embervoid.hanging_scales": "Hanging Scales",
+	"block.embervoid.ash_mill": "Ash Mill",
+	"block.embervoid.hanging_cage": "Hanging Cage",
+	"block.embervoid.great_gear": "Great Gear",
+	"block.embervoid.great_bell": "Great Bell",
+	"block.embervoid.sluice_grate": "Sluice Grate",
+	"block.embervoid.great_brazier": "Great Brazier",
+	"block.embervoid.portcullis": "Portcullis",
+	"block.embervoid.forge_bellows": "Forge Bellows",
+	"block.embervoid.chain_winch": "Chain Winch",
+	"block.embervoid.censer": "Censer",
+	"embervoid.setpiece.chunk_full": "Too much machinery here already"
 }

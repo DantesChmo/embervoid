@@ -11,6 +11,7 @@ import com.embervoid.client.reach.world.ReachWorldDataGen;
 import com.embervoid.client.reliquary.ReliquaryDataGen;
 import com.embervoid.client.reach.gear.GearDataGen;
 import com.embervoid.client.sanctum.gear.SanctumGearDataGen;
+import com.embervoid.client.setpiece.SetPieceDataGen;
 import com.embervoid.hub.datagen.HubTemplateProvider;
 import com.embervoid.hub.stele.SteleDataGen;
 import com.embervoid.sanctum.datagen.SanctumTemplateProvider;
@@ -75,6 +76,7 @@ public class EmbervoidDataGenerator implements DataGeneratorEntrypoint {
 		pack.addProvider(CitadelTemplateProvider::new);
 		SteleDataGen.addProviders(pack);
 		PropDataGen.addProviders(pack);
+		SetPieceDataGen.addProviders(pack);
 	}
 
 	private static class Models extends FabricModelProvider {
@@ -173,6 +175,7 @@ public class EmbervoidDataGenerator implements DataGeneratorEntrypoint {
 			ReachWorldDataGen.vanillaBlockTags(this::getOrCreateTagBuilder);
 			SteleDataGen.vanillaBlockTags(this::getOrCreateTagBuilder);
 			PropDataGen.vanillaBlockTags(this::getOrCreateTagBuilder);
+			SetPieceDataGen.vanillaBlockTags(this::getOrCreateTagBuilder);
 		}
 	}
 

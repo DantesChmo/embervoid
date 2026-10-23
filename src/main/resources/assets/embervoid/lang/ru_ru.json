@@ -632,5 +632,20 @@
 	"subtitles.embervoid.block.cleft_stele.enter": "Кто-то уходит в стелу",
 	"subtitles.embervoid.block.cleft_stele.leave": "Кто-то выходит из стелы",
 	"embervoid.stele.not_here": "Здесь стела не разгорится",
-	"embervoid.stele.replaced": "Ваша Расколотая стела погасла: зажгли другую"
+	"embervoid.stele.replaced": "Ваша Расколотая стела погасла: зажгли другую",
+	"block.embervoid.windmill_sails": "Крылья мельницы",
+	"block.embervoid.windmill_sails_torn": "Рваные крылья мельницы",
+	"block.embervoid.granary_hoist": "Амбарный подъёмник",
+	"block.embervoid.hanging_scales": "Подвесные весы",
+	"block.embervoid.ash_mill": "Пепельный жёрнов",
+	"block.embervoid.hanging_cage": "Подвесная клетка",
+	"block.embervoid.great_gear": "Большая шестерня",
+	"block.embervoid.great_bell": "Большой колокол",
+	"block.embervoid.sluice_grate": "Шлюзовая решётка",
+	"block.embervoid.great_brazier": "Большая жаровня",
+	"block.embervoid.portcullis": "Решётка ворот",
+	"block.embervoid.forge_bellows": "Кузнечные мехи",
+	"block.embervoid.chain_winch": "Цепная лебёдка",
+	"block.embervoid.censer": "Кадило",
+	"embervoid.setpiece.chunk_full": "Здесь и так слишком много механизмов"
 }
