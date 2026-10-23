@@ -580,5 +580,13 @@
 	"subtitles.embervoid.item.special_attack.no_stamina": "Нет выносливости",
 	"subtitles.embervoid.item.debug_sweep.sweep": "Размашистый удар",
 	"subtitles.embervoid.item.sanctum_longsword.wide_cleave": "Широкий рассекающий удар",
-	"subtitles.embervoid.item.ashbearers_mace.ground_slam": "Удар оземь"
+	"subtitles.embervoid.item.ashbearers_mace.ground_slam": "Удар оземь",
+	"block.embervoid.cleft_stone": "Расколотый камень",
+	"block.embervoid.stele_crack": "Трещина стелы",
+	"item.embervoid.crying_soul": "Плачущая душа",
+	"item.embervoid.crying_soul.lore": "Всё, что осталось от Падшей сестры. Она всё ещё плачет",
+	"item.embervoid.crying_soul.tooltip": "Используйте на Расколотой стеле, чтобы разжечь её",
+	"subtitles.embervoid.block.cleft_stele.kindle": "Расколотая стела разгорается",
+	"subtitles.embervoid.block.cleft_stele.put_out": "Расколотая стела гаснет",
+	"subtitles.embervoid.block.stele_crack.ambient": "Трещина стелы шепчет"
 }

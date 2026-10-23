@@ -607,7 +607,7 @@ B puts A out. Leaving an obelisk lands in the hub; the hub's exit leads to the a
 | 15.0 | **Design: hub, stele, dungeon, old worlds** (with the user) | M | — | done (DESIGN §1, §2, §10.13) |
 | 15.1 | **Hub dimension** | M | 15.0 | todo |
 | 15.2 | **Realm travel through the hub** | M | 15.1 | todo |
-| 15.3 | **Cleft Stele: blocks, frame, activation** | M | 15.0 | todo |
+| 15.3 | **Cleft Stele: blocks, frame, activation** | M | 15.0 | done (JUnit `SteleFrameTest` + GameTests `CleftSteleTests`; textures previewed; the glow, mist and particles not seen in game, the sounds not heard) |
 | 15.4 | **Active stele and travel** | M | 15.2, 15.3 | todo |
 | 15.5 | **Worlds from 0.4.x** | S–M | 15.2, 16.1 | todo |
 
@@ -634,6 +634,19 @@ B puts A out. Leaving an obelisk lands in the hub; the hub's exit leads to the a
   command. Cleft Stone is crafted (8 stone bricks around 1 coal or charcoal → 8, DESIGN §2). Art through
   `tools/art_kit.py`, checked with `tools/model_preview.py`. GameTests: valid and invalid frames
   on both axes, the soul taken only on a valid frame, breaking a frame block puts the stele out.
+  *Built:* package `hub.stele`. `cleft_stone` with a `kindled` state (kindled: drawn full bright, light 7, embers
+  from its cracks; drops itself either way), crafted 8 stone bricks around coal or charcoal → 8. `stele_crack`: a
+  thin pane on vanilla's nether portal models with an animated translucent mist and an ember seam, light 11, no
+  collision, unbreakable, no item, pistons cannot move it; mist, ash and ember particles and a low hum. `crying_soul`
+  (rare, stacks to 16, lore line), creative tab and `/give` only. `SteleFrame` is the pure detector (5 × 6, two stone
+  columns each side of an open middle column, X before Z, the lowest frame holding the clicked stone); open means
+  air, a replaceable plant or the crack. The soul used on a cold frame kindles it (`CleftStele.kindle`: stones
+  kindled, crack filled, sound `block.cleft_stele.kindle`, flame and mist burst) and is used up outside creative;
+  on a broken, wrong, blocked or already lit frame nothing happens and it is kept. A kindled stone that goes for
+  any reason puts out the kindled stones and crack joined to it (`block.cleft_stele.put_out`). Hooks for 15.4:
+  events `CleftStele.KINDLED` (world, frame, player) and `CleftStele.PUT_OUT` (world, lost stone), and
+  `CleftStele.onEnter(player, crackPos)`, called every tick a player stands in the crack, empty for now. Art:
+  `tools/stele_art.py`. The glow, mist and particles not seen in game, the sounds not heard.
 - **15.4 Active stele and travel.** World state (`PersistentState`): the active stele (dimension, position, axis);
   activating B puts A out; right-click on the active stele → hub, the hub exit → the active stele (none: per 15.0); one
   lit stele per world (DESIGN §2). GameTests: round trip, B replaces A (also when another player kindles B), a broken

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/nether_portal_ew",
+  "textures": {
+    "particle": "embervoid:block/stele_crack",
+    "portal": "embervoid:block/stele_crack"
+  }
+}

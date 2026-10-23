@@ -1869,5 +1869,28 @@
 			{"name": "minecraft:mob/irongolem/hit3"},
 			{"name": "minecraft:mob/irongolem/hit4"}
 		]
+	},
+	"block.cleft_stele.kindle": {
+		"subtitle": "subtitles.embervoid.block.cleft_stele.kindle",
+		"sounds": [
+			{"name": "minecraft:block/respawn_anchor/set_spawn1"},
+			{"name": "minecraft:block/respawn_anchor/set_spawn2"},
+			{"name": "minecraft:block/respawn_anchor/set_spawn3"}
+		]
+	},
+	"block.cleft_stele.put_out": {
+		"subtitle": "subtitles.embervoid.block.cleft_stele.put_out",
+		"sounds": [
+			{"name": "minecraft:block/respawn_anchor/deplete1"},
+			{"name": "minecraft:block/respawn_anchor/deplete2"}
+		]
+	},
+	"block.stele_crack.ambient": {
+		"subtitle": "subtitles.embervoid.block.stele_crack.ambient",
+		"sounds": [
+			{"name": "minecraft:block/respawn_anchor/ambient1", "volume": 0.6},
+			{"name": "minecraft:block/respawn_anchor/ambient2", "volume": 0.6},
+			{"name": "minecraft:block/respawn_anchor/ambient3", "volume": 0.6}
+		]
 	}
 }

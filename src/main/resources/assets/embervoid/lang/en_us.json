@@ -580,5 +580,13 @@
 	"subtitles.embervoid.item.special_attack.no_stamina": "Out of stamina",
 	"subtitles.embervoid.item.debug_sweep.sweep": "Sweeping strike",
 	"subtitles.embervoid.item.sanctum_longsword.wide_cleave": "Wide cleave",
-	"subtitles.embervoid.item.ashbearers_mace.ground_slam": "Ground slam"
+	"subtitles.embervoid.item.ashbearers_mace.ground_slam": "Ground slam",
+	"block.embervoid.cleft_stone": "Cleft Stone",
+	"block.embervoid.stele_crack": "Stele Crack",
+	"item.embervoid.crying_soul": "Crying Soul",
+	"item.embervoid.crying_soul.lore": "What is left of the Fallen Sister. It still weeps",
+	"item.embervoid.crying_soul.tooltip": "Use on a Cleft Stele to kindle it",
+	"subtitles.embervoid.block.cleft_stele.kindle": "Cleft Stele kindles",
+	"subtitles.embervoid.block.cleft_stele.put_out": "Cleft Stele goes out",
+	"subtitles.embervoid.block.stele_crack.ambient": "Stele crack whispers"
 }
