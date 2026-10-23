@@ -187,7 +187,7 @@ notes in `plans/<track>.md`. Config: track-moon owns the `moon` section; night-m
 | R30.1 | **Sealed Gate placeholder**: in 0.3.0 the gate shows "the depths are still forming" instead of opening (config `realm.depthsOpen`, default false) | coordinator | done – not verified in game |
 | R30.2 | Balance pass on the moon nights | release-balance (R40.1c) | done (R40.1c) |
 | R30.3 | Multiplayer and performance test | release-mp (R40.4) | done (R40.4) |
-| R30.4 | Release 0.3.0 | coordinator | todo |
+| R30.4 | Release 0.3.0 | coordinator | superseded: never published on its own; 0.4.0 contains it, the leftovers shipped in 0.4.1 (D1) |
 
 ## 0.4.0 "Ashen Reach" — milestones 9–13
 
@@ -419,15 +419,15 @@ animation names; new sounds are own `embervoid:` events on vanilla files with su
 
 | ID | Task | Owner | Status |
 |----|------|-------|--------|
-| L1 | **Sanctum weapons** (DESIGN §10.10): Sanctum Longsword and Ashbearer's Mace with special attacks, in the outer-hall loot | left-gear | todo |
-| L2 | **Overworld balance pass** (0.2.0 release): model and engine check from a fresh level 1 player to the Sanctum | left-gear | todo |
+| L1 | **Sanctum weapons** (DESIGN §10.10): Sanctum Longsword and Ashbearer's Mace with special attacks, in the outer-hall loot | left-gear | done (GameTest `SanctumGearTests`, JUnit `SanctumWeaponRulesTest`; icons and specials' feel not seen) |
+| L2 | **Overworld balance pass** (0.2.0 release): model and engine check from a fresh level 1 player to the Sanctum | left-gear | done (`docs/balance-overworld.md`, `OverworldTargetsTest`, `BalanceFightTests`; no number changed) |
 | L3 | **Sound gaps** (0.2.0 release): overworld mobs, moon-night mobs, Vampires, Sanctum blocks and items, flask, remnant, stamina | coordinator (was left-audio) | done (GameTest `OverworldSoundTests`; 53 events on vanilla files; not heard) |
 | L4 | **Art pass** (0.2.0 + 0.3.0 release): Ash Ghoul, Hollow, Ember Wisp, Ashen Maiden, Ashen Zombie, Ghost, Vampire, Vampire boss | left-art | done (checked by preview; JUnit `EntityModelFilesTest`; not seen in game) |
 | L5 | **Headless checks for the in-game checks never run**: debug weapon and stamina (2.5, 2.6), Hollow wind-up / dodge / guard, Sanctum casing gaps (QA #7f) | coordinator | done (GameTests `StaminaTests`, `HollowTests`, `SanctumTests.floodedStairwellKeepsWaterOut`; JUnit `StaminaBarTest`) |
 | L6 | **Dedicated-server test** (2.11, 3.8, 0.2.0 release): stats sync, leveling through the real packet, death → remnant → recovery, with a bot in `tools/server_check.py` | coordinator | done (`tools/server_check.py` bot step) |
 | L7 | **Per-player arena shrine look** (DESIGN §10.8 known limitation) | coordinator | done (GameTest `MultiplayerTests.arenaShrineIsColdForNewcomersOnly`; the cold look not seen) |
 | L8 | **README check** (0.2.0 release): features, required mods (GeckoLib is missing), config reference | coordinator | done (config rows checked against a fresh `embervoid.json`) |
-| L9 | **Release 0.4.1**: version, changelog, CORE/ROADMAP/PLAN, 0.2.0 and 0.3.0 sections closed as superseded (R30.4 included) | coordinator | todo |
+| L9 | **Release 0.4.1**: version, changelog, CORE/ROADMAP/PLAN, 0.2.0 and 0.3.0 sections closed as superseded (R30.4 included) | coordinator | done locally (version 0.4.1, docs, all checks green); tag and push wait for the user |
 
 - **L1 Sanctum weapons** (DESIGN §10.10, built as recommended here; numbers are the starting point, L2 fits them to the
   model). New package `com.embervoid.sanctum.gear`, through the special-attack framework (`item.ability`, DESIGN §8.1)
@@ -448,6 +448,11 @@ animation names; new sounds are own `embervoid:` events on vanilla files with su
     the Scourge slow with reach, so the Longsword would drop under an iron sword.) Item textures through
     `tools/art_kit.py` (preview with `tools/model_preview.py`), lang in both languages, GameTests for both specials (cost,
     cooldown, hits through `damage()`, guard break, no hit through walls) and the loot.
+  *Done* (track notes `plans/left-gear.md`): package `sanctum.gear`, `SanctumWeaponItem` on `reach.gear.GearWeaponItem`
+  (STR/DEX scaling, the realm sword enchantments, the special-attack flow; the Whetstone repairs them too); config
+  section `sanctumGear`; item tag `#embervoid:breaks_guard` (the Mace breaks a Hollow's guard like an axe); Ground
+  Slam gives Slowness II for 2 s. Loot: one pool, 6 % each per chest, never both: a given weapon in ≈ 22 % of
+  Sanctums, either in ≈ 40 %. Own sound events for both specials (`sanctum.gear.SanctumGearSounds`).
 - **L2 Overworld balance pass.** Extend `com.embervoid.balance` with the overworld stage: a level 1 player (all stats
   10) in leather / iron and later the Sanctum-level player (10, iron) against every overworld hostile at its band
   (base level + distance + below y=0, Nether +5 and End +8, full moon +3) on Easy, Normal and Hard; DESIGN §3.2 target
@@ -456,6 +461,9 @@ animation names; new sounds are own `embervoid:` events on vanilla files with su
   and the early level costs. Engine numbers in `BalanceFightTests` for Ash Ghoul, Hollow, Ember Wisp and the vanilla
   zombie, skeleton arrow and creeper. Write-up `docs/balance-overworld.md`; changes through overworld config defaults
   and base values, one commit each with its reason.
+  *Done:* every target holds with today's numbers (Hollow 6.0 through iron on Normal, bands 3–20, a route to the
+  Sanctum worth 587 XP points, level 10); nothing changed, no global value touched, the Realm 1 curve and
+  `BalanceTargetsTest` as in 0.4.0. Outliers kept and explained in `docs/balance-overworld.md` §5 (D13 below).
 - **L3 Sound gaps.** Own events (per-package sound class, registered from `ModSounds`) for: Ash Ghoul, Hollow (incl.
   wind-up, guard raise / block / break, stagger), Ember Wisp (incl. dive, ignite), Ashen Zombie, Ghost (incl. a missed
   hit), Vampire (incl. the turn and the vanish), Vampire boss (telegraphs, nova, mist, leap), Ashen Maiden; Ember Shrine
@@ -517,27 +525,21 @@ Built as recommended; each is easy to change.
 | D10 | DESIGN §10.4 number of realms | 4 as sketched |
 | D11 | DESIGN §10.5 respec | Later, through a rare consumable (BACKLOG) |
 | D12 | DESIGN §6 "Wanderer's Cloak pieces" in the Sanctum loot | Move to BACKLOG; the Sanctum weapons take that slot |
+| D13 | A creeper blast at 3 blocks kills a fresh player in iron on Normal (22 of 20; vanilla 11.5) | Keep (the harder overworld, DESIGN §3.1; a level 10 player survives it); if play shows it is too harsh, `mobs.levels.baseLevels.minecraft:creeper` 6 → 3 makes it survivable (18.5) |
 
 ### Needs a client
 
 Cannot be checked headlessly; listed for whoever plays first: how every sound and both boss themes sound; the new
 models and textures in game (animations, glowmasks, held items); the stamina bar's look and position; the red sky; the
-cold arena shrine's look; the feel of the Hollow's wind-up and of the Sanctum weapons' specials.
+cold arena shrine's look; the feel of the Hollow's wind-up and of the Sanctum weapons' specials, their icons in hand
+and their particles.
 
 ## Open follow-ups
 
-The 0.2.0 / 0.3.0 items below are planned in "Leftovers of 0.2.0 and 0.3.0" (L1–L9).
-
-
-- **In-game checks not run yet:** QA #7f (Sanctum casing gaps, next batch); QA #8 step 9 (second and third
-  player: personal Ember Heart, fog wall pushing back an outsider, independent progress); Hollow wind-up timing
-  and dodge, guard block/break sounds; stamina HUD bar and debug weapon (2.5, 2.6); sounds and boss music.
-- **Dedicated server:** 2.11 and 3.8 ran in single player only; the dedicated-server run is the 0.2.0 release
-  task in ROADMAP.md.
-- **Design:** DESIGN §10.1, §10.7, §10.8, §10.9 and the KIN/RES part of §10.10 are built as recommended and wait
-  for the user's confirmation; §10.2–10.5 and the Sanctum weapons (§10.10) are open.
-- **Art pass:** the overworld mobs (Ash Ghoul, Hollow, Ember Wisp), the moon-night mobs, the Vampires and the Maiden
-  still use generated placeholder models; Realm 1 got its art in 0.4.0 (`tools/model_preview.py` can do the same for them).
-- **Balance:** the 0.2.0 overworld balance pass (Realm 1 and the moon nights were balanced in 0.4.0, `docs/balance-0.4.0.md`).
-- **Known limitation:** a dormant arena shrine looks lit to everyone; only resting is refused (a per-player look
-  needs client-side progress).
+- **Needs a client** (nobody plays; for whoever plays first): every sound and both boss themes, all script-made models
+  and textures in game, the red sky, the stamina bar, the cold arena shrine, the Reliquary screen, the feel of the
+  Hollow's wind-up and of every weapon special. The single-player QA queue items (QA #7f, QA #8 step 9) are covered by
+  GameTests now (PLAN L5).
+- **Design:** the user's decisions D1–D13 in "Leftovers of 0.2.0 and 0.3.0" (DESIGN §10.1–10.10 and the release
+  question), all built as recommended.
+- **Publishing:** tags `v0.4.0` and `v0.4.1` and the push wait for the user; CI builds the jars.

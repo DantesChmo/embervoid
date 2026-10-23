@@ -41,9 +41,9 @@ public final class ModSounds {
 		NightMobSounds.register();
 		VampireSounds.register();
 		SanctumSounds.register();
-		SanctumGearSounds.register();
 		RealmSounds.register();
 		PlayerSounds.register();
+		SanctumGearSounds.register();
 	}
 
 	private ModSounds() {}

@@ -20,6 +20,8 @@ import com.embervoid.sanctum.SanctumBlocks;
 import com.embervoid.sanctum.SanctumEntities;
 import com.embervoid.sanctum.SanctumItems;
 import com.embervoid.sanctum.SanctumSounds;
+import com.embervoid.sanctum.gear.SanctumGearSounds;
+import com.embervoid.sanctum.gear.SanctumWeapons;
 import com.embervoid.vampire.VampireEntities;
 import com.embervoid.vampire.VampireEntity;
 import com.embervoid.vampire.VampireSounds;
@@ -112,6 +114,15 @@ public final class OverworldSoundTests implements FabricGameTest {
 			if (ModItems.HEALING_FLASK.getDrinkSound() != PlayerSounds.FLASK_DRINK) {
 				problems.add("the flask drinks with " + ModItems.HEALING_FLASK.getDrinkSound().getId());
 			}
+
+			// The Sanctum weapons' specials.
+			for (Item weapon : SanctumWeapons.ALL) {
+				player.setStackInHand(Hand.MAIN_HAND, new ItemStack(weapon));
+				weapon.use(context.getWorld(), player, Hand.MAIN_HAND);
+			}
+			heard.expect(SanctumGearSounds.WIDE_CLEAVE, "wide cleave", problems);
+			heard.expect(SanctumGearSounds.GROUND_SLAM, "ground slam", problems);
+			StaminaManager.set(player, StaminaManager.getMax(player));
 
 			// A special attack with and without stamina.
 			Item sweep = Registries.ITEM.get(Embervoid.id("debug_sweep"));

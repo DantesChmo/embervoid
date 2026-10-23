@@ -126,8 +126,6 @@
 	"item.embervoid.ashbearers_mace.passive": "Растёт от Силы; разбивает поднятую защиту Полого, как топор",
 	"embervoid.ability.wide_cleave": "Широкий взмах",
 	"embervoid.ability.ground_slam": "Удар оземь",
-	"subtitles.embervoid.item.sanctum_longsword.wide_cleave": "Длинный меч рубит широко",
-	"subtitles.embervoid.item.ashbearers_mace.ground_slam": "Булава бьёт оземь",
 	"entity.embervoid.ashen_maiden": "Пепельная Дева",
 	"item.embervoid.ashen_maiden_spawn_egg": "Яйцо призыва Пепельной Девы",
 	"embervoid.maiden.greeting": "Пепельная Дева: Отдохни, странник. Угли сохранят тепло.",
@@ -577,5 +575,7 @@
 	"subtitles.embervoid.entity.ash_remnant.faded": "Угли останка гаснут",
 	"subtitles.embervoid.entity.ash_remnant.burnt": "Останок сгорает",
 	"subtitles.embervoid.item.special_attack.no_stamina": "Нет выносливости",
-	"subtitles.embervoid.item.debug_sweep.sweep": "Размашистый удар"
+	"subtitles.embervoid.item.debug_sweep.sweep": "Размашистый удар",
+	"subtitles.embervoid.item.sanctum_longsword.wide_cleave": "Широкий рассекающий удар",
+	"subtitles.embervoid.item.ashbearers_mace.ground_slam": "Удар оземь"
 }

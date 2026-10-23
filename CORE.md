@@ -51,7 +51,8 @@ New per-player state for content goes into a new attachment in its own package, 
 - **To add an ability:** implement `item.ability.SpecialAbility` (`id`, `staminaCost`, `cooldownTicks`,
   `perform`), call `SpecialAbilities.use` from the weapon's `use` and `SpecialAbilities.appendTooltip` from its
   tooltip. Lang key `embervoid.ability.<id>`. Example: `KnockbackSweepAbility` on the dev-only `debug_sweep`.
-- **Gap:** no real weapon has an ability yet. The Sanctum weapons (DESIGN §10.10) and the weapons doc are open.
+- Weapons with abilities: the Sanctum Longsword and Ashbearer's Mace (`sanctum.gear`, Sanctum loot, DESIGN §10.10) and
+  the Realm 1 weapons (`reach.gear`). Weapon requirements (DESIGN §8) are open.
 
 ### 2.3 Healing Flask
 - One flask given on first join. Charges live on the player, not the item: a second flask adds nothing.
@@ -116,7 +117,7 @@ Every `Monster` (vanilla and modded) gets a level once, when it first enters the
 Difficulty-scaled damage from mobs to players: Easy ×1.0, Normal ×1.25, Hard ×1.75 (vanilla: ×0.5+1 / ×1 /
 ×1.5), before level scaling. Config `mobs.difficulty.*`.
 
-### 3.3 Overworld mobs (all models/textures placeholders)
+### 3.3 Overworld mobs
 
 | Mob | Base Lv | Stats (level 1) | Behaviour | Spawns | Drops |
 |---|---|---|---|---|---|
@@ -128,12 +129,15 @@ Difficulty-scaled damage from mobs to players: Easy ×1.0, Normal ×1.25, Hard �
 attributes, spawn egg and spawn rules in `MobEntities`, renderer in `client/mob/MobRenderers`, loot table in
 `client/mob/MobDataGen`, assets `geo/entity/<id>.geo.json`, `animations/entity/<id>.animation.json`,
 `textures/entity/<id>.png` (+ `_glowmask.png` for glowing parts), lang `entity.embervoid.<id>` in en_us and
-ru_ru, base level in `MobConfig`. `tools/mob_placeholders.py` writes placeholder assets.
+ru_ru, base level in `MobConfig`, sound events in a sound class of its package (`entity.mob.MobSounds`). Models and
+textures of the three are made by `tools/overworld_mob_art.py` (on `tools/art_kit.py`; check with
+`tools/model_preview.py`); `tools/mob_placeholders.py` keeps the helpers for a greybox of a new mob.
 
 ---
 
 ### 3.4 Moon nights (overworld)
-Design: DESIGN §3.3, §10.12. All models are placeholders. Config sections `moon`, `nightMobs`, `vampire`.
+Design: DESIGN §3.3, §10.12. Models by `tools/overworld_mob_art.py` (checked in the offline preview only). Config
+sections `moon`, `nightMobs`, `vampire`.
 
 - **Schedule** (`moon.MoonSchedule`): lunar cycle `c = day / 8`; events in cycles `c ≥ 1` with
   `c % moon.cycleInterval == 0` (3): full moon on day 24, blood new moon on day 28, then every 24 days. Dusk to
@@ -166,11 +170,14 @@ Design: DESIGN §3.3, §10.12. All models are placeholders. Config sections `moo
 - **Guards:** gate hall always 1 Hollow + 1 skeleton; each side-hall spot has a Hollow at
   `sanctum.hallGuardChance` 0.6 and chambers an archer at `sanctum.hallArcherChance` 0.3, rolled at worldgen.
   Typical Sanctum: 2–5 Hollows, 1 skeleton, 3–5 chests.
-- **Loot:** `embervoid:chests/sanctum_outer_hall` — vanilla loot plus Flask Shards.
+- **Loot:** `embervoid:chests/sanctum_outer_hall` — vanilla loot, Flask Shards and, at 6 % each per chest (never
+  both), a Sanctum weapon: the **Sanctum Longsword** (DEX; Wide Cleave, a 90° arc) or the **Ashbearer's Mace** (STR;
+  breaks a Hollow's guard; Ground Slam, a ring with Slowness). Numbers in config section `sanctumGear`;
+  `docs/balance-overworld.md` places them between iron and diamond and below the realm weapons.
 - **Core:** no hostile spawns (spawn-proof Sanctum Flagstone floor); shrine, obelisks and floor unbreakable.
   First step onto the floor attunes the player ("Attuned") and unlocks Realm 1; any later Sanctum greets them.
 - **Ashen Maiden:** invulnerable NPC facing the entrance; right-click opens the level-up screen (closes beyond
-  8 blocks). GeckoLib, placeholder model.
+  8 blocks). GeckoLib, script-made model (`tools/overworld_mob_art.py`).
 - **Ember Shrine** (`embervoid:ember_shrine`): rest = full health + flask refill; in a realm it also sets the
   respawn point. Used by the Sanctum core, realm landings and arenas.
 - **Void Obelisks:** four in the core, for `embervoid:realm_1`…`realm_4`, drawn per player as dark ("The flame
@@ -247,7 +254,8 @@ Design: DESIGN §3.3, §10.12. All models are placeholders. Config sections `moo
   credit.
 - **Rewards:** first kill per player gives a personal **Ember Heart** (`embervoid:ember_heart`, tagged with the
   boss id) straight into the inventory, plus the boss's loot table and XP; repeat kills give loot and XP only.
-  Arena shrine is dormant ("The flame does not answer you") until that player beats the boss.
+  Arena shrine is dormant ("The flame does not answer you") until that player beats the boss, and that player's
+  client draws it cold (`boss.ArenaShrines` sends the arena shrines near a player with their boss ids).
 - **Telegraphs:** `boss.Telegraph.windup(caster, ticks, animation, sound, …)` and `ring(world, centre, radius,
   particle)` for readable windups and danger zones; `isWindingUp` to gate attacks.
 - **Test boss** (`embervoid:test_boss`, zombie model): base 200 HP, 8 melee, 10 slam (scaled by level: at Lv 18
@@ -266,9 +274,11 @@ the bar name, point the arena JSON's `boss.entity` at it, add its id to the real
   cracked ash bricks (stairs, slabs, walls), ash soil, dead wood set (log, stripped log, planks, stairs, slab,
   fence, gate, door, trapdoor), ember lantern (animated, light source).
 - **Functional blocks:** Ember Shrine, Void Obelisk, Sanctum Flagstone, Return Obelisk, Sealed Gate.
-- **Items:** Healing Flask, Flask Shard, Sanctum Map, Ember Lodestar, Ember Heart, spawn eggs; dev-only
-  `debug_sweep`.
-- **No gear yet:** no material tier, weapons or armor (milestone 11, design in DESIGN §4.5).
+- **Items:** Healing Flask, Flask Shard, Sanctum Map, Ember Lodestar, Ember Heart, the two Sanctum weapons, spawn
+  eggs; dev-only `debug_sweep`. Realm 1 gear: §5 and DESIGN §4.5.
+- **Sounds:** every mod sound is an own `embervoid:` event on vanilla files (`assets/embervoid/sounds.json`), one sound
+  class per package registered from `registry.ModSounds`, subtitles in both languages; `SoundTests` and
+  `OverworldSoundTests` check them. Boss music: `CREDITS.md`.
 
 ---
 
@@ -304,8 +314,7 @@ the bar name, point the arena JSON's `boss.entity` at it, add its id to the real
 
 | Area | Now | Needed |
 |---|---|---|
-| Overworld mob and Maiden models | generated placeholders (0.2.0) | art pass like Realm 1's (`tools/model_preview.py`) |
+| Overworld, moon-night, Vampire and Maiden models | final script-made models (0.4.1), checked in the offline preview only | a look in game |
 | Realm 1 art | final script-made models and textures, checked in the offline preview only | a look in game |
-| Realm 1 sounds | own sound events on vanilla files; boss music in `CREDITS.md` | a listen in game |
-| Sanctum weapons | none | 1–2 weapons with a special attack (DESIGN §10.10) |
+| Sounds | own sound events on vanilla files everywhere; boss music in `CREDITS.md` | a listen in game |
 | Realms 2–4 | obelisks only (Realm 2 lights after Realm 1) | each realm's design pass |
