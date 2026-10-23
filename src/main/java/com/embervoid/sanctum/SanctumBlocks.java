@@ -7,10 +7,11 @@ import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
-/** Sanctum core blocks. All unbreakable and spawn-proof: they only come from the structure (or creative). */
+/** Sanctum blocks. All unbreakable and spawn-proof: they only come from the structure (or creative). */
 public final class SanctumBlocks {
 	public static final Block EMBER_SHRINE = ModBlocks.register("ember_shrine", new EmberShrineBlock(core()
 			.luminance(state -> 15).nonOpaque()));
@@ -19,6 +20,18 @@ public final class SanctumBlocks {
 
 	/** Floor of a Sanctum core ({@link Sanctum#isInCore}); nothing hostile spawns on it. */
 	public static final Block SANCTUM_FLAGSTONE = ModBlocks.register("sanctum_flagstone", new Block(core()));
+
+	/** The fog in the doorway of a Ruined Sanctum's boss arena; no item, it only comes from the structure. */
+	public static final Block FOG_WALL = ModBlocks.registerWithoutItem("fog_wall", new FogWallBlock(
+			AbstractBlock.Settings.create()
+					.noCollision()
+					.nonOpaque()
+					// Counts as solid so flowing water does not wash it away.
+					.solid()
+					.strength(-1.0f, 3_600_000.0f)
+					.dropsNothing()
+					.pistonBehavior(PistonBehavior.BLOCK)
+					.allowsSpawning((state, world, pos, type) -> false)));
 
 	public static final BlockEntityType<VoidObeliskBlockEntity> VOID_OBELISK_ENTITY = Registry.register(
 			Registries.BLOCK_ENTITY_TYPE, Embervoid.id("void_obelisk"),

@@ -11,6 +11,7 @@
 		"DimensionLifecycleMixin",
 		"StructureTemplateMixin",
 		"SinglePoolElementMixin",
+		"SinglePoolElementAccessor",
 		"TrackTargetGoalMixin",
 		"PlayerEntityVampirismMixin",
 		"GearLivingEntityMixin",

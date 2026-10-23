@@ -1,13 +1,23 @@
 package com.embervoid.sanctum.datagen;
 
 import com.embervoid.Embervoid;
+import com.embervoid.block.prop.HangingPropBlock;
+import com.embervoid.block.prop.PropBlock;
+import com.embervoid.block.prop.PropCandleBlock;
+import com.embervoid.block.prop.Props;
+import com.embervoid.block.prop.StackedPropBlock;
 import com.embervoid.entity.mob.MobEntities;
+import com.embervoid.hub.stele.SteleBlocks;
+import com.embervoid.hub.stele.SteleFrame;
 import com.embervoid.progress.ProgressManager;
+import com.embervoid.sanctum.SanctumArena;
 import com.embervoid.sanctum.SanctumBlocks;
 import com.embervoid.sanctum.SanctumEntities;
 import com.embervoid.sanctum.SanctumGuards;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.CampfireBlock;
+import net.minecraft.block.CandleBlock;
 import net.minecraft.block.LanternBlock;
 import net.minecraft.block.PillarBlock;
 import net.minecraft.block.SlabBlock;
@@ -30,19 +40,22 @@ import java.util.Random;
 import static com.embervoid.registry.ModBlocks.*;
 
 /**
- * The Ember Sanctum's jigsaw pieces, built in code (there is no in-game building in this workflow).
+ * The Ruined Sanctum's jigsaw pieces, built in code (there is no in-game building in this workflow).
  *
  * <pre>
- * ruin (surface, start) ─down─► descent (spiral stairwell) ─► gate_hall (guards, loot) ─► core
+ * ruin (surface, start) ─down─► descent (spiral stairwell) ─► gate_hall (guards, loot) ─► arena (shrine, fog, boss)
  *                                                               └─ sides ─► halls pool (corridor / chamber / crypt)
  * </pre>
- * The path to the core is a fixed chain, so every Sanctum has one; the side halls are random.
+ * The path to the arena is a fixed chain, so every Sanctum has one; the side halls are random. The arena is one piece
+ * with its shrine room, so it is placed in the same step as the side halls, like the core before it, and nothing
+ * built later can take its place. The old core (Maiden, obelisks) is still written: Sanctums planned before 0.5.0
+ * still place it, but no pool leads to it any more (PLAN 16.1).
  * Horizontal connectors sit in the middle of 3x3 doorways at feet level (y = 1).
  */
 final class SanctumTemplates {
 	static final Identifier POOL_DESCENT = Embervoid.id("sanctum/descent");
 	static final Identifier POOL_GATE = Embervoid.id("sanctum/gate_hall");
-	static final Identifier POOL_CORE = Embervoid.id("sanctum/core");
+	static final Identifier POOL_ARENA = Embervoid.id("sanctum/arena");
 	static final Identifier POOL_HALLS = Embervoid.id("sanctum/halls");
 
 	private static final Identifier RUIN_DOWN = Embervoid.id("sanctum_ruin_down");
@@ -50,6 +63,7 @@ final class SanctumTemplates {
 	private static final Identifier HALL_IN = Embervoid.id("sanctum_hall_in");
 	private static final Identifier HALL_OUT = Embervoid.id("sanctum_hall_out");
 	private static final Identifier CORE_IN = Embervoid.id("sanctum_core_in");
+	private static final Identifier ARENA_IN = Embervoid.id("sanctum_arena_in");
 
 	static final Identifier OUTER_HALL_LOOT = Embervoid.id("chests/sanctum_outer_hall");
 	private static final String HOLLOW = Registries.ENTITY_TYPE.getId(MobEntities.HOLLOW).toString();
@@ -75,6 +89,7 @@ final class SanctumTemplates {
 		pieces.put(Embervoid.id("sanctum/descent"), descent());
 		pieces.put(Embervoid.id("sanctum/gate_hall"), gateHall());
 		pieces.put(Embervoid.id("sanctum/core"), core());
+		pieces.put(SanctumArena.TEMPLATE, arena());
 		pieces.put(Embervoid.id("sanctum/hall_corridor"), hallCorridor());
 		pieces.put(Embervoid.id("sanctum/hall_chamber"), hallChamber());
 		pieces.put(Embervoid.id("sanctum/hall_crypt"), hallCrypt());
@@ -215,7 +230,10 @@ final class SanctumTemplates {
 		return t;
 	}
 
-	/** Guarded hall between the descent and the core, 9x7x23, with loot and two side exits. */
+	/**
+	 * Guarded hall between the descent and the arena, 9x7x23, with loot and two side exits. Its size and blocks stay
+	 * as they were when it led to the core, so a Sanctum planned before 0.5.0 still fits around it.
+	 */
 	private static TemplateBuilder gateHall() {
 		TemplateBuilder t = new TemplateBuilder(9, 7, 23);
 		t.room(POLISHED, BRICKS, BRICKS);
@@ -231,10 +249,10 @@ final class SanctumTemplates {
 		doorway(t, 0, 11, Direction.WEST);
 		doorway(t, 8, 11, Direction.EAST);
 		t.door(4, 1, 0, Direction.NORTH, HALL_IN, null, null);
-		t.door(4, 1, 22, Direction.SOUTH, HALL_OUT, POOL_CORE, CORE_IN);
+		t.door(4, 1, 22, Direction.SOUTH, HALL_OUT, POOL_ARENA, ARENA_IN);
 		t.door(0, 1, 11, Direction.WEST, HALL_OUT, POOL_HALLS, HALL_IN);
 		t.door(8, 1, 11, Direction.EAST, HALL_OUT, POOL_HALLS, HALL_IN);
-		// Chiseled frame around the way into the core.
+		// Chiseled frame around the way on to the arena.
 		t.fill(2, 1, 21, 2, 4, 21, CHISELED).fill(6, 1, 21, 6, 4, 21, CHISELED).fill(3, 4, 21, 5, 4, 21, CHISELED);
 		t.set(4, 5, 6, HANGING_LANTERN).set(4, 5, 16, HANGING_LANTERN);
 		t.chest(2, 1, 2, Direction.EAST, OUTER_HALL_LOOT);
@@ -245,8 +263,9 @@ final class SanctumTemplates {
 	}
 
 	/**
-	 * The core, 21x11x21: a safe room floored with Sanctum Flagstone (unbreakable, spawn-proof, attunes), the
-	 * Ember Shrine in the middle, four Void Obelisks in a ring and the Ashen Maiden.
+	 * The core of Sanctums before 0.5.0, 21x11x21: a safe room floored with Sanctum Flagstone (unbreakable,
+	 * spawn-proof, attunes), the Ember Shrine in the middle, four Void Obelisks in a ring and the Ashen Maiden. No pool
+	 * leads here any more; the template stays for Sanctums half generated in old worlds.
 	 */
 	private static TemplateBuilder core() {
 		TemplateBuilder t = new TemplateBuilder(21, 11, 21);
@@ -285,6 +304,98 @@ final class SanctumTemplates {
 		for (int[] p : new int[][]{{10, 5}, {10, 15}, {5, 10}, {15, 10}, {3, 3}, {17, 3}, {3, 17}, {17, 17}}) {
 			t.set(p[0], 9, p[1], HANGING_LANTERN);
 		}
+		return t;
+	}
+
+	/**
+	 * The boss wing, 21x11x30 (PLAN 16.1, DESIGN §2): a 9x7x10 shrine room at the gate hall's door with an Ember
+	 * Shrine (rest and flasks; overworld shrines set no respawn point), a fog wall in its far doorway, then the boss
+	 * arena where the core was: the core's 21x21 hall, ruined and dim, with unlit braziers along the sides and a cold
+	 * Cleft Stele on a dais at the far end ({@link SanctumArena} keeps it from being mined). The Fallen Sister's spawn
+	 * is a marker at the arena's centre (PLAN 16.3). Low candles and one high lantern keep every floor block at block
+	 * light 1 or more, so nothing spawns in the arena.
+	 */
+	private static TemplateBuilder arena() {
+		TemplateBuilder t = new TemplateBuilder(21, 11, 30);
+		Random random = new Random(9);
+		// The shrine room; the air above and beside it is left to the world.
+		room(t, 6, 0, 0, 14, 6, 9, POLISHED, BRICKS, BRICKS);
+		doorway(t, 10, 0, Direction.NORTH);
+		t.door(10, 1, 0, Direction.NORTH, ARENA_IN, null, null);
+		for (int[] p : new int[][]{{7, 1}, {13, 1}, {7, 8}, {13, 8}}) {
+			t.fill(p[0], 1, p[1], p[0], 5, p[1], POLISHED);
+		}
+		t.fill(9, 0, 3, 11, 0, 5, CHISELED);
+		t.set(10, 1, 4, SanctumBlocks.EMBER_SHRINE.getDefaultState());
+		t.set(7, 1, 3, Props.ASH_URNS.getDefaultState().with(StackedPropBlock.COUNT, 2).with(PropBlock.FACING, Direction.EAST))
+				.set(13, 1, 6, Props.ASH_URNS.getDefaultState().with(PropBlock.FACING, Direction.WEST))
+				.set(12, 1, 7, Props.BONE_PILE.getDefaultState().with(PropBlock.FACING, Direction.NORTH));
+
+		// The arena: the core's hall without its obelisks and Maiden, its chiseled stone gone but for the door and dais.
+		room(t, 0, 0, 9, 20, 10, 29, POLISHED, POLISHED, BRICKS);
+		int cx = 10;
+		int cz = 19;
+		for (int x = 1; x <= 19; x++) {
+			for (int z = 10; z <= 28; z++) {
+				double r = random.nextDouble();
+				long ring = Math.round(Math.sqrt((x - cx) * (x - cx) + (z - cz) * (z - cz)));
+				t.set(x, 0, z, ring == 6 ? BRICKS : r < 0.15 ? CRACKED : r < 0.23 ? COBBLED : POLISHED);
+			}
+		}
+		for (int i = 4; i <= 16; i += 4) {
+			for (int[] p : new int[][]{{i, 9}, {i, 29}, {0, i + 9}, {20, i + 9}}) {
+				t.fill(p[0], 1, p[1], p[0], 9, p[1], BRICKS);
+			}
+		}
+		BlockState cornice = ASH_BRICK_SLAB.getDefaultState().with(SlabBlock.TYPE, SlabType.TOP);
+		t.fill(1, 9, 10, 19, 9, 10, cornice).fill(1, 9, 28, 19, 9, 28, cornice)
+				.fill(1, 9, 10, 1, 9, 28, cornice).fill(19, 9, 10, 19, 9, 28, cornice);
+		// A stretch of the cornice and a pilaster have come down.
+		t.fill(14, 9, 28, 17, 9, 28, AIR).fill(20, 6, 21, 20, 9, 21, CRACKED);
+		t.set(18, 1, 21, Props.RUBBLE_PILE.getDefaultState().with(PropBlock.FACING, Direction.WEST))
+				.set(15, 1, 27, Props.RUBBLE_PILE.getDefaultState().with(PropBlock.FACING, Direction.NORTH))
+				.set(1, 1, 15, Props.BONE_PILE.getDefaultState().with(PropBlock.FACING, Direction.EAST))
+				.set(19, 1, 11, Props.BONE_PILE.getDefaultState().with(PropBlock.FACING, Direction.SOUTH))
+				.set(5, 1, 27, CRACKED).set(5, 2, 27, ASH_BRICK_SLAB.getDefaultState());
+
+		// The fog wall fills the doorway from the shrine room, in a chiseled frame.
+		t.fill(9, 1, 9, 11, 3, 9, SanctumBlocks.FOG_WALL.getDefaultState());
+		t.fill(8, 1, 9, 8, 4, 9, CHISELED).fill(12, 1, 9, 12, 4, 9, CHISELED).fill(9, 4, 9, 11, 4, 9, CHISELED);
+
+		// Braziers on pedestals, unlit until the fight (PLAN 16.3 lights them as she weakens).
+		BlockState brazier = Blocks.CAMPFIRE.getDefaultState().with(CampfireBlock.LIT, false);
+		for (int z : new int[]{13, 19, 24}) {
+			t.set(3, 1, z, WALL).set(3, 2, z, brazier.with(CampfireBlock.FACING, Direction.EAST));
+			t.set(17, 1, z, WALL).set(17, 2, z, brazier.with(CampfireBlock.FACING, Direction.WEST));
+		}
+
+		// The dais with the cold Cleft Stele: four columns of Cleft Stone, the crack open (SteleFrame, along X).
+		t.fill(6, 1, 26, 14, 1, 28, POLISHED);
+		t.fill(6, 1, 25, 14, 1, 25, POLISHED_ASH_STONE_STAIRS.getDefaultState().with(StairsBlock.FACING, Direction.SOUTH));
+		BlockState cleft = SteleBlocks.CLEFT_STONE.getDefaultState();
+		int steleZ = 27;
+		for (int x : new int[]{8, 9, 11, 12}) {
+			t.fill(x, 2, steleZ, x, 1 + SteleFrame.HEIGHT, steleZ, cleft);
+		}
+		t.fill(10, 2, steleZ, 10, 1 + SteleFrame.HEIGHT, steleZ, AIR);
+		t.fill(7, 1, steleZ, 13, 1, steleZ, CHISELED);
+
+		// Light: tallow candles low down and one ember lantern high over the centre.
+		BlockState candles = Props.TALLOW_CANDLES.getDefaultState().with(CandleBlock.CANDLES, 3).with(CandleBlock.LIT, true);
+		for (int[] p : new int[][]{{4, 1, 13}, {16, 1, 13}, {4, 1, 24}, {16, 1, 24}, {7, 2, 26}, {13, 2, 26}, {2, 1, 10}, {18, 1, 10}}) {
+			t.set(p[0], p[1], p[2], candles.with(PropCandleBlock.FACING, p[0] < cx ? Direction.EAST : Direction.WEST));
+		}
+		t.set(cx, 9, cz, HANGING_LANTERN);
+		t.set(6, 9, 15, Props.IRON_CAGE.getDefaultState().with(HangingPropBlock.HANGING, true))
+				.set(14, 9, 22, Props.IRON_CAGE.getDefaultState().with(HangingPropBlock.HANGING, true).with(PropBlock.FACING, Direction.EAST));
+
+		// Where the Fallen Sister stands (PLAN 16.3 summons her there).
+		NbtCompound marker = new NbtCompound();
+		marker.putString("id", "minecraft:marker");
+		NbtList tags = new NbtList();
+		tags.add(NbtString.of(SanctumArena.BOSS_SPAWN));
+		marker.put("Tags", tags);
+		t.entity(cx, 1, cz, marker);
 		return t;
 	}
 
@@ -350,6 +461,15 @@ final class SanctumTemplates {
 		t.fill(0, 0, 0, 4, 4, 0, BRICKS);
 		t.jigsaw(2, 1, 0, JigsawOrientation.NORTH_UP, HALL_IN, null, null, BRICKS);
 		return t;
+	}
+
+	/** {@link TemplateBuilder#room} for a box inside the template: walls, floor, ceiling, air inside. */
+	private static void room(TemplateBuilder t, int x0, int y0, int z0, int x1, int y1, int z1, BlockState floor,
+			BlockState walls, BlockState ceiling) {
+		t.fill(x0, y0, z0, x1, y1, z1, walls);
+		t.fill(x0 + 1, y0 + 1, z0 + 1, x1 - 1, y1 - 1, z1 - 1, AIR);
+		t.fill(x0 + 1, y0, z0 + 1, x1 - 1, y0, z1 - 1, floor);
+		t.fill(x0 + 1, y1, z0 + 1, x1 - 1, y1, z1 - 1, ceiling);
 	}
 
 	/** Rough natural-looking rock for casings. */

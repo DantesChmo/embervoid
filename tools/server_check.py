@@ -6,8 +6,8 @@ Run from the repository root: python3 tools/server_check.py [--accept-eula] [--k
 What it does:
 1. Starts `./gradlew runServerCheck` (run dir run/server-check, a fresh world each time unless --keep-world) with
    RCON on a local port, and waits for "Done".
-2. Over RCON: locates the nearest Ember Sanctum and force-loads the chunks around it (so it is really generated in
-   overworld terrain), force-loads the Ashen Reach landing and depths centre, locates the three zone arenas and the
+2. Over RCON: locates the nearest Ruined Sanctum and force-loads the chunks around it (so it is really generated in
+   overworld terrain; later its boss arena must be there and no Ashen Maiden, PLAN 16.1), force-loads the Ashen Reach landing and depths centre, locates the three zone arenas and the
    depths arena and force-loads them too, force-loads every road outpost and checks each got its chest, force-loads
    the chunk of every road's lantern posts and counts them lit per road (PLAN 14.2), locates and
    force-loads a minor structure of each zone and a crypt, two bridges at the world edge, locates the Smoldering
@@ -365,7 +365,10 @@ def exercise(rcon):
 
     sanctum = located(run("Sanctum", "locate structure embervoid:ember_sanctum"))
     if sanctum:
-        generate_around("Sanctum", "minecraft:overworld", sanctum, 64)
+        # The boss arena can lie some 70 blocks from the start.
+        generate_around("Sanctum", "minecraft:overworld", sanctum, 96)
+    else:
+        FAILED_EXPECTATIONS.append("Sanctum: not located")
     generate_around("Ashen Reach landing", "embervoid:ashen_reach", (0, 0))
     for arena in ("a", "b", "c"):
         pos = located(run(f"Arena {arena.upper()}", "execute in embervoid:ashen_reach run locate structure "
@@ -415,6 +418,14 @@ def exercise(rcon):
     expect("Hub", "embervoid hub check", r"^Hub intact")
     expect_eventually("Hub Maiden", "execute in embervoid:hub if entity @e[type=embervoid:ashen_maiden]",
                       r"Test passed, count: 1$")
+    # The Ruined Sanctum (PLAN 16.1): the boss arena (its spawn marker) where the core was, and no Ashen Maiden.
+    if sanctum:
+        x, z = sanctum
+        near = f"x={x - 112},y=-64,z={z - 112},dx=224,dy=384,dz=224"
+        expect_eventually("Sanctum arena", "execute in minecraft:overworld if entity "
+                          f"@e[type=minecraft:marker,tag=embervoid.sanctum_boss_spawn,{near}]", r"Test passed, count: 1$")
+        expect("Sanctum without Maiden",
+               f"execute in minecraft:overworld if entity @e[type=embervoid:ashen_maiden,{near}]", r"^Test failed")
     for night in ("full", "blood"):
         run(f"Moon {night}", f"embervoid moon start {night}")
         run(f"Moon {night} status", "embervoid moon status")
