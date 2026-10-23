@@ -371,20 +371,20 @@ Base stats at level 1; mob levels scale them (§5.4).
 
 | Zone | Mob | Role | Spawn | Base | Behaviour and telegraph |
 |---|---|---|---|---|---|
-| Fields | **Cinder Husk** | fodder | natural, groups 2–4 | 16 HP, 3 dmg, speed 0.23, XP 6 | Burnt peasant with a tool. Plain melee, 10-tick raised-arm windup |
+| Fields | **Cinder Husk** | fodder | natural, groups 2–4 | 10 HP, 3 dmg, speed 0.23, XP 6 | Burnt peasant with a tool. Plain melee, 10-tick raised-arm windup |
 | Fields | **Ash Stalker** | ambusher | natural, alone | 14 HP, 4 dmg, 0.30, XP 8 | Buried in a furrow (invisible, invulnerable). Player within 5: ash boils + hiss for 20 ticks, then it leaps out |
-| Fields | **Ashen Carrion** | elite flyer | natural, rare; perches on scarecrows, outposts | 18 HP, 4 dmg, XP 15 | Circles; dives when the player is below 50 % HP or every 8–12 s. Shadow on the ground + shriek 15 ticks before the dive |
-| Woods | **Withered Thrall** | fodder, ambush | natural + placed in hanging cages | 18 HP, 3.5 dmg, 0.24, XP 8 | Hanged poacher; caged ones drop on a player passing under (chain rattle 10 ticks before) |
-| Woods | **Lantern Hag** | ranged | natural, alone | 16 HP, XP 12 | Keeps 8–12 blocks; throws a fire flask in an arc (4 dmg + 3 s fire patch r 1.5). Raises the lantern 15 ticks before |
-| Woods | **Bark Hollow** | tank | placed (park, glades, lodge) | 50 HP, armor 8, KB res 0.8, 7 dmg, 0.18, XP 22 | Looks like a dead tree until a player is within 6 (creak, eyes light). 3-block sweep, 20-tick windup. ×1.5 damage from axes and fire |
-| Necropolis | **Restless Bones** | fodder | natural (surface and crypts), groups 2–3 | 16 HP, 4 dmg, 0.25, XP 8 | At 0 HP collapses into a bone pile (6 HP), re-forms after 5 s at half HP. Finish the pile, or light it (block light ≥ 8) and it stays dead |
-| Necropolis | **Crypt Moth** | harasser flyer | natural under cover, groups 1–3 | 10 HP, 2 dmg, XP 8 | Flies to the nearest light within 12. Pollen burst: Blindness 3 s, glowing wings 15 ticks before. Snuffs placed torches (`mobGriefing`) |
-| Necropolis | **Hollow Sentinel** | tank | placed (crypt halls, mausoleum doors) | 45 HP, armor 10, KB res 0.9, XP 22 | Tower shield: front 180° immune to melee and arrows, not broken by axes. Spear thrust 7 dmg (12-tick windup); shield bash 6 dmg + knockback (shield planted 15 ticks before), then open for 30 ticks |
-| Necropolis | **Grave Warden** | elite | placed, 1 per crypt chamber or chapel | 80 HP, armor 8, 8 dmg, XP 40 | Bell-ringer. Every 12 s raises the bell (20 ticks): re-forms all bone piles within 12, raises 2 Restless Bones if none (max 4), staggers players within 4 (Slowness IV 2 s) |
+| Fields | **Ashen Carrion** | elite flyer | natural, rare; perches on scarecrows, outposts | 14 HP, 4 dmg, XP 15 | Circles; dives when the player is below 50 % HP or every 8–12 s. Shadow on the ground + shriek 15 ticks before the dive |
+| Woods | **Withered Thrall** | fodder, ambush | natural + placed in hanging cages | 9 HP, 3.5 dmg, 0.24, XP 8 | Hanged poacher; caged ones drop on a player passing under (chain rattle 10 ticks before) |
+| Woods | **Lantern Hag** | ranged | natural, alone | 13 HP, XP 12 | Keeps 8–12 blocks; throws a fire flask in an arc (4 dmg + 3 s fire patch r 1.5). Raises the lantern 15 ticks before |
+| Woods | **Bark Hollow** | tank | placed (park, glades, lodge) | 32 HP, armor 4, KB res 0.8, 7 dmg, 0.18, XP 22 | Looks like a dead tree until a player is within 6 (creak, eyes light). 3-block sweep, 20-tick windup. ×1.5 damage from axes and fire |
+| Necropolis | **Restless Bones** | fodder | natural (surface and crypts), groups 2–3 | 5 HP, 4 dmg, 0.25, XP 8 | At 0 HP collapses into a bone pile (2 HP, both scaled by level), re-forms after 5 s at half HP. Finish the pile, or light it (block light ≥ 8) and it stays dead |
+| Necropolis | **Crypt Moth** | harasser flyer | natural under cover, groups 1–3 | 12 HP, 2 dmg, XP 8 | Flies to the nearest light within 12. Pollen burst: Blindness 3 s, glowing wings 15 ticks before. Snuffs placed torches (`mobGriefing`) |
+| Necropolis | **Hollow Sentinel** | tank | placed (crypt halls, mausoleum doors) | 28 HP, armor 5, KB res 0.9, XP 22 | Tower shield: front 180° immune to melee and arrows, not broken by axes. Spear thrust 7 dmg (12-tick windup); shield bash 6 dmg + knockback (shield planted 15 ticks before), then open for 30 ticks |
+| Necropolis | **Grave Warden** | elite | placed, 1 per crypt chamber or chapel | 29 HP, armor 4, 8 dmg, XP 40 | Bell-ringer. Every 12 s raises the bell (20 ticks): re-forms all bone piles within 12, raises 2 Restless Bones if none (max 4), staggers players within 4 (Slowness IV 2 s) |
 | Citadel | **Cinder Hound** | pack fodder | natural in the streets, packs 3–5 | 14 HP, 3 dmg + 2 s fire, 0.35, XP 7 | Fast; a howl pulls the pack |
-| Citadel | **Sparking Marksman** | ranged | placed on walls and gatehouse | 24 HP, bolt 6 dmg + fire, XP 15 | Crossbow; a spark on the bolt tip 20 ticks before firing. Never leaves the wall |
-| Citadel | **Furnace Golem** | tank | placed (inner ring) | 70 HP, armor 12, 9 dmg, 0.15, XP 30 | Heats up with each hit taken; at 4 hits glows 25 ticks, then a fire wave r 4 |
-| Citadel | **Smoldering Knight** | elite | placed (towers, keep) | 75 HP, armor 10, 8 dmg, XP 50 | 3-hit combo with short windups; 6-block lunge after a 15-tick crouch |
+| Citadel | **Sparking Marksman** | ranged | placed on walls and gatehouse | 15 HP, bolt 6 dmg + fire, XP 15 | Crossbow; a spark on the bolt tip 20 ticks before firing. Never leaves the wall |
+| Citadel | **Furnace Golem** | tank | placed (inner ring) | 30 HP, armor 12, 7.5 dmg, 0.15, XP 30 | Heats up with each hit taken; at 4 hits glows 25 ticks, then a fire wave r 4 |
+| Citadel | **Smoldering Knight** | elite | placed (towers, keep) | 32 HP, armor 10, 8 dmg, XP 50 | 3-hit combo with short windups; 6-block lunge after a 15-tick crouch |
 
 Drops: vanilla-flavoured basics (bones, charcoal, rotten flesh, string where it fits) plus the realm loot below.
 Cost: 14 GeckoLib models (10 for the zones, 4 for the Citadel), ~70 animations.
@@ -394,17 +394,18 @@ Line-up: giants with spectacle, and arenas that take part in the fight.
 
 | Zone | Boss | Level | Base HP → at level | Arena | What it teaches |
 |---|---|---|---|---|---|
-| Fields | **Ash Colossus** (4.5 blocks, ember core in the back) | 18 | 180 → ~364 | market square sunk into a crater, burnt-granary pillars, r ~40 | use cover, strike the back |
-| Woods | **Grieving Tree** (the king's oak, ~10 blocks, hanged lanterns) | 21 | 170 → ~374 | Royal Grove: walled garden behind the hunting lodge, arena fog, r ~48 | shoot the lanterns, keep orientation in fog |
-| Necropolis | **Crypt Keeper** (4 blocks, halberd + lantern) | 24 | 180 → ~428 | sinkhole open to the sky, switchback stair down into a flooded ossuary, r ~32 | light: braziers against darkness and moths |
-| Citadel | **Smoldering Lord** (3.5 blocks, greatsword) | 30 | 260 → ~712 | courtyard below the keep wall | the exam: replays the three arena hazards |
+| Fields | **Ash Colossus** (4.5 blocks, ember core in the back) | 18 | 105 → ~212 | market square sunk into a crater, burnt-granary pillars, r ~40 | use cover, strike the back |
+| Woods | **Grieving Tree** (the king's oak, ~10 blocks, hanged lanterns) | 21 | 165 → ~363 | Royal Grove: walled garden behind the hunting lodge, arena fog, r ~48 | shoot the lanterns, keep orientation in fog |
+| Necropolis | **Crypt Keeper** (4 blocks, halberd + lantern) | 24 | 102 → ~243 | sinkhole open to the sky, switchback stair down into a flooded ossuary, r ~32 | light: braziers against darkness and moths |
+| Citadel | **Smoldering Lord** (3.5 blocks, greatsword) | 30 | 100 → ~274 | courtyard below the keep wall | the exam: replays the three arena hazards |
 
 - **Ash Colossus.** P1: fist cone, leap ring, thrown boulder, arm drag; every ~20 s an ash storm (2 HP/s magic +
   Blindness unless behind a pillar; he smashes pillars, so the arena needs ≥ 8). P2 at 50 %: sheds stone, core
   exposed, faster, falling cinders. Front takes −50 %, the core ×2.
-- **Grieving Tree.** P1: rooted, trunk takes −70 % unless stunned; 4–5 lanterns (any projectile, or melee on the
-  branch lowered after a sweep) → 5 s stun, trunk ×1.5, fog lifts for 6 s; root lines, branch cone, Withered
-  Thralls drop. P2 at 50 %: uproots and walks slowly, lanterns on its own branches, thicker fog, root cage.
+- **Grieving Tree.** P1: rooted, its bark turns every hit unless stunned (0.5.0; it took −70 % before); 4–5 lanterns
+  (any projectile, or melee on the branch lowered after a sweep) → 2.2 s stun, trunk ×1.5, fog lifts for 6 s; root
+  lines, branch cone, Withered Thralls drop. P2 at 50 %: uproots and walks slowly, lanterns on its own branches,
+  thicker fog, root cage.
 - **Crypt Keeper.** P1: halberd 3-hit (the third is an unblockable overhead that breaks the shield), sweep ring,
   lantern throw → fire pool. P2 at 60 %: the lantern shatters → Darkness, water rises 1 block, 4 braziers; in the
   dark he takes −50 %, in brazier light normal; Crypt Moths smother lit braziers. P3 at 30 %: water 2 blocks on
@@ -413,7 +414,10 @@ Line-up: giants with spectacle, and arenas that take part in the fight.
   signal braziers brings him down (landing ring r 6). P1: greatsword combos, lunge line with a fire trail. P2 at
   50 %: armor shatters (+25 % damage taken, faster); every ~25 s one zone hazard: ash storm, fog or darkness.
 - **Damage:** level × Normal 1.25 gives ×2.31 / ×2.5 / ×2.69 / ×3.06; base 5–11 per move. Against full diamond on
-  Normal: light hits ~4–6, heavy ~8–12, unblockable ~12–17 HP.
+  Normal: light hits ~4–6, heavy ~8–12, unblockable ~12–17 HP. Since 0.5.0 every move is also held to §5.5 against
+  the first player who fights the boss (the Lord's greatsword swings 5, light); HP, the Crypt Keeper's cooldowns and
+  armor, the Tree's bark and stun and the bestiary's health and armor were retuned to §5.5 in PLAN 18.4
+  (`docs/balance-0.5.0.md`).
 - **Boss XP** (before level scaling): Ash Colossus 150, Grieving Tree 170, Crypt Keeper 190, Smoldering Lord 300;
   tank and elite XP and Citadel elite health in the bestiary table were lowered in the same pass (**Proposed — built as recommended**, R40.1 balance pass, `docs/balance-0.4.0.md`).
 - **Levels are fixed** (18 / 21 / 24 / 30), not scaled by progress: the player picks the easier zone first, as in
