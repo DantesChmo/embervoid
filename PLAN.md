@@ -700,7 +700,7 @@ B puts A out. Leaving an obelisk lands in the hub; the hub's exit leads to the a
 |----|------|------|------------|--------|
 | 16.1 | **Sanctum → dungeon** | M | 15.0 | done (GameTests `SanctumTests` + server check; the arena previewed; not seen in game: the fog wall's ash, the dim light, the arena at eye level) |
 | 16.2 | **Dungeon variants and frequency** | M | 16.1 | todo |
-| 16.3 | **The dungeon boss** | L | 15.0, 16.1 | todo |
+| 16.3 | **The dungeon boss** | L | 15.0, 16.1 | done – look, motion and sound not seen or heard in game (GameTests `FallenSisterTests`, `BalanceFightTests`; server check; her `balanceTargets` rows pass: 31 clean hits, 1.6 min, 20 % uptime; motion judged only in `model_preview` sheets and GIFs) |
 | 16.4 | **Overworld balance re-run** | M | 15.1–16.3 | todo |
 
 - **16.1 Sanctum → dungeon.** The `ember_sanctum` structure keeps its outer halls, guards (Hollows and the rest) and
@@ -739,6 +739,31 @@ B puts A out. Leaving an obelisk lands in the hub; the hub's exit leads to the a
   §5.5, `docs/balance-0.5.0.md`). GameTests: start and reset, telegraphs land only
   after their wind-up, the soul drops for every credited player, a cleared dungeon stays cleared; a row in the
   balance model.
+  *Built:* package `sanctum.boss`. `embervoid:fallen_sister` (`FallenSisterEntity` on `ReachBoss`, 0.9 × 3 blocks,
+  Lv 10, base HP 115, armor 4, XP 60, the shared zone-boss theme) and her adds `embervoid:crying_soul`
+  (`CryingSoulEntity`, 1 HP, any hit kills it, driven by her, not saved). P1: two censer arcs (cones, windups 18 and
+  12, damage 4), the slam (a ring 2.5 ahead, windup 24, damage 6, then an ember puddle there for 4 s, 1 per 0.5 s),
+  a backstep from a player behind her (windup 8, no damage); cooldowns 16–22. P2 at 50 %: the veil burns (40 ticks,
+  no damage taken, the `veil` bone hidden after), the spin (a ring 4.5 around her, windup 26, damage 8) a third of her
+  picks; crying souls, 3 then 4 every 20 s once gone, circle her and dive one at a time every 50 ticks: a shriek and
+  a soul-fire line from the soul to where the target stood for 20 ticks, an 8-tick dive along it (damage 3, hers),
+  40 ticks dazed on the floor, back. `CombatFx` on the arcs (trails), the slam (overhead trail, impact) and the spin
+  (full-circle trail, impact). Hit reaction between moves only; a 50-tick death animation (her body stays:
+  `ReachBoss.deathTicks`, a new hook, 0 for the other bosses). Summon rule `SanctumBossArena`: a player inside 8
+  blocks of an uncleared arena's centre (template 10 0 19 through the piece's rotation; 16.1's marker is gone from the
+  template) starts her fight (`ArenaManager.start`, fog radius 9). The six braziers light one per seventh of health
+  lost (put out again by a reset) and burn for good after her death. Clearing: `ClearedSanctums` (world
+  `PersistentState`, by arena centre); she never returns there, no rematch. Rewards (`BossReward` got `soulEveryKill`
+  and a first-kill loot table): a Crying Soul to every credited player on every clear; a player's first clear also a
+  Flask Shard and `gameplay/fallen_sister_first_clear` (a Sanctum Longsword or Ashbearer's Mace and some iron, gold,
+  bottles). Balance: `BalanceData.FALLEN_SISTER(_CADENCE)` read her constants. Art: `tools/sanctum_boss_art.py`
+  (18 bones: robe in tiers with four hem panels, veil with hood, front gauze and train, bell sleeves, a three-link
+  chain and censer, forearm coils that grow while the chain winds; 10 animations; the soul 7 bones, 3 animations),
+  previews `build/model-preview/fallen_sister*`, `crying_soul*`. 15 sound events on vanilla files. Debug command
+  `/embervoid sanctum arena <x> <z>` (the server check uses it). GameTests `FallenSisterTests`: summon, braziers and
+  reset in a placed Sanctum; clearing by two players (souls, shards, weapons, braziers, no second summon); souls for a
+  veteran too; ×1.5 HP with two fighters; arc, spin, slam and the soul's dive land only after their windups; the veil
+  and the first flock. Not seen or heard in game: the model, every animation, the particles, the sounds.
 - **16.4 Overworld balance re-run.** The overworld route (`docs/balance-overworld.md`) re-run with more dungeons
   (guard XP, Flask Shards, Sanctum weapons) and the boss; the server check covers the hub. Feeds 18.3.
 

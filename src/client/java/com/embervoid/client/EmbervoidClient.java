@@ -16,6 +16,7 @@ import com.embervoid.client.reach.mob.ReachMobClient;
 import com.embervoid.client.realm.RealmClient;
 import com.embervoid.client.reach.gear.GearClient;
 import com.embervoid.client.reliquary.ReliquaryClient;
+import com.embervoid.client.sanctum.boss.SanctumBossClient;
 import com.embervoid.client.vampire.VampireClient;
 import com.embervoid.config.EmbervoidClientConfig;
 import com.embervoid.config.EmbervoidConfig;
@@ -64,6 +65,7 @@ public class EmbervoidClient implements ClientModInitializer {
 		ArenaFogClient.register();
 		ArenaShrinesClient.register();
 		ReachBossClient.register();
+		SanctumBossClient.register();
 		CombatFxClient.register();
 		AttackAnimationsClient.register();
 		PropClient.register();

@@ -50,7 +50,7 @@ public final class SanctumTests implements FabricGameTest {
 
 	/**
 	 * A fresh dungeon: guards and loot in the outer halls as before; no Maiden, obelisks or Sanctum Flagstone; the
-	 * boss wing with one Ember Shrine, the fog wall in its doorway, a cold Cleft Stele and the boss spawn marker.
+	 * boss wing with one Ember Shrine, the fog wall in its doorway and a cold Cleft Stele, and no marker entity.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 200)
 	public void dungeonHasArenaInsteadOfCore(TestContext context) {
@@ -89,8 +89,8 @@ public final class SanctumTests implements FabricGameTest {
 		Box area = Box.from(box).expand(2);
 		int hollows = world.getEntitiesByType(MobEntities.HOLLOW, area, entity -> true).size();
 		int maidens = world.getEntitiesByType(SanctumEntities.ASHEN_MAIDEN, area, entity -> true).size();
-		int markers = world.getEntitiesByType(EntityType.MARKER, area,
-				entity -> entity.getCommandTags().contains(SanctumArena.BOSS_SPAWN)).size();
+		// 16.1's placeholder spawn marker is gone: she is summoned at the arena centre (PLAN 16.3, FallenSisterTests).
+		int markers = world.getEntitiesByType(EntityType.MARKER, area, entity -> true).size();
 		long arenas = start.getChildren().stream().filter(piece -> SanctumArena.isPiece(piece, SanctumArena.TEMPLATE)).count();
 		long cores = start.getChildren().stream().filter(piece -> SanctumArena.isPiece(piece, SanctumArena.OLD_CORE)).count();
 		int shrines = blocks.getOrDefault(SanctumBlocks.EMBER_SHRINE, 0);
@@ -100,7 +100,7 @@ public final class SanctumTests implements FabricGameTest {
 		boolean coldStele = stone[0] != null && CleftStele.coldFrame(world, stone[0]).isPresent();
 		String counts = where + ": arenas " + arenas + ", cores " + cores + ", chests " + chests[0] + ", obelisks "
 				+ obelisks[0] + ", shrines " + shrines + ", fog " + fog + ", flagstone " + flagstone + ", cleft stone "
-				+ cleft + ", cold stele " + coldStele + ", boss markers " + markers + ", hollows " + hollows
+				+ cleft + ", cold stele " + coldStele + ", markers " + markers + ", hollows " + hollows
 				+ ", maidens " + maidens;
 		Embervoid.LOGGER.info("Sanctum test: {}", counts);
 		context.assertTrue(arenas == 1 && cores == 0, "expected the arena piece and no core; " + counts);
@@ -110,7 +110,7 @@ public final class SanctumTests implements FabricGameTest {
 		context.assertTrue(shrines == 1, "expected one Ember Shrine, at the boss door; " + counts);
 		context.assertTrue(fog == 9, "expected a 3x3 fog wall in the arena doorway; " + counts);
 		context.assertTrue(cleft == 24 && coldStele, "expected a whole cold Cleft Stele; " + counts);
-		context.assertTrue(markers == 1, "expected one boss spawn marker; " + counts);
+		context.assertTrue(markers == 0, "a marker entity in the dungeon; " + counts);
 		context.assertTrue(hollows >= 1, "no Hollow guard (the gate hall always has one); " + counts);
 		context.assertTrue(chests[0] >= 1, "no loot chests; " + counts);
 		context.complete();
@@ -124,12 +124,7 @@ public final class SanctumTests implements FabricGameTest {
 	public void dungeonSteleCannotBeMined(TestContext context) {
 		ServerWorld world = context.getWorld();
 		StructureStart start = place(context, MINED_ORIGIN);
-		Structure structure = world.getRegistryManager().get(RegistryKeys.STRUCTURE).get(SanctumArena.STRUCTURE);
-		BlockBox box = start.getBoundingBox();
-		ChunkPos startChunk = start.getPos();
-		world.getChunk(startChunk.x, startChunk.z).setStructureStart(structure, start);
-		ChunkPos.stream(new ChunkPos(box.getMinX() >> 4, box.getMinZ() >> 4), new ChunkPos(box.getMaxX() >> 4, box.getMaxZ() >> 4))
-				.forEach(chunk -> world.getChunk(chunk.x, chunk.z).addStructureReference(structure, startChunk.toLong()));
+		register(world, start);
 		StructurePiece arena = start.getChildren().stream().filter(piece -> SanctumArena.isPiece(piece, SanctumArena.TEMPLATE))
 				.findFirst().orElse(null);
 		context.assertTrue(arena != null, "no arena piece in " + start.getChildren().size() + " pieces");
@@ -211,6 +206,16 @@ public final class SanctumTests implements FabricGameTest {
 		});
 	}
 
+	/** Registers a placed Sanctum in its chunks as worldgen does, so the world's structure lookups find it. */
+	static void register(ServerWorld world, StructureStart start) {
+		Structure structure = world.getRegistryManager().get(RegistryKeys.STRUCTURE).get(SanctumArena.STRUCTURE);
+		BlockBox box = start.getBoundingBox();
+		ChunkPos startChunk = start.getPos();
+		world.getChunk(startChunk.x, startChunk.z).setStructureStart(structure, start);
+		ChunkPos.stream(new ChunkPos(box.getMinX() >> 4, box.getMinZ() >> 4), new ChunkPos(box.getMaxX() >> 4, box.getMaxZ() >> 4))
+				.forEach(chunk -> world.getChunk(chunk.x, chunk.z).addStructureReference(structure, startChunk.toLong()));
+	}
+
 	/** Plans a Sanctum start at a chunk as worldgen would, in any biome. */
 	private static StructureStart plan(ServerWorld world, ChunkPos chunk) {
 		Structure structure = world.getRegistryManager().get(RegistryKeys.STRUCTURE).get(SanctumArena.STRUCTURE);
@@ -236,7 +241,7 @@ public final class SanctumTests implements FabricGameTest {
 	}
 
 	/** Plans, lifts and places a whole Sanctum at {@code origin}, chunk by chunk as worldgen does. */
-	private static StructureStart place(TestContext context, BlockPos origin) {
+	static StructureStart place(TestContext context, BlockPos origin) {
 		ServerWorld world = context.getWorld();
 		StructureStart start = lifted(context, plan(world, new ChunkPos(origin)));
 		placeAll(world, start, start.getBoundingBox());

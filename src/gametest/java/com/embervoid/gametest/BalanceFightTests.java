@@ -9,6 +9,7 @@ import com.embervoid.balance.BalanceData.Zone;
 import com.embervoid.balance.BalanceModel;
 import com.embervoid.balance.BalanceModel.Player;
 import com.embervoid.balance.BalanceModel.Stage;
+import com.embervoid.balance.FightLength;
 import com.embervoid.balance.OverworldData;
 import com.embervoid.balance.OverworldData.OverworldMob;
 import com.embervoid.balance.OverworldModel;
@@ -25,6 +26,9 @@ import com.embervoid.reach.boss.SmolderingLordEntity;
 import com.embervoid.reach.gear.GearArmor;
 import com.embervoid.reach.gear.GearWeapons;
 import com.embervoid.reach.mob.ReachMob;
+import com.embervoid.sanctum.boss.CryingSoulEntity;
+import com.embervoid.sanctum.boss.FallenSisterEntity;
+import com.embervoid.sanctum.boss.SanctumBossArena;
 import com.embervoid.sanctum.gear.SanctumWeapons;
 import com.embervoid.stats.PlayerStats;
 import com.embervoid.stats.Stat;
@@ -89,7 +93,9 @@ public final class BalanceFightTests implements FabricGameTest {
 			"smoldering_lord", Map.of("greatsword swing", "SWING_DAMAGE", "overhead slam", "SLAM_DAMAGE", "lunge", "LUNGE_DAMAGE",
 					"landing ring", "LANDING_DAMAGE", "mortar (P0)", "MORTAR_DAMAGE", "flame line (P0)", "FLAME_LINE_DAMAGE",
 					"fire trail, per 0.5 s", "TRAIL_DAMAGE"),
-			"vampire_boss", Map.of("leap", "LEAP_DAMAGE", "blood nova (heals 25 %)", "NOVA_DAMAGE"));
+			"vampire_boss", Map.of("leap", "LEAP_DAMAGE", "blood nova (heals 25 %)", "NOVA_DAMAGE"),
+			"fallen_sister", Map.of("censer arc", "ARC_DAMAGE", "censer slam", "SLAM_DAMAGE", "crying soul dive (P2)", "DIVE_DAMAGE",
+					"censer spin (P2)", "SPIN_DAMAGE", "ember puddle, per 0.5 s", "PUDDLE_DAMAGE"));
 	/** Mobs whose main hit is their melee move: its cooldown is the model's interval. */
 	private static final Set<String> MELEE_MOVE_MOBS = Set.of("cinder_husk", "ash_stalker", "withered_thrall", "bark_hollow",
 			"restless_bones", "crypt_moth", "hollow_sentinel", "grave_warden", "cinder_hound", "furnace_golem");
@@ -121,6 +127,7 @@ public final class BalanceFightTests implements FabricGameTest {
 				BalanceData.mob("smoldering_knight").attack() * constant(context, type("smoldering_knight"), "LUNGE_DAMAGE_FACTOR"));
 		List<Boss> bosses = new ArrayList<>(BalanceData.BOSSES);
 		bosses.add(BalanceData.VAMPIRE);
+		bosses.add(BalanceData.FALLEN_SISTER);
 		for (Boss boss : bosses) {
 			EntityType<?> type = type(boss.id());
 			DefaultAttributeContainer attributes = DefaultAttributeRegistry.get(castLiving(type));
@@ -182,6 +189,17 @@ public final class BalanceFightTests implements FabricGameTest {
 		windup(misses, king, "Smoldering Lord overhead slam", lord.timing("overhead slam").windup(), () -> king.comboSwing(player, 3));
 		windup(misses, king, "Smoldering Lord lunge", lord.timing("lunge").windup(), () -> king.lunge(player));
 		king.discard();
+		Cadence sister = BalanceData.FALLEN_SISTER_CADENCE;
+		FallenSisterEntity fallen = (FallenSisterEntity) spawn(context, "fallen_sister", SanctumBossArena.LEVEL);
+		windup(misses, fallen, "Fallen Sister arcs, first", sister.phases().get(0).beats().get(0).lead(), () -> fallen.arc(player, 1));
+		windup(misses, fallen, "Fallen Sister censer arc (2nd)", sister.timing("censer arc").windup(), () -> fallen.arc(player, 2));
+		windup(misses, fallen, "Fallen Sister censer slam", sister.timing("censer slam").windup(), () -> fallen.slam(player));
+		windup(misses, fallen, "Fallen Sister censer spin", sister.timing("censer spin (P2)").windup(), fallen::spin);
+		windup(misses, fallen, "Fallen Sister backstep", sister.phases().get(0).beats().get(2).lead(), () -> fallen.backstep(player));
+		fallen.discard();
+		CryingSoulEntity soul = (CryingSoulEntity) spawn(context, "crying_soul", SanctumBossArena.LEVEL - 3);
+		windup(misses, soul, "Crying soul dive", sister.timing("crying soul dive (P2)").windup(), () -> soul.startDive(player));
+		soul.discard();
 		VampireBossEntity vampire = (VampireBossEntity) spawn(context, "vampire_boss", 15);
 		windup(misses, vampire, "Vampire boss leap", BalanceData.VAMPIRE_CADENCE.timing("leap").windup(), () -> vampire.startLeap(player.getPos()));
 		vampire.discard();
@@ -372,7 +390,10 @@ public final class BalanceFightTests implements FabricGameTest {
 		finish(context, misses);
 	}
 
-	/** Every boss move on the player who meets the boss first (zone first, depths for the Lord), and a hit back. */
+	/**
+	 * Every boss move on the player who meets the boss first (zone first, depths for the Lord, the level 1 player in
+	 * iron for the Fallen Sister), and a hit back.
+	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "balance_bosses")
 	public void bossesHitAsModelled(TestContext context) {
 		List<String> misses = new ArrayList<>();
@@ -380,6 +401,8 @@ public final class BalanceFightTests implements FabricGameTest {
 			Player model = BalanceModel.expectedPlayer(boss.zone() == Zone.CITADEL ? stage(Zone.CITADEL, 4) : stage(boss.zone(), 1), false);
 			bossBothWays(context, misses, boss, boss.level(), model);
 		}
+		// The dungeon boss on her player: level 1 in full iron with an iron sword.
+		bossBothWays(context, misses, BalanceData.FALLEN_SISTER, BalanceData.FALLEN_SISTER.level(), FightLength.DUNGEON_PLAYER);
 		finish(context, misses);
 	}
 

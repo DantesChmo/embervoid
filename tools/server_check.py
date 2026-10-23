@@ -421,12 +421,13 @@ def exercise(rcon):
     expect("Hub", "embervoid hub check", r"^Hub intact")
     expect_eventually("Hub Maiden", "execute in embervoid:hub if entity @e[type=embervoid:ashen_maiden]",
                       r"Test passed, count: 1$")
-    # The Ruined Sanctum (PLAN 16.1): the boss arena (its spawn marker) where the core was, and no Ashen Maiden.
+    # The Ruined Sanctum (PLAN 16.1, 16.3): the boss arena where the core was, the Fallen Sister not beaten there yet,
+    # and no Ashen Maiden.
     if sanctum:
         x, z = sanctum
         near = f"x={x - 112},y=-64,z={z - 112},dx=224,dy=384,dz=224"
-        expect_eventually("Sanctum arena", "execute in minecraft:overworld if entity "
-                          f"@e[type=minecraft:marker,tag=embervoid.sanctum_boss_spawn,{near}]", r"Test passed, count: 1$")
+        expect("Sanctum arena", f"execute in minecraft:overworld run embervoid sanctum arena {x} {z}",
+               r"^Sanctum arena at -?\d+ -?\d+ -?\d+, not cleared")
         expect("Sanctum without Maiden",
                f"execute in minecraft:overworld if entity @e[type=embervoid:ashen_maiden,{near}]", r"^Test failed")
     for night in ("full", "blood"):

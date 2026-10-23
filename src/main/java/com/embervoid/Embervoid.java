@@ -30,6 +30,7 @@ import com.embervoid.registry.ModSounds;
 import com.embervoid.registry.ModStructures;
 import com.embervoid.reliquary.ReliquaryInit;
 import com.embervoid.sanctum.Sanctum;
+import com.embervoid.sanctum.boss.SanctumBoss;
 import com.embervoid.stats.StatEffects;
 import com.embervoid.vampire.VampireInit;
 import net.fabricmc.api.ModInitializer;
@@ -81,6 +82,7 @@ public class Embervoid implements ModInitializer {
 		ReachGear.register();
 		ReliquaryInit.register();
 		ReachBosses.register();
+		SanctumBoss.register();
 		Citadel.register();
 
 		LOGGER.info("Embervoid: the embers stir...");

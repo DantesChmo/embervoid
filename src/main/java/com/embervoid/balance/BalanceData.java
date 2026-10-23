@@ -9,8 +9,12 @@ import com.embervoid.reach.mob.FurnaceGolemEntity;
 import com.embervoid.reach.mob.HollowSentinelEntity;
 import com.embervoid.reach.mob.RestlessBonesEntity;
 import com.embervoid.reach.mob.SparkingMarksmanEntity;
+import com.embervoid.sanctum.boss.CryingSoulEntity;
+import com.embervoid.sanctum.boss.FallenSisterEntity;
+import com.embervoid.sanctum.boss.SanctumBossArena;
 import com.embervoid.vampire.VampireBossEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -25,8 +29,7 @@ import java.util.Map;
  *
  * <p>For the fight-length model ({@link FightLength}, PLAN 18.1) each boss also has a {@link Cadence}: its moves'
  * wind-ups and the brain's cooldowns, read from the entity classes' public constants (the {@code BalanceFightTests}
- * GameTest runs the moves and checks the wind-ups), its phases and its downtime. The Fallen Sister is not built yet:
- * her boss and cadence are placeholders (PLAN 16.3).
+ * GameTest runs the moves and checks the wind-ups), its phases and its downtime.
  */
 public final class BalanceData {
 	/** A realm zone with its mob level band (DESIGN §4.5; {@code realm.Realms}, checked by the GameTest). */
@@ -328,16 +331,15 @@ public final class BalanceData {
 	}
 
 	/**
-	 * The Fallen Sister, the Ruined Sanctum's boss (DESIGN §2, PLAN 16.3): not built yet. **Every number is a
-	 * placeholder** drafted to the §5.5 targets for a level 1 player in iron with an iron sword (level 10 in the band
-	 * 8–12; HP for about 30 clean hits; damage by move class), for 16.3 to start from.
+	 * The Fallen Sister, the Ruined Sanctum's boss (DESIGN §2, PLAN 16.3), built to the §5.5 targets for a level 1
+	 * player in iron with an iron sword: level 10 in the band 8–12, HP for about 30 clean hits, damage by move class.
 	 */
-	public static final Boss FALLEN_SISTER = new Boss("fallen_sister", "Fallen Sister (placeholder)", null, 10, 110, 4, 4, 60,
-			1, 1, "-", 0.5, 4, 1, 1, "-", List.of(
-					melee("censer swing", 4, 0),
+	public static final Boss FALLEN_SISTER = new Boss("fallen_sister", "Fallen Sister", null, SanctumBossArena.LEVEL,
+			FallenSisterEntity.BASE_HEALTH, 4, 4, 60, 1, 1, "-", 0.5, 4, 1, 1, "-", List.of(
+					melee("censer arc", 4, 0),
 					melee("censer slam", 6, 0),
 					melee("crying soul dive (P2)", 3, 0),
-					melee("censer spin (P2)", 6, 0),
+					melee("censer spin (P2)", 8, 0),
 					hazard("ember puddle, per 0.5 s", 1, HitKind.FIRE)));
 
 	/**
@@ -481,26 +483,48 @@ public final class BalanceData {
 	}
 
 	/**
-	 * The Fallen Sister's cadence, as placeholder as her numbers (DESIGN §2): in phase 1 two censer arcs at a time (the
-	 * chain winds around her arm first), a slam whose ember puddle she fights from for a while, a backstep; in phase 2
-	 * the censer spins around her and 3–4 crying souls dive one by one, each a dodge and one swing to kill, a new flock
-	 * every 20 s.
+	 * The Fallen Sister's cadence (her brain's picks in reach): in P1 the two censer arcs five times in eight and the
+	 * slam otherwise, whose ember puddle costs a step around it; a backstep when the player gets behind her (the
+	 * out-of-melee share). In P2, after the veil burns (she cannot be hurt meanwhile), the spin a third of her picks
+	 * (always with two players close), the slam a third of the rest; her crying souls come 3, then 4 every 20 s, each a
+	 * dodge, the way to it and one swing.
 	 */
 	public static final Cadence FALLEN_SISTER_CADENCE = new Cadence(FALLEN_SISTER, true, List.of(
-			new Timing("censer swing", 12, Size.LIGHT, Tell.SHAPE),
-			new Timing("censer slam", 22, Size.HEAVY, Tell.SHAPE),
-			new Timing("crying soul dive (P2)", 20, Size.LIGHT, Tell.SHAPE),
-			new Timing("censer spin (P2)", 24, Size.BIGGEST, Tell.SHAPE)), List.of(
-			new Phase("P1 (censer)", 1, FALLEN_SISTER.armor(), 1, 0, List.of(
-					combo("two censer arcs", 18, 18 + 12, 26, 0.6),
-					melee("censer slam", 22, 30, 0.3, Aim.TARGET),
-					ranged("backstep", 10, 20, 0.1)), List.of(
-					Downtime.every("ember puddle: waiting for it to cool", 40, 175))),
-			new Phase("P2 (veil burnt, crying souls)", FALLEN_SISTER.phase2At(), FALLEN_SISTER.phase2Armor(), 1, 40, List.of(
-					combo("two censer arcs", 18, 18 + 12, 26, 0.7),
-					melee("censer spin", 24, 30, 0.3, Aim.ALL)), List.of(
-					Downtime.every("crying souls: 3.5 dives dodged, each soul killed with one swing",
-							3.5 * (FightLength.ESCAPE_TICKS + FightLength.REENGAGE_TICKS + 16), 400)))));
+			// The two arcs share a hit; the second follows the first after its shorter windup.
+			new Timing("censer arc", FallenSisterEntity.ARC_2_WINDUP, Size.LIGHT, Tell.SHAPE),
+			new Timing("censer slam", FallenSisterEntity.SLAM_WINDUP, Size.HEAVY, Tell.SHAPE),
+			new Timing("crying soul dive (P2)", CryingSoulEntity.DIVE_WINDUP, Size.LIGHT, Tell.SHAPE),
+			new Timing("censer spin (P2)", FallenSisterEntity.SPIN_WINDUP, Size.BIGGEST, Tell.SHAPE)), List.of(
+			new Phase("P1 (censer)", 1, FALLEN_SISTER.armor(), 1, 0, sisterBeats(false), List.of(
+					Downtime.every("ember puddle: a step around it", FightLength.REENGAGE_TICKS / 2.0,
+							every(sisterBeats(false), "censer slam")))),
+			new Phase("P2 (veil burnt, crying souls)", FALLEN_SISTER.phase2At(), FALLEN_SISTER.phase2Armor(), 1,
+					FallenSisterEntity.VEIL_BURN_TICKS, sisterBeats(true), List.of(
+					Downtime.every("ember puddle: a step around it", FightLength.REENGAGE_TICKS / 2.0,
+							every(sisterBeats(true), "censer slam")),
+					Downtime.every("crying souls: 3.5 a flock, each dodged, reached and killed with one swing",
+							3.5 * (FightLength.ESCAPE_TICKS + FightLength.REENGAGE_TICKS + 16), FallenSisterEntity.FLOCK_INTERVAL)))));
+
+	private static List<Beat> sisterBeats(boolean late) {
+		double close = 1 - OUT_OF_MELEE;
+		double spin = late ? close / 3 : 0;
+		double slam = late ? (close - spin) / 3 : close * 3 / 8;
+		List<Beat> beats = new ArrayList<>(List.of(
+				combo("two censer arcs", FallenSisterEntity.ARC_1_WINDUP, FallenSisterEntity.ARC_1_WINDUP + FallenSisterEntity.ARC_2_WINDUP,
+						FallenSisterEntity.ARC_COOLDOWN, close - spin - slam),
+				melee("censer slam", FallenSisterEntity.SLAM_WINDUP, FallenSisterEntity.SLAM_COOLDOWN, slam, Aim.TARGET),
+				ranged("backstep", FallenSisterEntity.BACKSTEP_WINDUP, FallenSisterEntity.BACKSTEP_COOLDOWN, OUT_OF_MELEE)));
+		if (late) {
+			beats.add(melee("censer spin", FallenSisterEntity.SPIN_WINDUP, FallenSisterEntity.SPIN_COOLDOWN, spin, Aim.ALL));
+		}
+		return beats;
+	}
+
+	/** Ticks of a phase between two of its beat {@code name} (the loop's length over that beat's weight). */
+	private static double every(List<Beat> beats, String name) {
+		double loop = beats.stream().mapToDouble(beat -> beat.weight() * beat.ticks()).sum();
+		return loop / beats.stream().filter(beat -> beat.name().equals(name)).mapToDouble(Beat::weight).sum();
+	}
 
 	public static final List<Cadence> CADENCES = List.of(FALLEN_SISTER_CADENCE, VAMPIRE_CADENCE, ASH_COLOSSUS_CADENCE,
 			GRIEVING_TREE_CADENCE, CRYPT_KEEPER_CADENCE, SMOLDERING_LORD_CADENCE);

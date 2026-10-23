@@ -96,7 +96,8 @@ public abstract class ReachBoss extends HostileEntity implements ArenaBoss, GeoE
 	@Override
 	public void tick() {
 		super.tick();
-		if (!getWorld().isClient && !isRemoved()) {
+		// A body kept for its death animation outlives its fight; it removes itself (deathTicks).
+		if (!getWorld().isClient && !isRemoved() && !(isDead() && deathTicks() > 0)) {
 			ArenaManager.tickBoss(this);
 			if (!isRemoved()) {
 				tickBoss();
@@ -144,6 +145,14 @@ public abstract class ReachBoss extends HostileEntity implements ArenaBoss, GeoE
 
 	/** Every server tick, AI or not (phase effects, hazards); moves are picked in the AI tick after it. */
 	protected void tickBoss() {
+	}
+
+	/**
+	 * How long the body stays after death for its death animation, in ticks; 0 (the default): it goes with its fight
+	 * at once. A boss that keeps its body removes itself in {@code updatePostDeath}.
+	 */
+	protected int deathTicks() {
+		return 0;
 	}
 
 	/** True while something other than a windup keeps the boss in place (a leap in the air, a stun). */

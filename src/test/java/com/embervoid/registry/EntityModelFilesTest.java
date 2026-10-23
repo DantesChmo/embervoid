@@ -1,5 +1,7 @@
 package com.embervoid.registry;
 
+import com.embervoid.sanctum.boss.CryingSoulEntity;
+import com.embervoid.sanctum.boss.FallenSisterEntity;
 import com.embervoid.vampire.VampireEntity;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -21,9 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * The GeckoLib entity models keep what the code relies on when their art is regenerated (tools/overworld_mob_art.py,
- * tools/reach_mob_art.py, tools/reach_boss_art.py): every model has its animation file and texture, every animated
- * bone exists, and the overworld entities have the animations their classes play, the bones their renderers use and
- * telegraphs at least as long as their windups. A mismatch only shows in game as a frozen or missing part.
+ * tools/reach_mob_art.py, tools/reach_boss_art.py, tools/sanctum_boss_art.py): every model has its animation file and
+ * texture, every animated bone exists, and the overworld entities (the Fallen Sister and her souls among them) have the
+ * animations their classes play, the bones their renderers use and telegraphs at least as long as their windups. A
+ * mismatch only shows in game as a frozen or missing part.
  * (Sizes against tools/model_bounds.json: {@code python3 tools/model_preview.py check}.)
  */
 class EntityModelFilesTest {
@@ -38,7 +41,11 @@ class EntityModelFilesTest {
 			"ashen_zombie", List.of("misc.idle", "move.walk", "attack.swing"),
 			"ghost", List.of("misc.idle", "move.fly", "attack.swing"),
 			"vampire", List.of("misc.idle", "move.walk", "misc.transform"),
-			"vampire_boss", List.of("misc.idle", "move.walk", "attack.swing", "attack.leap", "attack.nova", "misc.mist"));
+			"vampire_boss", List.of("misc.idle", "move.walk", "attack.swing", "attack.leap", "attack.nova", "misc.mist"),
+			"fallen_sister", List.of("misc.idle", "move.walk", FallenSisterEntity.ARC_1, FallenSisterEntity.ARC_2, FallenSisterEntity.SLAM,
+					FallenSisterEntity.SPIN, FallenSisterEntity.BACKSTEP, FallenSisterEntity.VEIL_BURN, FallenSisterEntity.HURT,
+					FallenSisterEntity.DEATH),
+			"crying_soul", List.of("misc.idle", CryingSoulEntity.DIVE, CryingSoulEntity.DAZED));
 
 	/** Bones the renderers use: the head they turn (models built with turnsHead) and the Hollow's held item. */
 	private static final Map<String, List<String>> BONES = Map.of(
@@ -47,7 +54,8 @@ class EntityModelFilesTest {
 			"ashen_maiden", List.of("head"),
 			"ashen_zombie", List.of("head"),
 			"vampire", List.of("head"),
-			"vampire_boss", List.of("head"));
+			"vampire_boss", List.of("head"),
+			"fallen_sister", List.of("head", "veil"));
 
 	/** Shortest length (s) of a telegraphed animation: the windup it shows, in ticks / 20. */
 	private static final Map<String, Double> MIN_LENGTH = Map.of(
@@ -55,7 +63,11 @@ class EntityModelFilesTest {
 			"vampire/misc.transform", VampireEntity.TURN_TICKS / 20.0,
 			"vampire_boss/attack.leap", 20 / 20.0,                 // VampireBossEntity.LEAP_WINDUP
 			"vampire_boss/attack.nova", 30 / 20.0,                 // NOVA_WINDUP
-			"vampire_boss/misc.mist", 12 / 20.0);                  // MIST_WINDUP
+			"vampire_boss/misc.mist", 12 / 20.0,                   // MIST_WINDUP
+			"fallen_sister/" + FallenSisterEntity.ARC_1, FallenSisterEntity.ARC_1_WINDUP / 20.0,
+			"fallen_sister/" + FallenSisterEntity.SLAM, FallenSisterEntity.SLAM_WINDUP / 20.0,
+			"fallen_sister/" + FallenSisterEntity.SPIN, FallenSisterEntity.SPIN_WINDUP / 20.0,
+			"crying_soul/" + CryingSoulEntity.DIVE, CryingSoulEntity.DIVE_WINDUP / 20.0);
 
 	@Test
 	void everyModelHasItsAnimationsAndTextureAndAnimatesOnlyItsBones() throws IOException {
