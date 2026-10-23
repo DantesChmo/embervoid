@@ -441,8 +441,11 @@ animation names; new sounds are own `embervoid:` events on vanilla files with su
   - Both: durability ~600, repaired with iron ingots, the same enchantment set as the Realm 1 melee weapons
     (`GearWeapons.SWORD_ENCHANTMENTS`). Each lies in `embervoid:chests/sanctum_outer_hall` at a chance that gives about
     one of the two weapons per two Sanctums (≈ 6 % per chest each; the write-up states the per-Sanctum odds).
-  - Must stay below every realm weapon per hit and per second (Ashen Scythe 10, Warden's Scourge 9, Royal Ash Rapier 6 at
-    2.0) and no stronger than a diamond sword / axe per second; checked in `BalanceTargetsTest`. Item textures through
+  - Must sit below the realm weapons (Ashen Scythe 10, Warden's Scourge 9, Royal Ash Rapier 6 at 2.0): no Sanctum
+    weapon beats any realm weapon both per hit and per second, the best realm weapon on each axis beats both, and per
+    second the Longsword is no stronger than a diamond sword, the Mace no stronger than a diamond axe; checked in
+    `BalanceTargetsTest`. (Below every realm weapon on each axis separately cannot hold: the Rapier is light and fast,
+    the Scourge slow with reach, so the Longsword would drop under an iron sword.) Item textures through
     `tools/art_kit.py` (preview with `tools/model_preview.py`), lang in both languages, GameTests for both specials (cost,
     cooldown, hits through `damage()`, guard break, no hit through walls) and the loot.
 - **L2 Overworld balance pass.** Extend `com.embervoid.balance` with the overworld stage: a level 1 player (all stats
