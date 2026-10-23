@@ -92,7 +92,7 @@ The overworld structure becomes a dungeon, the Maiden and the obelisks move to a
 | Topic | Design | Status |
 |---|---|---|
 | Spawning | Overworld structure, any land biome, about one per 300–400 blocks (`spacing` ~22 / `separation` ~8 chunks; was 48 / 16). Structure id stays `embervoid:ember_sanctum`, so `/locate` and old Sanctum Maps keep working. Tunable through the `structure_set` datapack file | Decided |
-| Variants | 2–3 start pools sharing the halls, so it does not repeat; one boss for all | Decided |
+| Variants | Three, so it does not repeat (0.5.0, PLAN 16.2): the courtyard ruin of 0.4.x, a collapsed chapel and a sunken cloister. Each has its own surface ruin, stairwell and guarded hall; the side halls, the boss wing, the guards and the loot are shared; one boss for all | Decided |
 | Layout | **Outer halls** as before: surface ruin + descent (a closed shaft cased in rock), guards (Hollows, skeleton archers), traps, loot (Flask Shards, the Sanctum weapons). An **Ember Shrine at the boss door** (rest, flask refill, Flask Shards; respawn stays at the bed). Behind a fog wall, the **boss arena** in place of the old core, with a cold Cleft Stele at its far end | Decided |
 | Finding it | Exploration, plus the rare **Sanctum Map** in vanilla chest loot (villages, ruined portals, shipwrecks), now pointing at the nearest dungeon | Decided |
 | Clearing | Each dungeon's boss is its own: beaten once per world (by whoever is in the fight), then the dungeon is cleared and the boss does not return. Every credited player gets a Crying Soul. Frequent dungeons mean a new soul is a short trip away | Decided |

@@ -12,6 +12,7 @@ public final class SanctumStructures {
 			Registries.STRUCTURE_PROCESSOR, Embervoid.id("casing_gap"), () -> CasingGapProcessor.CODEC);
 
 	static void register() {
+		SanctumSurvey.register();
 	}
 
 	private SanctumStructures() {}

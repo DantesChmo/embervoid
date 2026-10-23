@@ -699,9 +699,9 @@ B puts A out. Leaving an obelisk lands in the hub; the hub's exit leads to the a
 | ID | Task | Size | Depends on | Status |
 |----|------|------|------------|--------|
 | 16.1 | **Sanctum → dungeon** | M | 15.0 | done (GameTests `SanctumTests` + server check; the arena previewed; not seen in game: the fog wall's ash, the dim light, the arena at eye level) |
-| 16.2 | **Dungeon variants and frequency** | M | 16.1 | todo |
+| 16.2 | **Dungeon variants and frequency** | M | 16.1 | done – in-game look not seen (`spacing` 22 / `separation` 8; three variants; JUnit `SanctumStructureSetTest`, GameTests `SanctumTests` per variant; server check `/embervoid sanctum survey` on two seeds: 39 and 29 dungeons within 1500 blocks of 0 0, land a mean 171 / 174 blocks from the nearest, 99 % / 98 % within 400; variants seen only in `model_preview`) |
 | 16.3 | **The dungeon boss** | L | 15.0, 16.1 | done – look, motion and sound not seen or heard in game (GameTests `FallenSisterTests`, `BalanceFightTests`; server check; her `balanceTargets` rows pass: 31 clean hits, 1.6 min, 20 % uptime; motion judged only in `model_preview` sheets and GIFs) |
-| 16.4 | **Overworld balance re-run** | M | 15.1–16.3 | todo |
+| 16.4 | **Overworld balance re-run** | M | 15.1–16.3 | todo (from 16.2: 24–42 dungeons within 1500 blocks of 0 0 on eight land-rich seeds, about 6 at the old 48 / 16; land a mean 150–190 blocks from the nearest; per dungeon 2–4 guards in the variant's hall, 2 of them always there, 2 chests there, the side halls as before plus the storeroom; placed GameTest dungeons held 5–7 chests and 4–5 Hollows) |
 
 - **16.1 Sanctum → dungeon.** The `ember_sanctum` structure keeps its outer halls, guards (Hollows and the rest) and
   loot (Flask Shards, Sanctum weapons); the core with the Maiden and the obelisks goes. An Ember Shrine at the boss
@@ -731,6 +731,33 @@ B puts A out. Leaving an obelisk lands in the hub; the hub's exit leads to the a
   (`spacing` ~22 / `separation` ~8), 2–3 variants (separate start pools sharing the halls) so it does not repeat; the
   Sanctum Map leads to the nearest dungeon. Check: JUnit on the structure set; the server check counts dungeons
   within 1500 blocks on two seeds; variants rendered by 19.1 once it exists.
+  *Built:* `structure_set/ember_sanctum.json` 22 / 8 chunks (352-block cells), salt kept. The start pool
+  `sanctum/start` picks one of three surface ruins at equal weight (`sanctum.SanctumVariants`); each leads down its own
+  stairwell to its own guarded hall, and all three halls lead to the same boss wing (`sanctum/arena`) and side halls:
+  the **courtyard ruin** (`sanctum/ruin` → `descent` → `gate_hall`, the 0.4.x pieces, unchanged), the **collapsed
+  chapel** (`sanctum/chapel`, 17 × 13 × 21: a roofless nave with pillars, pews, an altar under two tattered standards,
+  graves outside, the way down a railed hole in the floor → `descent_chapel` → `nave`, 11 × 8 × 25, coffins in the bays
+  between two rows of pillars) and the **sunken cloister** (`sanctum/cloister`, 21 × 11 × 21: a court sunk three
+  blocks with a covered walk under a fallen-in roof, a bell tower at one corner, graves and a dead tree, a well in the
+  middle that is the way down → `descent_cloister` → `cloister_walk`, 15 × 7 × 21, a walk round a buried court of
+  columns, stores in a corner). The new stairwells are the ruin's with props at the bottom. New side hall
+  `sanctum/hall_storeroom` (sacks, barrels, a cart, a weapon rack, a chest, a rolled Hollow; weight 2 of 11 in
+  `sanctum/halls`). Same guard spots (the nave and cloister walk add rolled ones), loot table, decay processors and
+  boss; every new piece dressed with the 20.3 props. Every old template and pool id stays. The Sanctum Map and
+  `on_sanctum_maps` are unchanged: one structure id, so the map (search radius 64 chunks) and `/locate` find any
+  variant, now about twice as near. Debug command `/embervoid sanctum survey <radius> [<seed> [<spacing>
+  <separation>]]` (`sanctum.SanctumSurvey`): plans the dungeons around the source as worldgen would, on any seed and
+  trial spacing, without generating chunks; reports the count by variant, the biomes of the refused spots and how far
+  the land (the dungeon's biomes) is from the nearest. Tuning, ten seeds: 22 / 8 gives 24–42 dungeons within 1500
+  blocks of 0 0 on the eight with 40 % land or more (13 and 14 on two that are three quarters sea), the land a mean
+  152–193 blocks from the nearest, 92–100 % within 400; 20 / 8 a little denser, 24 / 8 sparser on most seeds. Checks:
+  JUnit `SanctumStructureSetTest` (spacing, separation, salt; the start pool holds the three variants; every pool's
+  templates and every template's jigsaw pools exist; the survey's distance maths); GameTests
+  `ruinVariantIsWhole` / `chapelVariantIsWhole` / `cloisterVariantIsWhole` (a fresh plan of the variant moved to its own
+  spot: its hall, one shrine, nine fog blocks, a whole cold stele, guards and chests, no core, and a player in the arena
+  summons the Fallen Sister); the server check surveys seeds 123456789 and 8675309 (at least 20 dungeons, land mean
+  ≤ 250, ≥ 90 % within 400). Previews in `build/model-preview/sanctum-16.2/` (top, iso and eye level of each new piece;
+  `inside/` from within the halls). Not seen in game: any variant in real terrain, at eye level or by night.
 - **16.3 The dungeon boss.** The **Fallen Sister** (DESIGN §2: look, phases, crying souls, drops) on the boss
   framework (`com.embervoid.boss`: arena, fog wall, telegraphs, music, loot), without rematch: each dungeon's boss
   is beaten once per world and every credited player gets a Crying Soul. Model and animations through the art scripts

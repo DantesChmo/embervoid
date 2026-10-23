@@ -9,6 +9,24 @@
 				"projection": "rigid",
 				"processors": "embervoid:sanctum_decay"
 			}
+		},
+		{
+			"weight": 1,
+			"element": {
+				"element_type": "minecraft:single_pool_element",
+				"location": "embervoid:sanctum/chapel",
+				"projection": "rigid",
+				"processors": "embervoid:sanctum_decay"
+			}
+		},
+		{
+			"weight": 1,
+			"element": {
+				"element_type": "minecraft:single_pool_element",
+				"location": "embervoid:sanctum/cloister",
+				"projection": "rigid",
+				"processors": "embervoid:sanctum_decay"
+			}
 		}
 	]
 }
