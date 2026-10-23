@@ -6,8 +6,8 @@ import java.util.Random;
 
 /**
  * Pure layout of a realm's border (PLAN 9.9): a broken wall on a ring just inside the abyss cliffs, towers on it, and
- * bridges that once crossed the abyss, now running out from the cliffs and breaking off. Unit-tested; the edge feature
- * builds it.
+ * bridges that once crossed the abyss, now running out from the cliffs and breaking off (from the open zones only,
+ * PLAN 21.1). Unit-tested; the edge feature builds it.
  */
 public final class EdgeLayout {
 	/** Wall stretches are this long (blocks of arc); each is whole, low, or fallen. */
@@ -41,19 +41,25 @@ public final class EdgeLayout {
 	}
 
 	/**
-	 * The broken bridges of a realm: {@code count} at seeded angles, at least {@code TAU / (2 · count)} apart, starting
-	 * at {@code from} (where the cliffs begin) and breaking off 25–45 blocks out.
+	 * The broken bridges of a realm: {@code count} at seeded angles over the arc of {@code arcWidth} from
+	 * {@code arcStart} (the open zones; none in the final zone's sector), one in each {@code arcWidth / count} stretch
+	 * and at least half a stretch apart, starting at {@code from} (where the cliffs begin) and breaking off 25–45 blocks
+	 * out.
 	 */
-	public static List<Bridge> bridges(long seed, int count, double from) {
+	public static List<Bridge> bridges(long seed, int count, double from, double arcStart, double arcWidth) {
 		Random random = new Random(seed * 1_000_003L + 17);
 		List<Bridge> bridges = new ArrayList<>();
-		double step = RealmLayout.TAU / count;
-		double start = random.nextDouble() * RealmLayout.TAU;
+		double step = arcWidth / count;
 		for (int i = 0; i < count; i++) {
-			double angle = RealmLayout.normalize(start + i * step + (random.nextDouble() - 0.5) * step * 0.5);
+			double angle = RealmLayout.normalize(arcStart + (i + 0.5) * step + (random.nextDouble() - 0.5) * step * 0.5);
 			bridges.add(new Bridge(angle, from, from + 25 + random.nextInt(21), 5));
 		}
 		return bridges;
+	}
+
+	/** {@link #bridges} over a realm's open zones. */
+	public static List<Bridge> bridges(long seed, int count, double from, RealmLayout.Sectors sectors) {
+		return bridges(seed, count, from, sectors.startAngle(), sectors.openSpan());
 	}
 
 	/**

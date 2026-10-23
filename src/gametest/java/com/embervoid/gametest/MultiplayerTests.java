@@ -28,7 +28,7 @@ import com.embervoid.realm.RealmArenas;
 import com.embervoid.realm.RealmBlocks;
 import com.embervoid.realm.RealmPlayerData;
 import com.embervoid.realm.Realms;
-import com.embervoid.realm.SealedGateBlock;
+import com.embervoid.realm.CitadelGateBlock;
 import com.embervoid.realm.api.RealmTeleports;
 import com.embervoid.realm.worldgen.RealmFeaturePiece;
 import com.embervoid.realm.worldgen.RealmFeatures;
@@ -96,7 +96,7 @@ public final class MultiplayerTests implements FabricGameTest {
 	/**
 	 * Three players, a veteran (A) and a newcomer (B) with Realm 1 unlocked, one without (C). A beats the three zone
 	 * bosses alone; then A helps B with one. Each keeps their own beaten bosses and obelisks, only the owner hears of
-	 * a change, and the Sealed Gate lets A through while it stays sealed for B and C.
+	 * a change, and the Citadel Gate lets A through while it stays sealed for B and C.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "mp_progress", tickLimit = 400)
 	public void progressAndTheGateArePerPlayer(TestContext context) {
@@ -140,10 +140,10 @@ public final class MultiplayerTests implements FabricGameTest {
 			context.assertTrue(b.getInventory().count(SanctumItems.FLASK_SHARD) == 1, "B: shards " + b.getInventory().count(SanctumItems.FLASK_SHARD));
 			context.assertTrue(ProgressManager.get(c).beatenBosses().isEmpty(), "C got credit: " + ProgressManager.get(c).beatenBosses());
 
-			context.assertTrue(SealedGateBlock.remainingZoneBosses(a, Realms.ASHEN_REACH) == 0, "gate sealed for A");
-			context.assertTrue(SealedGateBlock.remainingZoneBosses(b, Realms.ASHEN_REACH) == 2, "B's locks: "
-					+ SealedGateBlock.remainingZoneBosses(b, Realms.ASHEN_REACH));
-			context.assertTrue(SealedGateBlock.remainingZoneBosses(c, Realms.ASHEN_REACH) == 3, "C's locks");
+			context.assertTrue(CitadelGateBlock.remainingZoneBosses(a, Realms.ASHEN_REACH) == 0, "gate sealed for A");
+			context.assertTrue(CitadelGateBlock.remainingZoneBosses(b, Realms.ASHEN_REACH) == 2, "B's locks: "
+					+ CitadelGateBlock.remainingZoneBosses(b, Realms.ASHEN_REACH));
+			context.assertTrue(CitadelGateBlock.remainingZoneBosses(c, Realms.ASHEN_REACH) == 3, "C's locks");
 
 			// The gate itself, used by each: B and C stay, A goes to the depths.
 			ServerWorld realm = arena.server.getWorld(Realms.ASHEN_REACH.world());
@@ -485,7 +485,7 @@ public final class MultiplayerTests implements FabricGameTest {
 
 	private static void useGate(ServerWorld realm, BlockPos gate, ServerPlayerEntity player) {
 		BlockHitResult hit = new BlockHitResult(Vec3d.ofCenter(gate), Direction.NORTH, gate, false);
-		RealmBlocks.SEALED_GATE.getDefaultState().onUse(realm, player, Hand.MAIN_HAND, hit);
+		RealmBlocks.CITADEL_GATE.getDefaultState().onUse(realm, player, Hand.MAIN_HAND, hit);
 	}
 
 	/** The fight's boss with its moves held: only the framework acts. */

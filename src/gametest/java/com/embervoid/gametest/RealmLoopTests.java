@@ -9,7 +9,7 @@ import com.embervoid.progress.ProgressManager;
 import com.embervoid.reach.boss.ReachBosses;
 import com.embervoid.reach.gear.GearItems;
 import com.embervoid.realm.Realms;
-import com.embervoid.realm.SealedGateBlock;
+import com.embervoid.realm.CitadelGateBlock;
 import com.embervoid.realm.api.RealmTeleports;
 import com.embervoid.sanctum.SanctumItems;
 import com.embervoid.sanctum.VoidObeliskBlock.Glow;
@@ -24,7 +24,7 @@ import net.minecraft.util.math.BlockPos;
 
 /**
  * The whole Realm 1 loop as progress sees it (PLAN 13.5): unlocking Realm 1 (the first hub visit) lights its obelisk; the three zone
- * bosses open the Sealed Gate; the Smoldering Lord, beaten in the depths, completes the realm (its obelisk kindled)
+ * bosses open the Citadel Gate; the Smoldering Lord, beaten in the depths, completes the realm (its obelisk kindled)
  * and lights the Realm 2 obelisk, which leads nowhere yet. The framework's test boss stands in for every boss (rewards
  * and completion follow the progress id and the world); each boss's own fight has its own tests.
  */
@@ -46,14 +46,14 @@ public final class RealmLoopTests implements FabricGameTest {
 			ProgressManager.unlockRealm(player, ProgressManager.REALM_1);
 			context.assertTrue(glow(player, ProgressManager.REALM_1) == Glow.LIT, "Realm 1 obelisk not lit when unlocked");
 			context.assertTrue(glow(player, REALM_2) == Glow.DARK, "Realm 2 obelisk lit too early");
-			context.assertTrue(SealedGateBlock.remainingZoneBosses(player, Realms.ASHEN_REACH) == 3, "gate not sealed by three bosses");
+			context.assertTrue(CitadelGateBlock.remainingZoneBosses(player, Realms.ASHEN_REACH) == 3, "gate not sealed by three bosses");
 
 			// The three zone bosses, in any order: each leaves its soul and a Flask Shard and unseals one more lock.
 			for (Identifier boss : Realms.ASHEN_REACH.zoneBosses()) {
 				BossRewardTests.kill(arena.start(boss, BossEntities.TEST_BOSS, 4, 4, RADIUS, 1));
 				context.assertTrue(ProgressManager.hasBeatenBoss(player, boss), "zone boss not beaten: " + boss);
 			}
-			context.assertTrue(SealedGateBlock.remainingZoneBosses(player, Realms.ASHEN_REACH) == 0, "gate still sealed");
+			context.assertTrue(CitadelGateBlock.remainingZoneBosses(player, Realms.ASHEN_REACH) == 0, "gate still sealed");
 			context.assertTrue(player.getInventory().count(SanctumItems.FLASK_SHARD) == 3, "zone boss Flask Shards: "
 					+ player.getInventory().count(SanctumItems.FLASK_SHARD));
 			context.assertTrue(!ProgressManager.isRealmCompleted(player, ProgressManager.REALM_1), "completed before the Lord");

@@ -19,7 +19,8 @@ import java.util.Optional;
  * the Ember Lodestar can point at the same position the placement computes.
  *
  * <ul>
- *   <li>{@code landing}: platform with the return obelisk, an Ember Shrine and the Sealed Gate</li>
+ *   <li>{@code landing}: platform with the return obelisk, an Ember Shrine and the Citadel Gate (facing the
+ *   final zone's sector)</li>
  *   <li>{@code arena}: boss arena (needs {@code boss}) with its shrine outside the fog wall, on the side facing the
  *   landing; {@code site} ({@link ArenaSite}) sets its ground and height and names its template</li>
  * </ul>

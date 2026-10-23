@@ -53,7 +53,7 @@
           "y_scale": 0.0
         },
         "warp_degrees": 20.0,
-        "start_angle": -90.0,
+        "start_angle": 120.0,
         "landing_radius": 48.0,
         "landing_blend": 40.0,
         "blend": 48.0,
@@ -200,7 +200,35 @@
               }
             }
           }
-        ]
+        ],
+        "final_width": 60.0,
+        "final_zone": {
+          "type": "minecraft:add",
+          "argument1": -0.03,
+          "argument2": {
+            "type": "minecraft:add",
+            "argument1": {
+              "type": "minecraft:mul",
+              "argument1": 0.1,
+              "argument2": {
+                "type": "minecraft:noise",
+                "noise": "embervoid:realm_hills",
+                "xz_scale": 1.0,
+                "y_scale": 0.0
+              }
+            },
+            "argument2": {
+              "type": "minecraft:mul",
+              "argument1": 0.03,
+              "argument2": {
+                "type": "minecraft:noise",
+                "noise": "embervoid:realm_roughness",
+                "xz_scale": 1.0,
+                "y_scale": 1.0
+              }
+            }
+          }
+        }
       }
     },
     "final_density": {
@@ -225,7 +253,7 @@
               "y_scale": 0.0
             },
             "warp_degrees": 20.0,
-            "start_angle": -90.0,
+            "start_angle": 120.0,
             "landing_radius": 48.0,
             "landing_blend": 40.0,
             "blend": 48.0,
@@ -372,14 +400,42 @@
                   }
                 }
               }
-            ]
+            ],
+            "final_width": 60.0,
+            "final_zone": {
+              "type": "minecraft:add",
+              "argument1": -0.03,
+              "argument2": {
+                "type": "minecraft:add",
+                "argument1": {
+                  "type": "minecraft:mul",
+                  "argument1": 0.1,
+                  "argument2": {
+                    "type": "minecraft:noise",
+                    "noise": "embervoid:realm_hills",
+                    "xz_scale": 1.0,
+                    "y_scale": 0.0
+                  }
+                },
+                "argument2": {
+                  "type": "minecraft:mul",
+                  "argument1": 0.03,
+                  "argument2": {
+                    "type": "minecraft:noise",
+                    "noise": "embervoid:realm_roughness",
+                    "xz_scale": 1.0,
+                    "y_scale": 1.0
+                  }
+                }
+              }
+            }
           }
         }
       },
       "argument2": {
         "type": "embervoid:radial_falloff",
-        "inner": 1136,
-        "outer": 1200,
+        "inner": 1236,
+        "outer": 1300,
         "strength": 4.0
       }
     },
@@ -555,6 +611,56 @@
                   }
                 ]
               }
+            },
+            {
+              "type": "minecraft:condition",
+              "if_true": {
+                "type": "minecraft:biome",
+                "biome_is": [
+                  "embervoid:ashen_reach_citadel"
+                ]
+              },
+              "then_run": {
+                "type": "minecraft:sequence",
+                "sequence": [
+                  {
+                    "type": "minecraft:condition",
+                    "if_true": {
+                      "type": "minecraft:noise_threshold",
+                      "noise": "minecraft:patch",
+                      "min_threshold": 0.4,
+                      "max_threshold": 1.7976931348623157e+308
+                    },
+                    "then_run": {
+                      "type": "minecraft:block",
+                      "result_state": {
+                        "Name": "embervoid:cobbled_ash_stone"
+                      }
+                    }
+                  },
+                  {
+                    "type": "minecraft:condition",
+                    "if_true": {
+                      "type": "minecraft:noise_threshold",
+                      "noise": "minecraft:surface",
+                      "min_threshold": 0.15,
+                      "max_threshold": 1.7976931348623157e+308
+                    },
+                    "then_run": {
+                      "type": "minecraft:block",
+                      "result_state": {
+                        "Name": "minecraft:coarse_dirt"
+                      }
+                    }
+                  },
+                  {
+                    "type": "minecraft:block",
+                    "result_state": {
+                      "Name": "embervoid:ash_soil"
+                    }
+                  }
+                ]
+              }
             }
           ]
         }
@@ -649,6 +755,21 @@
                     }
                   }
                 ]
+              }
+            },
+            {
+              "type": "minecraft:condition",
+              "if_true": {
+                "type": "minecraft:biome",
+                "biome_is": [
+                  "embervoid:ashen_reach_citadel"
+                ]
+              },
+              "then_run": {
+                "type": "minecraft:block",
+                "result_state": {
+                  "Name": "minecraft:coarse_dirt"
+                }
               }
             }
           ]

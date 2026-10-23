@@ -9,7 +9,8 @@ What it does:
 2. Over RCON: locates the nearest Ruined Sanctum and force-loads the chunks around it (so it is really generated in
    overworld terrain; later its boss arena must be there and no Ashen Maiden, PLAN 16.1), force-loads the Ashen Reach landing and depths centre, locates the three zone arenas and the
    depths arena and force-loads them too, force-loads every road outpost and checks each got its chest, force-loads
-   the chunk of every road's lantern posts and counts them lit per road (PLAN 14.2), locates and
+   the chunk of every road's lantern posts and counts them lit per road (PLAN 14.2), checks the Citadel Gate on the
+   plaza, the gate road and the final sector's biome (PLAN 21.1), locates and
    force-loads a minor structure of each zone and a crypt, two bridges at the world edge, locates the Smoldering
    Citadel and force-loads its whole route (then expects the keep's treasure chest and every placed Citadel mob),
    force-loads the Vampire arena, starts and stops a full moon and a blood new moon, opens, checks and closes the
@@ -37,6 +38,7 @@ The first run needs --accept-eula (Minecraft EULA, https://aka.ms/MinecraftEULA)
 """
 import argparse
 import json
+import math
 import os
 import platform
 import re
@@ -443,10 +445,20 @@ def exercise(rcon):
                           rf"Test passed, count: {count}$")
     expect("Road outposts built", "execute in embervoid:ashen_reach run embervoid realm roads",
            r"^(?![\s\S]*(missing|not loaded))3 roads")
-    # Every post of every road generated with its lantern; a road of ~600 blocks has ~25.
+    # Every post of every road generated with its lantern; a road of ~600 blocks has ~25. Then the gate road (PLAN 21.1).
     road_lit = r"\nroad \d+: [^\n]*?, ([2-9]\d|1[5-9]) posts \(\{} lit\)[^\n]*"
     expect_eventually("Road posts lit", "execute in embervoid:ashen_reach run embervoid realm roads",
-                      r"^3 roads" + "".join(road_lit.format(g) for g in (1, 2, 3)) + "$")
+                      r"^3 roads" + "".join(road_lit.format(g) for g in (1, 2, 3)) + r"\ngate road: 26 blocks to 0 48$")
+    # The four sectors (PLAN 21.1): the Citadel Gate on the plaza on the final sector's side (south), the gate road
+    # paved out to the sector, and the sector's biome where it should be.
+    expect("Citadel Gate", "execute in embervoid:ashen_reach run embervoid realm find embervoid:citadel_gate 0 6",
+           r"^found at 0 \d+ 6$")
+    expect("Gate road", "execute in embervoid:ashen_reach run embervoid realm find embervoid:kingsroad_flagstones 0 36",
+           r"^found at 0 \d+ 36$")
+    final = located(run("Final sector", "execute in embervoid:ashen_reach positioned 0 80 300 run locate biome "
+                        "embervoid:ashen_reach_citadel"))
+    if not final or not (60 < math.degrees(math.atan2(final[1], final[0])) < 120):
+        FAILED_EXPECTATIONS.append(f"Final sector: the Citadel biome near 0 300 at {final}, not in the 60°–120° sector")
     run("Save", "save-all flush")
     return log
 

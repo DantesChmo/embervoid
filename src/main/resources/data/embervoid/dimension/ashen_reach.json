@@ -12,10 +12,12 @@
         "embervoid:ashen_reach_zone_b",
         "embervoid:ashen_reach_zone_c"
       ],
-      "start_angle": -90.0,
+      "start_angle": 120.0,
       "landing_radius": 48.0,
-      "radius": 1200.0,
-      "warp": 20.0
+      "radius": 1300.0,
+      "warp": 20.0,
+      "final_zone": "embervoid:ashen_reach_citadel",
+      "final_width": 60.0
     }
   }
 }

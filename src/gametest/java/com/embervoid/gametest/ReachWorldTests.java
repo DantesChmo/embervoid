@@ -193,7 +193,7 @@ public final class ReachWorldTests implements FabricGameTest {
 				"realm time is not fixed at dusk: " + realm.getDimension().fixedTime());
 		Registry<Biome> biomes = realm.getRegistryManager().get(RegistryKeys.BIOME);
 		for (RegistryKey<Biome> key : List.of(ReachZones.LANDING, ReachZones.FIELDS, ReachZones.WOODS,
-				ReachZones.NECROPOLIS, ReachZones.ABYSS, ReachZones.DEPTHS)) {
+				ReachZones.NECROPOLIS, ReachZones.ABYSS, ReachZones.DEPTHS, ReachZones.CITADEL)) {
 			Biome biome = biomes.get(key);
 			context.assertTrue(biome != null, "missing biome " + key.getValue());
 			for (SpawnGroup group : SpawnGroup.values()) {
@@ -316,11 +316,9 @@ public final class ReachWorldTests implements FabricGameTest {
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 2400)
 	public void zoneOresStayInTheirZone(TestContext context) {
 		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
-		// Sector centres: start angle −90°, three 120° sectors.
-		double[] centres = {-30, 90, 210};
 		for (int zone = 0; zone < 3; zone++) {
 			int[] counts = new int[ReachBlocks.ORES.size()];
-			double a = Math.toRadians(centres[zone]);
+			double a = Realms.ASHEN_REACH.sectors().openCenter(zone);
 			for (int k = 0; k < 4; k++) {
 				int x = (int) (Math.cos(a) * 350) + (k % 2) * 16;
 				int z = (int) (Math.sin(a) * 350) + (k / 2) * 16;

@@ -1,6 +1,8 @@
 package com.embervoid.realm.worldgen;
 
 import com.embervoid.realm.RealmBlocks;
+import com.embervoid.realm.RealmDefinition;
+import com.embervoid.realm.Realms;
 import com.embervoid.realm.RoadLayout;
 import com.embervoid.realm.placed.PlacedEnemyProcessor;
 import com.embervoid.registry.ModBlocks;
@@ -9,6 +11,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructureContext;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructurePlacementData;
@@ -18,6 +21,7 @@ import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.math.random.Random;
@@ -42,6 +46,8 @@ public class RealmFeaturePiece extends StructurePiece {
 	private static final int HEADROOM = 14;
 	/** Deepest a floor column is extended down to reach the ground. */
 	private static final int MAX_FOUNDATION = 24;
+	/** How far from the landing centre the Citadel Gate and the return obelisk stand. */
+	public static final int GATE_DISTANCE = 6;
 	/** How far outside the fog wall an arena's shrine stands. */
 	private static final int SHRINE_DISTANCE = 4;
 
@@ -148,7 +154,7 @@ public class RealmFeaturePiece extends StructurePiece {
 		}
 		disc(world, chunkBox, center, LANDING_INNER, ModBlocks.POLISHED_ASH_STONE.getDefaultState(), ModBlocks.ASH_BRICKS.getDefaultState());
 		List<Double> exits = new ArrayList<>();
-		for (RoadLayout.Road road : RealmRoads.of(world.toServerWorld())) {
+		for (RoadLayout.Road road : RealmRoads.painted(world.toServerWorld())) {
 			double[] start = road.points().get(0);
 			exits.add(Math.atan2(start[1], start[0]));
 		}
@@ -176,22 +182,39 @@ public class RealmFeaturePiece extends StructurePiece {
 		}
 		put(world, chunkBox, shrinePos(), SanctumBlocks.EMBER_SHRINE.getDefaultState());
 
-		// Return obelisk to the north, Sealed Gate to the south, lanterns on the diagonals.
-		BlockPos obelisk = center.add(0, 1, -6);
+		// The Citadel Gate on the side facing the final zone's sector, the return obelisk opposite, lanterns on the
+		// diagonals.
+		Direction gateSide = gateSide(world.toServerWorld());
+		Direction across = gateSide.rotateYClockwise();
+		BlockPos obelisk = center.up().offset(gateSide.getOpposite(), GATE_DISTANCE);
 		put(world, chunkBox, obelisk, RealmBlocks.RETURN_OBELISK.getDefaultState());
 		put(world, chunkBox, obelisk.up(), RealmBlocks.RETURN_OBELISK.getDefaultState());
+		BlockPos gate = center.offset(gateSide, GATE_DISTANCE);
 		for (int dy = 1; dy <= 3; dy++) {
-			put(world, chunkBox, center.add(0, dy, 6), RealmBlocks.SEALED_GATE.getDefaultState());
-			put(world, chunkBox, center.add(-1, dy, 6), ModBlocks.ASH_BRICKS.getDefaultState());
-			put(world, chunkBox, center.add(1, dy, 6), ModBlocks.ASH_BRICKS.getDefaultState());
+			put(world, chunkBox, gate.up(dy), RealmBlocks.CITADEL_GATE.getDefaultState());
+			put(world, chunkBox, gate.up(dy).offset(across, -1), ModBlocks.ASH_BRICKS.getDefaultState());
+			put(world, chunkBox, gate.up(dy).offset(across, 1), ModBlocks.ASH_BRICKS.getDefaultState());
 		}
-		put(world, chunkBox, center.add(-1, 4, 6), ModBlocks.ASH_BRICK_SLAB.getDefaultState());
-		put(world, chunkBox, center.add(0, 4, 6), ModBlocks.ASH_BRICK_SLAB.getDefaultState());
-		put(world, chunkBox, center.add(1, 4, 6), ModBlocks.ASH_BRICK_SLAB.getDefaultState());
+		for (int d = -1; d <= 1; d++) {
+			put(world, chunkBox, gate.up(4).offset(across, d), ModBlocks.ASH_BRICK_SLAB.getDefaultState());
+		}
 		for (int[] d : new int[][]{{5, 5}, {-5, 5}, {5, -5}, {-5, -5}}) {
 			put(world, chunkBox, center.add(d[0], 1, d[1]), ModBlocks.ASH_BRICK_WALL.getDefaultState());
 			put(world, chunkBox, center.add(d[0], 2, d[1]), ModBlocks.EMBER_LANTERN.getDefaultState());
 		}
+	}
+
+	/**
+	 * The side of the landing the Citadel Gate stands on: the horizontal direction nearest the final zone's sector's
+	 * middle line (south for a realm without one, as the Sealed Gate stood).
+	 */
+	public static Direction gateSide(ServerWorld world) {
+		RealmDefinition realm = Realms.byWorld(world.getRegistryKey());
+		if (realm == null || !realm.sectors().hasFinal()) {
+			return Direction.SOUTH;
+		}
+		double angle = realm.sectors().finalCenter();
+		return Direction.getFacing(Math.cos(angle), 0, Math.sin(angle));
 	}
 
 	private void generateArena(StructureWorldAccess world, BlockBox chunkBox, Random random) {

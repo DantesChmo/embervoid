@@ -4,8 +4,9 @@
     "salt": 718211,
     "sector_count": 3,
     "sector": 1,
-    "start_angle": -90.0,
-    "angle_spread": 0.5,
+    "start_angle": 120.0,
+    "sector_width": 100.0,
+    "angle_spread": 0.3,
     "min_distance": 400,
     "max_distance": 900
   },

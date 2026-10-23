@@ -53,7 +53,7 @@ public class RoadFeature extends Feature<DefaultFeatureConfig> {
 	public boolean generate(FeatureContext<DefaultFeatureConfig> context) {
 		StructureWorldAccess world = context.getWorld();
 		ServerWorld server = world.toServerWorld();
-		List<RoadLayout.Road> roads = RealmRoads.of(server);
+		List<RoadLayout.Road> roads = RealmRoads.painted(server);
 		if (roads.isEmpty()) {
 			return false;
 		}

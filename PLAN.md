@@ -871,7 +871,7 @@ and in mechanics. The hard lock (DESIGN §4.1 "Final zone lock") moves to the se
 | ID | Task | Size | Depends on | Status |
 |----|------|------|------------|--------|
 | 21.0 | **Design: the final zone inside the realm** | S | — | done (DESIGN §4.1, §4.5, §10.15) |
-| 21.1 | **Realm framework: final zone without its own dimension** | L | 21.0 | todo |
+| 21.1 | **Realm framework: final zone without its own dimension** | L | 21.0 | done – depths kept until 21.3 (JUnit `RealmLayoutTest`, `RoadLayoutTest`, `EdgeLayoutTest` on the data files; GameTests `RealmSectorTests`; server check: posts 20 / 28 / 39 and 28 / 37 / 33 on two seeds, all lit, gate road paved; `--perf` against `docs/perf-0.4.0.md`: arenas 0.9–1.0 s and minor structures 0.6–0.8 s per area as before, the landing 2.5 s (was 1.1) on a machine at load 5–6 where the untouched depths landing also went 0.9 → 1.6 s; a top-down zone map with an approximated warp noise looked right; not seen in game: the final sector's sky, fog and terrain, its straight borders at eye level, the gate road) |
 | 21.2 | **Fog wall: look and lock** | M | 21.1 | todo |
 | 21.3 | **Citadel generation in the realm dimension** | L | 21.1 | todo |
 | 21.4 | **Worlds from 0.4.x** (realm dimensions regenerated) | M | 21.1, 21.3 | todo |
@@ -888,6 +888,19 @@ and in mechanics. The hard lock (DESIGN §4.1 "Final zone lock") moves to the se
   arena sites, roads (`RoadLayout`, `RealmRoads`) and the world edge follow the new angles; `Realms`, realm respawn
   (open zones and the final zone apart), `RealmDimensionLifecycle` and mob levels updated; the Sealed Gate block
   becomes the Citadel Gate at the plaza. JUnit on the layout; GameTests; the server check.
+  *Done 2026-10-23, with one change (the coordinator's call, so the game stays completable at every merge):* the
+  depths dimension stays until 21.3 and the Citadel Gate still leads into it. `RealmLayout.Sectors` (Reach: Fields
+  120–220°, Woods 220–320°, Necropolis 320–60°, final 60–120° centred on +Z where the gate always stood), `zoneAt` →
+  `FINAL`; the warp fades out over half an open zone towards the final sector, so its borders are straight rays.
+  Biome source and `zone_blend` take `final_zone` / `final_width`; final biome `ashen_reach_citadel` (dark red sky
+  and fog colours, burnt-outskirts placeholder terrain, no natural spawns, final band 25–30 through
+  `RealmDefinition.levelsOf`). Arena sets: 100° sectors, spread 0.5 → 0.3 (the Woods site would cross a warped
+  border). A straight 26-block gate road from the plaza to the sector's mouth (r 48), no other road there; the edge
+  wall goes all the way round, the bridges only over the open zones. Block id `sealed_gate` → `citadel_gate`. Realm
+  respawn unchanged (open-zone rules in the final sector too). **21.3 removes:** `RealmDefinition.depths` /
+  `depthsRadius`, the depths branches in `CitadelGateBlock`, `RealmMobLevels.bandAt` and `ZoneTitles` (key
+  `depths`), the depths entry in `RealmDimensionLifecycle`, `RealmConfig.depthsOpen`, the `ashen_reach_depths`
+  dimension, type, biome, noise settings and structures; it adds the final sector's shrine respawn in `RealmEvents`.
 - **21.2 Citadel Gate and the region lock.** The gate: a fog wall like the arena's, opened per player after the
   three zone bosses. The region check (angle + distance) every tick for players in the realm: a player without
   clearance inside the final zone is pushed back across the nearest border; ender pearls and chorus fruit landing
