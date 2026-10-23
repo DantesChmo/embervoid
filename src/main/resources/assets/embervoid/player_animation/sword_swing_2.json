@@ -1,0 +1,168 @@
+{
+  "name": "sword_swing_2",
+  "description": "Longsword backhand: low left to high right",
+  "author": "Embervoid",
+  "emote": {
+    "beginTick": 0,
+    "endTick": 10,
+    "stopTick": 13,
+    "isLoop": false,
+    "returnTick": 0,
+    "degrees": true,
+    "easeBeforeKeyframe": true,
+    "moves": [
+      {
+        "tick": 0,
+        "easing": "linear",
+        "body": {
+          "pitch": 0,
+          "yaw": 30,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "leftArm": {
+          "pitch": -10,
+          "yaw": 0,
+          "roll": -10,
+          "z": 0
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "rightArm": {
+          "pitch": -40,
+          "yaw": -70,
+          "roll": -10,
+          "z": 0
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "rightItem": {
+          "pitch": -40,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "outQuad",
+        "body": {
+          "pitch": 0,
+          "yaw": -20,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "outQuad",
+        "leftArm": {
+          "pitch": 15,
+          "yaw": 0,
+          "roll": -15,
+          "z": 0
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "outQuad",
+        "rightArm": {
+          "pitch": -110,
+          "yaw": 45,
+          "roll": 25,
+          "z": 0
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "outQuad",
+        "rightItem": {
+          "pitch": -45,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 6,
+        "easing": "outSine",
+        "body": {
+          "pitch": 0,
+          "yaw": -25,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 6,
+        "easing": "outSine",
+        "leftArm": {
+          "pitch": 10,
+          "yaw": 0,
+          "roll": -10,
+          "z": 0
+        }
+      },
+      {
+        "tick": 6,
+        "easing": "outSine",
+        "rightArm": {
+          "pitch": -120,
+          "yaw": 60,
+          "roll": 30,
+          "z": 0
+        }
+      },
+      {
+        "tick": 6,
+        "easing": "outSine",
+        "rightItem": {
+          "pitch": -35,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 10,
+        "easing": "inOutSine",
+        "body": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 10,
+        "easing": "inOutSine",
+        "leftArm": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0,
+          "z": 0
+        }
+      },
+      {
+        "tick": 10,
+        "easing": "inOutSine",
+        "rightArm": {
+          "pitch": -18,
+          "yaw": 0,
+          "roll": 0,
+          "z": 0
+        }
+      },
+      {
+        "tick": 10,
+        "easing": "inOutSine",
+        "rightItem": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        }
+      }
+    ]
+  }
+}

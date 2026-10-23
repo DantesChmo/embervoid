@@ -758,7 +758,8 @@ The part of the weapons doc every special attack follows:
 
 ## 9. Technical notes
 
-- **Minecraft 1.20.1, Fabric.** Required: Fabric API, GeckoLib (animated mobs and bosses).
+- **Minecraft 1.20.1, Fabric.** Required: Fabric API, GeckoLib (animated mobs and bosses), playerAnimator
+  (player attack animations, from 0.5.0).
 - **TerraBlender is no longer needed.** The Ash Wasteland was an overworld biome; now it lives in Realm 1's
   own dimension with our own `BiomeSource`. The overworld gets no new biomes.
 - Realm dimensions: datapack `dimension` / `dimension_type` / noise settings + Java `BiomeSource` and a custom

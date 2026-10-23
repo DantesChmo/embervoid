@@ -1,13 +1,19 @@
 package com.embervoid.reach.gear;
 
+import com.embervoid.anim.AttackAnimations;
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
+import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,6 +51,31 @@ public class HuntsmansCrossbowItem extends CrossbowItem {
 	 */
 	public static boolean countsAsCrossbow(ItemStack stack, Item item) {
 		return item == Items.CROSSBOW && stack.getItem() instanceof HuntsmansCrossbowItem;
+	}
+
+	/** Vanilla loading and shooting, with the player's load and fire animations (PLAN 17.1). */
+	@Override
+	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+		ItemStack stack = user.getStackInHand(hand);
+		boolean charged = isCharged(stack);
+		TypedActionResult<ItemStack> result = super.use(world, user, hand);
+		if (user instanceof ServerPlayerEntity player && result.getResult().isAccepted()) {
+			if (charged) {
+				AttackAnimations.crossbowFire(player, stack);
+			} else {
+				AttackAnimations.crossbowLoad(player, stack, getPullTime(stack));
+			}
+		}
+		return result;
+	}
+
+	/** Let go before it loaded: the load animation stops with it. */
+	@Override
+	public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
+		super.onStoppedUsing(stack, world, user, remainingUseTicks);
+		if (user instanceof ServerPlayerEntity player && !isCharged(stack)) {
+			AttackAnimations.stop(player);
+		}
 	}
 
 	@Override

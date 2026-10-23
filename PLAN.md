@@ -732,7 +732,7 @@ attack animations; the Warden's Scourge as a real whip.
 | ID | Task | Size | Depends on | Status |
 |----|------|------|------------|--------|
 | 17.0 | **Design: loot ladder, weapons, fight length** (with the user) | M | — | done (DESIGN §5.5, §6, §6.1, §10.14) |
-| 17.1 | **Player attack animations** (playerAnimator) | M | 17.0 | todo |
+| 17.1 | **Player attack animations** (playerAnimator) | M | 17.0 | done – not seen in game (playerAnimator 1.0.2-rc1+1.20 required; `com.embervoid.anim.AttackAnimations` sends the clip to the player and everyone tracking them on a swing, a special and the crossbow's load and shot, vanilla weapons untouched; 13 clips by `tools/player_anim_art.py`, swings as long as the attack cooldown; JUnit `WeaponKindTest`, GameTests `AttackAnimationTests`; motion seen only in `model_preview player` sheets) |
 | 17.2 | **Weapon models in hand** | M | 17.0 | todo |
 | 17.3 | **Weapon stats and identities** | M | 17.0, 18.1 | todo |
 | 17.4 | **Warden's Scourge as a real whip** | L | 17.1 | todo |

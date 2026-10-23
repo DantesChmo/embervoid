@@ -1,5 +1,6 @@
 package com.embervoid.item.ability;
 
+import com.embervoid.anim.AttackAnimations;
 import com.embervoid.player.PlayerDataManager;
 import com.embervoid.player.PlayerSounds;
 import com.embervoid.player.StaminaManager;
@@ -33,6 +34,7 @@ public final class SpecialAbilities {
 				return TypedActionResult.fail(stack);
 			}
 			ability.perform((ServerWorld) world, serverPlayer, stack);
+			AttackAnimations.special(serverPlayer, stack);
 		} else if (!player.getAbilities().creativeMode && PlayerDataManager.get(player).stamina <= 0) {
 			// The client checks its synced copy so it does not swing for an attack the server will refuse.
 			return TypedActionResult.fail(stack);

@@ -1,0 +1,206 @@
+{
+  "name": "scythe_harvest",
+  "description": "Harvest: a full turn with the blade held out",
+  "author": "Embervoid",
+  "emote": {
+    "beginTick": 0,
+    "endTick": 13,
+    "stopTick": 16,
+    "isLoop": false,
+    "returnTick": 0,
+    "degrees": true,
+    "easeBeforeKeyframe": true,
+    "moves": [
+      {
+        "tick": 0,
+        "easing": "linear",
+        "body": {
+          "pitch": 0,
+          "yaw": -360,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "leftArm": {
+          "pitch": -70,
+          "yaw": 30,
+          "roll": 10,
+          "z": 0
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "rightArm": {
+          "pitch": -80,
+          "yaw": 60,
+          "roll": 30,
+          "z": 0
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "rightItem": {
+          "pitch": -50,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "inQuad",
+        "body": {
+          "pitch": 0,
+          "yaw": -240,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "inQuad",
+        "leftArm": {
+          "pitch": -72,
+          "yaw": 15,
+          "roll": 10,
+          "z": 0
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "inQuad",
+        "rightArm": {
+          "pitch": -82,
+          "yaw": 40,
+          "roll": 30,
+          "z": 0
+        }
+      },
+      {
+        "tick": 3,
+        "easing": "inQuad",
+        "rightItem": {
+          "pitch": -50,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 6,
+        "easing": "linear",
+        "body": {
+          "pitch": 0,
+          "yaw": -120,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 6,
+        "easing": "linear",
+        "leftArm": {
+          "pitch": -72,
+          "yaw": 0,
+          "roll": 10,
+          "z": 0
+        }
+      },
+      {
+        "tick": 6,
+        "easing": "linear",
+        "rightArm": {
+          "pitch": -82,
+          "yaw": 20,
+          "roll": 30,
+          "z": 0
+        }
+      },
+      {
+        "tick": 6,
+        "easing": "linear",
+        "rightItem": {
+          "pitch": -50,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 9,
+        "easing": "outQuad",
+        "body": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 9,
+        "easing": "outQuad",
+        "leftArm": {
+          "pitch": -65,
+          "yaw": -40,
+          "roll": 0,
+          "z": 0
+        }
+      },
+      {
+        "tick": 9,
+        "easing": "outQuad",
+        "rightArm": {
+          "pitch": -75,
+          "yaw": -30,
+          "roll": 10,
+          "z": 0
+        }
+      },
+      {
+        "tick": 9,
+        "easing": "outQuad",
+        "rightItem": {
+          "pitch": -45,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 13,
+        "easing": "inOutSine",
+        "body": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 13,
+        "easing": "inOutSine",
+        "leftArm": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0,
+          "z": 0
+        }
+      },
+      {
+        "tick": 13,
+        "easing": "inOutSine",
+        "rightArm": {
+          "pitch": -18,
+          "yaw": 0,
+          "roll": 0,
+          "z": 0
+        }
+      },
+      {
+        "tick": 13,
+        "easing": "inOutSine",
+        "rightItem": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        }
+      }
+    ]
+  }
+}

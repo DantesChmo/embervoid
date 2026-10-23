@@ -1,0 +1,168 @@
+{
+  "name": "scythe_sweep",
+  "description": "Scythe sweep: two hands, wide and low, right to left",
+  "author": "Embervoid",
+  "emote": {
+    "beginTick": 0,
+    "endTick": 16,
+    "stopTick": 19,
+    "isLoop": false,
+    "returnTick": 0,
+    "degrees": true,
+    "easeBeforeKeyframe": true,
+    "moves": [
+      {
+        "tick": 0,
+        "easing": "linear",
+        "body": {
+          "pitch": 0,
+          "yaw": -40,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "leftArm": {
+          "pitch": -50,
+          "yaw": 40,
+          "roll": 10,
+          "z": 0
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "rightArm": {
+          "pitch": -60,
+          "yaw": 70,
+          "roll": 25,
+          "z": 0
+        }
+      },
+      {
+        "tick": 0,
+        "easing": "linear",
+        "rightItem": {
+          "pitch": -30,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 4,
+        "easing": "outCubic",
+        "body": {
+          "pitch": 0,
+          "yaw": 45,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 4,
+        "easing": "outCubic",
+        "leftArm": {
+          "pitch": -60,
+          "yaw": -85,
+          "roll": -25,
+          "z": 0
+        }
+      },
+      {
+        "tick": 4,
+        "easing": "outCubic",
+        "rightArm": {
+          "pitch": -70,
+          "yaw": -70,
+          "roll": -15,
+          "z": 0
+        }
+      },
+      {
+        "tick": 4,
+        "easing": "outCubic",
+        "rightItem": {
+          "pitch": -50,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 8,
+        "easing": "outSine",
+        "body": {
+          "pitch": 0,
+          "yaw": 50,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 8,
+        "easing": "outSine",
+        "leftArm": {
+          "pitch": -45,
+          "yaw": -90,
+          "roll": -25,
+          "z": 0
+        }
+      },
+      {
+        "tick": 8,
+        "easing": "outSine",
+        "rightArm": {
+          "pitch": -55,
+          "yaw": -80,
+          "roll": -15,
+          "z": 0
+        }
+      },
+      {
+        "tick": 8,
+        "easing": "outSine",
+        "rightItem": {
+          "pitch": -45,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 16,
+        "easing": "inOutSine",
+        "body": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        }
+      },
+      {
+        "tick": 16,
+        "easing": "inOutSine",
+        "leftArm": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0,
+          "z": 0
+        }
+      },
+      {
+        "tick": 16,
+        "easing": "inOutSine",
+        "rightArm": {
+          "pitch": -18,
+          "yaw": 0,
+          "roll": 0,
+          "z": 0
+        }
+      },
+      {
+        "tick": 16,
+        "easing": "inOutSine",
+        "rightItem": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        }
+      }
+    ]
+  }
+}

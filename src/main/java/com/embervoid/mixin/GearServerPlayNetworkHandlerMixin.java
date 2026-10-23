@@ -1,5 +1,6 @@
 package com.embervoid.mixin;
 
+import com.embervoid.anim.AttackAnimations;
 import com.embervoid.reach.gear.GearReach;
 import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -10,7 +11,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Long weapon reach (track reach-gear): a swing with a whip attacks what it points at, up to 6 blocks. */
+/**
+ * Long weapon reach (track reach-gear): a swing with a whip attacks what it points at, up to 6 blocks. Every swing
+ * also plays our weapons' attack animation (PLAN 17.1).
+ */
 @Mixin(ServerPlayNetworkHandler.class)
 abstract class GearServerPlayNetworkHandlerMixin {
 	@Shadow
@@ -19,5 +23,6 @@ abstract class GearServerPlayNetworkHandlerMixin {
 	@Inject(method = "onHandSwing", at = @At("TAIL"))
 	private void embervoid$longReachSwing(HandSwingC2SPacket packet, CallbackInfo ci) {
 		GearReach.onSwing(player, packet.getHand());
+		AttackAnimations.onSwing(player, packet.getHand());
 	}
 }

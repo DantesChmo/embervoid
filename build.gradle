@@ -23,6 +23,13 @@ repositories {
 			includeGroup('com.eliotlash.mclib')
 		}
 	}
+	maven {
+		name = 'KosmX'
+		url = 'https://maven.kosmx.dev/'
+		content {
+			includeGroup('dev.kosmx.player-anim')
+		}
+	}
 }
 
 // In-game tests (Fabric GameTest), run by runGametest on a headless server. Its own mod, never in the jar.
@@ -91,6 +98,8 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	// Required at runtime by players too (animated mobs and bosses).
 	modImplementation "software.bernie.geckolib:geckolib-fabric-${project.minecraft_version}:${project.geckolib_version}"
+	// Required at runtime by players too (player attack animations, PLAN 17.1).
+	modImplementation "dev.kosmx.player-anim:player-animation-lib-fabric:${project.player_anim_version}"
 
 	// Dev-only: mod list in runClient. Not bundled, not required by players.
 	modLocalRuntime "com.terraformersmc:modmenu:${project.modmenu_version}"
