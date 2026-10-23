@@ -54,8 +54,8 @@ public class GraveWardenEntity extends ReachMob {
 
 	public static DefaultAttributeContainer.Builder createAttributes() {
 		return HostileEntity.createHostileAttributes()
-				.add(EntityAttributes.GENERIC_MAX_HEALTH, 80)
-				.add(EntityAttributes.GENERIC_ARMOR, 8)
+				.add(EntityAttributes.GENERIC_MAX_HEALTH, 29)
+				.add(EntityAttributes.GENERIC_ARMOR, 4)
 				.add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, 0.5)
 				.add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 8)
 				.add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.22)

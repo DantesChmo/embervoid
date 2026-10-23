@@ -24,32 +24,32 @@ class FightLengthTargetsTest {
 
 	@Test
 	void bossFightsLastOneAndAHalfToTwoAndAHalfMinutes() {
-		assertNone(FightTargets.bossFightLength(RUN));
+		assertNone(FightTargets.bossFightLength(RUN, FightTargets.Scope.ALL));
 	}
 
 	@Test
 	void bossFightsTakeTwentyToThirtyFiveCleanHits() {
-		assertNone(FightTargets.bossCleanHits(RUN));
+		assertNone(FightTargets.bossCleanHits(RUN, FightTargets.Scope.ALL));
 	}
 
 	@Test
 	void mobsDieInTheirBandsHits() {
-		assertNone(FightTargets.mobHitsToKill(RUN));
+		assertNone(FightTargets.mobHitsToKill(RUN, FightTargets.Scope.ALL));
 	}
 
 	@Test
 	void mobsNeedTheirBandsHitsToKillThePlayer() {
-		assertNone(FightTargets.mobHitsOnPlayer(RUN));
+		assertNone(FightTargets.mobHitsOnPlayer(RUN, FightTargets.Scope.ALL));
 	}
 
 	@Test
 	void bossMovesStayWithinTheirClass() {
-		assertNone(FightTargets.bossHitSizes(RUN));
+		assertNone(FightTargets.bossHitSizes(RUN, FightTargets.Scope.ALL));
 	}
 
 	@Test
 	void bigBossHitsAreWoundUpAndTold() {
-		assertNone(FightTargets.windupRule(RUN));
+		assertNone(FightTargets.windupRule(RUN, FightTargets.Scope.ALL));
 	}
 
 	@Test

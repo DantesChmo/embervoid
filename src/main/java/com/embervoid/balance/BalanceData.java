@@ -93,7 +93,8 @@ public final class BalanceData {
 	 *
 	 * @param id           entity id path
 	 * @param health       max health at level 1; extra lives (a bone pile) are in {@code extraHealth}
-	 * @param extraHealth  health to beat after the first death (Restless Bones' pile), not scaled by level
+	 * @param extraHealth  health to beat after the first death at level 1 (Restless Bones' pile: a share of its max
+	 *                     health, so it scales with level like it)
 	 * @param armor        armor points
 	 * @param attack       {@code generic.attack_damage} (checked against the entity)
 	 * @param xp           base XP
@@ -115,34 +116,34 @@ public final class BalanceData {
 	}
 
 	public static final List<Mob> MOBS = List.of(
-			new Mob("cinder_husk", "Cinder Husk", Zone.FIELDS, Role.FODDER, 16, 0, 0, 3, 6, false,
+			new Mob("cinder_husk", "Cinder Husk", Zone.FIELDS, Role.FODDER, 10, 0, 0, 3, 6, false,
 					List.of(melee("swing", 3, 30))),
 			new Mob("ash_stalker", "Ash Stalker", Zone.FIELDS, Role.AMBUSHER, 14, 0, 0, 4, 8, false,
 					List.of(melee("swing / leap", 4, 25))),
-			new Mob("ashen_carrion", "Ashen Carrion", Zone.FIELDS, Role.FLYER, 18, 0, 0, 4, 15, false,
+			new Mob("ashen_carrion", "Ashen Carrion", Zone.FIELDS, Role.FLYER, 14, 0, 0, 4, 15, false,
 					List.of(melee("dive", 4, 200))),
-			new Mob("withered_thrall", "Withered Thrall", Zone.WOODS, Role.FODDER, 18, 0, 0, 3.5, 8, false,
+			new Mob("withered_thrall", "Withered Thrall", Zone.WOODS, Role.FODDER, 9, 0, 0, 3.5, 8, false,
 					List.of(melee("swing", 3.5, 30))),
-			new Mob("lantern_hag", "Lantern Hag", Zone.WOODS, Role.RANGED, 16, 0, 0, 2, 12, false,
+			new Mob("lantern_hag", "Lantern Hag", Zone.WOODS, Role.RANGED, 13, 0, 0, 2, 12, false,
 					List.of(new Hit("fire flask", FireFlaskEntity.DAMAGE, HitKind.PHYSICAL, 50))),
-			new Mob("bark_hollow", "Bark Hollow", Zone.WOODS, Role.TANK, 50, 0, 8, 7, 22, true,
+			new Mob("bark_hollow", "Bark Hollow", Zone.WOODS, Role.TANK, 32, 0, 4, 7, 22, true,
 					List.of(melee("sweep", 7, 50))),
 			new Mob("restless_bones", "Restless Bones", Zone.NECROPOLIS, Role.FODDER, RestlessBonesEntity.BASE_HEALTH,
 					RestlessBonesEntity.PILE_HEALTH, 0, 4, 8, false, List.of(melee("swing", 4, 30))),
-			new Mob("crypt_moth", "Crypt Moth", Zone.NECROPOLIS, Role.FLYER, 10, 0, 0, 2, 8, false,
+			new Mob("crypt_moth", "Crypt Moth", Zone.NECROPOLIS, Role.FLYER, 12, 0, 0, 2, 8, false,
 					List.of(melee("bite", 2, 25))),
-			new Mob("hollow_sentinel", "Hollow Sentinel", Zone.NECROPOLIS, Role.TANK, 45, 0, 10, HollowSentinelEntity.THRUST_DAMAGE,
+			new Mob("hollow_sentinel", "Hollow Sentinel", Zone.NECROPOLIS, Role.TANK, 28, 0, 5, HollowSentinelEntity.THRUST_DAMAGE,
 					22, true, List.of(melee("spear thrust", HollowSentinelEntity.THRUST_DAMAGE, 40),
 							melee("shield bash", HollowSentinelEntity.BASH_DAMAGE, 50))),
-			new Mob("grave_warden", "Grave Warden", Zone.NECROPOLIS, Role.ELITE, 80, 0, 8, 8, 40, true,
+			new Mob("grave_warden", "Grave Warden", Zone.NECROPOLIS, Role.ELITE, 29, 0, 4, 8, 40, true,
 					List.of(melee("swing", 8, 40))),
 			new Mob("cinder_hound", "Cinder Hound", Zone.CITADEL, Role.FODDER, 14, 0, 0, 3, 7, false,
 					List.of(melee("bite (+2 s fire)", 3, 20))),
-			new Mob("sparking_marksman", "Sparking Marksman", Zone.CITADEL, Role.RANGED, 24, 0, 0, 2, 15, true,
+			new Mob("sparking_marksman", "Sparking Marksman", Zone.CITADEL, Role.RANGED, 15, 0, 0, 2, 15, true,
 					List.of(new Hit("bolt (+fire)", SparkingMarksmanEntity.BOLT_DAMAGE, HitKind.PHYSICAL, 60))),
-			new Mob("furnace_golem", "Furnace Golem", Zone.CITADEL, Role.TANK, 70, 0, 12, 9, 30, true,
-					List.of(melee("slam", 9, 50), new Hit("fire wave", 9 * FurnaceGolemEntity.WAVE_DAMAGE_FACTOR, HitKind.FIRE, 0))),
-			new Mob("smoldering_knight", "Smoldering Knight", Zone.CITADEL, Role.ELITE, 75, 0, 10, 8, 50, true,
+			new Mob("furnace_golem", "Furnace Golem", Zone.CITADEL, Role.TANK, 30, 0, 12, 7.5, 30, true,
+					List.of(melee("slam", 7.5, 50), new Hit("fire wave", 7.5 * FurnaceGolemEntity.WAVE_DAMAGE_FACTOR, HitKind.FIRE, 0))),
+			new Mob("smoldering_knight", "Smoldering Knight", Zone.CITADEL, Role.ELITE, 32, 0, 10, 8, 50, true,
 					// Three combo hits per 6 + 5 + 8 + 40 ticks; the lunge is ×1.25.
 					List.of(melee("combo hit", 8, 20), melee("lunge", 8 * 1.25, 80))));
 
@@ -159,7 +160,7 @@ public final class BalanceData {
 			double sideFactor, double bestFactor, String bestWhen, double phase2At, double phase2Armor, double phase2Side,
 			double phase2Best, String scalingAdd, List<Hit> hits) {}
 
-	public static final Boss ASH_COLOSSUS = new Boss("ash_colossus", "Ash Colossus", Zone.FIELDS, 18, 180, 10, 8, 150,
+	public static final Boss ASH_COLOSSUS = new Boss("ash_colossus", "Ash Colossus", Zone.FIELDS, 18, 105, 10, 8, 150,
 			1, AshColossusEntity.BACK_DAMAGE, "back (P2: the bare core)", 0.5, 3, 1, AshColossusEntity.CORE_DAMAGE, "cinder_husk", List.of(
 					melee("fist cone", 8, 60),
 					melee("leap ring", 9, 0),
@@ -167,23 +168,23 @@ public final class BalanceData {
 					melee("arm drag", 6, 0),
 					new Hit("falling cinder (P2)", 5, HitKind.FIRE, 0),
 					hazard("ash storm, per s (magic)", AshColossusEntity.STORM_DAMAGE, HitKind.FLAT)));
-	public static final Boss GRIEVING_TREE = new Boss("grieving_tree", "Grieving Tree", Zone.WOODS, 21, 170, 6, 8, 170,
+	public static final Boss GRIEVING_TREE = new Boss("grieving_tree", "Grieving Tree", Zone.WOODS, 21, 165, 6, 8, 170,
 			GrievingTreeEntity.TRUNK_DAMAGE, GrievingTreeEntity.STUNNED_DAMAGE, "stunned (lanterns shot)", 0.5, 6,
 			GrievingTreeEntity.TRUNK_DAMAGE, GrievingTreeEntity.STUNNED_DAMAGE, "withered_thrall", List.of(
 					melee("branch sweep", 8, 60),
 					melee("root line", 7, 0),
 					melee("root cage (P2)", 4, 0)));
-	public static final Boss CRYPT_KEEPER = new Boss("crypt_keeper", "Crypt Keeper", Zone.NECROPOLIS, 24, 180, 8, 5, 190,
-			1, 1, "in brazier light (dark: ×" + CryptKeeperEntity.DARK_DAMAGE + ")", 0.6, 8, 1, 1, "restless_bones", List.of(
+	public static final Boss CRYPT_KEEPER = new Boss("crypt_keeper", "Crypt Keeper", Zone.NECROPOLIS, 24, 102, 4, 5, 190,
+			1, 1, "in brazier light (dark: ×" + CryptKeeperEntity.DARK_DAMAGE + ")", 0.6, 4, 1, 1, "restless_bones", List.of(
 					melee("halberd swing", 5, 40),
 					new Hit("overhead (3rd hit)", 10, HitKind.UNBLOCKABLE, 0),
 					melee("sweep ring", 7, 0),
 					melee("thrust", 7, 0),
 					melee("lantern throw", 5, 0),
 					hazard("fire pool, per 0.5 s", 2, HitKind.FIRE)));
-	public static final Boss SMOLDERING_LORD = new Boss("smoldering_lord", "Smoldering Lord", Zone.CITADEL, 30, 260, 12, 8, 300,
+	public static final Boss SMOLDERING_LORD = new Boss("smoldering_lord", "Smoldering Lord", Zone.CITADEL, 30, 100, 12, 5, 300,
 			1, 1, "-", 0.5, 4, SmolderingLordEntity.SHATTERED_DAMAGE, SmolderingLordEntity.SHATTERED_DAMAGE, "cinder_hound", List.of(
-					melee("greatsword swing", 8, 50),
+					melee("greatsword swing", 5, 50),
 					new Hit("overhead slam", 10, HitKind.UNBLOCKABLE, 0),
 					melee("lunge", 8, 0),
 					melee("landing ring", 8, 0),
@@ -376,7 +377,8 @@ public final class BalanceData {
 	/**
 	 * Grieving Tree. Rooted (P1) it never walks; the branch it lowers after each sweep holds a lantern a melee hit can
 	 * break, so each sweep buys a stun ({@value GrievingTreeEntity#STUN_TICKS} ticks at ×{@value
-	 * GrievingTreeEntity#STUNNED_DAMAGE}). Otherwise the trunk takes ×{@value GrievingTreeEntity#TRUNK_DAMAGE}.
+	 * GrievingTreeEntity#STUNNED_DAMAGE}). Otherwise the bark turns every hit (×{@value GrievingTreeEntity#TRUNK_DAMAGE},
+	 * PLAN 18.4), so the stuns are its only openings.
 	 */
 	public static final Cadence GRIEVING_TREE_CADENCE = new Cadence(GRIEVING_TREE, true, List.of(
 			new Timing("branch sweep", GrievingTreeEntity.SWEEP_WINDUP, Size.BIGGEST, Tell.SHAPE),

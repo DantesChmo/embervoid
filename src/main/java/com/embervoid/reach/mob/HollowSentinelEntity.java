@@ -53,8 +53,8 @@ public class HollowSentinelEntity extends ReachMob {
 
 	public static DefaultAttributeContainer.Builder createAttributes() {
 		return HostileEntity.createHostileAttributes()
-				.add(EntityAttributes.GENERIC_MAX_HEALTH, 45)
-				.add(EntityAttributes.GENERIC_ARMOR, 10)
+				.add(EntityAttributes.GENERIC_MAX_HEALTH, 28)
+				.add(EntityAttributes.GENERIC_ARMOR, 5)
 				.add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, 0.9)
 				.add(EntityAttributes.GENERIC_ATTACK_DAMAGE, THRUST_DAMAGE)
 				.add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.2)

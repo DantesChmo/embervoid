@@ -227,9 +227,12 @@ public final class BalanceModel {
 	}
 
 	public static Fight fight(Mob mob, int level, Player player, Difficulty difficulty) {
-		double health = mobHealth(mob.health(), level) + mob.extraHealth();
+		double first = mobHealth(mob.health(), level);
+		double extra = mobHealth(mob.extraHealth(), level);
+		double health = first + extra;
 		double perHit = playerHit(player, mob.armor(), 1);
-		int hits = hitsToKill(health, perHit);
+		// The killing blow's overflow is lost: the bone pile takes hits of its own.
+		int hits = hitsToKill(first, perHit) + (extra > 0 ? hitsToKill(extra, perHit) : 0);
 		Hit main = mob.mainHit();
 		double taken = hitOnPlayer(main, level, player, difficulty);
 		double ticks = (hits - 1) * player.attackTicks();
@@ -265,8 +268,9 @@ public final class BalanceModel {
 		double best = playerHit(player, boss.armor(), boss.bestFactor());
 		double side2 = playerHit(player, boss.phase2Armor(), boss.phase2Side());
 		double best2 = playerHit(player, boss.phase2Armor(), boss.phase2Best());
-		int sideHits = hitsToKill(p1, side) + (p2 > 0 ? hitsToKill(p2, side2) : 0);
-		int bestHits = hitsToKill(p1, best) + (p2 > 0 ? hitsToKill(p2, best2) : 0);
+		// A boss no ordinary hit hurts (the Tree's bark) never falls to them: the sum stays at MAX_VALUE.
+		int sideHits = (int) Math.min(Integer.MAX_VALUE, (long) hitsToKill(p1, side) + (p2 > 0 ? hitsToKill(p2, side2) : 0));
+		int bestHits = (int) Math.min(Integer.MAX_VALUE, (long) hitsToKill(p1, best) + (p2 > 0 ? hitsToKill(p2, best2) : 0));
 		Map<String, Double> moves = new LinkedHashMap<>();
 		for (Hit hit : boss.hits()) {
 			moves.put(hit.name(), hitOnPlayer(hit, level, player));

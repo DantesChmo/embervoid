@@ -51,7 +51,7 @@ public class WitheredThrallEntity extends ReachMob {
 
 	public static DefaultAttributeContainer.Builder createAttributes() {
 		return HostileEntity.createHostileAttributes()
-				.add(EntityAttributes.GENERIC_MAX_HEALTH, 18)
+				.add(EntityAttributes.GENERIC_MAX_HEALTH, 9)
 				.add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 3.5)
 				.add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.24)
 				.add(EntityAttributes.GENERIC_FOLLOW_RANGE, 32);

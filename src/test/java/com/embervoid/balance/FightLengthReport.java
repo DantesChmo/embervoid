@@ -79,7 +79,7 @@ final class FightLengthReport {
 			for (Phase phase : cadence.phases()) {
 				for (Beat beat : phase.beats()) {
 					row(cadence.boss().name(), phase.name(), beat.name(), beat.lead() + " / " + beat.busy() + " / " + beat.recovery(),
-							f(beat.weight()), f(FightLength.openTicks(beat, true)) + " / " + f(FightLength.openTicks(beat, false)),
+							f(beat.weight()), f(FightLength.openTicks(beat, phase, true)) + " / " + f(FightLength.openTicks(beat, phase, false)),
 							beat.range().name().toLowerCase(Locale.ROOT) + ", " + beat.aim().name().toLowerCase(Locale.ROOT));
 				}
 			}
@@ -90,7 +90,7 @@ final class FightLengthReport {
 			Player player = FightLength.weakestPlayer(cadence, run);
 			for (Phase phase : cadence.phases()) {
 				double loop = phase.beats().stream().mapToDouble(b -> b.weight() * b.ticks()).sum();
-				double open = phase.beats().stream().mapToDouble(b -> b.weight() * FightLength.openTicks(b, true)).sum();
+				double open = phase.beats().stream().mapToDouble(b -> b.weight() * FightLength.openTicks(b, phase, true)).sum();
 				List<String> downtime = new ArrayList<>();
 				for (Downtime d : phase.downtime()) {
 					double ticks = d.ticks() + (d.add() == null ? 0 : FightLength.killTicks(d.add(), d.count(), FightLength.addLevel(cadence.boss()), player));

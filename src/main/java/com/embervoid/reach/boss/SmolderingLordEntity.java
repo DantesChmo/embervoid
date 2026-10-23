@@ -55,8 +55,9 @@ import java.util.List;
  *   lasts he takes half damage outside block light ≥ 8 — the signal braziers still burn).</li>
  * </ul>
  *
- * Base damage (Lv 30 on Normal ×3.06): swings 8, slam 10, lunge 8 + trail 2 per 0.5 s, mortar 8, flame line 8,
- * landing 8 (R40.1c: ordinary hits heavy, the slam unblockable against full diamond). Base HP 260 (~712 at Lv 30).
+ * Base damage (Lv 30 on Normal ×3.06): swings 5, slam 10, lunge 8 + trail 2 per 0.5 s, mortar 8, flame line 8,
+ * landing 8 (R40.1c: ordinary hits heavy, the slam unblockable against full diamond; PLAN 18.4: the combo's swings
+ * light, a fifth of the depths player's health). Base HP 100 (~274 at Lv 30).
  * First kill: his soul and a Flask Ember ({@link ReachBosses}).
  */
 public class SmolderingLordEntity extends ReachBoss {
@@ -103,7 +104,7 @@ public class SmolderingLordEntity extends ReachBoss {
 	public static final String SHATTER = "misc.shatter";
 	public static final String HAZARD = "misc.hazard";
 
-	private static final float SWING_DAMAGE = 8;
+	private static final float SWING_DAMAGE = 5;
 	private static final float SLAM_DAMAGE = 10;
 	private static final float LUNGE_DAMAGE = 8;
 	private static final float TRAIL_DAMAGE = 2;
@@ -126,7 +127,7 @@ public class SmolderingLordEntity extends ReachBoss {
 
 	public static DefaultAttributeContainer.Builder createAttributes() {
 		return HostileEntity.createHostileAttributes()
-				.add(EntityAttributes.GENERIC_MAX_HEALTH, 260)
+				.add(EntityAttributes.GENERIC_MAX_HEALTH, 100)
 				.add(EntityAttributes.GENERIC_ATTACK_DAMAGE, SWING_DAMAGE)
 				.add(EntityAttributes.GENERIC_ARMOR, 12)
 				.add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.26)

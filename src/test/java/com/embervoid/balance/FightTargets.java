@@ -37,10 +37,26 @@ final class FightTargets {
 		return "Lv " + player.level() + " " + player.armor().name() + ", " + player.weapon().name();
 	}
 
+	/** Which rows a check looks at: the whole game, or Realm 1 alone (its zones, the Citadel; PLAN 18.4). */
+	enum Scope {
+		ALL, REALM_ONE;
+
+		boolean has(BalanceData.Boss boss) {
+			return this == ALL || boss.zone() != null;
+		}
+
+		boolean has(BalanceData.Mob mob) {
+			return this == ALL || mob.zone() != null;
+		}
+	}
+
 	/** Solo boss fights last 1.5–2.5 min with dodging. */
-	static List<String> bossFightLength(Playthrough run) {
+	static List<String> bossFightLength(Playthrough run, Scope scope) {
 		List<String> misses = new ArrayList<>();
 		for (BossStage stage : FightLength.bossStages(run)) {
+			if (!scope.has(stage.cadence().boss())) {
+				continue;
+			}
 			Length length = FightLength.length(stage.cadence(), stage.player(), 1);
 			double s = length.seconds();
 			if (s < FightLength.MIN_SECONDS || s > FightLength.MAX_SECONDS) {
@@ -52,9 +68,12 @@ final class FightTargets {
 	}
 
 	/** Solo boss fights take 20–35 clean hits with the stage's reference weapon. */
-	static List<String> bossCleanHits(Playthrough run) {
+	static List<String> bossCleanHits(Playthrough run, Scope scope) {
 		List<String> misses = new ArrayList<>();
 		for (BossStage stage : FightLength.bossStages(run)) {
+			if (!scope.has(stage.cadence().boss())) {
+				continue;
+			}
 			int hits = (int) Math.ceil(FightLength.length(stage.cadence(), stage.player(), 1).hitsEach() - 1e-6);
 			if (hits < FightLength.MIN_HITS || hits > FightLength.MAX_HITS) {
 				misses.add(stage.cadence().boss().name() + " (" + stage.name() + ", " + who(stage.player()) + "): " + hits
@@ -65,9 +84,12 @@ final class FightTargets {
 	}
 
 	/** Mobs die in their band's hits: fodder 2–3, ambushers, ranged and flyers 3–4, tanks and elites 6–10. */
-	static List<String> mobHitsToKill(Playthrough run) {
+	static List<String> mobHitsToKill(Playthrough run, Scope scope) {
 		List<String> misses = new ArrayList<>();
 		for (MobStage stage : FightLength.mobStages(run)) {
+			if (!scope.has(stage.mob())) {
+				continue;
+			}
 			Band band = FightLength.bandOf(stage.mob());
 			int hits = stage.fight().hitsToKillMob();
 			if (hits < band.minHits || hits > band.maxHits) {
@@ -79,9 +101,12 @@ final class FightTargets {
 	}
 
 	/** Mobs need at least their band's hits to kill the player from full health: fodder 6, skirmishers 5, elites 4. */
-	static List<String> mobHitsOnPlayer(Playthrough run) {
+	static List<String> mobHitsOnPlayer(Playthrough run, Scope scope) {
 		List<String> misses = new ArrayList<>();
 		for (MobStage stage : FightLength.mobStages(run)) {
+			if (!scope.has(stage.mob())) {
+				continue;
+			}
 			Band band = FightLength.bandOf(stage.mob());
 			Fight fight = stage.fight();
 			if (fight.hitsToKillPlayer() < band.minHitsOnPlayer) {
@@ -93,9 +118,12 @@ final class FightTargets {
 		return misses;
 	}
 
-	private static List<HitShare> weakestShares(Playthrough run) {
+	private static List<HitShare> weakestShares(Playthrough run, Scope scope) {
 		List<HitShare> shares = new ArrayList<>();
 		for (Cadence cadence : BalanceData.CADENCES) {
+			if (!scope.has(cadence.boss())) {
+				continue;
+			}
 			shares.addAll(FightLength.hitShares(cadence, FightLength.weakestPlayer(cadence, run)));
 		}
 		return shares;
@@ -105,9 +133,9 @@ final class FightTargets {
 	 * Boss moves against the first (weakest) expected player who fights them: light ≤ 20 % of max health, heavy ≤ 35 %,
 	 * the biggest ≤ two thirds.
 	 */
-	static List<String> bossHitSizes(Playthrough run) {
+	static List<String> bossHitSizes(Playthrough run, Scope scope) {
 		List<String> misses = new ArrayList<>();
-		for (HitShare share : weakestShares(run)) {
+		for (HitShare share : weakestShares(run, scope)) {
 			double limit = FightLength.limit(share.timing().size());
 			if (share.share() > limit) {
 				misses.add(share.cadence().boss().name() + " " + share.hit().name() + ": " + pct(share.share()) + " of " + who(share.player())
@@ -118,9 +146,9 @@ final class FightTargets {
 	}
 
 	/** A hit of ≥ ⅓ needs a ≥ 12-tick windup with a tell, ≥ ½ a ≥ 20-tick one with a shape or sound. */
-	static List<String> windupRule(Playthrough run) {
+	static List<String> windupRule(Playthrough run, Scope scope) {
 		List<String> misses = new ArrayList<>();
-		for (HitShare share : weakestShares(run)) {
+		for (HitShare share : weakestShares(run, scope)) {
 			for (String broken : share.breaks()) {
 				if (broken.startsWith("≥")) {
 					misses.add(share.cadence().boss().name() + " " + share.hit().name() + ": " + pct(share.share()) + " " + broken);
@@ -154,12 +182,12 @@ final class FightTargets {
 	/** Every target's misses, by target. */
 	static Map<String, List<String>> all(Playthrough run) {
 		Map<String, List<String>> all = new LinkedHashMap<>();
-		all.put("Boss fight length, solo (1.5–2.5 min)", bossFightLength(run));
-		all.put("Boss clean hits, solo (20–35)", bossCleanHits(run));
-		all.put("Mob hits to kill (fodder 2–3, skirmishers 3–4, elites 6–10)", mobHitsToKill(run));
-		all.put("Mob hits to kill the player (fodder ≥ 6, skirmishers ≥ 5, elites ≥ 4)", mobHitsOnPlayer(run));
-		all.put("Boss hit sizes (light ≤ 20 %, heavy ≤ 35 %, biggest ≤ ⅔)", bossHitSizes(run));
-		all.put("Wind-up rule (≥ ⅓: 12 ticks + tell; ≥ ½: 20 ticks + shape or sound)", windupRule(run));
+		all.put("Boss fight length, solo (1.5–2.5 min)", bossFightLength(run, Scope.ALL));
+		all.put("Boss clean hits, solo (20–35)", bossCleanHits(run, Scope.ALL));
+		all.put("Mob hits to kill (fodder 2–3, skirmishers 3–4, elites 6–10)", mobHitsToKill(run, Scope.ALL));
+		all.put("Mob hits to kill the player (fodder ≥ 6, skirmishers ≥ 5, elites ≥ 4)", mobHitsOnPlayer(run, Scope.ALL));
+		all.put("Boss hit sizes (light ≤ 20 %, heavy ≤ 35 %, biggest ≤ ⅔)", bossHitSizes(run, Scope.ALL));
+		all.put("Wind-up rule (≥ ⅓: 12 ticks + tell; ≥ ½: 20 ticks + shape or sound)", windupRule(run, Scope.ALL));
 		all.put("Uniques above netherite (≥ +20 % in own use, ≥ netherite on one target)", uniquesAboveNetherite(BalanceModel.REALM_MELEE));
 		return all;
 	}

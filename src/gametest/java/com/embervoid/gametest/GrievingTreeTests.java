@@ -31,7 +31,7 @@ public final class GrievingTreeTests implements FabricGameTest {
 	}
 
 	/**
-	 * Fog comes down when it wakes; its trunk shrugs off most damage; a shot lantern stuns it (trunk ×1.5) and lifts
+	 * Fog comes down when it wakes; its bark turns every hit; a shot lantern stuns it (trunk ×1.5) and lifts
 	 * the fog, which comes back when the lift ends.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "tree_lantern_shot", tickLimit = PlacedFight.LOAD_LIMIT + 500)

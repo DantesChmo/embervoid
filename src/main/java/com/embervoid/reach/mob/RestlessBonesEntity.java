@@ -34,8 +34,8 @@ import java.util.List;
  * bell ({@link #reform}).
  */
 public class RestlessBonesEntity extends ReachMob {
-	public static final float BASE_HEALTH = 16;
-	public static final float PILE_HEALTH = 6;
+	public static final float BASE_HEALTH = 5;
+	public static final float PILE_HEALTH = 2;
 	public static final int REFORM_TICKS = 100;
 	public static final int LIGHT_TO_STAY_DEAD = 8;
 	static final Move MELEE = new Move("attack.swing", 10, 30, ReachMobSounds.RESTLESS_BONES_WINDUP, 1.0f);

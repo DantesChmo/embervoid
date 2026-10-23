@@ -70,7 +70,7 @@ public class AshenCarrionEntity extends FlyingReachMob {
 
 	public static DefaultAttributeContainer.Builder createAttributes() {
 		return HostileEntity.createHostileAttributes()
-				.add(EntityAttributes.GENERIC_MAX_HEALTH, 18)
+				.add(EntityAttributes.GENERIC_MAX_HEALTH, 14)
 				.add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 4)
 				.add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3)
 				.add(EntityAttributes.GENERIC_FLYING_SPEED, 0.6)

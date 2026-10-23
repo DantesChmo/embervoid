@@ -876,7 +876,7 @@ stats, weapons.
 |----|------|------|------------|--------|
 | 18.1 | **Balance model on fight length** | M | 17.0 | done (JUnit `FightLengthTest` in the build; the 0.5.0 targets in `FightLengthTargetsTest`, tag `targets-0.5.0`, run by `./gradlew balanceTargets`: 6 of 7 red, 80 misses listed in `docs/balance-0.5.0.md`; GameTest `bossWindupsAreTheEntities`; nothing played) |
 | 18.3 | **Retune: overworld, dungeon, moon nights** | M | 18.1, 16.4 | todo |
-| 18.4 | **Retune: Realm 1 mobs and bosses, player stats** | L | 18.1, 17.3 | todo |
+| 18.4 | **Retune: Realm 1 mobs and bosses, player stats** | L | 18.1, 17.3 | done (every Realm 1 row of the 0.5.0 targets green, now in the build as `RealmOneTargetsTest`; the Tree's bark turns hits outside a 2.2 s stun; boss HP ×0.38–0.97, the Keeper presses on; mob health to the bands; stat curve unchanged; GameTests measure it in the engine. Checks run here: compile, the balance JUnit, `balanceTargets` (17 misses, all 18.3's); one full build and GameTest run (247/247) before the last Tree commit (lantern regrow 8 s); the full regression is the coordinator's after merging. The feel was not played) |
 
 - **18.1 Balance model on fight length.** `com.embervoid.balance` turns hits to kill into seconds (weapon speed, an
   uptime factor per boss for dodging) next to the 17.0 targets, for every stage: overworld, dungeon boss, moon
@@ -901,6 +901,17 @@ stats, weapons.
   fight length, damage per hit under
   the wind-up rule, checked by a test over every boss move (damage, wind-up ticks); the player's stat curve (VIT,
   END) only where the targets need it. Measured in engine by `BalanceFightTests`; feel not played.
+  *Built:* the **Grieving Tree's** bark turns every hit outside a stun (a shield knock says so) and the stun after a
+  broken lantern lasts 44 ticks instead of 100 (stunned animation 2.2 s): with a trunk at ×0.3 its rooted waits alone
+  were 60 % open, so shorter stuns could not reach ~20 %; now 16–18 % uptime. Boss HP: Colossus 180 → 105, Tree 170 →
+  165, Keeper 180 → 102 (armor 8 → 4, close cooldowns 35 / 25 → 28 / 22: at 22 % uptime the diamond sword and the
+  Scythe had no common HP), Lord 260 → 100; the Lord's greatsword swing 8 → 5 (32 % → 16 %, light). Mob base health
+  to the bands (elites in the Woods and Necropolis also half their armor; Furnace Golem attack 9 → 7.5). The model
+  learnt that a ×0 beat is no opening and that the bone pile scales with level and takes its own hits (a GameTest
+  counts them). Every Realm 1 boss now 20–35 clean hits in 1.6–2.2 min at every stage; `RealmOneTargetsTest` holds
+  Realm 1's rows in `./gradlew build`, `./gradlew balanceTargets` still lists 18.3's. The stat curve was not needed.
+  Several stages sit at a band's edge (35 / 20 hits): the diamond sword's first visit and the uniques' later ones are
+  ~1.6–1.9× apart per hit, which leaves little room. Not played.
 
 ### Milestone 19 — mobs and bosses that look the part
 
