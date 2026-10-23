@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
  * The boss wing of a Ruined Sanctum (PLAN 16.1, DESIGN §2), one jigsaw piece behind the gate hall: a shrine room, a
  * fog wall ({@link FogWallBlock}) and the arena with a cold Cleft Stele at its far end. The stele's stones cannot be
  * mined outside creative while they stand in an arena piece, so every dungeon keeps a stele for its Crying Soul.
- * The Fallen Sister's spawn (PLAN 16.3) is a marker entity tagged {@link #BOSS_SPAWN} at the arena's centre.
+ * The Fallen Sister is summoned at the arena's centre ({@code sanctum.boss.SanctumBossArena}, PLAN 16.3).
  */
 public final class SanctumArena {
 	/** The overworld structure; the id stays from the Ember Sanctum so {@code /locate} and old maps still find it. */
@@ -31,8 +31,6 @@ public final class SanctumArena {
 	public static final Identifier TEMPLATE = Embervoid.id("sanctum/arena");
 	/** Template of the old core (Maiden, obelisks): only Sanctums planned before 0.5.0 still place it. */
 	public static final Identifier OLD_CORE = Embervoid.id("sanctum/core");
-	/** Tag of the marker entity where the dungeon boss is summoned (a placeholder until PLAN 16.3). */
-	public static final String BOSS_SPAWN = "embervoid.sanctum_boss_spawn";
 
 	static void register() {
 		PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, blockEntity) -> {

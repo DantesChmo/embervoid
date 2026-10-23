@@ -14,6 +14,7 @@ import com.embervoid.sanctum.SanctumArena;
 import com.embervoid.sanctum.SanctumBlocks;
 import com.embervoid.sanctum.SanctumEntities;
 import com.embervoid.sanctum.SanctumGuards;
+import com.embervoid.sanctum.boss.SanctumBossArena;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.CampfireBlock;
@@ -311,8 +312,8 @@ final class SanctumTemplates {
 	 * The boss wing, 21x11x30 (PLAN 16.1, DESIGN §2): a 9x7x10 shrine room at the gate hall's door with an Ember
 	 * Shrine (rest and flasks; overworld shrines set no respawn point), a fog wall in its far doorway, then the boss
 	 * arena where the core was: the core's 21x21 hall, ruined and dim, with unlit braziers along the sides and a cold
-	 * Cleft Stele on a dais at the far end ({@link SanctumArena} keeps it from being mined). The Fallen Sister's spawn
-	 * is a marker at the arena's centre (PLAN 16.3). Low candles and one high lantern keep every floor block at block
+	 * Cleft Stele on a dais at the far end ({@link SanctumArena} keeps it from being mined). The Fallen Sister is
+	 * summoned at the arena's centre ({@link SanctumBossArena}, PLAN 16.3). Low candles and one high lantern keep every floor block at block
 	 * light 1 or more, so nothing spawns in the arena.
 	 */
 	private static TemplateBuilder arena() {
@@ -333,8 +334,9 @@ final class SanctumTemplates {
 
 		// The arena: the core's hall without its obelisks and Maiden, its chiseled stone gone but for the door and dais.
 		room(t, 0, 0, 9, 20, 10, 29, POLISHED, POLISHED, BRICKS);
-		int cx = 10;
-		int cz = 19;
+		// The centre, where the Fallen Sister is summoned (PLAN 16.3).
+		int cx = SanctumBossArena.TEMPLATE_CENTER.getX();
+		int cz = SanctumBossArena.TEMPLATE_CENTER.getZ();
 		for (int x = 1; x <= 19; x++) {
 			for (int z = 10; z <= 28; z++) {
 				double r = random.nextDouble();
@@ -389,13 +391,6 @@ final class SanctumTemplates {
 		t.set(6, 9, 15, Props.IRON_CAGE.getDefaultState().with(HangingPropBlock.HANGING, true))
 				.set(14, 9, 22, Props.IRON_CAGE.getDefaultState().with(HangingPropBlock.HANGING, true).with(PropBlock.FACING, Direction.EAST));
 
-		// Where the Fallen Sister stands (PLAN 16.3 summons her there).
-		NbtCompound marker = new NbtCompound();
-		marker.putString("id", "minecraft:marker");
-		NbtList tags = new NbtList();
-		tags.add(NbtString.of(SanctumArena.BOSS_SPAWN));
-		marker.put("Tags", tags);
-		t.entity(cx, 1, cz, marker);
 		return t;
 	}
 
