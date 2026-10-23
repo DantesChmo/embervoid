@@ -13,7 +13,7 @@ import java.util.List;
  * numbers) is placed with its corner at {@link #TEMPLATE_ORIGIN}.
  *
  * <pre>
- *            z = -16   Cleft Stele spot (5 wide along x, crack at x = 0), task 15.3
+ *            z = -16   the hub's Cleft Stele (5 wide along x, crack at x = 0), task 15.4
  *            z = -14   landing, facing south
  *   z = -10 ... 10     the open core: flagstone floor, broken walls, a gap in the middle of each side
  *            z = ±5    obelisk ring at x = ±5, the Ember Shrine at the centre, the Maiden at z = 5
@@ -55,16 +55,16 @@ public final class HubLayout {
 	public static final float MAIDEN_YAW = 180;
 
 	/**
-	 * Placeholder for the hub's own Cleft Stele (task 15.3 builds the blocks): the bottom block of the crack. The
-	 * stele is {@link #STELE_WIDTH} wide along {@link #STELE_AXIS}, centred on the crack, and {@link #STELE_HEIGHT}
-	 * tall from here up. The template leaves that space empty on a chiseled pad.
+	 * The hub's own Cleft Stele (task 15.4, {@code hub.stele.HubStele}): the bottom block of the crack. The stele is
+	 * {@link #STELE_WIDTH} wide along {@link #STELE_AXIS}, centred on the crack, and {@link #STELE_HEIGHT} tall from
+	 * here up, built lit into the template on a chiseled pad.
 	 */
 	public static final BlockPos STELE_CRACK_BOTTOM = new BlockPos(0, FLOOR_Y + 1, -16);
 	public static final Direction.Axis STELE_AXIS = Direction.Axis.X;
 	public static final int STELE_WIDTH = 5;
 	public static final int STELE_HEIGHT = 6;
 
-	/** Where {@code /embervoid hub} (and later the stele) puts a player: between the stele and the core. */
+	/** Where a lit stele (and {@code /embervoid hub}) puts a player: between the hub's stele and the core. */
 	public static final BlockPos LANDING = new BlockPos(0, FLOOR_Y + 1, -13);
 	/** Facing south, towards the core. */
 	public static final float LANDING_YAW = 0;

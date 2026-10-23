@@ -608,7 +608,7 @@ B puts A out. Leaving an obelisk lands in the hub; the hub's exit leads to the a
 | 15.1 | **Hub dimension** | M | 15.0 | done (JUnit `HubLayoutTest`, GameTests `HubTests`, server check: hub whole, one Maiden; not seen in game: the dusk sky and light on the island, the layout at eye level, arriving by `/embervoid hub`) |
 | 15.2 | **Realm travel through the hub** | M | 15.1 | done (GameTests `HubTravelTests` + `HubTests`, JUnit `PlayerProgressTest`, server check bot travel; not seen in game: arriving in the hub from a realm, the travel sound there) |
 | 15.3 | **Cleft Stele: blocks, frame, activation** | M | 15.0 | done (JUnit `SteleFrameTest` + GameTests `CleftSteleTests`; textures previewed; the glow, mist and particles not seen in game, the sounds not heard) |
-| 15.4 | **Active stele and travel** | M | 15.2, 15.3 | todo |
+| 15.4 | **Active stele and travel** | M | 15.2, 15.3 | done (GameTests `SteleTravelTests` + `CleftSteleTests` + `HubTests`, server check: bot stele round trip; not seen in game: the hub's lit stele on its pad, coming out in front of a stele, the travel sounds not heard) |
 | 15.5 | **Worlds from 0.4.x** | S–M | 15.2, 16.1 | todo |
 
 - **15.0 Design.** *Done 2026-10-23:* DESIGN §1, §2 and §10.13. The user picked the **Fallen Sister** as the dungeon
@@ -671,6 +671,25 @@ B puts A out. Leaving an obelisk lands in the hub; the hub's exit leads to the a
   activating B puts A out; right-click on the active stele → hub, the hub exit → the active stele (none: per 15.0); one
   lit stele per world (DESIGN §2). GameTests: round trip, B replaces A (also when another player kindles B), a broken
   active stele, two players, a stele in the Nether.
+  *Built:* `hub.stele.SteleState` (overworld `PersistentState` `embervoid_stele`: the lit stele's dimension, frame
+  origin and axis, and the players who went through it) and `SteleTravel`. Kindling a stele makes it the world's;
+  the old one goes out (`CleftStele.extinguish`: stones cold, crack empty, the put-out sound; stones shared with the
+  new frame kept), whoever kindled either, and online players who had used the old one get a chat line
+  (`embervoid.stele.replaced`; not the one who kindled). Losing a stone of the lit stele (`PUT_OUT`) leaves none; a
+  lit stele found with its crack gone is forgotten when the hub is left. Walking into the crack (`onEnter`) or
+  right-clicking a kindled stone or the crack of the world's stele → the hub's landing, the spot remembered by
+  `HubTravel.noteDeparture`; the hub's stele → on the ground just in front of the world's stele (whichever side has
+  room, facing away; else one block further; else the crack), with none `HubTravel.sendOut` (the last overworld
+  exit, else bed or world spawn). After a trip a crack does not take the player for 40 ticks and not until they have
+  been out of every crack for 10; a right click always works. Kindling is refused outside "the overworld" (any
+  non-`embervoid` world, so the Nether and the End work; realms, the hub and arenas do not): the soul is kept, an
+  action-bar line `embervoid.stele.not_here` and the obelisk refuse sound. `HubStele`: the hub's own stele is in the
+  hub template (`HubTemplates`), lit, along X at `HubLayout.STELE_CRACK_BOTTOM`; nobody breaks it (creative too), a
+  stone taken by a command is relit the next tick, and a hub placed before 15.4 gets it on server start; `Hub.verify`
+  checks it. Sounds `block.cleft_stele.enter` (respawn anchor charge, low) and `block.cleft_stele.leave` (endermen
+  portal, low), heard at the stele left and where the player lands. `/embervoid stele [kindle <pos>]` (op);
+  `/embervoid hub leave` stays as an op/debug command for the fallback way out (it ignores the lit stele). Not seen
+  in game.
 - **15.5 Worlds from 0.4.x.** Per 15.0: Sanctum cores already generated, players standing in a Sanctum or holding an
   old return point when the world is updated, attunement flags. GameTests on old-format player data and an old
   Sanctum template placed in the test world.

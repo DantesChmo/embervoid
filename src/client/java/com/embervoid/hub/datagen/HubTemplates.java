@@ -1,6 +1,10 @@
 package com.embervoid.hub.datagen;
 
 import com.embervoid.hub.HubLayout;
+import com.embervoid.hub.stele.CleftStoneBlock;
+import com.embervoid.hub.stele.HubStele;
+import com.embervoid.hub.stele.SteleBlocks;
+import com.embervoid.hub.stele.SteleCrackBlock;
 import com.embervoid.sanctum.SanctumBlocks;
 import com.embervoid.sanctum.SanctumEntities;
 import com.embervoid.sanctum.datagen.TemplateBuilder;
@@ -26,13 +30,12 @@ import static com.embervoid.registry.ModBlocks.*;
  *   <li>The core, 21×21 as in the Sanctum: Sanctum Flagstone floor, broken walls with a 3-wide gap in the middle of each
  *   side, chiseled pillars where the old room had them, ember lanterns on the corners and beside the gaps.</li>
  *   <li>The Ember Shrine in the middle, four Void Obelisks in a ring, the Ashen Maiden south of the shrine.</li>
- *   <li>North of the core a paved path to the landing and a chiseled pad with the Cleft Stele's spot left empty
- *   between two lantern posts (task 15.3 builds the stele).</li>
+ *   <li>North of the core a paved path to the landing and a chiseled pad with the hub's own Cleft Stele, built lit,
+ *   between two lantern posts (task 15.4).</li>
  *   <li>The underside tapers from {@value HubLayout#DEPTH} blocks of rock in the middle to one at the edge.</li>
  * </ul>
  */
 final class HubTemplates {
-	private static final BlockState AIR = Blocks.AIR.getDefaultState();
 	private static final BlockState BRICKS = ASH_BRICKS.getDefaultState();
 	private static final BlockState CRACKED = CRACKED_ASH_BRICKS.getDefaultState();
 	private static final BlockState POLISHED = POLISHED_ASH_STONE.getDefaultState();
@@ -43,6 +46,9 @@ final class HubTemplates {
 	private static final BlockState WALL = ASH_BRICK_WALL.getDefaultState();
 	private static final BlockState FLAGSTONE = SanctumBlocks.SANCTUM_FLAGSTONE.getDefaultState();
 	private static final BlockState LANTERN = EMBER_LANTERN.getDefaultState();
+	private static final BlockState KINDLED_STONE = SteleBlocks.CLEFT_STONE.getDefaultState().with(CleftStoneBlock.KINDLED, true);
+	private static final BlockState CRACK = SteleBlocks.STELE_CRACK.getDefaultState()
+			.with(SteleCrackBlock.AXIS, HubStele.FRAME.axis());
 
 	static Map<Identifier, TemplateBuilder> all() {
 		return Map.of(HubLayout.TEMPLATE, island());
@@ -125,11 +131,12 @@ final class HubTemplates {
 				t.set(x, 0, z, CHISELED);
 			}
 		}
-		// The stele's own space stays empty; the template clears it so nothing else can end up there.
-		for (int x = stele.getX() - steleHalf; x <= stele.getX() + steleHalf; x++) {
-			for (int y = 1; y <= HubLayout.STELE_HEIGHT; y++) {
-				t.set(x, y, stele.getZ(), AIR);
-			}
+		// The hub's own stele, always lit: kindled stones either side of the crack.
+		for (BlockPos pos : HubStele.FRAME.stones()) {
+			t.set(pos, KINDLED_STONE);
+		}
+		for (BlockPos pos : HubStele.FRAME.crack()) {
+			t.set(pos, CRACK);
 		}
 		for (int side : new int[]{-1, 1}) {
 			int x = stele.getX() + side * (steleHalf + 2);

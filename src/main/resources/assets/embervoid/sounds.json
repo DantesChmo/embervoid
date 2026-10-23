@@ -1886,5 +1886,20 @@
 			{"name": "minecraft:block/respawn_anchor/ambient2", "volume": 0.6},
 			{"name": "minecraft:block/respawn_anchor/ambient3", "volume": 0.6}
 		]
+	},
+	"block.cleft_stele.enter": {
+		"subtitle": "subtitles.embervoid.block.cleft_stele.enter",
+		"sounds": [
+			{"name": "minecraft:block/respawn_anchor/charge1", "pitch": 0.6},
+			{"name": "minecraft:block/respawn_anchor/charge2", "pitch": 0.6},
+			{"name": "minecraft:block/respawn_anchor/charge3", "pitch": 0.6}
+		]
+	},
+	"block.cleft_stele.leave": {
+		"subtitle": "subtitles.embervoid.block.cleft_stele.leave",
+		"sounds": [
+			{"name": "minecraft:mob/endermen/portal", "pitch": 0.6, "volume": 0.8},
+			{"name": "minecraft:mob/endermen/portal2", "pitch": 0.6, "volume": 0.8}
+		]
 	}
 }

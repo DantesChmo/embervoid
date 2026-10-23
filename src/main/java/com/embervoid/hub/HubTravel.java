@@ -23,9 +23,9 @@ import java.util.Optional;
 
 /**
  * Travel in and out of the hub (PLAN 15.2, DESIGN §2). Leaving a realm always lands in the hub
- * ({@link RealmTeleports#leaveRealm}); the hub's way out is the world's lit Cleft Stele (task 15.4) and, with none, the
- * spot the player last left the overworld from ({@link #lastOverworldExit}), else their bed or the world spawn
- * ({@link #leave}).
+ * ({@link RealmTeleports#leaveRealm}); the hub's way out is the world's lit Cleft Stele
+ * ({@code hub.stele.SteleTravel}, PLAN 15.4) and, with none, the spot the player last left the overworld from
+ * ({@link #lastOverworldExit}), else their bed or the world spawn ({@link #leave}).
  *
  * <p>"The overworld" here is any world that is not the mod's own: the overworld, the Nether, the End and other mods'
  * dimensions. The hub, the realms and the Vampire's arena are never a way out. The spot is recorded by the mod's own
@@ -110,6 +110,12 @@ public final class HubTravel {
 	 * world spawn.
 	 */
 	public static void leave(ServerPlayerEntity player) {
+		sendOut(player);
+		RealmTeleports.travelled(player);
+	}
+
+	/** {@link #leave} without its sound, for a way out that plays its own (the hub's Cleft Stele). */
+	public static void sendOut(ServerPlayerEntity player) {
 		MinecraftServer server = player.getServer();
 		Exit exit = lastOverworldExit(player);
 		ServerWorld world = exit == null ? null : server.getWorld(exit.dimension());
@@ -119,7 +125,6 @@ public final class HubTravel {
 		} else {
 			toRespawnPoint(player);
 		}
-		RealmTeleports.travelled(player);
 	}
 
 	/** To the player's bed or charged respawn anchor if it still stands, else the overworld spawn. */

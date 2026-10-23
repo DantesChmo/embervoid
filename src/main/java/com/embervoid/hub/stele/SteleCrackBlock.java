@@ -4,6 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -11,6 +12,9 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
@@ -21,7 +25,7 @@ import net.minecraft.world.World;
 /**
  * The crack of a lit Cleft Stele (PLAN 15.3): the passage in its middle column, a thin sheet of mist like a nether
  * portal's. Walked through, not broken: it goes only when its stele is put out. Walking in is handed to
- * {@link CleftStele#onEnter}.
+ * {@link CleftStele#onEnter}; a right click goes through its stele too ({@link SteleTravel#use}).
  */
 public class SteleCrackBlock extends Block {
 	public static final EnumProperty<Direction.Axis> AXIS = Properties.HORIZONTAL_AXIS;
@@ -50,6 +54,24 @@ public class SteleCrackBlock extends Block {
 		if (entity instanceof ServerPlayerEntity player && !player.hasVehicle()) {
 			CleftStele.onEnter(player, pos);
 		}
+	}
+
+	@Override
+	@SuppressWarnings("deprecation")
+	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		return use(world, pos, player);
+	}
+
+	/**
+	 * A right click on a lit stele's stone or crack. The client cannot tell the world's stele from a dead one and takes
+	 * every click as used; the server sends the player through if it is a working stele.
+	 */
+	static ActionResult use(World world, BlockPos pos, PlayerEntity player) {
+		if (world.isClient) {
+			return ActionResult.SUCCESS;
+		}
+		return player instanceof ServerPlayerEntity serverPlayer && !serverPlayer.hasVehicle()
+				&& SteleTravel.use(serverPlayer, pos) ? ActionResult.CONSUME : ActionResult.PASS;
 	}
 
 	@Override

@@ -44,7 +44,7 @@ public final class HubTests implements FabricGameTest {
 
 	/**
 	 * The server placed the hub when it started; placing it again does nothing, not even repairing it. The shrine, the
-	 * obelisk ring with its realms, the empty stele spot and exactly one Ashen Maiden are there.
+	 * obelisk ring with its realms, the lit hub stele and exactly one Ashen Maiden are there.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "hub_placed", tickLimit = LOAD_LIMIT + 100)
 	public void hubIsPlacedOnceWithMaidenAndRing(TestContext context) {

@@ -149,7 +149,8 @@ Client preferences live in `config/embervoid-client.json` (same rules; never rea
 - `/embervoid wave status | spawn <players> | clear <players>` (operator) — full moon waves.
 - `/embervoid vampire status | provoke` (operator) — blood new moon Vampires and the Vampire fight.
 - `/embervoid realm enter <realm> [toShrine] | leave | where | arenas | roads | data | edge` (operator) — realm travel and layout: enter a realm, leave it for the hub, where you are, its boss arenas, roads and world edge.
-- `/embervoid hub [check | leave]` (operator) — go to the hub, check it is whole, or take the hub's way out (to where you last left the overworld, else your bed or the world spawn).
+- `/embervoid hub [check | leave]` (operator) — go to the hub, check it is whole, or take the hub's fallback way out, ignoring the lit stele (to where you last left the overworld, else your bed or the world spawn).
+- `/embervoid stele [kindle <pos>]` (operator) — show the world's lit Cleft Stele, or kindle the cold stele at a position as a Crying Soul would.
 - `/embervoid progress <player> [reset | unlock | complete | boss <id>]` (operator) — show or change realm progress.
 - `/embervoid boss fights` (operator) — running boss fights.
 - `/embervoid reliquary <player> [open|clear]` (operator) — show, open or empty a player's Reliquary.

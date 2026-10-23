@@ -14,7 +14,7 @@ final class HubCommands {
 	static void register() {
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(
 				literal("embervoid").requires(source -> source.hasPermissionLevel(2)).then(literal("hub")
-						// /embervoid hub: to the hub's landing, remembering the way back (the way in until task 15.4).
+						// /embervoid hub: to the hub's landing, remembering the way back, as a lit stele would take them.
 						.executes(context -> {
 							ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
 							if (!HubTravel.enter(player)) {
@@ -23,7 +23,7 @@ final class HubCommands {
 							}
 							return 1;
 						})
-						// /embervoid hub leave: the hub's way out with no lit stele, until task 15.4 builds the stele's.
+						// /embervoid hub leave: the hub's way out as if no stele were lit (the fallback; debug only).
 						.then(literal("leave").executes(context -> {
 							ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
 							HubTravel.Exit exit = HubTravel.lastOverworldExit(player);

@@ -1,6 +1,7 @@
 package com.embervoid.hub.stele;
 
 import com.embervoid.Embervoid;
+import com.embervoid.hub.HubTravel;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.block.Block;
@@ -15,10 +16,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -26,8 +29,8 @@ import java.util.Set;
 
 /**
  * The Cleft Stele (PLAN 15.3, DESIGN §2): a slab of Cleft Stone ({@link SteleFrame}) that a Crying Soul kindles. This
- * class kindles it and puts it out; which stele is the world's lit one and where the crack leads is PLAN 15.4, which
- * hooks {@link #KINDLED}, {@link #PUT_OUT} and {@link #onEnter}.
+ * class kindles it and puts it out; which stele is the world's lit one and where the crack leads is {@link SteleTravel}
+ * (PLAN 15.4), which hooks {@link #KINDLED}, {@link #PUT_OUT} and {@link #onEnter}. The hub's own stele: {@link HubStele}.
  */
 public final class CleftStele {
 	/** Fired on the server after a stele is kindled; {@code player} is null when no player did it. */
@@ -62,13 +65,23 @@ public final class CleftStele {
 	public static void register() {
 		SteleBlocks.register();
 		SteleItems.register();
+		SteleTravel.register();
+		HubStele.register();
+		SteleCommands.register();
 		Embervoid.LOGGER.debug("Registering the Cleft Stele");
 	}
 
-	/**
-	 * A player stands in the crack of a lit stele (every tick they do). Nothing yet: PLAN 15.4 sends them to the hub.
-	 */
+	/** A player stands in the crack of a lit stele (every tick they do): through it, if it is a working one. */
 	public static void onEnter(ServerPlayerEntity player, BlockPos crack) {
+		SteleTravel.walkIn(player, crack);
+	}
+
+	/**
+	 * Whether a stele can be kindled in {@code world}: the overworld, the Nether, the End (any world but the mod's own);
+	 * never in a realm, the hub or an arena (DESIGN §2 "Where"). Works on both sides.
+	 */
+	public static boolean canKindleIn(World world) {
+		return HubTravel.isOverworld(world.getRegistryKey());
 	}
 
 	/** What a block counts as for {@link SteleFrame}. */
@@ -115,6 +128,32 @@ public final class CleftStele {
 	}
 
 	/**
+	 * Puts out a whole stele that is still standing (another one was kindled): its kindled stones go cold, its crack
+	 * empty, except the blocks in {@code spare} (those it shares with the new one). Only stele blocks are touched, so a
+	 * frame that is no longer there costs nothing. Fires no {@link #PUT_OUT}: no stone was lost.
+	 */
+	public static void extinguish(ServerWorld world, SteleFrame frame, Collection<BlockPos> spare) {
+		boolean changed = false;
+		for (BlockPos pos : frame.crack()) {
+			if (!spare.contains(pos) && world.getBlockState(pos).isOf(SteleBlocks.STELE_CRACK)) {
+				world.setBlockState(pos, Blocks.AIR.getDefaultState(), Block.NOTIFY_ALL);
+				changed = true;
+			}
+		}
+		for (BlockPos pos : frame.stones()) {
+			BlockState state = world.getBlockState(pos);
+			if (!spare.contains(pos) && state.isOf(SteleBlocks.CLEFT_STONE) && state.get(CleftStoneBlock.KINDLED)) {
+				world.setBlockState(pos, state.with(CleftStoneBlock.KINDLED, false), Block.NOTIFY_ALL);
+				changed = true;
+			}
+		}
+		if (changed) {
+			Vec3d middle = Vec3d.ofCenter(frame.at(SteleFrame.CRACK, SteleFrame.HEIGHT / 2));
+			world.playSound(null, middle.x, middle.y, middle.z, SteleSounds.PUT_OUT, SoundCategory.BLOCKS, 1.0f, 0.9f);
+		}
+	}
+
+	/**
 	 * A kindled stone at {@code lostStone} is gone: the kindled stones and crack blocks joined to it go cold and empty.
 	 */
 	static void putOut(ServerWorld world, BlockPos lostStone) {
@@ -157,8 +196,14 @@ public final class CleftStele {
 				|| state.isOf(SteleBlocks.CLEFT_STONE) && state.get(CleftStoneBlock.KINDLED);
 	}
 
-	/** Uses the soul on {@code pos}: kindles the cold stele there, if any. Returns whether it did. */
+	/**
+	 * Uses the soul on {@code pos}: kindles the cold stele there, if any and if steles burn in this world. Returns
+	 * whether it did.
+	 */
 	static boolean tryKindle(ServerWorld world, BlockPos pos, @Nullable PlayerEntity player) {
+		if (!canKindleIn(world)) {
+			return false;
+		}
 		Optional<SteleFrame> frame = coldFrame(world, pos);
 		frame.ifPresent(f -> kindle(world, f, player instanceof ServerPlayerEntity serverPlayer ? serverPlayer : null));
 		return frame.isPresent();

@@ -606,5 +606,9 @@
 	"item.embervoid.crying_soul.tooltip": "Use on a Cleft Stele to kindle it",
 	"subtitles.embervoid.block.cleft_stele.kindle": "Cleft Stele kindles",
 	"subtitles.embervoid.block.cleft_stele.put_out": "Cleft Stele goes out",
-	"subtitles.embervoid.block.stele_crack.ambient": "Stele crack whispers"
+	"subtitles.embervoid.block.stele_crack.ambient": "Stele crack whispers",
+	"subtitles.embervoid.block.cleft_stele.enter": "Someone passes into the stele",
+	"subtitles.embervoid.block.cleft_stele.leave": "Someone steps out of the stele",
+	"embervoid.stele.not_here": "The stele will not kindle here",
+	"embervoid.stele.replaced": "Your Cleft Stele has gone out: another one was kindled"
 }

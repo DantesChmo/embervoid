@@ -42,6 +42,7 @@
 			"com.embervoid.gametest.HubTests",
 			"com.embervoid.gametest.HubTravelTests",
 			"com.embervoid.gametest.CleftSteleTests",
+			"com.embervoid.gametest.SteleTravelTests",
 			"com.embervoid.gametest.CombatFxTests",
 			"com.embervoid.gametest.PropTests",
 			"com.embervoid.gametest.AttackAnimationTests"
