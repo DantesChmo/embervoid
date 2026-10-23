@@ -233,7 +233,7 @@ final class FightLengthReport {
 					f(single * FightLength.oneTarget(weapon)));
 		}
 		line("");
-		line("The Scourge's ×1.6 is its tip crack, built in PLAN 17.4; until then it hits one target at ×1.");
+		line("The Scourge's ×1.6 is its tip crack, the last 1.5 blocks of the lash (PLAN 17.4); the lash hits every mob on its line, one hit each.");
 		line("");
 	}
 

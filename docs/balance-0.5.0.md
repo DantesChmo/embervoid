@@ -112,8 +112,8 @@ Decided in this task (small, marked here): flyers sit with ambushers and ranged,
 fodder, ambushers and ranged, elites); the Ghost (twice an Ashen Zombie, the full moon's punishment) counts as an
 elite; "≥ 5" for the middle band between fodder's 6 and elites' 4. A move's class is its role: combo hits and quick
 swings light, telegraphed areas, lunges and throws heavy, each boss's unblockable or signature move its biggest.
-Own use: the Scythe on two enemies (its sweep hits the second at 75 %), the Scourge at its tip (×1.6; the tip is PLAN
-17.4, until then it hits one target plainly), the Rapier fully ramped (+30 %, built in 17.3). Multiplayer has no target in §5.5; its
+Own use: the Scythe on two enemies (its sweep hits the second at 75 %), the Scourge at its tip (×1.6 in the last 1.5
+blocks of the lash, PLAN 17.4), the Rapier fully ramped (+30 %, built in 17.3). Multiplayer has no target in §5.5; its
 fights are shown, not tested.
 
 ## 4. Results: today against the targets
@@ -189,8 +189,9 @@ Ashbearer's Mace (7.2) stay between iron and diamond as §6.1 wants.
 
 Two things the per-second numbers do not show:
 
-- **The Scourge's tip is PLAN 17.4.** Until it lands the Scourge hits one target plainly, 10 per second, below
-  netherite; the check above counts the tip as designed.
+- **The Scourge's tip is built (PLAN 17.4).** 16 per second needs the mob in the last 1.5 blocks of the 6-block
+  lash; closer in it is 10 per second, below netherite. The lash hits every mob on its line, which the one-target
+  numbers leave out.
 - **The Rapier is capped by the hurt cooldown.** A mob takes a second hit within 10 ticks of the first only for the
   difference, and at speed 2.2 a full charge comes every 9.1 ticks, so on one target the Rapier lands at most 2 full
   hits per second: 14 per second, about 18 ramped (still +9 % / +42 % over netherite). 18.4 can raise its damage a
@@ -209,7 +210,7 @@ Two things the per-second numbers do not show:
 6. **Mob damage:** the creeper, Vindicator, witch, Enderman (overworld, 18.3), the Ghost (moon), the Furnace Golem.
 7. **16.3:** done: the Fallen Sister at about 20 % uptime, 31 clean hits in 1.6 min, every move inside its class.
 8. **17.3:** done — the §6.1 numbers as proposed, the Scythe's stamina back, the Rapier's ramp, the Crossbow's opener,
-   the Smoldering Plate at netherite. The Scourge's tip waits for 17.4.
+   the Smoldering Plate at netherite. The Scourge's tip: done in 17.4.
 
 ## 6. Running it
 
@@ -467,7 +468,7 @@ the GameTest `bossWindupsAreTheEntities` (`./gradlew runGametest`).
 | Sanctum Longsword | 6.5 | 1.6 | 10.4 | ×1 | 10.4 | -19 % | 10.4 |
 | Ashbearer's Mace | 8 | 0.9 | 7.2 | ×1 | 7.2 | -44 % | 7.2 |
 
-The Scourge's ×1.6 is its tip crack, built in PLAN 17.4; until then it hits one target at ×1.
+The Scourge's ×1.6 is its tip crack, the last 1.5 blocks of the lash (PLAN 17.4); the lash hits every mob on its line, one hit each.
 
 ### Misses of the 0.5.0 targets (today's numbers; `./gradlew balanceTargets`)
 
