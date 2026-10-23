@@ -83,6 +83,11 @@ The mod reads `config/embervoid.json` (created with defaults on first launch). M
 | `sanctum.hallGuardChance` / `hallArcherChance` | 0.6 / 0.3 | 0–1 | Chance of a Hollow at each side-hall spot / of a skeleton archer in a chamber, rolled at worldgen |
 | `sanctum.mapChanceCartographer` / `mapChanceTemple` / `mapChanceRuinedPortal` / `mapChanceShipwreck` | 0.25 / 0.1 / 0.08 / 0.25 | 0–1 | Chance of a Sanctum Map in those vanilla chests |
 | `sanctum.mapSearchRadius` | 64 | 8–200 | How far (in chunks) a Sanctum Map looks for a Sanctum |
+| `sanctumGear.cleaveRange` / `cleaveArc` / `cleaveMultiplier` | 3 / 90 / 1.25 | 1–8 / 10–360 / 0–10 | Sanctum Longsword's Wide Cleave: reach (blocks), arc in front (degrees), share of the weapon's hit each target takes |
+| `sanctumGear.cleaveStamina` / `cleaveCooldown` | 25 / 60 | 0–1000 / 0–1200 | Wide Cleave's stamina cost and cooldown (ticks) |
+| `sanctumGear.slamRadius` / `slamMultiplier` / `slamKnockback` | 3 / 0.75 / 0.8 | 1–8 / 0–10 / 0–4 | Ashbearer's Mace's Ground Slam: ring radius, share of the weapon's hit, knockback strength |
+| `sanctumGear.slamSlownessTicks` / `slamSlownessAmplifier` | 40 / 1 | 0–1200 / 0–9 | Ground Slam's Slowness: duration (ticks) and amplifier (1 = Slowness II) |
+| `sanctumGear.slamStamina` / `slamCooldown` | 30 / 100 | 0–1000 / 0–1200 | Ground Slam's stamina cost and cooldown (ticks) |
 | `realm.depthsOpen` | true | true, false | Whether an unsealed Sealed Gate leads into the depths (off: "the depths are still forming"; was off in 0.3.0) |
 | `boss.healthPerExtraFighter` | 0.5 | 0–10 | Boss health bonus per fighter beyond the first: HP × (1 + this·(n − 1)) |
 | `boss.addsPerExtraFighter` | 1 | 0–10 | Extra adds per fighter beyond the first |

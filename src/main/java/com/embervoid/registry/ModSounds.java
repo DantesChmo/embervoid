@@ -11,6 +11,7 @@ import com.embervoid.reach.world.ReachBlockSounds;
 import com.embervoid.realm.RealmSounds;
 import com.embervoid.reliquary.ReliquarySounds;
 import com.embervoid.sanctum.SanctumSounds;
+import com.embervoid.sanctum.gear.SanctumGearSounds;
 import com.embervoid.vampire.VampireSounds;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -42,6 +43,7 @@ public final class ModSounds {
 		SanctumSounds.register();
 		RealmSounds.register();
 		PlayerSounds.register();
+		SanctumGearSounds.register();
 	}
 
 	private ModSounds() {}

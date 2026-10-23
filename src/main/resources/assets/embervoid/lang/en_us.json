@@ -575,5 +575,7 @@
 	"subtitles.embervoid.entity.ash_remnant.faded": "Remnant's embers die",
 	"subtitles.embervoid.entity.ash_remnant.burnt": "Remnant burns away",
 	"subtitles.embervoid.item.special_attack.no_stamina": "Out of stamina",
-	"subtitles.embervoid.item.debug_sweep.sweep": "Sweeping strike"
+	"subtitles.embervoid.item.debug_sweep.sweep": "Sweeping strike",
+	"subtitles.embervoid.item.sanctum_longsword.wide_cleave": "Wide cleave",
+	"subtitles.embervoid.item.ashbearers_mace.ground_slam": "Ground slam"
 }
