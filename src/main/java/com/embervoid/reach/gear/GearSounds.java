@@ -8,6 +8,7 @@ public final class GearSounds {
 	public static final SoundEvent HARVEST = ModSounds.register("item.ashen_scythe.harvest");
 	public static final SoundEvent ASH_WAVE = ModSounds.register("item.ashen_scythe.ash_wave");
 	public static final SoundEvent LASH = ModSounds.register("item.wardens_scourge.lash");
+	public static final SoundEvent WHIP_CRACK = ModSounds.register("item.wardens_scourge.crack");
 	public static final SoundEvent LUNGE = ModSounds.register("item.royal_ash_rapier.lunge");
 	public static final SoundEvent FURNACE_HEART_NOVA = ModSounds.register("item.furnace_heart_cuirass.nova");
 	public static final SoundEvent ASH_BOMB_THROW = ModSounds.register("item.ash_bomb.throw");

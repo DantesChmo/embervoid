@@ -1358,6 +1358,13 @@
 			{"name": "minecraft:entity/player/attack/crit3", "pitch": 1.4}
 		]
 	},
+	"item.wardens_scourge.crack": {
+		"subtitle": "subtitles.embervoid.item.wardens_scourge.crack",
+		"sounds": [
+			{"name": "minecraft:fireworks/blast1", "volume": 0.9, "pitch": 1.8},
+			{"name": "minecraft:fireworks/blast1", "volume": 0.9, "pitch": 1.6}
+		]
+	},
 	"item.royal_ash_rapier.lunge": {
 		"subtitle": "subtitles.embervoid.item.royal_ash_rapier.lunge",
 		"sounds": [
