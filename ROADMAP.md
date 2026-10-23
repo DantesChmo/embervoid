@@ -2,7 +2,8 @@
 
 What the mod is: [DESIGN.md](DESIGN.md). What is built and how content plugs in: [CORE.md](CORE.md). Task breakdown of the next milestones: [PLAN.md](PLAN.md).
 
-Current version: **0.4.0** (0.2.0 release tasks are still open; each release includes everything before it).
+Current version: **0.4.1**. Each release includes everything before it. 0.2.0 and 0.3.0 were never published on their
+own: 0.4.0 contains them (superseded), and their leftover release tasks ship in 0.4.1.
 Milestones are ordered by dependency. Releases group milestones so that every release is a playable loop.
 Every user-facing string ships in both `en_us` and `ru_ru`.
 
@@ -11,6 +12,7 @@ Every user-facing string ships in both `en_us` and `ru_ru`.
 | **0.2.0** "Kindling" | Harder overworld, RPG core, the hub | 1–5 | Survive a harder world, find the Ember Sanctum, level up at the Maiden |
 | **0.3.0** "Moon Nights" | Realm and boss frameworks, moon nights in the overworld | 6–8 | Survive the full moon and the blood new moon; enter a placeholder realm, beat test bosses, open the gate |
 | **0.4.0** "Ashen Reach" | The first obelisk: all of Realm 1 | 9–13 | Enter Realm 1, take the three zones in any order, gear up, go through the gate, kill the Smoldering Lord |
+| **0.4.1** | Leftovers of 0.2.0 and 0.3.0 | — | The same loop with Sanctum weapons, final overworld and moon-night art, sounds and a checked dedicated server |
 | Later | Realms 2–4 and other ideas | — | [BACKLOG.md](BACKLOG.md); each realm gets a design pass first |
 
 Realm 1 was split into 0.3.0 / 0.3.5 while its design was missing. With the design decided (DESIGN §4.5) it ships
@@ -19,8 +21,10 @@ whole in 0.4.0; the old split is dropped.
 Open questions in [DESIGN.md](DESIGN.md) §10 name the milestone they block. Decide them before that milestone
 is done; until then its tasks build the recommended answer and keep it easy to change.
 
-**Where things stand:** milestones 1–7 are built and on `main`; most of it was checked in game (single player).
-What was not checked in game is marked "(not verified in game: …)" on its line. Milestone 8 (moon nights) is built and covered by GameTests. 0.4.0 milestones 9–13 are built (GameTests + server check, nothing seen in game); its release tasks remain. Not started: the 0.2.0 release tasks, most 0.3.0 release tasks, the art pass.
+**Where things stand:** milestones 1–13 are built and on `main`; milestones 1–7 were partly checked in game (single
+player), everything since only by GameTests and the dedicated-server check. What was not checked in game is marked
+"(not verified in game: …)" on its line. 0.4.0 is released locally (tag `v0.4.0`, not pushed). The leftovers of 0.2.0
+and 0.3.0 are done as 0.4.1 (PLAN.md "Leftovers of 0.2.0 and 0.3.0"); publishing waits for the user.
 
 ## Decisions
 
@@ -63,7 +67,7 @@ Required runtime mods: Fabric API, GeckoLib (from milestone 4).
 
 ## 2. Core player mechanics
 
-**Status:** Done. Checked in game in single player; the dedicated-server run is in the 0.2.0 release list.
+**Status:** Done. Checked in game in single player; on a dedicated server by the server check's bot player (PLAN L6). The stamina bar and the debug weapon are covered by GameTests (L5), their look not seen.
 
 **Goal:** the systems everything else plugs into.
 
@@ -82,7 +86,7 @@ Was blocked by: DESIGN §10.6 (flask charges, Decided), §10.7 (second death, bu
 
 ## 3. RPG core
 
-**Status:** Done. Checked in game in single player; the dedicated-server run is in the 0.2.0 release list.
+**Status:** Done. Checked in game in single player; stats sync and leveling on a dedicated server by the server check's bot player (PLAN L6).
 
 **Goal:** stats, character level, mob levels, and the harder difficulty — all testable through commands before the hub exists.
 
@@ -103,13 +107,13 @@ built as recommended; FOR's extra mob-drop chance is Decided.
 
 ## 4. Overworld threats
 
-**Status:** Done, partly unverified. Models, animations and textures are placeholders (art pass in the 0.2.0 release list).
+**Status:** Done. Final script-made models and textures since 0.4.1 (PLAN L4, checked in the offline preview only); the Hollow's wind-up, dodge and guard by GameTests (L5).
 
 **Goal:** the new hostiles that push the player to find the Sanctum.
 
 - [x] Add GeckoLib (`build.gradle`, `fabric.mod.json` `depends`)
 - [x] GeckoLib pipeline (model, animations, renderer) proven with the **Ash Ghoul**: night/underground packs, blinding ash cloud on death
-- [x] **Hollow**: armed undead, blocks, slow and hard-hitting, rich XP. Rare at night; main guard of the Sanctum (not verified in game: wind-up timing and dodging it, guard block and guard break sounds)
+- [x] **Hollow**: armed undead, blocks, slow and hard-hitting, rich XP. Rare at night; main guard of the Sanctum (wind-up, dodge and guard checked by GameTests; sounds not heard)
 - [x] **Ember Wisp**: cave flyer below y=0, only under cover, sets things on fire, flees light
 - [x] Spawn rules, loot tables, levels per §5.4 of the design
 - [x] Bestiary details per mob go into DESIGN.md before implementing
@@ -118,11 +122,11 @@ built as recommended; FOR's extra mob-drop chance is Decided.
 
 ## 5. Ember Sanctum
 
-**Status:** Done, partly unverified. The Sanctum weapons (DESIGN §10.10) are not built.
+**Status:** Done, partly unverified. The Sanctum weapons (DESIGN §10.10) came in 0.4.1.
 
 **Goal:** the hub. The 0.2.0 loop is complete here.
 
-- [x] Sanctum structure (jigsaw, size 4): surface ruin on a foundation, descent through a rock-cased shaft sealed from caves, outer halls with a light Hollow guard and loot, the core room. Overworld spacing ~48 / separation ~16 in the `structure_set` file (datapack-overridable) (not verified in game: the fix that turns water in the shaft casing's gaps into rock, QA #7f, queued for the next batch)
+- [x] Sanctum structure (jigsaw, size 4): surface ruin on a foundation, descent through a rock-cased shaft sealed from caves, outer halls with a light Hollow guard and loot, the core room. Overworld spacing ~48 / separation ~16 in the `structure_set` file (datapack-overridable) (the fix that turns water in the shaft casing's gaps into rock, QA #7f, checked by a GameTest in 0.4.1)
 - [x] Core: no hostile spawns, unbreakable core blocks
 - [x] **Ashen Maiden** NPC: invulnerable, no despawn, GeckoLib model (placeholder model and texture)
 - [x] **Level-up screen**: stats, derived values, next-point preview, cost and current XP; buys one point per click through the server
@@ -131,20 +135,21 @@ built as recommended; FOR's extra mob-drop chance is Decided.
 - [x] Attunement on first reaching a core; per-player progression data (attuned, unlocked realms, beaten bosses)
 - [x] **Sanctum Map** injected into vanilla chest loot
 - [x] Sanctum outer-hall loot: flask shards, vanilla loot
-- [ ] 1–2 weapons with a special attack in the outer-hall loot so END matters in 0.2.0 (DESIGN §10.10, still open)
+- [x] 1–2 weapons with a special attack in the outer-hall loot so END matters: Sanctum Longsword and Ashbearer's Mace (0.4.1, PLAN L1; DESIGN §10.10 built as recommended)
 
 **Done when:** in a fresh survival world you can find a Sanctum (by exploring or a map), fight through it, reach the Maiden, and spend XP on stats. A second Sanctum recognizes you as attuned.
 
 ## 0.2.0 release
 
-**Status:** Not started.
+**Status:** Superseded. 0.2.0 was never published on its own; 0.4.0 contains it, and its leftover tasks were done in
+0.4.1 (PLAN.md "Leftovers of 0.2.0 and 0.3.0").
 
-- [ ] Balance pass on mob levels, damage factors and the cost curve (a fresh playthrough to the Sanctum)
-- [ ] Sounds: each mob, block and item gets its sounds in its own milestone; this pass only fills gaps
-- [ ] Dedicated-server test: stats sync, leveling, remnants
-- [ ] README (English): features, required mods, config reference
-- [ ] Bump to 0.2.0, changelog, Modrinth / CurseForge pages, release build via GitHub Actions
-- [ ] Art pass: Ash Ghoul, Hollow, Ember Wisp and Ashen Maiden models, animations and textures are generated placeholders (`tools/mob_placeholders.py`, `tools/maiden_placeholder.py`); redo them in Blockbench
+- [x] Balance pass on mob levels, damage factors and the cost curve (a fresh playthrough to the Sanctum) — modelled and checked in the engine, `docs/balance-overworld.md` (PLAN L2); no number needed changing
+- [x] Sounds: each mob, block and item gets its sounds in its own milestone; this pass only fills gaps — 0.4.1 (PLAN L3, not heard)
+- [x] Dedicated-server test: stats sync, leveling, remnants — the server check's bot player (PLAN L6)
+- [x] README (English): features, required mods, config reference (PLAN L8)
+- [x] ~~Bump to 0.2.0, changelog, Modrinth / CurseForge pages, release build via GitHub Actions~~ — superseded by 0.4.0 / 0.4.1
+- [x] Art pass: Ash Ghoul, Hollow, Ember Wisp and Ashen Maiden — script-made final models with `tools/overworld_mob_art.py` (PLAN L4, checked in the offline preview, not seen in game)
 
 ---
 
@@ -181,13 +186,13 @@ shrines).
 - [x] Summon rule: boss appears when a player who has not beaten it enters; credit to everyone inside (not verified in game: summon and credit with a second player, the fog wall pushing back a player outside)
 - [x] First-kill unique drop (*Ember Heart*) as personal loot for each credited player, lesser loot on repeat kills (not verified in game: a second player's personal Ember Heart)
 - [x] Telegraph helpers (windup animation + sound + particles), boss music playback/stop (not verified in game: sounds and music; vanilla placeholders for now)
-- [x] Arena Ember Shrine per DESIGN §10.8 (built as recommended: outside the fog wall, dormant for players who have not beaten the boss; it looks lit to everyone, only resting is refused)
+- [x] Arena Ember Shrine per DESIGN §10.8 (built as recommended: outside the fog wall, dormant for players who have not beaten the boss; since 0.4.1 it also looks cold to them, PLAN L7)
 
 **Done when:** a test boss can be fought, reset, beaten, re-fought by a second player, and leaves a shrine.
 
 ## 8. Moon nights
 
-**Status:** Done, checked by GameTests and the server check (PLAN 8.13). Not seen in game: red sky, models (placeholders), animations, boss moves. DESIGN §10.12 built as recommended.
+**Status:** Done, checked by GameTests and the server check (PLAN 8.13). Final script-made models since 0.4.1 (PLAN L4). Not seen in game: red sky, models, animations, boss moves. DESIGN §10.12 built as recommended.
 
 - [x] World moon-night state: every third lunar cycle, first full moon skipped, no sleeping, 30-minute fallback, config
 - [x] Full moon: +3 levels, longer follow range, Curse of the Night stacks, **Ashen Zombie** and **Ghost**
@@ -195,12 +200,14 @@ shrines).
 
 ## 0.3.0 release
 
-**Status:** In progress.
+**Status:** Superseded. 0.3.0 was never published on its own; 0.4.0 contains it, and its leftovers were done in 0.4.0 and
+0.4.1.
 
 - [x] Sealed Gate opens onto a placeholder ("the depths are still forming"; `realm.depthsOpen`)
 - [x] Balance pass on the moon nights (levels, curse, Ghosts, Vampire boss) — done in the 0.4.0 balance pass
 - [x] Multiplayer and performance test (realm worldgen time, entity counts) — done in 0.4.0 (R40.4)
-- [ ] Release 0.3.0 (version bumped, jar built; publishing waits for the user)
+- [x] Art pass: Ashen Zombie, Ghost, Vampire and the Vampire boss — 0.4.1 (PLAN L4)
+- [x] ~~Release 0.3.0 (version bumped, jar built; publishing waits for the user)~~ — superseded by 0.4.0 / 0.4.1 (PLAN R30.4)
 
 ---
 
@@ -281,6 +288,22 @@ comes in the release pass.
 - [ ] Release 0.4.0 (version, changelog and docs done, all checks green; publishing: push the `v0.4.0` tag, CI builds the jar — waits for the user)
 
 **Done when:** a fresh survival playthrough goes overworld → Sanctum → Realm 1 → Smoldering Lord without creative mode, feels fair, and breaks nothing on client or server.
+
+---
+
+# 0.4.1 — leftovers of 0.2.0 and 0.3.0
+
+Tasks L1–L9 in PLAN.md "Leftovers of 0.2.0 and 0.3.0"; decisions for the user D1–D13 there.
+
+**Status:** Done on the coordinator branch, merged into `main` by the 0.4.0 coordinator; publishing (tag `v0.4.1`
+after `v0.4.0`, CI builds the jar) waits for the user. Nothing was played in game.
+
+- [x] Sanctum weapons with special attacks in the outer-hall loot (L1)
+- [x] Overworld balance pass, modelled (L2)
+- [x] Sound gaps (L3), art for the eight placeholder entities (L4)
+- [x] Headless checks for the in-game checks never run (L5), dedicated-server player check (L6)
+- [x] Arena shrines look cold per player (L7), README (L8)
+- [x] Version 0.4.1, changelog, docs (L9)
 
 ---
 

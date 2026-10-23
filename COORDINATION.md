@@ -14,9 +14,9 @@ the coordinator included.
 
 | Track | Session name | Scope | Owns |
 |---|---|---|---|
-| L-A | `left-gear` | L1–L2: Sanctum weapons, overworld balance pass | `com.embervoid.sanctum.gear`, `com.embervoid.balance`, `docs/balance-overworld.md`, the `sanctum_outer_hall` loot table, weapon item textures; overworld number changes (`mob`, `entity/mob`, `stats` config defaults) as small commits |
+| L-A | `left-gear` (done) | L1–L2: Sanctum weapons, overworld balance pass | `com.embervoid.sanctum.gear`, `com.embervoid.balance`, `docs/balance-overworld.md`, the `sanctum_outer_hall` loot table, weapon item textures; overworld number changes (`mob`, `entity/mob`, `stats` config defaults) as small commits |
 | L-B | `left-audio` (not started: done by the coordinator) | L3: sound gaps | `sounds.json`, the new per-package sound classes, subtitles, `SoundTests`; sound hooks in entity / item / block classes as small separate commits |
-| L-C | `left-art` | L4: art pass for the eight placeholder entities | `tools/overworld_mob_art.py`, the eight entities' `geo`, `animations`, `textures` |
+| L-C | `left-art` (done) | L4: art pass for the eight placeholder entities | `tools/overworld_mob_art.py`, the eight entities' `geo`, `animations`, `textures` |
 | — | coordinator | L5–L9 | GameTests and JUnit for L5, `tools/server_check.py`, the shrine look (`boss`, `sanctum`, client), README, docs, version |
 
 Overlaps: left-gear and left-audio may both touch `HollowEntity` (numbers vs. sound hooks) and the lang files — keep
