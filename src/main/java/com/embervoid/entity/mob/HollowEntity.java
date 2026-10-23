@@ -1,5 +1,6 @@
 package com.embervoid.entity.mob;
 
+import com.embervoid.Embervoid;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityGroup;
@@ -26,10 +27,13 @@ import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.AxeItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.DamageTypeTags;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
@@ -62,6 +66,9 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 	private static final byte STANCE_NONE = 0;
 	private static final byte STANCE_GUARD = 1;
 	private static final byte STANCE_STAGGERED = 2;
+
+	/** Weapons other than axes that break the guard (DESIGN §10.10). */
+	public static final TagKey<Item> BREAKS_GUARD = TagKey.of(RegistryKeys.ITEM, Embervoid.id("breaks_guard"));
 
 	private static final UUID STANCE_SLOW_ID = UUID.fromString("6c3f6f0a-3b5e-4f7e-9d8e-2f4a1c7b9e01");
 	static final int WINDUP_TICKS = 8;
@@ -205,7 +212,7 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 				playSound(SoundEvents.ITEM_SHIELD_BLOCK, 1.0f, 0.8f);
 				return false;
 			}
-			if (source.getAttacker() instanceof LivingEntity attacker && attacker.getMainHandStack().getItem() instanceof AxeItem) {
+			if (source.getAttacker() instanceof LivingEntity attacker && breaksGuard(attacker.getMainHandStack())) {
 				playSound(SoundEvents.ITEM_SHIELD_BREAK, 1.0f, 0.8f);
 				setStance(STANCE_STAGGERED, STAGGER_TICKS);
 				windup = -1;
@@ -215,6 +222,11 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 			}
 		}
 		return super.damage(source, amount);
+	}
+
+	/** An axe, or an item in {@code #embervoid:breaks_guard} (the Ashbearer's Mace), breaks a raised guard. */
+	public static boolean breaksGuard(ItemStack weapon) {
+		return weapon.getItem() instanceof AxeItem || weapon.isIn(BREAKS_GUARD);
 	}
 
 	private boolean isInFront(DamageSource source) {
