@@ -26,7 +26,8 @@ is done; until then its tasks build the recommended answer and keep it easy to c
 player), everything since only by GameTests and the dedicated-server check. What was not checked in game is marked
 "(not verified in game: …)" on its line. 0.4.0 is released locally (tag `v0.4.0`, not pushed). The leftovers of 0.2.0
 and 0.3.0 are done as 0.4.1 (PLAN.md "Leftovers of 0.2.0 and 0.3.0"); publishing waits for the user.
-The user's own playthrough of 0.4.1 (2026-10-23) set the next release, 0.5.0 (PLAN.md "Playtest 0.4.1").
+The user's own playthrough of 0.4.1 (2026-10-23) set the next release, 0.5.0 (PLAN.md "Playtest 0.4.1"); its state
+and how the work is run: COORDINATION.md "Tracks — 0.5.0".
 
 ## Decisions
 
@@ -317,70 +318,73 @@ visuals; the quick fixes fit in anywhere. Milestones 15, 17 and 21 start with a 
 
 ## 14. Quick fixes
 
-**Status:** To do.
+**Status:** Done (PLAN 14.1–14.2; JUnit, GameTests, server check; not seen or heard in game).
 
-- [ ] "Boss music" slider in the Music & Sounds screen, independent of Music (default 100 %)
-- [ ] Roads in Realm 1 that stand out from the ash: contrasting paving, light along them at dusk, denser milestones
+- [x] "Boss music" slider in the Music & Sounds screen, independent of Music (default 100 %)
+- [x] Roads in Realm 1 that stand out from the ash: contrasting paving, light along them at dusk, denser milestones
 
 ## 15. Hub dimension and the Cleft Stele
 
-**Status:** Design done (DESIGN §2); build to do.
+**Status:** Built except old worlds (PLAN 15.0–15.4 done; 15.5 to do; not seen in game).
 
 - [x] Design: hub, stele, dungeon boss (**Fallen Sister**), old worlds — DESIGN §1, §2, §10.13
-- [ ] Hub dimension with the Ashen Maiden, the obelisk ring and an Ember Shrine; realms return to it
-- [ ] **Cleft Stele**: a 5 × 6 slab frame, kindled by the Crying Soul, one active stele per world, stele ⇄ hub
+- [x] Hub dimension with the Ashen Maiden, the obelisk ring and an Ember Shrine; realms return to it
+- [x] **Cleft Stele**: a 5 × 6 slab frame, kindled by the Crying Soul, one active stele per world, stele ⇄ hub
 - [ ] Worlds from 0.4.x keep working
 
 ## 16. The overworld dungeon
 
-**Status:** To do.
+**Status:** Built except the balance re-run (PLAN 16.1–16.3 done; 16.4 to do; not seen in game).
 
-- [ ] The overworld Sanctum becomes a dungeon: outer halls, guards and loot stay, the core gives way to a boss arena
-- [ ] 2–3 variants, about one per 300–400 blocks; the Sanctum Map leads to the nearest
-- [ ] Dungeon boss **Fallen Sister**, drops the **Crying Soul**
+- [x] The overworld Sanctum becomes a dungeon: outer halls, guards and loot stay, the core gives way to a boss arena
+- [x] 2–3 variants, about one per 300–400 blocks; the Sanctum Map leads to the nearest
+- [x] Dungeon boss **Fallen Sister**, drops the **Crying Soul**
 - [ ] Overworld balance re-run
 
 ## 17. Weapons above netherite
 
-**Status:** Design done (DESIGN §5.5, §6.1); build to do.
+**Status:** Built except the in-hand models (PLAN 17.0, 17.1, 17.3, 17.4 done; 17.2 to do; feel not played).
 
 - [x] Design: loot ladder with Realm 1 uniques about 30 % above netherite, weapon identities, target fight lengths — DESIGN §5.5, §6, §6.1
-- [ ] Player attack animations (new dependency: playerAnimator)
+- [x] Player attack animations (new dependency: playerAnimator)
 - [ ] Bigger in-hand weapon models
-- [ ] New weapon stats and identities
-- [ ] **Warden's Scourge** as a real whip: segmented, hits along an arc, the tip cracks
+- [x] New weapon stats and identities
+- [x] **Warden's Scourge** as a real whip: segmented, hits along an arc, the tip cracks
 
 ## 18. Full rebalance
 
-**Status:** To do.
+**Status:** Realm 1 done (PLAN 18.1, 18.4); overworld, dungeon and moon nights to do (18.3).
 
-- [ ] Balance model on fight length (bosses about 1.5–2.5 min with dodging, about 20–35 clean hits)
-- [ ] Retune overworld, dungeon and moon nights; then Realm 1 mobs, bosses and player stats
+- [x] Balance model on fight length (bosses about 1.5–2.5 min with dodging, about 20–35 clean hits)
+- [x] Retune Realm 1 mobs, bosses and the Grieving Tree's cadence
+- [ ] Retune overworld, dungeon and moon nights (the Vampire boss's cadence)
 
 ## 19. Mobs and bosses that look the part
 
-**Status:** To do.
+**Status:** Tooling and effects done (PLAN 19.1, 19.2); animations and remodels to do.
 
-- [ ] Offline viewer for structures and animation motion (`tools/model_preview.py` extended)
-- [ ] Combat effects: camera shake, swing trails, hit flashes
+- [x] Offline viewer for structures and animation motion (`tools/model_preview.py` extended)
+- [x] Combat effects: camera shake, swing trails, hit flashes
 - [ ] Death, hit-reaction and stagger animations for all 24 animated mobs
 - [ ] Boss remodels with secondary motion, phase and death animations (the Smoldering Lord's face included)
 - [ ] Optional: a dev photo tour the user starts in their own terminal
 
 ## 20. Props and moving set pieces
 
-**Status:** To do.
+**Status:** Props done (PLAN 20.3); set pieces and structure variety to do.
 
 - [ ] Animated set pieces (GeckoLib block entities, capped): windmill sails, hoists, bells, cages, portcullis gears, bellows, chain lifts, censers, smoke
-- [ ] About 12 3D props with matching hitboxes; more structure variety
+- [x] 14 3D props with matching hitboxes
+- [ ] Props in the structures, more piece variants
 
 ## 21. The Citadel behind a fog wall
 
-**Status:** Design done (DESIGN §4.1); build to do.
+**Status:** Layout and lock done (PLAN 21.0–21.2); the Citadel still sits in the depths dimension until 21.3.
 
 - [x] Design: the final zone as the realm's fourth sector behind the Citadel Gate — DESIGN §4.1, §4.5
-- [ ] Realm framework without the depths dimension; the Citadel generated in the realm
-- [ ] Fog wall: look and server lock (no pearls, chorus, elytra or riptide past it)
+- [x] Four sectors (final zone 60°, radius 1300), the Citadel Gate at the plaza
+- [ ] The Citadel generated in its sector; the depths dimension removed
+- [x] Fog wall: look and server lock (no pearls, chorus, elytra or riptide past it)
 - [ ] Old worlds' realm dimensions regenerated (progress kept)
 
 ## 0.5.0 release

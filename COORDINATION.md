@@ -5,6 +5,78 @@ by track sessions at once. Each track has its own git worktree and branch. The *
 main checkout; the session that started the tracks, `startedBy` in the session list) merges tracks into `main`,
 owns the docs, and is the only place where the game is launched.
 
+## Tracks — 0.5.0 (the 0.4.1 playtest)
+
+**Read this first in a new session.** State as of 2026-10-24. Tasks and their status lines: PLAN.md "Playtest 0.4.1 —
+release 0.5.0" (milestones 14–21, one release: the user asked for no string of small versions). Decisions:
+DESIGN.md §1, §2, §4.1, §4.5, §5.5, §6, §6.1 and §10.13–10.15. Release checklist: ROADMAP.md "0.5.0".
+
+### How the work runs
+
+- **Coordinator:** a session in the main checkout, on `main` itself (no coordinator branch this time). It writes the
+  design passes with the user (15.0, 17.0, 21.0 were done that way), starts track sessions, merges them into `main`
+  after the user says yes, runs the full regression and keeps the docs. Nothing is pushed until the user asks; tags
+  `v0.4.0` / `v0.4.1` are still unpushed.
+- **Tracks:** at most 4 sessions at once, each in its own worktree on a branch `claude/<slug>-<hash>`, briefed with:
+  the PLAN task and the DESIGN sections to read, what is already on `main`, what it owns and must not touch, the
+  rules below, and "report your branch and a summary". Finished sessions are deleted after their merge.
+- **Track rules:** commit only on the own branch, never merge or push; author DantesChmo <doni-rio@yandex.ru>, no
+  Co-Authored-By / Claude / "Generated with" lines; never `./gradlew clean` (it wipes the tracked
+  `src/main/generated`); never launch the client or HeadlessMc; every string in en_us and ru_ru; visuals reported as
+  not seen. **No full test run in a track** (the user, 2026-10-23): compile all source sets, `runDatagen` when assets
+  change, own new or changed JUnit only; GameTests and server-check steps are written but run by the coordinator.
+- **Merging a batch** (coordinator): check authors and attribution (`git log main..branch`), find conflicts without
+  touching `main` (`git merge-tree --write-tree`), ask the user, `git merge --no-ff` per branch. So far conflicts were
+  only both sides adding a line to the same list (registration in `Embervoid.java` / `EmbervoidClient.java`, the
+  datagen entry point, the GameTest list in `src/gametest/resources/fabric.mod.json`, a generated tag) — keep both —
+  and doc paragraphs (merge by hand).
+- **Full regression after every merged batch:** `./gradlew runDatagen` (must leave `src/main/generated` unchanged),
+  `./gradlew build`, `./gradlew runGametest`, `./gradlew balanceTargets` (the 0.5.0 balance targets; red rows are
+  18.3's until it is done), `python3 tools/server_check.py`. The server check needs the accepted EULA in
+  `run/server-check`, which exists only in the main checkout: do not run it from a temporary worktree.
+- What the regression found so far: the Scourge's crack re-entered itself through Fabric's attack event (stack
+  overflow on every whip hit), fixed in `ac990f8`. A track that skips GameTests can merge a crash; read the failure
+  list, not only the exit code.
+
+### Batches merged into `main`
+
+| Batch | Tasks | Merges |
+|---|---|---|
+| 1 | 14.1 boss music volume, 14.2 roads, 19.1 offline viewer | `58d3d6d`, `a58a5ef`, `b1e383f` |
+| 2 | 15.1 hub dimension, 15.3 Cleft Stele blocks, 19.2 combat effects, 20.3 props | `ba5cc89`, `238613a`, `8a5314c`, `8e71b4e` |
+| 3 | 15.2 travel through the hub, 16.1 Sanctum → dungeon, 17.1 attack animations (playerAnimator), 18.1 balance model | `51c099d`, `97d957b`, `260350d`, `a1e72e7` |
+| 4 | 15.4 lit stele and travel, 16.3 Fallen Sister, 17.3 weapon stats, 21.1 four sectors | `722f3b7`, `8dfe82e`, `f51f005`, `1e98a20` |
+| 5 | 16.2 dungeon variants, 17.4 whip, 18.4 Realm 1 retune, 21.2 Citadel Gate and lock | `61d03b2`, `8f38200`, `a062129`, `aee6b00` (+ fix `ac990f8`) |
+
+Design passes with the user, committed on `main`: 15.0 hub (`2cb7828`), 17.0 weapons and fight length (`abdc04d`),
+21.0 final zone (`55db32b`), the answers to 18.1's findings (`80548f2`).
+
+After batch 5: build, all 268 GameTests and the server check green; `balanceTargets` has 17 misses, all 18.3's
+(the Vampire boss's cadence and hit sizes, creeper / witch / Enderman / Vindicator / zombie, the moon-night mobs, the
+dungeon Hollow).
+
+### What is left
+
+| Task | Depends on | Note |
+|---|---|---|
+| 15.5 Worlds from 0.4.x | — | old Sanctum cores keep working, old player data (DESIGN §2 "Worlds from 0.4.x") |
+| 16.4 Overworld balance re-run | — | 16.2's counts: 24–42 dungeons within 1500 blocks |
+| 17.2 Weapon models in hand | — | the Scourge's lash is done in 17.4 |
+| 18.3 Retune overworld, dungeon, moon nights | 16.4 | closes the remaining `balanceTargets` misses |
+| 19.3 Death, hit, stagger animations (3 parts) | — | overworld + moon mobs after 18.3 (same entity classes) |
+| 19.4 Boss remodels (one per boss) | 19.3 for shared code | Colossus, Grieving Tree, Crypt Keeper, Smoldering Lord (face), Vampire |
+| 19.5 Photo tour (optional) | — | the user starts it in their own terminal |
+| 20.1 Set-piece framework, 20.2 moving set pieces | 20.1 → 20.2 | |
+| 20.4 Props into structures, more variants | — | after 21.3 for the Citadel pieces |
+| 21.3 Citadel in its sector, remove the depths dimension | — | 21.1 kept depths so the game stays completable |
+| 21.4 Old worlds' realm dimensions regenerated | 21.3 | the coordinator's call (nothing is published); it touches the user's playtest world |
+| 21.5 Release 0.5.0 | all | version, changelog, docs; tag and push wait for the user |
+
+Proposed next batch (not started): 16.4 + 18.3 in one session, 17.2, 19.3 for the Realm 1 zone mobs, 21.3.
+
+Open loose ends: the 21.2 session (`citadel-lock`) could not be deleted yet (a queued message); its branch is merged.
+Nothing of 0.5.0 has been seen or played in game.
+
 ## Tracks — leftovers of 0.2.0 and 0.3.0 (0.4.1)
 
 Tasks in PLAN.md "Leftovers of 0.2.0 and 0.3.0". Coordinator: session `tails-020-030` on its own branch (not the main
