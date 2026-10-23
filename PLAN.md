@@ -422,7 +422,7 @@ animation names; new sounds are own `embervoid:` events on vanilla files with su
 | L1 | **Sanctum weapons** (DESIGN §10.10): Sanctum Longsword and Ashbearer's Mace with special attacks, in the outer-hall loot | left-gear | todo |
 | L2 | **Overworld balance pass** (0.2.0 release): model and engine check from a fresh level 1 player to the Sanctum | left-gear | todo |
 | L3 | **Sound gaps** (0.2.0 release): overworld mobs, moon-night mobs, Vampires, Sanctum blocks and items, flask, remnant, stamina | coordinator (was left-audio) | done (GameTest `OverworldSoundTests`; 53 events on vanilla files; not heard) |
-| L4 | **Art pass** (0.2.0 + 0.3.0 release): Ash Ghoul, Hollow, Ember Wisp, Ashen Maiden, Ashen Zombie, Ghost, Vampire, Vampire boss | left-art | todo |
+| L4 | **Art pass** (0.2.0 + 0.3.0 release): Ash Ghoul, Hollow, Ember Wisp, Ashen Maiden, Ashen Zombie, Ghost, Vampire, Vampire boss | left-art | done (checked by preview; JUnit `EntityModelFilesTest`; not seen in game) |
 | L5 | **Headless checks for the in-game checks never run**: debug weapon and stamina (2.5, 2.6), Hollow wind-up / dodge / guard, Sanctum casing gaps (QA #7f) | coordinator | done (GameTests `StaminaTests`, `HollowTests`, `SanctumTests.floodedStairwellKeepsWaterOut`; JUnit `StaminaBarTest`) |
 | L6 | **Dedicated-server test** (2.11, 3.8, 0.2.0 release): stats sync, leveling through the real packet, death → remnant → recovery, with a bot in `tools/server_check.py` | coordinator | done (`tools/server_check.py` bot step) |
 | L7 | **Per-player arena shrine look** (DESIGN §10.8 known limitation) | coordinator | done (GameTest `MultiplayerTests.arenaShrineIsColdForNewcomersOnly`; the cold look not seen) |
@@ -467,6 +467,11 @@ animation names; new sounds are own `embervoid:` events on vanilla files with su
   `tools/vampire_placeholders.py` for the eight entities; sizes per `tools/model_bounds.json`, bone and animation names
   unchanged (renderers, held items and glowmasks rely on them); every model reviewed through `tools/model_preview.py`
   (front, side, back, key poses) next to a Realm 1 mob for style.
+  *Done* (track notes `plans/left-art.md`): bone names, pivots, animation names and lengths unchanged; JUnit
+  `registry.EntityModelFilesTest` checks that every model keeps the animations its class plays, the renderer bones
+  (`head`, `right_item`), the telegraph lengths and that every animated bone exists. The old placeholder scripts are
+  retired (`tools/maiden_placeholder.py`, `tools/nightmob_placeholders.py` removed; `tools/mob_placeholders.py` keeps
+  only its helpers; `tools/vampire_placeholders.py` writes only the Vampire Fang) so they cannot overwrite the art.
 - **L5 Headless checks.** GameTests: the debug sweep spends 30 stamina, starts the 1 s cooldown, knocks back mobs, fails
   with 0 stamina (failure packet sent), creative spends nothing; stamina regenerates after the delay and the S2C
   stamina sync reaches its owner. JUnit: the stamina bar's visibility, fill and flash as a pure function taken out of
