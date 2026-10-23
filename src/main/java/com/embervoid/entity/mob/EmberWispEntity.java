@@ -23,7 +23,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -194,7 +193,7 @@ public class EmberWispEntity extends HostileEntity implements GeoEntity {
 			BlockPos pos = getBlockPos().add(random.nextInt(5) - 2, random.nextInt(3) - 2, random.nextInt(5) - 2);
 			if (world.getBlockState(pos).isAir() && AbstractFireBlock.canPlaceAt(world, pos, Direction.UP)) {
 				world.setBlockState(pos, AbstractFireBlock.getState(world, pos));
-				playSound(SoundEvents.ITEM_FIRECHARGE_USE, 0.6f, 1.4f);
+				playSound(MobSounds.EMBER_WISP_IGNITE, 0.6f, 1.4f);
 				return;
 			}
 		}
@@ -238,17 +237,17 @@ public class EmberWispEntity extends HostileEntity implements GeoEntity {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.ENTITY_BLAZE_AMBIENT;
+		return MobSounds.EMBER_WISP_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_BLAZE_HURT;
+		return MobSounds.EMBER_WISP_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_BLAZE_DEATH;
+		return MobSounds.EMBER_WISP_DEATH;
 	}
 
 	@Override
@@ -355,6 +354,13 @@ public class EmberWispEntity extends HostileEntity implements GeoEntity {
 		}
 
 		@Override
+		public void start() {
+			if (cooldown == 0) {
+				wisp.playSound(MobSounds.EMBER_WISP_DIVE, 1.0f, 1.0f);
+			}
+		}
+
+		@Override
 		public void stop() {
 			wisp.getNavigation().stop();
 		}
@@ -367,7 +373,9 @@ public class EmberWispEntity extends HostileEntity implements GeoEntity {
 			}
 			wisp.getLookControl().lookAt(target, 30, 30);
 			if (cooldown > 0) {
-				cooldown--;
+				if (--cooldown == 0) {
+					wisp.playSound(MobSounds.EMBER_WISP_DIVE, 1.0f, 1.0f);
+				}
 				// Hang back above the target until the next dive.
 				Vec3d hover = target.getPos().add(0, 2.5, 0);
 				wisp.getMoveControl().moveTo(hover.x, hover.y, hover.z, 0.8);

@@ -118,6 +118,12 @@ Still to decide for the system: whether more slots unlock with progress; stackin
 sources outside obelisks (overworld structures, the Sanctum, moon nights); a catalogue per obelisk and per
 overworld source so they do not overlap.
 
+## Wanderer's Cloak (Sanctum outer-hall armour)
+
+**Status:** idea, moved out of the Sanctum loot in 0.4.1 (PLAN D12): DESIGN §6 once listed "Wanderer's Cloak pieces"
+in the outer halls next to the Flask Shards. The Sanctum weapons (DESIGN §10.10) took that slot. If it comes back: a
+light pre-realm set between leather and iron, no set bonus beyond vanilla, so Realm 1's sets stay the first real armour.
+
 ## Realms 2–4 (ROADMAP "Later")
 
 **Status:** not now (decided 2026-10-22). Focus stays on overworld content and Realm 1. Each realm gets its own

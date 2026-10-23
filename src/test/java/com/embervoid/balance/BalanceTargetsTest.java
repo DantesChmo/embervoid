@@ -200,6 +200,44 @@ class BalanceTargetsTest {
 		assertNone(misses);
 	}
 
+	/**
+	 * The Sanctum weapons (PLAN L1) for the Sanctum-level player against armor 10: neither beats a realm weapon both
+	 * per hit and per second, the realm's best per hit and per second beat each of them, and per second neither beats
+	 * the diamond sword (longsword) or the diamond axe (mace). The weakest realm weapons per hit (Rapier) and per second
+	 * (Scourge) pay for that with reach, Bleeding and fire, so a plain "below every realm weapon on both" would put the
+	 * Sanctum weapons under iron.
+	 */
+	@Test
+	void sanctumWeaponsSitBelowTheRealm() {
+		List<String> misses = new ArrayList<>();
+		Stage sanctum = stage(Zone.FIELDS, 1);
+		java.util.function.Function<BalanceModel.Weapon, Player> holding = weapon ->
+				new Player(sanctum.level(), BalanceModel.statsAt(sanctum.level()), BalanceModel.IRON, weapon, 3);
+		double bestHit = 0;
+		double bestRate = 0;
+		for (BalanceModel.Weapon realm : BalanceModel.REALM_MELEE) {
+			bestHit = Math.max(bestHit, BalanceModel.playerHit(holding.apply(realm), 10, 1));
+			bestRate = Math.max(bestRate, OverworldModel.perSecond(holding.apply(realm), 10));
+		}
+		for (BalanceModel.Weapon weapon : BalanceModel.SANCTUM_MELEE) {
+			double hit = BalanceModel.playerHit(holding.apply(weapon), 10, 1);
+			double rate = OverworldModel.perSecond(holding.apply(weapon), 10);
+			for (BalanceModel.Weapon realm : BalanceModel.REALM_MELEE) {
+				if (hit >= BalanceModel.playerHit(holding.apply(realm), 10, 1) && rate >= OverworldModel.perSecond(holding.apply(realm), 10)) {
+					misses.add(weapon.name() + " beats " + realm.name() + " per hit and per second");
+				}
+			}
+			if (hit >= bestHit || rate >= bestRate) {
+				misses.add(weapon.name() + " matches the realm's best: " + BalanceReport.f(hit) + " / " + BalanceReport.f(rate) + "/s");
+			}
+			BalanceModel.Weapon diamond = weapon.scaling().strength() > 0 ? BalanceModel.DIAMOND_AXE : BalanceModel.DIAMOND_SWORD;
+			if (rate > OverworldModel.perSecond(holding.apply(diamond), 10)) {
+				misses.add(weapon.name() + " beats the " + diamond.name() + " per second: " + BalanceReport.f(rate));
+			}
+		}
+		assertNone(misses);
+	}
+
 	private static String pct(double share) {
 		return Math.round(share * 100) + " %";
 	}

@@ -1,5 +1,39 @@
 # Changelog
 
+## 0.4.1 — 2026-10-23
+
+The loose ends of the first releases. 0.2.0 "Kindling" and 0.3.0 "Moon Nights" were never published on their own: 0.4.0
+already contains them, and this version finishes what their release lists left open.
+
+### Added
+- **Sanctum weapons:** the **Sanctum Longsword** (Dexterity; right-click *Wide Cleave* hits everything in a wide arc in
+  front) and the **Ashbearer's Mace** (Strength; breaks a Hollow's guard like an axe; right-click *Ground Slam* knocks
+  back and slows everything around you). Found in the Sanctum's outer-hall chests, so Endurance and stamina matter
+  before the first obelisk. They sit between iron and diamond and below the Ashen Reach weapons. Config section
+  `sanctumGear`.
+- **Sounds** for everything that still borrowed vanilla's: the Ash Ghoul, Hollow (now also raising its guard), Ember
+  Wisp (and its dive), Ashen Zombie, Ghost, the Vampire and its boss form, the Ashen Maiden, the Ember Shrine, Flask
+  Shards, attunement, level-up, obelisk travel and refusal, the Sealed Gate, the Healing Flask (drinking, empty, refilled
+  after sleep), the Ash Remnant, running out of stamina and both Sanctum weapon specials. All with subtitles in both
+  languages.
+
+### Changed
+- New models, textures and animations for the Ash Ghoul, Hollow, Ember Wisp, Ashen Maiden, Ashen Zombie, Ghost,
+  Vampire and the Vampire boss, in the style of the Ashen Reach creatures.
+- An arena's Ember Shrine looks cold (smoke and ash, no flame) to a player who has not beaten its boss yet, and lights
+  up as soon as they have.
+- README: required mods (GeckoLib), a feature list and the missing `mobs`, `sanctum` and `sanctumGear` config keys.
+
+### Checked
+- The overworld was balanced on paper and in the engine from a fresh level 1 player to the Sanctum
+  (`docs/balance-overworld.md`); no number needed to change.
+- A dedicated server with a joined player: stats sync, buying a point at the Maiden, death and recovering the Ash
+  Remnant.
+
+### Known
+- Models and textures were checked only in an offline preview, sounds were not heard: nothing here was played on a
+  client yet.
+
 ## 0.4.0 "Ashen Reach" — 2026-10-22
 
 The first obelisk is open. **Ashen Reach** is a burnt kingdom under eternal dusk: three districts you can take in any

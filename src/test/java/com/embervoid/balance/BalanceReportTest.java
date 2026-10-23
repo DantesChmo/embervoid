@@ -17,5 +17,6 @@ class BalanceReportTest {
 		Path file = Path.of("build", "balance", "tables.md");
 		Files.createDirectories(file.getParent());
 		Files.writeString(file, tables);
+		Files.writeString(file.resolveSibling("overworld.md"), new OverworldReport().render());
 	}
 }

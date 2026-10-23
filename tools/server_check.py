@@ -12,7 +12,10 @@ What it does:
    force-loads a minor structure of each zone and a crypt, two bridges at the world edge, locates the Smoldering
    Citadel and force-loads its whole route (then expects the keep's treasure chest and every placed Citadel mob),
    force-loads the Vampire arena, starts and stops a full moon and a blood new moon, opens, checks and closes the
-   Vampire arena, waits for generation, saves, stops the server. Commands with an expected answer fail the check when
+   Vampire arena, then has a bot player join (PLAN L6): a stat set over RCON reaches its attributes and its client,
+   a point bought at a summoned Ashen Maiden through her screen's real packets costs exactly the shown XP, and a death
+   leaves an Ash Remnant that gives the items and XP back when the bot right-clicks it; waits for generation, saves,
+   stops the server. Commands with an expected answer fail the check when
    the answer does not match.
 3. Scans the whole output (build + server log) for crashes, mixin failures, ERROR lines and datapack load errors.
    Exit code 0 only if there are none. WARN lines are listed but do not fail the check.
@@ -123,13 +126,15 @@ class Rcon:
 
 
 class Bot:
-    """A headless offline-mode player for --perf (protocol 763, Minecraft 1.20.1): logs in, answers keep-alives and
-    teleports, reads and drops everything else, so the server ticks it like a real player (chunks, mob targets, natural
-    spawning). It never moves on its own; RCON places it. The server runs without compression in perf mode."""
+    """A headless offline-mode player (protocol 763, Minecraft 1.20.1): logs in, answers keep-alives and teleports,
+    keeps the custom payloads it is sent and the UUID -> id of entities spawned for it, and drops everything else, so
+    the server ticks it like a real player (chunks, mob targets, natural spawning). It never moves on its own; RCON
+    places it. It can right-click an entity and send a custom payload. The server runs without compression."""
 
     PROTOCOL = 763
-    KEEP_ALIVE_IN, SYNC_POSITION_IN, DISCONNECT_IN = 0x23, 0x3C, 0x1A
-    CONFIRM_TELEPORT_OUT, CLIENT_COMMAND_OUT, KEEP_ALIVE_OUT, POSITION_OUT = 0x00, 0x07, 0x12, 0x14
+    SPAWN_ENTITY_IN, PLUGIN_IN, KEEP_ALIVE_IN, SYNC_POSITION_IN, DISCONNECT_IN = 0x01, 0x17, 0x23, 0x3C, 0x1A
+    CONFIRM_TELEPORT_OUT, CLIENT_COMMAND_OUT, PLUGIN_OUT, INTERACT_OUT, KEEP_ALIVE_OUT, POSITION_OUT = (
+        0x00, 0x07, 0x0D, 0x10, 0x12, 0x14)
     # A client reports its position at least once a second; the server moves its chunk tickets only then, not on a
     # teleport alone.
     POSITION_INTERVAL = 1.0
@@ -152,6 +157,9 @@ class Bot:
                 raise RuntimeError(f"bot {name}: login answered with packet {packet_id:#x} {data[:200]!r}")
         self.sock.settimeout(None)
         self.pos = None
+        # (channel, data) of every custom payload received, and entity UUID (hex, no dashes) -> network id.
+        self.payloads = []
+        self.entities = {}
         threading.Thread(target=self._play, daemon=True).start()
         threading.Thread(target=self._report_position, daemon=True).start()
 
@@ -171,6 +179,12 @@ class Bot:
                     teleport_id, _ = self._read_varint(data, 8 * 3 + 4 * 2 + 1)
                     self._send(self.CONFIRM_TELEPORT_OUT, self._varint(teleport_id))
                     self._send_position()
+                elif packet_id == self.PLUGIN_IN:
+                    length, offset = self._read_varint(data, 0)
+                    self.payloads.append((data[offset:offset + length].decode("utf-8"), data[offset + length:]))
+                elif packet_id == self.SPAWN_ENTITY_IN:
+                    entity_id, offset = self._read_varint(data, 0)
+                    self.entities[data[offset:offset + 16].hex()] = entity_id
                 elif packet_id == self.DISCONNECT_IN:
                     self.reason = data.decode("utf-8", "replace")
                     return
@@ -191,6 +205,16 @@ class Bot:
 
     def respawn(self):
         self._send(self.CLIENT_COMMAND_OUT, self._varint(0))
+
+    def interact(self, entity_id):
+        """Right-click on an entity with the main hand, not sneaking."""
+        self._send(self.INTERACT_OUT, self._varint(entity_id) + self._varint(0) + self._varint(0) + b"\x00")
+
+    def send_payload(self, channel, data):
+        self._send(self.PLUGIN_OUT, self._string(channel) + data)
+
+    def channels(self, since=0):
+        return [channel for channel, _ in self.payloads[since:]]
 
     def close(self):
         try:
@@ -277,7 +301,7 @@ def prepare(accept_eula, keep_world):
             "online-mode=false",
             "spawn-protection=0",
             "level-name=world",
-            # The perf bots speak the protocol without compression, and never fall: no flying kick for them.
+            # The bots speak the protocol without compression, and never fall: no flying kick for them.
             "network-compression-threshold=-1",
             "allow-flight=true",
             "",
@@ -385,6 +409,7 @@ def exercise(rcon):
             # No players: no Vampires, so nothing may hold the night.
             expect("Vampires without players", "embervoid vampire status", r", NONE, ")
         run(f"Moon {night} stop", "embervoid moon stop")
+    exercise_player(rcon, run, expect, expect_eventually)
     time.sleep(GENERATION_WAIT)
     # The Citadel's treasure chest in the keep and its placed mobs (7 Marksmen, 5 Golems, 4 Knights), once generated.
     citadel = "execute in embervoid:ashen_reach_depths if "
@@ -396,6 +421,107 @@ def exercise(rcon):
            r"^(?![\s\S]*(missing|not loaded))3 roads")
     run("Save", "save-all flush")
     return log
+
+
+def uuid_hex(response):
+    """The UUID in a `data get entity ... UUID` answer ([I; a, b, c, d]) as 32 hex digits, or None."""
+    match = re.search(r"\[I;\s*(-?\d+),\s*(-?\d+),\s*(-?\d+),\s*(-?\d+)\]", response)
+    if not match:
+        return None
+    return "".join(f"{int(part) & 0xFFFFFFFF:08x}" for part in match.groups())
+
+
+def total_xp(rcon, name):
+    """A player's exact XP points as the mod counts them (XpUtil, from `/embervoid stats`; vanilla's `xp query`
+    floors the bar)."""
+    numbers = parse_numbers(r"you have (\d+)\)", rcon.command(f"execute as {name} run embervoid stats"))
+    return int(numbers[0]) if numbers else None
+
+
+def exercise_player(rcon, run, expect, expect_eventually):
+    """PLAN L6 (2.11, 3.8): a real player on the dedicated server. A bot joins; a stat is set (attributes and the sync
+    packet), a point is bought at a summoned Ashen Maiden through her screen's real packets (XP taken exactly), and the
+    bot dies with items and XP, respawns and takes everything back from its Ash Remnant by right-clicking it."""
+    name = "Bot"
+    bot = Bot(name, SERVER_PORT)
+    try:
+        expect_eventually("Player joins", "list", rf"\b{name}\b", timeout=30)
+        deadline = time.time() + 30
+        while bot.pos is None and time.time() < deadline:
+            time.sleep(0.5)
+        run("Player survival", f"gamemode survival {name}")
+        time.sleep(4)  # the join invulnerability and the first syncs
+        for channel in ("embervoid:player_data", "embervoid:progress", "embervoid:stamina", "embervoid:config"):
+            if channel not in bot.channels():
+                FAILED_EXPECTATIONS.append(f"Player sync: {channel} not sent on join (got {sorted(set(bot.channels()))})")
+
+        # Stats: a set stat changes the attribute and is synced to the player's client.
+        since = len(bot.payloads)
+        expect("Player setstat", f"execute as {name} run embervoid setstat vit 20", r"VIT 20")
+        expect("Player max health", f"attribute {name} minecraft:generic.max_health get", r"is 30(\.0+)?\b")
+        time.sleep(1)
+        if "embervoid:player_data" not in bot.channels(since):
+            FAILED_EXPECTATIONS.append("Player sync: setstat did not send player_data")
+
+        # Leveling through the Maiden's screen: interact -> sheet; a level-up request -> one point for its exact cost.
+        run("Player XP", f"xp set {name} 0 levels")
+        run("Player XP", f"xp set {name} 0 points")
+        run("Player XP", f"xp add {name} 500 points")
+        stats = run("Player stats", f"execute as {name} run embervoid stats")
+        cost = parse_numbers(r"next: (\d+) XP points, you have (\d+)", stats)
+        run("Maiden", f"execute at {name} run summon embervoid:ashen_maiden ~2 ~ ~ {{NoAI:1b}}")
+        maiden = uuid_hex(run("Maiden UUID", f"execute at {name} run data get entity "
+                              "@e[type=embervoid:ashen_maiden,limit=1,sort=nearest] UUID"))
+        time.sleep(2)
+        if not cost or maiden not in bot.entities:
+            FAILED_EXPECTATIONS.append(f"Leveling: no cost ({stats.strip()!r}) or the Maiden never spawned for the bot")
+        else:
+            maiden_id = bot.entities[maiden]
+            since = len(bot.payloads)
+            bot.interact(maiden_id)
+            time.sleep(1)
+            if "embervoid:level_up_sheet" not in bot.channels(since):
+                FAILED_EXPECTATIONS.append("Leveling: right-clicking the Maiden sent no level-up sheet")
+            before = total_xp(rcon, name)
+            bot.send_payload("embervoid:level_up", Bot._varint(maiden_id) + Bot._string("vit"))
+            time.sleep(1)
+            after = total_xp(rcon, name)
+            log_line = f"XP {before} -> {after}, cost {cost[0]}"
+            run("Leveling", f"execute as {name} run embervoid stats")
+            if before is None or after is None or before - after != cost[0]:
+                FAILED_EXPECTATIONS.append(f"Leveling: the level-up took the wrong XP ({log_line})")
+            expect("Leveling max health", f"attribute {name} minecraft:generic.max_health get", r"is 30\.5|is 30\.50")
+        run("Maiden gone", "kill @e[type=embervoid:ashen_maiden]")
+
+        # Death -> Ash Remnant -> recovery by right-clicking it.
+        run("Remnant XP", f"xp set {name} 0 levels")
+        run("Remnant XP", f"xp set {name} 0 points")
+        run("Remnant XP", f"xp add {name} 150 points")
+        run("Remnant items", f"clear {name} minecraft:diamond")
+        run("Remnant items", f"give {name} minecraft:diamond 7")
+        run("Remnant death", f"kill {name}")
+        time.sleep(1)
+        expect("Remnant placed", "execute if entity @e[type=embervoid:ash_remnant]", r"Test passed, count: 1$")
+        bot.respawn()
+        time.sleep(2)
+        expect("Remnant: items gone", f"clear {name} minecraft:diamond 0", r"No items were found|Found 0")
+        run("Remnant walk", f"execute at @e[type=embervoid:ash_remnant,limit=1] run tp {name} ~1 ~ ~")
+        remnant = uuid_hex(run("Remnant UUID", "data get entity @e[type=embervoid:ash_remnant,limit=1] UUID"))
+        time.sleep(2)
+        if remnant not in bot.entities:
+            FAILED_EXPECTATIONS.append("Remnant: never spawned for the bot")
+        else:
+            bot.interact(bot.entities[remnant])
+            time.sleep(1)
+            expect("Remnant: items back", f"clear {name} minecraft:diamond 0", r"Found 7 matching item")
+            xp = total_xp(rcon, name)
+            if xp != 150:
+                FAILED_EXPECTATIONS.append(f"Remnant: XP back {xp}, expected 150")
+            expect("Remnant gone", "execute unless entity @e[type=embervoid:ash_remnant]", r"Test passed")
+        if bot.reason:
+            FAILED_EXPECTATIONS.append(f"bot {name} disconnected: {bot.reason}")
+    finally:
+        bot.close()
 
 
 def perf_areas(rcon, log):

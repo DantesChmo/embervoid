@@ -1,18 +1,44 @@
 # Embervoid
 
-A dark fantasy adventure mod for **Minecraft 1.20.1 (Fabric)**: generated dungeons, bosses and cursed gear in a sandbox world. See [CONCEPT.md](CONCEPT.md).
+A dark fantasy adventure mod for **Minecraft 1.20.1 (Fabric)** in the spirit of Demon's Souls: a harder overworld, a
+hidden hub where you level up, and obelisks that lead into realms with zone bosses and a realm boss. See
+[CONCEPT.md](CONCEPT.md); what changed per version is in [CHANGELOG.md](CHANGELOG.md).
 
 Languages: English, Russian.
 
 ## Requirements
-- Java 17
-- Fabric Loader ≥ 0.15, Fabric API
+- Minecraft 1.20.1, Java 17
+- Fabric Loader ≥ 0.15
+- [Fabric API](https://modrinth.com/mod/fabric-api)
+- [GeckoLib](https://modrinth.com/mod/geckolib) 4.8.4 or newer (animated mobs and bosses)
+
+Install on both the client and the server.
+
+## Features
+- **A harder overworld:** every hostile mob has a level (HP, damage and XP grow with it, shown above its head); Easy
+  hits like vanilla Normal; new hostiles: the Ash Ghoul (packs, a blinding ash cloud), the Hollow (a guarded
+  swordsman with a telegraphed swing) and the Ember Wisp (a cave flyer that sets fires and flees light).
+- **Souls-style growth:** no classes, seven stats bought one point at a time with vanilla XP from the Ashen Maiden;
+  a Healing Flask with charges instead of extra flasks; stamina spent only by weapon special attacks; on death your
+  XP and items wait in an Ash Remnant where you fell.
+- **The Ember Sanctum:** a rare overworld dungeon (a Sanctum Map in some vanilla chests leads to one) with a guarded
+  descent, loot halls with Flask Shards and two Sanctum weapons with special attacks, and the core: the Ashen Maiden,
+  an Ember Shrine and the Void Obelisks.
+- **Moon nights:** every third lunar cycle a full moon (stronger hostiles, Curse of the Night waves of Ashen Zombies
+  or Ghosts) and a blood new moon (a red sky, vampirism, and a Vampire who becomes a boss).
+- **Ashen Reach**, the first obelisk's realm: three zones in any order (Ashen Fields, Royal Woods, Sunken Necropolis)
+  with their own mobs, ruins, ores and bosses, then the Sealed Gate to the Smoldering Citadel and the Smoldering
+  Lord. Realm gear: the Smoldering Plate, three armour sets, four weapons, and the Reliquary with artifacts and rings.
+- **Multiplayer:** progress, boss kills and loot are per player; boss health and adds grow with the number of
+  fighters.
 
 ## Development
 ```bash
 ./gradlew runClient    # launch the game with the mod
 ./gradlew runDatagen   # generate JSON resources
 ./gradlew build        # build the jar into build/libs/
+./gradlew runGametest  # in-world tests on a headless server
+python3 tools/server_check.py  # a real dedicated server: worldgen, a bot player, the log scanned for errors
 ```
 
 ## Configuration
@@ -46,6 +72,22 @@ The mod reads `config/embervoid.json` (created with defaults on first launch). M
 | `leveling.costBase` / `costLinear` / `costQuadratic` | 20 / 6 / 0.15 | ≥ 0 | Cost of level L → L+1 in XP points: `costBase + costLinear·L + costQuadratic·L²` |
 | `leveling.statCap` | 99 | 10–999 | Highest value a stat can be levelled to |
 | `leveling.levelCap` | 0 | ≥ 0 | Highest character level reachable by leveling; 0 = no cap |
+| `mobs.levels.enabled` | true | true, false | Mob levels on or off |
+| `mobs.levels.defaultBaseLevel` | 4 | 1–999 | Base level of a hostile mob not listed in `baseLevels` (vanilla or modded) |
+| `mobs.levels.baseLevels.<entity id>` | per mob | 1–999 | Base level by entity id, e.g. `minecraft:zombie` 3, `embervoid:hollow` 15; add modded ids here |
+| `mobs.levels.blocksPerLevel` / `maxDistanceBonus` | 1000 / 5 | 0–1000000 / 0–999 | Overworld: +1 level per this many blocks from world spawn, up to the bonus |
+| `mobs.levels.belowZeroBonus` | 3 | 0–999 | Overworld: extra levels below y = 0 |
+| `mobs.levels.dimensionBonus.<dimension id>` | Nether 5, End 8 | 0–999 | Extra levels in a dimension |
+| `mobs.levels.healthPerLevel` / `damagePerLevel` / `experiencePerLevel` | 0.06 / 0.05 / 0.06 | 0–10 | Per level above 1: mob health, damage and dropped XP, as a fraction of the base |
+| `mobs.difficulty.easy` / `normal` / `hard` | 1.0 / 1.25 / 1.75 | 0–100 | Damage factor of hostile mobs against players per difficulty (replaces vanilla's) |
+| `sanctum.hallGuardChance` / `hallArcherChance` | 0.6 / 0.3 | 0–1 | Chance of a Hollow at each side-hall spot / of a skeleton archer in a chamber, rolled at worldgen |
+| `sanctum.mapChanceCartographer` / `mapChanceTemple` / `mapChanceRuinedPortal` / `mapChanceShipwreck` | 0.25 / 0.1 / 0.08 / 0.25 | 0–1 | Chance of a Sanctum Map in those vanilla chests |
+| `sanctum.mapSearchRadius` | 64 | 8–200 | How far (in chunks) a Sanctum Map looks for a Sanctum |
+| `sanctumGear.cleaveRange` / `cleaveArc` / `cleaveMultiplier` | 3 / 90 / 1.25 | 1–8 / 10–360 / 0–10 | Sanctum Longsword's Wide Cleave: reach (blocks), arc in front (degrees), share of the weapon's hit each target takes |
+| `sanctumGear.cleaveStamina` / `cleaveCooldown` | 25 / 60 | 0–1000 / 0–1200 | Wide Cleave's stamina cost and cooldown (ticks) |
+| `sanctumGear.slamRadius` / `slamMultiplier` / `slamKnockback` | 3 / 0.75 / 0.8 | 1–8 / 0–10 / 0–4 | Ashbearer's Mace's Ground Slam: ring radius, share of the weapon's hit, knockback strength |
+| `sanctumGear.slamSlownessTicks` / `slamSlownessAmplifier` | 40 / 1 | 0–1200 / 0–9 | Ground Slam's Slowness: duration (ticks) and amplifier (1 = Slowness II) |
+| `sanctumGear.slamStamina` / `slamCooldown` | 30 / 100 | 0–1000 / 0–1200 | Ground Slam's stamina cost and cooldown (ticks) |
 | `realm.depthsOpen` | true | true, false | Whether an unsealed Sealed Gate leads into the depths (off: "the depths are still forming"; was off in 0.3.0) |
 | `boss.healthPerExtraFighter` | 0.5 | 0–10 | Boss health bonus per fighter beyond the first: HP × (1 + this·(n − 1)) |
 | `boss.addsPerExtraFighter` | 1 | 0–10 | Extra adds per fighter beyond the first |

@@ -63,6 +63,7 @@ public class AshenMaidenEntity extends PathAwareEntity implements GeoEntity {
 		}
 		if (player instanceof ServerPlayerEntity serverPlayer) {
 			triggerAnim("interact", "interact");
+			playSound(SanctumSounds.MAIDEN_GREET, 1.0f, 1.0f);
 			MaidenTalk.talk(serverPlayer, this);
 		}
 		return ActionResult.success(getWorld().isClient);

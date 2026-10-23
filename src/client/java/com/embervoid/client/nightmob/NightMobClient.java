@@ -17,7 +17,7 @@ import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 /**
  * Client side of the full moon's mobs: GeckoLib renderers. Assets follow GeckoLib's default layout (see
- * {@code MobRenderers}); placeholders come from {@code tools/nightmob_placeholders.py}.
+ * {@code MobRenderers}); models and textures come from {@code tools/overworld_mob_art.py}.
  */
 public final class NightMobClient {
 	public static void register() {

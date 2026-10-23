@@ -2,6 +2,7 @@ package com.embervoid.sanctum;
 
 import com.embervoid.Embervoid;
 import com.embervoid.progress.ProgressManager;
+import com.embervoid.sanctum.gear.SanctumGear;
 import com.embervoid.sanctum.leveling.LevelUpNetworking;
 import net.minecraft.util.Identifier;
 
@@ -16,6 +17,7 @@ public final class Sanctum {
 		SanctumBlocks.register();
 		SanctumStructures.register();
 		SanctumItems.register();
+		SanctumGear.register();
 		SanctumEntities.register();
 		SanctumLoot.register();
 		Attunement.register();

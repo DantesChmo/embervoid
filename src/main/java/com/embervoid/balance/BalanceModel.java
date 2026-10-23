@@ -56,6 +56,8 @@ public final class BalanceModel {
 	public record Armor(String name, double armor, double toughness, int smolderingPieces) {}
 
 	public static final Armor NO_ARMOR = new Armor("no armor", 0, 0, 0);
+	/** Leather (1/3/2/1): the early overworld kit (PLAN L2). */
+	public static final Armor LEATHER = new Armor("leather", 7, 0, 0);
 	public static final Armor IRON = new Armor("iron", 15, 0, 0);
 	public static final Armor DIAMOND = new Armor("diamond", 20, 8, 0);
 	/** Necropolis Warden (3/8/6/3, toughness 2 per piece): diamond's numbers. */
@@ -70,7 +72,9 @@ public final class BalanceModel {
 	 */
 	public record Weapon(String name, double damage, double speed, WeaponScaling.Scaling scaling, float kindlingShare) {}
 
+	public static final Weapon STONE_SWORD = new Weapon("stone sword", 5, 1.6, WeaponScaling.Scaling.DEXTERITY, 0);
 	public static final Weapon IRON_SWORD = new Weapon("iron sword", 6, 1.6, WeaponScaling.Scaling.DEXTERITY, 0);
+	public static final Weapon IRON_AXE = new Weapon("iron axe", 9, 0.9, WeaponScaling.Scaling.STRENGTH, 0);
 	public static final Weapon DIAMOND_SWORD = new Weapon("diamond sword", 7, 1.6, WeaponScaling.Scaling.DEXTERITY, 0);
 	public static final Weapon NETHERITE_SWORD = new Weapon("netherite sword", 8, 1.6, WeaponScaling.Scaling.DEXTERITY, 0);
 	/** Sharpness V adds 3 (vanilla 0.5 + 0.5 per level). */
@@ -80,6 +84,12 @@ public final class BalanceModel {
 	public static final Weapon ASHEN_SCYTHE = new Weapon("Ashen Scythe", 10, 1.1, new WeaponScaling.Scaling(0.6f, 0.4f), 0);
 	public static final Weapon WARDENS_SCOURGE = new Weapon("Warden's Scourge", 9, 0.9, WeaponScaling.Scaling.DEXTERITY, 0);
 	public static final Weapon ROYAL_ASH_RAPIER = new Weapon("Royal Ash Rapier", 6, 2.0, new WeaponScaling.Scaling(0, 0.7f), 0.3f);
+	/** {@code sanctum.gear.SanctumWeapons} (PLAN L1): 6.5 damage, speed 1.6, DEX 1; Wide Cleave. */
+	public static final Weapon SANCTUM_LONGSWORD = new Weapon("Sanctum Longsword", 6.5, 1.6, WeaponScaling.Scaling.DEXTERITY, 0);
+	/** 8 damage, speed 0.9, STR 1; Ground Slam. */
+	public static final Weapon ASHBEARERS_MACE = new Weapon("Ashbearer's Mace", 8, 0.9, WeaponScaling.Scaling.STRENGTH, 0);
+	public static final List<Weapon> REALM_MELEE = List.of(ASHEN_SCYTHE, WARDENS_SCOURGE, ROYAL_ASH_RAPIER);
+	public static final List<Weapon> SANCTUM_MELEE = List.of(SANCTUM_LONGSWORD, ASHBEARERS_MACE);
 
 	// --- The player ----------------------------------------------------------------------------------------------
 
@@ -139,7 +149,8 @@ public final class BalanceModel {
 	/**
 	 * Damage one hit of a level-{@code mobLevel} mob does to {@code player}: difficulty factor and level multiplier
 	 * (PlayerEntityDifficultyMixin, LivingEntityMobLevelMixin), fire reductions (RES, Smoldering Plate), then armor
-	 * and toughness (vanilla). Flat hits (the ash storm's magic) ignore all of it.
+	 * and toughness (vanilla). Flat hits (the ash storm's magic) ignore all of it; a mob's magic (a witch's potion)
+	 * ignores armor.
 	 */
 	public static double hitOnPlayer(Hit hit, int mobLevel, Player player, Difficulty difficulty) {
 		if (hit.kind() == BalanceData.HitKind.FLAT) {
@@ -148,6 +159,9 @@ public final class BalanceModel {
 		DerivedStats derived = player.derived();
 		double amount = MobLevelRules.difficultyDamage(DIFFICULTY, difficulty, (float) hit.base());
 		amount *= MobLevelRules.damageMultiplier(LEVELS, mobLevel);
+		if (hit.kind() == BalanceData.HitKind.MAGIC) {
+			return amount;
+		}
 		if (hit.kind() == BalanceData.HitKind.FIRE) {
 			amount *= 1 - derived.fireDamageReduction();
 			amount *= Math.max(0, 1 - player.armor().smolderingPieces() * GEAR.smoldering().fireReductionPerPiece());
@@ -206,11 +220,15 @@ public final class BalanceModel {
 	 * lands its main hit every {@link Hit#interval()} ticks from the first swing on.
 	 */
 	public static Fight fight(Mob mob, int level, Player player) {
+		return fight(mob, level, player, Difficulty.NORMAL);
+	}
+
+	public static Fight fight(Mob mob, int level, Player player, Difficulty difficulty) {
 		double health = mobHealth(mob.health(), level) + mob.extraHealth();
 		double perHit = playerHit(player, mob.armor(), 1);
 		int hits = hitsToKill(health, perHit);
 		Hit main = mob.mainHit();
-		double taken = hitOnPlayer(main, level, player);
+		double taken = hitOnPlayer(main, level, player, difficulty);
 		double ticks = (hits - 1) * player.attackTicks();
 		double landed = main.interval() > 0 ? Math.floor(ticks / main.interval()) + 1 : 1;
 		return new Fight(mob, level, player, health, perHit, hits, taken, hitsToKill(player.maxHealth(), taken),

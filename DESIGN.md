@@ -496,7 +496,8 @@ came from).
 
 What stats do in 0.2.0, before weapons and ember damage exist (§10.10): FOR → luck + an extra mob-drop chance
 (**Decided**); KIN → flask healing, RES → armor toughness + fire damage reduction (**Proposed — built as
-recommended**). Sanctum weapons with a special attack, so END matters, are still **Open**.
+recommended**). Two Sanctum weapons with a special attack, so END matters early, came in 0.4.1 (**Proposed — built as
+recommended**, §10.10).
 
 How weapons scale with STR/DEX/KIN and what requirements look like is part of the weapons design (§8).
 Until then vanilla weapons use: swords DEX, axes STR, bows DEX, tridents STR+DEX.
@@ -585,7 +586,7 @@ Each realm has its own **material tier** and gear set. Rough position against va
 | Source | Tier | Status |
 |---|---|---|
 | Overworld | Vanilla up to diamond / netherite | — |
-| Sanctum outer halls | Flask shards, Wanderer's Cloak pieces, vanilla loot | Proposed |
+| Sanctum outer halls | Flask shards, the Sanctum Longsword and Ashbearer's Mace (§10.10), vanilla loot; the Wanderer's Cloak moved to [BACKLOG.md](BACKLOG.md) | Proposed — built as recommended |
 | Realm 1 | Smoldering Ingot ≈ diamond+: Smoldering Plate (diamond protection, more toughness, fire resistance), unique weapons, rings and artifacts (§4.5) | Decided |
 | Realm 2 | ≈ netherite | Proposed |
 | Realm 3 | above netherite | Proposed |
@@ -621,7 +622,7 @@ These are big enough to get their own documents. Each is needed before the miles
 
 | Topic | Covers | Needed by |
 |---|---|---|
-| **Weapons** | Weapon classes, STR/DEX/KIN scaling and requirements, special attacks, how vanilla weapons fit in, upgrades | **Special-attack contract** (trigger, cost, cooldown, tooltip, limits): done (§8.1). Realm 1 weapons: done (§4.5). Upgrades: [BACKLOG.md](BACKLOG.md). Requirements and the Sanctum weapons (§10.10): open |
+| **Weapons** | Weapon classes, STR/DEX/KIN scaling and requirements, special attacks, how vanilla weapons fit in, upgrades | **Special-attack contract** (trigger, cost, cooldown, tooltip, limits): done (§8.1). Realm 1 weapons: done (§4.5). Upgrades: [BACKLOG.md](BACKLOG.md). Sanctum weapons: done (§10.10). Requirements: open |
 | **Realm 1 content** | Per-zone mobs, structures, the 4 bosses (moves and phases), loot tables | Done (§4.5) |
 | **Status effects** | Bleeding and later effects, RES resistance, immunities, cures | Realm 1 ships a placeholder Bleeding (§4.5); the system: [BACKLOG.md](BACKLOG.md) |
 | **Rings and artifacts** | Catalogue across the mod, more slots, stacking, sources outside realms | Realm 1 set and the Reliquary: done (§4.5); the rest: [BACKLOG.md](BACKLOG.md) |
@@ -698,8 +699,9 @@ Each question names the milestone that cannot start without an answer.
    for them. Recommendation: the shrine is part of the arena structure, stands outside the fog wall, and is
    dormant (cannot be rested at, looks unlit to them) for players who have not beaten that boss.
    *Needed by:* milestone 7.
-   **Proposed — built as recommended:** outside the fog wall and dormant ("The ember here is cold to you"), but
-   it looks lit to everyone: a per-player look needs client-side progress.
+   **Proposed — built as recommended:** outside the fog wall and dormant ("The ember here is cold to you"); since
+   0.4.1 it also looks cold (smoke, no flame) to a player who has not beaten its boss. Its light level stays the same
+   for everyone.
 9. **Nether and End level bonuses, unlisted mobs.** The first values, +10 / +20, put End endermen at level 32 (above the Realm 1
    boss) and Nether mobs in the Realm 1 band, which breaks the "overworld 3–20" band in §5.4. Nether mobs,
    illagers and modded hostiles have no base level. Recommendation: Nether +5, End +8 (End endermen ≈ 20, the
@@ -715,7 +717,12 @@ Each question names the milestone that cannot start without an answer.
     real weapons with a special attack in the Sanctum outer-hall loot so END matters.
     *Needed by:* milestone 3 (PLAN 3.2), and milestone 5 for the weapons.
     **Decided:** FOR → luck + a small bonus chance on mob drops in 0.2.0. **Proposed — built as recommended:**
-    KIN → flask healing, RES → armor toughness + fire damage reduction. **Open:** the Sanctum weapons.
+    KIN → flask healing, RES → armor toughness + fire damage reduction; the Sanctum weapons (0.4.1): the **Sanctum
+    Longsword** (DEX, 6.5 damage, speed 1.6; Wide Cleave: a 90° arc of 3 blocks at 1.25× its hit, 25 stamina, 3 s) and
+    the **Ashbearer's Mace** (STR, 8 damage, speed 0.9, breaks a Hollow's guard like an axe; Ground Slam: a ring of 3
+    blocks at 0.75× its hit with knockback and 2 s Slowness II, 30 stamina, 5 s), 6 % each per outer-hall chest (one of
+    them in about 40 % of Sanctums). Between the iron and the diamond tier and below the realm weapons: neither beats
+    a realm weapon both per hit and per second (`docs/balance-overworld.md`).
 11. **Rematch item for Realm 1 bosses** (§4.5): where does *Ash of Rematch* come from and what does it cost (a
     craft from realm materials, a chest drop, XP at the Maiden)?
     *Needed by:* milestone 12.

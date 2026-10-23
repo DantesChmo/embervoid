@@ -21,7 +21,6 @@ import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -113,7 +112,7 @@ public class GhostEntity extends HostileEntity implements GeoEntity {
 	private void miss() {
 		if (getWorld() instanceof ServerWorld world) {
 			world.spawnParticles(ParticleTypes.POOF, getX(), getBodyY(0.5), getZ(), 8, 0.3, 0.4, 0.3, 0.02);
-			world.playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_PLAYER_ATTACK_NODAMAGE,
+			world.playSound(null, getX(), getY(), getZ(), NightMobSounds.GHOST_PHASE,
 					SoundCategory.HOSTILE, 1.0f, 0.6f);
 		}
 	}
@@ -150,17 +149,17 @@ public class GhostEntity extends HostileEntity implements GeoEntity {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.ENTITY_VEX_AMBIENT;
+		return NightMobSounds.GHOST_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_VEX_HURT;
+		return NightMobSounds.GHOST_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_VEX_DEATH;
+		return NightMobSounds.GHOST_DEATH;
 	}
 
 	@Override

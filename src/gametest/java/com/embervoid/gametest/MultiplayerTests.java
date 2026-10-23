@@ -2,6 +2,7 @@ package com.embervoid.gametest;
 
 import com.embervoid.Embervoid;
 import com.embervoid.boss.ArenaManager;
+import com.embervoid.boss.ArenaShrines;
 import com.embervoid.boss.BossEntities;
 import com.embervoid.boss.BossFight;
 import com.embervoid.entity.AshRemnantEntity;
@@ -50,6 +51,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkSide;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.PacketCallbacks;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
@@ -608,6 +610,74 @@ public final class MultiplayerTests implements FabricGameTest {
 	private static void moveTo(ServerPlayerEntity player, ServerWorld world, BlockPos pos) {
 		player.teleport(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0);
 		player.onTeleportationDone();
+	}
+
+	/**
+	 * DESIGN §10.8, PLAN L7: two players at the Fields arena's shrine are both told where it is and whose arena it is;
+	 * it is cold for the one who has not beaten the Ash Colossus and lights for them as soon as they have. Leaving the
+	 * realm empties the list.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "mp_shrine", tickLimit = PlacedFight.LOAD_LIMIT + 200)
+	public void arenaShrineIsColdForNewcomersOnly(TestContext context) {
+		BossArena arena = new BossArena(context, null);
+		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
+		RealmFeaturePiece[] piece = new RealmFeaturePiece[1];
+		arena.step(() -> piece[0] = placeArena(arena, realm, ReachBosses.FIELDS));
+		arena.await(() -> arenaTicks(realm, piece[0]), PlacedFight.LOAD_LIMIT, "the arena chunks to tick", () -> {
+			BlockPos shrine = piece[0].shrinePos();
+			ShrineRecorder veteranSees = new ShrineRecorder();
+			ShrineRecorder newcomerSees = new ShrineRecorder();
+			ServerPlayerEntity veteran = arena.join(2, 2, veteranSees);
+			ServerPlayerEntity newcomer = arena.join(4, 2, newcomerSees);
+			ProgressManager.markBossBeaten(veteran, ReachBosses.FIELDS);
+			moveTo(veteran, realm, shrine.add(1, 0, 1));
+			moveTo(newcomer, realm, shrine.add(2, 0, 1));
+			ArenaShrines.update(veteran);
+			ArenaShrines.update(newcomer);
+			ArenaShrines.Entry expected = new ArenaShrines.Entry(shrine, ReachBosses.FIELDS);
+			for (ShrineRecorder seen : List.of(veteranSees, newcomerSees)) {
+				context.assertTrue(seen.last != null && seen.last.contains(expected), "not told about the shrine: " + seen.last);
+				context.assertTrue(realm.getRegistryKey().getValue().equals(seen.dimension), "wrong dimension: " + seen.dimension);
+			}
+			context.assertTrue(!ArenaShrines.isCold(veteran, veteranSees.last, shrine), "cold for the veteran");
+			context.assertTrue(ArenaShrines.isCold(newcomer, newcomerSees.last, shrine), "lit for the newcomer");
+			context.assertTrue(!ArenaShrines.isCold(newcomer, newcomerSees.last, shrine.up(3)), "cold where there is no shrine");
+			ProgressManager.markBossBeaten(newcomer, ReachBosses.FIELDS);
+			context.assertTrue(!ArenaShrines.isCold(newcomer, newcomerSees.last, shrine), "still cold after the kill");
+
+			moveTo(newcomer, context.getWorld(), context.getAbsolutePos(new BlockPos(4, 1, 2)));
+			ArenaShrines.update(newcomer);
+			context.assertTrue(newcomerSees.last.isEmpty(), "shrines sent outside the realm: " + newcomerSees.last);
+			arena.finish();
+		});
+	}
+
+	/** A connection that keeps the last arena shrine list sent to its player. */
+	static final class ShrineRecorder extends ClientConnection {
+		@Nullable List<ArenaShrines.Entry> last;
+		@Nullable Identifier dimension;
+
+		ShrineRecorder() {
+			super(NetworkSide.SERVERBOUND);
+		}
+
+		@Override
+		public void send(Packet<?> packet) {
+			send(packet, null);
+		}
+
+		@Override
+		public void send(Packet<?> packet, @Nullable PacketCallbacks callbacks) {
+			if (packet instanceof CustomPayloadS2CPacket payload && payload.getChannel().equals(ArenaShrines.PACKET)) {
+				PacketByteBuf buf = new PacketByteBuf(payload.getData().copy());
+				dimension = buf.readIdentifier();
+				List<ArenaShrines.Entry> entries = new ArrayList<>();
+				for (int i = buf.readVarInt(); i > 0; i--) {
+					entries.add(new ArenaShrines.Entry(buf.readBlockPos(), buf.readIdentifier()));
+				}
+				last = entries;
+			}
+		}
 	}
 
 	/** A connection that records the channel of every custom packet sent to it instead of sending anything. */

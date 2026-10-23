@@ -1,11 +1,18 @@
 package com.embervoid.registry;
 
 import com.embervoid.Embervoid;
+import com.embervoid.entity.mob.MobSounds;
+import com.embervoid.nightmob.NightMobSounds;
+import com.embervoid.player.PlayerSounds;
 import com.embervoid.reach.boss.ReachBossSounds;
 import com.embervoid.reach.gear.GearSounds;
 import com.embervoid.reach.mob.ReachMobSounds;
 import com.embervoid.reach.world.ReachBlockSounds;
+import com.embervoid.realm.RealmSounds;
 import com.embervoid.reliquary.ReliquarySounds;
+import com.embervoid.sanctum.SanctumSounds;
+import com.embervoid.sanctum.gear.SanctumGearSounds;
+import com.embervoid.vampire.VampireSounds;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.sound.SoundEvent;
@@ -30,6 +37,13 @@ public final class ModSounds {
 		GearSounds.register();
 		ReachBlockSounds.register();
 		ReliquarySounds.register();
+		MobSounds.register();
+		NightMobSounds.register();
+		VampireSounds.register();
+		SanctumSounds.register();
+		RealmSounds.register();
+		PlayerSounds.register();
+		SanctumGearSounds.register();
 	}
 
 	private ModSounds() {}

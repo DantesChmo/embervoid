@@ -1,5 +1,6 @@
 package com.embervoid.entity.mob;
 
+import com.embervoid.Embervoid;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityGroup;
@@ -26,12 +27,14 @@ import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.AxeItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.DamageTypeTags;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -62,6 +65,9 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 	private static final byte STANCE_NONE = 0;
 	private static final byte STANCE_GUARD = 1;
 	private static final byte STANCE_STAGGERED = 2;
+
+	/** Weapons other than axes that break the guard (DESIGN §10.10). */
+	public static final TagKey<Item> BREAKS_GUARD = TagKey.of(RegistryKeys.ITEM, Embervoid.id("breaks_guard"));
 
 	private static final UUID STANCE_SLOW_ID = UUID.fromString("6c3f6f0a-3b5e-4f7e-9d8e-2f4a1c7b9e01");
 	static final int WINDUP_TICKS = 8;
@@ -150,6 +156,9 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 		stanceTicks = ticks;
 		EntityAttributeInstance speed = getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED);
 		speed.removeModifier(STANCE_SLOW_ID);
+		if (stance == STANCE_GUARD) {
+			playSound(MobSounds.HOLLOW_GUARD, 0.8f, 1.0f);
+		}
 		if (stance != STANCE_NONE) {
 			speed.addTemporaryModifier(new EntityAttributeModifier(STANCE_SLOW_ID, "Hollow stance",
 					stance == STANCE_GUARD ? -0.5 : -0.6, EntityAttributeModifier.Operation.MULTIPLY_TOTAL));
@@ -167,7 +176,7 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 		windup = WINDUP_TICKS;
 		attackCooldown = ATTACK_INTERVAL_TICKS;
 		triggerAnim("attack", "swing");
-		playSound(SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, 0.6f, 0.6f);
+		playSound(MobSounds.HOLLOW_SWING, 0.6f, 0.6f);
 		return true;
 	}
 
@@ -202,19 +211,24 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 	public boolean damage(DamageSource source, float amount) {
 		if (!getWorld().isClient && isGuarding() && !source.isIn(DamageTypeTags.BYPASSES_SHIELD) && isInFront(source)) {
 			if (source.isIn(DamageTypeTags.IS_PROJECTILE)) {
-				playSound(SoundEvents.ITEM_SHIELD_BLOCK, 1.0f, 0.8f);
+				playSound(MobSounds.HOLLOW_BLOCK, 1.0f, 0.8f);
 				return false;
 			}
-			if (source.getAttacker() instanceof LivingEntity attacker && attacker.getMainHandStack().getItem() instanceof AxeItem) {
-				playSound(SoundEvents.ITEM_SHIELD_BREAK, 1.0f, 0.8f);
+			if (source.getAttacker() instanceof LivingEntity attacker && breaksGuard(attacker.getMainHandStack())) {
+				playSound(MobSounds.HOLLOW_GUARD_BREAK, 1.0f, 0.8f);
 				setStance(STANCE_STAGGERED, STAGGER_TICKS);
 				windup = -1;
 			} else {
-				playSound(SoundEvents.ITEM_SHIELD_BLOCK, 1.0f, 0.8f);
+				playSound(MobSounds.HOLLOW_BLOCK, 1.0f, 0.8f);
 				amount *= GUARDED_MELEE_FACTOR;
 			}
 		}
 		return super.damage(source, amount);
+	}
+
+	/** An axe, or an item in {@code #embervoid:breaks_guard} (the Ashbearer's Mace), breaks a raised guard. */
+	public static boolean breaksGuard(ItemStack weapon) {
+		return weapon.getItem() instanceof AxeItem || weapon.isIn(BREAKS_GUARD);
 	}
 
 	private boolean isInFront(DamageSource source) {
@@ -257,22 +271,22 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.ENTITY_SKELETON_AMBIENT;
+		return MobSounds.HOLLOW_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.ENTITY_WITHER_SKELETON_HURT;
+		return MobSounds.HOLLOW_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.ENTITY_WITHER_SKELETON_DEATH;
+		return MobSounds.HOLLOW_DEATH;
 	}
 
 	@Override
 	protected void playStepSound(BlockPos pos, BlockState state) {
-		playSound(SoundEvents.ENTITY_IRON_GOLEM_STEP, 0.3f, 1.4f);
+		playSound(MobSounds.HOLLOW_STEP, 0.3f, 1.4f);
 	}
 
 	@Override

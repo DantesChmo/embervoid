@@ -2,13 +2,13 @@ package com.embervoid.sanctum.leveling;
 
 import com.embervoid.Embervoid;
 import com.embervoid.sanctum.AshenMaidenEntity;
+import com.embervoid.sanctum.SanctumSounds;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -60,7 +60,7 @@ public final class LevelUpNetworking {
 		if (failure != null) {
 			player.sendMessage(failure.copy().formatted(Formatting.RED), true);
 		} else {
-			player.getServerWorld().playSound(null, player.getBlockPos(), SoundEvents.ENTITY_PLAYER_LEVELUP,
+			player.getServerWorld().playSound(null, player.getBlockPos(), SanctumSounds.MAIDEN_LEVEL_UP,
 					SoundCategory.PLAYERS, 0.6f, 1.4f);
 		}
 		sendSheet(player, maiden, false);

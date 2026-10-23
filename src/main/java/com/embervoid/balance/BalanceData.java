@@ -57,7 +57,9 @@ public final class BalanceData {
 		/** Breaks a raised shield; otherwise physical. */
 		UNBLOCKABLE,
 		/** Magic with no attacker (the ash storm): no difficulty, no level, no armor. */
-		FLAT
+		FLAT,
+		/** Magic from a mob (a witch's harming potion): difficulty and mob level, no armor. */
+		MAGIC
 	}
 
 	/**

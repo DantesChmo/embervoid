@@ -26,6 +26,14 @@
 		{
 			"rolls": 1,
 			"entries": [
+				{ "type": "minecraft:item", "name": "embervoid:sanctum_longsword", "weight": 6 },
+				{ "type": "minecraft:item", "name": "embervoid:ashbearers_mace", "weight": 6 },
+				{ "type": "minecraft:empty", "weight": 88 }
+			]
+		},
+		{
+			"rolls": 1,
+			"entries": [
 				{ "type": "minecraft:empty", "weight": 20 },
 				{ "type": "minecraft:item", "name": "minecraft:experience_bottle", "weight": 6, "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1, "max": 4 } }] },
 				{ "type": "minecraft:item", "name": "minecraft:book", "weight": 4, "functions": [{ "function": "minecraft:enchant_randomly" }] },
