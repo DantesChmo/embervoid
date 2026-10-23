@@ -46,7 +46,7 @@ Full list with status in [DESIGN.md](DESIGN.md). The ones that shape the roadmap
 | Death penalty | Ash Remnant keeps XP and items; dying again burns the old remnant's XP, its items stay (built as recommended, DESIGN §10.7) |
 | Progress | Per player. Realm dimensions are shared; bosses re-summon for players who have not beaten them |
 
-Required runtime mods: Fabric API, GeckoLib (from milestone 4).
+Required runtime mods: Fabric API, GeckoLib (from milestone 4), playerAnimator (from 0.5.0, player attack animations).
 
 ---
 

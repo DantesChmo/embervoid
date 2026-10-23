@@ -11,6 +11,7 @@ Languages: English, Russian.
 - Fabric Loader ≥ 0.15
 - [Fabric API](https://modrinth.com/mod/fabric-api)
 - [GeckoLib](https://modrinth.com/mod/geckolib) 4.8.4 or newer (animated mobs and bosses)
+- [playerAnimator](https://modrinth.com/mod/playeranimator) 1.0.2-rc1+1.20 or newer for 1.20.1 (player attack animations)
 
 Install on both the client and the server.
 
