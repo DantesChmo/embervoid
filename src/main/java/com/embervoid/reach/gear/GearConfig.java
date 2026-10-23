@@ -169,13 +169,14 @@ public record GearConfig(Bleeding bleeding, Smoldering smoldering, Sets sets, Un
 	 * @param rampWindowTicks   Royal Ash Rapier: longest gap between two hits that keeps the ramp
 	 * @param whipTipBand       Warden's Scourge: the tip, the last blocks of the lash, that cracks
 	 * @param whipTipMultiplier Warden's Scourge: damage of a hit with the tip
+	 * @param whipTipStunTicks  Warden's Scourge: a hit with the tip stops the mob (its wind-up broken) for this long
 	 */
 	public record Weapons(float kindlingPerPoint, float sweepRadius, float sweepShare, float sweepStamina, float waveLength,
 			float waveWidth, float waveDamage, float harvestRadius, float harvestStamina, int harvestCooldown, float lashPull,
 			float lashStamina, int lashCooldown, float lungeDash, float lungeStamina, int lungeCooldown, float rampPerHit,
-			float rampMax, int rampWindowTicks, float whipTipBand, float whipTipMultiplier) {
+			float rampMax, int rampWindowTicks, float whipTipBand, float whipTipMultiplier, int whipTipStunTicks) {
 		static final Weapons DEFAULTS = new Weapons(0.02f, 2.5f, 0.75f, 3, 6, 3, 3, 3.5f, 25, 80, 4, 20, 100, 4, 20, 60,
-				0.1f, 0.3f, 30, 1.5f, 1.6f);
+				0.1f, 0.3f, 30, 1.5f, 1.6f, 10);
 
 		static Weapons read(SectionReader in) {
 			return new Weapons(
@@ -199,7 +200,8 @@ public record GearConfig(Bleeding bleeding, Smoldering smoldering, Sets sets, Un
 					in.readFloat("rampMax", DEFAULTS.rampMax, 0, 10),
 					in.readInt("rampWindowTicks", DEFAULTS.rampWindowTicks, 1, 1200),
 					in.readFloat("whipTipBand", DEFAULTS.whipTipBand, 0, 6),
-					in.readFloat("whipTipMultiplier", DEFAULTS.whipTipMultiplier, 0, 10));
+					in.readFloat("whipTipMultiplier", DEFAULTS.whipTipMultiplier, 0, 10),
+					in.readInt("whipTipStunTicks", DEFAULTS.whipTipStunTicks, 0, 100));
 		}
 
 		JsonObject write() {
@@ -225,6 +227,7 @@ public record GearConfig(Bleeding bleeding, Smoldering smoldering, Sets sets, Un
 			out.addProperty("rampWindowTicks", rampWindowTicks);
 			out.addProperty("whipTipBand", whipTipBand);
 			out.addProperty("whipTipMultiplier", whipTipMultiplier);
+			out.addProperty("whipTipStunTicks", whipTipStunTicks);
 			return out;
 		}
 	}

@@ -1,5 +1,6 @@
 package com.embervoid.reach.gear;
 
+import com.embervoid.fx.particle.EmberParticles;
 import com.embervoid.item.ability.SpecialAbility;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -89,12 +90,13 @@ public final class GearAbilities {
 			Vec3d velocity = toward.normalize().multiply(WeaponRules.slideSpeed(pull) * (1 - resist));
 			target.setVelocity(target.getVelocity().add(velocity.x, 0.3 * (1 - resist), velocity.z));
 			target.velocityModified = true;
-			Vec3d from = player.getEyePos();
-			Vec3d step = target.getPos().add(0, target.getHeight() / 2, 0).subtract(from).multiply(1 / 8.0);
-			for (int i = 1; i <= 8; i++) {
-				Vec3d at = from.add(step.multiply(i));
-				world.spawnParticles(ParticleTypes.CRIT, at.x, at.y, at.z, 1, 0, 0, 0, 0);
-			}
+			// The lash runs hot along the pull, and the mob leaves ash as it is dragged.
+			Vec3d from = player.getEyePos().add(0, -0.3, 0);
+			Vec3d grip = target.getPos().add(0, target.getHeight() / 2, 0);
+			EmberParticles.line(world, EmberParticles.WHIP_LINE, from, grip, 14, 0.05);
+			EmberParticles.spawn(world, EmberParticles.CINDER_SPARK, grip, 6, 0.2, 0.15);
+			EmberParticles.throwAll(world, EmberParticles.ASH_FLAKE, grip, 10, velocity.multiply(-0.3), 0.08);
+			EmberParticles.burst(world, grip, 0.6f, 0xFFE8B0);
 		}
 	};
 
