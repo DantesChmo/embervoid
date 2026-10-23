@@ -534,6 +534,286 @@ models and textures in game (animations, glowmasks, held items); the stamina bar
 cold arena shrine's look; the feel of the Hollow's wind-up and of the Sanctum weapons' specials, their icons in hand
 and their particles.
 
+## Playtest 0.4.1 — release 0.5.0
+
+The user's own playthrough of 0.4.1 (2026-10-23; verdict 5/10, "looks cheap", the bosses "stools") broken into tasks.
+Order from the playtest: the hub first (it settles the dungeon and what the overworld Sanctum becomes), then weapons
+and the rebalance in one pass, then the visuals; the two small fixes fit in anywhere. Everything ships as one
+release, **0.5.0** (the user, 2026-10-23: no string of small versions); the single release task is 21.5.
+
+| Milestone | Playtest items |
+|---|---|
+| 14 | boss music volume, road visibility |
+| 15, 16 | hub dimension and the Cleft Stele, the overworld dungeon and its boss, dungeon frequency |
+| 17, 18 | weapons above netherite (looks, stats, the whip), full rebalance, status effects |
+| 19, 20, 21 | mob and boss visuals, props and moving set pieces, the Citadel behind a fog wall |
+
+On top of the rules at the top of this file:
+- A milestone with a design task (`.0`) starts with it, done with the user in a chat: the big choices it names go to
+  the user, everything else is decided there and marked as such. The milestone's build tasks start after it.
+- Nobody plays: every task names its check (GameTest, JUnit, the server check, rendered previews) and what stays
+  unverified.
+- Worlds from earlier versions keep working: a task that removes or moves something (the Sanctum core, the depths
+  dimension) carries its migration and a GameTest on old data.
+
+**Can start now**, independent of each other (at most 4 sessions): 14.1, 14.2, 15.0 (needs the user), 19.1 (tooling,
+touches no game code).
+
+### Milestone 14 — quick fixes
+
+| ID | Task | Size | Depends on | Status |
+|----|------|------|------------|--------|
+| 14.1 | **Boss music volume of its own** | S | — | todo |
+| 14.2 | **Roads you can see** | S–M | — | todo |
+
+- **14.1 Boss music volume.** Boss tracks play in `SoundCategory.MUSIC` (`client.realm.BossMusicClient`), so Music
+  at 0 % mutes them; the user keeps vanilla music off but wants the boss themes. A "Boss music" slider in vanilla's
+  Music & Sounds screen (client mixin on `SoundOptionsScreen`), saved with the client options, default 100 %,
+  en_us + ru_ru. The track plays outside the Music category (e.g. `MASTER` with the instance volume taken from the
+  slider, following it while playing). No new `SoundCategory` (extending the enum breaks other mods). Check: JUnit
+  on the volume rule (Music 0 / Boss 100 → audible, Boss 0 → silent, Master scales it); the screen not seen, the
+  music not heard.
+- **14.2 Roads you can see.** The trail to the Ash Colossus is the ordinary road (`reach.world.RoadFeature`, PLAN
+  9.6): ash bricks on ash soil, 15 % gaps in the edge band, a milestone every 100 blocks. It exists but has no
+  contrast, on all three roads. In `RoadFeature.paving` and `RoadLayout`: a paving that stands out from ash soil
+  (darker or warmer, a solid kerb, no gaps in the centre), light along it at eternal dusk (fire baskets or lantern
+  posts every ~16–24 blocks on alternating sides), milestones every ~50 blocks. Check: JUnit on the layout (post
+  spacing, both sides, none inside outposts or arena sites); the server check generates Realm 1 and counts posts
+  per road; the paving next to ash soil in `tools/model_preview.py blocks`. How it reads from afar at dusk is not
+  seen (19.1 renders it later).
+
+### Milestone 15 — the hub dimension and the Cleft Stele
+
+Brief from the playtest: the player should not depend on finding one generated Sanctum. The overworld Sanctum
+becomes a **dungeon** (milestone 16); the Maiden and the obelisks move to a **hub dimension**. The dungeon boss
+drops the **Crying Soul**: no crafting and no moon-night ingredients, the soul itself is the activator and is used up.
+**Cleft Stele**: a wide flat stone slab the size of a nether portal (5 wide, 6 tall), split top to bottom, the crack is
+the passage; wide and flat so it reads as a stele, not a pillar. Built from mod blocks to a pattern, detected like a
+nether portal frame. Right-click with the soul: the blocks turn kindled (glowing cracks), mist and particles fill the
+crack, a sound plays; right-click on an active stele → the hub. **One active stele per world:** A ⇄ hub; activating
+B puts A out. Leaving an obelisk lands in the hub; the hub's exit leads to the active stele. Replaces Attunement,
+"any Sanctum works" and "return to the Sanctum you entered from" (DESIGN §2).
+
+| ID | Task | Size | Depends on | Status |
+|----|------|------|------------|--------|
+| 15.0 | **Design: hub, stele, dungeon, old worlds** (with the user) | M | — | todo |
+| 15.1 | **Hub dimension** | M | 15.0 | todo |
+| 15.2 | **Realm travel through the hub** | M | 15.1 | todo |
+| 15.3 | **Cleft Stele: blocks, frame, activation** | M | 15.0 | todo |
+| 15.4 | **Active stele and travel** | M | 15.2, 15.3 | todo |
+| 15.5 | **Worlds from 0.4.x** | S–M | 15.2, 16.1 | todo |
+
+- **15.0 Design.** DESIGN §1 (journey), §2 rewritten, §10 updated. Big choices for the user: the dungeon boss (2–3
+  pitches: concept, arena, moves); one active stele per world or per player (per world: one player's new stele puts
+  out another's); whether the dungeon keeps an Ember Shrine. Decided in the pass: the hub's layout and size (the
+  Sanctum core: Maiden, obelisk ring, shrine, on an island in a void dimension, protected like arenas), where a player
+  lands and the exit, the exit with no active stele (bed or world spawn), death in the hub, the stele pattern and
+  block names, dungeon variants (2–3), the Sanctum Map leading to the nearest dungeon, Attunement dropped (unlocks stay
+  per-player progress), what happens to Sanctums already generated in old worlds (recommended: their core keeps
+  working, nothing is destroyed).
+- **15.1 Hub dimension.** Datapack dimension `embervoid:hub` (fixed time, no weather, no natural spawns, bounded);
+  the hub structure placed once at a fixed spot when the dimension first loads; Maiden, Void Obelisks with their
+  per-player states, Ember Shrine; breaking and building refused like in arenas. GameTests: placed exactly once, the
+  Maiden and the obelisk ring present, obelisk states per player, building refused.
+- **15.2 Realm travel through the hub.** Hub obelisks → realms as now; the Return Obelisk and leaving a realm → the
+  hub (`RealmPlayerData.returnPoint` no longer points at a Sanctum); `Attunement` removed or reduced to the first hub
+  visit. GameTests: hub → realm → hub, realm respawn unchanged, two players.
+- **15.3 Cleft Stele: blocks, frame, activation.** Stele stone and its kindled variant (glowmask), the crack block
+  (mist, particles); frame detection 5 × 6 on both axes per the 15.0 pattern; right-click with `crying_soul` on a
+  valid frame uses it up and kindles the blocks, with a sound; the soul's only source until 16.3 is creative / a
+  command. Art through `tools/art_kit.py`, checked with `tools/model_preview.py`. GameTests: valid and invalid frames
+  on both axes, the soul taken only on a valid frame, breaking a frame block puts the stele out.
+- **15.4 Active stele and travel.** World state (`PersistentState`): the active stele (dimension, position, axis);
+  activating B puts A out; right-click on the active stele → hub, the hub exit → the active stele (none: per 15.0);
+  the multiplayer rule per 15.0. GameTests: round trip, B replaces A, a broken active stele, two players, a stele
+  in the Nether.
+- **15.5 Worlds from 0.4.x.** Per 15.0: Sanctum cores already generated, players standing in a Sanctum or holding an
+  old return point when the world is updated, attunement flags. GameTests on old-format player data and an old
+  Sanctum template placed in the test world.
+
+### Milestone 16 — the overworld dungeon
+
+| ID | Task | Size | Depends on | Status |
+|----|------|------|------------|--------|
+| 16.1 | **Sanctum → dungeon** | M | 15.0 | todo |
+| 16.2 | **Dungeon variants and frequency** | M | 16.1 | todo |
+| 16.3 | **The dungeon boss** | L | 15.0, 16.1 | todo |
+| 16.4 | **Overworld balance re-run** | M | 15.1–16.3 | todo |
+
+- **16.1 Sanctum → dungeon.** The `ember_sanctum` structure keeps its outer halls, guards (Hollows and the rest) and
+  loot (Flask Shards, Sanctum weapons); the core with the Maiden and the obelisks goes, a boss arena takes its place.
+  Structure id kept or renamed per 15.0 (renaming loses `/locate` in old worlds). GameTests: a fresh dungeon has no
+  Maiden or obelisk, guards and chests as before; `SanctumTests` updated.
+- **16.2 Variants and frequency.** The user found three villages, three shrines and about five ruined portals before
+  one Sanctum (`spacing` 48 / `separation` 16 chunks, about one per 768 blocks). Target: about one per 300–400 blocks
+  (`spacing` ~22 / `separation` ~8), 2–3 variants (separate start pools sharing the halls) so it does not repeat; the
+  Sanctum Map leads to the nearest dungeon. Check: JUnit on the structure set; the server check counts dungeons
+  within 1500 blocks on two seeds; variants rendered by 19.1 once it exists.
+- **16.3 The dungeon boss.** The boss from 15.0 on the boss framework (`com.embervoid.boss`: arena, fog wall,
+  telegraphs, music, per-player loot, rematch); model and animations through the art scripts at final quality in
+  this task (death, hit and phase animations included, see milestone 19); level band about 8–12; drops the Crying
+  Soul (first kill personal; repeat kills per 15.0). GameTests: start and reset, telegraphs land only after their
+  wind-up, the soul drops, multiplayer loot; a row in the balance model.
+- **16.4 Overworld balance re-run.** The overworld route (`docs/balance-overworld.md`) re-run with more dungeons
+  (guard XP, Flask Shards, Sanctum weapons) and the boss; the server check covers the hub. Feeds 18.3.
+
+### Milestone 17 — weapons above netherite
+
+Brief from the playtest: every Realm 1 weapon looks bad and feels worse than vanilla. The Royal Ash Rapier (6 damage,
+speed 2.0, reach 2.5) has about a diamond sword's damage per second (7, 1.6), less reach than vanilla (3) and no
+sweep. Realm 1 uniques go **above netherite**, each with an identity felt in hand; bigger in-hand models; player
+attack animations; the Warden's Scourge as a real whip.
+
+| ID | Task | Size | Depends on | Status |
+|----|------|------|------------|--------|
+| 17.0 | **Design: loot ladder, fight length, status effects** (with the user) | M | — | todo |
+| 17.1 | **Player attack animations** (playerAnimator) | M | 17.0 | todo |
+| 17.2 | **Weapon models in hand** | M | 17.0 | todo |
+| 17.3 | **Weapon stats and identities** | M | 17.0, 18.1 | todo |
+| 17.4 | **Warden's Scourge as a real whip** | L | 17.1 | todo |
+
+- **17.0 Design** (one pass for milestones 17 and 18; they share the numbers). DESIGN §6 loot ladder rewritten with
+  the Realm 1 uniques above netherite, and what that does to the Sanctum weapons, the Realm 2+ tiers and the weapon
+  upgrades in BACKLOG; each unique's identity (Ashen Scythe, Huntsman's Crossbow, Warden's Scourge, Royal Ash
+  Rapier; the Sanctum Longsword and Ashbearer's Mace a step below); target fight lengths for the whole game (bosses
+  about 1.5–2.5 min with dodging, about 20–35 clean hits; every mob role; moon nights); a hit taking two thirds of
+  the player's health only after a clear wind-up (minimum ticks). **Status effects** (asked by the user 2026-10-22, the
+  mod's own set worked out together, Bleeding first): the list (bleeding, rot/poison for Realm 2, frost, curse…),
+  vanilla `StatusEffect` or souls-style buildup meters, how RES resists them (DESIGN §5.2 promises fire, poison,
+  wither), immunities by entity tag, cures (consumables, the flask, shrines), HUD for buildup. Big choices for the
+  user: how far above netherite; buildup meters or plain effects.
+- **17.1 Player attack animations.** New required dependency playerAnimator (Fabric, 1.20.1): `build.gradle`,
+  `fabric.mod.json`, README, ROADMAP "Required runtime mods". A small API that plays an attack animation on the
+  attacking player for everyone nearby (server-triggered, synced); one set per weapon kind (sword, rapier thrust,
+  scythe, mace, whip, crossbow). Check: GameTest that the trigger goes out on a swing and on a special; the
+  animations not seen.
+- **17.2 Weapon models in hand.** Bigger own models for the six weapons (GeckoLib item renderer or JSON with display
+  transforms), first and third person; inventory icons stay readable. Through the art scripts, checked with
+  `tools/model_preview.py`; not seen in hand.
+- **17.3 Weapon stats and identities.** Numbers from 17.0 / 18.1 (damage, speed, reach, sweep, specials) for the
+  Realm 1 and Sanctum weapons, each unique's passive. `BalanceTargetsTest` to the new ladder.
+- **17.4 Warden's Scourge as a real whip.** Long and segmented, bends through the air on a swing (bone chain with
+  secondary motion or a client-side rope); hits along an arc line (server samples along the arc, no hit through
+  walls); the tip cracks for more damage with its own sound and particles; Lash still pulls. GameTests: several
+  targets on the line, tip bonus only at the tip, walls block, Lash unchanged. Not seen.
+
+### Milestone 18 — full rebalance
+
+Brief from the playtest: boss fights take 5+ minutes while a boss kills in about two hits. The 0.4.0 model gives
+52–73 clean hits per Realm 1 boss (30–60 s of pure hitting), with dodging that is the 5 minutes; souls games sit at
+about 20–35. The scope is the whole game: overworld mobs, moon nights, the dungeon, Realm 1 mobs and bosses, player
+stats, weapons.
+
+| ID | Task | Size | Depends on | Status |
+|----|------|------|------------|--------|
+| 18.1 | **Balance model on fight length** | M | 17.0 | todo |
+| 18.2 | **Status effects** (Bleeding rebuilt) | M | 17.0 | todo |
+| 18.3 | **Retune: overworld, dungeon, moon nights** | M | 18.1, 16.4 | todo |
+| 18.4 | **Retune: Realm 1 mobs and bosses, player stats** | L | 18.1, 18.2, 17.3 | todo |
+
+- **18.1 Balance model on fight length.** `com.embervoid.balance` turns hits to kill into seconds (weapon speed, an
+  uptime factor per boss for dodging) next to the 17.0 targets, for every stage: overworld, dungeon boss, moon
+  nights, the three zones, the Citadel. New `docs/balance-0.5.0.md` (the old write-ups stay as history);
+  `BalanceTargetsTest` gets the new targets (red until 18.3 and 18.4).
+- **18.2 Status effects.** The framework per 17.0; Bleeding (today a vanilla damage-over-time placeholder, DESIGN
+  §4.5, tag `embervoid:bleed_immune`) moved onto it; RES resistance, immunities, cures (Amber Balm), HUD if buildup.
+  GameTests.
+- **18.3 Retune: overworld, dungeon, moon nights.** Overworld mobs, dungeon guards and boss, moon-night mobs and the
+  Vampire boss to the targets; `OverworldTargetsTest`, `BalanceFightTests`.
+- **18.4 Retune: Realm 1.** Zone and Citadel mobs and the four bosses: HP to the fight length, damage per hit under
+  the wind-up rule, checked by a test over every boss move (damage, wind-up ticks); the player's stat curve (VIT,
+  END) only where the targets need it. Measured in engine by `BalanceFightTests`; feel not played.
+
+### Milestone 19 — mobs and bosses that look the part
+
+Brief from the playtest: "looks cheap", "the bosses are stools". None of the 24 animated mobs has a death,
+hit-reaction or stagger animation; each has idle, walk and 2–5 attacks. References: L_Ender's Cataclysm and Mowzie's
+Mobs for bosses.
+
+| ID | Task | Size | Depends on | Status |
+|----|------|------|------------|--------|
+| 19.1 | **Offline viewer: structures and motion** | M | — | todo |
+| 19.2 | **Combat effects**: camera shake, swing trails, hit flashes | M | — | todo |
+| 19.3 | **Death, hit and stagger animations for the 24 mobs** (3 parts) | L | 19.1 | todo |
+| 19.4 | **Boss remodels** (one task per boss) | XL | 19.1, 19.2 | todo |
+| 19.5 | **Photo tour** (optional) | M | — | todo |
+
+- **19.1 Offline viewer.** `tools/model_preview.py` already renders our geo models and key poses to PNG (pure
+  Python). Add: structure `.nbt` files rendered with real block textures (ours and vanilla from Loom's jar), top-down
+  and at eye level, placed-enemy markers shown; animation strips at a fixed frame rate (or a GIF) so motion can be
+  judged; a three.js page for live playback in the browser pane only if the images are not enough. Used by every
+  visual task, and retroactively for 14.2 and 16.2.
+- **19.2 Combat effects.** Client side: camera shake (S2C packet with strength and duration, an accessibility
+  toggle), swing trails for heavy boss and player attacks, hit flashes; config toggles. GameTest on the packets;
+  looks not seen.
+- **19.3 Mob animations.** Every animated mob gets `death`, a hit reaction and `stagger` where it can be staggered;
+  the code plays them (GeckoLib triggered animations; death delays removal to the animation's length; a hit reaction
+  never cancels a wind-up). Parts: overworld and moon-night mobs; Realm 1 zone mobs; Citadel mobs.
+  `EntityModelFilesTest` requires the new animations; previews through 19.1.
+- **19.4 Boss remodels.** Ash Colossus, Grieving Tree, Crypt Keeper, Smoldering Lord (the face with tiny eyes reads
+  as a joke), the Vampire boss, and the dungeon boss if 16.3 left it short: more detailed models, more bones,
+  secondary motion (cloaks, chains, branches), phase-change and death animations, 19.2 effects on heavy hits. Size,
+  hitbox and move timings unchanged unless 18.4 changed them.
+- **19.5 Photo tour.** A dev-only client mode: loads a test world, flies the camera through set points, saves
+  screenshots and quits. Started by the user in their own terminal, never from a Claude session (the client crashes
+  the app); no playing. Optional final check before the release.
+
+### Milestone 20 — places: props and moving set pieces
+
+Brief from the playtest: locations are visibly built from the same few blocks and pieces. References: Create for
+moving machinery.
+
+| ID | Task | Size | Depends on | Status |
+|----|------|------|------------|--------|
+| 20.1 | **Animated set-piece framework** | M | 19.1 | todo |
+| 20.2 | **Moving set pieces** | L | 20.1 | todo |
+| 20.3 | **3D props** | M–L | 19.1 | todo |
+| 20.4 | **Structure variety** | M | 20.3 | todo |
+
+- **20.1 Set-piece framework.** GeckoLib block entities for moving machinery: always on or triggered, no server
+  ticking for pure decor, client culling by distance, a cap per chunk. GameTests on the cap and the triggers.
+- **20.2 Moving set pieces.** Fields windmill with turning sails (replaces the static build), a granary hoist with a
+  swinging chain; swinging bells and cages in the Necropolis; gate gears raising the Citadel portcullis, forge
+  bellows and chain lifts in the Citadel; censers, braziers, smoke columns. Placed into the existing templates;
+  checked through 19.1.
+- **20.3 3D props.** About 12 props with their own shape and a matching hitbox (a sack looks like a sack, not a cube
+  with a sack texture): sacks, carts, scarecrows, burnt barrels, coffins, gravestones, bone piles, candles, weapon
+  racks, cages, banners. Art script, datagen, both languages, previews.
+- **20.4 Structure variety.** Props into the minor structures, outposts and the Citadel; more jigsaw piece variants
+  where one piece repeats most (count from the templates first). Rendered through 19.1.
+
+### Milestone 21 — the Citadel behind a fog wall
+
+Brief from the playtest: the Sealed Gate teleport into a separate depths dimension is "a shame". Straight to the full
+version, no interim: the Smoldering Citadel becomes part of the realm dimension behind a fog wall, a fog wall in look
+and in mechanics. The hard lock (DESIGN §4.1 "Final zone lock") moves to the server.
+
+| ID | Task | Size | Depends on | Status |
+|----|------|------|------------|--------|
+| 21.0 | **Design: the final zone inside the realm** | S | — | todo |
+| 21.1 | **Realm framework: final zone without its own dimension** | L | 21.0 | todo |
+| 21.2 | **Fog wall: look and lock** | M | 21.1 | todo |
+| 21.3 | **Citadel generation in the realm dimension** | L | 21.1 | todo |
+| 21.4 | **Worlds from 0.4.x** (depths dimension) | M | 21.1, 21.3 | todo |
+| 21.5 | **Release 0.5.0** | M | 14.1–21.4 | todo |
+
+- **21.0 Design.** Where the Citadel sits (a fourth sector, the centre, across the abyss), how the wall bounds it,
+  the transition from zone terrain, what replaces the Sealed Gate. DESIGN §4.1 and the §4.5 Citadel rewritten for
+  every realm, not only Realm 1.
+- **21.1 Realm framework.** `RealmDefinition` loses its `depths` dimension: a final-zone region with its own level
+  band and shrine respawn; `Realms`, respawn, `RealmDimensionLifecycle` and mob levels follow. GameTests.
+- **21.2 Fog wall.** Looks like the arena fog wall, taller and permanent, opened per player; the server pushes back a
+  player without the three zone bosses; ender pearls, chorus fruit, elytra and riptide over the region refused.
+  GameTests for every way in.
+- **21.3 Citadel generation.** The Citadel jigsaw and terrain move from `ashen_reach_depths` into the realm's final
+  region; Citadel mobs placed as before. Server check: generation time against `docs/perf-0.4.0.md`; GameTests on the
+  pieces.
+- **21.4 Old worlds.** Players inside the depths dimension when updating, shrines rested there, progress: moved to the
+  new region; the old dimension stays loadable or is removed safely. GameTests on old data.
+- **21.5 Release 0.5.0.** Version, CHANGELOG, README (the boss-music slider, playerAnimator as a required mod), CORE,
+  DESIGN; all checks green; the photo tour (19.5) offered to the user. Tag and push wait for the user; CI builds the
+  jar.
+
 ## Open follow-ups
 
 - **Needs a client** (nobody plays; for whoever plays first): every sound and both boss themes, all script-made models

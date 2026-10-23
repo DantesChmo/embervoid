@@ -13,6 +13,7 @@ Every user-facing string ships in both `en_us` and `ru_ru`.
 | **0.3.0** "Moon Nights" | Realm and boss frameworks, moon nights in the overworld | 6–8 | Survive the full moon and the blood new moon; enter a placeholder realm, beat test bosses, open the gate |
 | **0.4.0** "Ashen Reach" | The first obelisk: all of Realm 1 | 9–13 | Enter Realm 1, take the three zones in any order, gear up, go through the gate, kill the Smoldering Lord |
 | **0.4.1** | Leftovers of 0.2.0 and 0.3.0 | — | The same loop with Sanctum weapons, final overworld and moon-night art, sounds and a checked dedicated server |
+| **0.5.0** | The 0.4.1 playtest: hub in its own dimension, weapons and rebalance, visual overhaul | 14–21 | Clear an overworld dungeon, take the Crying Soul from its boss, kindle a Cleft Stele and reach the hub; boss fights of about 2 minutes, Realm 1 weapons above netherite, animated mobs and bosses, a Citadel behind a fog wall |
 | Later | Realms 2–4 and other ideas | — | [BACKLOG.md](BACKLOG.md); each realm gets a design pass first |
 
 Realm 1 was split into 0.3.0 / 0.3.5 while its design was missing. With the design decided (DESIGN §4.5) it ships
@@ -25,6 +26,7 @@ is done; until then its tasks build the recommended answer and keep it easy to c
 player), everything since only by GameTests and the dedicated-server check. What was not checked in game is marked
 "(not verified in game: …)" on its line. 0.4.0 is released locally (tag `v0.4.0`, not pushed). The leftovers of 0.2.0
 and 0.3.0 are done as 0.4.1 (PLAN.md "Leftovers of 0.2.0 and 0.3.0"); publishing waits for the user.
+The user's own playthrough of 0.4.1 (2026-10-23) set the next release, 0.5.0 (PLAN.md "Playtest 0.4.1").
 
 ## Decisions
 
@@ -32,7 +34,7 @@ Full list with status in [DESIGN.md](DESIGN.md). The ones that shape the roadmap
 
 | Topic | Decision |
 |---|---|
-| Structure | Hub (Ember Sanctum) in the overworld → obelisks → realm dimensions with 4 zones each; final zone locked behind the 3 zone bosses; realm N+1 locked behind realm N |
+| Structure | Hub (Ember Sanctum) in the overworld (moves to its own dimension in 0.5.0) → obelisks → realm dimensions with 4 zones each; final zone locked behind the 3 zone bosses (a fog wall inside the realm from 0.5.0); realm N+1 locked behind realm N |
 | Classes | None. Everyone starts as the Deprived: level 1, all 7 stats at 10 |
 | Leveling | At the Ashen Maiden, paid in vanilla XP points, growing cost per level |
 | Difficulty | Every hostile mob has a level; vanilla mobs hit harder even on Easy; new overworld hostiles |
@@ -307,6 +309,92 @@ after `v0.4.0`, CI builds the jar) waits for the user. Nothing was played in gam
 
 ---
 
+# 0.5.0 — the 0.4.1 playtest
+
+The user's own playthrough of 0.4.1 (2026-10-23, verdict 5/10, "looks cheap"), shipped as one release. Tasks:
+PLAN.md "Playtest 0.4.1", milestones 14–21. Order: the hub first, then weapons and the rebalance in one pass, then the
+visuals; the quick fixes fit in anywhere. Milestones 15, 17 and 21 start with a design pass with the user.
+
+## 14. Quick fixes
+
+**Status:** To do.
+
+- [ ] "Boss music" slider in the Music & Sounds screen, independent of Music (default 100 %)
+- [ ] Roads in Realm 1 that stand out from the ash: contrasting paving, light along them at dusk, denser milestones
+
+## 15. Hub dimension and the Cleft Stele
+
+**Status:** To do (design first, PLAN 15.0 rewrites DESIGN §2).
+
+- [ ] Design: hub, stele, dungeon boss, old worlds (DESIGN §1, §2, §10)
+- [ ] Hub dimension with the Ashen Maiden, the obelisk ring and an Ember Shrine; realms return to it
+- [ ] **Cleft Stele**: a 5 × 6 slab frame, kindled by the Crying Soul, one active stele per world, stele ⇄ hub
+- [ ] Worlds from 0.4.x keep working
+
+## 16. The overworld dungeon
+
+**Status:** To do.
+
+- [ ] The overworld Sanctum becomes a dungeon: outer halls, guards and loot stay, the core gives way to a boss arena
+- [ ] 2–3 variants, about one per 300–400 blocks; the Sanctum Map leads to the nearest
+- [ ] Dungeon boss (designed from scratch), drops the **Crying Soul**
+- [ ] Overworld balance re-run
+
+## 17. Weapons above netherite
+
+**Status:** To do (design first, PLAN 17.0, shared with milestone 18).
+
+- [ ] Design: loot ladder with Realm 1 uniques above netherite, weapon identities, target fight lengths, status effects
+- [ ] Player attack animations (new dependency: playerAnimator)
+- [ ] Bigger in-hand weapon models
+- [ ] New weapon stats and identities
+- [ ] **Warden's Scourge** as a real whip: segmented, hits along an arc, the tip cracks
+
+## 18. Full rebalance
+
+**Status:** To do.
+
+- [ ] Balance model on fight length (bosses about 1.5–2.5 min with dodging, about 20–35 clean hits)
+- [ ] Status effects framework; Bleeding rebuilt on it
+- [ ] Retune overworld, dungeon and moon nights; then Realm 1 mobs, bosses and player stats
+
+## 19. Mobs and bosses that look the part
+
+**Status:** To do.
+
+- [ ] Offline viewer for structures and animation motion (`tools/model_preview.py` extended)
+- [ ] Combat effects: camera shake, swing trails, hit flashes
+- [ ] Death, hit-reaction and stagger animations for all 24 animated mobs
+- [ ] Boss remodels with secondary motion, phase and death animations (the Smoldering Lord's face included)
+- [ ] Optional: a dev photo tour the user starts in their own terminal
+
+## 20. Props and moving set pieces
+
+**Status:** To do.
+
+- [ ] Animated set pieces (GeckoLib block entities, capped): windmill sails, hoists, bells, cages, portcullis gears, bellows, chain lifts, censers, smoke
+- [ ] About 12 3D props with matching hitboxes; more structure variety
+
+## 21. The Citadel behind a fog wall
+
+**Status:** To do (design first, PLAN 21.0).
+
+- [ ] Design: the final zone inside the realm dimension, for every realm
+- [ ] Realm framework without the depths dimension; the Citadel generated in the realm
+- [ ] Fog wall: look and server lock (no pearls, chorus, elytra or riptide past it)
+- [ ] Old worlds' depths dimension migrated
+
+## 0.5.0 release
+
+**Status:** To do.
+
+- [ ] Release 0.5.0: version, changelog, README, CORE, DESIGN; all checks green (tag and push wait for the user, CI builds the jar)
+
+**Done when:** a fresh survival playthrough goes overworld → dungeon → Cleft Stele → hub → Realm 1 → Smoldering Lord
+without creative mode, boss fights take about two minutes, and nothing breaks on client or server.
+
+---
+
 ## Later (ideas, not committed)
 
 First-round variants and where each discussion stopped: [BACKLOG.md](BACKLOG.md).
@@ -314,4 +402,4 @@ First-round variants and where each discussion stopped: [BACKLOG.md](BACKLOG.md)
 - Realms 2–4 (*Mire of Rot*, *Cathedral Ward*, *The Void*), each with its own design pass
 - Respec consumable, Maiden as merchant
 - Weapon upgrades / smithing within a tier
-- Status effects system (beyond the Realm 1 Bleeding placeholder); rings and artifacts across the mod
+- Rings and artifacts across the mod (the status effects system moved to 0.5.0)

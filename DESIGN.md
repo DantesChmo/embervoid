@@ -53,6 +53,9 @@ Lore lives in item descriptions and the environment.
 
 ## 2. Ember Sanctum (hub)
 
+Being replaced in 0.5.0: the hub moves to its own dimension reached through a Cleft Stele, the overworld structure
+becomes a dungeon with a boss ([PLAN.md](PLAN.md) milestone 15; 15.0 rewrites this section).
+
 | Topic | Design | Status |
 |---|---|---|
 | Spawning | Overworld structure, any land biome. Spacing ~48 chunks, separation ~16 (rarer than villages: roughly one per 750 blocks). Tunable through the `structure_set` datapack file | Proposed |
@@ -195,7 +198,7 @@ sync, night hold, sleep block, vampirism, a field boss without a fog-wall arena)
 | Generation | Random but structured: terrain, caves, decoration and minor structures are seeded; the **layout** (where each zone is, where its boss arena is) is fixed by design | Decided |
 | Zone layout | Custom `BiomeSource`: zone by angle sector around the landing, with noise-warped borders so they do not look like pie slices | Proposed |
 | Size | Bounded: ~1200 blocks radius, ending in an abyss. Realms are places, not infinite worlds | Proposed |
-| Final zone lock | The final zone is a **separate dimension** reached through the Sealed Gate. That makes the lock hard: no ender pearls, elytra or tunneling around it | Proposed |
+| Final zone lock | Being replaced in 0.5.0 by a fog wall inside the realm dimension ([PLAN.md](PLAN.md) 21.0). The final zone is a **separate dimension** reached through the Sealed Gate. That makes the lock hard: no ender pearls, elytra or tunneling around it | Proposed |
 | Key structures | Each zone has one guaranteed boss arena (custom structure placement, position derived from the seed within the zone's sector) plus random minor structures | Proposed |
 | Building | Realms are survival-normal: mine, build, place beds (beds do not set the respawn point there). Boss arenas, gates, shrines and obelisks are unbreakable, and nothing can be built inside an arena or the landing | Proposed — built as recommended (§10.1) |
 | Navigation | A realm-bound item (working name *Ember Lodestar*) points to the nearest boss the player has not beaten | Proposed |
@@ -409,7 +412,7 @@ The Minecraft way: an ore in each open zone → material → consumables and arm
 - Scythe, Scourge and Rapier take Sharpness, Smite, Bane of Arthropods, Fire Aspect, Looting and Knockback (table and
   anvil); Sweeping Edge stays sword-only. Scythe 10 and Scourge 9 damage (were 8) so that unenchanted they beat a
   diamond sword per hit (**Proposed — built as recommended**, R40.1 balance pass, `docs/balance-0.4.0.md`).
-- **Bleeding** (placeholder until the status-effects design in [BACKLOG.md](BACKLOG.md)): a vanilla status effect,
+- **Bleeding** (placeholder until the status-effects design in 0.5.0, [PLAN.md](PLAN.md) 17.0): a vanilla status effect,
   levels I–III (each hit +1, 6 s, refreshes), 0.5 / 1 / 1.5 HP per second, ignores armor. Immune: entity tag
   `embervoid:bleed_immune` (Restless Bones, Furnace Golem, Bark Hollow, Ash Colossus, Grieving Tree).
 
@@ -624,7 +627,7 @@ These are big enough to get their own documents. Each is needed before the miles
 |---|---|---|
 | **Weapons** | Weapon classes, STR/DEX/KIN scaling and requirements, special attacks, how vanilla weapons fit in, upgrades | **Special-attack contract** (trigger, cost, cooldown, tooltip, limits): done (§8.1). Realm 1 weapons: done (§4.5). Upgrades: [BACKLOG.md](BACKLOG.md). Sanctum weapons: done (§10.10). Requirements: open |
 | **Realm 1 content** | Per-zone mobs, structures, the 4 bosses (moves and phases), loot tables | Done (§4.5) |
-| **Status effects** | Bleeding and later effects, RES resistance, immunities, cures | Realm 1 ships a placeholder Bleeding (§4.5); the system: [BACKLOG.md](BACKLOG.md) |
+| **Status effects** | Bleeding and later effects, RES resistance, immunities, cures | Realm 1 ships a placeholder Bleeding (§4.5); the system: designed and built in 0.5.0 ([PLAN.md](PLAN.md) 17.0, 18.2) |
 | **Rings and artifacts** | Catalogue across the mod, more slots, stacking, sources outside realms | Realm 1 set and the Reliquary: done (§4.5); the rest: [BACKLOG.md](BACKLOG.md) |
 | **Bestiary (overworld)** | Hollow and Ember Wisp in detail, behaviors | Overworld threats — done (§3.2) |
 | **Realms 2–4** | Each realm's zones, mobs, bosses, material | Each realm |
