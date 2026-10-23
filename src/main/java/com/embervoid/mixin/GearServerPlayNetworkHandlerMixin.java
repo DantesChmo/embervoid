@@ -2,6 +2,7 @@ package com.embervoid.mixin;
 
 import com.embervoid.anim.AttackAnimations;
 import com.embervoid.reach.gear.GearReach;
+import com.embervoid.reach.gear.WeaponFx;
 import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -24,5 +25,6 @@ abstract class GearServerPlayNetworkHandlerMixin {
 	private void embervoid$longReachSwing(HandSwingC2SPacket packet, CallbackInfo ci) {
 		GearReach.onSwing(player, packet.getHand());
 		AttackAnimations.onSwing(player, packet.getHand());
+		WeaponFx.onSwing(player, packet.getHand());
 	}
 }

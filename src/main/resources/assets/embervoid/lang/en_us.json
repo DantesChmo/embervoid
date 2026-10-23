@@ -632,5 +632,9 @@
 	"subtitles.embervoid.block.cleft_stele.enter": "Someone passes into the stele",
 	"subtitles.embervoid.block.cleft_stele.leave": "Someone steps out of the stele",
 	"embervoid.stele.not_here": "The stele will not kindle here",
-	"embervoid.stele.replaced": "Your Cleft Stele has gone out: another one was kindled"
+	"embervoid.stele.replaced": "Your Cleft Stele has gone out: another one was kindled",
+	"subtitles.embervoid.item.ashen_scythe.reap": "A soul is reaped",
+	"subtitles.embervoid.item.royal_ash_rapier.ramp_peak": "Rapier sings",
+	"subtitles.embervoid.boss.fog_wall.hum": "Fog wall hums",
+	"subtitles.embervoid.boss.fog_wall.flare": "Fog wall flares"
 }

@@ -265,3 +265,42 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# --- Fog wall sheet (textures/misc) --------------------------------------------------------------------------------
+
+def fog_wall():
+    """A 64x64 tiling sheet of ember fog for the arena wall and the Citadel border: turbulent cloud noise, warm in the
+    bright knots and dark red in the hollows, its alpha the brightness so the wall is a volume of light and smoke."""
+    from art_kit import value_noise
+    c = Canvas(64, 64)
+    for y in range(64):
+        for x in range(64):
+            v = 0.0
+            amp = 1.0
+            total = 0.0
+            for octave in range(4):
+                cell = 16.0 / (2 ** octave)
+                # Tiling: sample four wrapped copies and blend by position.
+                fx, fy = x / 64, y / 64
+                n = (value_noise(x, y, 31 + octave, cell) * (1 - fx) * (1 - fy)
+                     + value_noise(x + 64, y, 31 + octave, cell) * fx * (1 - fy)
+                     + value_noise(x, y + 64, 31 + octave, cell) * (1 - fx) * fy
+                     + value_noise(x + 64, y + 64, 31 + octave, cell) * fx * fy)
+                v += n * amp
+                total += amp
+                amp *= 0.5
+            v = v / total
+            v = max(0.0, min(1.0, (v - 0.3) * 1.9))
+            col = mix(hexc("3a0c08"), hexc("ff9a3a"), v ** 1.6)
+            if v > 0.85:
+                col = mix(col, hexc("fff0c0"), (v - 0.85) * 4)
+            c.set(x, y, (col[0], col[1], col[2], int(40 + 215 * v)))
+    out = os.path.join(ROOT, "textures", "misc")
+    os.makedirs(out, exist_ok=True)
+    c.save(os.path.join(out, "fog_wall.png"))
+    print("wrote misc/fog_wall")
+
+
+if __name__ == "__main__":
+    fog_wall()

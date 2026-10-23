@@ -5,6 +5,7 @@ import com.embervoid.config.ConfigSync;
 import com.embervoid.client.anim.AttackAnimationsClient;
 import com.embervoid.client.boss.ArenaFogClient;
 import com.embervoid.client.boss.ArenaShrinesClient;
+import com.embervoid.client.boss.ArenaWallClient;
 import com.embervoid.client.fx.CombatFxClient;
 import com.embervoid.client.fx.particle.EmberParticlesClient;
 import com.embervoid.client.reach.boss.ReachBossClient;
@@ -65,6 +66,7 @@ public class EmbervoidClient implements ClientModInitializer {
 		ReliquaryClient.register();
 		ArenaFogClient.register();
 		ArenaShrinesClient.register();
+		ArenaWallClient.register();
 		ReachBossClient.register();
 		SanctumBossClient.register();
 		CombatFxClient.register();

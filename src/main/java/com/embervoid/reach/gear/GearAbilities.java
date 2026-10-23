@@ -1,11 +1,11 @@
 package com.embervoid.reach.gear;
 
+import com.embervoid.fx.CombatFx;
 import com.embervoid.fx.particle.EmberParticles;
 import com.embervoid.item.ability.SpecialAbility;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.item.ItemStack;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -45,10 +45,17 @@ public final class GearAbilities {
 				target.takeKnockback(0.5, -away.x, -away.z);
 			}
 			AshenScytheItem.refundStamina(player, caught);
-			for (int i = 0; i < 16; i++) {
-				double angle = i * Math.PI * 2 / 16;
-				world.spawnParticles(ParticleTypes.SWEEP_ATTACK, player.getX() + Math.cos(angle) * radius * 0.6,
-						player.getBodyY(0.5), player.getZ() + Math.sin(angle) * radius * 0.6, 1, 0, 0, 0, 0);
+			// The spin seen: a ring of ash thrown out, a shockwave on the ground, souls drawn in from what it caught.
+			Vec3d feet = player.getPos();
+			EmberParticles.shockwave(world, feet.add(0, 0.05, 0), radius, WeaponFx.ASH);
+			EmberParticles.ringOut(world, EmberParticles.ASH_FLAKE, feet.add(0, 1.0, 0), 28, 0.3, 0.06);
+			EmberParticles.ringOut(world, EmberParticles.EMBER, feet.add(0, 0.9, 0), 10, 0.25, 0.08);
+			for (LivingEntity target : around(world, player, radius)) {
+				AshenScytheItem.reaped(world, target, 6);
+			}
+			if (caught > 0) {
+				EmberParticles.souls(world, feet.add(0, 1.2, 0).add(player.getRotationVector().multiply(1.5)),
+						player.getEyePos().add(0, -0.4, 0), Math.min(6, caught * 2));
 			}
 			world.playSound(null, player.getX(), player.getY(), player.getZ(), GearSounds.HARVEST,
 					SoundCategory.PLAYERS, 1.2f, 1.0f);
@@ -129,7 +136,14 @@ public final class GearAbilities {
 			GearReach.noteAttack(player);
 			player.setVelocity(look.multiply(WeaponRules.slideSpeed(dash)).add(0, 0.1, 0));
 			player.velocityModified = true;
-			world.spawnParticles(ParticleTypes.CLOUD, player.getX(), player.getY() + 0.2, player.getZ(), 6, 0.3, 0.1, 0.3, 0.02);
+			// The dash seen: an amber streak and embers left along the way, soot kicked up at the start.
+			Vec3d start = player.getPos();
+			EmberParticles.spawn(world, EmberParticles.SOOT, start.add(0, 0.2, 0), 5, 0.3, 0.02);
+			WeaponFx.unfold(world, 4, step -> {
+				Vec3d at = start.add(look.multiply(dash * (step + 1) / 4.0)).add(0, 1.0, 0);
+				EmberParticles.spawn(world, EmberParticles.AMBER_MOTE, at, 4, 0.25, 0.02);
+				EmberParticles.spawn(world, EmberParticles.EMBER, at, 2, 0.2, 0.03);
+			});
 			world.playSound(null, player.getX(), player.getY(), player.getZ(), GearSounds.LUNGE,
 					SoundCategory.PLAYERS, 1.0f, 1.0f);
 			if (target == null) {
@@ -142,7 +156,11 @@ public final class GearAbilities {
 				if (stack.getItem() instanceof GearWeaponItem weapon && weapon.spec().igniteSeconds() > 0) {
 					target.setOnFireFor(weapon.spec().igniteSeconds());
 				}
-				world.spawnParticles(ParticleTypes.CRIT, target.getX(), target.getBodyY(0.6), target.getZ(), 10, 0.3, 0.3, 0.3, 0.2);
+				Vec3d struck = target.getPos().add(0, target.getHeight() * 0.6, 0);
+				EmberParticles.burst(world, struck, 0.9f, WeaponFx.AMBER);
+				EmberParticles.throwAll(world, EmberParticles.BLOOD_DROP, struck, 8, new Vec3d(0, 0.15, 0), 0.2);
+				EmberParticles.spawn(world, EmberParticles.EMBER, struck, 6, 0.3, 0.05);
+				CombatFx.shake(player, 0.3f, 5);
 			}
 		}
 	};

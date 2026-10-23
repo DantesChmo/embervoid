@@ -1,11 +1,11 @@
 package com.embervoid.reach.gear;
 
+import com.embervoid.fx.particle.EmberParticles;
 import com.embervoid.player.StaminaManager;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -35,15 +35,27 @@ public class AshenScytheItem extends GearWeaponItem {
 				e -> e != target && e != player && e.isAlive() && !player.isTeammate(e) && e.squaredDistanceTo(target) <= radius * radius)) {
 			if (other.damage(world.getDamageSources().playerAttack(player), sweep)) {
 				caught++;
+				reaped(world, other, 5);
 			}
 		}
 		if (player instanceof ServerPlayerEntity serverPlayer) {
 			refundStamina(serverPlayer, caught);
 		}
-		world.spawnParticles(ParticleTypes.SWEEP_ATTACK, target.getX(), target.getBodyY(0.5), target.getZ(), 1, 0, 0, 0, 0);
+		reaped(world, target, 10);
+		if (caught > 0) {
+			// The stamina the sweep gives back, seen: ash drawn from what it caught into the reaper.
+			EmberParticles.souls(world, target.getPos().add(0, target.getHeight() * 0.5, 0), player.getEyePos().add(0, -0.4, 0), Math.min(4, caught));
+		}
 		if (WeaponRules.fullyCharged(charge)) {
 			ashWave(world, player, target, config);
 		}
+	}
+
+	/** The blade through a mob: ash flakes off it, a little soot. */
+	static void reaped(ServerWorld world, LivingEntity target, int flakes) {
+		Vec3d at = target.getPos().add(0, target.getHeight() * 0.55, 0);
+		EmberParticles.spawn(world, EmberParticles.ASH_FLAKE, at, flakes, 0.35, 0.06);
+		EmberParticles.spawn(world, EmberParticles.SOOT, at, 1, 0.1, 0.01);
 	}
 
 	/** {@code gear.weapons.sweepStamina} back for each of {@code caught} enemies, up to the pool. */
@@ -65,11 +77,26 @@ public class AshenScytheItem extends GearWeaponItem {
 				target.damage(GearDamage.ember(player, null), config.waveDamage());
 			}
 		}
-		for (int i = 1; i <= (int) length * 2; i++) {
-			Vec3d at = player.getPos().add(look.multiply(i * 0.5));
-			world.spawnParticles(ParticleTypes.WHITE_ASH, at.x, at.y + 0.3, at.z, 6, side.x * 0.8, 0.2, side.z * 0.8, 0.01);
-			world.spawnParticles(ParticleTypes.SMALL_FLAME, at.x, at.y + 0.2, at.z, 1, 0.3, 0.1, 0.3, 0.01);
-		}
+		// The wave seen: a front of ash and embers rolling forward over eight ticks, a scorch where it dies.
+		Vec3d start = player.getPos();
+		double halfWidth = config.waveWidth() / 2;
+		int ticks = 8;
+		EmberParticles.shockwave(world, start.add(0, 0.05, 0), 1.6f, WeaponFx.ASH);
+		WeaponFx.unfold(world, ticks, step -> {
+			double along = length * (step + 1) / ticks;
+			Vec3d at = start.add(look.multiply(along));
+			for (int i = -3; i <= 3; i++) {
+				Vec3d p = at.add(side.multiply(i * halfWidth / 3));
+				world.spawnParticles(EmberParticles.ASH_FLAKE, p.x, p.y + 0.4, p.z, 3, 0.2, 0.3, 0.2, 0.02);
+				if ((i + step) % 2 == 0) {
+					world.spawnParticles(EmberParticles.EMBER, p.x, p.y + 0.3, p.z, 1, 0.15, 0.2, 0.15, 0.02);
+				}
+			}
+			world.spawnParticles(EmberParticles.SOOT, at.x, at.y + 0.5, at.z, 2, halfWidth * 0.6, 0.2, halfWidth * 0.6, 0.01);
+			if (step == ticks - 1) {
+				EmberParticles.scorch(world, at.add(0, 0.02, 0), 1.4f);
+			}
+		});
 		world.playSound(null, player.getX(), player.getY(), player.getZ(), GearSounds.ASH_WAVE,
 				SoundCategory.PLAYERS, 0.8f, 1.0f);
 	}

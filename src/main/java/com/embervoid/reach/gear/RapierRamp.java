@@ -1,7 +1,10 @@
 package com.embervoid.reach.gear;
 
+import com.embervoid.fx.particle.EmberParticles;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.Map;
 import java.util.UUID;
@@ -42,9 +45,13 @@ public final class RapierRamp {
 		STATES.put(player, new State(target.getUuid(), hitsOn(player, target) + 1, player.getWorld().getTime()));
 	}
 
-	/** A miss or a hit taken: the ramp is gone. */
+	/** A miss or a hit taken: the ramp is gone (a puff of soot off the blade says so, if there was one). */
 	public static void reset(PlayerEntity player) {
-		STATES.remove(player);
+		State state = STATES.remove(player);
+		if (state != null && state.hits > 0 && player.getWorld() instanceof ServerWorld world) {
+			Vec3d hand = player.getEyePos().add(player.getRotationVector().multiply(0.5)).add(0, -0.35, 0);
+			EmberParticles.spawn(world, EmberParticles.SOOT, hand, 2 + Math.min(state.hits, 4), 0.15, 0.02);
+		}
 	}
 
 	static boolean holdsRapier(PlayerEntity player) {
