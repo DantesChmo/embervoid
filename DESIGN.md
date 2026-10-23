@@ -233,34 +233,33 @@ sync, night hold, sleep block, vampirism, a field boss without a fog-wall arena)
 ### 4.1 Structure of a realm
 
 ```
-              ┌───────────── realm_N (one dimension) ─────────────┐
-              │                                                    │
-              │     Zone A ─┐                     ┌─ Zone C        │
-              │             │      Landing        │                │
-              │             └──── (return obelisk, ┘               │
-              │                    Ember Shrine)                   │
-              │                       │                            │
-              │                    Zone B                          │
-              │                                                    │
-              │   ~1200 block radius; edge = abyss / impassable    │
-              │   Sealed Gate stands at the landing                │
-              └──────────────────────┬─────────────────────────────┘
-                                     │ gate opens after A, B, C bosses
-                                     ▼
-                       realm_N_depths (separate dimension)
-                       final zone + realm boss
+                 ┌───────────── realm_N (one dimension) ──────────────┐
+                 │                 Zone A                             │
+                 │        ╲                        ╱                  │
+                 │  Zone C ── Landing (crossroads plaza:    ▓▓▓▓▓▓▓   │
+                 │        ╱   return obelisk, shrine,  ┃   ▓ Final ▓  │
+                 │            Citadel Gate) ───────────┃── ▓ zone  ▓  │
+                 │                 Zone B         fog  ┃   ▓▓▓▓▓▓▓    │
+                 │                                wall                │
+                 │  ~1300 block radius; edge = abyss / impassable     │
+                 └────────────────────────────────────────────────────┘
+   Three open zones and the final zone are four angle sectors around the landing. The final zone's sector is
+   walled off along both of its borders; its one gate stands at the plaza and opens after the A, B, C bosses.
 ```
+
+Decided 2026-10-23 (PLAN 21.0, the user's pick of the fourth sector over "across the abyss" and "in the centre"):
+the final zone is no longer a separate dimension. Built in 0.5.0 (PLAN milestone 21).
 
 | Topic | Design | Status |
 |---|---|---|
 | Count | 4 realms planned, built one at a time. Realm 1 first | Proposed |
-| Zones | 4 per realm: 3 open zones + 1 final zone. Each zone is one or more biomes with its own style, mobs and structures | Decided |
+| Zones | 4 per realm: 3 open zones + 1 final zone, all in one dimension. Each zone is one or more biomes with its own style, mobs and structures | Decided |
 | Order | The 3 open zones can be done in any order (like the archstones in Demon's Souls). Their level bands differ, so the player picks easier first | Proposed |
 | Unlock | Realm N+1 unlocks when the realm N boss dies. Final zone unlocks when the 3 zone bosses of that realm die | Decided |
 | Generation | Random but structured: terrain, caves, decoration and minor structures are seeded; the **layout** (where each zone is, where its boss arena is) is fixed by design | Decided |
-| Zone layout | Custom `BiomeSource`: zone by angle sector around the landing, with noise-warped borders so they do not look like pie slices | Proposed |
-| Size | Bounded: ~1200 blocks radius, ending in an abyss. Realms are places, not infinite worlds | Proposed |
-| Final zone lock | Being replaced in 0.5.0 by a fog wall inside the realm dimension ([PLAN.md](PLAN.md) 21.0). The final zone is a **separate dimension** reached through the Sealed Gate. That makes the lock hard: no ender pearls, elytra or tunneling around it | Proposed |
+| Zone layout | Custom `BiomeSource`: zone by angle sector around the landing. **Four sectors:** the final zone 60°, each open zone 100°. Borders between open zones are noise-warped so they do not look like pie slices; the final zone's two borders are straight (the wall runs along them) | Decided (0.5.0) |
+| Size | Bounded: **~1300 blocks radius** (was 1200; the final zone's sector would otherwise shrink the open zones by about a sixth), ending in an abyss. Realms are places, not infinite worlds | Decided (0.5.0) |
+| Final zone lock | **Fog wall, enforced by the server.** The final zone's sector is a region by angle and distance. The **Citadel Gate** at the landing plaza (where the Sealed Gate stood) is its one opening: a fog wall that lets a player through once they have beaten the 3 zone bosses (per player). Along both sector borders, from the plaza to the abyss, runs a burnt city wall with a curtain of ember fog, drawn by the client only near the player. A player without clearance whose position enters the region is pushed back out; ender pearls and chorus fruit landing inside fail, elytra gliding into it stops, riptide is refused; building over or tunnelling under the wall does not help because the check is the region, not the blocks | Decided (0.5.0) |
 | Key structures | Each zone has one guaranteed boss arena (custom structure placement, position derived from the seed within the zone's sector) plus random minor structures | Proposed |
 | Building | Realms are survival-normal: mine, build, place beds (beds do not set the respawn point there). Boss arenas, gates, shrines and obelisks are unbreakable, and nothing can be built inside an arena or the landing | Proposed — built as recommended (§10.1) |
 | Navigation | A realm-bound item (working name *Ember Lodestar*) points to the nearest boss the player has not beaten | Proposed |
@@ -272,9 +271,10 @@ Demon's Souls gives an archstone shard after each boss. We do the same:
   stands outside the fog wall and is dormant (cannot be rested at) for players who have not beaten that boss
   (**Proposed — built as recommended**, §10.8).
 - Resting at a shrine: refills flasks, sets the **realm respawn point**, allows teleport to the hub.
-- Dying **in a realm**: respawn at the last shrine rested at in that dimension of the realm (the open zones and
-  the final zone count separately); with no rested shrine there, at that dimension's landing. Your overworld bed spawn is not
-  touched. (**Decided**)
+- Dying **in a realm**: respawn at the last shrine rested at in that part of the realm (the open zones and
+  the final zone count separately); with no rested shrine there, at the landing (open zones) or at the Citadel's
+  first shrine just inside the gate (final zone, lit for a player once the gate has let them through). Your
+  overworld bed spawn is not touched. (**Decided**)
 - Dying **in the overworld**: vanilla respawn.
 - The **Ash Remnant** (§7) applies everywhere: your XP — your currency — waits where you died.
 - This reverses the old "no bonfire" decision. Shrines exist only in realms, the hub and at the dungeon's boss
@@ -322,13 +322,14 @@ are called **обелиски** ("first obelisk" = Realm 1), not "реалмы".
 - **Only its own content:** no overworld mobs (Ash Ghoul, Hollow, Ember Wisp), no vanilla mobs, no mobs of other
   realms. **Eternal dusk:** no day/night cycle, `fixed_time` ≈ 13500 (surface monster spawning starts at ≈ 13188);
   nothing burns in daylight.
-- **First 5 minutes:** the landing is the kingdom's crossroads plaza (shrine, Return Obelisk, Sealed Gate), low red
+- **First 5 minutes:** the landing is the kingdom's crossroads plaza (shrine, Return Obelisk, Citadel Gate), low red
   sun. Three ash-brick roads with milestones, an outpost visible at each road head. Nearest is the Fields: first
   farm ruin, first Cinder Husk, first chest. The Lodestar is the backup.
 
 Not chosen (kept for reference): tragedies "Scorched earth", "Funeral kingdom", "The Ember came from here"; rules
 "ash storms as weather", "fire as a resource", "Citadel glow growing per boss"; location layouts "Canon", "Bowl",
-"Eternal Smoulder", "Fog and Silence"; Citadel shapes "island in an ash sea", "chasm", "volcano".
+"Eternal Smoulder", "Fog and Silence"; Citadel shapes "island in an ash sea", "chasm", "volcano"; Citadel places
+(0.5.0) "across the abyss over one bridge", "in the centre with the zones as a ring".
 
 #### Zones and places
 Zone ids stay `zone_a/b/c`; the names change.
@@ -346,10 +347,14 @@ Zone ids stay `zone_a/b/c`; the names change.
 - **World edge:** the kingdom border — broken walls and collapsed bridges ending at the abyss cliffs.
 - **Roads** from the landing to each arena: ash-brick road, a milestone every ~100 blocks, 2 ruined outposts per
   road (toll gate, watchtower) with placed enemies. Roads are the main navigation, side ruins sit off the road.
-- **Smoldering Citadel** (depths, radius ~400, levels 25–30) — "Burning City": a hill in the middle of the burning
-  capital; ember-crack blocks and smouldering logs only here. Own `dimension_type`: dark red sky, same dusk. Jigsaw
-  route: depths landing in the outskirts → burning streets → city wall and gatehouse → inner ring and towers →
-  courtyard below the keep wall (Smoldering Lord arena) → keep.
+- **Smoldering Citadel** (the final zone's sector, levels 25–30; was its own depths dimension until 0.5.0) —
+  "Burning City": the burning capital in the fourth sector, seen from the open zones over its wall. The Citadel
+  Gate at the plaza opens onto the outskirts; a road runs out through burning streets to the Citadel hill on the
+  sector's middle line, about 600–800 blocks from the landing. Ember-crack blocks and smouldering logs only here;
+  the Citadel biome gives the dark red sky and fog (biome sky and fog colours, not a dimension type). Jigsaw route
+  as before: outskirts → burning streets → city wall and gatehouse → inner ring and towers → courtyard below the
+  keep wall (Smoldering Lord arena) → keep. The sector's outer part beyond the hill is burnt suburbs down to the
+  abyss.
 - **Cost:** ~6–8 new blocks (burnt straw, milestone, gravestone, ember crack, smouldering log, wet crypt stone…),
   ~20–25 minor `.nbt` pieces, 3 zone arenas, crypt jigsaw 5–7 pieces, Citadel jigsaw ~10–12 pieces. Java: zone
   density function, road generator, fog mixin, arena height offset.
@@ -868,3 +873,10 @@ Each question names the milestone that cannot start without an answer.
     pick), Smoldering Plate raised to netherite; bosses 1.5–2.5 min and 20–35 hits; the wind-up rule; the weapon
     identities and starting numbers decided in the same pass, easy to change. **Status effects** postponed to 0.6.0
     (the user: a big topic of its own); Bleeding stays the placeholder.
+15. **Where the final zone goes** (the 0.4.1 playtest: the teleport into a separate depths dimension is "a shame").
+    *Needed by:* milestone 21 (PLAN 21.0).
+    **Decided** (2026-10-23, §4.1, §4.5): the **fourth sector** of the realm dimension (the user's pick over "across
+    the abyss" and "in the centre"): final zone 60°, open zones 100° each, radius 1200 → 1300; the Citadel Gate at the
+    plaza; a server-enforced region lock with the wall drawn along both borders. Worlds from before 0.5.0: their
+    realm dimensions are regenerated (nothing has been published; progress, inventories and remnants carried out
+    stay, players inside are moved to the hub), decided in the same pass, easy to change.

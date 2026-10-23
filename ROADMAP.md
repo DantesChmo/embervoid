@@ -376,12 +376,12 @@ visuals; the quick fixes fit in anywhere. Milestones 15, 17 and 21 start with a 
 
 ## 21. The Citadel behind a fog wall
 
-**Status:** To do (design first, PLAN 21.0).
+**Status:** Design done (DESIGN §4.1); build to do.
 
-- [ ] Design: the final zone inside the realm dimension, for every realm
+- [x] Design: the final zone as the realm's fourth sector behind the Citadel Gate — DESIGN §4.1, §4.5
 - [ ] Realm framework without the depths dimension; the Citadel generated in the realm
 - [ ] Fog wall: look and server lock (no pearls, chorus, elytra or riptide past it)
-- [ ] Old worlds' depths dimension migrated
+- [ ] Old worlds' realm dimensions regenerated (progress kept)
 
 ## 0.5.0 release
 

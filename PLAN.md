@@ -822,26 +822,42 @@ and in mechanics. The hard lock (DESIGN §4.1 "Final zone lock") moves to the se
 
 | ID | Task | Size | Depends on | Status |
 |----|------|------|------------|--------|
-| 21.0 | **Design: the final zone inside the realm** | S | — | todo |
+| 21.0 | **Design: the final zone inside the realm** | S | — | done (DESIGN §4.1, §4.5, §10.15) |
 | 21.1 | **Realm framework: final zone without its own dimension** | L | 21.0 | todo |
 | 21.2 | **Fog wall: look and lock** | M | 21.1 | todo |
 | 21.3 | **Citadel generation in the realm dimension** | L | 21.1 | todo |
-| 21.4 | **Worlds from 0.4.x** (depths dimension) | M | 21.1, 21.3 | todo |
+| 21.4 | **Worlds from 0.4.x** (realm dimensions regenerated) | M | 21.1, 21.3 | todo |
 | 21.5 | **Release 0.5.0** | M | 14.1–21.4 | todo |
 
-- **21.0 Design.** Where the Citadel sits (a fourth sector, the centre, across the abyss), how the wall bounds it,
-  the transition from zone terrain, what replaces the Sealed Gate. DESIGN §4.1 and the §4.5 Citadel rewritten for
-  every realm, not only Realm 1.
-- **21.1 Realm framework.** `RealmDefinition` loses its `depths` dimension: a final-zone region with its own level
-  band and shrine respawn; `Realms`, respawn, `RealmDimensionLifecycle` and mob levels follow. GameTests.
-- **21.2 Fog wall.** Looks like the arena fog wall, taller and permanent, opened per player; the server pushes back a
-  player without the three zone bosses; ender pearls, chorus fruit, elytra and riptide over the region refused.
-  GameTests for every way in.
-- **21.3 Citadel generation.** The Citadel jigsaw and terrain move from `ashen_reach_depths` into the realm's final
-  region; Citadel mobs placed as before. Server check: generation time against `docs/perf-0.4.0.md`; GameTests on the
-  pieces.
-- **21.4 Old worlds.** Players inside the depths dimension when updating, shrines rested there, progress: moved to the
-  new region; the old dimension stays loadable or is removed safely. GameTests on old data.
+- **21.0 Design.** *Done 2026-10-23:* DESIGN §4.1 (layout, lock), §4.5 (Citadel), §10.15. The user picked the
+  **fourth sector**: the final zone is a 60° sector of the realm dimension, the open zones 100° each, the radius grows
+  1200 → 1300; its one gate (the Citadel Gate) stands at the landing plaza where the Sealed Gate was; the lock is a
+  server-side region check, the wall and fog curtain along both borders are its look. Old worlds' realm dimensions
+  are regenerated (my call: nothing is published).
+- **21.1 Realm framework: four sectors, no depths dimension.** `RealmDefinition` loses `depths`: the final zone is a
+  sector (start angle, width) with its own level band, biome and shrine respawn; `RealmLayout.zoneAt` gets
+  per-sector widths (60° final, 100° open) and straight final-zone borders (no noise warp there); radius 1300;
+  arena sites, roads (`RoadLayout`, `RealmRoads`) and the world edge follow the new angles; `Realms`, realm respawn
+  (open zones and the final zone apart), `RealmDimensionLifecycle` and mob levels updated; the Sealed Gate block
+  becomes the Citadel Gate at the plaza. JUnit on the layout; GameTests; the server check.
+- **21.2 Citadel Gate and the region lock.** The gate: a fog wall like the arena's, opened per player after the
+  three zone bosses. The region check (angle + distance) every tick for players in the realm: a player without
+  clearance inside the final zone is pushed back across the nearest border; ender pearls and chorus fruit landing
+  inside fail, elytra gliding into it stops, riptide refused. The look: a burnt city wall along both borders
+  (worldgen) and a client-drawn ember fog curtain near the player. GameTests for every way in (walk, pearl, chorus,
+  elytra, riptide, a bridge built over the wall, a tunnel under it) and for a cleared player passing.
+- **21.3 Citadel generation in the sector.** The Citadel jigsaw and terrain (`com.embervoid.reach.citadel`,
+  `CitadelLayout`, `CitadelTerrain`) move from `ashen_reach_depths` onto the sector's middle line about 600–800
+  blocks out; the Citadel biome (dark red sky and fog colours, ember cracks, smouldering logs), outskirts and
+  burning streets from the gate to the hill, burnt suburbs beyond it; the first Citadel shrine just inside the gate;
+  Citadel mobs placed as before, Cinder Hounds natural only in the sector. Server check: generation time against
+  `docs/perf-0.4.0.md`; GameTests on the pieces; renders through `tools/model_preview.py structure`.
+- **21.4 Worlds from 0.4.x.** On the first start with 0.5.0, a world whose realm dimensions were generated with the
+  old layout gets them regenerated: the realm and depths dimension folders are cleared before the worlds load
+  (never the overworld, the Nether, the End or the hub); per-player progress, realm shrines rested (reset to the
+  landing), remnants left in realms (moved to the player's hub landing) and anyone logged out inside (moved to the
+  hub) are handled; the depths dimension is removed. A layout version stored in the world. GameTests on old data;
+  a server-check step with an old-layout world.
 - **21.5 Release 0.5.0.** Version, CHANGELOG, README (the boss-music slider, playerAnimator as a required mod), CORE,
   DESIGN; all checks green; the photo tour (19.5) offered to the user. Tag and push wait for the user; CI builds the
   jar.
