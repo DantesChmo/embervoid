@@ -10,6 +10,7 @@ import com.embervoid.client.reach.world.ReachWorldDataGen;
 import com.embervoid.client.reliquary.ReliquaryDataGen;
 import com.embervoid.client.reach.gear.GearDataGen;
 import com.embervoid.client.sanctum.gear.SanctumGearDataGen;
+import com.embervoid.hub.stele.SteleDataGen;
 import com.embervoid.sanctum.datagen.SanctumTemplateProvider;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
@@ -69,6 +70,7 @@ public class EmbervoidDataGenerator implements DataGeneratorEntrypoint {
 		ReliquaryDataGen.addProviders(pack);
 		ReachWorldDataGen.addProviders(pack);
 		pack.addProvider(CitadelTemplateProvider::new);
+		SteleDataGen.addProviders(pack);
 	}
 
 	private static class Models extends FabricModelProvider {
@@ -165,6 +167,7 @@ public class EmbervoidDataGenerator implements DataGeneratorEntrypoint {
 
 			getOrCreateTagBuilder(BlockTags.SHOVEL_MINEABLE).add(ASH_SOIL);
 			ReachWorldDataGen.vanillaBlockTags(this::getOrCreateTagBuilder);
+			SteleDataGen.vanillaBlockTags(this::getOrCreateTagBuilder);
 		}
 	}
 

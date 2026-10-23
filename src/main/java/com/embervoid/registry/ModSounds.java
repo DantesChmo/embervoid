@@ -2,6 +2,7 @@ package com.embervoid.registry;
 
 import com.embervoid.Embervoid;
 import com.embervoid.entity.mob.MobSounds;
+import com.embervoid.hub.stele.SteleSounds;
 import com.embervoid.nightmob.NightMobSounds;
 import com.embervoid.player.PlayerSounds;
 import com.embervoid.reach.boss.ReachBossSounds;
@@ -44,6 +45,7 @@ public final class ModSounds {
 		RealmSounds.register();
 		PlayerSounds.register();
 		SanctumGearSounds.register();
+		SteleSounds.register();
 	}
 
 	private ModSounds() {}

@@ -16,6 +16,7 @@ import com.embervoid.client.reliquary.ReliquaryClient;
 import com.embervoid.client.vampire.VampireClient;
 import com.embervoid.config.EmbervoidClientConfig;
 import com.embervoid.config.EmbervoidConfig;
+import com.embervoid.hub.stele.SteleClient;
 import com.embervoid.registry.ModBlocks;
 import com.embervoid.registry.ModEntities;
 import com.embervoid.registry.ModItems;
@@ -53,6 +54,7 @@ public class EmbervoidClient implements ClientModInitializer {
 		MoonClient.register();
 		// Also registers the progress sync receiver.
 		SanctumClient.register();
+		SteleClient.register();
 		VampireClient.register();
 		GearClient.register();
 		ReliquaryClient.register();

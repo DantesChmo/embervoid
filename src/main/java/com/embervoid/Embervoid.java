@@ -5,6 +5,7 @@ import com.embervoid.command.PerfCommands;
 import com.embervoid.config.ConfigSync;
 import com.embervoid.config.EmbervoidConfig;
 import com.embervoid.entity.mob.MobEntities;
+import com.embervoid.hub.stele.CleftStele;
 import com.embervoid.mob.MobLevels;
 import com.embervoid.moon.MoonInit;
 import com.embervoid.nightmob.NightMobs;
@@ -70,6 +71,7 @@ public class Embervoid implements ModInitializer {
 		RealmInit.register();
 		// Also registers the progress API.
 		Sanctum.register();
+		CleftStele.register();
 		MoonInit.register();
 		VampireInit.register();
 		ReachGear.register();
