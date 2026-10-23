@@ -10,6 +10,7 @@ public final class BossInit {
 		BossItems.register();
 		Telegraph.register();
 		ArenaManager.register();
+		ArenaShrines.register();
 		BossCommands.register();
 	}
 
