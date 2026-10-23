@@ -1,0 +1,11 @@
+{
+	"parent": "minecraft:block/block",
+	"ambientocclusion": false,
+	"textures": {"particle": "embervoid:block/prop/post_wood", "post": "embervoid:block/prop/post_wood", "top": "embervoid:block/prop/standard_cloth_top", "bottom": "embervoid:block/prop/standard_cloth_bottom", "gilt": "embervoid:block/prop/gilt", "stone": "embervoid:block/polished_ash_stone"},
+	"elements": [
+		{"from": [5, 0, 5], "to": [11, 2, 11], "faces": {"north": {"uv": [5, 14, 11, 16], "texture": "#stone"}, "south": {"uv": [5, 14, 11, 16], "texture": "#stone"}, "east": {"uv": [5, 14, 11, 16], "texture": "#stone"}, "west": {"uv": [5, 14, 11, 16], "texture": "#stone"}, "up": {"uv": [5, 5, 11, 11], "texture": "#stone"}, "down": {"uv": [5, 5, 11, 11], "texture": "#stone", "cullface": "down"}}},
+		{"from": [6, 2, 6], "to": [10, 3, 10], "faces": {"north": {"uv": [6, 13, 10, 14], "texture": "#stone"}, "south": {"uv": [6, 13, 10, 14], "texture": "#stone"}, "east": {"uv": [6, 13, 10, 14], "texture": "#stone"}, "west": {"uv": [6, 13, 10, 14], "texture": "#stone"}, "up": {"uv": [6, 6, 10, 10], "texture": "#stone"}, "down": {"uv": [6, 6, 10, 10], "texture": "#stone"}}},
+		{"from": [7.5, 3, 8], "to": [8.5, 16, 9], "faces": {"north": {"uv": [7.5, 0, 8.5, 13], "texture": "#post"}, "south": {"uv": [7.5, 0, 8.5, 13], "texture": "#post"}, "east": {"uv": [7, 0, 8, 13], "texture": "#post"}, "west": {"uv": [8, 0, 9, 13], "texture": "#post"}, "down": {"uv": [7.5, 7, 8.5, 8], "texture": "#post"}}},
+		{"from": [2.5, 9, 6.75], "to": [13.5, 16, 6.75], "rotation": {"origin": [8, 16, 6.75], "axis": "x", "angle": 22.5}, "faces": {"north": {"uv": [0, 0, 11, 7], "texture": "#bottom"}, "south": {"uv": [0, 0, 11, 7], "texture": "#bottom"}}}
+	]
+}

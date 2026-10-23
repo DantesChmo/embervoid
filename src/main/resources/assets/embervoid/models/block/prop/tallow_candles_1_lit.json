@@ -1,0 +1,11 @@
+{
+	"parent": "minecraft:block/block",
+	"ambientocclusion": false,
+	"textures": {"particle": "embervoid:block/prop/tallow", "tallow": "embervoid:block/prop/tallow", "wick": "embervoid:block/prop/wick_lit"},
+	"elements": [
+		{"from": [6.5, 0, 6.5], "to": [9.5, 8, 9.5], "faces": {"north": {"uv": [6.5, 8, 9.5, 16], "texture": "#tallow"}, "south": {"uv": [6.5, 8, 9.5, 16], "texture": "#tallow"}, "east": {"uv": [6.5, 8, 9.5, 16], "texture": "#tallow"}, "west": {"uv": [6.5, 8, 9.5, 16], "texture": "#tallow"}, "up": {"uv": [6.5, 6.5, 9.5, 9.5], "texture": "#tallow"}, "down": {"uv": [6.5, 6.5, 9.5, 9.5], "texture": "#tallow", "cullface": "down"}}},
+		{"from": [6, 0, 6], "to": [10, 1, 10], "faces": {"north": {"uv": [6, 15, 10, 16], "texture": "#tallow"}, "south": {"uv": [6, 15, 10, 16], "texture": "#tallow"}, "east": {"uv": [6, 15, 10, 16], "texture": "#tallow"}, "west": {"uv": [6, 15, 10, 16], "texture": "#tallow"}, "up": {"uv": [6, 6, 10, 10], "texture": "#tallow"}, "down": {"uv": [6, 6, 10, 10], "texture": "#tallow", "cullface": "down"}}},
+		{"from": [9.5, 1, 7.5], "to": [10, 4.2, 8.5], "faces": {"north": {"uv": [6, 11.8, 6.5, 15], "texture": "#tallow"}, "south": {"uv": [9.5, 11.8, 10, 15], "texture": "#tallow"}, "east": {"uv": [7.5, 11.8, 8.5, 15], "texture": "#tallow"}, "west": {"uv": [7.5, 11.8, 8.5, 15], "texture": "#tallow"}, "up": {"uv": [9.5, 7.5, 10, 8.5], "texture": "#tallow"}, "down": {"uv": [9.5, 7.5, 10, 8.5], "texture": "#tallow"}}},
+		{"from": [7.5, 8, 7.5], "to": [8.5, 9.5, 8.5], "shade": false, "faces": {"north": {"uv": [7.5, 6.5, 8.5, 8], "texture": "#wick"}, "south": {"uv": [7.5, 6.5, 8.5, 8], "texture": "#wick"}, "east": {"uv": [7.5, 6.5, 8.5, 8], "texture": "#wick"}, "west": {"uv": [7.5, 6.5, 8.5, 8], "texture": "#wick"}, "up": {"uv": [7.5, 7.5, 8.5, 8.5], "texture": "#wick"}, "down": {"uv": [7.5, 7.5, 8.5, 8.5], "texture": "#wick"}}}
+	]
+}
