@@ -6,6 +6,7 @@ import com.embervoid.client.anim.AttackAnimationsClient;
 import com.embervoid.client.boss.ArenaFogClient;
 import com.embervoid.client.boss.ArenaShrinesClient;
 import com.embervoid.client.fx.CombatFxClient;
+import com.embervoid.client.fx.particle.EmberParticlesClient;
 import com.embervoid.client.reach.boss.ReachBossClient;
 import com.embervoid.client.mob.MobLevelClient;
 import com.embervoid.client.mob.MobRenderers;
@@ -67,6 +68,7 @@ public class EmbervoidClient implements ClientModInitializer {
 		ReachBossClient.register();
 		SanctumBossClient.register();
 		CombatFxClient.register();
+		EmberParticlesClient.register();
 		AttackAnimationsClient.register();
 		PropClient.register();
 		// Particles and the name label only; a model comes with the art pass.
