@@ -8,6 +8,9 @@ import com.embervoid.balance.BalanceData.Zone;
 import com.embervoid.balance.BalanceModel;
 import com.embervoid.balance.BalanceModel.Player;
 import com.embervoid.balance.BalanceModel.Stage;
+import com.embervoid.balance.OverworldData;
+import com.embervoid.balance.OverworldData.OverworldMob;
+import com.embervoid.balance.OverworldModel;
 import com.embervoid.boss.BossHits;
 import com.embervoid.gametest.mixin.LivingEntityAccessor;
 import com.embervoid.gametest.mixin.ServerPlayerEntityAccessor;
@@ -16,6 +19,7 @@ import com.embervoid.reach.boss.ReachBoss;
 import com.embervoid.reach.gear.GearArmor;
 import com.embervoid.reach.gear.GearWeapons;
 import com.embervoid.reach.mob.ReachMob;
+import com.embervoid.sanctum.gear.SanctumWeapons;
 import com.embervoid.stats.PlayerStats;
 import com.embervoid.stats.Stat;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -27,16 +31,23 @@ import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
+import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.GameRules;
+import net.minecraft.world.World;
+import net.minecraft.world.explosion.Explosion;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -129,18 +140,133 @@ public final class BalanceFightTests implements FabricGameTest {
 	public void gearNumbersAreTheItems(TestContext context) {
 		List<String> misses = new ArrayList<>();
 		ServerPlayerEntity player = player(context, 1, 1);
-		for (BalanceModel.Armor armor : List.of(BalanceModel.IRON, BalanceModel.DIAMOND, BalanceModel.WARDEN, BalanceModel.SMOLDERING)) {
+		for (BalanceModel.Armor armor : List.of(BalanceModel.LEATHER, BalanceModel.IRON, BalanceModel.DIAMOND, BalanceModel.WARDEN,
+				BalanceModel.SMOLDERING)) {
 			equip(player, armor, BalanceModel.IRON_SWORD);
 			same(misses, armor.name() + " armor", armor.armor(), player.getAttributeValue(EntityAttributes.GENERIC_ARMOR));
 			same(misses, armor.name() + " toughness", armor.toughness(), player.getAttributeValue(EntityAttributes.GENERIC_ARMOR_TOUGHNESS));
 		}
 		for (BalanceModel.Weapon weapon : List.of(BalanceModel.IRON_SWORD, BalanceModel.DIAMOND_SWORD, BalanceModel.NETHERITE_SWORD,
-				BalanceModel.DIAMOND_AXE, BalanceModel.ASHEN_SCYTHE, BalanceModel.WARDENS_SCOURGE, BalanceModel.ROYAL_ASH_RAPIER)) {
+				BalanceModel.DIAMOND_AXE, BalanceModel.ASHEN_SCYTHE, BalanceModel.WARDENS_SCOURGE, BalanceModel.ROYAL_ASH_RAPIER,
+				BalanceModel.STONE_SWORD, BalanceModel.IRON_AXE, BalanceModel.SANCTUM_LONGSWORD, BalanceModel.ASHBEARERS_MACE)) {
 			equip(player, BalanceModel.IRON, weapon);
 			same(misses, weapon.name() + " damage", weapon.damage(), player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE));
 			same(misses, weapon.name() + " speed", weapon.speed(), player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED));
 		}
 		context.assertTrue(misses.isEmpty(), String.join("; ", misses));
+		TestPlayers.complete(context, player);
+	}
+
+	/**
+	 * PLAN L2: the overworld model's base numbers are the live entity types' (vanilla and Embervoid): health, armor,
+	 * attack, XP; the Hollow's and the Ember Wisp's attack intervals; the creeper's explosion power.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void overworldNumbersAreTheEntities(TestContext context) {
+		List<String> misses = new ArrayList<>();
+		for (OverworldMob mob : OverworldData.MOBS) {
+			EntityType<?> type = Registries.ENTITY_TYPE.get(new Identifier(mob.id()));
+			DefaultAttributeContainer attributes = DefaultAttributeRegistry.get(castLiving(type));
+			same(misses, mob.id() + " health", mob.mob().health(), attributes.getBaseValue(EntityAttributes.GENERIC_MAX_HEALTH));
+			same(misses, mob.id() + " armor", mob.mob().armor(), attributes.getBaseValue(EntityAttributes.GENERIC_ARMOR));
+			same(misses, mob.id() + " attack", mob.mob().attack(), attributes.getBaseValue(EntityAttributes.GENERIC_ATTACK_DAMAGE));
+			MobEntity entity = (MobEntity) type.create(context.getWorld());
+			same(misses, mob.id() + " XP", mob.mob().xp(), entity.getXpToDrop());
+			entity.discard();
+		}
+		EntityType<?> hollow = Registries.ENTITY_TYPE.get(new Identifier(OverworldData.HOLLOW.id()));
+		same(misses, "hollow attack interval", OverworldData.HOLLOW.mob().mainHit().interval(), constant(context, hollow, "ATTACK_INTERVAL_TICKS"));
+		// The wisp waits 20 ticks plus 0–19 at random: 30 on average.
+		EntityType<?> wisp = Registries.ENTITY_TYPE.get(new Identifier(OverworldData.EMBER_WISP.id()));
+		same(misses, "ember wisp attack interval", OverworldData.EMBER_WISP.mob().mainHit().interval(),
+				constant(context, wisp, "ATTACK_COOLDOWN_TICKS") + 10);
+		CreeperEntity creeper = EntityType.CREEPER.create(context.getWorld());
+		NbtCompound nbt = new NbtCompound();
+		creeper.writeCustomDataToNbt(nbt);
+		same(misses, "creeper explosion power", OverworldData.CREEPER_POWER, nbt.getByte("ExplosionRadius"));
+		creeper.discard();
+		finish(context, misses);
+	}
+
+	/**
+	 * PLAN L2: the overworld mobs at their lowest level on a fresh level 1 player in full iron with an iron sword (and
+	 * the Hollow also on the Sanctum-level player), one hit each way: Ash Ghoul, Hollow (iron sword), Ember Wisp (the
+	 * touch; its fire is not a hit), zombie, a skeleton's arrow, a creeper's blast at 2 blocks.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "balance_overworld")
+	public void overworldMobsHitAsModelled(TestContext context) {
+		List<String> misses = new ArrayList<>();
+		boolean griefing = context.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING);
+		context.getWorld().getGameRules().get(GameRules.DO_MOB_GRIEFING).set(false, context.getWorld().getServer());
+		try {
+			Player fresh = OverworldModel.FRESH_IRON;
+			for (OverworldMob mob : List.of(OverworldData.ASH_GHOUL, OverworldData.HOLLOW, OverworldData.EMBER_WISP,
+					OverworldData.ZOMBIE, OverworldData.SKELETON, OverworldData.CREEPER)) {
+				overworldBothWays(context, misses, mob, OverworldModel.minLevel(mob), fresh);
+			}
+			overworldBothWays(context, misses, OverworldData.HOLLOW, OverworldData.HOLLOW.baseLevel(), OverworldModel.SANCTUM_IRON);
+		} finally {
+			context.getWorld().getGameRules().get(GameRules.DO_MOB_GRIEFING).set(griefing, context.getWorld().getServer());
+		}
+		finish(context, misses);
+	}
+
+	private static void overworldBothWays(TestContext context, List<String> misses, OverworldMob mob, int level, Player model) {
+		ServerPlayerEntity player = player(context, 1, 1);
+		stats(player, model);
+		equip(player, model.armor(), model.weapon());
+		MobEntity entity = (MobEntity) context.spawnEntity(Registries.ENTITY_TYPE.get(new Identifier(mob.id())),
+				mob == OverworldData.CREEPER ? 3 : 4, 1, 1);
+		entity.setAiDisabled(true);
+		entity.setNoGravity(true);
+		MobLevels.setLevel(entity, level);
+		entity.setHealth(entity.getMaxHealth());
+		if (mob == OverworldData.HOLLOW) {
+			entity.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_SWORD));
+			// The sword's attack modifier is applied by the entity tick.
+			entity.tick();
+		}
+		Difficulty difficulty = context.getWorld().getDifficulty();
+		String who = mob.name() + " Lv " + level + " vs " + model.describe();
+		same(misses, who + ": mob max health", BalanceModel.mobHealth(mob.mob().health(), level), entity.getMaxHealth());
+		Hit hit = mob.mob().mainHit();
+		double expected = OverworldModel.hit(hit, level, model, difficulty);
+		player.setHealth(player.getMaxHealth());
+		player.timeUntilRegen = 0;
+		// Absorption soaks a hit bigger than the player's health (the creeper's), so all of it is measured.
+		player.setAbsorptionAmount(100);
+		float before = player.getHealth() + player.getAbsorptionAmount();
+		if (mob == OverworldData.SKELETON) {
+			// An arrow one block short of the player, flying at it at the skeleton's speed: one tick lands it.
+			ArrowEntity arrow = new ArrowEntity(context.getWorld(), player.getX() + 1.2, player.getBodyY(0.5), player.getZ());
+			arrow.setOwner(entity);
+			// 2.4 × 1.6 = 3.84, rounded up to the model's 4 (exactly 2.5 rounds up to 5 through float error).
+			arrow.setDamage(2.4);
+			arrow.setVelocity(-1.6, 0, 0);
+			arrow.tick();
+			arrow.discard();
+		} else if (mob == OverworldData.CREEPER) {
+			// The creeper's own explosion (as CreeperEntity.explode), two blocks from the player on open ground.
+			Vec3d center = entity.getPos();
+			double distance = Math.sqrt(player.squaredDistanceTo(center));
+			double exposure = Explosion.getExposure(center, player);
+			same(misses, who + ": blast distance", 2, distance);
+			same(misses, who + ": blast exposure", 1, exposure);
+			context.getWorld().createExplosion(entity, center.x, center.y, center.z, OverworldData.CREEPER_POWER, World.ExplosionSourceType.MOB);
+		} else {
+			entity.tryAttack(player);
+		}
+		double taken = before - player.getHealth() - player.getAbsorptionAmount();
+		player.setAbsorptionAmount(0);
+		player.setHealth(player.getMaxHealth());
+		player.extinguish();
+		same(misses, who + ": " + hit.name(), expected, taken);
+		REPORT.add(row(mob.name(), level, model, hit.name() + " (on player)", expected, taken));
+		double dealt = hitMob(player, entity);
+		double back = BalanceModel.playerHit(model, mob.mob().armor(), 1);
+		same(misses, who + ": player's hit", back, dealt);
+		REPORT.add(row(mob.name(), level, model, "player's hit", back, dealt));
+		entity.discard();
 		TestPlayers.complete(context, player);
 	}
 
@@ -339,6 +465,9 @@ public final class BalanceFightTests implements FabricGameTest {
 	}
 
 	private static List<Item> armorItems(BalanceModel.Armor armor) {
+		if (armor == BalanceModel.LEATHER) {
+			return List.of(Items.LEATHER_HELMET, Items.LEATHER_CHESTPLATE, Items.LEATHER_LEGGINGS, Items.LEATHER_BOOTS);
+		}
 		if (armor == BalanceModel.IRON) {
 			return List.of(Items.IRON_HELMET, Items.IRON_CHESTPLATE, Items.IRON_LEGGINGS, Items.IRON_BOOTS);
 		}
@@ -355,10 +484,13 @@ public final class BalanceFightTests implements FabricGameTest {
 	}
 
 	private static Item weaponItem(BalanceModel.Weapon weapon) {
-		Map<BalanceModel.Weapon, Item> items = Map.of(BalanceModel.IRON_SWORD, Items.IRON_SWORD, BalanceModel.DIAMOND_SWORD, Items.DIAMOND_SWORD,
-				BalanceModel.NETHERITE_SWORD, Items.NETHERITE_SWORD, BalanceModel.DIAMOND_AXE, Items.DIAMOND_AXE,
-				BalanceModel.ASHEN_SCYTHE, GearWeapons.ASHEN_SCYTHE, BalanceModel.WARDENS_SCOURGE, GearWeapons.WARDENS_SCOURGE,
-				BalanceModel.ROYAL_ASH_RAPIER, GearWeapons.ROYAL_ASH_RAPIER);
+		Map<BalanceModel.Weapon, Item> items = Map.ofEntries(Map.entry(BalanceModel.IRON_SWORD, Items.IRON_SWORD),
+				Map.entry(BalanceModel.DIAMOND_SWORD, Items.DIAMOND_SWORD), Map.entry(BalanceModel.NETHERITE_SWORD, Items.NETHERITE_SWORD),
+				Map.entry(BalanceModel.DIAMOND_AXE, Items.DIAMOND_AXE), Map.entry(BalanceModel.ASHEN_SCYTHE, GearWeapons.ASHEN_SCYTHE),
+				Map.entry(BalanceModel.WARDENS_SCOURGE, GearWeapons.WARDENS_SCOURGE),
+				Map.entry(BalanceModel.ROYAL_ASH_RAPIER, GearWeapons.ROYAL_ASH_RAPIER), Map.entry(BalanceModel.STONE_SWORD, Items.STONE_SWORD),
+				Map.entry(BalanceModel.IRON_AXE, Items.IRON_AXE), Map.entry(BalanceModel.SANCTUM_LONGSWORD, SanctumWeapons.SANCTUM_LONGSWORD),
+				Map.entry(BalanceModel.ASHBEARERS_MACE, SanctumWeapons.ASHBEARERS_MACE));
 		return items.get(weapon);
 	}
 
