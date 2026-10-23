@@ -4,6 +4,7 @@ import com.embervoid.reach.gear.FlaskEmberItem;
 import com.embervoid.reach.gear.GearConsumables;
 import com.embervoid.reach.gear.GearWeapons;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
+import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
@@ -19,8 +20,9 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
 /**
- * Client side of the reach-gear track: the Huntsman's Crossbow model states (as vanilla's crossbow has them), the Ash
- * Bomb renderer, the Flask Ember sync and the "resin / oil burning" tooltip lines.
+ * Client side of the reach-gear track: the Huntsman's Crossbow model states (as vanilla's crossbow has them), the
+ * Warden's Scourge's handle model and lash ({@link ScourgeLashes}), the Ash Bomb renderer, the Flask Ember sync and the
+ * "resin / oil burning" tooltip lines.
  */
 public final class GearClient {
 	public static void register() {
@@ -34,6 +36,9 @@ public final class GearClient {
 				entity != null && CrossbowItem.isCharged(stack) ? 1 : 0);
 		FabricModelPredicateProviderRegistry.register(crossbow, new Identifier("firework"), (stack, world, entity, seed) ->
 				entity != null && CrossbowItem.isCharged(stack) && CrossbowItem.hasProjectile(stack, Items.FIREWORK_ROCKET) ? 1 : 0);
+
+		ModelLoadingPlugin.register(plugin -> plugin.addModels(ScourgeLashes.IN_HAND_MODEL));
+		ScourgeLashes.register();
 
 		EntityRendererRegistry.register(GearConsumables.ASH_BOMB_ENTITY, FlyingItemEntityRenderer::new);
 

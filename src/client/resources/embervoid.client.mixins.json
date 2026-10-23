@@ -11,6 +11,7 @@
 		"RealmFogMixin",
 		"GearPlayerEntityRendererMixin",
 		"GearHeldItemRendererMixin",
+		"GearItemRendererMixin",
 		"GameOptionsBossMusicMixin",
 		"SoundOptionsScreenMixin",
 		"CameraShakeMixin",

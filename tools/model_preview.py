@@ -67,7 +67,9 @@ player renders each playerAnimator clip (all without names) on Steve as playerAn
 set absolutely (degrees, Z-Y-X like a ModelPart), "body" turning the whole player around a point 0.7 blocks up,
 keys interpolated with their easing, held after the last key and blended back into the standing pose (the right arm
 holding an item) from endTick to stopTick. The held item is a sword-sized bar through the vanilla handheld
-third-person transform and the clip's rightItem turn, not the weapon's own model. Into build/model-preview/:
+third-person transform and the clip's rightItem turn, not the weapon's own model; the whip clips hold the Warden's
+Scourge's handle and its lash (WhipArc's swing and ScourgeLashes' rope, ported here, the player looking level ahead).
+Into build/model-preview/:
   player_<clip>.png         per view (SIDE from the front right, ABOVE from behind and above) a trail cell and every
                             tick (every second tick past 24)
   player_<clip>.gif         both views side by side at 20 fps (game time)
@@ -2296,9 +2298,10 @@ def stick_quads(m, a, b, width, color):
             quad(far, neg[0], neg[1], 0.8), quad(far, neg[1], neg[2], 0.7), quad(far, neg[2], neg[0], 0.95)]
 
 
-def player_quads(pose, skin):
+def player_quads(pose, skin, scourge=False, root=None):
     """Render-space quads of the player in a pose, with a sword-sized bar for the item in the right hand (the vanilla
-    handheld transform, then the clip's rightItem turn)."""
+    handheld transform, then the clip's rightItem turn). With scourge, the Warden's Scourge's handle instead, and
+    root (a list) gets the render-space point the lash leaves it (ScourgeLashes.ROOT)."""
     b = pose["body"]
     # The whole-body turn: around a point 0.7 blocks up, in the entity's own frame (y up), position in blocks.
     body_m = translate(b["x"] * 16, b["y"] * 16 + 11.2, b["z"] * 16)
@@ -2323,8 +2326,177 @@ def player_quads(pose, skin):
     m = mul(m, mul(mul(rot_x(0), rot_y(math.radians(-90))), rot_z(math.radians(55))))
     m = mul(m, mul(scale_m(0.85, 0.85, 0.85), translate(-8, -8, -8)))
     m = mul(mul(body_m, MODEL_TO_RENDER), m)
+    if scourge:
+        quads += stick_quads(m, (1, 1, 8), (8, 8, 8), 1.6, (70, 56, 48))          # grip (wardens_scourge_handle)
+        quads += stick_quads(m, (8, 8, 8), (9.5, 9.5, 8), 1.8, (120, 128, 146))   # iron ferrule
+        if root is not None:
+            root.append(apply(m, (9.5, 9.5, 8)))
+        return quads
     quads += stick_quads(m, (1, 1, 8), (4, 4, 8), 1.6, (110, 70, 40))     # grip
     quads += stick_quads(m, (4, 4, 8), (15.5, 15.5, 8), 1.2, (205, 210, 220))  # blade, tip at the sprite's top right
+    return quads
+
+
+# --- The Warden's Scourge's lash (PLAN 17.4): WhipArc and ScourgeLashes ported, to see the lash with the whip clips --
+
+WHIP_REACH, WHIP_HAND, WHIP_BOW = 6.0, (0.3, -0.35, 0.45), (0.25, 0.45)
+WHIP_UNROLL, WHIP_LAG, WHIP_OVERSHOOT, WHIP_OVERSHOOT_TICKS = 2.0, 2.0, 12.0, 1.0
+WHIP_WINDUP = {"whip_crack": 135.0, "whip_lash": 35.0}
+WHIP_YANK = {"whip_crack": 0.0, "whip_lash": 0.8}
+WHIP_RETRACT_FROM = {"whip_crack": 9.0, "whip_lash": 5.0}
+LASH_LINKS, LASH_IDLE, LASH_PAYOUT, LASH_RETRACT = 20, 0.8, 2.5, 0.6
+LASH_STEP, LASH_GRAVITY, LASH_DRAG, LASH_ITERATIONS = 0.25, 0.06, 0.9, 12
+EYE_PX = 1.62 * 16
+
+
+def v_add(a, b):
+    return tuple(x + y for x, y in zip(a, b))
+
+
+def v_sub(a, b):
+    return tuple(x - y for x, y in zip(a, b))
+
+
+def v_mul(a, k):
+    return tuple(x * k for x in a)
+
+
+def v_len(a):
+    return math.sqrt(sum(x * x for x in a))
+
+
+def v_cross(a, b):
+    return (a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0])
+
+
+class WhipArcPy:
+    """WhipArc in the look frame (x right, y up, z ahead, blocks from the eyes)."""
+
+    def __init__(self, reach=WHIP_REACH, table=128):
+        self.points = [self.curve(i / table, reach) for i in range(table + 1)]
+        self.lengths = [0.0]
+        for a, b in zip(self.points, self.points[1:]):
+            self.lengths.append(self.lengths[-1] + v_len(v_sub(b, a)))
+        frm = (0.5, 1.0, 0.0)
+        n = v_len(frm)
+        frm = v_mul(frm, 1 / n)
+        axis = v_cross((0, 0, 1), frm)
+        self.axis = v_mul(axis, 1 / v_len(axis))
+
+    @staticmethod
+    def curve(t, reach):
+        u = 1 - t
+        bow = (WHIP_BOW[0], WHIP_BOW[1], reach / 2)
+        return tuple(WHIP_HAND[i] * u * u + bow[i] * 2 * u * t + (0, 0, reach)[i] * t * t for i in range(3))
+
+    def length(self):
+        return self.lengths[-1]
+
+    def point(self, along):
+        if along <= 0:
+            return self.points[0]
+        if along >= self.length():
+            return self.points[-1]
+        i = max(k for k, l in enumerate(self.lengths) if l <= along)
+        f = (along - self.lengths[i]) / (self.lengths[i + 1] - self.lengths[i])
+        return v_add(self.points[i], v_mul(v_sub(self.points[i + 1], self.points[i]), f))
+
+    def crack_age(self, along):
+        return WHIP_LAG * min(1.0, max(0.0, along / self.length())) + WHIP_UNROLL
+
+    def swing(self, age, along, windup):
+        x = (age - WHIP_LAG * min(1.0, max(0.0, along / self.length()))) / WHIP_UNROLL
+        if x <= 0:
+            angle = windup
+        elif x <= 1:
+            angle = windup * (1 - x * x)
+        else:
+            angle = -WHIP_OVERSHOOT * min(1.0, (x - 1) * WHIP_UNROLL / WHIP_OVERSHOOT_TICKS)
+        v = v_sub(self.point(along), WHIP_HAND)
+        a = math.radians(angle)
+        k = self.axis
+        dot = sum(p * q for p, q in zip(k, v))
+        r = v_add(v_add(v_mul(v, math.cos(a)), v_mul(v_cross(k, v), math.sin(a))), v_mul(k, dot * (1 - math.cos(a))))
+        return v_add(WHIP_HAND, r)
+
+
+def look_to_render(p):
+    """Look frame (blocks; the player looks level along -z in render space, right is +x) -> render pixels."""
+    return (p[0] * 16, EYE_PX + p[1] * 16, -p[2] * 16)
+
+
+def lash_frames(clip_name, roots, ticks):
+    """The lash's links (render pixels) at each of ticks, as ScourgeLashes steps it: laid along the swing until the tip
+    has cracked, then let go (gravity, drag, links at their length, the ground at y = 0) and coiled back in."""
+    arc = WhipArcPy()
+    windup, yank = WHIP_WINDUP.get(clip_name, 0.0), WHIP_YANK.get(clip_name, 0.0)
+    swinging = clip_name in WHIP_WINDUP
+    blocks = [v_mul(r, 1 / 16) for r in roots]          # render pixels -> blocks
+    pos = [v_add(blocks[0], (0, -LASH_IDLE * i / LASH_LINKS, 0)) for i in range(LASH_LINKS + 1)]
+    speed = [(0.0, 0.0, 0.0)] * (LASH_LINKS + 1)
+    length, kinematic, out = LASH_IDLE, False, {}
+    hand = v_mul(look_to_render(WHIP_HAND), 1 / 16)
+    per_tick = int(round(1 / LASH_STEP))
+    for n in range(max(ticks) * per_tick + 1):
+        age = n * LASH_STEP
+        anchor = blocks[min(len(blocks) - 1, int(round(age)))]
+        if swinging and age < arc.crack_age(arc.length()) + 0.5:
+            length = min(arc.length(), LASH_IDLE + (arc.length() - LASH_IDLE) * age / LASH_PAYOUT)
+            offset = v_sub(anchor, hand)
+            new = [anchor]
+            for i in range(1, LASH_LINKS + 1):
+                share = i / LASH_LINKS
+                p = v_mul(look_to_render(arc.swing(age, share * length, windup)), 1 / 16)
+                new.append(v_add(p, v_mul(offset, 1 - share)))
+            speed = [v_mul(v_sub(a, b), 1 / LASH_STEP) for a, b in zip(new, pos)]
+            pos, kinematic = new, True
+        elif n > 0:
+            if kinematic and yank > 0:
+                for i in range(1, LASH_LINKS + 1):
+                    d = v_sub(anchor, pos[i])
+                    speed[i] = v_add(speed[i], v_mul(d, yank / (v_len(d) or 1)))
+            kinematic = False
+            if not swinging or age > WHIP_RETRACT_FROM[clip_name]:
+                length = max(LASH_IDLE, length - LASH_RETRACT * LASH_STEP)
+            keep = LASH_DRAG ** LASH_STEP
+            nxt = [anchor]
+            for i in range(1, LASH_LINKS + 1):
+                speed[i] = v_mul(v_add(speed[i], (0, -LASH_GRAVITY * LASH_STEP, 0)), keep)
+                nxt.append(v_add(pos[i], v_mul(speed[i], LASH_STEP)))
+            rest = length / LASH_LINKS
+            for _ in range(LASH_ITERATIONS):
+                for i in range(LASH_LINKS):
+                    d = v_sub(nxt[i + 1], nxt[i])
+                    ln = v_len(d)
+                    if ln < 1e-6:
+                        continue
+                    fix = v_mul(d, (ln - rest) / ln)
+                    if i == 0:
+                        nxt[1] = v_sub(nxt[1], fix)
+                    else:
+                        nxt[i] = v_add(nxt[i], v_mul(fix, 0.5))
+                        nxt[i + 1] = v_sub(nxt[i + 1], v_mul(fix, 0.5))
+            for i in range(1, LASH_LINKS + 1):
+                p = nxt[i]
+                grounded = p if p[1] >= 0.03 else (p[0], 0.03, p[2])
+                moved = v_mul(v_sub(grounded, pos[i]), 1 / LASH_STEP)
+                speed[i] = moved if grounded is p else (moved[0] * 0.5, 0.0, moved[2] * 0.5)
+                pos[i] = grounded
+        if n % per_tick == 0:
+            out[n // per_tick] = [v_mul(p, 16) for p in pos]
+    return out
+
+
+def lash_quads(links):
+    """The links as bars, iron narrowing to the tip, the last one the red popper."""
+    quads = []
+    ident = translate(0, 0, 0)
+    for i, (a, b) in enumerate(zip(links, links[1:])):
+        if v_len(v_sub(b, a)) < 1e-3:
+            continue
+        popper = i == len(links) - 2
+        width = 0.06 * 16 if popper else (0.075 + (0.035 - 0.075) * i / LASH_LINKS) * 16
+        quads += stick_quads(ident, a, b, width, (170, 34, 36) if popper else (128, 136, 154))
     return quads
 
 
@@ -2342,7 +2514,14 @@ def player_motion_sheet(names, out, gif=True, cols=12, cell=150):
         ticks = list(range(0, stop + 1, step))
         if ticks[-1] != stop:
             ticks.append(stop)
-        sets = [player_quads(player_pose(clip, t), skin) for t in ticks]
+        whip = name.startswith("whip_")
+        lash = {}
+        if whip:
+            roots = []
+            for t in range(stop + 1):
+                player_quads(player_pose(clip, t), skin, True, roots)
+            lash = lash_frames(name, roots, range(stop + 1))
+        sets = [player_quads(player_pose(clip, t), skin, whip) + (lash_quads(lash[t]) if whip else []) for t in ticks]
         cell_w, cell_h = cell, int(cell * 1.2)
         fit = fit_for(sets, views, cell_w, cell_h, None, 0.85)
         rows = math.ceil((len(ticks) + 1) / (cols + 1))
@@ -2369,7 +2548,7 @@ def player_motion_sheet(names, out, gif=True, cols=12, cell=150):
         gfit = fit_for(sets, views, gw, gh, None, 0.85)
         frames = []
         for t in range(stop + 1):
-            qs = player_quads(player_pose(clip, t), skin)
+            qs = player_quads(player_pose(clip, t), skin, whip) + (lash_quads(lash[t]) if whip else [])
             img = Image(gw * 2, gh)
             for k, view in enumerate(views):
                 img.blit(render_cell(qs, view, gw, gh, gfit), k * gw, 0)
