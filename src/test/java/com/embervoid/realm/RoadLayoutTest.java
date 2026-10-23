@@ -145,4 +145,64 @@ class RoadLayoutTest {
 		assertEquals(a.points().size(), b.points().size());
 		assertEquals(a.points().get(40)[0], b.points().get(40)[0]);
 	}
+
+	/**
+	 * The Reach's roads (PLAN 21.1), for its real arena placements over many seeds: no road, milestone, lantern post or
+	 * outpost reaches into the final zone's sector; the only road there is the gate road.
+	 */
+	@Test
+	void reachRoadsKeepOutOfTheFinalSector() {
+		RealmLayout.Sectors sectors = ReachLayoutFiles.sectors();
+		for (long seed = 0; seed < 300; seed++) {
+			List<RoadLayout.Road> roads = RoadLayout.roads(seed, ReachLayoutFiles.arenas(seed), ReachLayoutFiles.siteRadii(), 22, 24);
+			assertEquals(3, roads.size());
+			for (RoadLayout.Road road : roads) {
+				for (double[] p : road.points()) {
+					assertTrue(clearOfFinal(sectors, p[0], p[1], 2.5 + 3), "seed " + seed + " road " + road.arena() + " at " + p[0] + " " + p[1]);
+				}
+				for (RoadLayout.Milestone milestone : road.milestones()) {
+					assertTrue(clearOfFinal(sectors, milestone.x() + 0.5, milestone.z() + 0.5, 2), "seed " + seed + " milestone");
+				}
+				for (RoadLayout.Post post : road.posts()) {
+					assertTrue(clearOfFinal(sectors, post.x() + 0.5, post.z() + 0.5, 2), "seed " + seed + " post");
+				}
+				for (RoadLayout.Outpost outpost : road.outposts()) {
+					assertTrue(clearOfFinal(sectors, outpost.x(), outpost.z(), RoadLayout.OUTPOST_CLEARANCE), "seed " + seed + " outpost");
+				}
+			}
+		}
+	}
+
+	@Test
+	void gateRoadRunsStraightFromThePlazaIntoTheFinalSector() {
+		RealmLayout.Sectors sectors = ReachLayoutFiles.sectors();
+		RoadLayout.Road gate = RoadLayout.gateRoad(sectors.finalCenter(), 22, 48);
+		assertEquals(RoadLayout.GATE, gate.arena());
+		assertEquals(26, gate.length(), 1e-9);
+		assertEquals(22, Math.hypot(gate.points().get(0)[0], gate.points().get(0)[1]), 1e-9);
+		for (double[] p : gate.points()) {
+			assertEquals(sectors.finalCenter(), RealmLayout.angle(p[0], p[1]), 1e-9);
+			assertTrue(sectors.inFinal(RealmLayout.angle(p[0], p[1])));
+		}
+		assertTrue(gate.milestones().isEmpty() && gate.posts().isEmpty() && gate.outposts().isEmpty());
+	}
+
+	/**
+	 * Whether a point lies outside the final sector's wedge and at least {@code margin} blocks from both its borders
+	 * (rays from the centre).
+	 */
+	private static boolean clearOfFinal(RealmLayout.Sectors sectors, double x, double z, double margin) {
+		if (sectors.inFinal(RealmLayout.angle(x, z))) {
+			return false;
+		}
+		for (double border : new double[]{sectors.finalStart(), sectors.startAngle()}) {
+			double along = x * Math.cos(border) + z * Math.sin(border);
+			double across = Math.abs(-x * Math.sin(border) + z * Math.cos(border));
+			double distance = along > 0 ? across : Math.hypot(x, z);
+			if (distance < margin) {
+				return false;
+			}
+		}
+		return true;
+	}
 }

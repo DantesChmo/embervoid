@@ -1862,14 +1862,14 @@
 			{"name": "minecraft:block/beacon/deactivate", "volume": 0.6, "pitch": 1.4}
 		]
 	},
-	"block.sealed_gate.open": {
-		"subtitle": "subtitles.embervoid.block.sealed_gate.open",
+	"block.citadel_gate.open": {
+		"subtitle": "subtitles.embervoid.block.citadel_gate.open",
 		"sounds": [
 			{"name": "minecraft:block/end_portal/endportal", "volume": 0.8, "pitch": 1.2}
 		]
 	},
-	"block.sealed_gate.sealed": {
-		"subtitle": "subtitles.embervoid.block.sealed_gate.sealed",
+	"block.citadel_gate.sealed": {
+		"subtitle": "subtitles.embervoid.block.citadel_gate.sealed",
 		"sounds": [
 			{"name": "minecraft:block/lodestone/lock1", "pitch": 0.6},
 			{"name": "minecraft:block/lodestone/lock2", "pitch": 0.6}

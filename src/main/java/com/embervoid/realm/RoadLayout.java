@@ -36,7 +36,10 @@ public final class RoadLayout {
 	 */
 	public static final double POST_ROAD_CLEARANCE = 3;
 
-	/** A road: its points from the plaza to the arena, and what stands along it. */
+	/** {@link Road#arena} of the gate road ({@link #gateRoad}). */
+	public static final int GATE = -1;
+
+	/** A road: its points from the plaza to the arena (or {@link #GATE}), and what stands along it. */
 	public record Road(int arena, List<double[]> points, List<Milestone> milestones, List<Outpost> outposts, List<Post> posts) {
 		public double length() {
 			return (points.size() - 1) * STEP;
@@ -74,6 +77,20 @@ public final class RoadLayout {
 					posts(road, roads, arenas, siteRadii, plazaRadius)));
 		}
 		return lit;
+	}
+
+	/**
+	 * The one road into the final zone's sector (DESIGN §4.1): a short straight stub from the plaza's edge out along the
+	 * sector's middle line to {@code to} blocks from the centre, where the sector begins. Nothing stands along it.
+	 */
+	public static Road gateRoad(double angle, double plazaRadius, double to) {
+		double dirX = Math.cos(angle);
+		double dirZ = Math.sin(angle);
+		List<double[]> points = new ArrayList<>();
+		for (double d = plazaRadius; d <= to + 1e-9; d += STEP) {
+			points.add(new double[]{dirX * d, dirZ * d});
+		}
+		return new Road(GATE, points, List.of(), List.of(), List.of());
 	}
 
 	/**

@@ -6,9 +6,9 @@ import com.embervoid.config.EmbervoidConfig;
 /**
  * {@code realm.*} in {@code config/embervoid.json}.
  *
- * @param depthsOpen whether an unsealed Sealed Gate leads into the final zone (on since 0.4.0, where the Smoldering
- *                   Citadel is built; off, the gate says "the depths are still forming"). {@code /embervoid realm}
- *                   commands reach them anyway
+ * @param depthsOpen whether an unsealed Citadel Gate leads into the final zone (on since 0.4.0, where the Smoldering
+ *                   Citadel is built; off, the gate says "the Citadel is still forming"). {@code /embervoid realm}
+ *                   commands reach it anyway. Goes with the depths dimension in PLAN 21.3
  */
 public record RealmConfig(boolean depthsOpen) {
 	private static final RealmConfig DEFAULTS = new RealmConfig(true);

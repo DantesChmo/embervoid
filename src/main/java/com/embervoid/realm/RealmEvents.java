@@ -32,7 +32,9 @@ public final class RealmEvents {
 
 	public static void register() {
 		// Death in a realm dimension: respawn at the last shrine rested at in that dimension, else its landing (the
-		// open zones and the final zone each count on their own). The bed spawn stays as it was.
+		// open zones and the final zone each count on their own, DESIGN §4.2). The bed spawn stays as it was.
+		// The final zone is still the depths dimension until PLAN 21.3; a death in the realm dimension's final sector
+		// follows the open-zone rules until 21.3 gives the sector its own shrines and the Citadel's first shrine.
 		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
 			RegistryKey<World> died = oldPlayer.getWorld().getRegistryKey();
 			if (!alive && Realms.byWorld(died) != null && !RealmTeleports.toShrine(newPlayer, died)) {
@@ -81,7 +83,7 @@ public final class RealmEvents {
 	}
 
 	private static boolean isInteractive(BlockState state) {
-		return state.isOf(RealmBlocks.RETURN_OBELISK) || state.isOf(RealmBlocks.SEALED_GATE) || state.isOf(SanctumBlocks.EMBER_SHRINE);
+		return state.isOf(RealmBlocks.RETURN_OBELISK) || state.isOf(RealmBlocks.CITADEL_GATE) || state.isOf(SanctumBlocks.EMBER_SHRINE);
 	}
 
 	private static void pushBackFromVoid(ServerWorld world, double maxDistance) {

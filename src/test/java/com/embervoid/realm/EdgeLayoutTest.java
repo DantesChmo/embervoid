@@ -25,15 +25,26 @@ class EdgeLayoutTest {
 	}
 
 	@Test
-	void bridgesAreSpreadAroundTheEdge() {
-		List<EdgeLayout.Bridge> bridges = EdgeLayout.bridges(7L, 6, 1142);
-		assertEquals(6, bridges.size());
-		for (int i = 0; i < bridges.size(); i++) {
-			EdgeLayout.Bridge a = bridges.get(i);
-			EdgeLayout.Bridge b = bridges.get((i + 1) % bridges.size());
-			double gap = RealmLayout.normalize(b.angle() - a.angle());
-			assertTrue(gap > RealmLayout.TAU / 12, "bridges " + i + " and " + (i + 1) + " too close: " + gap);
-			assertTrue(a.to() - a.from() >= 25 && a.to() - a.from() <= 45);
+	void bridgesAreSpreadAroundTheOpenZones() {
+		RealmLayout.Sectors sectors = ReachLayoutFiles.sectors();
+		double from = ReachLayoutFiles.radius() - 58;
+		for (long seed = 0; seed < 200; seed++) {
+			List<EdgeLayout.Bridge> bridges = EdgeLayout.bridges(seed, 6, from, sectors);
+			assertEquals(6, bridges.size());
+			double step = sectors.openSpan() / 6;
+			for (int i = 0; i < bridges.size(); i++) {
+				EdgeLayout.Bridge a = bridges.get(i);
+				assertTrue(a.to() - a.from() >= 25 && a.to() - a.from() <= 45);
+				assertEquals(from, a.from(), 1e-9);
+				// None in the final zone's sector, nor within its width of a border.
+				assertTrue(!sectors.inFinal(a.angle()), "bridge " + i + " in the final sector");
+				double local = RealmLayout.normalize(a.angle() - sectors.startAngle());
+				assertTrue(Math.min(local, sectors.openSpan() - local) * from > a.width() * 4, "bridge " + i + " at the final border");
+				if (i > 0) {
+					double gap = RealmLayout.normalize(a.angle() - bridges.get(i - 1).angle());
+					assertTrue(gap >= step / 2 - 1e-9, "bridges " + (i - 1) + " and " + i + " too close: " + gap);
+				}
+			}
 		}
 	}
 

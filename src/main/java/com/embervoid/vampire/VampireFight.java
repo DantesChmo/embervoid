@@ -146,7 +146,7 @@ public final class VampireFight {
 		for (int i = Realms.ALL.size() - 1; i >= 0; i--) {
 			RealmDefinition realm = Realms.ALL.get(i);
 			if (players.stream().anyMatch(p -> ProgressManager.isRealmUnlocked(p, realm.id()))) {
-				int top = Math.max(realm.landingLevels().max(), realm.depthsLevels().max());
+				int top = Math.max(realm.landingLevels().max(), realm.finalLevels().max());
 				for (RealmDefinition.LevelBand band : realm.zoneLevels()) {
 					top = Math.max(top, band.max());
 				}

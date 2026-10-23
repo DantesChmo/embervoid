@@ -7,8 +7,8 @@ import net.minecraft.sound.SoundEvent;
 public final class RealmSounds {
 	public static final SoundEvent TRAVEL = ModSounds.register("block.void_obelisk.travel");
 	public static final SoundEvent REFUSE = ModSounds.register("block.void_obelisk.refuse");
-	public static final SoundEvent GATE_OPEN = ModSounds.register("block.sealed_gate.open");
-	public static final SoundEvent GATE_SEALED = ModSounds.register("block.sealed_gate.sealed");
+	public static final SoundEvent GATE_OPEN = ModSounds.register("block.citadel_gate.open");
+	public static final SoundEvent GATE_SEALED = ModSounds.register("block.citadel_gate.sealed");
 
 	/** Loads the class, so its events are registered during mod init. */
 	public static void register() {

@@ -21,9 +21,10 @@ import net.minecraft.world.gen.feature.util.FeatureContext;
 import java.util.List;
 
 /**
- * Feature {@code embervoid:realm_edge} (PLAN 9.9), once per chunk of a realm's open zones: the kingdom's border — a
- * broken wall on a ring {@value #WALL_INSET} blocks inside the realm radius, with towers, and {@value #BRIDGES}
- * bridges that run out from the cliffs over the abyss and break off ({@link EdgeLayout}).
+ * Feature {@code embervoid:realm_edge} (PLAN 9.9), once per chunk of a realm's outer zones: the kingdom's border — a
+ * broken wall on a ring {@value #WALL_INSET} blocks inside the realm radius, with towers, all the way round (the final
+ * zone's sector too), and {@value #BRIDGES} bridges from the open zones that run out from the cliffs over the abyss
+ * and break off ({@link EdgeLayout}).
  */
 public class EdgeFeature extends Feature<DefaultFeatureConfig> {
 	public static final int WALL_INSET = 95;
@@ -43,7 +44,7 @@ public class EdgeFeature extends Feature<DefaultFeatureConfig> {
 	}
 
 	public static List<EdgeLayout.Bridge> bridges(ServerWorld world, RealmDefinition realm) {
-		return EdgeLayout.bridges(world.getSeed(), BRIDGES, realm.radius() - BRIDGE_INSET);
+		return EdgeLayout.bridges(world.getSeed(), BRIDGES, realm.radius() - BRIDGE_INSET, realm.sectors());
 	}
 
 	@Override

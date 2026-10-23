@@ -6,12 +6,14 @@ import com.embervoid.realm.worldgen.RealmFeatures;
 import com.embervoid.realm.worldgen.RealmRoads;
 import com.embervoid.registry.ModBlocks;
 import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.LootableContainerBlockEntity;
 import net.minecraft.command.argument.IdentifierArgumentType;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -49,6 +51,11 @@ public final class RealmCommands {
 						.then(literal("roads").executes(RealmCommands::roads)
 								// /embervoid realm roads posts: where each road's lantern posts stand.
 								.then(literal("posts").executes(RealmCommands::posts)))
+						// /embervoid realm find <block> <x> <z>: the highest such block in that column of the current world
+						// (loaded or generated first), e.g. the Citadel Gate on the plaza.
+						.then(literal("find").then(argument("block", IdentifierArgumentType.identifier())
+								.then(argument("x", IntegerArgumentType.integer()).then(argument("z", IntegerArgumentType.integer())
+										.executes(RealmCommands::find)))))
 						// /embervoid realm data: the caller's realm travel data.
 						.then(literal("data").executes(context -> {
 							ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
@@ -74,12 +81,34 @@ public final class RealmCommands {
 		RealmDefinition.LevelBand band = RealmMobLevels.bandAt(player.getServerWorld(), player.getBlockPos());
 		RealmFeatures.Placed feature = RealmFeatures.at(player.getServerWorld(), player.getBlockPos());
 		double distance = Math.sqrt(player.getX() * player.getX() + player.getZ() * player.getZ());
-		String zoneName = zone == RealmLayout.LANDING ? "landing" : zone == RealmLayout.ABYSS ? "abyss" : "zone " + zone;
+		String zoneName = switch (zone) {
+			case RealmLayout.LANDING -> "landing";
+			case RealmLayout.ABYSS -> "abyss";
+			case RealmLayout.FINAL -> "final zone";
+			default -> "zone " + zone;
+		};
 		String text = String.format("%s %s, %s, distance %.0f, levels %s, feature %s", realm.id(), player.getWorld().getRegistryKey().getValue(),
 				zoneName, distance, band == null ? "-" : band.min() + "-" + band.max(),
 				feature == null ? "-" : feature.structure().kind().asString() + " " + feature.piece().center().toShortString());
 		context.getSource().sendFeedback(() -> Text.literal(text), false);
 		return 1;
+	}
+
+	private static int find(CommandContext<ServerCommandSource> context) {
+		ServerWorld world = context.getSource().getWorld();
+		Identifier block = IdentifierArgumentType.getIdentifier(context, "block");
+		int x = IntegerArgumentType.getInteger(context, "x");
+		int z = IntegerArgumentType.getInteger(context, "z");
+		world.getChunk(x >> 4, z >> 4);
+		for (int y = world.getTopY() - 1; y >= world.getBottomY(); y--) {
+			BlockPos pos = new BlockPos(x, y, z);
+			if (Registries.BLOCK.getId(world.getBlockState(pos).getBlock()).equals(block)) {
+				context.getSource().sendFeedback(() -> Text.literal("found at " + x + " " + pos.getY() + " " + z), false);
+				return 1;
+			}
+		}
+		context.getSource().sendFeedback(() -> Text.literal("not found"), false);
+		return 0;
 	}
 
 	private static int arenas(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
@@ -92,7 +121,10 @@ public final class RealmCommands {
 		return 1;
 	}
 
-	/** Works from the console too ({@code execute in <realm> run …}): roads, milestones, outposts and their chests. */
+	/**
+	 * Works from the console too ({@code execute in <realm> run …}): roads, milestones, outposts and their chests, then
+	 * the gate road into the final zone's sector.
+	 */
 	private static int roads(CommandContext<ServerCommandSource> context) {
 		ServerWorld world = context.getSource().getWorld();
 		List<RoadLayout.Road> roads = RealmRoads.of(world);
@@ -103,6 +135,12 @@ public final class RealmCommands {
 			for (RoadLayout.Outpost outpost : road.outposts()) {
 				text.append(String.format(", %s at %d %d (%s)", outpost.kind(), outpost.x(), outpost.z(), outpostState(world, outpost)));
 			}
+		}
+		RoadLayout.Road gate = RealmRoads.gate(world);
+		if (gate != null) {
+			double[] end = gate.points().get(gate.points().size() - 1);
+			text.append(String.format("%ngate road: %d blocks to %d %d", Math.round(gate.length()), Math.round(end[0]),
+					Math.round(end[1])));
 		}
 		context.getSource().sendFeedback(() -> Text.literal(text.toString()), false);
 		return roads.size();
@@ -134,7 +172,8 @@ public final class RealmCommands {
 			}
 			int top = world.getTopY(Heightmap.Type.WORLD_SURFACE, post.x(), post.z());
 			boolean lantern = false;
-			for (int y = top; y > top - 6; y--) {
+			// Down far enough to look under a dead tree's branch hanging over the post.
+			for (int y = top; y > top - 16; y--) {
 				lantern |= world.getBlockState(new BlockPos(post.x(), y, post.z())).isOf(ModBlocks.EMBER_LANTERN);
 			}
 			if (lantern) {

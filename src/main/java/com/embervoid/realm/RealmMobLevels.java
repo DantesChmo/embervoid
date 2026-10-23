@@ -11,7 +11,8 @@ import java.util.OptionalInt;
 
 /**
  * Mob level bands per zone (DESIGN §5.4): a hostile mob that appears in a realm gets a level from the band of the
- * zone it stands in, through {@link MobLevels}' provider hook. Arena bosses get theirs from {@code BossFight}.
+ * zone it stands in (the final zone's band in its sector), through {@link MobLevels}' provider hook. Arena bosses get
+ * theirs from {@code BossFight}.
  */
 public final class RealmMobLevels {
 	public static void register() {
@@ -31,14 +32,17 @@ public final class RealmMobLevels {
 		if (realm == null) {
 			return null;
 		}
+		// PLAN 21.3 removes the depths dimension; the final band then comes from the sector alone.
 		if (realm.depths().equals(world.getRegistryKey())) {
-			return realm.depthsLevels();
+			return realm.finalLevels();
 		}
-		int zone = zoneAt(world, pos);
-		return zone >= 0 && zone < realm.zoneLevels().size() ? realm.zoneLevels().get(zone) : realm.landingLevels();
+		return realm.levelsOf(zoneAt(world, pos));
 	}
 
-	/** Zone index at a position (or {@link RealmLayout#LANDING} / {@link RealmLayout#ABYSS}); landing outside realms. */
+	/**
+	 * Zone index at a position (or {@link RealmLayout#LANDING} / {@link RealmLayout#ABYSS} / {@link RealmLayout#FINAL});
+	 * landing outside realms.
+	 */
 	public static int zoneAt(ServerWorld world, BlockPos pos) {
 		if (world.getChunkManager().getChunkGenerator().getBiomeSource() instanceof RealmBiomeSource source) {
 			return source.zoneAt(pos.getX(), pos.getZ(), world.getChunkManager().getNoiseConfig().getMultiNoiseSampler());

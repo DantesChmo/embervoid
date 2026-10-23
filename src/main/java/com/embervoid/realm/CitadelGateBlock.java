@@ -15,11 +15,16 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 /**
- * Stands at the landing: opens onto the final zone for a player who has beaten all the realm's zone bosses (each
- * player for themselves). In the final zone the same gate leads back to the landing.
+ * The Citadel Gate (DESIGN §4.1): stands at the landing plaza, facing the final zone's sector, and opens onto the
+ * final zone for a player who has beaten all the realm's zone bosses (each player for themselves). In the final zone
+ * the same gate leads back to the landing.
+ *
+ * <p>Until PLAN 21.3 the Smoldering Citadel is still in the depths dimension, so an open gate teleports there as the
+ * Sealed Gate did; 21.2 turns the gate into a fog wall onto the sector and locks the sector on the server, 21.3
+ * removes the depths branch below.
  */
-public class SealedGateBlock extends Block {
-	public SealedGateBlock(Settings settings) {
+public class CitadelGateBlock extends Block {
+	public CitadelGateBlock(Settings settings) {
 		super(settings);
 	}
 
