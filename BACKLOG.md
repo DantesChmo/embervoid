@@ -4,6 +4,100 @@ Ideas that were discussed and set aside: not planned for any milestone, but wort
 was considered and where it stopped, so a later design pass does not start from zero. Committed work lives in
 [ROADMAP.md](ROADMAP.md).
 
+## Playtest 0.4.1
+
+**Status:** to do, not scheduled yet (the user's own playthrough of 0.4.1, 2026-10-23; overall verdict 5/10, "looks
+cheap"). Unlike the rest of this file these are changes the user wants made, broken down and agreed in the same chat;
+they move to ROADMAP as a release once scheduled. Items 8 and 10 replace decisions in DESIGN (final-zone lock, hub in
+the overworld); DESIGN is updated when they are scheduled. Sizes: S / M / L / XL.
+
+Suggested order: 10 first (it settles 9 and what the overworld Sanctum becomes), then 4 + 5 in one pass, then the
+visual items 6, 7, 8; 1 and 2 fit in anywhere.
+
+### 1. Boss music volume of its own (S)
+Boss tracks play in `SoundCategory.MUSIC` (`BossMusicClient`), so muting music in the options mutes them too. The user
+keeps vanilla music off but likes the boss tracks. Fix: a "Boss music" slider in the vanilla Sound options screen,
+independent of Music, default 100 %.
+
+### 2. The trail to the Ash Colossus is not visible (S–M)
+In the Fields the way to the Colossus arena cannot be made out. Not yet checked what the trail is built from. Fix: a
+material that stands out from the ground, fire baskets or lanterns along it, milestones like the roads from the
+crossroads plaza.
+
+### 3. Smoldering Lord's face
+Merged into item 8.
+
+### 4. Weapons: look and stats (L)
+Every Realm 1 weapon looks bad and feels worse than vanilla. Measured: the Royal Ash Rapier (6 damage, speed 2.0,
+reach 2.5) has about the damage per second of a diamond sword (7, 1.6), a shorter reach than vanilla (3) and no sweep.
+- Realm 1 uniques sit **above netherite**, each with an identity felt in hand (reshapes the loot ladder, DESIGN §6,
+  together with item 5).
+- New visuals: bigger, own in-hand models. Player attack animations need a player-animation library (playerAnimator,
+  a new dependency).
+- **Warden's Scourge** rebuilt as a real whip: long, segmented, bends through the air on a swing; hits along an arc
+  line, the tip cracks for more damage; Lash still pulls.
+
+### 5. Full rebalance (L)
+Boss fights take 5+ minutes while a boss kills in about two hits. The model (docs/balance-0.4.0.md) gives 52–73 clean
+hits per Realm 1 boss (30–60 s of pure hitting); with dodging that is the 5 minutes. Souls reference: about 20–35 hits.
+Scope is the whole game, not only bosses: overworld mobs, moon nights, Realm 1 mobs and bosses, player stats, weapons
+(item 4). One target fight length (bosses about 1.5–2.5 min with dodging) and every number recalculated to it; a hit
+taking two thirds of the player's health only with a clear wind-up.
+
+### 6. Visual overhaul: mobs, bosses and locations (XL)
+"Looks cheap", "the bosses are stools". None of the 24 animated mobs has a death, hit-reaction or stagger animation;
+each has idle, walk and 2–5 attacks. References: L_Ender's Cataclysm and Mowzie's Mobs for bosses, Create for moving
+machinery.
+- Mobs and bosses: more detailed models, more bones, secondary motion (cloaks, chains), death, phase-change and
+  hit-reaction animations; effects: particles, camera shake, swing trails.
+- Moving set pieces in locations, Create-style: the Fields windmill with turning sails (the current one is a static
+  build), a granary hoist with a swinging chain, swinging bells and cages in the Necropolis, gate gears raising the
+  Citadel portcullis, forge bellows and chain lifts in the Citadel, censers, braziers, smoke columns. Built as
+  animated GeckoLib block entities, count capped for performance.
+- How to check it without playing (no client from a Claude session, see COORDINATION "Automated checks"):
+  1. A model viewer (tools/, three.js): renders our geo models with textures and plays their animations; opened in
+     the built-in browser pane and checked from screenshots.
+  2. The same viewer renders structure `.nbt` files with real block textures (top-down and eye level): trails,
+     decor variety, moving set pieces.
+  3. Logic (rotation, portals, deactivation): GameTests as usual.
+  4. Optional final check per release: a dev "photo tour" — the client loads a test world, flies the camera through
+     set points, saves screenshots and quits. Started by the user in their own terminal; no playing.
+
+### 7. Decoration: blocks and 3D props (M–L)
+Locations are visibly built from the same few blocks and pieces. Not only more blocks: props with their own shape and
+matching hitbox (a sack looks like a sack, not a cube with a sack texture): sacks, carts, scarecrows, burnt barrels,
+coffins, gravestones, bone piles, candles, weapon racks, cages, banners. More jigsaw piece variants as well.
+
+### 8. Final zone behind a fog wall (L)
+The Sealed Gate teleport into a separate depths dimension is "a shame". Going straight to the full version, no
+interim fog-looking teleport: the Smoldering Citadel becomes part of the realm dimension behind a fog wall, fog-wall
+both in look and in mechanics. The hard lock (DESIGN §4, "Final zone lock") moves to the server: the wall does not let
+a player through before the three zone bosses, ender pearls and elytra do not work over the Citadel. The Citadel's
+generation is rebuilt for this. The Smoldering Lord's model is redone here too (the face with tiny eyes reads as a
+joke).
+
+### 9. The dungeon spawns more often
+The user found three villages, three shrines and about five ruined portals before one Sanctum (now `spacing` 48 /
+`separation` 16 chunks, about one per 768×768 blocks, plus the Sanctum Map in chests). With item 10 this is about the
+overworld dungeon: about one per 300–400 blocks, with several variants so it does not repeat.
+
+### 10. The hub in its own dimension (XXL, design change)
+The player should not depend on finding one generated Sanctum.
+- The overworld Sanctum structure becomes a **dungeon** (outer halls, guards, loot stay); the Maiden and the obelisks
+  move to a **hub dimension**. The dungeon has no boss today (only guards: Hollows and the rest), so its boss is
+  designed from scratch. The Sanctum Map leads to the nearest dungeon.
+- The boss drops the **Crying Soul**. No moon-night ingredients (too grindy) and no crafting: the soul itself is the
+  activator and is used up on activation.
+- **Portal: the Cleft Stele** (proposed shape). A wide, flat stone slab the size of a nether portal (5 wide, 6 tall),
+  split top to bottom; the crack is the passage. Wide and flat, not a pillar, so it reads as a stele and not as a
+  phallus. Built from mod blocks to a pattern, detected like a nether portal frame.
+- Right-click with the soul: the blocks switch to kindled textures with glowing cracks, mist and particles fill the
+  crack, a sound plays. Right-click on an active stele takes the player to the hub.
+- **One active stele per world:** A ⇄ hub; activating B switches A off, then only B ⇄ hub. Leaving an obelisk lands
+  in the hub; the hub's exit leads to the active stele. Multiplayer drawback: one player's new stele switches off
+  another's; "one active stele per player" is the alternative if that matters.
+- Replaces: Attunement and "any Sanctum works" (DESIGN §2), the return point "the Sanctum you entered from".
+
 ## Respec (DESIGN §10 q5)
 
 **Status:** not now (decided 2026-10-22). Players keep the points they buy.
