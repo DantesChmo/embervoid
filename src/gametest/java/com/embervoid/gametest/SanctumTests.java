@@ -124,12 +124,7 @@ public final class SanctumTests implements FabricGameTest {
 	public void dungeonSteleCannotBeMined(TestContext context) {
 		ServerWorld world = context.getWorld();
 		StructureStart start = place(context, MINED_ORIGIN);
-		Structure structure = world.getRegistryManager().get(RegistryKeys.STRUCTURE).get(SanctumArena.STRUCTURE);
-		BlockBox box = start.getBoundingBox();
-		ChunkPos startChunk = start.getPos();
-		world.getChunk(startChunk.x, startChunk.z).setStructureStart(structure, start);
-		ChunkPos.stream(new ChunkPos(box.getMinX() >> 4, box.getMinZ() >> 4), new ChunkPos(box.getMaxX() >> 4, box.getMaxZ() >> 4))
-				.forEach(chunk -> world.getChunk(chunk.x, chunk.z).addStructureReference(structure, startChunk.toLong()));
+		register(world, start);
 		StructurePiece arena = start.getChildren().stream().filter(piece -> SanctumArena.isPiece(piece, SanctumArena.TEMPLATE))
 				.findFirst().orElse(null);
 		context.assertTrue(arena != null, "no arena piece in " + start.getChildren().size() + " pieces");
@@ -211,6 +206,16 @@ public final class SanctumTests implements FabricGameTest {
 		});
 	}
 
+	/** Registers a placed Sanctum in its chunks as worldgen does, so the world's structure lookups find it. */
+	static void register(ServerWorld world, StructureStart start) {
+		Structure structure = world.getRegistryManager().get(RegistryKeys.STRUCTURE).get(SanctumArena.STRUCTURE);
+		BlockBox box = start.getBoundingBox();
+		ChunkPos startChunk = start.getPos();
+		world.getChunk(startChunk.x, startChunk.z).setStructureStart(structure, start);
+		ChunkPos.stream(new ChunkPos(box.getMinX() >> 4, box.getMinZ() >> 4), new ChunkPos(box.getMaxX() >> 4, box.getMaxZ() >> 4))
+				.forEach(chunk -> world.getChunk(chunk.x, chunk.z).addStructureReference(structure, startChunk.toLong()));
+	}
+
 	/** Plans a Sanctum start at a chunk as worldgen would, in any biome. */
 	private static StructureStart plan(ServerWorld world, ChunkPos chunk) {
 		Structure structure = world.getRegistryManager().get(RegistryKeys.STRUCTURE).get(SanctumArena.STRUCTURE);
@@ -236,7 +241,7 @@ public final class SanctumTests implements FabricGameTest {
 	}
 
 	/** Plans, lifts and places a whole Sanctum at {@code origin}, chunk by chunk as worldgen does. */
-	private static StructureStart place(TestContext context, BlockPos origin) {
+	static StructureStart place(TestContext context, BlockPos origin) {
 		ServerWorld world = context.getWorld();
 		StructureStart start = lifted(context, plan(world, new ChunkPos(origin)));
 		placeAll(world, start, start.getBoundingBox());

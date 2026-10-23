@@ -1190,6 +1190,126 @@
 			{"name": "minecraft:block/beacon/deactivate", "pitch": 0.6}
 		]
 	},
+	"entity.fallen_sister.ambient": {
+		"subtitle": "subtitles.embervoid.entity.fallen_sister.ambient",
+		"sounds": [
+			{"name": "minecraft:mob/ghast/moan1", "pitch": 1.35, "volume": 0.5},
+			{"name": "minecraft:mob/ghast/moan2", "pitch": 1.35, "volume": 0.5},
+			{"name": "minecraft:mob/ghast/moan3", "pitch": 1.35, "volume": 0.5},
+			{"name": "minecraft:mob/ghast/moan4", "pitch": 1.35, "volume": 0.5}
+		]
+	},
+	"entity.fallen_sister.hurt": {
+		"subtitle": "subtitles.embervoid.entity.fallen_sister.hurt",
+		"sounds": [
+			{"name": "minecraft:mob/allay/hurt1", "pitch": 0.55},
+			{"name": "minecraft:mob/allay/hurt2", "pitch": 0.55}
+		]
+	},
+	"entity.fallen_sister.death": {
+		"subtitle": "subtitles.embervoid.entity.fallen_sister.death",
+		"sounds": [
+			{"name": "minecraft:mob/ghast/death", "pitch": 0.7}
+		]
+	},
+	"entity.fallen_sister.step": {
+		"subtitle": "subtitles.embervoid.entity.fallen_sister.step",
+		"sounds": [
+			{"name": "minecraft:step/cloth1", "pitch": 0.6, "volume": 0.4},
+			{"name": "minecraft:step/cloth2", "pitch": 0.6, "volume": 0.4},
+			{"name": "minecraft:step/cloth3", "pitch": 0.6, "volume": 0.4},
+			{"name": "minecraft:step/cloth4", "pitch": 0.6, "volume": 0.4}
+		]
+	},
+	"entity.fallen_sister.censer_wind": {
+		"subtitle": "subtitles.embervoid.entity.fallen_sister.censer_wind",
+		"sounds": [
+			{"name": "minecraft:item/armor/equip_chain1", "pitch": 0.75},
+			{"name": "minecraft:item/armor/equip_chain2", "pitch": 0.75},
+			{"name": "minecraft:item/armor/equip_chain3", "pitch": 0.75},
+			{"name": "minecraft:item/armor/equip_chain4", "pitch": 0.75},
+			{"name": "minecraft:item/armor/equip_chain5", "pitch": 0.75},
+			{"name": "minecraft:item/armor/equip_chain6", "pitch": 0.75}
+		]
+	},
+	"entity.fallen_sister.slam": {
+		"subtitle": "subtitles.embervoid.entity.fallen_sister.slam",
+		"sounds": [
+			{"name": "minecraft:mob/blaze/breathe1", "pitch": 0.6},
+			{"name": "minecraft:mob/blaze/breathe2", "pitch": 0.6},
+			{"name": "minecraft:mob/blaze/breathe3", "pitch": 0.6},
+			{"name": "minecraft:mob/blaze/breathe4", "pitch": 0.6}
+		]
+	},
+	"entity.fallen_sister.slam_impact": {
+		"subtitle": "subtitles.embervoid.entity.fallen_sister.slam_impact",
+		"sounds": [
+			{"name": "minecraft:random/anvil_land", "pitch": 0.5, "volume": 0.8}
+		]
+	},
+	"entity.fallen_sister.spin": {
+		"subtitle": "subtitles.embervoid.entity.fallen_sister.spin",
+		"sounds": [
+			{"name": "minecraft:item/trident/riptide1", "pitch": 0.7},
+			{"name": "minecraft:item/trident/riptide2", "pitch": 0.7},
+			{"name": "minecraft:item/trident/riptide3", "pitch": 0.7}
+		]
+	},
+	"entity.fallen_sister.backstep": {
+		"subtitle": "subtitles.embervoid.entity.fallen_sister.backstep",
+		"sounds": [
+			{"name": "minecraft:mob/phantom/swoop1", "pitch": 1.2, "volume": 0.7},
+			{"name": "minecraft:mob/phantom/swoop2", "pitch": 1.2, "volume": 0.7},
+			{"name": "minecraft:mob/phantom/swoop3", "pitch": 1.2, "volume": 0.7},
+			{"name": "minecraft:mob/phantom/swoop4", "pitch": 1.2, "volume": 0.7}
+		]
+	},
+	"entity.fallen_sister.veil_burn": {
+		"subtitle": "subtitles.embervoid.entity.fallen_sister.veil_burn",
+		"sounds": [
+			{"name": "minecraft:mob/ghast/scream1", "pitch": 0.85},
+			{"name": "minecraft:mob/ghast/scream2", "pitch": 0.85},
+			{"name": "minecraft:mob/ghast/scream3", "pitch": 0.85}
+		]
+	},
+	"entity.fallen_sister.brazier": {
+		"subtitle": "subtitles.embervoid.entity.fallen_sister.brazier",
+		"sounds": [
+			{"name": "minecraft:fire/ignite", "pitch": 0.8}
+		]
+	},
+	"entity.crying_soul.ambient": {
+		"subtitle": "subtitles.embervoid.entity.crying_soul.ambient",
+		"sounds": [
+			{"name": "minecraft:mob/ghast/moan5", "pitch": 1.8, "volume": 0.35},
+			{"name": "minecraft:mob/ghast/moan6", "pitch": 1.8, "volume": 0.35},
+			{"name": "minecraft:mob/ghast/moan7", "pitch": 1.8, "volume": 0.35}
+		]
+	},
+	"entity.crying_soul.shriek": {
+		"subtitle": "subtitles.embervoid.entity.crying_soul.shriek",
+		"sounds": [
+			{"name": "minecraft:mob/ghast/scream1", "pitch": 1.6},
+			{"name": "minecraft:mob/ghast/scream2", "pitch": 1.6},
+			{"name": "minecraft:mob/ghast/scream3", "pitch": 1.6}
+		]
+	},
+	"entity.crying_soul.dive": {
+		"subtitle": "subtitles.embervoid.entity.crying_soul.dive",
+		"sounds": [
+			{"name": "minecraft:mob/phantom/swoop1", "pitch": 1.4},
+			{"name": "minecraft:mob/phantom/swoop2", "pitch": 1.4},
+			{"name": "minecraft:mob/phantom/swoop3", "pitch": 1.4},
+			{"name": "minecraft:mob/phantom/swoop4", "pitch": 1.4}
+		]
+	},
+	"entity.crying_soul.death": {
+		"subtitle": "subtitles.embervoid.entity.crying_soul.death",
+		"sounds": [
+			{"name": "minecraft:mob/vex/death1", "pitch": 0.8},
+			{"name": "minecraft:mob/vex/death2", "pitch": 0.8}
+		]
+	},
 	"item.ash_of_rematch.use": {
 		"subtitle": "subtitles.embervoid.item.ash_of_rematch.use",
 		"sounds": [

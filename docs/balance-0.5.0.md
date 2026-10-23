@@ -13,8 +13,8 @@ On top of the 0.4.0 model in `com.embervoid.balance` (same formulas, same expect
   to read it by (animation, sound, marked shape), and per phase a loop of **beats** (a move, the brain's cooldown
   after it, how often it comes), fixed pauses and **downtime** (a storm behind a pillar, adds to kill). Wind-ups and
   cooldowns are the entity classes' own public constants (they were literals; made constants with no value changed,
-  in a separate commit). The **Fallen Sister** (not built yet, PLAN 16.3) is there with placeholder numbers, marked as
-  such.
+  in a separate commit). The **Fallen Sister** came in with placeholder numbers; PLAN 16.3 replaced them with her
+  built cadence (rows below updated then, the rest of this write-up is 18.1's).
 - `FightLength` (main, pure) turns hits to kill into seconds of a fight with dodging (§2), solo and with 2–3 players,
   and holds the 0.5.0 stages: who fights each boss and mob, with which reference weapon (§5.5), and every boss move as
   a share of that player's max health.
@@ -82,7 +82,7 @@ the fight spent swinging is the **uptime**. DESIGN §5.5 expected "about 25–35
 | Crypt Keeper | **21–22 %** | The halberd combo chains 14 + 10 + 22 ticks of wind-ups: open are 4 ticks before the first swing and 19 of the 35-tick cooldown (23 of 81). The sweep ring makes everyone leave (33 of 59), the lantern throw is from range. P2 / P3 cooldowns 25; moths at a lit brazier every 300 ticks; three Restless Bones at P3. |
 | Smoldering Lord | **19 %** | 13.5 s on the wall first (3 braziers: a run of ~30 ticks, a light of 10, a dodged wall attack of 40, then the 30-tick landing). The greatsword combo is 14 + 10 + 20 ticks with 18 of 74 open; P2 cooldowns 22 (10 of 66 open) and a zone hazard every 25 s (the storm 150 ticks, the fog about 100, the darkness none: he is fought under the signal braziers). |
 | Vampire boss | **63 %** | A chaser that trades claws (vanilla melee, no wind-up, one per 20 ticks): every claw tick is an opening. Only the nova (30-tick ring, 4 open) and its leaps when the player backs off break it. |
-| Fallen Sister (placeholder) | 25 % | Placeholder cadence (two censer arcs 18 + 12, a slam with an ember puddle she fights from, a backstep; P2 censer spin and crying soul dives). |
+| Fallen Sister | **20 %** | Built for it (PLAN 16.3): two censer arcs (18 + 12, cooldown 18) open 10 of 48 ticks, the slam (24, cooldown 22) 20 of 46, a backstep when the player gets behind her none; the slam's ember puddle costs a step around it. P2: the veil burns 40 ticks untouchable, the spin (26, ring) a third of her picks, and crying souls cost 147 of every 400 ticks. |
 
 Not modelled, all in the player's favour: crits, blocking, enchantments, potions, the Scourge's tip and the Rapier's
 ramp in boss fights (they count only in the weapon check). Also not modelled: flask sips, the Colossus's front (×0.5)
@@ -121,8 +121,8 @@ Clean hits = seconds × uptime ÷ swing time. For 20–35 clean hits to fill 1.5
   diamond sword 27–35 clean hits at the Colossus and 32–35 at the Keeper, with the Scourge 20–26, with the Scythe
   21–35 at the Keeper and 20–31 at the Lord. Their HP goes **down**, to about ×0.47–0.61 (Colossus, diamond sword),
   ×0.46–0.50 (Keeper, diamond sword) and ×0.28–0.44 (Lord) of today.
-- The **Grieving Tree** (46–53 %), the **Vampire** (63 %) and the **Fallen Sister** placeholder (25 % with a sword)
-  cannot: at their uptime 1.5 min takes 36–90 clean hits. Their HP alone cannot fix it; their cadence must close
+- The **Grieving Tree** (46–53 %), the **Vampire** (63 %) and the **Fallen Sister** placeholder (25 % with a sword;
+  built at 20 % in 16.3, now inside both bands) cannot: at their uptime 1.5 min takes 36–90 clean hits. Their HP alone cannot fix it; their cadence must close
   openings (the Tree: shorter or rarer stuns, or a recovery that is not an opening; the Vampire: wind-ups and
   recoveries on its claws; the Sister in 16.3: about 20 % uptime) — or the target accepts ~1 min for them.
 
@@ -137,7 +137,7 @@ This is the main finding for 18.4 and 16.3, and the reason both bands are tested
 | Ash Colossus | 58 hits with the diamond sword, 38–40 with the Scourge, **2.9–3.8 min** | |
 | Grieving Tree | 37–54 hits, **1.0–1.5 min** | wrong shape: too many hits and too short at once (the stun loop) |
 | Vampire boss | 66 hits, **1.1 min** | wrong shape: a trade fight |
-| Fallen Sister (placeholder) | 30 hits, 1.2 min | placeholder: its hits meet the band, its time does not (see above) |
+| Fallen Sister | 31 hits, 1.6 min | meets both (PLAN 16.3) |
 
 With the §6.1 proposed uniques the later stages drop to 31–37 hits (the Keeper 36–37 with the proposed Scythe at
 2.4 min; the Colossus 34–35 with the proposed Scourge, still 2.9–3.0 min), and the Lord to 58–63 hits, 4.4–5.2 min.
@@ -190,7 +190,7 @@ diamond as §6.1 wants.
 5. **Mob HP:** elites to 6–10 hits, fodder to 2–3 (Realm 1 in 18.4; overworld, dungeon guards and the moon waves in
    18.3, where vanilla mobs are touched only through their level curve or not at all — 18.3 decides).
 6. **Mob damage:** the creeper, Vindicator, witch, Enderman (overworld, 18.3), the Ghost (moon), the Furnace Golem.
-7. **16.3:** the Fallen Sister's placeholder is a start: 30 clean hits and every move inside its class, but 1.2 min.
+7. **16.3:** done: the Fallen Sister at about 20 % uptime, 31 clean hits in 1.6 min, every move inside its class.
 8. **17.3:** the §6.1 numbers as proposed (they pass §6.1's own target).
 
 ## 6. Running it
@@ -209,11 +209,13 @@ the GameTest `bossWindupsAreTheEntities` (`./gradlew runGametest`).
 
 | Boss | Phase | Beat | Lead / busy / recovery | Weight | Open (aimed at you / not) | Range, aim |
 | --- | --- | --- | --- | --- | --- | --- |
-| Fallen Sister (placeholder) | P1 (censer) | two censer arcs | 18 / 30 / 26 | 0.6 | 18 / 56 | melee, target |
-| Fallen Sister (placeholder) | P1 (censer) | censer slam | 22 / 22 / 30 | 0.3 | 26 / 52 | melee, target |
-| Fallen Sister (placeholder) | P1 (censer) | backstep | 10 / 10 / 20 | 0.1 | 0 / 0 | ranged, target |
-| Fallen Sister (placeholder) | P2 (veil burnt, crying souls) | two censer arcs | 18 / 30 / 26 | 0.7 | 18 / 56 | melee, target |
-| Fallen Sister (placeholder) | P2 (veil burnt, crying souls) | censer spin | 24 / 24 / 30 | 0.3 | 28 / 28 | melee, all |
+| Fallen Sister | P1 (censer) | two censer arcs | 18 / 30 / 18 | 0.5 | 10 / 48 | melee, target |
+| Fallen Sister | P1 (censer) | censer slam | 24 / 24 / 22 | 0.3 | 20 / 46 | melee, target |
+| Fallen Sister | P1 (censer) | backstep | 8 / 8 / 16 | 0.2 | 0 / 0 | ranged, target |
+| Fallen Sister | P2 (veil burnt, crying souls) | two censer arcs | 18 / 30 / 18 | 0.4 | 10 / 48 | melee, target |
+| Fallen Sister | P2 (veil burnt, crying souls) | censer slam | 24 / 24 / 22 | 0.2 | 20 / 46 | melee, target |
+| Fallen Sister | P2 (veil burnt, crying souls) | backstep | 8 / 8 / 16 | 0.2 | 0 / 0 | ranged, target |
+| Fallen Sister | P2 (veil burnt, crying souls) | censer spin | 26 / 26 / 20 | 0.3 | 20 / 20 | melee, all |
 | Vampire boss | P0 | claws, traded | 0 / 0 / 20 | 0.8 | 20 / 20 | melee, none |
 | Vampire boss | P0 | leap | 34 / 34 / 0 | 0.2 | 0 / 0 | closing, target |
 | Vampire boss | P1 (nova) | claws, traded | 0 / 0 / 20 | 5.2 | 20 / 20 | melee, none |
@@ -253,8 +255,8 @@ the GameTest `bossWindupsAreTheEntities` (`./gradlew runGametest`).
 
 | Boss | Phase | From | Pause | Loop ticks | Open in the loop | Downtime (each) |
 | --- | --- | --- | --- | --- | --- | --- |
-| Fallen Sister (placeholder) | P1 (censer) | 100 % | 0 | 52.2 | 36 % | ember puddle: waiting for it to cool: 40 per 175 |
-| Fallen Sister (placeholder) | P2 (veil burnt, crying souls) | 50 % | 40 | 55.4 | 38 % | crying souls: 3.5 dives dodged, each soul killed with one swing: 147 per 400 |
+| Fallen Sister | P1 (censer) | 100 % | 0 | 42.6 | 26 % | ember puddle: a step around it: 8 per 142.0 |
+| Fallen Sister | P2 (veil burnt, crying souls) | 50 % | 40 | 42.3 | 29 % | ember puddle: a step around it: 8 per 238; crying souls: 3.5 a flock, each dodged, reached and killed with one swing: 147 per 400 |
 | Vampire boss | P0 | 100 % | 0 | 22.8 | 70 % | - |
 | Vampire boss | P1 (nova) | 60 % | 0 | 178.2 | 61 % | - |
 | Vampire boss | P2 (mist step) | 30 % | 0 | 132.6 | 57 % | - |
@@ -273,7 +275,7 @@ the GameTest `bossWindupsAreTheEntities` (`./gradlew runGametest`).
 
 | Boss | Stage | Player | Boss HP | Clean hit (P1) | Clean hits | Swinging (s) | Uptime | Fight (min) | Hits / time ok |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Fallen Sister (placeholder) | Ruined Sanctum | Lv 1 iron, iron sword | 169.4 | 5.8 | 30 | 18.4 | 25 % | 1.2 | yes / **no** |
+| Fallen Sister | Ruined Sanctum | Lv 1 iron, iron sword | 177.1 | 5.8 | 31 | 19.2 | 20 % | 1.6 | yes / yes |
 | Vampire boss | blood new moon | Lv 10 iron, iron sword | 404.8 | 6.2 | 66 | 40.5 | 63 % | 1.1 | **no** / **no** |
 | Ash Colossus | Ashen Fields 1st | Lv 10 diamond, diamond sword | 363.6 | 5.6 | 58 | 35.6 | 19 % | 3.2 | **no** / **no** |
 | Ash Colossus | Ashen Fields 2nd (after Royal Woods), no melee unique yet | Lv 19 diamond, diamond sword | 363.6 | 6.1 | 54 | 32.2 | 19 % | 2.9 | **no** / **no** |
@@ -310,9 +312,9 @@ the GameTest `bossWindupsAreTheEntities` (`./gradlew runGametest`).
 
 | Boss | Stage | Players | Boss HP | Clean hits each | Uptime | Adds (s) | Fight (min) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Fallen Sister (placeholder) | Ruined Sanctum, iron sword | 1 | 169.4 | 29.4 | 25 % | 0 | 1.2 |
-| Fallen Sister (placeholder) | Ruined Sanctum, iron sword | 2 | 254.1 | 22.1 | 41 % | 0 | 0.6 |
-| Fallen Sister (placeholder) | Ruined Sanctum, iron sword | 3 | 338.8 | 19.6 | 46 % | 0 | 0.4 |
+| Fallen Sister | Ruined Sanctum, iron sword | 1 | 177.1 | 30.7 | 20 % | 0 | 1.6 |
+| Fallen Sister | Ruined Sanctum, iron sword | 2 | 265.6 | 23.1 | 37 % | 0 | 0.7 |
+| Fallen Sister | Ruined Sanctum, iron sword | 3 | 354.2 | 20.5 | 42 % | 0 | 0.5 |
 | Vampire boss | blood new moon, iron sword | 1 | 404.8 | 65.8 | 63 % | 0 | 1.1 |
 | Vampire boss | blood new moon, iron sword | 2 | 404.8 | 32.9 | 63 % | 0 | 0.5 |
 | Vampire boss | blood new moon, iron sword | 3 | 404.8 | 21.9 | 63 % | 0 | 0.4 |
@@ -345,7 +347,7 @@ the GameTest `bossWindupsAreTheEntities` (`./gradlew runGametest`).
 
 | Boss | Stage | Weapon | Swing (s) | Uptime | Clean hits for 1.5 min | for 2.5 min | Boss HP for 1.5–2.5 min (× today) | Hits meeting both bands | Boss HP for those (× today) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Fallen Sister (placeholder) | Ruined Sanctum | iron sword | 0.6 | 25 % | 36.1 | 60.6 | ×1.23–2.06 | **none** | - |
+| Fallen Sister | Ruined Sanctum | iron sword | 0.6 | 20 % | 28.8 | 48.4 | ×0.94–1.57 | 28.8–35 | ×0.94–1.14 |
 | Vampire boss | blood new moon | iron sword | 0.6 | 63 % | 92.0 | 153.4 | ×1.40–2.33 | **none** | - |
 | Ash Colossus | Ashen Fields 1st | diamond sword | 0.6 | 19 % | 27.1 | 45.5 | ×0.47–0.79 | 27.1–35 | ×0.47–0.61 |
 | Ash Colossus | Ashen Fields 2nd (after Royal Woods), no melee unique yet | diamond sword | 0.6 | 19 % | 27.6 | 46.3 | ×0.52–0.87 | 27.6–35 | ×0.52–0.66 |
@@ -367,10 +369,10 @@ the GameTest `bossWindupsAreTheEntities` (`./gradlew runGametest`).
 
 | Boss | Move | Class | Windup | Tell | Player | Damage | Share | Limit | Breaks |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Fallen Sister (placeholder) | censer swing | light | 12 | shape | Lv 1 iron, iron sword (20 HP) | 4.0 | 20 % | 20 % | - |
-| Fallen Sister (placeholder) | censer slam | heavy | 22 | shape | Lv 1 iron, iron sword (20 HP) | 6.7 | 34 % | 35 % | - |
-| Fallen Sister (placeholder) | crying soul dive (P2) | light | 20 | shape | Lv 1 iron, iron sword (20 HP) | 2.8 | 14 % | 20 % | - |
-| Fallen Sister (placeholder) | censer spin (P2) | biggest | 24 | shape | Lv 1 iron, iron sword (20 HP) | 6.7 | 34 % | 67 % | - |
+| Fallen Sister | censer arc | light | 12 | shape | Lv 1 iron, iron sword (20 HP) | 4.0 | 20 % | 20 % | - |
+| Fallen Sister | censer slam | heavy | 24 | shape | Lv 1 iron, iron sword (20 HP) | 6.7 | 34 % | 35 % | - |
+| Fallen Sister | crying soul dive (P2) | light | 20 | shape | Lv 1 iron, iron sword (20 HP) | 2.8 | 14 % | 20 % | - |
+| Fallen Sister | censer spin (P2) | biggest | 26 | shape | Lv 1 iron, iron sword (20 HP) | 10.0 | 50 % | 67 % | - |
 | Vampire boss | claw | light | 0 | none | Lv 10 iron, iron sword (24 HP) | 6.5 | 27 % | 20 % | **light above 20 %** |
 | Vampire boss | leap | heavy | 20 | shape | Lv 10 iron, iron sword (24 HP) | 10.3 | 43 % | 35 % | **heavy above 35 %** |
 | Vampire boss | blood nova (heals 25 %) | biggest | 30 | shape | Lv 10 iron, iron sword (24 HP) | 11.4 | 47 % | 67 % | - |
@@ -398,7 +400,7 @@ the GameTest `bossWindupsAreTheEntities` (`./gradlew runGametest`).
 
 | Boss | Hazard | Damage | Share |
 | --- | --- | --- | --- |
-| Fallen Sister (placeholder) | ember puddle, per 0.5 s | 0.8 | 4 % |
+| Fallen Sister | ember puddle, per 0.5 s | 0.8 | 4 % |
 | Ash Colossus | ash storm, per s (magic) | 2 | 8 % |
 | Crypt Keeper | fire pool, per 0.5 s | 1.3 | 6 % |
 | Smoldering Lord | fire trail, per 0.5 s | 1.0 | 3 % |
@@ -469,9 +471,8 @@ The proposed numbers against the same target: no misses.
 
 ### Misses of the 0.5.0 targets (today's numbers; `./gradlew balanceTargets`)
 
-**Boss fight length, solo (1.5–2.5 min)**: 17 misses.
+**Boss fight length, solo (1.5–2.5 min)**: 16 misses (17 in 18.1; the Fallen Sister's left with 16.3).
 
-- Fallen Sister (placeholder) (Ruined Sanctum, Lv 1 iron, iron sword): 1.2 min, want 1.5–2.5
 - Vampire boss (blood new moon, Lv 10 iron, iron sword): 1.1 min, want 1.5–2.5
 - Ash Colossus (Ashen Fields 1st, Lv 10 diamond, diamond sword): 3.2 min, want 1.5–2.5
 - Ash Colossus (Ashen Fields 2nd (after Royal Woods), no melee unique yet, Lv 19 diamond, diamond sword): 2.9 min, want 1.5–2.5

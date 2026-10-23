@@ -497,13 +497,17 @@ public class BossFight {
 					player.getInventory().offerOrDrop(EmberHeartItem.of(spec.bossId()));
 					player.sendMessage(Text.translatable("embervoid.boss.first_kill", bossName()), false);
 				} else {
-					List<ItemStack> items = reward.firstKillItems();
+					List<ItemStack> items = reward.firstKillItems(world, player);
 					items.forEach(stack -> player.getInventory().offerOrDrop(stack.copy()));
 					player.sendMessage(Text.translatable("embervoid.boss.first_kill.items", bossName(), itemList(items)), false);
 				}
 				if (shrine) {
 					player.sendMessage(Text.translatable("embervoid.shrine.kindled"), true);
 				}
+			} else if (reward != null && reward.soulEveryKill() && !rematch) {
+				ItemStack soul = new ItemStack(reward.soul());
+				player.getInventory().offerOrDrop(soul.copy());
+				player.sendMessage(Text.translatable("embervoid.boss.first_kill.items", bossName(), itemList(List.of(soul))), false);
 			} else if (reward != null && !rematch && world.random.nextFloat() < BossConfig.get().repeatSoulChance()) {
 				// Helping a friend: now and then the soul answers again.
 				player.getInventory().offerOrDrop(new ItemStack(reward.soul()));
