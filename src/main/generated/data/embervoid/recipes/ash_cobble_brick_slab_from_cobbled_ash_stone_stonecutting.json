@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 2,
+  "ingredient": {
+    "item": "embervoid:cobbled_ash_stone"
+  },
+  "result": "embervoid:ash_cobble_brick_slab"
+}

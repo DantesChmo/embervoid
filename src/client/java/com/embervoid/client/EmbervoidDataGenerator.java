@@ -10,6 +10,7 @@ import com.embervoid.client.reach.mob.ReachMobDataGen;
 import com.embervoid.client.reach.world.ReachWorldDataGen;
 import com.embervoid.client.reliquary.ReliquaryDataGen;
 import com.embervoid.client.reach.gear.GearDataGen;
+import com.embervoid.reach.gear.GearItems;
 import com.embervoid.client.sanctum.gear.SanctumGearDataGen;
 import com.embervoid.hub.datagen.HubTemplateProvider;
 import com.embervoid.hub.stele.SteleDataGen;
@@ -22,14 +23,18 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.data.client.BlockStateModelGenerator;
 import net.minecraft.data.client.ItemModelGenerator;
+import net.minecraft.data.client.TexturedModel;
 import net.minecraft.data.server.recipe.RecipeJsonProvider;
 import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.book.RecipeCategory;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.tag.BlockTags;
@@ -47,12 +52,19 @@ public class EmbervoidDataGenerator implements DataGeneratorEntrypoint {
 	static final TagKey<Block> DEAD_LOGS = TagKey.of(RegistryKeys.BLOCK, Embervoid.id("dead_logs"));
 	static final TagKey<Item> DEAD_LOGS_ITEM = TagKey.of(RegistryKeys.ITEM, Embervoid.id("dead_logs"));
 
-	/** Ash stone families: base block, stairs, slab, wall. */
+	/** Ash stone families: base block, stairs, slab and, where the family has one, wall. */
 	static final List<Block[]> STONE_FAMILIES = List.of(
 			new Block[]{ASH_STONE, ASH_STONE_STAIRS, ASH_STONE_SLAB, ASH_STONE_WALL},
 			new Block[]{COBBLED_ASH_STONE, COBBLED_ASH_STONE_STAIRS, COBBLED_ASH_STONE_SLAB, COBBLED_ASH_STONE_WALL},
 			new Block[]{POLISHED_ASH_STONE, POLISHED_ASH_STONE_STAIRS, POLISHED_ASH_STONE_SLAB, POLISHED_ASH_STONE_WALL},
-			new Block[]{ASH_BRICKS, ASH_BRICK_STAIRS, ASH_BRICK_SLAB, ASH_BRICK_WALL});
+			new Block[]{ASH_BRICKS, ASH_BRICK_STAIRS, ASH_BRICK_SLAB, ASH_BRICK_WALL},
+			new Block[]{MOSSY_ASH_BRICKS, MOSSY_ASH_BRICK_STAIRS, MOSSY_ASH_BRICK_SLAB, MOSSY_ASH_BRICK_WALL},
+			new Block[]{ASH_COBBLE_BRICKS, ASH_COBBLE_BRICK_STAIRS, ASH_COBBLE_BRICK_SLAB, ASH_COBBLE_BRICK_WALL},
+			new Block[]{ASH_TILES, ASH_TILE_STAIRS, ASH_TILE_SLAB},
+			new Block[]{SLATE_TILES, SLATE_TILE_STAIRS, SLATE_TILE_SLAB});
+	/** Single blocks of the art pass with a plain cube model. */
+	static final List<Block> SIMPLE_BLOCKS = List.of(CRACKED_ASH_BRICKS, CHISELED_ASH_STONE, CRACKED_ASH_TILES, SOOTY_ASH_BRICKS,
+			MOSSY_COBBLED_ASH_STONE, CARVED_ASH_STONE, SANCTUM_RUNE_STONE);
 
 	@Override
 	public void onInitializeDataGenerator(FabricDataGenerator generator) {
@@ -85,10 +97,15 @@ public class EmbervoidDataGenerator implements DataGeneratorEntrypoint {
 		@Override
 		public void generateBlockStateModels(BlockStateModelGenerator gen) {
 			for (Block[] f : STONE_FAMILIES) {
-				gen.registerCubeAllModelTexturePool(f[0]).stairs(f[1]).slab(f[2]).wall(f[3]);
+				BlockStateModelGenerator.BlockTexturePool pool = gen.registerCubeAllModelTexturePool(f[0]).stairs(f[1]).slab(f[2]);
+				if (f.length > 3) {
+					pool.wall(f[3]);
+				}
 			}
-			gen.registerSimpleCubeAll(CRACKED_ASH_BRICKS);
-			gen.registerSimpleCubeAll(CHISELED_ASH_STONE);
+			for (Block block : SIMPLE_BLOCKS) {
+				gen.registerSimpleCubeAll(block);
+			}
+			gen.registerAxisRotated(ASH_BRICK_PILLAR, TexturedModel.CUBE_COLUMN);
 
 			gen.registerLog(DEAD_LOG).log(DEAD_LOG);
 			gen.registerLog(STRIPPED_DEAD_LOG).log(STRIPPED_DEAD_LOG);
@@ -114,17 +131,21 @@ public class EmbervoidDataGenerator implements DataGeneratorEntrypoint {
 		@Override
 		public void generate() {
 			for (Block[] f : STONE_FAMILIES) {
+				if (f[0] != ASH_STONE) {
+					addDrop(f[0]);
+				}
 				addDrop(f[1]);
 				addDrop(f[2], slabDrops(f[2]));
-				addDrop(f[3]);
+				if (f.length > 3) {
+					addDrop(f[3]);
+				}
 			}
 			// Like stone: breaks into cobble unless mined with Silk Touch.
 			addDrop(ASH_STONE, drops(ASH_STONE, COBBLED_ASH_STONE));
-			addDrop(COBBLED_ASH_STONE);
-			addDrop(POLISHED_ASH_STONE);
-			addDrop(ASH_BRICKS);
-			addDrop(CRACKED_ASH_BRICKS);
-			addDrop(CHISELED_ASH_STONE);
+			for (Block block : SIMPLE_BLOCKS) {
+				addDrop(block);
+			}
+			addDrop(ASH_BRICK_PILLAR);
 
 			addDrop(DEAD_LOG);
 			addDrop(STRIPPED_DEAD_LOG);
@@ -153,9 +174,11 @@ public class EmbervoidDataGenerator implements DataGeneratorEntrypoint {
 				pickaxe.add(f);
 				getOrCreateTagBuilder(BlockTags.STAIRS).add(f[1]);
 				getOrCreateTagBuilder(BlockTags.SLABS).add(f[2]);
-				getOrCreateTagBuilder(BlockTags.WALLS).add(f[3]);
+				if (f.length > 3) {
+					getOrCreateTagBuilder(BlockTags.WALLS).add(f[3]);
+				}
 			}
-			pickaxe.add(CRACKED_ASH_BRICKS, CHISELED_ASH_STONE, EMBER_LANTERN);
+			pickaxe.add(SIMPLE_BLOCKS.toArray(Block[]::new)).add(ASH_BRICK_PILLAR, EMBER_LANTERN);
 
 			getOrCreateTagBuilder(DEAD_LOGS).add(DEAD_LOG, STRIPPED_DEAD_LOG);
 			getOrCreateTagBuilder(BlockTags.LOGS_THAT_BURN).addTag(DEAD_LOGS);
@@ -203,6 +226,15 @@ public class EmbervoidDataGenerator implements DataGeneratorEntrypoint {
 			super(output);
 		}
 
+		/** Like vanilla's mossy cobblestone: the block with a vine or a moss block, shapeless. */
+		private void offerMossyRecipe(Consumer<RecipeJsonProvider> exporter, Block mossy, Block plain) {
+			for (Item moss : List.of(Items.VINE, Items.MOSS_BLOCK)) {
+				ShapelessRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, mossy).input(plain).input(moss)
+						.criterion(hasItem(moss), conditionsFromItem(moss))
+						.offerTo(exporter, Registries.BLOCK.getId(mossy).getPath() + "_from_" + Registries.ITEM.getId(moss).getPath());
+			}
+		}
+
 		@Override
 		public void generate(Consumer<RecipeJsonProvider> exporter) {
 			RecipeCategory building = RecipeCategory.BUILDING_BLOCKS;
@@ -212,11 +244,43 @@ public class EmbervoidDataGenerator implements DataGeneratorEntrypoint {
 				createStairsRecipe(f[1], Ingredient.ofItems(f[0]))
 						.criterion(hasItem(f[0]), conditionsFromItem(f[0])).offerTo(exporter);
 				offerSlabRecipe(exporter, building, f[2], f[0]);
-				offerWallRecipe(exporter, RecipeCategory.DECORATIONS, f[3], f[0]);
 				offerStonecuttingRecipe(exporter, building, f[1], f[0]);
 				offerStonecuttingRecipe(exporter, building, f[2], f[0], 2);
-				offerStonecuttingRecipe(exporter, RecipeCategory.DECORATIONS, f[3], f[0]);
+				if (f.length > 3) {
+					offerWallRecipe(exporter, RecipeCategory.DECORATIONS, f[3], f[0]);
+					offerStonecuttingRecipe(exporter, RecipeCategory.DECORATIONS, f[3], f[0]);
+				}
 			}
+
+			// The art pass's blocks: tiles and cobble bricks from the chain, mossy and sooty by hand, pillars and the
+			// relief from slabs, slates from deepslate, the rune stone round a Cinder Shard.
+			offerPolishedStoneRecipe(exporter, building, ASH_TILES, POLISHED_ASH_STONE);
+			offerCrackingRecipe(exporter, CRACKED_ASH_TILES, ASH_TILES);
+			offerPolishedStoneRecipe(exporter, building, ASH_COBBLE_BRICKS, COBBLED_ASH_STONE);
+			offerMossyRecipe(exporter, MOSSY_ASH_BRICKS, ASH_BRICKS);
+			offerMossyRecipe(exporter, MOSSY_COBBLED_ASH_STONE, COBBLED_ASH_STONE);
+			ShapelessRecipeJsonBuilder.create(building, SOOTY_ASH_BRICKS).input(ASH_BRICKS).input(ItemTags.COALS)
+					.criterion(hasItem(ASH_BRICKS), conditionsFromItem(ASH_BRICKS)).offerTo(exporter);
+			ShapedRecipeJsonBuilder.create(building, ASH_BRICK_PILLAR, 2).pattern("B").pattern("B").input('B', ASH_BRICKS)
+					.criterion(hasItem(ASH_BRICKS), conditionsFromItem(ASH_BRICKS)).offerTo(exporter);
+			offerChiseledBlockRecipe(exporter, building, CARVED_ASH_STONE, ASH_TILE_SLAB);
+			offerPolishedStoneRecipe(exporter, building, SLATE_TILES, Blocks.COBBLED_DEEPSLATE);
+			offerStonecuttingRecipe(exporter, building, SLATE_TILES, Blocks.COBBLED_DEEPSLATE);
+			ShapedRecipeJsonBuilder.create(building, SANCTUM_RUNE_STONE, 8)
+					.pattern("PPP").pattern("PSP").pattern("PPP")
+					.input('P', POLISHED_ASH_STONE).input('S', GearItems.CINDER_SHARD)
+					.criterion(hasItem(GearItems.CINDER_SHARD), conditionsFromItem(GearItems.CINDER_SHARD)).offerTo(exporter);
+			for (Block input : List.of(ASH_STONE, POLISHED_ASH_STONE)) {
+				offerStonecuttingRecipe(exporter, building, ASH_TILES, input);
+				offerStonecuttingRecipe(exporter, building, ASH_TILE_STAIRS, input);
+				offerStonecuttingRecipe(exporter, building, ASH_TILE_SLAB, input, 2);
+				offerStonecuttingRecipe(exporter, building, ASH_BRICK_PILLAR, input);
+				offerStonecuttingRecipe(exporter, building, CARVED_ASH_STONE, input);
+			}
+			offerStonecuttingRecipe(exporter, building, ASH_COBBLE_BRICKS, COBBLED_ASH_STONE);
+			offerStonecuttingRecipe(exporter, building, ASH_COBBLE_BRICK_STAIRS, COBBLED_ASH_STONE);
+			offerStonecuttingRecipe(exporter, building, ASH_COBBLE_BRICK_SLAB, COBBLED_ASH_STONE, 2);
+			offerStonecuttingRecipe(exporter, RecipeCategory.DECORATIONS, ASH_COBBLE_BRICK_WALL, COBBLED_ASH_STONE);
 
 			offerSmelting(exporter, List.of(COBBLED_ASH_STONE), building, ASH_STONE, 0.1f, 200, "ash_stone");
 			offerPolishedStoneRecipe(exporter, building, POLISHED_ASH_STONE, ASH_STONE);

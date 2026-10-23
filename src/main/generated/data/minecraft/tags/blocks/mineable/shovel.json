@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "embervoid:ash_soil"
+    "embervoid:ash_soil",
+    "embervoid:ash_cobble_path"
   ]
 }

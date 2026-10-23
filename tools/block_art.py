@@ -261,7 +261,7 @@ def cracked_ash_tiles():
     return c
 
 
-@texture("ash_brick_pillar")
+@texture("ash_brick_pillar_side")
 def ash_brick_pillar():
     """Fluted shaft: four ridges with a groove between, each ridge lit on its left, shaded on its right."""
     c = Canvas(16, 16)
@@ -746,7 +746,7 @@ def burnt_straw_top():
     return c
 
 
-@texture("burnt_thatch")
+@texture("burnt_thatch_side")
 def burnt_thatch():
     """Thatch courses: bundles 4 px deep with ragged lower edges, soot creeping up from below."""
     c = Canvas(16, 16)
@@ -798,7 +798,7 @@ def bone_bricks():
     return c
 
 
-@texture("bone_pillar")
+@texture("bone_pillar_side")
 def bone_pillar():
     """Two long bones side by side, their knobbed ends at the top and the bottom."""
     c = Canvas(16, 16)

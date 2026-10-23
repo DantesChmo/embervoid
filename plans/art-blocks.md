@@ -8,7 +8,7 @@ overhaul", bar: docs/art-direction.md. Nobody answers questions tonight: decisio
 1. [x] `tools/palette.py`: the shared ramps and the drawing helpers.
 2. [x] `tools/block_art.py`: every block texture redrawn (replaces `reach_world_placeholders.py`, `road_art.py`, the
    block part of `stele_art.py`); `tools/prop_art.py` restyled.
-3. [ ] About 25 new building blocks with datagen and lang.
+3. [x] About 25 new building blocks with datagen and lang.
 4. [ ] Every structure builder rebuilt from the wider palette; helpers in `Ruin` / `TemplateBuilder`.
 5. [ ] Render and judge (`model_preview.py blocks`, `structures`), iterate.
 6. [ ] MERGE REQUEST to the coordinator.
@@ -49,6 +49,9 @@ overhaul", bar: docs/art-direction.md. Nobody answers questions tonight: decisio
   textures restyled; `reach_world_placeholders.py` and `road_art.py` deleted, `stele_art.py` keeps the Crying Soul.
   `block_art.py` prints a report per texture; `--sheet` writes a contact sheet with the 3x3 tiling. Looked at on the
   sheets: every family reads as drawn (bevelled plates, bricks of their own tone, ridged bark, bone, riveted iron).
+- Step 3 committed: 25 new blocks (38 registrations with stairs, slabs and walls), datagen for models, loot, tags and
+  recipes, en + ru names, render layers; `runDatagen` and `model_preview.py self-check` pass. Pillar sides use the
+  `_side` texture name `cube_column` expects.
 
 ## What was seen, what could not be seen
 

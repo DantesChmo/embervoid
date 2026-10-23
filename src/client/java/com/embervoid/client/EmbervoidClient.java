@@ -21,6 +21,7 @@ import com.embervoid.client.vampire.VampireClient;
 import com.embervoid.config.EmbervoidClientConfig;
 import com.embervoid.config.EmbervoidConfig;
 import com.embervoid.hub.stele.SteleClient;
+import com.embervoid.reach.world.ReachBlocks;
 import com.embervoid.registry.ModBlocks;
 import com.embervoid.registry.ModEntities;
 import com.embervoid.registry.ModItems;
@@ -46,7 +47,8 @@ public class EmbervoidClient implements ClientModInitializer {
 
 		// Blocks with see-through pixels.
 		BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getCutout(),
-				ModBlocks.DEAD_DOOR, ModBlocks.DEAD_TRAPDOOR, ModBlocks.EMBER_LANTERN);
+				ModBlocks.DEAD_DOOR, ModBlocks.DEAD_TRAPDOOR, ModBlocks.EMBER_LANTERN, ReachBlocks.GRAVE_IRON_GRATE);
+		BlockRenderLayerMap.INSTANCE.putBlock(ReachBlocks.EMBER_GLASS, RenderLayer.getTranslucent());
 
 		ClientPlayerData.register();
 		ClientStamina.register();
