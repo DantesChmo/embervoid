@@ -10,7 +10,8 @@ What it does:
    overworld terrain; later its boss arena must be there and no Ashen Maiden, PLAN 16.1), force-loads the Ashen Reach landing and depths centre, locates the three zone arenas and the
    depths arena and force-loads them too, force-loads every road outpost and checks each got its chest, force-loads
    the chunk of every road's lantern posts and counts them lit per road (PLAN 14.2), checks the Citadel Gate on the
-   plaza, the gate road and the final sector's biome (PLAN 21.1), locates and
+   plaza, the gate road and the final sector's biome (PLAN 21.1), generates a stretch of each final-zone border and
+   checks the border wall stands there, its generation time in the output (PLAN 21.2), locates and
    force-loads a minor structure of each zone and a crypt, two bridges at the world edge, locates the Smoldering
    Citadel and force-loads its whole route (then expects the keep's treasure chest and every placed Citadel mob),
    force-loads the Vampire arena, starts and stops a full moon and a blood new moon, opens, checks and closes the
@@ -27,7 +28,7 @@ What it does:
    Exit code 0 only if there are none. WARN lines are listed but do not fail the check.
 
 With --perf (PLAN R40.4b) step 2 measures instead, on a fresh world with default config. Phase 1, no players: for
-each area (vanilla overworld far from spawn for reference, realm landing, the three zone arenas, a minor structure of each zone and a crypt, depths landing, depths
+each area (vanilla overworld far from spawn for reference, realm landing, the three zone arenas, a minor structure of each zone and a crypt, the final zone's border wall, depths landing, depths
 arena, the Smoldering Citadel) the time from `forceload add` until all its chunks tick entities, then its tick time
 over the last 100 ticks (`/embervoid perf ticks`) and its entities (`/embervoid perf entities`). Phase 2: three
 headless bot players (`Bot`) join; one at a time goes to each area, the time until its surroundings tick ("arrival",
@@ -367,6 +368,23 @@ def exercise(rcon):
         x, z = pos
         run(label, f"execute in {dimension} run forceload add {x - radius} {z - radius} {x + radius} {z + radius}")
 
+    def timed_generation(label, dimension, box):
+        """Force-loads a box of new chunks and logs the seconds until all of them tick (their generation time)."""
+        x1, z1, x2, z2 = box
+        started = time.time()
+        rcon.command(f"execute in {dimension} run forceload add {x1} {z1} {x2} {z2}")
+        command = f"execute in {dimension} run embervoid perf chunks {x1} {z1} {x2} {z2}"
+        response = ""
+        while time.time() - started < PERF_GEN_TIMEOUT:
+            response = rcon.command(command)
+            numbers = parse_numbers(r"chunks (\d+)/(\d+) loaded, (\d+) ticking", response)
+            if numbers and numbers[2] == numbers[1]:
+                log.append((label, command, f"{response.strip()}, generated in {time.time() - started:.1f} s"))
+                return
+            time.sleep(0.25)
+        log.append((label, command, response.strip()))
+        FAILED_EXPECTATIONS.append(f"{label}: chunks not ticking after {PERF_GEN_TIMEOUT} s")
+
     sanctum = located(run("Sanctum", "locate structure embervoid:ember_sanctum"))
     if sanctum:
         # The boss arena can lie some 70 blocks from the start.
@@ -454,10 +472,17 @@ def exercise(rcon):
                       r"^3 roads" + "".join(road_lit.format(g) for g in (1, 2, 3)) + r"\ngate road: 26 blocks to 0 48$")
     # The four sectors (PLAN 21.1): the Citadel Gate on the plaza on the final sector's side (south), the gate road
     # paved out to the sector, and the sector's biome where it should be.
-    expect("Citadel Gate", "execute in embervoid:ashen_reach run embervoid realm find embervoid:citadel_gate 0 6",
-           r"^found at 0 \d+ 6$")
+    expect("Citadel Gate", "execute in embervoid:ashen_reach run embervoid realm find embervoid:citadel_gate 0 21",
+           r"^found at 0 \d+ 21$")
     expect("Gate road", "execute in embervoid:ashen_reach run embervoid realm find embervoid:kingsroad_flagstones 0 36",
            r"^found at 0 \d+ 36$")
+    # The final zone's border wall (PLAN 21.2): a stretch of each border generated from scratch, timed until its chunks
+    # tick, then every stretch the layout puts up must stand there.
+    for angle in (60, 120):
+        x, z = round(math.cos(math.radians(angle)) * 340), round(math.sin(math.radians(angle)) * 340)
+        timed_generation(f"Border wall {angle}°", "embervoid:ashen_reach", (x - 40, z - 40, x + 40, z + 40))
+    expect("Border wall", "execute in embervoid:ashen_reach run embervoid realm border 310 370",
+           r"^border 60°: wall (\d+) of \1, \d+ gap columns, 0 not loaded\nborder 120°: wall (\d+) of \2, \d+ gap columns, 0 not loaded$")
     final = located(run("Final sector", "execute in embervoid:ashen_reach positioned 0 80 300 run locate biome "
                         "embervoid:ashen_reach_citadel"))
     if not final or not (60 < math.degrees(math.atan2(final[1], final[0])) < 120):
@@ -642,6 +667,7 @@ def perf_areas(rcon, log):
             areas.append((f"Minor {structure}", reach, around(pos, 32)))
         else:
             FAILED_EXPECTATIONS.append(f"Minor {structure}: not located")
+    areas.append(("Border wall", reach, around((170, 294), 40)))
     areas.append(("Depths landing", depths, around((0, 0), 48)))
     pos = located(run("Locate depths arena", f"execute in {depths} run locate structure embervoid:ashen_reach_depths_arena"))
     if pos:

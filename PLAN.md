@@ -926,7 +926,7 @@ and in mechanics. The hard lock (DESIGN §4.1 "Final zone lock") moves to the se
 |----|------|------|------------|--------|
 | 21.0 | **Design: the final zone inside the realm** | S | — | done (DESIGN §4.1, §4.5, §10.15) |
 | 21.1 | **Realm framework: final zone without its own dimension** | L | 21.0 | done – depths kept until 21.3 (JUnit `RealmLayoutTest`, `RoadLayoutTest`, `EdgeLayoutTest` on the data files; GameTests `RealmSectorTests`; server check: posts 20 / 28 / 39 and 28 / 37 / 33 on two seeds, all lit, gate road paved; `--perf` against `docs/perf-0.4.0.md`: arenas 0.9–1.0 s and minor structures 0.6–0.8 s per area as before, the landing 2.5 s (was 1.1) on a machine at load 5–6 where the untouched depths landing also went 0.9 → 1.6 s; a top-down zone map with an approximated warp noise looked right; not seen in game: the final sector's sky, fog and terrain, its straight borders at eye level, the gate road) |
-| 21.2 | **Fog wall: look and lock** | M | 21.1 | todo |
+| 21.2 | **Fog wall: look and lock** | M | 21.1 | done – the look not seen in game (JUnit `FinalZoneRegionTest`, `EdgeLayoutTest`; GameTests `FinalZoneLockTests`: walking, pearl, chorus, elytra, riptide, boat and horse, bridge, tunnel, cleared, creative, two players at one spot, the border wall; 258 GameTests green; server check PASS: gate at 0 76 21, border wall 50 of 50 stretches, 80×80 blocks of border generated in 1.1–1.3 s; not seen in game: the border wall, the gate's fog wall and the client fog curtain) |
 | 21.3 | **Citadel generation in the realm dimension** | L | 21.1 | todo |
 | 21.4 | **Worlds from 0.4.x** (realm dimensions regenerated) | M | 21.1, 21.3 | todo |
 | 21.5 | **Release 0.5.0** | M | 14.1–21.4 | todo |

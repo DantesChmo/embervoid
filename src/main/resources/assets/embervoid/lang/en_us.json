@@ -90,6 +90,7 @@
 	"embervoid.realm.gate.sealed": "The gate is sealed. Guardians still standing: %s",
 	"embervoid.realm.gate.forming": "The gate yields, but the Citadel beyond is still forming",
 	"embervoid.realm.void": "The void pushes you back",
+	"embervoid.realm.final.locked": "The ember fog bars the way. Guardians still standing: %s",
 	"biome.embervoid.ashen_reach_citadel": "Smoldering Citadel",
 	"embervoid.zone.ashen_reach.final": "Smoldering Citadel",
 	"subtitles.embervoid.block.citadel_gate.open": "Citadel Gate opens",

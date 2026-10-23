@@ -7,13 +7,21 @@ import java.util.Random;
 /**
  * Pure layout of a realm's border (PLAN 9.9): a broken wall on a ring just inside the abyss cliffs, towers on it, and
  * bridges that once crossed the abyss, now running out from the cliffs and breaking off (from the open zones only,
- * PLAN 21.1). Unit-tested; the edge feature builds it.
+ * PLAN 21.1). Also the burnt city wall along the final zone's two borders from the plaza to the abyss (PLAN 21.2), whose
+ * gaps the {@link FinalZoneLock} keeps shut. Unit-tested; the edge feature and the border wall feature build it.
  */
 public final class EdgeLayout {
 	/** Wall stretches are this long (blocks of arc); each is whole, low, or fallen. */
 	public static final double SEGMENT = 8;
 	/** A tower every this many blocks of arc. */
 	public static final double TOWER_SPACING = 120;
+
+	/** Border wall stretches are this long (blocks along the border); each is whole, low, or a gap. */
+	public static final double BORDER_SEGMENT = 6;
+	/** A tower on a border wall every this many blocks along it, the first one this far out from the plaza. */
+	public static final double BORDER_TOWER_SPACING = 64;
+	/** Border wall towers are this long along the border. */
+	public static final double BORDER_TOWER_LENGTH = 5;
 
 	/** A bridge: its angle (radians, as {@link RealmLayout#angle}), where its deck starts and where it breaks off. */
 	public record Bridge(double angle, double from, double to, int width) {}
@@ -74,6 +82,38 @@ public final class EdgeLayout {
 			return null;
 		}
 		return new double[]{along, -x * dirZ + z * dirX};
+	}
+
+	/**
+	 * Height of the border wall above the ground {@code along} blocks out on one of the final zone's borders: 0 in a
+	 * gap (about a fifth of the stretches), 2–3 where it is low, 5–7 where it stands whole.
+	 *
+	 * @param border 0 for the border at the final sector's start, 1 for the one at its end
+	 */
+	public static int borderWallHeight(long seed, int border, double along) {
+		long segment = (long) Math.floor(along / BORDER_SEGMENT);
+		Random random = new Random(seed ^ ((segment * 2 + border) * 0xC2B2AE3D27D4EB4FL) ^ 0x5DEECE66DL);
+		int roll = random.nextInt(10);
+		if (roll < 2) {
+			return 0;
+		}
+		return roll < 5 ? 2 + random.nextInt(2) : 5 + random.nextInt(3);
+	}
+
+	/** Whether {@code along} blocks out on a border is in one of its towers ({@link #BORDER_TOWER_SPACING} apart). */
+	public static boolean isBorderTower(double along) {
+		double into = along % BORDER_TOWER_SPACING;
+		return along >= BORDER_TOWER_SPACING && into < BORDER_TOWER_LENGTH;
+	}
+
+	/**
+	 * Where a column lies against a border ray from the realm centre at {@code angle} (radians, as
+	 * {@link RealmLayout#angle}): {along, across} in blocks, across positive towards larger angles.
+	 */
+	public static double[] borderCoordinates(double angle, double x, double z) {
+		double dirX = Math.cos(angle);
+		double dirZ = Math.sin(angle);
+		return new double[]{x * dirX + z * dirZ, -x * dirZ + z * dirX};
 	}
 
 	private EdgeLayout() {}

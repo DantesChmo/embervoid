@@ -13,6 +13,8 @@ public final class ReachWorld {
 			Embervoid.id("sinkhole_pool"), new SinkholePoolFeature(DefaultFeatureConfig.CODEC));
 	public static final EdgeFeature EDGE = Registry.register(Registries.FEATURE, Embervoid.id("realm_edge"),
 			new EdgeFeature(DefaultFeatureConfig.CODEC));
+	public static final BorderWallFeature BORDER_WALL = Registry.register(Registries.FEATURE,
+			Embervoid.id("realm_border_wall"), new BorderWallFeature(DefaultFeatureConfig.CODEC));
 
 	public static void register() {
 		ReachBlocks.register();
