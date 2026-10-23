@@ -265,8 +265,9 @@ public final class BalanceModel {
 		double best = playerHit(player, boss.armor(), boss.bestFactor());
 		double side2 = playerHit(player, boss.phase2Armor(), boss.phase2Side());
 		double best2 = playerHit(player, boss.phase2Armor(), boss.phase2Best());
-		int sideHits = hitsToKill(p1, side) + (p2 > 0 ? hitsToKill(p2, side2) : 0);
-		int bestHits = hitsToKill(p1, best) + (p2 > 0 ? hitsToKill(p2, best2) : 0);
+		// A boss no ordinary hit hurts (the Tree's bark) never falls to them: the sum stays at MAX_VALUE.
+		int sideHits = (int) Math.min(Integer.MAX_VALUE, (long) hitsToKill(p1, side) + (p2 > 0 ? hitsToKill(p2, side2) : 0));
+		int bestHits = (int) Math.min(Integer.MAX_VALUE, (long) hitsToKill(p1, best) + (p2 > 0 ? hitsToKill(p2, best2) : 0));
 		Map<String, Double> moves = new LinkedHashMap<>();
 		for (Hit hit : boss.hits()) {
 			moves.put(hit.name(), hitOnPlayer(hit, level, player));

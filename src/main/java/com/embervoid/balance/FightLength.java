@@ -153,13 +153,15 @@ public final class FightLength {
 			double open = 0;
 			double damage = 0;
 			for (Beat beat : phase.beats()) {
-				double beatOpen = aimedAt * openTicks(beat, true) + (1 - aimedAt) * openTicks(beat, false);
 				double factor = Double.isNaN(beat.factor()) ? phase.factor() : beat.factor();
+				// A boss that takes no damage (the Tree's bark outside a stun) is not an opening: nobody swings at it.
+				double beatOpen = factor <= 0 ? 0 : aimedAt * openTicks(beat, true) + (1 - aimedAt) * openTicks(beat, false);
 				loopTicks += beat.weight() * beat.ticks();
 				open += beat.weight() * beatOpen;
 				damage += beat.weight() * beatOpen / swing * BalanceModel.playerHit(player, phase.armor(), factor);
 			}
-			double hit = BalanceModel.playerHit(player, phase.armor(), phase.factor());
+			// The mean clean hit of the phase (the phase's own factor when no beat has another).
+			double hit = open > 0 ? damage * swing / open : BalanceModel.playerHit(player, phase.armor(), phase.factor());
 			if (health <= 0 || damage <= 0) {
 				phases.add(new PhaseLength(phase, health, hit, 0, once, 0, 0));
 				continue;

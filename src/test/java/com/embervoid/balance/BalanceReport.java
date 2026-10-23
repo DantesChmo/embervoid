@@ -30,6 +30,11 @@ final class BalanceReport {
 		return String.format(Locale.ROOT, value == Math.rint(value) ? "%.0f" : "%.1f", value);
 	}
 
+	/** Hits to kill, or "-" for a target those hits never hurt. */
+	static String hits(int hits) {
+		return hits == Integer.MAX_VALUE ? "-" : String.valueOf(hits);
+	}
+
 	private void line(String text) {
 		out.append(text).append('\n');
 	}
@@ -126,8 +131,8 @@ final class BalanceReport {
 					continue;
 				}
 				BossFight fight = BalanceModel.bossFight(boss, boss.level(), 1, BalanceModel.expectedPlayer(stage, false));
-				row(boss.name(), boss.level(), fight.player().describe(), f(fight.health()), f(fight.sideHit()), fight.sideHitsEach(),
-						f(fight.sideSeconds()), boss.bestWhen(), f(fight.bestHit()), fight.bestHitsEach());
+				row(boss.name(), boss.level(), fight.player().describe(), f(fight.health()), f(fight.sideHit()), hits(fight.sideHitsEach()),
+						fight.sideHitsEach() == Integer.MAX_VALUE ? "-" : f(fight.sideSeconds()), boss.bestWhen(), f(fight.bestHit()), fight.bestHitsEach());
 			}
 		}
 		line("");
@@ -214,7 +219,7 @@ final class BalanceReport {
 			for (int n = 1; n <= 3; n++) {
 				BossFight fight = BalanceModel.bossFight(boss, boss.level(), n, player);
 				Fight add = BalanceModel.fight(fight.addMob(), fight.addLevel(), player);
-				row(boss.name(), n, f(fight.health()), fight.sideHitsEach(), fight.adds() + " × " + fight.addMob().name() + " Lv " + fight.addLevel(),
+				row(boss.name(), n, f(fight.health()), hits(fight.sideHitsEach()), fight.adds() + " × " + fight.addMob().name() + " Lv " + fight.addLevel(),
 						f(add.mobHealth()), add.hitsToKillMob());
 			}
 		}
@@ -241,7 +246,8 @@ final class BalanceReport {
 					level >= 20 ? BalanceModel.DIAMOND_SWORD : BalanceModel.IRON_SWORD, 3);
 			int bossLevel = Math.min(Math.max(level, 15), 30);
 			BossFight fight = BalanceModel.bossFight(BalanceData.VAMPIRE, bossLevel, 1, player);
-			row(bossLevel, player.describe(), f(fight.health()), f(fight.sideHit()), fight.sideHitsEach(), f(fight.sideSeconds()),
+			row(bossLevel, player.describe(), f(fight.health()), f(fight.sideHit()), hits(fight.sideHitsEach()),
+					fight.sideHitsEach() == Integer.MAX_VALUE ? "-" : f(fight.sideSeconds()),
 					String.join(" / ", fight.moveDamage().values().stream().map(BalanceReport::f).toList()));
 		}
 		line("");
