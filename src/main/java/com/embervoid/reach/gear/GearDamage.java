@@ -54,6 +54,9 @@ public final class GearDamage {
 			if (source.isOf(DamageTypes.PLAYER_ATTACK) && source.getSource() == player && RapierRamp.holdsRapier(player)) {
 				amount *= RapierRamp.multiplier(player, target);
 			}
+			if (source.isOf(DamageTypes.PLAYER_ATTACK) && source.getSource() == player && WardensScourgeItem.tipHit(player, target)) {
+				amount *= config.weapons().whipTipMultiplier();
+			}
 		}
 		if (HuntsmansCrossbowItem.isOpener(target, source)) {
 			amount *= config.crossbow().openerMultiplier();

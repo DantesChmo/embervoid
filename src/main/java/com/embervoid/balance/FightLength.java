@@ -382,24 +382,23 @@ public final class FightLength {
 
 	/**
 	 * A unique's damage factor in its own use (DESIGN §6.1): the Scythe on two enemies (its sweep hits the second at
-	 * {@code gear.weapons.sweepShare}), the Scourge at its tip (×1.6, built in PLAN 17.4), the Rapier fully ramped
-	 * ({@code gear.weapons.rampMax}).
+	 * {@code gear.weapons.sweepShare}), the Scourge at its tip ({@code gear.weapons.whipTipMultiplier}), the Rapier
+	 * fully ramped ({@code gear.weapons.rampMax}). The Scourge's lash hits every mob on its line, but on one target that
+	 * is one hit a swing, so its expected hits do not change.
 	 */
 	public static double ownUse(Weapon weapon) {
 		if (weapon == BalanceModel.ASHEN_SCYTHE) {
 			return 1 + BalanceModel.GEAR.weapons().sweepShare();
 		}
 		if (weapon == BalanceModel.WARDENS_SCOURGE) {
-			return SCOURGE_TIP;
+			// The float config value as the decimal it is written as (1.6, not 1.6000000238).
+			return Math.round(BalanceModel.GEAR.weapons().whipTipMultiplier() * 1000) / 1000.0;
 		}
 		if (weapon == BalanceModel.ROYAL_ASH_RAPIER) {
 			return 1 + BalanceModel.GEAR.weapons().rampMax();
 		}
 		return 1;
 	}
-
-	/** The Scourge's tip crack (DESIGN §6.1); PLAN 17.4 builds it, until then the Scourge hits one target plainly. */
-	public static final double SCOURGE_TIP = 1.6;
 
 	/** {@link #ownUse} on a single target: the same but for the Scythe, whose sweep needs a second enemy. */
 	public static double oneTarget(Weapon weapon) {

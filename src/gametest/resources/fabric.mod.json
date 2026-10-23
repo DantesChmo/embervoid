@@ -47,7 +47,8 @@
 			"com.embervoid.gametest.SteleTravelTests",
 			"com.embervoid.gametest.CombatFxTests",
 			"com.embervoid.gametest.PropTests",
-			"com.embervoid.gametest.AttackAnimationTests"
+			"com.embervoid.gametest.AttackAnimationTests",
+			"com.embervoid.gametest.WardensScourgeTests"
 		]
 	},
 	"mixins": [

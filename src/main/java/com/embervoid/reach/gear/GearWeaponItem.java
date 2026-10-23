@@ -85,12 +85,17 @@ public class GearWeaponItem extends Item {
 			}
 			onHit(stack, target, attacker);
 		}
-		stack.damage(1, attacker, e -> e.sendEquipmentBreakStatus(EquipmentSlot.MAINHAND));
+		wear(stack, attacker);
 		return true;
 	}
 
 	/** Extra effects of a landed melee hit, server side. */
 	protected void onHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+	}
+
+	/** The durability a landed melee hit costs: one. */
+	protected void wear(ItemStack stack, LivingEntity attacker) {
+		stack.damage(1, attacker, e -> e.sendEquipmentBreakStatus(EquipmentSlot.MAINHAND));
 	}
 
 	@Override

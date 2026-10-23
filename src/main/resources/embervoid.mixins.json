@@ -15,6 +15,7 @@
 		"TrackTargetGoalMixin",
 		"PlayerEntityVampirismMixin",
 		"GearLivingEntityMixin",
+		"GearLivingEntityAccessor",
 		"GearEnchantmentHelperMixin",
 		"GearEnchantmentMixin",
 		"GearServerPlayNetworkHandlerMixin",

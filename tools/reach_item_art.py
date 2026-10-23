@@ -393,6 +393,68 @@ def crossbow():
     print("wrote huntsmans_crossbow states")
 
 
+# --- Warden's Scourge in a hand (PLAN 17.4): the handle alone, the lash is drawn by the client (ScourgeLashes) ------
+# Held like a sword: the grip runs up from the bottom left into an iron ferrule; the lash leaves its top, pixel (9, 6)
+# (ScourgeLashes.ROOT). The inventory icon (wardens_scourge) stays the whole whip.
+
+SCOURGE_HANDLE = [
+    "................",
+    "................",
+    "................",
+    "................",
+    "................",
+    "........oo......",
+    ".......oIio.....",
+    "......oIio......",
+    ".....oWWo.......",
+    "....oWwo........",
+    "...oWWo.........",
+    "..oWwo..........",
+    ".oWWo...........",
+    "oIIo............",
+    ".oo.............",
+    "................",
+]
+
+# The lash's texture (textures/entity, drawn on two crossed ribbons, one repeat every 0.3 blocks along the lash): the
+# left half grave-iron links, one face on with its hole cut out and one edge on; the right half the popper at the tip,
+# a frayed tongue of blood-red leather.
+SCOURGE_LASH = [
+    "..oLLo..oEEEEo..",
+    ".oL..Mo.oEeEEo..",
+    ".oL..Mo.oEeEEo..",
+    ".oL..Mo.oEeEdo..",
+    ".oL..Do.oEeEdo..",
+    ".oM..Do.oEEEdo..",
+    "..oMDo..oEEEdo..",
+    "...oo...oEEEdo..",
+    "...LM...oEEddo..",
+    "...LM...oEEddo..",
+    "...MD...oEEddo..",
+    "...MD...oEdddo..",
+    "...LM...oEd.do..",
+    "...MD...oE.d.o..",
+    "...MD...o.d.do..",
+    "...oo...o.....o.",
+]
+
+
+def scourge():
+    icon("wardens_scourge_handle", SCOURGE_HANDLE, dict(W=(60, 50, 44, 255), w=(84, 70, 60, 255),
+                                                        I=(98, 106, 124, 255), i=(150, 158, 176, 255)))
+    pal = dict(L=(150, 158, 176, 255), M=(98, 106, 124, 255), D=(58, 64, 80, 255),
+               E=(150, 24, 28, 255), e=(196, 52, 50, 255), d=(96, 14, 18, 255))
+    c = Canvas(16, 16)
+    for y, row in enumerate(SCOURGE_LASH):
+        for x, ch in enumerate(row):
+            if ch == "o":
+                c.set(x, y, darker(pal["E"] if x >= 8 else pal["M"], 0.42))
+            elif ch != ".":
+                c.set(x, y, pal[ch])
+    c.save(os.path.join("src", "main", "resources", "assets", "embervoid", "textures", "entity", "wardens_scourge_lash.png"))
+    print("wrote wardens_scourge_lash")
+
+
 def ensure_placeholder_bases():
     """Runs the silhouettes this script restyles (gear materials, boss items, consumables, weapons, the crossbow
     states; reliquary artifacts and rings) and the icons kept as they are (Bleeding effect, empty-slot icons,
@@ -428,3 +490,4 @@ if __name__ == "__main__":
     flask_shard()
     crossbow()
     consumables()
+    scourge()

@@ -810,7 +810,7 @@ attack animations; the Warden's Scourge as a real whip.
 | 17.1 | **Player attack animations** (playerAnimator) | M | 17.0 | done – not seen in game (playerAnimator 1.0.2-rc1+1.20 required; `com.embervoid.anim.AttackAnimations` sends the clip to the player and everyone tracking them on a swing, a special and the crossbow's load and shot, vanilla weapons untouched; 13 clips by `tools/player_anim_art.py`, swings as long as the attack cooldown; JUnit `WeaponKindTest`, GameTests `AttackAnimationTests`; motion seen only in `model_preview player` sheets) |
 | 17.2 | **Weapon models in hand** | M | 17.0 | todo |
 | 17.3 | **Weapon stats and identities** | M | 17.0, 18.1 | done – feel not played (DESIGN §6.1 numbers in `GearWeapons`; Scythe 3 stamina back per enemy a sweep or Harvest catches, Rapier ramp `RapierRamp`, Crossbow 1.6 s / bolt 16 / pierce 2 / ×1.5 opener; zone uniques from soul + 4 zone material + part, the Rapier keeps its ingots; Smoldering Plate at netherite; `BalanceTargetsTest.realmUniquesBeatNetherite`, the weapon target of `./gradlew balanceTargets` green; GameTests in `GearTests`; the Scourge's tip waits for 17.4) |
-| 17.4 | **Warden's Scourge as a real whip** | L | 17.1 | todo |
+| 17.4 | **Warden's Scourge as a real whip** | L | 17.1 | done – look and feel not seen or played (`WardensScourgeItem`: every mob within 0.3 of the lash's curve (`WhipArc`, hand to the crosshair at 6, bowed up-right) hit once at the swing's charge, the lash stops at the first block, the last 1.5 blocks ×1.6 with `item.wardens_scourge.crack` and a flash, one durability a swing, a click is a crack too; Lash unchanged but no free crack after it; client lash `ScourgeLashes`, a rope of 20 links from the in-hand handle model, laid along the same curve, then physics; JUnit `WhipArcTest`; GameTests `WardensScourgeTests` written, not run here (the coordinator's regression: `runGametest`, full `build`); checked here: compile of all source sets, `WhipArcTest` and `com.embervoid.balance.*`; seen only in `model_preview player whip_crack whip_lash`) |
 
 - **17.0 Design** (one pass for milestones 17 and 18; they share the numbers). *Done 2026-10-23:* DESIGN §5.5 (fight
   length, hit sizes, the wind-up rule), §6 (ladder: Realm 1 about 30 % above netherite, the user's pick; Smoldering
@@ -850,6 +850,20 @@ attack animations; the Warden's Scourge as a real whip.
   secondary motion or a client-side rope); hits along an arc line (server samples along the arc, no hit through
   walls); the tip cracks for more damage with its own sound and particles; Lash still pulls. GameTests: several
   targets on the line, tip bonus only at the tip, walls block, Lash unchanged. Not seen.
+  *Built:* a client-side rope, not a GeckoLib bone chain: a rope follows the player's own motion, falls and drags
+  (secondary motion a keyed chain cannot have), is laid along the very curve the server hits along (`WhipArc`, one
+  JUnit-checked function for both), and needs no item-stack ids or a second trigger for other players (it rides on
+  17.1's clip packet). In a hand the Scourge is its handle (`wardens_scourge_in_hand`, swapped the way vanilla swaps
+  the trident; the icon stays the coiled whip); the lash starts at the handle's drawn tip (third person in the world
+  pass, first person carried over from the hand's projection), about 0.8 blocks hang when idle, a crack pays out the
+  full 6 over 2.5 ticks from over the right shoulder (`whip_crack`), the tip lands at tick 4 and the rope is let go,
+  falls and coils back from tick 9; Lash flicks it straight out and yanks it back. The hit curve runs from the hand
+  (0.3 right, 0.35 down, 0.45 ahead of the eyes) to the crosshair 6 ahead, so whatever is aimed at is on it; a click
+  on a mob cancels the single vanilla attack and cracks the whole lash (the clicked mob always counted). Each mob gets
+  a normal attack at the swing's own charge (enchantments, DEX scaling, Bleeding), the cooldown put back between
+  them. Lash now marks its swing like Harvest and Lunge, so it no longer gets a free crack (17.3's note). Config
+  `gear.weapons.whipTipBand` / `whipTipMultiplier`. Not checked in game: the rope's look, its anchor on the hand in
+  either view, the link texture's repeat, the crack's sound and flash.
 
 ### Milestone 18 — full rebalance
 

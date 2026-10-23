@@ -22,7 +22,10 @@ import java.util.WeakHashMap;
  * Weapon reach other than vanilla's (1.20.1 has no reach attribute) and the charge of the swing a weapon effect
  * belongs to.
  *
- * <p>Longer reach (the Scourge's 6 blocks, the Scythe's and the Rapier's 3.5) is a server raycast on the swing: the
+ * <p>The Warden's Scourge hits along its whole lash instead ({@link WardensScourgeItem#crack}): a click on a mob and a
+ * swing at the air both crack it, and the single vanilla attack of the click is cancelled.
+ *
+ * <p>Longer reach (the Scythe's and the Rapier's 3.5) is a server raycast on the swing: the
  * client only attacks entities within 3 blocks, but it always sends the swing, so {@code
  * GearServerPlayNetworkHandlerMixin} hands it here and an entity in reach and in sight gets a normal {@link
  * PlayerEntity#attack}. A swing that already came with a vanilla attack this tick (or the one before, if the packets
@@ -81,11 +84,15 @@ public final class GearReach {
 	}
 
 	/**
-	 * A swing packet: attacks what a long-reach weapon points at, unless the swing already hit something; a Rapier
-	 * swing that hits nothing ends the ramp.
+	 * A swing packet: attacks what a long-reach weapon points at (the Scourge: cracks), unless the swing already hit
+	 * something; a Rapier swing that hits nothing ends the ramp.
 	 */
 	public static void onSwing(ServerPlayerEntity player, Hand hand) {
 		if (hand != Hand.MAIN_HAND || player.isSpectator() || attackedJustNow(player)) {
+			return;
+		}
+		if (WardensScourgeItem.holds(player)) {
+			WardensScourgeItem.crack(player, null);
 			return;
 		}
 		double reach = reach(player);
@@ -115,8 +122,22 @@ public final class GearReach {
 		return hit == null ? null : (LivingEntity) hit.getEntity();
 	}
 
+	/** A click on an entity: with the Scourge, a crack along the whole lash instead of one vanilla attack. */
+	static ActionResult onAttackEntity(PlayerEntity player, Entity target) {
+		if (player instanceof ServerPlayerEntity serverPlayer && !player.isSpectator() && WardensScourgeItem.holds(player)) {
+			WardensScourgeItem.crack(serverPlayer, target);
+			return ActionResult.FAIL;
+		}
+		return beforeAttack(player, target);
+	}
+
+	/** {@link #onAttackEntity} for GameTests: what the attack event answers for this player and target. */
+	public static ActionResult onAttackEntityForTest(PlayerEntity player, Entity target) {
+		return onAttackEntity(player, target);
+	}
+
 	static void register() {
-		AttackEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> beforeAttack(player, entity));
+		AttackEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> onAttackEntity(player, entity));
 	}
 
 	private GearReach() {}

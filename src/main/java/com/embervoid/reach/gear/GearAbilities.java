@@ -75,6 +75,8 @@ public final class GearAbilities {
 		public void perform(ServerWorld world, ServerPlayerEntity player, ItemStack stack) {
 			world.playSound(null, player.getX(), player.getY(), player.getZ(), GearSounds.LASH,
 					SoundCategory.PLAYERS, 1.0f, 1.0f);
+			// The cast is the swing: the swing packet that follows the use is no crack.
+			GearReach.noteAttack(player);
 			double reach = stack.getItem() instanceof GearWeaponItem weapon && weapon.spec().reach() > 0
 					? weapon.spec().reach() : GearReach.VANILLA_REACH;
 			LivingEntity target = GearReach.raycast(player, reach);

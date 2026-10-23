@@ -22,9 +22,12 @@ public final class GearWeapons {
 	 */
 	public static final Item ASHEN_SCYTHE = ModItems.register("ashen_scythe", new AshenScytheItem(settings(),
 			new GearWeaponItem.Spec(12, 1.1f, new WeaponScaling.Scaling(0.6f, 0.4f), 0, 3.5, 0, 0)));
-	/** 10 damage, speed 1.0, reach 6, single target (the arc line and the tip are PLAN 17.4), Bleeding +1; Lash. DEX 1. */
-	public static final Item WARDENS_SCOURGE = ModItems.register("wardens_scourge", new GearWeaponItem(settings(),
-			new GearWeaponItem.Spec(10, 1.0f, WeaponScaling.Scaling.DEXTERITY, 0, 6, 1, 0), GearAbilities.LASH));
+	/**
+	 * 10 damage, speed 1.0, reach 6, hits every enemy along the lash, the tip (last 1.5 blocks) ×1.6
+	 * ({@link WardensScourgeItem}), Bleeding +1; Lash. DEX 1.
+	 */
+	public static final Item WARDENS_SCOURGE = ModItems.register("wardens_scourge", new WardensScourgeItem(settings(),
+			new GearWeaponItem.Spec(10, 1.0f, WeaponScaling.Scaling.DEXTERITY, 0, 6, 1, 0)));
 	/**
 	 * 7 damage, speed 2.2, reach 3.5, a thrust (no sweep) that ramps on the same target ({@link RapierRamp}), Bleeding
 	 * +1, fire 3 s; Lunge. DEX 0.7, the ember part (0.3) KIN.
