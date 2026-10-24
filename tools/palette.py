@@ -381,10 +381,12 @@ def end_grain(c, colors, seed, cx=7.5, cy=7.5, base=3.0, rings=1.6, bark=None, b
 # --- Stone ------------------------------------------------------------------------------------------------------
 
 def cellular(c, colors, seed, points=9, base=3.2, spread=1.4, edge=None, light=(-1, -1), jitter=0.9, noise=0.4,
-             x0=0, y0=0, w=None, h=None):
+             x0=0, y0=0, w=None, h=None, size_spread=0.0, plates=0):
     """Worley-like stones: `points` seed points on a jittered grid (wrapping), every pixel belongs to the nearest,
     each stone has its own tone; the boundary between stones is the edge colour (ramp index 0 by default), and the
-    stone pixel next to a boundary gets a lit edge on the light side and a shaded edge on the other."""
+    stone pixel next to a boundary gets a lit edge on the light side and a shaded edge on the other. With
+    size_spread the stones differ in size (a weight per seed point from 1 - spread to 1 + spread), and `plates`
+    seed points are made large so one or two plates break the grid of the rest."""
     w = c.width if w is None else w
     h = c.height if h is None else h
     edge = colors[0] if edge is None else edge
@@ -392,15 +394,20 @@ def cellular(c, colors, seed, points=9, base=3.2, spread=1.4, edge=None, light=(
     cells = []
     for j in range(n):
         for i in range(n):
+            weight = 1 + (hash01(i, j, seed + 5) - 0.5) * 2 * size_spread
             cells.append(((i + 0.5 + (hash01(i, j, seed) - 0.5) * jitter) * w / n,
-                          (j + 0.5 + (hash01(i, j, seed + 1) - 0.5) * jitter) * h / n))
+                          (j + 0.5 + (hash01(i, j, seed + 1) - 0.5) * jitter) * h / n, max(0.3, weight)))
+    for k in range(plates):
+        idx = int(hash01(k, 8, seed + 6) * len(cells)) % len(cells)
+        cx, cy, _ = cells[idx]
+        cells[idx] = (cx, cy, 2.2)
 
     def nearest(x, y):
         best, bi = 1e9, 0
-        for k, (cx, cy) in enumerate(cells):
+        for k, (cx, cy, weight) in enumerate(cells):
             dx = (x - cx + w / 2) % w - w / 2
             dy = (y - cy + h / 2) % h - h / 2
-            d = dx * dx + dy * dy + (value_noise(x + k * 3, y, seed + 9, 2.0) - 0.5) * 3
+            d = (dx * dx + dy * dy) / weight + (value_noise(x + k * 3, y, seed + 9, 2.0) - 0.5) * 3
             if d < best:
                 best, bi = d, k
         return bi

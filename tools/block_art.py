@@ -147,10 +147,12 @@ def crystals(c, colors, seed, clusters, size=(2, 4), stone=P.ASH_STONE):
         c.set(lx % 16, ly % 16, step(colors, 1))
 
 
-def ash_bricks_base(seed, colors=P.ASH_BRICK, chips=3, crack=True, base=3.1):
+def ash_bricks_base(seed, colors=P.ASH_BRICK, chips=1, crack=True, base=3.1):
+    """Four courses of 4 px like vanilla's bricks, two or three bricks a course with alternating offsets (the widths
+    vary a little so the 3x3 shows no 8 px period), every brick a flat tone of its own, one chip and one crack."""
     c = Canvas(16, 16)
-    rows = [(8, [10, 6]), (8, [5, 11])] if seed % 2 == 0 else [(8, [6, 10]), (8, [11, 5])]
-    brick_rows(c, colors, P.ASH_MORTAR, seed, rows, base=base, spread=1.6, chips=chips, crack=crack)
+    rows = [(4, [7, 9]), (4, [4, 8, 4]), (4, [9, 7]), (4, [3, 8, 5])]
+    brick_rows(c, colors, P.ASH_MORTAR, seed, rows, base=base, spread=1.4, noise=0.12, chips=chips, crack=crack)
     return c
 
 
@@ -158,8 +160,9 @@ def ash_bricks_base(seed, colors=P.ASH_BRICK, chips=3, crack=True, base=3.1):
 
 @texture("ash_stone")
 def ash_stone():
+    """Sculpted dark stone: lumps of different sizes, two larger plates among them, so no grid shows in the 3x3."""
     c = Canvas(16, 16)
-    cellular(c, P.ASH_STONE, 501, points=9, base=3.1, spread=1.3)
+    cellular(c, P.ASH_STONE, 501, points=12, base=3.1, spread=1.3, jitter=1.0, size_spread=0.6, plates=2)
     tool_marks(c, P.ASH_STONE, 502, count=3)
     return c
 
@@ -195,22 +198,22 @@ def ash_bricks():
 
 @texture("cracked_ash_bricks")
 def cracked_ash_bricks():
-    c = ash_bricks_base(510, chips=6, crack=True)
-    crack_line(c, 511, 3, 0, 11, P.ASH_MORTAR, colors=P.ASH_BRICK, wander=0.4)
-    crack_line(c, 512, 12, 9, 7, P.ASH_MORTAR, colors=P.ASH_BRICK, wander=0.4)
+    c = ash_bricks_base(510, chips=3, crack=True)
+    crack_line(c, 511, 3, 0, 9, P.ASH_MORTAR, colors=P.ASH_BRICK, wander=0.4)
+    crack_line(c, 512, 12, 8, 6, P.ASH_MORTAR, colors=P.ASH_BRICK, wander=0.4)
     # One brick eroded: its face sunk a step, its lit edge gone.
-    for y in range(9, 15):
-        for x in range(1, 4):
+    for y in range(8, 11):
+        for x in range(10, 15):
             shift(c, P.ASH_BRICK, x, y, -1)
     return c
 
 
 @texture("mossy_ash_bricks", accent=P.MOSS)
 def mossy_ash_bricks():
-    c = ash_bricks_base(510, chips=4)
-    # Moss grows out of the mortar: along the lower course's joints and up from the bottom.
+    c = ash_bricks_base(510, chips=2)
+    # Moss grows out of the mortar: along two of the joints and up from the bottom.
     for x in range(16):
-        if hash01(x, 0, 513) < 0.55:
+        if hash01(x, 0, 513) < 0.5:
             c.set(x, 7, step(P.MOSS, 2 + (1 if hash01(x, 1, 513) < 0.4 else 0)))
         if hash01(x, 2, 513) < 0.4:
             c.set(x, 15, step(P.MOSS, 1 + (1 if hash01(x, 3, 513) < 0.5 else 0)))
@@ -222,7 +225,7 @@ def mossy_ash_bricks():
 
 @texture("sooty_ash_bricks")
 def sooty_ash_bricks():
-    c = ash_bricks_base(510, chips=3)
+    c = ash_bricks_base(510, chips=1)
     soot_stain(c, 517, (4, 15), strength=2, colors=P.ASH_BRICK)
     # Streaks of soot licking up between the lower bricks.
     for x in (3, 9, 14):
