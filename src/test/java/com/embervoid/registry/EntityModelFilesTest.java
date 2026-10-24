@@ -5,6 +5,7 @@ import com.embervoid.reach.boss.CryptKeeperEntity;
 import com.embervoid.reach.boss.GrievingTreeEntity;
 import com.embervoid.reach.boss.ReachBoss;
 import com.embervoid.reach.boss.SmolderingLordEntity;
+import com.embervoid.reach.mob.AshStalkerEntity;
 import com.embervoid.reach.mob.CinderHuskEntity;
 import com.embervoid.reach.mob.ReachMob;
 import com.embervoid.sanctum.boss.CryingSoulEntity;
@@ -184,19 +185,25 @@ class EntityModelFilesTest {
 
 	/** Animations each Realm 1 mob class plays: its moves and states, and ReachMob's hurt, stagger and death. */
 	private static final Map<String, List<String>> REACH_MOB_ANIMATIONS = Map.ofEntries(
-			Map.entry("cinder_husk", List.of("misc.idle", "move.walk", "attack.swing", ReachMob.HURT, ReachMob.STAGGER, ReachMob.DEATH)));
+			Map.entry("cinder_husk", List.of("misc.idle", "move.walk", "attack.swing", ReachMob.HURT, ReachMob.STAGGER, ReachMob.DEATH)),
+			Map.entry("ash_stalker", List.of("misc.idle", "move.walk", "attack.swing", "misc.buried", "misc.emerge", "attack.leap",
+					ReachMob.HURT, ReachMob.STAGGER, ReachMob.DEATH)));
 
 	/** Bones the Realm 1 renderers turn (head) or toggle ({@code ReachMob#toggledBones}). */
 	private static final Map<String, List<String>> REACH_MOB_BONES = Map.ofEntries(
-			Map.entry("cinder_husk", List.of("head")));
+			Map.entry("cinder_husk", List.of("head")),
+			Map.entry("ash_stalker", List.of("head")));
 
 	/** Shortest length (s) of a Realm 1 mob's telegraphed animation: its move's windup in ticks / 20. */
 	private static final Map<String, Double> REACH_MOB_MIN_LENGTH = Map.ofEntries(
-			Map.entry("cinder_husk/attack.swing", CinderHuskEntity.SWING_WINDUP / 20.0));
+			Map.entry("cinder_husk/attack.swing", CinderHuskEntity.SWING_WINDUP / 20.0),
+			Map.entry("ash_stalker/attack.swing", AshStalkerEntity.SWING_WINDUP / 20.0),
+			Map.entry("ash_stalker/misc.emerge", AshStalkerEntity.BOIL_TICKS / 20.0));
 
 	/** Ticks each Realm 1 mob's body stays for its fall ({@code ReachMob#deathTicks}): the fall must fill them. */
 	private static final Map<String, Integer> REACH_MOB_DEATH_TICKS = Map.ofEntries(
-			Map.entry("cinder_husk", CinderHuskEntity.DEATH_TICKS));
+			Map.entry("cinder_husk", CinderHuskEntity.DEATH_TICKS),
+			Map.entry("ash_stalker", AshStalkerEntity.DEATH_TICKS));
 
 	@Test
 	void reachMobsKeepWhatTheirCodeUses() throws IOException {

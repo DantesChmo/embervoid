@@ -1,5 +1,6 @@
 package com.embervoid.reach.mob;
 
+import com.embervoid.fx.particle.EmberParticles;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityGroup;
@@ -39,7 +40,10 @@ import java.util.function.Predicate;
  * set it off.
  */
 public class AshStalkerEntity extends ReachMob {
-	static final Move MELEE = new Move("attack.swing", 8, 25, ReachMobSounds.ASH_STALKER_WINDUP, 1.0f);
+	public static final int SWING_WINDUP = 8;
+	/** Ticks the body stays for {@code misc.death}: it crumples onto its side for 1.8 s. */
+	public static final int DEATH_TICKS = 36;
+	static final Move MELEE = new Move("attack.swing", SWING_WINDUP, 25, ReachMobSounds.ASH_STALKER_WINDUP, 1.0f);
 	public static final double TRIGGER_RANGE = 5;
 	public static final int BOIL_TICKS = 20;
 	static final int REBURY_TICKS = 200;
@@ -145,11 +149,12 @@ public class AshStalkerEntity extends ReachMob {
 
 	private void boil() {
 		if (getWorld() instanceof ServerWorld world) {
-			world.spawnParticles(ParticleTypes.ASH, getX(), getY() + 0.1, getZ(), 12, 0.4, 0.05, 0.4, 0.02);
+			// The ash boils: flakes thrown up, soot, the furrow's own block, ash flakes rising with the body.
+			EmberParticles.throwAll(world, EmberParticles.ASH_FLAKE, getPos().add(0, 0.1, 0), 4, new Vec3d(0, 0.12, 0), 0.08);
 			world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, getSteppingBlockState()),
 					getX(), getY() + 0.1, getZ(), 4, 0.3, 0.05, 0.3, 0.1);
 			if (boilTicks % 8 == 0) {
-				world.spawnParticles(ParticleTypes.LARGE_SMOKE, getX(), getY() + 0.2, getZ(), 3, 0.3, 0.1, 0.3, 0.01);
+				EmberParticles.spawn(world, EmberParticles.SOOT, getPos().add(0, 0.2, 0), 3, 0.3, 0.02);
 			}
 		}
 		if (--boilTicks > 0) {
@@ -175,7 +180,24 @@ public class AshStalkerEntity extends ReachMob {
 		triggerAnim(ACTION, "attack.leap");
 		playSound(ReachMobSounds.ASH_STALKER_LEAP, 1.0f, 1.0f);
 		if (getWorld() instanceof ServerWorld world) {
-			world.spawnParticles(ParticleTypes.ASH, getX(), getY() + 0.2, getZ(), 40, 0.5, 0.3, 0.5, 0.05);
+			// It bursts out: a ring of ash flakes thrown outward and soot off the body.
+			EmberParticles.ringOut(world, EmberParticles.ASH_FLAKE, getPos(), 24, 0.18, 0.2);
+			EmberParticles.spawn(world, EmberParticles.SOOT, getPos().add(0, 0.6, 0), 8, 0.4, 0.04);
+		}
+	}
+
+	@Override
+	public int deathTicks() {
+		return DEATH_TICKS;
+	}
+
+	/** The body falls apart into ash: flakes drift off it while it lies there. */
+	@Override
+	protected void tickDeath(ServerWorld world, int deathTime) {
+		if (deathTime == 16) {
+			EmberParticles.ringOut(world, EmberParticles.ASH_FLAKE, getPos(), 14, 0.1, 0.12);
+		} else if (deathTime % 4 == 0) {
+			EmberParticles.spawn(world, EmberParticles.ASH_FLAKE, getPos().add(0, 0.3, 0), 2, 0.5, 0.02);
 		}
 	}
 

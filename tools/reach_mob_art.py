@@ -504,80 +504,180 @@ def open_front(face, inset=1, top_rows=1):
 
 
 # --- Fields: Ash Stalker ---------------------------------------------------------------------------------------------
-# Lean and crouched, caked in layered ash, long arms ending in three claws, a ridge of ash flakes down the spine.
-# Buried in a furrow until it boils out (20 ticks) and leaps; swing windup 8 ticks.
+# Lean and crouched, caked in layered ash: crust plates over the shoulders and the back, a ridge of ash spines down
+# the spine that sways, long arms ending in three bone claws, a brow plate over two ember slits, a jaw of broken
+# teeth, loose ash rags hanging from the forearms. Buried in a furrow until it boils out (20 ticks) and leaps; swing
+# windup 8 ticks.
 
 def ash_stalker():
-    coat = Material(ASH, base=2.0, noise=0.8, grain="h", speck=0.05, grad=1.0, top=1.0)
+    coat = Material(mk.ASH, base=2.4, noise=0.6, grain="h", speck=0.05, grad=1.0, top=1.0, bevel=0.5)
 
     def streaks(face, rng):
         if face.side():
-            for _ in range(2):
+            for _ in range(max(1, face.w // 3)):
                 x = rng.randrange(face.w)
-                face.vline(x, rng.randrange(max(1, face.h // 2)), rng.randint(2, 4), ASH[0])
-            if rng.random() < 0.5:
+                face.vline(x, rng.randrange(max(1, face.h // 2)), rng.randint(2, 4), mk.ASH[0])
+            if rng.random() < 0.4:
                 ember_cracks(face, rng, 1, EMBER_DEEP, EMBER_DARK, 0.6, (1, 2))
+            mk.edge_shadow(face, rng, -12)
 
     def face_front(face, rng):
-        # No real face: ash with two ember slits and a dark brow.
-        face.hline(0, 2, face.w, ASH[1])
-        for ex in (1, 4):
-            face.set(ex, 3, VOID)
-            face.set(ex + 1, 3, VOID)
-            face.lit(ex + (1 if ex == 1 else 0), 3, EMBER_HOT, 0.9)
-        face.hline(1, 5, 5, ASH[0])
+        # No real face: a dark brow line, two ember slits in sockets, a split down the middle.
+        cx = face.cx
+        face.hline(0, 1, face.w, mk.ASH[1])
+        for ex in (cx - 3, cx + 1):
+            face.rect(ex, 2, 2, 1, VOID)
+            face.lit(ex + (1 if ex < cx else 0), 2, EMBER_HOT, 0.95)
+        face.vline(cx - 1, 3, 3, mk.ASH[0])
+        mk.edge_shadow(face, rng, -12)
 
-    bones, top = humanoid(legs=11, body=(7, 10, 4), head=(7, 7, 7), arm=(3, 14, 3), leg=(3, 3), hunch=25,
-                          mats={"body": coat, "head": coat.but(base=2.3), "arm": coat.but(base=1.8),
-                                "leg": coat.but(base=1.6)},
-                          decals={"body": {"sides": streaks}, "head": {"front": face_front},
-                                  "arm": {"sides": streaks}, "leg": {"sides": streaks}})
-    jaw_mat = Material(ASH, base=1.4, noise=0.6)
+    def crust(face, rng):
+        # Caked ash plates: cracked into cells with a lit rim on the top-left of each.
+        if not face.side() and face.name != "top":
+            return
+        for y in range(1, face.h, 3):
+            for x in range((y // 3) % 2, face.w, 3):
+                face.set(x, y, mk.ASH[0])
+                face.tint(x + 1, y - 1, 18)
+        mk.edge_shadow(face, rng, -10)
+
+    bones, top = mk.dense_humanoid(legs=11, body=(7, 10, 4), head=(7, 7, 7), arm=(3, 13, 3), leg=(3, 3), hunch=25,
+                                   mats={"body": coat, "head": coat.but(base=2.8), "arm": coat.but(base=2.1),
+                                         "leg": coat.but(base=1.9), "hand": coat.but(base=1.6), "foot": coat.but(base=1.5)},
+                                   decals={"body": {"sides": streaks, "top": crust}, "head": {"front": face_front,
+                                           "sides": streaks, "top": crust},
+                                           "arm": {"sides": streaks}, "fore": {"sides": streaks},
+                                           "leg": {"sides": streaks}, "shin": {"sides": streaks}},
+                                   arm_gap=0.3)
+    head = mk.bone(bones, "head")
+    plate_mat = coat.but(base=3.2, bevel=0.8)
+    head.add(Box([-4, top + 5.8, -4.2], [8, 1.8, 5], plate_mat, {"all": crust}, inflate=0.3),  # brow plate
+             Box([-1, top + 6.5, -2], [2, 2, 5], plate_mat, {"all": crust}, rotation=[20, 0, 0], pivot=[0, top + 6.5, 0]))
+    teeth = Material(mk.BONE, base=4.0, noise=0.3)
 
     def jaw_front(face, rng):
         face.hline(0, 0, face.w, VOID)
         for x in range(0, face.w, 2):
-            face.set(x, 0, BONE[3])
+            face.set(x, 0, mk.BONE[4])
 
-    head = bone(bones, "head")
-    head.add(Box([-3, top - 1, -4], [6, 2, 4], jaw_mat, {"front": jaw_front}))
-    flakes = Material(ASH, base=3.0, noise=0.6, top=1.0)
-    head.add(Box([-1, top + 6, -2], [2, 2, 5], flakes, rotation=[20, 0, 0], pivot=[0, top + 6, 0]))
-    body = bone(bones, "body")
-    for i, y in enumerate((12.5, 15.5, 18.5)):
-        body.add(Box([-1, y, 1.5], [2, 2, 2], flakes, rotation=[-35, 0, 0], pivot=[0, y, 2]))
-    claw = Material(BONE, base=0.8, noise=0.4)
-    claws = [Box([x, 4, -1.5], [1, 3, 1], claw, rotation=[-30, 0, z], pivot=[x + 0.5, 7, -1])
-             for x, z in ((-6.5, -12), (-4.5, 12))]
-    claws.append(Box([-5.5, 5, 0.5], [1, 2, 1], claw, rotation=[25, 0, 0], pivot=[-5, 7, 0.5]))
-    bone(bones, "right_arm").add(*claws)
-    bone(bones, "left_arm").add(*[mirror_box(c) for c in claws])
-    toes = Box([-3, 0, -2.5], [3, 1, 1], claw)
-    bone(bones, "right_leg").add(toes)
-    bone(bones, "left_leg").add(mirror_box(toes))
+    bones.append(Bone("jaw", [0, top + 0.5, -1.5], "head", [10, 0, 0], [
+        Box([-3, top - 1, -4.2], [6, 2, 4], coat.but(base=1.6), {"front": jaw_front, "sides": streaks}),
+        Box([-2, top - 1.5, -4.4], [1, 1, 1], teeth), Box([1, top - 1.5, -4.4], [1, 1, 1], teeth)]))
+    body = mk.bone(bones, "body")
+    # Crust plates over the shoulders and the back, overlapping like shingles.
+    body.add(Box([-4.5, top - 3, -2.5], [9, 3, 5], plate_mat, {"all": crust}, inflate=0.4),
+             Box([-3.5, top - 6, 1.2], [7, 4, 1.5], plate_mat, {"all": crust}, inflate=0.2),
+             Box([-3, top - 9, 1.4], [6, 3.5, 1.5], plate_mat.but(base=2.8), {"all": crust}, inflate=0.2))
+    # The spine ridge: three ash spines in a chain hanging off the back of the neck, swaying as it moves.
+    spine = coat.but(base=3.4, top=1.2)
+    bones += chain_bones("ridge", "body", [0, top - 0.5, 2.4], 3, 2.8, spine, thickness=1.6,
+                         box=lambda i, o, s: [Box([-1, o[1], o[2] - 0.5], [2, s[1], 2 - i * 0.3], spine,
+                                                  rotation=[-28, 0, 0], pivot=[0, o[1] + s[1], o[2]])])
+    for n in chain_names("ridge", 3):
+        mk.bone(bones, n).rotation = [-20, 0, 0] if n.endswith("1") else [-10, 0, 0]
+    claw = Material(mk.BONE, base=1.6, noise=0.4, bevel=0.5)
+    r_claws = mk.claws(-6.3, 10, -1.2, 3, (0.8, 2.8, 0.8), claw, spread=0.4, curl=-32, splay=12)
+    mk.bone(bones, "right_fore").add(*r_claws)
+    mk.bone(bones, "left_fore").add(*[mirror_box(b) for b in r_claws])
+    rag = Material(mk.ASH_CLOTH, base=2.2, noise=0.5, grain="v")
+    for side, parent, x in (("r", "right_fore", -5.3), ("l", "left_fore", 5.3)):
+        bones += chain_bones("rag_" + side, parent, [x, 14, 1.6], 2, 2.2, rag, thickness=0.3,
+                             box=lambda i, o, s, x=x: [Box([x - 1.2, o[1], 1.5], [2.4, s[1], 0.4], rag,
+                                                           {"sides": lambda f, r: ragged_edge(f, r, "bottom", 1, 0.6)})])
+    toes = Box([-3.2, 0, -2.8], [3.4, 1, 1.5], claw.but(base=1.2))
+    mk.bone(bones, "right_shin").add(toes)
+    mk.bone(bones, "left_shin").add(mirror_box(toes))
+    ridge = chain_names("ridge", 3)
+    rags = chain_names("rag_r", 2) + chain_names("rag_l", 2)
+    chains = ridge + rags
+    crouch_arms = {"right_fore": [-18, 0, 0], "left_fore": [-18, 0, 0]}
     animations = {
-        "misc.idle": idle(2.0, 5, 3),
-        "move.walk": walk(0.6, 40, 30, 0.6, head=rot(0, [-6, 0, 0], 0.3, [4, 0, 0], 0.6, [-6, 0, 0])),
+        "misc.idle": mk.breathe(2.0, 2.5, 2, 5, merge(
+            lag_sway(ridge, 2.0, 6, 0, phase=0.0),
+            lag_sway(chain_names("rag_r", 2), 2.0, 5, 0, phase=0.3),
+            lag_sway(chain_names("rag_l", 2), 2.0, 5, 0, phase=0.6),
+            {"jaw": rot(0, ZERO, 1.0, e("easeInOutSine", [8, 0, 0]), 2.0, e("easeInOutSine", ZERO)),
+             "right_fore": rot(0, crouch_arms["right_fore"], 1.0, e("easeInOutSine", [-24, 0, 0]), 2.0,
+                               e("easeInOutSine", crouch_arms["right_fore"])),
+             "left_fore": rot(0, crouch_arms["left_fore"], 1.0, e("easeInOutSine", [-12, 0, 0]), 2.0,
+                              e("easeInOutSine", crouch_arms["left_fore"]))})),
+        "move.walk": mk.weighted_walk(0.6, 40, 30, 0.7, 6, 7, extra=mk.limb_walk(0.6, 14, 16, merge(
+            lag_sway(ridge, 0.6, 12, 0, phase=0.1),
+            lag_sway(chain_names("rag_r", 2), 0.6, 14, 0, phase=0.0),
+            lag_sway(chain_names("rag_l", 2), 0.6, 14, 0, phase=0.5),
+            {"jaw": rot(0, [5, 0, 0], 0.3, e("easeInOutSine", [12, 0, 0]), 0.6, e("easeInOutSine", [5, 0, 0]))}))),
         "misc.buried": anim(1.0, {"root": pos(0, [0, -30, 0], 1, [0, -30, 0])}),
-        "misc.emerge": anim(1.0, {
-            "root": pos(0, [0, -24, 0], 0.3, [0.5, -22, 0], 0.5, [-0.5, -20, 0], 0.7, [0.5, -18, 0],
-                        0.9, [0, -16, 0], 1.0, ZERO),
-            "right_arm": rot(0, [-150, 0, 20], 0.9, [-120, 0, 20], 1.0, ZERO),
-            "left_arm": rot(0, [-150, 0, -20], 0.9, [-120, 0, -20], 1.0, ZERO),
-        }, loop=False),
-        "attack.leap": anim(0.6, {
-            "right_arm": rot(0, [-90, 0, 20], 0.6, [-20, 0, 0]),
-            "left_arm": rot(0, [-90, 0, -20], 0.6, [-20, 0, 0]),
-            "right_leg": rot(0, [40, 0, 0], 0.6, ZERO),
-            "left_leg": rot(0, [40, 0, 0], 0.6, ZERO),
-            "head": rot(0, [-25, 0, 0], 0.6, ZERO),
-        }, loop=False),
-        "attack.swing": anim(0.7, {
-            "right_arm": rot(0, ZERO, 0.4, [-130, 0, 30], 0.5, [-10, 0, -20], 0.7, ZERO),
-            "body": rot(0, ZERO, 0.4, [0, 20, 0], 0.5, [0, -20, 0], 0.7, ZERO),
-        }, loop=False),
+        # It boils up out of the furrow: shaking, the claws clawing at the air, then it stands.
+        "misc.emerge": anim(1.0, merge({
+            "root": pos(0, [0, -26, 0], 0.3, e("easeOutSine", [0.6, -22, 0]), 0.5, e("easeInOutSine", [-0.6, -18, 0]), 0.7,
+                        e("easeInOutSine", [0.6, -12, 0]), 0.9, e("easeInOutSine", [0, -5, 0]), 1.0, e("easeOutBack", ZERO)),
+            "right_arm": rot(0, [-160, 0, 25], 0.5, e("easeInOutSine", [-150, 0, 35]), 0.9, e("easeInOutSine", [-110, 0, 20]),
+                             1.0, e("easeOutSine", ZERO)),
+            "left_arm": rot(0, [-160, 0, -25], 0.5, e("easeInOutSine", [-170, 0, -15]), 0.9, e("easeInOutSine", [-110, 0, -20]),
+                            1.0, e("easeOutSine", ZERO)),
+            "right_fore": rot(0, [-40, 0, 0], 0.3, e("easeInOutSine", [-70, 0, 0]), 0.6, e("easeInOutSine", [-30, 0, 0]), 1.0,
+                              e("easeOutSine", crouch_arms["right_fore"])),
+            "left_fore": rot(0, [-40, 0, 0], 0.45, e("easeInOutSine", [-70, 0, 0]), 0.75, e("easeInOutSine", [-30, 0, 0]), 1.0,
+                             e("easeOutSine", crouch_arms["left_fore"])),
+            "head": rot(0, [-35, 0, 0], 0.5, e("easeInOutSine", [-30, 15, 0]), 0.8, e("easeInOutSine", [-25, -15, 0]), 1.0,
+                        e("easeOutSine", ZERO)),
+            "jaw": rot(0, [25, 0, 0], 1.0, e("easeOutSine", [5, 0, 0])),
+            "body": rot(0, [-20, 0, 0], 0.3, e("easeInOutSine", [-15, 0, 4]), 0.6, e("easeInOutSine", [-10, 0, -4]), 1.0,
+                        e("easeOutSine", ZERO)),
+        }, lag_sway(ridge, 1.0, 14, 0, phase=0.2), lag_sway(rags, 1.0, 16, 0, phase=0.0)), loop=False),
+        "attack.leap": anim(0.6, merge({
+            "right_arm": rot(0, [-100, 0, 25], 0.35, e("easeOutSine", [-80, 0, 30]), 0.6, e("easeOutSine", [-20, 0, 0])),
+            "left_arm": rot(0, [-100, 0, -25], 0.35, e("easeOutSine", [-80, 0, -30]), 0.6, e("easeOutSine", [-20, 0, 0])),
+            "right_fore": rot(0, [-50, 0, 0], 0.6, e("easeOutSine", crouch_arms["right_fore"])),
+            "left_fore": rot(0, [-50, 0, 0], 0.6, e("easeOutSine", crouch_arms["left_fore"])),
+            "right_leg": rot(0, [45, 0, 0], 0.6, e("easeOutSine", ZERO)),
+            "left_leg": rot(0, [45, 0, 0], 0.6, e("easeOutSine", ZERO)),
+            "right_shin": rot(0, [30, 0, 0], 0.6, e("easeOutSine", ZERO)),
+            "left_shin": rot(0, [30, 0, 0], 0.6, e("easeOutSine", ZERO)),
+            "head": rot(0, [-30, 0, 0], 0.6, e("easeOutSine", ZERO)),
+            "jaw": rot(0, [30, 0, 0], 0.6, e("easeOutSine", ZERO)),
+            "body": rot(0, [-15, 0, 0], 0.6, e("easeOutSine", ZERO)),
+        }, whip(ridge, 0.0, -25, 0, settle=0.55), whip(rags, 0.0, -30, 0, settle=0.55)), loop=False),
+        # The right claw is drawn back and up through the 8-tick windup, the body coiling; then it rakes across.
+        "attack.swing": anim(0.7, merge({
+            "right_arm": rot(0, ZERO, 0.33, e("easeInOutSine", [-135, 0, 40]), 0.4, [-140, 0, 45], 0.47,
+                             e("easeOutBack", [-15, 0, -30]), 0.7, e("easeOutSine", ZERO)),
+            "right_fore": rot(0, crouch_arms["right_fore"], 0.33, e("easeInOutSine", [-60, 0, 0]), 0.4, [-65, 0, 0], 0.47,
+                              e("easeOutCubic", [-5, 0, 0]), 0.7, e("easeOutSine", crouch_arms["right_fore"])),
+            "left_arm": rot(0, ZERO, 0.33, e("easeInOutSine", [-40, 0, -25]), 0.47, e("easeOutCubic", [-60, 0, 10]), 0.7,
+                            e("easeOutSine", ZERO)),
+            "body": rot(0, ZERO, 0.33, e("easeInOutSine", [-8, 28, 0]), 0.4, [-10, 32, 0], 0.47,
+                        e("easeOutBack", [12, -28, 0]), 0.7, e("easeOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.33, e("easeInOutSine", [-12, -20, 0]), 0.47, e("easeOutCubic", [8, 14, 0]), 0.7,
+                        e("easeOutSine", ZERO)),
+            "jaw": rot(0, ZERO, 0.4, e("easeInOutSine", [15, 0, 0]), 0.47, e("easeOutCubic", [30, 0, 0]), 0.7,
+                       e("easeOutSine", ZERO)),
+            "root": pos(0, ZERO, 0.33, e("easeInOutSine", [0, -1, 1]), 0.47, e("easeOutCubic", [0, 0, -2]), 0.7,
+                        e("easeOutSine", ZERO)),
+        }, hold(chains, 0.4, ZERO), whip(ridge, 0.45, 25, 0, settle=0.24), whip(rags, 0.45, 35, 0, settle=0.24)),
+            loop=False),
+        "misc.hurt": mk.hurt_flinch(0.4, lean=-10, twist=8, head=-18, chains=chains, extra={
+            "jaw": rot(0, ZERO, 0.08, e("easeOutCubic", [22, 0, 0]), 0.4, e("easeOutSine", ZERO))}),
+        "misc.stagger": mk.stagger(0.8, chains=chains, extra={
+            "jaw": rot(0, ZERO, 0.1, e("easeOutCubic", [30, 0, 0]), 0.8, e("easeOutSine", ZERO)),
+            "right_fore": rot(0, crouch_arms["right_fore"], 0.12, e("easeOutCubic", [-50, 0, 0]), 0.8,
+                              e("easeOutSine", crouch_arms["right_fore"])),
+            "left_fore": rot(0, crouch_arms["left_fore"], 0.12, e("easeOutCubic", [-50, 0, 0]), 0.8,
+                             e("easeOutSine", crouch_arms["left_fore"]))}),
+        # It crumples onto its side like a heap of ash: knees first, then over to the right, the ridge settling.
+        "misc.death": mk.death_fall(1.8, legs=11, forward=True, chains=rags, chain_amp=30, knees=0.3, down=0.8,
+                                    extra=merge(mk.settle(ridge, 0.8, 35, 0, length=0.9), {
+                                        "jaw": rot(0, ZERO, 0.8, e("easeInQuad", [32, 0, 0]), 1.8, [32, 0, 0]),
+                                        "right_fore": rot(0, crouch_arms["right_fore"], 0.8, e("easeInQuad", [-35, 0, 0]), 1.8,
+                                                          [-35, 0, 0]),
+                                        "left_fore": rot(0, crouch_arms["left_fore"], 0.8, e("easeInQuad", [-70, 0, 0]), 1.8,
+                                                         [-70, 0, 0]),
+                                        "right_shin": rot(0, ZERO, 0.3, e("easeOutSine", [45, 0, 0]), 0.8, e("easeInQuad", [25, 0, 0]),
+                                                          1.8, [25, 0, 0]),
+                                        "left_shin": rot(0, ZERO, 0.3, e("easeOutSine", [30, 0, 0]), 0.8, e("easeInQuad", [40, 0, 0]),
+                                                         1.8, [40, 0, 0])})),
     }
-    write_model("ash_stalker", bones, animations, [2, 2])
+    write_model("ash_stalker", bones, animations, [2, 2], tex_w=128)
 
 
 # --- Fields: Ashen Carrion -------------------------------------------------------------------------------------------
