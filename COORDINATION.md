@@ -36,8 +36,9 @@ session start only from the user's own message. Left for later: `art-items` (eve
 | Coordinator: own particles, every weapon's signature, fog walls as volumes, in-hand weapon models, `ArenaWallTests` | `0eb5222`, `983b2a3`, `673d76d`, `b23d58c`, `d8bfb86` |
 | V-C `setpieces`: 20.1 framework, 20.2 fourteen moving set pieces, arenas that move, placement into the templates | merge `efd9d3c` |
 | V-A `art-blocks`: `tools/palette.py`, every block texture redrawn, 25 new blocks, every structure rebuilt (conflicts with V-C's placement lines resolved by keeping both, templates regenerated) | merge `50b90b6` |
+| V-B `bosses`: the six bosses at 71–128 cubes with secondary motion, hurt / stagger / death / phase animations, eased moves, `EmberHaloLayer`; art-kit helpers (`chamfered`, `octagon`, `chain_bones`, `lag_sway`, `whip`, eased keys) | merge `c1c19d5` |
 
-Not yet merged: V-B `bosses` (`claude/bosses-a652a2`), `mobs` (`claude/mobs`, 14 Realm 1 mobs) and `overworld-mobs`
+Not yet merged: `mobs` (`claude/mobs`, 14 Realm 1 mobs) and `overworld-mobs`
 (`claude/overworld-mobs`, the seven overworld and moon-night mobs; both run as the coordinator's background agents in
 their own worktrees). Nothing of the overhaul has been seen in game; the full regression runs once at the end.
 
