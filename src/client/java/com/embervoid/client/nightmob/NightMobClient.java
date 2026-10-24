@@ -23,7 +23,12 @@ public final class NightMobClient {
 	public static void register() {
 		EntityRendererRegistry.register(NightMobs.ASHEN_ZOMBIE, context -> {
 			GeoEntityRenderer<AshenZombieEntity> renderer =
-					new GeoEntityRenderer<>(context, new DefaultedEntityGeoModel<>(Embervoid.id("ashen_zombie"), true));
+					new GeoEntityRenderer<>(context, new DefaultedEntityGeoModel<>(Embervoid.id("ashen_zombie"), true)) {
+						@Override
+						protected float getDeathMaxRotation(AshenZombieEntity zombie) {
+							return 0; // its own death animation (PLAN 19.3)
+						}
+					};
 			renderer.addRenderLayer(new AutoGlowingGeoLayer<>(renderer));
 			return renderer;
 		});

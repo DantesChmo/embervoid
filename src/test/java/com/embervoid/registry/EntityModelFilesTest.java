@@ -4,6 +4,7 @@ import com.embervoid.entity.mob.AshGhoulEntity;
 import com.embervoid.entity.mob.EmberWispEntity;
 import com.embervoid.entity.mob.HollowEntity;
 import com.embervoid.entity.mob.MobAnimations;
+import com.embervoid.nightmob.AshenZombieEntity;
 import com.embervoid.reach.boss.AshColossusEntity;
 import com.embervoid.reach.boss.CryptKeeperEntity;
 import com.embervoid.reach.boss.GrievingTreeEntity;
@@ -51,7 +52,7 @@ class EntityModelFilesTest {
 					MobAnimations.DEATH)),
 			Map.entry("ember_wisp", List.of("misc.idle", "move.fly", MobAnimations.HURT, MobAnimations.DEATH)),
 			Map.entry("ashen_maiden", List.of("misc.idle", "misc.interact")),
-			Map.entry("ashen_zombie", List.of("misc.idle", "move.walk", "attack.swing")),
+			Map.entry("ashen_zombie", List.of("misc.idle", "move.walk", "attack.swing", MobAnimations.HURT, MobAnimations.STAGGER, MobAnimations.DEATH)),
 			Map.entry("ghost", List.of("misc.idle", "move.fly", "attack.swing")),
 			Map.entry("vampire", List.of("misc.idle", "move.walk", "misc.transform")),
 			Map.entry("vampire_boss", List.of("misc.idle", "move.walk", VampireBossEntity.SWING, VampireBossEntity.LEAP, VampireBossEntity.NOVA,
@@ -93,6 +94,7 @@ class EntityModelFilesTest {
 			Map.entry("ash_ghoul/" + MobAnimations.DEATH, AshGhoulEntity.DEATH_TICKS / 20.0),
 			Map.entry("hollow/" + MobAnimations.DEATH, HollowEntity.DEATH_TICKS / 20.0),
 			Map.entry("ember_wisp/" + MobAnimations.DEATH, EmberWispEntity.DEATH_TICKS / 20.0),
+			Map.entry("ashen_zombie/" + MobAnimations.DEATH, AshenZombieEntity.DEATH_TICKS / 20.0),
 			Map.entry("hollow/" + MobAnimations.STAGGER, 60 / 20.0),         // HollowEntity.STAGGER_TICKS: held while the stagger lasts
 			Map.entry("hollow/attack.swing", 8 / 20.0),                       // HollowEntity.WINDUP_TICKS
 			Map.entry("vampire/misc.transform", VampireEntity.TURN_TICKS / 20.0),

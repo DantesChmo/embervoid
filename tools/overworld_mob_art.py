@@ -1042,120 +1042,247 @@ def ashen_maiden():
 
 # --- Ashen Zombie ---------------------------------------------------------------------------------------------------
 # What the Curse of the Night raises for each death (DESIGN §3.3): a broad dead man gone grey with ash, the skin
-# split along smouldering seams, white-hot embers for eyes, a slack jaw, rags of a blue work shirt and trousers,
-# arms reaching forward like a vanilla zombie.
+# split along smouldering seams, white-hot embers for eyes, a slack jaw on its own bone, the rags of a blue work shirt
+# torn open over the wound and hanging in two tails, trousers in tatters, flakes of ash crust lifting off the
+# shoulders and scalp, arms reaching forward with the fingers hanging. 50 cubes on 18 bones: chamfered torso and
+# skull, forearms and hands with four fingers, shins and boots. misc.hurt flinches, misc.stagger (a quarter of its
+# health in one hit) reels it back a second, misc.death topples it forward stiff onto its arms (AshenZombieEntity
+# keeps the body 40 ticks, ash flaking off it).
 
 def ashen_zombie():
-    skin = Material(ZOMBIE, base=2.4, noise=0.8, speck=0.06, grad=1.0, top=1.0, edge=0.3)
-    shirt = Material(CLOTH_BLUE, base=2.4, noise=0.6, grain="v")
-    trousers = Material(LINEN, base=1.2, noise=0.6, grain="v")
+    skin = Material(ZOMBIE_SKIN, base=3.0, noise=0.55, cell=2.5, speck=0.04, grad=1.0, top=0.9, bottom=-1.0, edge=0.5, bevel=0.35)
+    shirt = Material(CLOTH_BLUE, base=3.0, noise=0.45, grain="v", grad=0.8, edge=0.3)
+    trousers = Material(LINEN, base=2.4, noise=0.5, grain="v", grad=0.8)
+    crust = Material(ZOMBIE_SKIN, base=1.8, noise=0.6, speck=0.1)
+    ivory = Material(IVORY, base=3.4, noise=0.4, bevel=0.3)
 
-    def ashy(face, rng, n=1, chance=0.8):
+    def ashy(face, rng, seams_n=1, chance=0.8):
         if face.side():
-            scatter(face, rng, max(1, face.w * face.h // 20), ZOMBIE[1])
-            scatter(face, rng, max(1, face.w * face.h // 40), ZOMBIE[5])
-            for _ in range(n):
-                if rng.random() < chance:
-                    ember_cracks(face, rng, 1, EMBER, EMBER_DEEP, 0.85, (2, 4))
+            skin_cracks(face, rng, ZOMBIE_SKIN[0], max(1, face.w * face.h // 22))
+            scatter(face, rng, max(1, face.w * face.h // 40), ZOMBIE_SKIN[6])
+            for _ in range(seams_n):
+                if rng.random() < chance and face.w * face.h >= 12:
+                    ember_seams(face, rng, 1, length=(2, 4), dark=ZOMBIE_SKIN[0])
 
-    def head_front(face, rng):
-        face.hline(0, 2, face.w, ZOMBIE[1])
+    def limb(face, rng):
+        ashy(face, rng, 1, 0.35)
+
+    def face_plate(face, rng):
+        # A heavy brow, sockets with white-hot embers, a broken nose, the upper teeth over the slack mouth.
+        face.hline(0, 0, face.w, ZOMBIE_SKIN[4])
+        face.hline(0, 1, face.w, ZOMBIE_SKIN[1])
         for ex in (1, face.w - 3):
-            face.rect(ex, 3, 2, 2, VOID)
+            face.rect(ex, 2, 2, 2, VOID)
         face.lit(2, 3, EMBER_HOT, 1.0)
         face.lit(face.w - 3, 3, EMBER_HOT, 1.0)
-        face.lit(1, 4, EMBER_DEEP, 0.6)
-        face.lit(face.w - 2, 4, EMBER_DEEP, 0.6)
-        face.set(face.cx - 1, 5, ZOMBIE[0])
-        face.set(face.cx, 5, ZOMBIE[1])
-        face.hline(2, 6, face.w - 4, VOID)          # slack mouth
-        face.lit(face.cx - 1, 6, EMBER_DEEP, 0.6)
-        face.hline(2, 7, face.w - 4, ZOMBIE[1])
-        face.set(2, 6, BONE[3])
-        face.set(face.w - 3, 6, BONE[2])
-        crack(face, rng, ZOMBIE[0], None, 3, face.w - 2, 0)
+        face.lit(1, 3, EMBER_DEEP, 0.5)
+        face.lit(face.w - 2, 3, EMBER_DEEP, 0.5)
+        face.set(face.cx - 1, 4, ZOMBIE_SKIN[1])
+        face.set(face.cx, 4, ZOMBIE_SKIN[0])
+        face.set(face.cx, 5, ZOMBIE_SKIN[1])
+        face.set(0, 5, ZOMBIE_SKIN[1])
+        face.set(face.w - 1, 5, ZOMBIE_SKIN[1])
+        face.hline(1, 6, face.w - 2, VOID)
+        for x in range(2, face.w - 2, 2):
+            face.set(x, 6, IVORY[3])
+        face.hline(1, 7, face.w - 2, ZOMBIE_SKIN[1])
+        skin_cracks(face, rng, ZOMBIE_SKIN[0], 2, (1, 3))
 
-    def head_top(face, rng):
-        scatter(face, rng, 6, ZOMBIE[0])
-        scatter(face, rng, 4, ZOMBIE[5])
+    def jaw_front(face, rng):
+        face.hline(0, 0, face.w, VOID)
+        for x in range(1, face.w, 2):
+            face.set(x, 0, IVORY[4])
 
-    def torso_front(face, rng):
-        # The wound under the torn shirt.
-        for y in range(5, 10):
-            face.lit(face.cx - 1 + (y % 2), y, EMBER if y % 3 else EMBER_HOT, 0.9)
-        face.set(face.cx - 2, 7, EMBER_DARK)
-        face.set(face.cx + 1, 6, EMBER_DARK)
+    def wound(face, rng):
+        # The split chest under the torn shirt: a glowing seam with scorched edges.
+        for y in range(1, face.h - 1):
+            x = face.cx - 1 + (y % 2)
+            face.lit(x, y, EMBER if y % 3 else EMBER_HOT, 0.9)
+            face.set(x - 1, y, ZOMBIE_SKIN[0])
+            face.set(x + 1, y, ZOMBIE_SKIN[0])
+        ashy(face, rng, 0)
 
-    def shirt_deco(face, rng):
-        if face.side():
-            tatter(face, rng, 3, 0.55)
+    def shirt_front(face, rng):
+        cloth(3, -16)(face, rng)
+        # Torn open down the middle; buttons on one side, a pocket on the other.
+        for y in range(face.h):
+            for x in range(face.cx - 1 - (y > 3), face.cx + 1 + (y > 5)):
+                face.clear(x, y)
+        face.vline(face.cx - 2 - 0, 0, face.h, CLOTH_BLUE[0])
+        for y in range(1, face.h, 3):
+            face.set(face.cx + 2, y, IVORY[5])
+        face.rect(1, 2, 2, 2, CLOTH_BLUE[2])
+        ragged_edge(face, rng, "bottom", 2, 0.5)
+        holes(face, rng, 1)
+
+    def shirt_back(face, rng):
+        cloth(3, -16)(face, rng)
+        ragged_edge(face, rng, "bottom", 2, 0.5)
+        holes(face, rng, 2)
+        scatter(face, rng, 3, ZOMBIE_SKIN[5])          # ash on the shoulders
+
+    def rag(face, rng):
+        if face.name in ("front", "back"):
+            cloth(2, -16)(face, rng)
+            ragged_edge(face, rng, "bottom", 2, 0.6)
             holes(face, rng, 1)
-            scatter(face, rng, 2, CLOTH_BLUE[0])
-            if face.name == "front":
-                # Torn open down the front.
-                for y in range(3, face.h):
-                    for x in range(face.cx - 1, face.cx + 1 + (y > 5)):
-                        face.clear(x, y)
-                face.vline(face.cx - 2, 3, face.h - 3, CLOTH_BLUE[0])
-        if face.name in ("top", "bottom"):
+        else:
             clear_all(face)
 
-    def trouser_deco(face, rng):
+    def sleeve(face, rng):
         if face.side():
-            tatter(face, rng, 2, 0.5)
-        if face.name == "bottom":
+            cloth(2, -14)(face, rng)
+            ragged_edge(face, rng, "bottom", 2, 0.6)
+        else:
             clear_all(face)
+
+    def trouser(face, rng):
+        if face.side():
+            cloth(3, -14)(face, rng)
+            ragged_edge(face, rng, "bottom", 2, 0.5)
+            holes(face, rng, 1)
+        else:
+            clear_all(face)
+
+    def flake(face, rng):
+        scatter(face, rng, max(1, face.w * face.h // 5), ZOMBIE_SKIN[0])
+        scatter(face, rng, max(1, face.w * face.h // 8), ZOMBIE_SKIN[6])
+
+    def belt(face, rng):
+        if face.side():
+            face.hline(0, 0, face.w, STRAP[1])
+            face.hline(0, face.h - 1, face.w, STRAP[0])
 
     bones = [
         Bone("root", [0, 0, 0]),
-        Bone("body", [0, 24, 0], "root", [6, 0, 0], [
-            Box([-4.5, 12, -2.5], [9, 12, 5], skin, {"front": torso_front, "back": ashy, "left": ashy,
-                                                     "right": ashy}),
-            Box([-4.5, 13, -2.5], [9, 11, 5], shirt, {"all": shirt_deco}, inflate=0.3),
-            Box([-4.5, 12, -2.5], [9, 1, 5], Material(LEATHER, base=1.4, noise=0.5),
-                {"front": lambda f, r: f.set(f.cx, 0, IRON[3])}, inflate=0.45),
-            Box([-3.5, 24.2, -2], [3, 1, 3], skin.but(base=4.0), {"all": lambda f, r: scatter(f, r, 2, ZOMBIE[2])}),
-            Box([1, 24.2, -1.5], [2, 1, 2], skin.but(base=4.0)),
-        ]),
-        Bone("head", [0, 24, -1], "root", None, [
-            Box([-4, 24, -5], [8, 8, 8], skin.but(base=2.6), {"front": head_front, "top": head_top,
-                                                             "back": ashy, "left": ashy, "right": ashy}),
-            Box([-3, 22.5, -5.3], [6, 2, 4], skin.but(base=2.0),
-                {"front": lambda f, r: (f.hline(0, 0, f.w, VOID), f.set(1, 0, BONE[3]), f.set(4, 0, BONE[2]))}),
+        Bone("body", [0, 24, 0], "root", [6, 0, 0],
+             chamfered([-4.5, 12, -2.5], [9, 12, 5], skin, {"all": ashy}, c=0.6)
+             + [Box([-2.5, 14, -2.9], [5, 8, 0.6], skin.but(base=2.6), {"front": wound}),
+                Box([-4.7, 13.5, -3.1], [9.4, 10, 0.7], shirt, {"front": shirt_front}),
+                Box([-4.7, 13.5, 2.4], [9.4, 10, 0.7], shirt.but(base=2.6), {"back": shirt_back}),
+                Box([-4.9, 20.5, -2.9], [2.6, 3.2, 5.8], shirt.but(base=3.2), {"all": cloth(2, -14)}),           # the shoulders of the shirt
+                Box([2.3, 20.5, -2.9], [2.6, 3.2, 5.8], shirt.but(base=3.2), {"all": cloth(2, -14)}),
+                Box([-4.7, 12, -2.7], [9.4, 1.6, 5.4], Material(STRAP, base=2.4, noise=0.4), {"all": belt}),
+                Box([-0.8, 12.1, -2.9], [1.6, 1.4, 0.4], Material(HOLLOW_IRON, base=4.0, noise=0.4, bevel=0.5)),
+                Box([-3.6, 24.0, -2.2], [3.2, 0.8, 3.4], crust, {"top": flake}, rotation=[0, 20, 8]),
+                Box([0.8, 24.0, -1.0], [2.6, 0.8, 2.8], crust, {"top": flake}, rotation=[0, -15, -10]),
+                Box([-1.2, 19.5, 2.6], [3.6, 0.7, 2.6], crust, {"all": flake}, rotation=[-30, 10, 0], pivot=[0, 19.5, 2.6])]),
+        Bone("head", [0, 24, -1], "body", [-6, 0, 0],
+             chamfered([-4, 24, -5], [8, 8, 8], skin.but(base=3.2), {"all": ashy}, c=0.8)
+             + [Box([-4, 24, -5.4], [8, 8, 0.6], skin.but(base=3.0), {"front": face_plate}),
+                Box([-4.3, 31.6, -4.6], [4.6, 0.8, 4], crust, {"top": flake}, rotation=[0, 12, 0]),
+                Box([0.2, 31.6, -2.4], [3.8, 0.8, 4.6], crust, {"top": flake}, rotation=[0, -22, 0]),
+                Box([-4.3, 26, -2], [0.8, 2.2, 1.6], skin.but(base=2.4)),                                         # an ear left
+                ]),
+        Bone("jaw", [0, 25.2, -1.2], "head", None, [
+            Box([-3, 23.2, -5.2], [6, 2, 4.6], skin.but(base=2.5), {"front": jaw_front, "top": lambda f, r: f.rect(0, 0, f.w, f.h, VOID)}),
         ]),
     ]
-    arm = Box([-8.5, 10, -2], [4, 13, 4], skin, {"sides": lambda f, r: ashy(f, r, 1, 0.35)})
-    rag = Box([-8.5, 18, -2], [4, 5, 4], shirt, {"all": shirt_deco}, inflate=0.3)
+    bones += hanging("tail_front", "body", [-2.8, 13.5, -3.1], 2, 2.6, 3.6, shirt.but(base=2.8), {"all": rag}, z_step=-0.2, taper=0.4)
+    bones += hanging("tail_back", "body", [1.5, 13.5, 2.9], 2, 2.6, 4.4, shirt.but(base=2.4), {"all": rag}, z_step=0.2, taper=0.4)
+    upper = Box([-8.5, 16, -2], [4, 7, 4], skin, {"sides": limb})
+    sleeve_box = Box([-8.8, 18.5, -2.3], [4.6, 4.8, 4.6], shirt.but(base=2.8), {"all": sleeve})
+    fore = Box([-8.3, 9.8, -1.8], [3.6, 6.5, 3.6], skin.but(base=2.7), {"sides": limb})
+    palm = Box([-8.5, 7.4, -2], [4, 2.6, 4], skin.but(base=2.5))
+    digits = fingers(-8.4, 7.4, -2.0, 4, (0.8, 2.4, 0.8), skin.but(base=2.2), spread=0.2, curl=12)
     bones += [
-        Bone("right_arm", [-5.5, 22, 0], "root", [-80, 0, 0], [arm, rag]),
-        Bone("left_arm", [5.5, 22, 0], "root", [-80, 0, 0], [mirror_box(arm), mirror_box(rag)]),
+        Bone("right_arm", [-5.5, 22, 0], "body", [-75, 0, 4], [upper, sleeve_box]),
+        Bone("right_forearm", [-6.5, 16, 0], "right_arm", [-6, 0, 0], [fore]),
+        Bone("right_hand", [-6.5, 10, 0], "right_forearm", [52, 0, 0], [palm] + digits),
+        Bone("left_arm", [5.5, 22, 0], "body", [-75, 0, -4], [mirror_box(upper), mirror_box(sleeve_box)]),
+        Bone("left_forearm", [6.5, 16, 0], "left_arm", [-6, 0, 0], [mirror_box(fore)]),
+        Bone("left_hand", [6.5, 10, 0], "left_forearm", [52, 0, 0], [mirror_box(palm)] + [mirror_box(d) for d in digits]),
     ]
-    leg = Box([-4.2, 0, -2], [4, 12, 4], skin.but(base=2.0), {"sides": lambda f, r: ashy(f, r, 0)})
-    trouser = Box([-4.2, 4, -2], [4, 8, 4], trousers, {"all": trouser_deco}, inflate=0.25)
-    bones += [Bone("right_leg", [-2, 12, 0], "root", None, [leg, trouser]),
-              Bone("left_leg", [2, 12, 0], "root", None, [mirror_box(leg), mirror_box(trouser)])]
+    thigh = Box([-4.2, 6, -2], [4, 6.5, 4], skin.but(base=2.8), {"sides": limb})
+    trouser_box = Box([-4.5, 6.5, -2.3], [4.6, 6, 4.6], trousers, {"all": trouser})
+    shin = Box([-4, 1.2, -1.9], [3.8, 5.2, 3.8], skin.but(base=2.5), {"sides": limb})
+    boot = Box([-4.2, 0, -3.2], [4.2, 1.6, 5.2], Material(STRAP, base=1.8, noise=0.4), {"all": lambda f, r: trim(f, STRAP[0], ("bottom",)) if f.side() else None})
+    bones += [
+        Bone("right_leg", [-2, 12, 0], "root", None, [thigh, trouser_box]),
+        Bone("right_shin", [-2, 6, 0], "right_leg", None, [shin, boot]),
+        Bone("left_leg", [2, 12, 0], "root", None, [mirror_box(thigh), mirror_box(trouser_box)]),
+        Bone("left_shin", [2, 6, 0], "left_leg", None, [mirror_box(shin), mirror_box(boot)]),
+    ]
+    rags = [chain_names("tail_front", 2), chain_names("tail_back", 2)]
+
+    def rags_drift(length, amp, phase=0.0):
+        return merge(drift(rags[0], length, amp, phase=phase), drift(rags[1], length, -amp * 0.9, phase=phase + 0.3))
+
+    def rags_whip(t0, amp, settle_t=0.4):
+        return merge(whip(rags[0], t0, amp, settle=settle_t), whip(rags[1], t0 + 0.03, -amp * 0.9, settle=settle_t))
+
+    arms_rest = [[-75, 0, 4], [-75, 0, -4]]
+    fallen = {"body": [6, 0, 0], "head": [-20, 25, 10], "jaw": [18, 0, 0], "right_arm": [-70, 0, 30], "left_arm": [-80, 0, -38],
+              "right_forearm": [10, 0, 0], "left_forearm": [-5, 0, 0], "right_hand": [-15, 0, 0], "left_hand": [-20, 0, 0],
+              "right_leg": [6, 0, 6], "left_leg": [-4, 0, -4], "right_shin": [10, 0, 0], "left_shin": [22, 0, 0]}
     animations = {
-        "misc.idle": anim(3.0, {
-            "head": rot(0, ZERO, 1.5, [4, 6, 0], 3, ZERO),
-            "right_arm": rot(0, ZERO, 1.5, [-4, 0, 2], 3, ZERO),
-            "left_arm": rot(0, ZERO, 1.5, [4, 0, -2], 3, ZERO),
-            "body": rot(0, ZERO, 1.5, [2, 0, 0], 3, ZERO),
-        }),
-        "move.walk": anim(1.0, {
-            "right_leg": rot(0, [28, 0, 0], 0.5, [-28, 0, 0], 1, [28, 0, 0]),
-            "left_leg": rot(0, [-28, 0, 0], 0.5, [28, 0, 0], 1, [-28, 0, 0]),
-            "right_arm": rot(0, [-6, 0, 0], 0.5, [6, 0, 0], 1, [-6, 0, 0]),
-            "left_arm": rot(0, [6, 0, 0], 0.5, [-6, 0, 0], 1, [6, 0, 0]),
-            "body": rot(0, [0, 4, 2], 0.5, [0, -4, -2], 1, [0, 4, 2]),
-            "head": rot(0, [0, -4, -3], 0.5, [0, 4, 3], 1, [0, -4, -3]),
-            "root": pos(0, ZERO, 0.25, [0, 0.4, 0], 0.5, ZERO, 0.75, [0, 0.4, 0], 1, ZERO),
-        }),
-        "attack.swing": anim(0.5, {
-            "right_arm": rot(0, ZERO, 0.2, [-40, 0, 0], 0.3, [30, 0, 0], 0.5, ZERO),
-            "left_arm": rot(0, ZERO, 0.2, [-40, 0, 0], 0.3, [30, 0, 0], 0.5, ZERO),
-            "body": rot(0, ZERO, 0.2, [-4, 0, 0], 0.3, [10, 0, 0], 0.5, ZERO),
-            "head": rot(0, ZERO, 0.2, [-8, 0, 0], 0.3, [8, 0, 0], 0.5, ZERO),
-        }, loop=False),
+        # Swaying on its feet, the reaching arms drifting, the jaw working, the head rolling slowly.
+        "misc.idle": anim(3.0, merge(breathe(3.0, chest=2.0, head=0, shoulders=1.0), rags_drift(3.0, 3), {
+            "head": rot(0, ZERO, 1.0, e("easeInOutSine", [5, 8, 4]), 2.0, e("easeInOutSine", [-3, -6, -3]), 3.0, e("easeInOutSine", ZERO)),
+            "jaw": rot(0, ZERO, 0.8, [10, 0, 0], 1.4, [3, 0, 0], 2.2, [12, 0, 0], 3.0, ZERO),
+            "right_arm": rot(0, arms_rest[0], 1.5, e("easeInOutSine", [-84, 0, 7]), 3.0, e("easeInOutSine", arms_rest[0])),
+            "left_arm": rot(0, arms_rest[1], 1.5, e("easeInOutSine", [-76, 0, -7]), 3.0, e("easeInOutSine", arms_rest[1])),
+            "right_hand": rot(0, ZERO, 1.5, e("easeInOutSine", [-8, 0, 0]), 3.0, e("easeInOutSine", ZERO)),
+            "left_hand": rot(0, [-6, 0, 0], 1.5, e("easeInOutSine", ZERO), 3.0, e("easeInOutSine", [-6, 0, 0])),
+        })),
+        # A shamble (speed 0.25): a limp on the right, the arms held out and swaying, the body rolling.
+        "move.walk": anim(1.0, merge(walk(1.0, stride=28, swing=8, bob=0.6, lean=4, twist=5, roll=5, arm_rest=arms_rest), rags_drift(1.0, 8, 0.1), {
+            "right_leg": rot(0, [22, 0, 0], 0.5, e("easeInOutSine", [-34, 0, 0]), 1.0, e("easeInOutSine", [22, 0, 0])),
+            "right_shin": rot(0, [8, 0, 0], 0.25, [36, 0, 0], 0.5, e("easeInOutSine", [4, 0, 0]), 1.0, e("easeInOutSine", [8, 0, 0])),
+            "left_shin": rot(0, [4, 0, 0], 0.5, e("easeInOutSine", [8, 0, 0]), 0.75, [26, 0, 0], 1.0, e("easeInOutSine", [4, 0, 0])),
+            "jaw": rot(0, [6, 0, 0], 0.5, [12, 0, 0], 1.0, [6, 0, 0]),
+            "right_hand": rot(0, ZERO, 0.5, [-10, 0, 0], 1.0, ZERO),
+            "left_hand": rot(0, [-10, 0, 0], 0.5, ZERO, 1.0, [-10, 0, 0]),
+        })),
+        # Both arms drawn up and back, then brought down together with the whole body behind them.
+        "attack.swing": anim(0.5, merge(rags_whip(0.26, 28, 0.24), {
+            "right_arm": rot(0, arms_rest[0], 0.16, e("easeInOutSine", [-125, 0, 14]), 0.28, e("easeOutBack", [-40, 0, 4]), 0.5, e("easeInOutSine", arms_rest[0])),
+            "left_arm": rot(0, arms_rest[1], 0.16, e("easeInOutSine", [-125, 0, -14]), 0.28, e("easeOutBack", [-40, 0, -4]), 0.5, e("easeInOutSine", arms_rest[1])),
+            "right_forearm": rot(0, ZERO, 0.16, [-30, 0, 0], 0.28, e("easeOutCubic", [6, 0, 0]), 0.5, ZERO),
+            "left_forearm": rot(0, ZERO, 0.16, [-30, 0, 0], 0.28, e("easeOutCubic", [6, 0, 0]), 0.5, ZERO),
+            "right_hand": rot(0, ZERO, 0.16, [-30, 0, 0], 0.28, [20, 0, 0], 0.5, ZERO),
+            "left_hand": rot(0, ZERO, 0.16, [-30, 0, 0], 0.28, [20, 0, 0], 0.5, ZERO),
+            "body": rot(0, ZERO, 0.16, e("easeInOutSine", [-8, 0, 0]), 0.28, e("easeOutBack", [16, 0, 0]), 0.5, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.16, [-14, 0, 0], 0.28, [10, 0, 0], 0.5, ZERO),
+            "jaw": rot(0, ZERO, 0.12, [22, 0, 0], 0.35, [6, 0, 0], 0.5, ZERO),
+            "root": pos(0, ZERO, 0.16, [0, 0.4, 0.8], 0.28, e("easeOutCubic", [0, -0.6, -1.2]), 0.5, ZERO),
+        }), loop=False),
+        "misc.hurt": anim(0.45, merge(flinch(0.45, amount=1.0, arms=()), rags_whip(0.04, 16, 0.3), {
+            "right_arm": rot(0, ZERO, 0.08, e("easeOutCubic", [-22, 0, 12]), 0.45, e("easeInOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 0.08, e("easeOutCubic", [-22, 0, -12]), 0.45, e("easeInOutSine", ZERO)),
+            "jaw": rot(0, ZERO, 0.06, [20, 0, 0], 0.45, ZERO),
+        }), loop=False),
+        # A heavy hit: it reels back a step with the arms flung up, a knee buckling, and comes back forward.
+        "misc.stagger": anim(1.0, merge(rags_whip(0.05, 30, 0.6), {
+            "root": pos(0, ZERO, 0.15, e("easeOutCubic", [0, 0, 2.5]), 0.5, e("easeInOutSine", [0, -1.5, 2]), 1.0, e("easeInOutSine", ZERO)),
+            "body": rot(0, ZERO, 0.15, e("easeOutCubic", [-28, 10, 8]), 0.5, e("easeInOutSine", [-10, -8, -4]), 1.0, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.12, e("easeOutCubic", [-30, 12, 0]), 0.5, e("easeInOutSine", [14, -10, 6]), 1.0, e("easeInOutSine", ZERO)),
+            "jaw": rot(0, ZERO, 0.1, [24, 0, 0], 0.6, [10, 0, 0], 1.0, ZERO),
+            "right_arm": rot(0, ZERO, 0.15, e("easeOutCubic", [-50, 0, 40]), 0.5, e("easeInOutSine", [-10, 0, 20]), 1.0, e("easeInOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 0.15, e("easeOutCubic", [-45, 0, -45]), 0.5, e("easeInOutSine", [-8, 0, -22]), 1.0, e("easeInOutSine", ZERO)),
+            "right_leg": rot(0, ZERO, 0.15, e("easeOutCubic", [-20, 0, 0]), 0.5, e("easeInOutSine", [-6, 0, 0]), 1.0, e("easeInOutSine", ZERO)),
+            "left_leg": rot(0, ZERO, 0.15, e("easeOutCubic", [14, 0, 0]), 0.5, e("easeInOutSine", [4, 0, 0]), 1.0, e("easeInOutSine", ZERO)),
+            "right_shin": rot(0, ZERO, 0.5, e("easeInOutSine", [28, 0, 0]), 1.0, e("easeInOutSine", ZERO)),
+        }), loop=False),
+        # It topples forward stiff like a felled post, lands on its outstretched arms, the head bouncing once, and
+        # lies there with the jaw hanging; the rags settle.
+        "misc.death": anim(2.0, merge(rags_whip(0.95, 25, 0.6), {
+            "root": {"position": keys(0, ZERO, 0.3, e("easeOutCubic", [0, 0, 1.2]), 0.95, e("easeInQuad", [0, -1.5, 0]), 1.1, e("easeOutBounce", [0, -1, 0]), 2.0, [0, -1, 0]),
+                     "rotation": keys(0, ZERO, 0.3, ZERO, 0.95, e("easeInQuad", [86, 0, 4]), 1.1, e("easeOutCubic", [88, 0, 4]), 2.0, [88, 0, 4])},
+            "body": rot(0, ZERO, 0.3, e("easeOutCubic", [-14, 0, 0]), 0.95, [2, 0, 0], 1.15, e("easeOutCubic", fallen["body"]), 2.0, fallen["body"]),
+            "head": rot(0, ZERO, 0.3, e("easeOutCubic", [-18, 0, 0]), 0.95, [-8, 0, 0], 1.05, e("easeOutCubic", [-30, 20, 8]), 1.3, e("easeOutBounce", fallen["head"]), 2.0, fallen["head"]),
+            "jaw": rot(0, ZERO, 0.3, [20, 0, 0], 0.95, [8, 0, 0], 1.2, fallen["jaw"], 2.0, fallen["jaw"]),
+            "right_arm": rot(0, arms_rest[0], 0.3, e("easeOutCubic", [-95, 0, 10]), 0.95, [-88, 0, 6], 1.15, e("easeOutCubic", fallen["right_arm"]), 2.0, fallen["right_arm"]),
+            "left_arm": rot(0, arms_rest[1], 0.3, e("easeOutCubic", [-95, 0, -10]), 0.95, [-88, 0, -6], 1.15, e("easeOutCubic", fallen["left_arm"]), 2.0, fallen["left_arm"]),
+            "right_forearm": rot(0, ZERO, 0.95, ZERO, 1.15, fallen["right_forearm"], 2.0, fallen["right_forearm"]),
+            "left_forearm": rot(0, ZERO, 0.95, ZERO, 1.15, fallen["left_forearm"], 2.0, fallen["left_forearm"]),
+            "right_hand": rot(0, ZERO, 0.95, ZERO, 1.15, fallen["right_hand"], 2.0, fallen["right_hand"]),
+            "left_hand": rot(0, ZERO, 0.95, ZERO, 1.15, fallen["left_hand"], 2.0, fallen["left_hand"]),
+            "right_leg": rot(0, ZERO, 0.3, [-6, 0, 0], 0.95, ZERO, 1.2, fallen["right_leg"], 2.0, fallen["right_leg"]),
+            "left_leg": rot(0, ZERO, 0.3, [4, 0, 0], 0.95, ZERO, 1.2, fallen["left_leg"], 2.0, fallen["left_leg"]),
+            "right_shin": rot(0, ZERO, 0.95, ZERO, 1.2, fallen["right_shin"], 2.0, fallen["right_shin"]),
+            "left_shin": rot(0, ZERO, 0.95, ZERO, 1.2, fallen["left_shin"], 2.0, fallen["left_shin"]),
+        }), loop=False),
     }
     write_model("ashen_zombie", bones, animations, [2, 2.5])
 
