@@ -424,6 +424,7 @@ public class CryptKeeperEntity extends ReachBoss {
 
 	/** P3: Restless Bones rise from the flooded floor, one more per fighter beyond the first. */
 	private void raiseDead(BossFight fight) {
+		fight.fireArenaEvent("raise_dead"); // the ossuary's bell tolls (PLAN 20.2 arena events)
 		int count = RISEN_BONES + Math.max(0, fight.fighters().size() - 1);
 		for (int i = 0; i < count; i++) {
 			double angle = Math.PI * 2 * i / count + random.nextDouble() * 0.5;
