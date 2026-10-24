@@ -9,7 +9,7 @@ overhaul", bar: docs/art-direction.md. Nobody answers questions tonight: decisio
 2. [x] `tools/block_art.py`: every block texture redrawn (replaces `reach_world_placeholders.py`, `road_art.py`, the
    block part of `stele_art.py`); `tools/prop_art.py` restyled.
 3. [x] About 25 new building blocks with datagen and lang.
-4. [ ] Every structure builder rebuilt from the wider palette; helpers in `Ruin` / `TemplateBuilder`.
+4. [x] Every structure builder rebuilt from the wider palette; helpers in `Ruin` / `TemplateBuilder`.
 5. [ ] Render and judge (`model_preview.py blocks`, `structures`), iterate.
 6. [ ] MERGE REQUEST to the coordinator.
 
@@ -52,6 +52,16 @@ overhaul", bar: docs/art-direction.md. Nobody answers questions tonight: decisio
 - Step 3 committed: 25 new blocks (38 registrations with stairs, slabs and walls), datagen for models, loot, tags and
   recipes, en + ru names, render layers; `runDatagen` and `model_preview.py self-check` pass. Pillar sides use the
   `_side` texture name `cube_column` expects.
+- Step 4 committed: helpers in `TemplateBuilder` (`cornice`, `innerCornice`, `stringCourse`, `pitchedRoof`, `gable`,
+  `arch`, `buttress`, `grille`, `blendedFloor`, `weathered` / `weatheredWalls`, `soot`, `trySet`) and `Ruin`
+  (zone `Palette`s FIELDS / WOODS / NECROPOLIS, `facade`, `cornerPiers`, `floor`, `roof`, `rubbleAlong`),
+  `CityBuilder` (`facade`, `pillar`, `sootOver`); every builder rebuilt: Sanctum halls get a base course, weathered
+  walls, tiled floors, ribbed cornices, pillars with capitals, arched doorways, rune stones and soot over lanterns;
+  the three surface ruins get buttresses, pillar quoins, slate remnants; the hub's core walls and path; the Fields
+  timber frames with thatch and brass, the Woods lodge with slate, amber and grilles, the Necropolis tombs with bone
+  trim, crypt tiles and blue candles; the Citadel on blackstone façades with gilded string courses, ember-glass
+  windows, charred timber and slate, iron plates and tar underfoot. `runDatagen`, `model_preview.py self-check`,
+  `SanctumStructureSetTest`, `HubLayoutTest`, `PropShapesTest` green; 115 placed enemies as before.
 
 ## What was seen, what could not be seen
 
