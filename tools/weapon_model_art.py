@@ -186,8 +186,8 @@ def ashen_scythe():
     import math
     top = 33.5
     p = (GRIP[0] + 1.0, top)
-    segments = ((45, 9, 2.4, 1.3, BLACK_STEEL, "blade1"), (22.5, 8, 2.0, 0.9, BLACK_STEEL, "blade2"),
-                (0, 7, 1.5, 0.5, BLACK_STEEL, "blade3"), (0, 4, 1.0, 0.2, STEEL, "tip"))
+    segments = ((45, 9, 2.6, 1.4, STEEL, "blade1"), (22.5, 8, 2.2, 1.0, STEEL, "blade2"),
+                (0, 7, 1.7, 0.6, STEEL, "blade3"), (0, 4, 1.1, 0.2, STEEL, "tip"))
     for turn, length, below, above, mat, name in segments:
         boxes.append(Box((p[0], p[1] - below, 7.65), (p[0] + length, p[1] + above, 8.35), mat, turn=turn, pivot=(p[0], p[1], 8),
                          kind="steel", name=name))
