@@ -26,6 +26,22 @@ ITEM_TEX = os.path.join(ROOT, "textures", "item")
 ITEM_MODELS = os.path.join(ROOT, "models", "item")
 SHEET = 64
 GRIP = (3.0, 3.0, 8.0)
+# Vanilla refuses an element whose from/to leaves -16..32. A weapon longer than that is built at SHRINK about the
+# block's centre and its display scales are divided by SHRINK, which draws it exactly as large as authored.
+BOUNDS = (-16, 32)
+SHRINK = 0.65
+CENTRE = 8.0
+# minecraft:item/handheld's display (with what it inherits from item/generated).
+HANDHELD_DISPLAY = {
+    "thirdperson_righthand": {"rotation": [0, -90, 55], "translation": [0, 4.0, 0.5], "scale": 0.85},
+    "thirdperson_lefthand": {"rotation": [0, 90, -55], "translation": [0, 4.0, 0.5], "scale": 0.85},
+    "firstperson_righthand": {"rotation": [0, -90, 25], "translation": [1.13, 3.2, 1.13], "scale": 0.68},
+    "firstperson_lefthand": {"rotation": [0, 90, -25], "translation": [1.13, 3.2, 1.13], "scale": 0.68},
+    "ground": {"rotation": [0, 0, 0], "translation": [0, 2, 0], "scale": 0.5},
+    "head": {"rotation": [0, 180, 0], "translation": [0, 13, 7], "scale": 1},
+    "fixed": {"rotation": [0, 180, 0], "translation": [0, 0, 0], "scale": 1},
+    "gui": {"rotation": [0, 0, 0], "translation": [0, 0, 0], "scale": 1},
+}
 
 # Materials: a ramp (dark to light) and how the face is painted.
 DARK_WOOD = ramp("1f1612", "33241b", "4a3528", "63483a", "7c5e4c")
@@ -157,6 +173,15 @@ def build(name, boxes, root=None):
         "textures": {"0": "embervoid:item/%s_in_hand" % name, "particle": "embervoid:item/%s" % name},
         "elements": elements,
     }
+    if any(not BOUNDS[0] <= c <= BOUNDS[1] for e in elements for c in e["from"] + e["to"]):
+        shrink = lambda p: [round(CENTRE + (c - CENTRE) * SHRINK, 4) for c in p]
+        for e in elements:
+            e["from"], e["to"] = shrink(e["from"]), shrink(e["to"])
+            e["rotation"]["origin"] = shrink(e["rotation"]["origin"])
+        if any(not BOUNDS[0] <= c <= BOUNDS[1] for e in elements for c in e["from"] + e["to"]):
+            raise ValueError("%s does not fit the model bounds even at %s" % (name, SHRINK))
+        model["display"] = {k: {"rotation": v["rotation"], "translation": v["translation"],
+                                "scale": [round(v["scale"] / SHRINK, 4)] * 3} for k, v in HANDHELD_DISPLAY.items()}
     write_json(os.path.join(ITEM_MODELS, "%s_in_hand.json" % name), model)
     print("wrote %s_in_hand (%d elements)" % (name, len(elements)))
 

@@ -3375,14 +3375,6 @@
 							],
 							"easing": "easeInQuad"
 						},
-						"0.8": {
-							"vector": [
-								0,
-								-11,
-								0
-							],
-							"easing": "easeOutSine"
-						},
 						"0.35": {
 							"vector": [
 								0,
@@ -3390,6 +3382,14 @@
 								0
 							],
 							"easing": "easeInOutSine"
+						},
+						"0.8": {
+							"vector": [
+								0,
+								-11,
+								0
+							],
+							"easing": "easeOutSine"
 						}
 					}
 				},

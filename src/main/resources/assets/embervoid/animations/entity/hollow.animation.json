@@ -72,11 +72,27 @@
 							0,
 							0
 						],
+						"1.2": {
+							"vector": [
+								5,
+								9,
+								0
+							],
+							"easing": "easeInOutSine"
+						},
 						"1.5": [
 							0.482,
 							0,
 							0
 						],
+						"2.2": {
+							"vector": [
+								4,
+								-5,
+								0
+							],
+							"easing": "easeInOutSine"
+						},
 						"2.25": [
 							-0.876,
 							0,
@@ -86,22 +102,6 @@
 							"vector": [
 								3,
 								0,
-								0
-							],
-							"easing": "easeInOutSine"
-						},
-						"1.2": {
-							"vector": [
-								5,
-								9,
-								0
-							],
-							"easing": "easeInOutSine"
-						},
-						"2.2": {
-							"vector": [
-								4,
-								-5,
 								0
 							],
 							"easing": "easeInOutSine"

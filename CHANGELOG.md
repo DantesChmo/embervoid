@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.1 — 2026-10-24
+
+- **Fixed:** 0.5.0 broke the client's resources: the Crypt Keeper's lantern throw had its keyframes out of order, GeckoLib
+  refused the file, the game dropped every resource pack and all text turned into boxes. Keyframes are back in time
+  order in all 19 mob animations that had them shuffled (cloth, chains and hair no longer swing backwards).
+- **Fixed:** the in-hand models of the Ashen Scythe, Royal Ash Rapier, Sanctum Longsword and Ashbearer's Mace reached past
+  vanilla's model bounds and did not load; they are built smaller and drawn larger, so they look as before.
+
 ## 0.5.0 — 2026-10-24
 
 What the playthrough of 0.4.1 asked for: a hub you can always reach, a dungeon worth clearing, weapons above netherite,
