@@ -1,6 +1,7 @@
 package com.embervoid.entity.mob;
 
 import com.embervoid.Embervoid;
+import com.embervoid.fx.particle.EmberParticles;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityGroup;
@@ -34,6 +35,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
@@ -48,6 +50,7 @@ import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
@@ -59,6 +62,11 @@ import java.util.UUID;
  * <p>Its attack has a wind-up: the swing animation starts, and the hit lands {@link #WINDUP_TICKS} later only if
  * the target is still in reach. Between attacks it may raise its guard, which blocks most melee damage and deflects
  * projectiles from the front. An axe hit breaks the guard and staggers it. Hits from behind are never blocked.
+ *
+ * <p>Animations (PLAN 19.3, {@link MobAnimations}): {@code misc.hurt} on a hit between swings, never over a wind-up
+ * (the tell stays readable) and not while the guard is up; {@code misc.stagger} held on the stance controller while
+ * the broken guard's stagger lasts; on death the body drops to its knees and over ({@code misc.death}) and stays
+ * {@link #DEATH_TICKS} ticks.
  */
 public class HollowEntity extends HostileEntity implements GeoEntity {
 	private static final TrackedData<Byte> STANCE = DataTracker.registerData(HollowEntity.class, TrackedDataHandlerRegistry.BYTE);
@@ -77,8 +85,13 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 	/** cos(60°): the guard covers a 120° cone in front. */
 	private static final double GUARD_CONE_COS = 0.5;
 	private static final float GUARDED_MELEE_FACTOR = 0.2f;
+	/** How long the body lies there after death: the length of {@code misc.death} (2.4 s). */
+	public static final int DEATH_TICKS = 48;
+	private static final RawAnimation STAGGER_HELD = RawAnimation.begin().thenPlayAndHold(MobAnimations.STAGGER);
 
 	private final AnimatableInstanceCache animations = GeckoLibUtil.createInstanceCache(this);
+	private int lastHurtAnimation = -100;
+	private int hurtFlinches;
 	/** Ticks until the swing lands, or -1 when not winding up. */
 	private int windup = -1;
 	/**
@@ -223,7 +236,53 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 				amount *= GUARDED_MELEE_FACTOR;
 			}
 		}
-		return super.damage(source, amount);
+		boolean hurt = super.damage(source, amount);
+		// A flinch between swings; never over a wind-up, and not behind a raised guard (the stance holds its pose).
+		if (MobAnimations.mayFlinch(this, hurt, amount, lastHurtAnimation) && windup < 0 && dataTracker.get(STANCE) == STANCE_NONE) {
+			lastHurtAnimation = age;
+			hurtFlinches++;
+			triggerAnim(MobAnimations.HURT_CONTROLLER, MobAnimations.HURT);
+		}
+		return hurt;
+	}
+
+	/** Flinches shown so far (tests: a hit during a wind-up shows none). */
+	public int hurtFlinches() {
+		return hurtFlinches;
+	}
+
+	/** Ticks until the swing lands, or -1 when not winding up (tests). */
+	public int windup() {
+		return windup;
+	}
+
+	@Override
+	public void onDeath(DamageSource source) {
+		boolean firstDeath = !dead;
+		super.onDeath(source);
+		if (firstDeath && !getWorld().isClient) {
+			windup = -1;
+			triggerAnim(MobAnimations.DEATH_CONTROLLER, MobAnimations.DEATH);
+		}
+	}
+
+	/** How long the body stays after death for its death animation, in ticks. */
+	public int deathTicks() {
+		return DEATH_TICKS;
+	}
+
+	/** It drops to its knees at 0.9 s and topples at 2 s (misc.death): soot and a clank of sparks at each. */
+	@Override
+	protected void updatePostDeath() {
+		deathTime++;
+		if (getWorld() instanceof ServerWorld world && !isRemoved()) {
+			if (deathTime == 18 || deathTime == 41) {
+				EmberParticles.spawn(world, EmberParticles.SOOT, getPos().add(0, 0.2, 0), deathTime == 18 ? 4 : 8, 0.5, 0.02);
+				EmberParticles.throwAll(world, EmberParticles.CINDER_SPARK, getPos().add(0, 0.4, 0), 4, new Vec3d(0, 0.1, 0), 0.1);
+				playSound(MobSounds.HOLLOW_STEP, 0.6f, 0.7f);
+			}
+		}
+		MobAnimations.tickDeath(this, deathTime, deathTicks());
 	}
 
 	/** An axe, or an item in {@code #embervoid:breaks_guard} (the Ashbearer's Mace), breaks a raised guard. */
@@ -294,13 +353,20 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 		return super.getSoundPitch() * 0.7f;
 	}
 
+	/**
+	 * Walk / idle, the flinch, the stance (the guard looped, the stagger held to its end), the swing, the death last:
+	 * later controllers win on the bones they animate.
+	 */
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
 		controllers.add(DefaultAnimations.genericWalkIdleController(this));
+		controllers.add(MobAnimations.hurtController(this, MobAnimations.HURT));
 		controllers.add(new AnimationController<>(this, "guard", 4, state ->
-				isGuarding() ? state.setAndContinue(DefaultAnimations.ATTACK_BLOCK) : PlayState.STOP));
+				isGuarding() ? state.setAndContinue(DefaultAnimations.ATTACK_BLOCK)
+						: isStaggered() ? state.setAndContinue(STAGGER_HELD) : PlayState.STOP));
 		controllers.add(new AnimationController<>(this, "attack", 0, state -> PlayState.STOP)
 				.triggerableAnim("swing", DefaultAnimations.ATTACK_SWING));
+		controllers.add(MobAnimations.deathController(this));
 	}
 
 	@Override

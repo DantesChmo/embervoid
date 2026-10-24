@@ -47,7 +47,12 @@ public final class MobRenderers {
 	/** Slightly larger than a player, with its weapon drawn at the {@code right_item} bone. */
 	private static GeoEntityRenderer<HollowEntity> hollow(EntityRendererFactory.Context context) {
 		GeoEntityRenderer<HollowEntity> renderer =
-				new GeoEntityRenderer<>(context, new DefaultedEntityGeoModel<>(Embervoid.id("hollow"), true));
+				new GeoEntityRenderer<>(context, new DefaultedEntityGeoModel<>(Embervoid.id("hollow"), true)) {
+					@Override
+					protected float getDeathMaxRotation(HollowEntity hollow) {
+						return 0; // its own death animation (PLAN 19.3)
+					}
+				};
 		renderer.withScale(1.1f);
 		renderer.addRenderLayer(new AutoGlowingGeoLayer<>(renderer));
 		renderer.addRenderLayer(new BlockAndItemGeoLayer<>(renderer) {

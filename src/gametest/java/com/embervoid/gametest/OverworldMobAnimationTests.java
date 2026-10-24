@@ -1,13 +1,18 @@
 package com.embervoid.gametest;
 
 import com.embervoid.entity.mob.AshGhoulEntity;
+import com.embervoid.entity.mob.HollowEntity;
 import com.embervoid.entity.mob.MobAnimations;
 import com.embervoid.entity.mob.MobEntities;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.test.GameTest;
+import net.minecraft.test.GameTestException;
 import net.minecraft.test.TestContext;
+
+import java.lang.reflect.Method;
 
 /**
  * The hit and death animations of the overworld mobs (PLAN 19.3, track overworld-mobs): a kill keeps the body for its
@@ -57,6 +62,46 @@ public final class OverworldMobAnimationTests implements FabricGameTest {
 				});
 			});
 		});
+	}
+
+	/** A hit two ticks into the Hollow's wind-up: the wind-up goes on and lands on time, no flinch plays; one after it does. */
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "overworld_anim_windup", tickLimit = 200)
+	public void hollowHitDuringTheWindupKeepsTheWindup(TestContext context) {
+		BossArena arena = new BossArena(context, null);
+		arena.step(() -> {
+			arena.floor(4, 4, 4);
+			HollowEntity hollow = context.spawnEntity(MobEntities.HOLLOW, 4, 1, 3);
+			ServerPlayerEntity player = arena.join(4, 4);
+			arena.after(BossArena.JOIN_INVULNERABLE_TICKS, () -> {
+				hollow.setTarget(player);
+				context.assertTrue(startSwing(hollow), "the swing did not start");
+				int windup = hollow.windup();
+				arena.after(2, () -> {
+					hit(hollow);
+					context.assertTrue(hollow.windup() == windup - 2, "the hit changed the wind-up: " + hollow.windup());
+					context.assertTrue(hollow.hurtFlinches() == 0, "a flinch played over the wind-up");
+					float health = player.getHealth();
+					arena.after(windup + 3, () -> {
+						context.assertTrue(hollow.windup() < 0 && player.getHealth() < health, "the swing never landed");
+						hit(hollow);
+						context.assertTrue(hollow.hurtFlinches() == 1, "no flinch between swings (" + hollow.hurtFlinches() + ")");
+						hollow.discard();
+						arena.finish();
+					});
+				});
+			});
+		});
+	}
+
+	/** {@code HollowEntity.startSwing} is package-private. */
+	private static boolean startSwing(HollowEntity hollow) {
+		try {
+			Method method = HollowEntity.class.getDeclaredMethod("startSwing");
+			method.setAccessible(true);
+			return (boolean) method.invoke(hollow);
+		} catch (ReflectiveOperationException e) {
+			throw new GameTestException("startSwing: " + e);
+		}
 	}
 
 	/** A 3×3 stone floor under relative {@code (x, 1, z)}. */
