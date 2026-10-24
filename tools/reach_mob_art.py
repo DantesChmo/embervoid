@@ -1802,145 +1802,228 @@ def crypt_moth():
 
 
 # --- Necropolis: Hollow Sentinel -------------------------------------------------------------------------------------
-# A crypt guard that never left its post: old rusted plate, a slate-blue tabard with bronze trim, a great helm with
-# a cold glow in the slit, a tower shield and a long spear. Thrust after a 12-tick draw; bash after the shield is
-# planted for 15 ticks, then open (shield down) for 30 ticks.
-
-SLATE = ramp("1b2029", "252c38", "303947", "3d4757", "4c5668")
-
+# A crypt guard that never left its post: old rusted plate in layers (breastplate, back plate, double pauldrons,
+# gorget, tassets over a mail skirt, greaves and knee plates, bracers and gauntlets with fingers), an eight-sided great
+# helm with a visor slit, cheek plates and a plume in two segments, a slate-blue tabard front and back in two
+# segments, a tower shield with a riveted rim and a bronze boss, a long spear. Thrust after a 12-tick draw; bash
+# after the shield is planted for 15 ticks, then open (shield down) for 30 ticks.
 
 def hollow_sentinel():
-    plate = Material(IRON, base=2.6, noise=0.6, speck=0.06, edge=0.8, grad=1.0, top=0.8)
+    plate = Material(mk.GRAVE_IRON, base=3.2, noise=0.5, speck=0.05, edge=0.5, grad=1.0, top=0.8, bevel=0.7)
 
     def rust_spots(face, rng):
-        scatter(face, rng, face.w * face.h // 60, RUST[1])
-        if rng.random() < 0.5:
-            crack(face, rng, RUST[2], None, 2)
+        scatter(face, rng, max(1, face.w * face.h // 70), mk.RUST[2])
+        if rng.random() < 0.4:
+            crack(face, rng, mk.RUST[3], None, 2)
+        mk.specular(face, rng, mk.GRAVE_IRON[6], 1, 1)
+        mk.edge_shadow(face, rng, -10)
 
-    def cuirass(face, rng):
-        rust_spots(face, rng)
-        if face.name == "front":
-            face.vline(face.cx, 1, face.h - 2, IRON[5])
-            face.hline(1, 4, face.w - 2, IRON[1])
-
-    def greave(face, rng):
+    def riveted(face, rng):
         rust_spots(face, rng)
         if face.side():
-            face.hline(0, face.h // 2, face.w, IRON[5])
-            face.hline(0, face.h // 2 + 1, face.w, IRON[1])
+            mk.rivet_ring(face, mk.GRAVE_IRON[1], mk.GRAVE_IRON[6], 1, 3)
 
-    bones, top = humanoid(legs=13, body=(10, 14, 6), head=(8, 8, 8), arm=(4, 14, 4), leg=(5, 5),
-                          mats={"body": plate, "head": Material(BONE, base=1.0, noise=0.4), "arm": plate.but(base=2.3),
-                                "leg": plate.but(base=2.2)},
-                          decals={"body": {"all": cuirass}, "arm": {"all": rust_spots}, "leg": {"all": greave},
-                                  "head": {"front": lambda f, r: (f.rect(0, 0, f.w, f.h, VOID),
-                                                                  f.lit(2, 3, COLD, 1.0), f.lit(5, 3, COLD, 1.0))}})
+    def cuirass(face, rng):
+        riveted(face, rng)
+        if face.name == "front":
+            face.vline(face.cx, 1, face.h - 2, mk.GRAVE_IRON[6])
+            face.vline(face.cx - 1, 1, face.h - 2, mk.GRAVE_IRON[1])
+            face.hline(1, face.h // 2, face.w - 2, mk.GRAVE_IRON[1])
+
+    bones, top = mk.dense_humanoid(legs=13, body=(10, 14, 6), head=(8, 8, 8), arm=(4, 14, 4), leg=(5, 5),
+                                   mats={"body": plate.but(base=2.6), "head": Material(mk.BONE, base=1.0, noise=0.4),
+                                         "arm": plate.but(base=2.6), "leg": plate.but(base=2.5), "hand": plate.but(base=2.2),
+                                         "foot": plate.but(base=2.0)},
+                                   decals={"body": {"all": rust_spots}, "arm": {"all": rust_spots}, "fore": {"all": rust_spots},
+                                           "leg": {"all": rust_spots}, "shin": {"all": riveted}, "foot": {"all": rust_spots},
+                                           "head": {"front": lambda f, r: (f.rect(0, 0, f.w, f.h, VOID), f.lit(f.cx - 2, 3, COLD, 1.0),
+                                                                           f.lit(f.cx + 1, 3, COLD, 1.0))}})
 
     def helm(face, rng):
         rust_spots(face, rng)
         if face.name == "front":
-            face.hline(1, 3, face.w - 2, VOID)     # eye slit
-            face.vline(face.cx, 3, 4, VOID)        # breath slot
-            for y in (3,):
-                for x in range(1, face.w - 1):
-                    face.clear(x, y)
-            for y in range(4, 7):
-                face.clear(face.cx, y)
-            rivets(face, IRON[5], 3)
+            for x in range(1, face.w - 1):
+                face.clear(x, 3)  # the eye slit
+            for y in range(4, face.h - 1):
+                face.clear(face.cx, y)  # the breath slot
+            face.hline(1, 2, face.w - 2, mk.GRAVE_IRON[6])
+            mk.rivet_ring(face, mk.GRAVE_IRON[1], mk.GRAVE_IRON[6], 0, 3)
         if face.name == "bottom":
             clear_all(face)
 
-    head = bone(bones, "head")
-    head.add(Box([-4.5, top, -4.5], [9, 9, 9], plate, {"all": helm}),
-             Box([-0.5, top + 9, -4.5], [1, 2, 9], plate.but(base=3.4)))
-    tabard = Material(SLATE, base=2.4, noise=0.5, grain="v")
+    head = mk.bone(bones, "head")
+    head.add(*mk.octagon([-4.5, top, -4.5], [9, 9, 9], plate, {"all": helm}, shrink=0.82),
+             Box([-5, top + 1, -4.8], [1.4, 5, 5], plate.but(base=3.4), {"all": riveted}, inflate=0.2),  # cheek plates
+             Box([3.6, top + 1, -4.8], [1.4, 5, 5], plate.but(base=3.4), {"all": riveted}, inflate=0.2),
+             Box([-0.7, top + 8.5, -4.5], [1.4, 1.8, 9], plate.but(base=3.8), {"sides": lambda f, r: mk.specular(f, r, mk.GRAVE_IRON[6], 0, 0)}))
+    plume = Material(mk.SLATE, base=3.6, noise=0.5, grain="v")
+    bones += chain_bones("plume", "head", [0, top + 10, 2], 2, 3.5, plume, thickness=1.2, rotation=[-70, 0, 0],
+                         box=lambda i, o, s: [Box([o[0] - 0.4, o[1], o[2] - 0.4], [2, s[1], 2], plume.but(base=3.6 - i * 0.6),
+                                                  {"sides": lambda f, r: ragged_edge(f, r, "bottom", 1, 0.5)})])
+    tabard = Material(mk.SLATE, base=2.8, noise=0.5, grain="v", bevel=0.3)
 
     def tabard_deco(face, rng):
         if face.name in ("front", "back"):
-            trim(face, BRONZE[3], ("left", "right", "top"))
-            ragged_edge(face, rng, "bottom", 2, 0.5)
-            if face.name == "front":
-                face.rect(face.cx - 1, 3, 2, 3, BRONZE[4])  # a crypt key sigil
-                face.set(face.cx - 1, 6, BRONZE[3])
-                face.set(face.cx - 1, 7, BRONZE[3])
-                face.set(face.cx, 7, BRONZE[3])
+            trim(face, mk.BRASS[4], ("left", "right"))
+            mk.fold_lines(face, rng, 3, -14)
+            if face.name == "front" and face.h > 5:
+                face.rect(face.cx - 1, 1, 2, 3, mk.BRASS[5])  # the crypt key sigil
+                face.set(face.cx - 1, 4, mk.BRASS[4])
+                face.set(face.cx, 5, mk.BRASS[4])
         else:
             clear_all(face)
 
-    body = bone(bones, "body")
-    body.add(Box([-3.5, 8, -3.4], [7, 16, 0], tabard, {"all": tabard_deco}),
-             Box([-3.5, 8, 3.4], [7, 16, 0], tabard, {"all": tabard_deco}),
-             Box([-5, 10, -3], [10, 4, 6], Material(IRON, base=2.0, noise=0.4),
-                 {"sides": lambda f, r: (mail(f, r, IRON[1], IRON[4]), ragged_edge(f, r, "bottom", 1, 0.4))},
-                 inflate=0.4))
-    pauldron = Box([-10, 23, -3.5], [6, 3, 7], plate.but(base=2.8),
-                   {"all": lambda f, r: (rust_spots(f, r), band(f, f.h - 1, BRONZE[2]))}, inflate=0.2)
-    bone(bones, "right_arm").add(pauldron)
-    bone(bones, "left_arm").add(mirror_box(pauldron))
-    knee = Box([-5, 6, -3], [5, 2, 1], plate.but(base=2.6))
-    bone(bones, "right_leg").add(knee)
-    bone(bones, "left_leg").add(mirror_box(knee))
-    wood = Material(WOOD, base=1.8, noise=0.6, grain="h")
+    body = mk.bone(bones, "body")
+    body.add(
+        Box([-5, 17, -3.6], [10, 9, 1.2], plate.but(base=3.4), {"all": cuirass}, inflate=0.3),  # breastplate
+        Box([-5, 17, 2.4], [10, 9, 1.2], plate.but(base=3.0), {"all": riveted}, inflate=0.3),  # back plate
+        Box([-5.5, 24.5, -3.5], [11, 2.5, 7], plate.but(base=3.6), {"all": riveted}, inflate=0.4),  # gorget
+        Box([-5.5, 15.5, -3.5], [11, 1.8, 7], Material(mk.LEATHER, base=2.0, noise=0.4, bevel=0.5),
+            {"front": lambda f, r: (f.set(f.cx, 0, mk.BRASS[5]), f.set(f.cx - 1, 0, mk.BRASS[3]))}, inflate=0.6),  # belt
+        Box([-5, 11, -3], [10, 4.5, 6], Material(mk.GRAVE_IRON, base=2.4, noise=0.4),
+            {"sides": lambda f, r: (mail(f, r, mk.GRAVE_IRON[1], mk.GRAVE_IRON[5]), ragged_edge(f, r, "bottom", 1, 0.4))}, inflate=0.4),  # mail skirt
+        Box([-6, 11.5, -3.8], [3.5, 4, 1.2], plate.but(base=3.0), {"all": riveted}, inflate=0.2, rotation=[0, 0, 8], pivot=[-4, 15.5, -3]),  # tassets
+        Box([2.5, 11.5, -3.8], [3.5, 4, 1.2], plate.but(base=3.0), {"all": riveted}, inflate=0.2, rotation=[0, 0, -8], pivot=[4, 15.5, -3]),
+    )
+    bones += chain_bones("tabard_f", "body", [0, 15, -4.2], 2, 3.5, tabard, thickness=0.3,
+                         box=lambda i, o, s: [Box([-3.5, o[1], -4.4], [7, s[1], 0.4], tabard, {"all": tabard_deco})])
+    bones += chain_bones("tabard_b", "body", [0, 15, 4.2], 2, 3.5, tabard, thickness=0.3,
+                         box=lambda i, o, s: [Box([-3.5, o[1], 4.0], [7, s[1], 0.4], tabard, {"all": tabard_deco})])
+    pauldron = Box([-10.5, 23, -3.5], [6, 3, 7], plate.but(base=3.4), {"all": lambda f, r: (riveted(f, r), band(f, f.h - 1, mk.BRASS[3]))}, inflate=0.3)
+    pauldron2 = Box([-10.2, 20.5, -3], [5, 2.5, 6], plate.but(base=3.0), {"all": riveted}, inflate=0.2)
+    bracer = Box([-10.5, 14, -2.5], [5, 4, 5], plate.but(base=3.0), {"all": riveted}, inflate=0.3)
+    mk.bone(bones, "right_arm").add(pauldron, pauldron2)
+    mk.bone(bones, "left_arm").add(mirror_box(pauldron), mirror_box(pauldron2))
+    r_fingers = fingers(-9.6, 12, -1.6, 3, (1, 2, 1), plate.but(base=2.2), spread=0.3, curl=35, thumb=(3.6, 1))
+    mk.bone(bones, "right_fore").add(bracer, *r_fingers)
+    mk.bone(bones, "left_fore").add(mirror_box(bracer), *[mirror_box(b) for b in r_fingers])
+    knee = Box([-5.5, 5.5, -3.2], [6, 2.5, 1.4], plate.but(base=3.4), {"all": riveted}, inflate=0.2)
+    greave = Box([-5.3, 1.5, -3.1], [5.6, 4.5, 1.2], plate.but(base=3.0), {"all": riveted}, inflate=0.2)
+    mk.bone(bones, "right_leg").add(knee)
+    mk.bone(bones, "left_leg").add(mirror_box(knee))
+    mk.bone(bones, "right_shin").add(greave)
+    mk.bone(bones, "left_shin").add(mirror_box(greave))
+    wood = Material(mk.DEAD_WOOD, base=2.0, noise=0.5, grain="v", bevel=0.3)
 
-    def shield_front(face, rng):
-        # Planks behind an iron rim, a bronze boss and a closed-eye sigil of the crypt.
-        for x in range(2, face.w - 2, 3):
-            face.vline(x, 1, face.h - 2, WOOD[0])
-        trim(face, IRON[2])
-        for y in range(face.h):
-            face.set(1, y, IRON[3])
-            face.set(face.w - 2, y, IRON[3])
-        face.hline(2, 8, face.w - 4, IRON[3])
-        face.hline(2, 16, face.w - 4, IRON[3])
-        cx = face.cx
-        face.hline(cx - 3, 12, 6, BRONZE[4])
-        face.set(cx - 2, 11, BRONZE[3])
-        face.set(cx + 1, 11, BRONZE[3])
-        face.hline(cx - 1, 13, 2, BRONZE[2])
+    def shield_face(face, rng):
+        # Planks, a closed-eye sigil of the crypt painted on them, scratches.
+        for x in range(3, face.w - 3, 3):
+            face.vline(x, 0, face.h, mk.DEAD_WOOD[0])
+        mk.grain(face, rng, mk.DEAD_WOOD[1], mk.DEAD_WOOD[5], 2, (2, 6))
+        cx, cy = face.cx, face.h // 2
+        face.hline(cx - 3, cy, 6, mk.BRASS[4])
+        face.set(cx - 2, cy - 1, mk.BRASS[3])
+        face.set(cx + 1, cy - 1, mk.BRASS[3])
+        face.hline(cx - 1, cy + 1, 2, mk.BRASS[2])
+        for _ in range(2):
+            crack(face, rng, mk.DEAD_WOOD[0], None, 3)
 
-    shield_mat = Material(WOOD, base=2.2, noise=0.6, grain="v")
-    bones.append(Bone("shield", [7, 14, -3], "left_arm", None, [
-        Box([-1, 6, -6], [12, 24, 1], shield_mat, {"front": shield_front, "back": shield_front,
-                                                   "left": lambda f, r: f.rect(0, 0, f.w, f.h, IRON[2]),
-                                                   "right": lambda f, r: f.rect(0, 0, f.w, f.h, IRON[2]),
-                                                   "top": lambda f, r: f.rect(0, 0, f.w, f.h, IRON[3]),
-                                                   "bottom": lambda f, r: f.rect(0, 0, f.w, f.h, IRON[1])}),
-        Box([3, 16, -6.6], [4, 4, 1], Material(BRONZE, base=3.0, noise=0.5, top=0.8), inflate=-0.2),
+    rim = plate.but(base=2.8)
+    bones.append(Bone("shield", [7, 14, -3], "left_fore", None, [
+        Box([-1, 6, -6], [12, 24, 1], wood, {"front": shield_face, "back": shield_face}),
+        Box([-1.4, 29.6, -6.4], [12.8, 1.2, 1.8], rim, {"all": lambda f, r: mk.rivet_ring(f, mk.GRAVE_IRON[6], None, 0, 3)}),
+        Box([-1.4, 5.2, -6.4], [12.8, 1.2, 1.8], rim, {"all": lambda f, r: mk.rivet_ring(f, mk.GRAVE_IRON[6], None, 0, 3)}),
+        Box([-1.4, 6.4, -6.4], [1.2, 23.2, 1.8], rim, {"all": lambda f, r: mk.rivet_ring(f, mk.GRAVE_IRON[6], None, 0, 3)}),
+        Box([10.2, 6.4, -6.4], [1.2, 23.2, 1.8], rim, {"all": lambda f, r: mk.rivet_ring(f, mk.GRAVE_IRON[6], None, 0, 3)}),
+        Box([-1, 17.5, -6.4], [12, 1, 1.4], rim.but(base=2.4)),  # the cross band
+    ] + mk.octagon([3, 15.5, -7.2], [4, 5, 1.4], Material(mk.BRASS, base=3.4, noise=0.5, top=0.8, bevel=0.6), axis="z", shrink=0.75)
+      + [Box([3.8, 16.8, -7.8], [2.4, 2.4, 0.8], Material(mk.BRASS, base=4.5, noise=0.3), inflate=0.1)]))
+    leaf = Material(mk.GRAVE_IRON, base=4.2, noise=0.4, bevel=0.6)
+    shaft = Material(mk.DEAD_WOOD, base=2.2, noise=0.5, grain="h")
+    bones.append(Bone("spear", [-7, 13, 0], "right_fore", None, [
+        Box([-7.6, 12.4, -18], [1.2, 1.2, 27], shaft, {"sides": lambda f, r: (mk.grain(f, r, mk.DEAD_WOOD[1], None, 2, (3, 7)),
+                                                                             f.rect(f.w - 9 if f.w > 10 else 0, 0, 3, f.h, mk.LEATHER[2]))}),
+        Box([-8, 12, -19.5], [2, 2, 1.6], Material(mk.BRASS, base=3.0, noise=0.4, bevel=0.5)),
+        Box([-8.6, 12.5, -24], [3.2, 1, 4.6], leaf, {"top": lambda f, r: f.hline(0, 0, f.w, mk.GRAVE_IRON[6])}),
+        Box([-8, 12.5, -26.5], [2, 1, 2.6], leaf.but(base=4.8)),
+        Box([-7.4, 12.7, -25.5], [0.8, 0.8, 7], leaf.but(base=5.0)),  # the ridge of the blade
+        Box([-7.8, 12.2, 8.6], [1.6, 1.6, 1.6], Material(mk.GRAVE_IRON, base=2.4, noise=0.4)),  # the butt
     ]))
-    leaf = Material(IRON, base=3.6, noise=0.4, top=0.6)
-    bones.append(Bone("spear", [-7, 13, 0], "right_arm", None, [
-        Box([-7.5, 12.5, -20], [1, 1, 30], wood, {"sides": lambda f, r: f.set(f.w - 4, 0, LEATHER[1])}),
-        Box([-8, 12, -21], [2, 2, 1], Material(BRONZE, base=2.5, noise=0.4)),
-        Box([-8.5, 12.5, -25], [3, 1, 4], leaf),
-        Box([-8, 12.5, -27], [2, 1, 2], leaf.but(base=4.2)),
-    ]))
+    tabards = chain_names("tabard_f", 2) + chain_names("tabard_b", 2)
+    plume_names = chain_names("plume", 2)
+    chains = tabards + plume_names
     guard = [-25, -20, 0]
+    guard_fore = [-30, 0, 0]
     animations = {
-        "misc.idle": idle(3.0, 2, 1, left_arm=rot(0, guard, 3, guard)),
-        "move.walk": walk(1.2, 20, 0, 0.4, left_arm=rot(0, guard, 1.2, guard)),
-        "misc.guard": anim(1.0, {"left_arm": rot(0, [-35, -30, 0], 1, [-35, -30, 0]),
-                                 "body": rot(0, [5, 0, 0], 1, [5, 0, 0]),
-                                 "head": rot(0, [8, 0, 0], 1, [8, 0, 0])}),
-        # The spear is drawn back through the 12-tick windup and driven forward level at 0.6 s.
-        "attack.thrust": anim(0.9, {
-            "right_arm": rot(0, ZERO, 0.6, [10, 0, 0], 0.65, [-12, 0, 0], 0.9, ZERO),
-            "spear": pos(0, ZERO, 0.6, [0, 0, 6], 0.65, [0, 0, -9], 0.8, [0, 0, -6], 0.9, ZERO),
-            "body": rot(0, ZERO, 0.6, [0, 25, 0], 0.65, [8, -15, 0], 0.9, ZERO),
-            "left_arm": rot(0, guard, 0.9, guard),
-        }, loop=False),
-        "attack.bash": anim(1.1, {
-            "body": rot(0, ZERO, 0.75, [12, 0, 0], 0.85, [-5, 0, 0], 1.1, ZERO),
-            # Shield planted square in front through the windup, then driven forward and across.
-            "left_arm": rot(0, guard, 0.75, [-35, -5, 0], 0.85, [-40, 30, 0], 1.1, guard),
-            "root": pos(0, ZERO, 0.75, [0, 0, 1], 0.85, [0, 0, -4], 1.1, ZERO),
-        }, loop=False),
-        "misc.open": anim(1.5, {
-            "left_arm": rot(0, [20, 0, -25], 1.5, [20, 0, -25]),
-            "body": rot(0, [15, 0, 0], 0.75, [18, 0, 0], 1.5, [15, 0, 0]),
-            "head": rot(0, [20, 0, 0], 1.5, [20, 0, 0]),
-        }),
+        "misc.idle": mk.breathe(3.0, 1.5, 1, 2, merge(
+            lag_sway(chain_names("tabard_f", 2), 3.0, 3, 0, phase=0.0), lag_sway(chain_names("tabard_b", 2), 3.0, -3, 0, phase=0.3),
+            lag_sway(plume_names, 3.0, 5, 0, phase=0.5),
+            {"left_arm": rot(0, guard, 1.5, e("easeInOutSine", [-27, -20, 2]), 3.0, e("easeInOutSine", guard)),
+             "left_fore": rot(0, guard_fore, 3.0, guard_fore),
+             "right_fore": rot(0, [-10, 0, 0], 1.5, e("easeInOutSine", [-14, 0, 0]), 3.0, e("easeInOutSine", [-10, 0, 0])),
+             "spear": rot(0, ZERO, 1.5, e("easeInOutSine", [-2, 0, 0]), 3.0, e("easeInOutSine", ZERO))})),
+        # A heavy tread with the shield kept up: the shield arm does not swing.
+        "move.walk": mk.weighted_walk(1.2, 20, 8, 0.5, 4, 5, arms=("right_arm", "left_arm"), extra=merge(
+            mk.limb_walk(1.2, 6, 12), lag_sway(tabards, 1.2, 10, 0, phase=0.1), lag_sway(plume_names, 1.2, 10, 0, phase=0.3),
+            {"left_arm": rot(0, guard, 1.2, guard), "left_fore": rot(0, guard_fore, 1.2, guard_fore),
+             "right_fore": rot(0, [-10, 0, 0], 1.2, [-10, 0, 0])})),
+        "misc.guard": anim(2.0, merge({"left_arm": rot(0, [-35, -30, 0], 1.0, e("easeInOutSine", [-37, -30, 1]), 2.0, e("easeInOutSine", [-35, -30, 0])),
+                                       "left_fore": rot(0, guard_fore, 2.0, guard_fore),
+                                       "body": rot(0, [5, 0, 0], 1.0, e("easeInOutSine", [6, 0, 0]), 2.0, e("easeInOutSine", [5, 0, 0])),
+                                       "head": rot(0, [8, 0, 0], 2.0, [8, 0, 0]),
+                                       "right_fore": rot(0, [-10, 0, 0], 2.0, [-10, 0, 0])},
+                                      lag_sway(plume_names, 2.0, 4, 0), lag_sway(tabards, 2.0, 2, 0))),
+        # The spear is drawn back through the 12-tick windup, the body coiling behind the shield; at 0.65 s it is
+        # driven forward level, the body following, the tabard and plume whipping after.
+        "attack.thrust": anim(0.9, merge({
+            "right_arm": rot(0, ZERO, 0.5, e("easeInOutSine", [12, 0, 0]), 0.6, [15, 0, 0], 0.65, e("easeOutBack", [-15, 0, 0]), 0.9, e("easeOutSine", ZERO)),
+            "right_fore": rot(0, [-10, 0, 0], 0.5, e("easeInOutSine", [-30, 0, 0]), 0.6, [-35, 0, 0], 0.65, e("easeOutCubic", [-5, 0, 0]), 0.9, e("easeOutSine", [-10, 0, 0])),
+            "spear": pos(0, ZERO, 0.5, e("easeInOutSine", [0, 0, 6]), 0.6, [0, 0, 7], 0.65, e("easeOutBack", [0, 0, -10]), 0.8, e("easeOutSine", [0, 0, -6]), 0.9, e("easeOutSine", ZERO)),
+            "body": rot(0, ZERO, 0.5, e("easeInOutSine", [0, 25, 0]), 0.6, [0, 28, 0], 0.65, e("easeOutBack", [8, -16, 0]), 0.9, e("easeOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.5, e("easeInOutSine", [0, -15, 0]), 0.65, e("easeOutCubic", [4, 10, 0]), 0.9, e("easeOutSine", ZERO)),
+            "left_arm": rot(0, guard, 0.5, e("easeInOutSine", [-28, -30, 0]), 0.65, e("easeOutCubic", [-22, -10, 0]), 0.9, e("easeOutSine", guard)),
+            "left_fore": rot(0, guard_fore, 0.9, guard_fore),
+            "root": pos(0, ZERO, 0.5, e("easeInOutSine", [0, 0, 1]), 0.65, e("easeOutCubic", [0, -0.5, -2]), 0.9, e("easeOutSine", ZERO)),
+            "right_leg": rot(0, ZERO, 0.5, e("easeInOutSine", [6, 0, 0]), 0.65, e("easeOutCubic", [-15, 0, 0]), 0.9, e("easeOutSine", ZERO)),
+            "left_leg": rot(0, ZERO, 0.5, e("easeInOutSine", [-6, 0, 0]), 0.65, e("easeOutCubic", [18, 0, 0]), 0.9, e("easeOutSine", ZERO)),
+        }, hold(chains, 0.55, ZERO), whip(tabards, 0.62, 30, 0, settle=0.26), whip(plume_names, 0.62, 35, 0, settle=0.26)), loop=False),
+        # The shield is planted square in front through the 15-tick windup (the tell), the body braced; at 0.85 s
+        # it is driven forward and across with a step.
+        "attack.bash": anim(1.1, merge({
+            "left_arm": rot(0, guard, 0.6, e("easeInOutSine", [-35, -5, 0]), 0.75, [-36, -4, 0], 0.85, e("easeOutBack", [-40, 32, 0]), 1.1, e("easeOutSine", guard)),
+            "left_fore": rot(0, guard_fore, 0.6, e("easeInOutSine", [-20, 0, 0]), 0.85, e("easeOutCubic", [-35, 0, 0]), 1.1, e("easeOutSine", guard_fore)),
+            "body": rot(0, ZERO, 0.6, e("easeInOutSine", [12, -8, 0]), 0.75, [14, -10, 0], 0.85, e("easeOutBack", [-5, 14, 0]), 1.1, e("easeOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.6, e("easeInOutSine", [10, 0, 0]), 0.85, e("easeOutCubic", [-6, 0, 0]), 1.1, e("easeOutSine", ZERO)),
+            "root": pos(0, ZERO, 0.6, e("easeInOutSine", [0, -1, 1.5]), 0.75, [0, -1, 1.5], 0.85, e("easeOutCubic", [0, 0, -4]), 1.1, e("easeOutSine", ZERO)),
+            "right_leg": rot(0, ZERO, 0.6, e("easeInOutSine", [10, 0, 0]), 0.85, e("easeOutCubic", [-20, 0, 0]), 1.1, e("easeOutSine", ZERO)),
+            "left_leg": rot(0, ZERO, 0.6, e("easeInOutSine", [-12, 0, 0]), 0.85, e("easeOutCubic", [25, 0, 0]), 1.1, e("easeOutSine", ZERO)),
+            "right_arm": rot(0, ZERO, 0.6, e("easeInOutSine", [20, 0, 10]), 0.85, e("easeOutCubic", [-10, 0, 5]), 1.1, e("easeOutSine", ZERO)),
+        }, hold(chains, 0.7, ZERO), whip(tabards, 0.82, 35, 0, settle=0.26), whip(plume_names, 0.82, 40, 0, settle=0.26)), loop=False),
+        # Open: the shield hangs wide, the body leaning on the spear and breathing hard.
+        "misc.open": anim(1.5, merge({
+            "left_arm": rot(0, [20, 0, -30], 0.75, e("easeInOutSine", [22, 0, -34]), 1.5, e("easeInOutSine", [20, 0, -30])),
+            "left_fore": rot(0, [-10, 0, 0], 1.5, [-10, 0, 0]),
+            "body": {"rotation": keys(0, [15, 0, 0], 0.75, e("easeInOutSine", [19, 0, 0]), 1.5, e("easeInOutSine", [15, 0, 0])),
+                     "position": keys(0, ZERO, 0.75, e("easeInOutSine", [0, -0.6, 0]), 1.5, e("easeInOutSine", ZERO))},
+            "head": rot(0, [20, 0, 0], 0.75, e("easeInOutSine", [24, 0, 0]), 1.5, e("easeInOutSine", [20, 0, 0])),
+            "right_arm": rot(0, [25, 0, 0], 1.5, [25, 0, 0]),
+            "right_fore": rot(0, [-5, 0, 0], 1.5, [-5, 0, 0]),
+        }, lag_sway(tabards, 1.5, 4, 0), lag_sway(plume_names, 1.5, 6, 0))),
+        "misc.hurt": mk.hurt_flinch(0.45, lean=-7, twist=5, head=-10, chains=chains, extra={
+            "left_arm": rot(0, guard, 0.1, e("easeOutCubic", [-30, -25, 5]), 0.45, e("easeOutSine", guard)),
+            "left_fore": rot(0, guard_fore, 0.45, guard_fore)}),
+        # Hit while open: the shield arm is flung wide and it reels on a bent knee, the helm thrown back.
+        "misc.stagger": mk.stagger(0.9, lean=-22, head=-25, chains=chains, extra={
+            "left_arm": rot(0, [20, 0, -30], 0.12, e("easeOutCubic", [-10, 0, -75]), 0.9, e("easeOutSine", guard)),
+            "left_fore": rot(0, [-10, 0, 0], 0.9, e("easeOutSine", guard_fore)),
+            "right_arm": rot(0, [25, 0, 0], 0.12, e("easeOutCubic", [-40, 0, 35]), 0.9, e("easeOutSine", ZERO))}),
+        # It drops to a knee leaning on the spear, holds a moment, then goes over onto its shield side.
+        "misc.death": anim(2.2, merge({
+            "root": pos(0, ZERO, 0.45, e("easeInSine", [0, -5, 0]), 1.0, [0, -5, 0], 1.45, e("easeInQuad", [-1, -11.5, 0]), 1.6, e("easeOutSine", [-1, -12, 0]), 2.2, [-1, -12, 0]),
+            "body": rot(0, ZERO, 0.45, e("easeOutSine", [18, 0, 0]), 1.0, [22, 0, 0], 1.45, e("easeInQuad", [20, 0, -85]), 1.6, e("easeOutSine", [15, 0, -80]), 2.2, [15, 0, -80]),
+            "head": rot(0, ZERO, 0.45, e("easeOutSine", [-15, 0, 0]), 1.0, [-20, 0, 0], 1.45, e("easeInQuad", [20, -20, 0]), 1.7, e("easeOutBounce", [25, -30, 5]), 2.2, [25, -30, 5]),
+            "right_leg": rot(0, ZERO, 0.45, e("easeOutSine", [-80, 0, 0]), 1.0, [-85, 0, 0], 1.45, e("easeInQuad", [-30, 0, 20]), 2.2, [-30, 0, 20]),
+            "right_shin": rot(0, ZERO, 0.45, e("easeOutSine", [95, 0, 0]), 1.0, [95, 0, 0], 1.45, e("easeInQuad", [50, 0, 0]), 2.2, [50, 0, 0]),
+            "left_leg": rot(0, ZERO, 0.45, e("easeOutSine", [25, 0, 0]), 1.0, [28, 0, 0], 1.45, e("easeInQuad", [-10, 0, 25]), 2.2, [-10, 0, 25]),
+            "left_shin": rot(0, ZERO, 0.45, e("easeOutSine", [10, 0, 0]), 1.45, e("easeInQuad", [30, 0, 0]), 2.2, [30, 0, 0]),
+            "right_arm": rot(0, ZERO, 0.45, e("easeOutSine", [-40, 0, -10]), 1.0, [-45, 0, -12], 1.45, e("easeInQuad", [-90, 0, 20]), 1.7, e("easeOutSine", [-80, 0, 25]), 2.2, [-80, 0, 25]),
+            "right_fore": rot(0, [-10, 0, 0], 0.45, e("easeOutSine", [-60, 0, 0]), 1.45, e("easeInQuad", [-20, 0, 0]), 2.2, [-20, 0, 0]),
+            "spear": rot(0, ZERO, 0.45, e("easeOutSine", [-50, 0, 0]), 1.0, [-55, 0, 0], 1.45, e("easeInQuad", [-10, 0, 40]), 1.65, e("easeOutBounce", [0, 0, 50]), 2.2, [0, 0, 50]),
+            "left_arm": rot(0, guard, 0.45, e("easeOutSine", [-10, -10, 10]), 1.45, e("easeInQuad", [-60, 0, -70]), 1.7, e("easeOutSine", [-50, 0, -65]), 2.2, [-50, 0, -65]),
+            "left_fore": rot(0, guard_fore, 0.45, e("easeOutSine", [-20, 0, 0]), 1.45, e("easeInQuad", [-5, 0, 0]), 2.2, [-5, 0, 0]),
+        }, mk.settle(tabards, 1.45, 35, 0, length=0.7), mk.settle(plume_names, 1.45, 50, 0, length=0.7)), loop=False),
     }
-    write_model("hollow_sentinel", bones, animations, [3, 3])
+    write_model("hollow_sentinel", bones, animations, [3, 3], tex_w=128)
 
 
 # --- Necropolis: Grave Warden ----------------------------------------------------------------------------------------

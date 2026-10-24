@@ -10,6 +10,7 @@ import com.embervoid.reach.mob.AshenCarrionEntity;
 import com.embervoid.reach.mob.BarkHollowEntity;
 import com.embervoid.reach.mob.CinderHuskEntity;
 import com.embervoid.reach.mob.CryptMothEntity;
+import com.embervoid.reach.mob.HollowSentinelEntity;
 import com.embervoid.reach.mob.LanternHagEntity;
 import com.embervoid.reach.mob.ReachMob;
 import com.embervoid.reach.mob.RestlessBonesEntity;
@@ -204,7 +205,9 @@ class EntityModelFilesTest {
 			Map.entry("restless_bones", List.of("misc.idle", "move.walk", "attack.swing", "misc.collapse", "misc.pile", "misc.reform",
 					ReachMob.HURT, ReachMob.STAGGER, ReachMob.DEATH)),
 			Map.entry("crypt_moth", List.of("misc.idle", "move.fly", "attack.bite", "attack.burst", ReachMob.HURT, ReachMob.STAGGER,
-					ReachMob.DEATH)));
+					ReachMob.DEATH)),
+			Map.entry("hollow_sentinel", List.of("misc.idle", "move.walk", "attack.thrust", "attack.bash", "misc.guard", "misc.open",
+					ReachMob.HURT, ReachMob.STAGGER, ReachMob.DEATH)));
 
 	/** Bones the Realm 1 renderers turn (head) or toggle ({@code ReachMob#toggledBones}). */
 	private static final Map<String, List<String>> REACH_MOB_BONES = Map.ofEntries(
@@ -215,7 +218,8 @@ class EntityModelFilesTest {
 			Map.entry("lantern_hag", List.of("head", "lantern")),
 			Map.entry("bark_hollow", List.of("eyes")),
 			Map.entry("restless_bones", List.of("head")),
-			Map.entry("crypt_moth", List.of("head", "glow_left", "glow_right")));
+			Map.entry("crypt_moth", List.of("head", "glow_left", "glow_right")),
+			Map.entry("hollow_sentinel", List.of("head", "shield", "spear")));
 
 	/** Shortest length (s) of a Realm 1 mob's telegraphed animation: its move's windup in ticks / 20. */
 	private static final Map<String, Double> REACH_MOB_MIN_LENGTH = Map.ofEntries(
@@ -229,7 +233,9 @@ class EntityModelFilesTest {
 			Map.entry("bark_hollow/attack.sweep", BarkHollowEntity.SWEEP_WINDUP / 20.0),
 			Map.entry("bark_hollow/misc.awaken", BarkHollowEntity.AWAKEN_TICKS / 20.0),
 			Map.entry("restless_bones/attack.swing", RestlessBonesEntity.SWING_WINDUP / 20.0),
-			Map.entry("crypt_moth/attack.burst", CryptMothEntity.BURST_WINDUP / 20.0));
+			Map.entry("crypt_moth/attack.burst", CryptMothEntity.BURST_WINDUP / 20.0),
+			Map.entry("hollow_sentinel/attack.thrust", HollowSentinelEntity.THRUST_WINDUP / 20.0),
+			Map.entry("hollow_sentinel/attack.bash", HollowSentinelEntity.BASH_WINDUP / 20.0));
 
 	/** Ticks each Realm 1 mob's body stays for its fall ({@code ReachMob#deathTicks}): the fall must fill them. */
 	private static final Map<String, Integer> REACH_MOB_DEATH_TICKS = Map.ofEntries(
@@ -240,7 +246,8 @@ class EntityModelFilesTest {
 			Map.entry("lantern_hag", LanternHagEntity.DEATH_TICKS),
 			Map.entry("bark_hollow", BarkHollowEntity.DEATH_TICKS),
 			Map.entry("restless_bones", RestlessBonesEntity.DEATH_TICKS),
-			Map.entry("crypt_moth", CryptMothEntity.DEATH_TICKS));
+			Map.entry("crypt_moth", CryptMothEntity.DEATH_TICKS),
+			Map.entry("hollow_sentinel", HollowSentinelEntity.DEATH_TICKS));
 
 	@Test
 	void reachMobsKeepWhatTheirCodeUses() throws IOException {

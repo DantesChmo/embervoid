@@ -1,5 +1,7 @@
 package com.embervoid.reach.mob;
 
+import com.embervoid.fx.CombatFx;
+import com.embervoid.fx.particle.EmberParticles;
 import net.minecraft.entity.EntityGroup;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -9,6 +11,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.tag.DamageTypeTags;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
@@ -35,6 +38,8 @@ public class HollowSentinelEntity extends ReachMob {
 	public static final float THRUST_DAMAGE = 7;
 	/** Bashes only a target this close. */
 	public static final double BASH_RANGE = 2.5;
+	/** Ticks the body stays for {@code misc.death}: to a knee on the spear, then over onto its shield side, 2.2 s. */
+	public static final int DEATH_TICKS = 44;
 	/** The spear reaches this far past its own half width. */
 	private static final double SPEAR_REACH = 3.0;
 	static final Move THRUST = new Move("attack.thrust", THRUST_WINDUP, 40, ReachMobSounds.HOLLOW_SENTINEL_DRAW_SPEAR, 1.0f);
@@ -153,6 +158,27 @@ public class HollowSentinelEntity extends ReachMob {
 		}
 		Vec3d toSource = from.subtract(getPos()).multiply(1, 0, 1);
 		return toSource.lengthSquared() < 1.0E-4 || toSource.normalize().dotProduct(Vec3d.fromPolar(0, bodyYaw)) >= 0;
+	}
+
+	/** Hit while the shield hangs open (the bash window), it staggers; a hit it took elsewhere only makes it flinch. */
+	@Override
+	protected String hurtAnimation(DamageSource source, float amount) {
+		return isOpen() ? STAGGER : HURT;
+	}
+
+	@Override
+	public int deathTicks() {
+		return DEATH_TICKS;
+	}
+
+	/** The plate hits the stone when it goes over: a clang of dust. */
+	@Override
+	protected void tickDeath(ServerWorld world, int deathTime) {
+		if (deathTime == 30) {
+			EmberParticles.spawn(world, EmberParticles.SOOT, getPos().add(0, 0.3, 0), 8, 0.8, 0.03);
+			EmberParticles.ringOut(world, EmberParticles.ASH_FLAKE, getPos(), 10, 0.1, 0.1);
+			CombatFx.shake(world, getPos(), 0.25f, CombatFx.shakeTicks(0.25f), 8);
+		}
 	}
 
 	@Override
