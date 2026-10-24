@@ -51,3 +51,23 @@ Nobody answers questions tonight: decisions are recorded here as they are made.
 | Grieving Tree | 128 | 35 | sheets and poses: the weeping face as geometry (brow, sockets, amber tears, a jaw that moans), the iron crown band and points, bark plates, two-segment roots, root legs with toes, four limbs of three segments with ropes, eight hanging curtains; the sweep, the stunned droop, the forward crash | the roots bone hidden in P2, leaf and sap particles, the lanterns (separate entities) |
 | Crypt Keeper | 103 | 27 | sheets and poses: the hood's void with two cold-light cubes, bone mantle and pauldrons, keys, skulls and belt chains as geometry, bone hands, the halberd with tassel, the lantern on a chain; overhead and thrust windups, the lantern throw, the kneel and the face-down fall with the halberd laid beside him | the lantern hidden in P2, particles, cold-blue trails |
 | Ash Colossus | 108 | 26 | front/side/back/dusk sheets, key poses and trail sheet: chamfered mass, fists with fingers, chains swinging, kneel-then-topple death, fist/boulder/smash windups readable, stagger lunge | the core's shimmer layer, particles, the plates shed in game, the hurt controller under a move |
+
+## State at hand-over (2026-10-24, night)
+
+All six done, one commit each after the framework commit. Checks run here: `python3 tools/model_preview.py check` over
+the six (sizes within tolerance of `tools/model_bounds.json`, every animation the code plays present, toggled bones
+present), `./gradlew compileJava compileClientJava compileTestJava compileGametestJava` green, `./gradlew test --tests
+'com.embervoid.registry.EntityModelFilesTest'` green (2 tests). Not run here (the coordinator's regression):
+`BossAnimationTests` (hurt never cancels a windup, the Colossus's and the Keeper's bodies stay for their death
+animations), the rest of the GameTests, `runDatagen` (no data changed: only `assets/`), the server check.
+
+Not seen offline, for whoever plays first: the hurt controller under a move's animation (GeckoLib's per-bone
+priority), the held last frame of `misc.death` while the body lies there, the phase bones hidden by the code
+(plates, armor, lantern, roots, veil) while their phase animation flings them, the `EmberHaloLayer` (a translucent
+scaled glowmask: if it reads as a ghost outline rather than heat, lower its alpha in `ReachBossClient`), the
+translucent cape lining and the 1.2 renderer scale of the Vampire boss, every particle and `CombatFx` call, the
+walk cycles against the bosses' real speeds. The Tree's limbs now reach 60 px out: the P2 lanterns hang 56 px out
+and still sit inside the limbs' reach.
+
+Follow-ups (not done): the Tree has no `head` bone (it never turned its head; the face is on the trunk) — fine as a
+tree; the Sister's veil hood is still a boxy octagon; the Lord's crown could lose two points.
