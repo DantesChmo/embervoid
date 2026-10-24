@@ -1,10 +1,13 @@
 package com.embervoid.client.reach.world;
 
 import com.embervoid.Embervoid;
+import com.embervoid.block.setpiece.LitSetPieceBlock;
+import com.embervoid.block.setpiece.SetPieces;
 import com.embervoid.reach.world.ReachBlocks;
 import com.embervoid.registry.ModBlocks;
 import com.embervoid.sanctum.datagen.TemplateBuilder;
 import net.minecraft.block.BlockState;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.LadderBlock;
@@ -56,6 +59,11 @@ public final class OutpostTemplates {
 		tower(t, random, 0, 3, 6);
 		tower(t, random, 8, 3, 4);
 		t.set(9, 5, 4, LANTERN);
+		// A great brazier burning on the broken tower, the toll gate's signal fire (PLAN 20.2).
+		NbtCompound signal = new NbtCompound();
+		signal.putString("State", "lit");
+		t.set(8, 4, 3, BRICKS);
+		t.blockEntity(8, 5, 3, SetPieces.GREAT_BRAZIER.getDefaultState().with(LitSetPieceBlock.LIT, true), "embervoid:set_piece", signal);
 		// What is left of the arch: a stub from the left tower.
 		t.set(3, 5, 4, ModBlocks.ASH_BRICK_SLAB.getDefaultState().with(SlabBlock.TYPE, SlabType.TOP));
 		t.set(4, 5, 4, ModBlocks.ASH_BRICK_SLAB.getDefaultState().with(SlabBlock.TYPE, SlabType.TOP));

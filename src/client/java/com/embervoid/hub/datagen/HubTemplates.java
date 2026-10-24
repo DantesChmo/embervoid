@@ -1,6 +1,8 @@
 package com.embervoid.hub.datagen;
 
 import com.embervoid.hub.HubLayout;
+import com.embervoid.block.setpiece.LitSetPieceBlock;
+import com.embervoid.block.setpiece.SetPieces;
 import com.embervoid.hub.stele.CleftStoneBlock;
 import com.embervoid.hub.stele.HubStele;
 import com.embervoid.hub.stele.SteleBlocks;
@@ -9,6 +11,7 @@ import com.embervoid.sanctum.SanctumBlocks;
 import com.embervoid.sanctum.SanctumEntities;
 import com.embervoid.sanctum.datagen.TemplateBuilder;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.PillarBlock;
 import net.minecraft.block.Blocks;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtFloat;
@@ -16,6 +19,7 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 
 import java.util.Map;
 import java.util.Random;
@@ -98,6 +102,16 @@ final class HubTemplates {
 		}
 		for (int[] p : new int[][]{{-core, -core}, {core, -core}, {-core, core}, {core, core}}) {
 			pillar(t, p[0], p[1], 6, true);
+		}
+		// Lit censers over the four gaps into the core, on beams between the gap pillars (PLAN 20.2).
+		NbtCompound lit = new NbtCompound();
+		lit.putString("State", "lit");
+		for (int[] gap : new int[][]{{0, -core}, {0, core}, {-core, 0}, {core, 0}}) {
+			boolean alongX = gap[1] != 0;
+			for (int i = -1; i <= 1; i++) {
+				t.set(alongX ? i : gap[0], 6, alongX ? gap[1] : i, DEAD_LOG.getDefaultState().with(PillarBlock.AXIS, alongX ? Direction.Axis.X : Direction.Axis.Z));
+			}
+			t.builder.blockEntity(gap[0] + half, 5, gap[1] + half, SetPieces.CENSER.getDefaultState().with(LitSetPieceBlock.LIT, true), "embervoid:set_piece", lit);
 		}
 
 		t.set(HubLayout.SHRINE, SanctumBlocks.EMBER_SHRINE.getDefaultState());

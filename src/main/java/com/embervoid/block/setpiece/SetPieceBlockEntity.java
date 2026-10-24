@@ -3,6 +3,7 @@ package com.embervoid.block.setpiece;
 import com.embervoid.block.setpiece.SetPieceKind.Mode;
 import com.embervoid.block.setpiece.SetPieceKind.Puff;
 import com.embervoid.block.setpiece.SetPieceKind.Reaction;
+import com.embervoid.fx.particle.EmberParticles;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.CampfireBlock;
@@ -352,9 +353,11 @@ public class SetPieceBlockEntity extends BlockEntity implements GeoBlockEntity {
 			case "campfire" -> ParticleTypes.CAMPFIRE_COSY_SMOKE;
 			case "signal" -> ParticleTypes.CAMPFIRE_SIGNAL_SMOKE;
 			case "flame" -> ParticleTypes.FLAME;
-			case "ember" -> ParticleTypes.LAVA;
+			case "ember" -> EmberParticles.EMBER;
+			case "spark" -> EmberParticles.CINDER_SPARK;
+			case "soot" -> EmberParticles.SOOT;
 			case "soul" -> ParticleTypes.SOUL_FIRE_FLAME;
-			case "ash" -> ParticleTypes.ASH;
+			case "ash" -> EmberParticles.ASH_FLAKE;
 			default -> null;
 		};
 	}

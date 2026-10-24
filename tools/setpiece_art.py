@@ -655,8 +655,9 @@ def great_brazier():
 
 
 def portcullis():
-    """A gate hanging in a gatehouse lintel: five bars wide, five and a half tall, spiked; a winding drum and two
-    gear wheels on the wall face. Open it hides in the wall; the slam drops it in half a second."""
+    """A gate hanging in a gatehouse lintel: seven bars wide (the Citadel gatehouse's gate; in the courtyard's
+    five-wide keep gate the outer bars sit inside the wall), five and a half tall, spiked; a winding drum and two gear
+    wheels on the wall face. Open it hides in the wall; the slam drops it in half a second."""
     bones = []
     frame = Bone("frame", [0, 8, 0])
     frame.add(Box([-8, 0, -8], [16, 16, 16], STONE, {"all": stone_cracks}))                       # the lintel block
@@ -679,11 +680,11 @@ def portcullis():
         bones.append(gear)
     gate = Bone("gate", [0, 0, 0], parent="frame")
     gd = {"all": spec_line}
-    for x in (-32, -16, 0, 16, 32):
+    for x in (-48, -32, -16, 0, 16, 32, 48):                                                        # seven bars: the gatehouse gate; the courtyard's five-wide gate hides the outer two in its wall
         gate.add(Box([x - 1.5, -90, -9.5], [3, 92, 3], IRON_DARK, gd))                             # bars
         gate.add(Box([x - 2, -95, -10], [4, 5, 4], IRON, gd, inflate=-0.3))                          # spikes
     for y in (-10, -28, -46, -64, -82):
-        gate.add(Box([-36, y, -9], [72, 3, 2], IRON, {"all": (lambda f, r: (spec_line(f, r), rivet_row(f, r, 6, 1)))}))  # cross bars
+        gate.add(Box([-52, y, -9], [104, 3, 2], IRON, {"all": (lambda f, r: (spec_line(f, r), rivet_row(f, r, 6, 1)))}))  # cross bars
     gate.add(Box([-10, 1, -9.5], [1.5, 6, 1.5], IRON))                                              # chains to the drum
     gate.add(Box([8.5, 1, -9.5], [1.5, 6, 1.5], IRON))
     bones.append(gate)

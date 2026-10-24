@@ -1,6 +1,8 @@
 package com.embervoid.client.reach.world;
 
 import com.embervoid.Embervoid;
+import com.embervoid.block.setpiece.SetPieceBlock;
+import com.embervoid.block.setpiece.SetPieces;
 import com.embervoid.reach.world.ReachBlocks;
 import com.embervoid.registry.ModBlocks;
 import com.embervoid.sanctum.datagen.TemplateBuilder;
@@ -127,6 +129,8 @@ public final class MinorTemplates {
 		}
 		r.clear(6, 1, 0, 8, 4, 0);
 		r.roof(0, 0, 14, 10, 7, PLANK_SLAB, 0.3);
+		// A hoist over the barn door, its crate swaying (PLAN 20.2).
+		r.set(7, 6, 0, SetPieces.GRANARY_HOIST.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH));
 		r.fill(1, 1, 7, 3, 2, 9, STRAW);
 		r.fill(11, 1, 7, 13, 3, 9, STRAW, Ruin.AIR, 0.3);
 		r.chest(12, 1, 2, Direction.WEST, z.commonChest());
@@ -147,6 +151,9 @@ public final class MinorTemplates {
 		r.fill(4, 9, 1, 4, 9, 3, LOG.with(PillarBlock.AXIS, Direction.Axis.Z));
 		r.fill(4, 4, 0, 4, 16, 0, FENCE);
 		r.fill(0, 10, 0, 8, 10, 0, FENCE);
+		// The sail wheel (PLAN 20.2): the fence frame goes, the turning wheel hangs on the axle's end.
+		r.clear(4, 4, 0, 4, 16, 0).clear(0, 10, 0, 8, 10, 0);
+		r.set(4, 9, 0, SetPieces.WINDMILL_SAILS.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH));
 		r.chest(3, 1, 5, Direction.EAST, z.commonChest());
 		r.mob(4, 9, 4, z.ranged(), Direction.NORTH).mob(4, 1, 4, z.fodder(), Direction.NORTH);
 		return r.build();
@@ -185,6 +192,7 @@ public final class MinorTemplates {
 		r.fill(9, 5, 9, 9, 9, 9, BRICKS);
 		r.scatter(2, 2, 8, 8, 5, STRAW, 6);
 		r.clear(5, 5, 1, 5, 6, 1);
+		r.set(5, 8, 1, SetPieces.GRANARY_HOIST.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH)); // the granary's hoist (PLAN 20.2)
 		r.mob(4, 1, 3, z.fodder(), Direction.SOUTH).mob(6, 1, 5, z.fodder(), Direction.SOUTH);
 		r.mob(9, 10, 9, z.elite(), Direction.NORTH);
 		return r.build();
@@ -214,6 +222,7 @@ public final class MinorTemplates {
 		r.fill(6, 0, 3, 6, 6, 3, LOG.with(PillarBlock.AXIS, Direction.Axis.Y));
 		r.fill(2, 7, 3, 6, 7, 3, LOG.with(PillarBlock.AXIS, Direction.Axis.X));
 		r.fill(3, 5, 3, 3, 6, 3, CHAIN).set(5, 6, 3, CHAIN);
+		r.set(5, 6, 3, SetPieces.HANGING_CAGE.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH)); // a gibbet cage swinging from the beam (PLAN 20.2)
 		r.set(4, 1, 1, ModBlocks.DEAD_STAIRS.getDefaultState().with(StairsBlock.FACING, Direction.SOUTH));
 		r.mob(4, 2, 3, z.fodder(), Direction.NORTH).mob(4, 1, 6, z.fodder(), Direction.NORTH);
 		return r.build();
@@ -319,6 +328,7 @@ public final class MinorTemplates {
 		cage(r, z, 5, 2, 3, 7);
 		r.set(5, 7, 9, LANTERN.with(LanternBlock.HANGING, true));
 		r.set(9, 8, 5, LANTERN.with(LanternBlock.HANGING, true));
+		r.set(5, 7, 7, SetPieces.HANGING_CAGE.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH)); // one more cage, swinging (PLAN 20.2)
 		return r.build();
 	}
 
@@ -382,6 +392,9 @@ public final class MinorTemplates {
 		r.set(door - 1, 1, lid, Blocks.CANDLE.getDefaultState().with(CandleBlock.LIT, true).with(CandleBlock.CANDLES, 3));
 		r.chest(sx - 2, 1, sz - 2, Direction.WEST, z.commonChest());
 		if (large) {
+			r.set(door, top, 3, SetPieces.GREAT_BELL.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH)); // the tomb's bell under the ceiling (PLAN 20.2)
+		}
+		if (large) {
 			r.mob(door - 1, 1, 2, z.tank(), Direction.NORTH).mob(door + 1, 1, 2, z.tank(), Direction.NORTH);
 			r.mob(2, 1, 6, z.fodder(), Direction.EAST).mob(sx - 3, 1, 7, z.fodder(), Direction.WEST);
 		} else {
@@ -426,6 +439,9 @@ public final class MinorTemplates {
 		r.set(4, 2, 13, Blocks.CANDLE.getDefaultState().with(CandleBlock.LIT, true))
 				.set(6, 2, 13, Blocks.CANDLE.getDefaultState().with(CandleBlock.LIT, true));
 		r.set(5, 1, 12, Blocks.BELL.getDefaultState().with(BellBlock.ATTACHMENT, Attachment.FLOOR).with(BellBlock.FACING, Direction.NORTH));
+		// The great bell on a beam across the nave (PLAN 20.2): a slow sway, a toll when a Grave Warden rings below it.
+		r.fill(1, 9, 8, 9, 9, 8, LOG.with(PillarBlock.AXIS, Direction.Axis.X));
+		r.set(5, 8, 8, SetPieces.GREAT_BELL.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH));
 		r.chest(8, 1, 14, Direction.WEST, z.commonChest());
 		r.mob(5, 1, 10, z.elite(), Direction.NORTH);
 		r.mob(3, 1, 7, z.fodder(), Direction.NORTH).mob(7, 1, 5, z.fodder(), Direction.NORTH);

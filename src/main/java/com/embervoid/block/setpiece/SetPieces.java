@@ -83,7 +83,7 @@ public final class SetPieces {
 	public static final SetPieceBlock GREAT_BRAZIER = lit("great_brazier", SetPieceKind.builder("great_brazier").triggered().noIdle()
 			.state("cold", false).state("lit", true).lit("lit", 13).followsCampfire()
 			.box(1, 0, 1, 15, 16, 15).big(64)
-			.puff("lit", "signal", 0, 1.0, 0, 0.3, 3).puff("lit", "flame", 0, 0.8, 0, 0.5, 6)
+			.puff("lit", "signal", 0, 1.0, 0, 0.3, 3).puff("lit", "ember", 0, 0.9, 0, 0.5, 4)
 			.reacts(ArenaEvents.PHASE, "lit").reacts(ArenaEvents.RESET, "cold"));
 
 	// --- Smoldering Citadel: the gate, the forge, the lift ---
@@ -96,7 +96,7 @@ public final class SetPieces {
 	/** Forge bellows breathing, a puff of smoke and sparks from the nozzle. */
 	public static final SetPieceBlock FORGE_BELLOWS = wood("forge_bellows", SetPieceKind.builder("forge_bellows")
 			.box(1, 0, 0, 15, 10, 16).big(48)
-			.puff(null, "smoke", 0, 0.45, -0.95, 0.2, 60).puff(null, "ember", 0, 0.45, -0.95, 0.1, 60));
+			.puff(null, "soot", 0, 0.45, -0.95, 0.2, 60).puff(null, "spark", 0, 0.45, -0.95, 0.1, 60));
 	/** A winch: a drum turning, its chain paying out with a bucket on the end. */
 	public static final SetPieceBlock CHAIN_WINCH = wood("chain_winch", SetPieceKind.builder("chain_winch")
 			.box(2, 0, 2, 14, 16, 14).big(64));
@@ -107,7 +107,7 @@ public final class SetPieces {
 	public static final SetPieceBlock CENSER = lit("censer", SetPieceKind.builder("censer").triggered()
 			.state("cold", false).state("lit", false).lit("lit", 10)
 			.box(5, 0, 5, 11, 16, 11).big(48)
-			.puff("lit", "smoke", 0, 0.2, 0, 0.15, 2)
+			.puff("lit", "soot", 0, 0.2, 0, 0.15, 3)
 			.reacts(ArenaEvents.PHASE, "lit").reacts(ArenaEvents.RESET, "cold"));
 
 	public static final List<SetPieceBlock> ALL = List.copyOf(BY_NAME.values());
@@ -145,6 +145,14 @@ public final class SetPieces {
 	 */
 	public static boolean trigger(ServerWorld world, BlockPos pos, String event) {
 		return world.getBlockEntity(pos) instanceof SetPieceBlockEntity piece && piece.apply(event);
+	}
+
+	/**
+	 * Every great bell within {@code radius} blocks of {@code pos} (in loaded chunks) tolls: a Grave Warden ringing its
+	 * hand bell under a chapel's bell.
+	 */
+	public static int tollBellsNear(ServerWorld world, BlockPos pos, double radius) {
+		return ArenaEvents.fire(world, pos, (int) Math.ceil(radius), "raise_dead");
 	}
 
 	/** The block entity of a set piece at {@code pos}, or null. */
