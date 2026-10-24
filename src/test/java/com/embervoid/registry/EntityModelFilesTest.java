@@ -7,6 +7,7 @@ import com.embervoid.reach.boss.ReachBoss;
 import com.embervoid.reach.boss.SmolderingLordEntity;
 import com.embervoid.reach.mob.AshStalkerEntity;
 import com.embervoid.reach.mob.AshenCarrionEntity;
+import com.embervoid.reach.mob.BarkHollowEntity;
 import com.embervoid.reach.mob.CinderHuskEntity;
 import com.embervoid.reach.mob.LanternHagEntity;
 import com.embervoid.reach.mob.ReachMob;
@@ -195,7 +196,9 @@ class EntityModelFilesTest {
 					ReachMob.STAGGER, ReachMob.DEATH)),
 			Map.entry("withered_thrall", List.of("misc.idle", "move.walk", "attack.swing", "misc.hang", "attack.drop", ReachMob.HURT,
 					ReachMob.STAGGER, ReachMob.DEATH)),
-			Map.entry("lantern_hag", List.of("misc.idle", "move.walk", "attack.throw", ReachMob.HURT, ReachMob.STAGGER, ReachMob.DEATH)));
+			Map.entry("lantern_hag", List.of("misc.idle", "move.walk", "attack.throw", ReachMob.HURT, ReachMob.STAGGER, ReachMob.DEATH)),
+			Map.entry("bark_hollow", List.of("misc.idle", "move.walk", "attack.sweep", "misc.dormant", "misc.awaken", ReachMob.HURT,
+					ReachMob.STAGGER, ReachMob.DEATH)));
 
 	/** Bones the Realm 1 renderers turn (head) or toggle ({@code ReachMob#toggledBones}). */
 	private static final Map<String, List<String>> REACH_MOB_BONES = Map.ofEntries(
@@ -203,7 +206,8 @@ class EntityModelFilesTest {
 			Map.entry("ash_stalker", List.of("head")),
 			Map.entry("ashen_carrion", List.of("head")),
 			Map.entry("withered_thrall", List.of("head")),
-			Map.entry("lantern_hag", List.of("head", "lantern")));
+			Map.entry("lantern_hag", List.of("head", "lantern")),
+			Map.entry("bark_hollow", List.of("eyes")));
 
 	/** Shortest length (s) of a Realm 1 mob's telegraphed animation: its move's windup in ticks / 20. */
 	private static final Map<String, Double> REACH_MOB_MIN_LENGTH = Map.ofEntries(
@@ -213,7 +217,9 @@ class EntityModelFilesTest {
 			Map.entry("ashen_carrion/attack.shriek", AshenCarrionEntity.SHRIEK_TICKS / 20.0),
 			Map.entry("withered_thrall/attack.swing", WitheredThrallEntity.SWING_WINDUP / 20.0),
 			Map.entry("withered_thrall/misc.hang", WitheredThrallEntity.RATTLE_TICKS / 20.0),
-			Map.entry("lantern_hag/attack.throw", LanternHagEntity.THROW_WINDUP / 20.0));
+			Map.entry("lantern_hag/attack.throw", LanternHagEntity.THROW_WINDUP / 20.0),
+			Map.entry("bark_hollow/attack.sweep", BarkHollowEntity.SWEEP_WINDUP / 20.0),
+			Map.entry("bark_hollow/misc.awaken", BarkHollowEntity.AWAKEN_TICKS / 20.0));
 
 	/** Ticks each Realm 1 mob's body stays for its fall ({@code ReachMob#deathTicks}): the fall must fill them. */
 	private static final Map<String, Integer> REACH_MOB_DEATH_TICKS = Map.ofEntries(
@@ -221,7 +227,8 @@ class EntityModelFilesTest {
 			Map.entry("ash_stalker", AshStalkerEntity.DEATH_TICKS),
 			Map.entry("ashen_carrion", AshenCarrionEntity.DEATH_TICKS),
 			Map.entry("withered_thrall", WitheredThrallEntity.DEATH_TICKS),
-			Map.entry("lantern_hag", LanternHagEntity.DEATH_TICKS));
+			Map.entry("lantern_hag", LanternHagEntity.DEATH_TICKS),
+			Map.entry("bark_hollow", BarkHollowEntity.DEATH_TICKS));
 
 	@Test
 	void reachMobsKeepWhatTheirCodeUses() throws IOException {

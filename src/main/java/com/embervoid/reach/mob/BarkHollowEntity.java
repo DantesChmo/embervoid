@@ -1,6 +1,9 @@
 package com.embervoid.reach.mob;
 
+import com.embervoid.fx.CombatFx;
+import com.embervoid.fx.particle.EmberParticles;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
@@ -46,6 +49,10 @@ public class BarkHollowEntity extends ReachMob {
 	private static final double SWEEP_CONE_COS = 0.5;
 	public static final float WEAK_FACTOR = 1.5f;
 	static final int SETTLE_TICKS = 300;
+	/** Ticks the body stays for {@code misc.death}: it sways, then topples forward like a felled tree, 2.4 s. */
+	public static final int DEATH_TICKS = 48;
+	/** The tick of {@code misc.death} at which the trunk hits the ground. */
+	private static final int DEATH_LANDING_TICK = 31;
 	static final Move SWEEP = new Move("attack.sweep", SWEEP_WINDUP, 50, ReachMobSounds.BARK_HOLLOW_WINDUP, 1.0f);
 	private static final byte STATE_DORMANT = 1;
 	private static final byte STATE_AWAKENING = 2;
@@ -220,6 +227,27 @@ public class BarkHollowEntity extends ReachMob {
 		playSound(ReachMobSounds.BARK_HOLLOW_STEP, 0.6f, 1.0f);
 		if (getWorld() instanceof ServerWorld world && random.nextInt(4) == 0) {
 			world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), getX(), getY(), getZ(), 4, 0.4, 0, 0.4, 0);
+		}
+	}
+
+	@Override
+	public int deathTicks() {
+		return DEATH_TICKS;
+	}
+
+	/** The felled trunk hits the ground: the earth shakes a little, bark and dust fly. */
+	@Override
+	protected void tickDeath(ServerWorld world, int deathTime) {
+		if (deathTime == DEATH_LANDING_TICK) {
+			Vec3d front = getPos().add(Vec3d.fromPolar(0, getYaw()).multiply(1.2));
+			CombatFx.shake(world, front, 0.5f, CombatFx.shakeTicks(0.5f), 12);
+			world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.OAK_LOG.getDefaultState()),
+					front.x, getY() + 0.3, front.z, 24, 1.2, 0.2, 1.2, 0.08);
+			EmberParticles.spawn(world, EmberParticles.SOOT, front.add(0, 0.3, 0), 8, 1.0, 0.03);
+			EmberParticles.ringOut(world, EmberParticles.ASH_FLAKE, front, 10, 0.12, 0.12);
+		} else if (deathTime < DEATH_LANDING_TICK && deathTime % 6 == 0) {
+			world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.OAK_LOG.getDefaultState()),
+					getX(), getY() + 1.5, getZ(), 3, 0.5, 0.6, 0.5, 0.02);
 		}
 	}
 

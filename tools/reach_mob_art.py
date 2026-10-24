@@ -1198,94 +1198,202 @@ def lantern_hag():
 
 
 # --- Woods: Bark Hollow ----------------------------------------------------------------------------------------------
-# A dead oak of the king's park that walks: grooved bark, moss, a knot-hole face whose eyes light when it wakes
-# (the eyes bone, shown by the renderer), branch arms with twig fingers, root feet, a crown of dead branches.
-# Dormant until a player is within 6; sweep after a 20-tick windup.
+# A dead oak of the king's park that walks: a chamfered trunk under loose bark plates and moss, a knot-hole face
+# with amber eyes (the eyes bone, shown by the renderer) and a bark jaw that creaks open, branch arms in two segments
+# with twig fingers, root feet with splayed toes, a crown of dead branches in two segments that sway, a rusted hunting
+# lantern hanging off one of them. Dormant until a player is within 6; sweep after a 20-tick windup.
 
 def bark_hollow():
-    bark = Material(BARK, base=2.4, noise=0.7, grain="v", grad=0.6, top=0.4)
+    bark = Material(mk.BARK, base=2.8, noise=0.6, grain="v", grad=0.6, top=0.4, bevel=0.5)
 
     def bark_deco(face, rng):
         if face.side():
-            for _ in range(max(1, face.w // 3)):  # deep grooves
-                x = rng.randrange(face.w)
-                y = rng.randrange(face.h)
-                face.vline(x, y, rng.randint(3, 8), BARK[0])
-            for _ in range(face.w * face.h // 60):  # moss
+            mk.grain(face, rng, mk.BARK[0], mk.BARK[5], 2, (3, 8))
+            for _ in range(face.w * face.h // 70):
                 x, y = rng.randrange(face.w), rng.randrange(face.h)
-                face.rect(x, y, rng.randint(1, 3), rng.randint(1, 2), MOSS[rng.randint(1, 3)])
+                face.rect(x, y, rng.randint(1, 3), rng.randint(1, 2), mk.MOSS[rng.randint(2, 4)])
+            mk.edge_shadow(face, rng, -12)
         if face.name == "top":
             for r in range(0, max(face.w, face.h) // 2, 2):  # growth rings on a cut top
                 for x in range(face.w):
                     for y in range(face.h):
                         if max(abs(x - face.w // 2), abs(y - face.h // 2)) == r:
-                            face.set(x, y, BARK[3])
+                            face.set(x, y, mk.BARK[3])
 
     def trunk_front(face, rng):
         bark_deco(face, rng)
-        # The face: a dark knot hollow for the eyes (y 5..8 from the top: the eyes bone sits at model y 31) and a
-        # long gaping mouth below.
-        face.rect(3, 4, 8, 5, BARK[0])
-        face.rect(4, 5, 6, 3, VOID)
-        face.rect(5, 10, 4, 6, BARK[0])
-        face.rect(6, 11, 2, 4, VOID)
-        face.hline(2, 3, 10, BARK[4])
+        # The knot hollow of the eyes (y 5..8 from the top: the eyes bone sits at model y 31) and the mouth under it.
+        cx = face.cx
+        face.rect(cx - 4, 4, 8, 5, mk.BARK[0])
+        face.rect(cx - 3, 5, 6, 3, VOID)
+        face.rect(cx - 2, 10, 4, 5, mk.BARK[0])
+        face.rect(cx - 1, 11, 2, 3, VOID)
+        face.hline(cx - 5, 3, 10, mk.BARK[5])
 
+    plate_mat = bark.but(base=3.2)
+    body_parts = mk.chamfer_decals(chamfered([-7, 12, -5], [14, 26, 10], bark, c=1.2, axes="xz"),
+                                   {"front": trunk_front, "back": bark_deco, "left": bark_deco, "right": bark_deco, "top": bark_deco})
+    plates = [
+        Box([-7.6, 14, -2], [1.4, 9, 5], plate_mat, {"all": bark_deco}, inflate=0.2, rotation=[0, 0, 4], pivot=[-7, 23, 0]),
+        Box([-7.6, 26, -3], [1.4, 8, 6], plate_mat, {"all": bark_deco}, inflate=0.2, rotation=[0, 0, -3], pivot=[-7, 26, 0]),
+        Box([6.2, 17, -3], [1.4, 10, 6], plate_mat, {"all": bark_deco}, inflate=0.2, rotation=[0, 0, -4], pivot=[7, 27, 0]),
+        Box([-5, 16, 4.2], [8, 9, 1.4], plate_mat, {"all": bark_deco}, inflate=0.2, rotation=[-4, 0, 0], pivot=[0, 25, 5]),
+        Box([-6, 30, 4.2], [9, 6, 1.4], plate_mat, {"all": bark_deco}, inflate=0.2),
+        Box([-6, 12.5, -5.8], [5, 7, 1.4], plate_mat.but(base=2.4), {"all": bark_deco}, inflate=0.2, rotation=[0, 0, 6], pivot=[-3, 19, -5]),
+        Box([-2, 30, 4.5], [4, 3, 2], Material(mk.MOSS, base=2.5, noise=0.6), inflate=0.3),
+        Box([-6.5, 23, -5.8], [3, 2, 1.5], Material(mk.MOSS, base=2.5, noise=0.6), inflate=0.2),
+    ]
     bones = [
         Bone("root", [0, 0, 0]),
-        Bone("body", [0, 12, 0], "root", None, [
-            Box([-7, 12, -5], [14, 26, 10], bark, {"front": trunk_front, "back": bark_deco, "left": bark_deco,
-                                                   "right": bark_deco, "top": bark_deco}),
-            Box([-5, 30, 4.5], [4, 3, 2], bark.but(base=3.0), {"sides": lambda f, r: f.rect(1, 1, 2, 1, BARK[0])}),
-        ]),
+        Bone("body", [0, 12, 0], "root", None, body_parts + plates),
         Bone("eyes", [0, 31, -5], "body", None, [
-            Box([-4, 31, -5.5], [2, 1, 1], Material(ramp("ffb347", "ffd27a"), base=0.6, noise=0.3, glow=1.0)),
-            Box([2, 31, -5.5], [2, 1, 1], Material(ramp("ffb347", "ffd27a"), base=0.6, noise=0.3, glow=1.0)),
+            Box([-4, 31, -5.6], [2.5, 1.2, 1], Material(mk.AMBER_RAMP, base=5.0, noise=0.3, glow=1.0)),
+            Box([1.5, 31, -5.6], [2.5, 1.2, 1], Material(mk.AMBER_RAMP, base=5.0, noise=0.3, glow=1.0)),
+        ]),
+        Bone("jaw", [0, 24, -4], "body", None, [
+            Box([-2.5, 21.5, -5.8], [5, 2.5, 2], bark.but(base=2.2), {"all": bark_deco}, inflate=0.1),
+            Box([-2, 23.5, -5.4], [1, 1, 1], Material(mk.BONE, base=2.0, noise=0.3)),
+            Box([1, 23.5, -5.4], [1, 1, 1], Material(mk.BONE, base=2.0, noise=0.3)),
         ]),
     ]
-    twig = Material(BARK, base=3.0, noise=0.6, grain="v")
-    bones.append(Bone("crown", [0, 38, 0], "body", None, [
-        Box([-5, 38, -4], [10, 6, 8], bark, {"sides": bark_deco, "top": bark_deco}),
-        Box([-9, 42, -1], [4, 8, 2], twig, rotation=[0, 0, 25], pivot=[-5, 42, 0]),
-        Box([-11, 49, -0.5], [2, 5, 1], twig, rotation=[0, 0, 50], pivot=[-9, 49, 0]),
-        Box([5, 41, -1], [3, 10, 2], twig, rotation=[0, 0, -15], pivot=[6, 41, 0]),
-        Box([7, 50, -0.5], [1, 5, 1], twig, rotation=[0, 0, -45], pivot=[7, 50, 0]),
-        Box([-1, 43, 1], [2, 7, 2], twig, rotation=[-20, 0, 0], pivot=[0, 43, 2]),
-        Box([-2, 43, -3], [3, 3, 3], Material(MOSS, base=2.0, noise=0.7), inflate=0.2),
-    ]))
-    arm = Box([-12, 12, -2.5], [5, 24, 5], bark, {"sides": bark_deco})
-    fingers = [Box([-13, 9, -1], [2, 4, 2], twig), Box([-10, 8, -1], [1, 5, 1], twig, rotation=[0, 0, -15],
-                                                         pivot=[-9.5, 12, -0.5]),
-               Box([-12, 8, 1], [1, 4, 1], twig, rotation=[20, 0, 0], pivot=[-11.5, 12, 1.5])]
-    bones.append(Bone("right_arm", [-9, 34, 0], "body", None, [arm] + fingers))
-    bones.append(Bone("left_arm", [9, 34, 0], "body", None, [mirror_box(arm)] + [mirror_box(f) for f in fingers]))
-    leg = Box([-6, 0, -3], [5, 12, 6], bark, {"sides": bark_deco})
-    roots = Box([-7, 0, -4.5], [6, 2, 3], bark.but(base=1.6), rotation=[-10, 0, 0], pivot=[-4, 1, -3])
-    bones.append(Bone("right_leg", [-3.5, 12, 0], "root", None, [leg, roots]))
-    bones.append(Bone("left_leg", [3.5, 12, 0], "root", None, [mirror_box(leg), mirror_box(roots)]))
+    twig = Material(mk.BARK, base=3.4, noise=0.5, grain="v", bevel=0.4)
+    crown = Bone("crown", [0, 38, 0], "body", None,
+                 mk.chamfer_decals(chamfered([-5, 38, -4], [10, 6, 8], bark, c=1.0, axes="xz"), {"sides": bark_deco, "top": bark_deco})
+                 + [Box([-9, 41, -1], [5, 3, 2], twig, rotation=[0, 0, 30], pivot=[-5, 42, 0]),
+                    Box([4, 41, -1], [5, 3, 2], twig, rotation=[0, 0, -25], pivot=[5, 42, 0]),
+                    Box([-1, 43, 1], [2, 6, 2], twig, rotation=[-25, 0, 0], pivot=[0, 43, 2]),
+                    Box([-2, 43.5, -3], [3, 2.5, 3], Material(mk.MOSS, base=2.5, noise=0.6), inflate=0.3)])
+    bones.append(crown)
+    # The two long branches of the crown, each in two segments that sway and whip behind the motion.
+    bones += chain_bones("branch_r", "crown", [-8.5, 43.5, 0], 2, 5, twig, thickness=1.6, rotation=[0, 0, 150],
+                         box=lambda i, o, s: [Box([o[0], o[1], o[2]], [s[0] - i * 0.4, s[1], s[2] - i * 0.4], twig),
+                                              Box([o[0] - 1.5, o[1] + 1, o[2]], [2, 0.9, 0.9], twig.but(base=4.0), rotation=[0, 0, 35],
+                                                  pivot=[o[0], o[1] + 1.5, o[2] + 0.5])])
+    bones += chain_bones("branch_l", "crown", [8.2, 43.5, 0], 2, 5, twig, thickness=1.6, rotation=[0, 0, -140],
+                         box=lambda i, o, s: [Box([o[0], o[1], o[2]], [s[0] - i * 0.4, s[1], s[2] - i * 0.4], twig),
+                                              Box([o[0] + 0.5, o[1] + 1.5, o[2]], [2, 0.9, 0.9], twig.but(base=4.0), rotation=[0, 0, -35],
+                                                  pivot=[o[0] + 1, o[1] + 2, o[2] + 0.5])])
+    # A rusted hunting lantern on a chain off the left branch's elbow: the king's huntsmen hung them in the trees.
+    iron = Material(mk.IRON, base=1.8, noise=0.5, speck=0.08, bevel=0.4, decal=lambda f, r: scatter(f, r, 1, mk.RUST[2]))
+    bones += chain_bones("lantern", "branch_l_1", [9.6, 43.5, 0], 2, 2.4, iron, thickness=0.6, rotation=[0, 0, 140],
+                         box=lambda i, o, s: ([Box(o, s, iron)] if i == 0 else [
+                             Box([o[0], o[1] + 1, o[2]], [0.6, 1.4, 0.6], iron),
+                             Box([o[0] - 1.2, o[1] - 2.6, o[2] - 1.2], [3, 3.6, 3], Material(mk.AMBER_RAMP, base=3.2, noise=0.5, glow=0.5),
+                                 {"sides": lambda f, r: (f.vline(0, 0, f.h, mk.IRON[1]), f.vline(f.w - 1, 0, f.h, mk.IRON[1]))}),
+                             Box([o[0] - 1.4, o[1] - 3.2, o[2] - 1.4], [3.4, 0.8, 3.4], iron),
+                             Box([o[0] - 1.4, o[1] + 0.8, o[2] - 1.4], [3.4, 0.6, 3.4], iron)]))
+    arm = mk.chamfer_decals(chamfered([-12, 22, -2.5], [5, 13, 5], bark, c=0.8, axes="xz"), {"sides": bark_deco})
+    arm_plate = Box([-12.6, 24, -1.5], [1.2, 8, 4], plate_mat, {"all": bark_deco}, inflate=0.2, rotation=[0, 0, 5], pivot=[-12, 32, 0])
+    fore = [Box([-11.7, 11, -2.2], [4.4, 11, 4.4], bark.but(base=2.5), {"sides": bark_deco}),
+            Box([-12.2, 14, -2.8], [1.2, 6, 2.5], plate_mat.but(base=2.6), {"all": bark_deco}, inflate=0.15)]
+    fingers_twigs = [Box([-13, 7, -1], [1.6, 4.5, 1.6], twig, rotation=[0, 0, 12], pivot=[-12.2, 11, -0.2]),
+                     Box([-10.5, 6.5, -1.5], [1.4, 5, 1.4], twig, rotation=[8, 0, -4], pivot=[-9.8, 11, -0.8]),
+                     Box([-8.3, 7.5, -0.5], [1.4, 4, 1.4], twig, rotation=[0, 0, -18], pivot=[-7.6, 11, 0.2]),
+                     Box([-10.5, 8, 1.2], [1.4, 3.5, 1.4], twig, rotation=[25, 0, 0], pivot=[-9.8, 11, 1.9])]
+    bones.append(Bone("right_arm", [-9.5, 34, 0], "body", None, arm + [arm_plate]))
+    bones.append(Bone("right_fore", [-9.5, 22, 0], "right_arm", None, fore + fingers_twigs))
+    bones.append(Bone("left_arm", [9.5, 34, 0], "body", None, [mirror_box(b) for b in arm] + [mirror_box(arm_plate)]))
+    bones.append(Bone("left_fore", [9.5, 22, 0], "left_arm", None, [mirror_box(b) for b in fore + fingers_twigs]))
+    leg = mk.chamfer_decals(chamfered([-6, 2, -3], [5, 10, 6], bark, c=0.8, axes="xz"), {"sides": bark_deco})
+    leg_plate = Box([-6.6, 4, -2], [1.2, 6, 4], plate_mat, {"all": bark_deco}, inflate=0.2)
+    toes = [Box([-7, 0, -5], [2, 2, 4], bark.but(base=2.0), rotation=[0, 20, 0], pivot=[-6, 1, -3]),
+            Box([-4.5, 0, -5.5], [2, 2, 4.5], bark.but(base=2.0)),
+            Box([-2.2, 0, -5], [2, 2, 4], bark.but(base=2.0), rotation=[0, -20, 0], pivot=[-1.5, 1, -3]),
+            Box([-4.5, 0, 2], [2, 1.8, 3], bark.but(base=1.8), rotation=[0, 0, 0])]
+    bones.append(Bone("right_leg", [-3.5, 12, 0], "root", None, leg + [leg_plate] + toes))
+    bones.append(Bone("left_leg", [3.5, 12, 0], "root", None, [mirror_box(b) for b in leg + [leg_plate] + toes]))
+    branches = chain_names("branch_r", 2) + chain_names("branch_l", 2)
+    lantern = chain_names("lantern", 2)
+    chains = branches + lantern
     raised_r, raised_l = [0, 0, -35], [0, 0, 35]
     animations = {
-        "misc.dormant": anim(2.0, {"right_arm": rot(0, raised_r, 2, raised_r), "left_arm": rot(0, raised_l, 2, raised_l)}),
-        "misc.awaken": anim(1.0, {
-            "body": rot(0, ZERO, 0.2, [0, 0, 3], 0.4, [0, 0, -3], 0.6, [0, 0, 2], 0.8, ZERO),
-            "right_arm": rot(0, raised_r, 1.0, ZERO),
-            "left_arm": rot(0, raised_l, 1.0, ZERO),
-            "crown": rot(0, ZERO, 0.3, [0, 0, -4], 0.6, [0, 0, 4], 1.0, ZERO),
-        }, loop=False),
-        "misc.idle": anim(4.0, {
-            "crown": rot(0, ZERO, 2.0, [2, 0, 2], 4.0, ZERO),
-            "right_arm": rot(0, ZERO, 2.0, [-2, 0, 1], 4.0, ZERO),
-            "left_arm": rot(0, ZERO, 2.0, [-2, 0, -1], 4.0, ZERO),
-            "body": rot(0, ZERO, 2.0, [1, 0, 0], 4.0, ZERO),
-        }),
-        "move.walk": walk(1.6, 18, 10, 0.6, body=rot(0, [0, 0, 3], 0.8, [0, 0, -3], 1.6, [0, 0, 3]),
-                          crown=rot(0, [0, 0, -2], 0.8, [0, 0, 2], 1.6, [0, 0, -2])),
-        "attack.sweep": anim(1.6, {
-            "right_arm": rot(0, ZERO, 1.0, [-70, 0, -70], 1.15, [-80, 0, 50], 1.6, ZERO),
-            "body": rot(0, ZERO, 1.0, [0, 40, 0], 1.15, [0, -50, 0], 1.6, ZERO),
-        }, loop=False),
+        # Dormant: a dead tree, the arms up like branches, nothing moving but the lantern in the wind.
+        "misc.dormant": anim(4.0, merge({"right_arm": rot(0, raised_r, 4, raised_r), "left_arm": rot(0, raised_l, 4, raised_l),
+                                         "right_fore": rot(0, [0, 0, -20], 4, [0, 0, -20]), "left_fore": rot(0, [0, 0, 20], 4, [0, 0, 20])},
+                                        lag_sway(lantern, 4.0, 4, 2, phase=0.0), lag_sway(branches, 4.0, 1.5, 2, phase=0.5))),
+        # It wakes: a shudder runs up the trunk, the arms come down with bark falling, the jaw cracks open.
+        "misc.awaken": anim(1.0, merge({
+            "body": rot(0, ZERO, 0.15, e("easeOutCubic", [0, 0, 4]), 0.35, e("easeInOutSine", [0, 0, -4]), 0.55, e("easeInOutSine", [0, 0, 3]),
+                        0.75, e("easeInOutSine", [0, 0, -2]), 1.0, e("easeOutSine", ZERO)),
+            "right_arm": rot(0, raised_r, 0.5, raised_r, 1.0, e("easeOutBack", ZERO)),
+            "left_arm": rot(0, raised_l, 0.6, raised_l, 1.0, e("easeOutBack", ZERO)),
+            "right_fore": rot(0, [0, 0, -20], 0.5, [0, 0, -20], 1.0, e("easeOutSine", [-15, 0, 0])),
+            "left_fore": rot(0, [0, 0, 20], 0.6, [0, 0, 20], 1.0, e("easeOutSine", [-15, 0, 0])),
+            "crown": rot(0, ZERO, 0.2, e("easeOutCubic", [0, 0, -6]), 0.5, e("easeInOutSine", [0, 0, 6]), 1.0, e("easeOutSine", ZERO)),
+            "jaw": rot(0, ZERO, 0.6, ZERO, 0.8, e("easeOutBack", [30, 0, 0]), 1.0, e("easeOutSine", [12, 0, 0])),
+        }, whip(branches, 0.15, 25, 2, settle=0.8), whip(lantern, 0.15, 35, 0, settle=0.8)), loop=False),
+        # Idle: the trunk rocks slowly like a tree in wind, the crown and its branches lagging, the jaw creaking.
+        "misc.idle": anim(4.0, merge({
+            "body": {"rotation": keys(0, ZERO, 2.0, e("easeInOutSine", [1.5, 0, 2]), 4.0, e("easeInOutSine", ZERO)),
+                     "position": keys(0, ZERO, 2.0, e("easeInOutSine", [0, 0.6, 0]), 4.0, e("easeInOutSine", ZERO))},
+            "crown": rot(0, ZERO, 2.2, e("easeInOutSine", [2, 0, 3]), 4.0, e("easeInOutSine", ZERO)),
+            "right_arm": rot(0, ZERO, 2.0, e("easeInOutSine", [-3, 0, 2]), 4.0, e("easeInOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 2.0, e("easeInOutSine", [-3, 0, -2]), 4.0, e("easeInOutSine", ZERO)),
+            "right_fore": rot(0, [-15, 0, 0], 2.0, e("easeInOutSine", [-20, 0, 0]), 4.0, e("easeInOutSine", [-15, 0, 0])),
+            "left_fore": rot(0, [-15, 0, 0], 2.0, e("easeInOutSine", [-10, 0, 0]), 4.0, e("easeInOutSine", [-15, 0, 0])),
+            "jaw": rot(0, [12, 0, 0], 1.5, e("easeInOutSine", [18, 0, 0]), 2.2, e("easeInOutSine", [10, 0, 0]), 4.0, e("easeInOutSine", [12, 0, 0])),
+        }, lag_sway(branches, 4.0, 4, 2, phase=0.3), lag_sway(lantern, 4.0, 6, 0, phase=0.0))),
+        # A heavy stomp: slow steps, the whole trunk rolling over each one, the crown and branches lagging behind.
+        "move.walk": mk.weighted_walk(1.6, 18, 10, 0.8, 5, 6, head_level=False, extra=merge(
+            {"crown": rot(0, [0, 0, -3], 0.8, e("easeInOutSine", [0, 0, 3]), 1.6, e("easeInOutSine", [0, 0, -3])),
+             "right_fore": rot(0, [-15, 0, 0], 0.8, e("easeInOutSine", [-25, 0, 0]), 1.6, e("easeInOutSine", [-15, 0, 0])),
+             "left_fore": rot(0, [-25, 0, 0], 0.8, e("easeInOutSine", [-15, 0, 0]), 1.6, e("easeInOutSine", [-25, 0, 0])),
+             "jaw": rot(0, [12, 0, 0], 1.6, [12, 0, 0])},
+            lag_sway(branches, 1.6, 8, 2, phase=0.2), lag_sway(lantern, 1.6, 14, 0, phase=0.0))),
+        # The sweep: through the 20-tick windup the right arm is drawn far back and up, the trunk coiling away from
+        # the target; at 1.08 s it comes round level with everything behind it, the branches whipping after.
+        "attack.sweep": anim(1.6, merge({
+            "right_arm": rot(0, ZERO, 0.85, e("easeInOutSine", [-75, 0, -80]), 1.0, [-80, 0, -85], 1.08,
+                             e("easeOutBack", [-85, 0, 55]), 1.3, e("easeOutSine", [-70, 0, 60]), 1.6, e("easeOutSine", ZERO)),
+            "right_fore": rot(0, [-15, 0, 0], 0.85, e("easeInOutSine", [-50, 0, 0]), 1.0, [-55, 0, 0], 1.08,
+                              e("easeOutCubic", [-5, 0, 0]), 1.6, e("easeOutSine", [-15, 0, 0])),
+            "left_arm": rot(0, ZERO, 0.85, e("easeInOutSine", [-20, 0, 15]), 1.08, e("easeOutCubic", [-30, 0, -25]), 1.6, e("easeOutSine", ZERO)),
+            "body": rot(0, ZERO, 0.85, e("easeInOutSine", [-6, 45, 0]), 1.0, [-8, 50, 0], 1.08, e("easeOutBack", [8, -50, 0]),
+                        1.3, e("easeOutSine", [5, -40, 0]), 1.6, e("easeOutSine", ZERO)),
+            "crown": rot(0, ZERO, 0.9, e("easeInOutSine", [0, 12, 6]), 1.1, e("easeOutCubic", [0, -18, -8]), 1.6, e("easeOutSine", ZERO)),
+            "jaw": rot(0, [12, 0, 0], 0.9, e("easeInOutSine", [25, 0, 0]), 1.08, e("easeOutCubic", [35, 0, 0]), 1.6, e("easeOutSine", [12, 0, 0])),
+            "root": pos(0, ZERO, 0.85, e("easeInOutSine", [0, -1, 1.5]), 1.08, e("easeOutCubic", [0, -2, -1.5]), 1.6, e("easeOutSine", ZERO)),
+            "right_leg": rot(0, ZERO, 0.85, e("easeInOutSine", [8, 0, 0]), 1.08, e("easeOutCubic", [-12, 0, 0]), 1.6, e("easeOutSine", ZERO)),
+            "left_leg": rot(0, ZERO, 0.85, e("easeInOutSine", [-8, 0, 0]), 1.08, e("easeOutCubic", [14, 0, 0]), 1.6, e("easeOutSine", ZERO)),
+        }, hold(chains, 0.95, ZERO), whip(branches, 1.05, 30, 1, settle=0.5), whip(lantern, 1.05, 45, 0, settle=0.5)), loop=False),
+        # Hurt: the trunk shudders and bark rattles; the crown shakes and the lantern swings.
+        "misc.hurt": anim(0.5, merge({
+            "body": rot(0, ZERO, 0.06, e("easeOutCubic", [-4, 0, 4]), 0.16, e("easeInOutSine", [2, 0, -4]), 0.28, e("easeInOutSine", [-2, 0, 3]),
+                        0.5, e("easeOutSine", ZERO)),
+            "crown": rot(0, ZERO, 0.08, e("easeOutCubic", [-6, 0, -8]), 0.22, e("easeInOutSine", [4, 0, 8]), 0.5, e("easeOutSine", ZERO)),
+            "jaw": rot(0, [12, 0, 0], 0.08, e("easeOutCubic", [28, 0, 0]), 0.5, e("easeOutSine", [12, 0, 0])),
+            "right_arm": rot(0, ZERO, 0.1, e("easeOutCubic", [-12, 0, 8]), 0.5, e("easeOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 0.1, e("easeOutCubic", [-10, 0, -8]), 0.5, e("easeOutSine", ZERO)),
+        }, whip(branches, 0.04, 20, 2, settle=0.42), whip(lantern, 0.04, 30, 0, settle=0.42)), loop=False),
+        "misc.stagger": anim(1.0, merge({
+            "body": {"rotation": keys(0, ZERO, 0.14, e("easeOutCubic", [-18, 0, 8]), 0.5, e("easeInOutSine", [-12, 0, -6]), 1.0, e("easeOutBack", ZERO)),
+                     "position": keys(0, ZERO, 0.14, e("easeOutCubic", [0, -1, 2]), 1.0, e("easeOutSine", ZERO))},
+            "crown": rot(0, ZERO, 0.16, e("easeOutCubic", [-14, 0, -10]), 0.55, e("easeInOutSine", [6, 0, 8]), 1.0, e("easeOutBack", ZERO)),
+            "jaw": rot(0, [12, 0, 0], 0.1, e("easeOutCubic", [35, 0, 0]), 1.0, e("easeOutSine", [12, 0, 0])),
+            "right_arm": rot(0, ZERO, 0.14, e("easeOutCubic", [-50, 0, 25]), 1.0, e("easeOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 0.14, e("easeOutCubic", [-40, 0, -30]), 1.0, e("easeOutSine", ZERO)),
+            "right_leg": rot(0, ZERO, 0.14, e("easeOutCubic", [-25, 0, 0]), 1.0, e("easeOutSine", ZERO)),
+            "left_leg": rot(0, ZERO, 0.14, e("easeOutCubic", [15, 0, 0]), 1.0, e("easeOutSine", ZERO)),
+            "root": pos(0, ZERO, 0.14, e("easeOutCubic", [0, -2, 3]), 1.0, e("easeOutSine", ZERO)),
+        }, whip(branches, 0.05, 35, 2, settle=0.9), whip(lantern, 0.05, 50, 0, settle=0.9)), loop=False),
+        # Felled: it creaks and sways twice, then topples forward like a cut tree, the crown crashing and the
+        # branches and the lantern settling where it lies.
+        "misc.death": anim(2.4, merge({
+            "body": {"rotation": keys(0, ZERO, 0.4, e("easeInOutSine", [-6, 0, 3]), 0.8, e("easeInOutSine", [4, 0, -3]), 1.1, e("easeInSine", [12, 0, 0]),
+                                      1.5, e("easeInQuad", [88, 0, 4]), 1.65, e("easeOutSine", [80, 0, 4]), 1.85, e("easeOutSine", [88, 0, 4]), 2.4, [88, 0, 4]),
+                     "position": keys(0, ZERO, 1.1, ZERO, 1.5, e("easeInQuad", [0, -10, 2]), 1.65, e("easeOutSine", [0, -11, 2]), 2.4, [0, -11, 2])},
+            "crown": rot(0, ZERO, 0.8, e("easeInOutSine", [-3, 0, 4]), 1.5, e("easeInQuad", [-20, 0, 0]), 1.7, e("easeOutBounce", [10, 0, 6]), 2.4, [10, 0, 6]),
+            "jaw": rot(0, [12, 0, 0], 1.1, e("easeInOutSine", [30, 0, 0]), 1.6, e("easeOutSine", [10, 0, 0]), 2.4, [10, 0, 0]),
+            "right_arm": rot(0, ZERO, 1.1, e("easeInOutSine", [-30, 0, 20]), 1.5, e("easeInQuad", [-100, 0, 35]), 1.7, e("easeOutSine", [-85, 0, 40]), 2.4, [-85, 0, 40]),
+            "left_arm": rot(0, ZERO, 1.1, e("easeInOutSine", [-25, 0, -15]), 1.5, e("easeInQuad", [-70, 0, -40]), 1.7, e("easeOutSine", [-60, 0, -35]), 2.4, [-60, 0, -35]),
+            "right_fore": rot(0, [-15, 0, 0], 1.5, e("easeInQuad", [-40, 0, 0]), 2.4, [-40, 0, 0]),
+            "left_fore": rot(0, [-15, 0, 0], 1.5, e("easeInQuad", [-60, 0, 0]), 2.4, [-60, 0, 0]),
+            "right_leg": rot(0, ZERO, 1.1, e("easeInOutSine", [10, 0, 0]), 1.5, e("easeInQuad", [-75, 0, -6]), 1.7, e("easeOutSine", [-85, 0, -8]), 2.4, [-85, 0, -8]),
+            "left_leg": rot(0, ZERO, 1.1, e("easeInOutSine", [-10, 0, 0]), 1.5, e("easeInQuad", [-60, 0, 10]), 1.7, e("easeOutSine", [-80, 0, 12]), 2.4, [-80, 0, 12]),
+            "root": pos(0, ZERO, 1.1, ZERO, 1.5, e("easeInQuad", [0, -1, 0]), 2.4, [0, -1, 0]),
+        }, mk.settle(branches, 1.5, 40, 1, length=0.85), mk.settle(lantern, 1.5, 60, 0, length=0.85)), loop=False),
     }
-    write_model("bark_hollow", bones, animations, [4, 3.5])
+    write_model("bark_hollow", bones, animations, [4, 3.5], tex_w=128)
 
 
 # --- Necropolis: Restless Bones --------------------------------------------------------------------------------------
