@@ -68,8 +68,8 @@ public class GhostEntity extends HostileEntity implements GeoEntity {
 	/** Twice the Ashen Zombie's HP and damage. */
 	public static DefaultAttributeContainer.Builder createAttributes() {
 		return HostileEntity.createHostileAttributes()
-				.add(EntityAttributes.GENERIC_MAX_HEALTH, 48)
-				.add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 8)
+				.add(EntityAttributes.GENERIC_MAX_HEALTH, 36)
+				.add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 5.5)
 				.add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.25)
 				.add(EntityAttributes.GENERIC_FOLLOW_RANGE, 40);
 	}

@@ -57,6 +57,11 @@ as fast as they can until one dies.
 
 ## 4. Results
 
+> **0.5.0 (PLAN 16.4, 18.3):** this section and §5 are the 0.2.0 pass. Since then the zombie family, creeper,
+> witch, Enderman and Vindicator carry per-type factors (`mobs.levels.healthScale` / `damageScale`) to the 0.5.0
+> bands, the Hollow has 25 HP, and the route counts the placed dungeon's 4.5 guards and 6 chests (629 XP, level 11).
+> The witch's, Enderman's and Vindicator's outliers below are gone; the creeper's stays (D13). §8 is current.
+
 Every target holds with the current numbers; **no number was changed** (table in §5 says why for each outlier).
 
 | Target | Result |
@@ -142,31 +147,33 @@ Result: **no gap** — every hit both ways matches the model to two decimals at 
 
 ## 8. Tables (from `build/balance/overworld.md`)
 
+After PLAN 16.4 / 18.3 (the vanilla types' `healthScale` / `damageScale`, the dungeon route at 4.5 guards and 6 chests).
+
 ### Level bands (DESIGN §5.4)
 
 | Mob | Base | Lowest | Highest | Full moon highest | HP at lowest / highest | XP at lowest / highest |
 | --- | --- | --- | --- | --- | --- | --- |
-| Zombie | 3 | 3 | 11 | 14 | 22.4 / 32.0 | 6 / 8 |
+| Zombie | 3 | 3 | 11 | 14 | 16.8 / 24.0 | 6 / 8 |
 | Spider | 3 | 3 | 11 | 14 | 17.9 / 25.6 | 6 / 8 |
 | Skeleton | 4 | 4 | 12 | 15 | 23.6 / 33.2 | 6 / 8 |
-| Creeper | 6 | 6 | 14 | 17 | 26.0 / 35.6 | 7 / 9 |
-| Witch | 6 | 6 | 14 | 17 | 33.8 / 46.3 | 7 / 9 |
-| Enderman | 12 | 12 | 20 | 23 | 66.4 / 85.6 | 8 / 11 |
-| Vindicator | 4 | 4 | 9 | 12 | 28.3 / 35.5 | 6 / 7 |
+| Creeper | 6 | 6 | 14 | 17 | 22.1 / 30.3 | 7 / 9 |
+| Witch | 6 | 6 | 14 | 17 | 22.0 / 30.1 | 7 / 9 |
+| Enderman | 12 | 12 | 20 | 23 | 53.1 / 68.5 | 8 / 11 |
+| Vindicator | 4 | 4 | 9 | 12 | 36.8 / 46.2 | 6 / 7 |
 | Ash Ghoul | 5 | 5 | 13 | 16 | 14.9 / 20.6 | 6 / 9 |
-| Hollow | 15 | 15 | 20 | 23 | 55.2 / 64.2 | 37 / 43 |
+| Hollow | 15 | 15 | 20 | 23 | 46.0 / 53.5 | 37 / 43 |
 | Ember Wisp | 8 | 11 | 16 | 19 | 12.8 / 15.2 | 10 / 11 |
 
 ### Fights, traded hit for hit (cells: its hit / its hits to kill you / your hits to kill it / % of your health it costs)
 
 | Mob | Lv | Player | Easy | Normal | Hard |
 | --- | --- | --- | --- | --- | --- |
-| Zombie | 3 | Lv 1 leather, stone sword | 2.6 / 8 / 5 / 39 % | 3.3 / 7 / 5 / 50 % | 4.8 / 5 / 5 / 72 % |
-| Zombie | 3 | Lv 1 iron, iron sword | 1.5 / 14 / 4 / 15 % | 2.0 / 11 / 4 / 20 % | 3.0 / 7 / 4 / 30 % |
-| Zombie | 3 | Lv 10 iron, iron sword | 1.5 / 16 / 4 / 13 % | 2.0 / 13 / 4 / 17 % | 3.0 / 9 / 4 / 25 % |
-| Zombie | 11 | Lv 1 leather, stone sword | 3.6 / 6 / 7 / 73 % | 4.7 / 5 / 7 / 94 % | 6.9 / 3 / 7 / 138 % |
-| Zombie | 11 | Lv 1 iron, iron sword | 2.2 / 10 / 6 / 44 % | 2.9 / 7 / 6 / 58 % | 4.4 / 5 / 6 / 88 % |
-| Zombie | 11 | Lv 10 iron, iron sword | 2.2 / 11 / 6 / 37 % | 2.9 / 9 / 6 / 48 % | 4.4 / 6 / 6 / 73 % |
+| Zombie | 3 | Lv 1 leather, stone sword | 2.6 / 8 / 4 / 26 % | 3.3 / 7 / 4 / 33 % | 4.8 / 5 / 4 / 48 % |
+| Zombie | 3 | Lv 1 iron, iron sword | 1.5 / 14 / 3 / 15 % | 2.0 / 11 / 3 / 20 % | 3.0 / 7 / 3 / 30 % |
+| Zombie | 3 | Lv 10 iron, iron sword | 1.5 / 16 / 3 / 13 % | 2.0 / 13 / 3 / 17 % | 3.0 / 9 / 3 / 25 % |
+| Zombie | 11 | Lv 1 leather, stone sword | 3.6 / 6 / 5 / 55 % | 4.7 / 5 / 5 / 70 % | 6.9 / 3 / 5 / 104 % |
+| Zombie | 11 | Lv 1 iron, iron sword | 2.2 / 10 / 5 / 33 % | 2.9 / 7 / 5 / 43 % | 4.4 / 5 / 5 / 66 % |
+| Zombie | 11 | Lv 10 iron, iron sword | 2.2 / 11 / 4 / 18 % | 2.9 / 9 / 4 / 24 % | 4.4 / 6 / 4 / 36 % |
 | Spider | 3 | Lv 1 leather, stone sword | 1.7 / 12 / 4 / 17 % | 2.1 / 10 / 4 / 21 % | 3.1 / 7 / 4 / 31 % |
 | Spider | 3 | Lv 1 iron, iron sword | 1.0 / 21 / 3 / 10 % | 1.3 / 16 / 3 / 13 % | 1.8 / 11 / 3 / 18 % |
 | Spider | 3 | Lv 10 iron, iron sword | 1.0 / 25 / 3 / 8 % | 1.2 / 20 / 3 / 10 % | 1.8 / 14 / 3 / 15 % |
@@ -179,42 +186,42 @@ Result: **no gap** — every hit both ways matches the model to two decimals at 
 | Skeleton | 12 | Lv 1 leather, stone sword | 5.2 / 4 / 7 / 52 % | 6.8 / 3 / 7 / 68 % | 10.2 / 2 / 7 / 102 % |
 | Skeleton | 12 | Lv 1 iron, iron sword | 3.2 / 7 / 6 / 32 % | 4.3 / 5 / 6 / 43 % | 6.7 / 3 / 6 / 67 % |
 | Skeleton | 12 | Lv 10 iron, iron sword | 3.2 / 8 / 6 / 27 % | 4.3 / 6 / 6 / 36 % | 6.7 / 4 / 6 / 56 % |
-| Creeper | 6 | Lv 1 leather, stone sword | 28.3 / 1 / 6 / 142 % | 35.4 / 1 / 6 / 177 % | 49.6 / 1 / 6 / 248 % |
-| Creeper | 6 | Lv 1 iron, iron sword | 26.4 / 1 / 5 / 132 % | 33 / 1 / 5 / 165 % | 46.2 / 1 / 5 / 231 % |
-| Creeper | 6 | Lv 10 iron, iron sword | 26.4 / 1 / 5 / 110 % | 33 / 1 / 5 / 138 % | 46.2 / 1 / 5 / 193 % |
-| Creeper | 14 | Lv 1 leather, stone sword | 37.4 / 1 / 8 / 187 % | 46.7 / 1 / 8 / 234 % | 65.4 / 1 / 8 / 327 % |
+| Creeper | 6 | Lv 1 leather, stone sword | 28.3 / 1 / 5 / 142 % | 35.4 / 1 / 5 / 177 % | 49.6 / 1 / 5 / 248 % |
+| Creeper | 6 | Lv 1 iron, iron sword | 26.4 / 1 / 4 / 132 % | 33 / 1 / 4 / 165 % | 46.2 / 1 / 4 / 231 % |
+| Creeper | 6 | Lv 10 iron, iron sword | 26.4 / 1 / 4 / 110 % | 33 / 1 / 4 / 138 % | 46.2 / 1 / 4 / 193 % |
+| Creeper | 14 | Lv 1 leather, stone sword | 37.4 / 1 / 7 / 187 % | 46.7 / 1 / 7 / 234 % | 65.4 / 1 / 7 / 327 % |
 | Creeper | 14 | Lv 1 iron, iron sword | 34.8 / 1 / 6 / 174 % | 43.6 / 1 / 6 / 218 % | 61.0 / 1 / 6 / 305 % |
-| Creeper | 14 | Lv 10 iron, iron sword | 34.8 / 1 / 6 / 145 % | 43.6 / 1 / 6 / 182 % | 61.0 / 1 / 6 / 254 % |
-| Witch | 6 | Lv 1 leather, stone sword | 7.5 / 3 / 7 / 75 % | 9.4 / 3 / 7 / 94 % | 13.1 / 2 / 7 / 131 % |
-| Witch | 6 | Lv 1 iron, iron sword | 7.5 / 3 / 6 / 75 % | 9.4 / 3 / 6 / 94 % | 13.1 / 2 / 6 / 131 % |
-| Witch | 6 | Lv 10 iron, iron sword | 7.5 / 4 / 6 / 63 % | 9.4 / 3 / 6 / 78 % | 13.1 / 2 / 6 / 109 % |
-| Witch | 14 | Lv 1 leather, stone sword | 9.9 / 3 / 10 / 99 % | 12.4 / 2 / 10 / 124 % | 17.3 / 2 / 10 / 173 % |
-| Witch | 14 | Lv 1 iron, iron sword | 9.9 / 3 / 8 / 99 % | 12.4 / 2 / 8 / 124 % | 17.3 / 2 / 8 / 173 % |
-| Witch | 14 | Lv 10 iron, iron sword | 9.9 / 3 / 8 / 83 % | 12.4 / 2 / 8 / 103 % | 17.3 / 2 / 8 / 144 % |
-| Enderman | 12 | Lv 1 leather, stone sword | 10.2 / 2 / 14 / 457 % | 12.8 / 2 / 14 / 576 % | 17.9 / 2 / 14 / 807 % |
-| Enderman | 12 | Lv 1 iron, iron sword | 6.7 / 3 / 12 / 234 % | 9.1 / 3 / 12 / 319 % | 14.8 / 2 / 12 / 518 % |
-| Enderman | 12 | Lv 10 iron, iron sword | 6.7 / 4 / 11 / 194 % | 9.1 / 3 / 11 / 264 % | 14.7 / 2 / 11 / 429 % |
-| Enderman | 20 | Lv 1 leather, stone sword | 12.9 / 2 / 18 / 709 % | 16.1 / 2 / 18 / 886 % | 22.5 / 1 / 18 / 1240 % |
-| Enderman | 20 | Lv 1 iron, iron sword | 9.2 / 3 / 15 / 413 % | 12.6 / 2 / 15 / 569 % | 21.0 / 1 / 15 / 944 % |
-| Enderman | 20 | Lv 10 iron, iron sword | 9.1 / 3 / 14 / 343 % | 12.6 / 2 / 14 / 472 % | 20.8 / 2 / 14 / 781 % |
-| Vindicator | 4 | Lv 1 leather, stone sword | 14.1 / 2 / 6 / 282 % | 17.6 / 2 / 6 / 353 % | 24.7 / 1 / 6 / 494 % |
-| Vindicator | 4 | Lv 1 iron, iron sword | 10.5 / 2 / 5 / 157 % | 14.5 / 2 / 5 / 217 % | 23.0 / 1 / 5 / 345 % |
-| Vindicator | 4 | Lv 10 iron, iron sword | 10.4 / 3 / 5 / 130 % | 14.4 / 2 / 5 / 180 % | 23.0 / 2 / 5 / 288 % |
-| Vindicator | 9 | Lv 1 leather, stone sword | 17.2 / 2 / 8 / 430 % | 21.5 / 1 / 8 / 537 % | 30.1 / 1 / 8 / 752 % |
-| Vindicator | 9 | Lv 1 iron, iron sword | 13.9 / 2 / 6 / 278 % | 19.5 / 2 / 6 / 389 % | 28.0 / 1 / 6 / 561 % |
-| Vindicator | 9 | Lv 10 iron, iron sword | 13.8 / 2 / 6 / 230 % | 19.3 / 2 / 6 / 322 % | 28.0 / 1 / 6 / 467 % |
+| Creeper | 14 | Lv 10 iron, iron sword | 34.8 / 1 / 5 / 145 % | 43.6 / 1 / 5 / 182 % | 61.0 / 1 / 5 / 254 % |
+| Witch | 6 | Lv 1 leather, stone sword | 3.8 / 6 / 5 / 19 % | 4.7 / 5 / 5 / 23 % | 6.6 / 4 / 5 / 33 % |
+| Witch | 6 | Lv 1 iron, iron sword | 3.8 / 6 / 4 / 19 % | 4.7 / 5 / 4 / 23 % | 6.6 / 4 / 4 / 33 % |
+| Witch | 6 | Lv 10 iron, iron sword | 3.8 / 7 / 4 / 16 % | 4.7 / 6 / 4 / 20 % | 6.6 / 4 / 4 / 27 % |
+| Witch | 14 | Lv 1 leather, stone sword | 5.0 / 5 / 7 / 50 % | 6.2 / 4 / 7 / 62 % | 8.7 / 3 / 7 / 87 % |
+| Witch | 14 | Lv 1 iron, iron sword | 5.0 / 5 / 6 / 50 % | 6.2 / 4 / 6 / 62 % | 8.7 / 3 / 6 / 87 % |
+| Witch | 14 | Lv 10 iron, iron sword | 5.0 / 5 / 5 / 21 % | 6.2 / 4 / 5 / 26 % | 8.7 / 3 / 5 / 36 % |
+| Enderman | 12 | Lv 1 leather, stone sword | 6.1 / 4 / 11 / 213 % | 7.9 / 3 / 11 / 277 % | 11.7 / 2 / 11 / 408 % |
+| Enderman | 12 | Lv 1 iron, iron sword | 3.8 / 6 / 9 / 114 % | 5.1 / 4 / 9 / 152 % | 8.0 / 3 / 9 / 239 % |
+| Enderman | 12 | Lv 10 iron, iron sword | 3.8 / 7 / 9 / 79 % | 5.1 / 5 / 9 / 105 % | 7.9 / 4 / 9 / 166 % |
+| Enderman | 20 | Lv 1 leather, stone sword | 8.0 / 3 / 14 / 358 % | 10.4 / 2 / 14 / 470 % | 14.7 / 2 / 14 / 660 % |
+| Enderman | 20 | Lv 1 iron, iron sword | 5.1 / 4 / 12 / 179 % | 6.9 / 3 / 12 / 241 % | 11.0 / 2 / 12 / 386 % |
+| Enderman | 20 | Lv 10 iron, iron sword | 5.1 / 5 / 11 / 149 % | 6.9 / 4 / 11 / 200 % | 11.0 / 3 / 11 / 320 % |
+| Vindicator | 4 | Lv 1 leather, stone sword | 5.0 / 4 / 8 / 126 % | 6.5 / 4 / 8 / 162 % | 9.7 / 3 / 8 / 243 % |
+| Vindicator | 4 | Lv 1 iron, iron sword | 3.1 / 7 / 7 / 62 % | 4.1 / 5 / 7 / 82 % | 6.4 / 4 / 7 / 128 % |
+| Vindicator | 4 | Lv 10 iron, iron sword | 3.1 / 8 / 6 / 52 % | 4.1 / 6 / 6 / 68 % | 6.3 / 4 / 6 / 106 % |
+| Vindicator | 9 | Lv 1 leather, stone sword | 6.3 / 4 / 10 / 189 % | 8.2 / 3 / 10 / 246 % | 12.0 / 2 / 10 / 361 % |
+| Vindicator | 9 | Lv 1 iron, iron sword | 4.0 / 6 / 8 / 99 % | 5.3 / 4 / 8 / 132 % | 8.3 / 3 / 8 / 209 % |
+| Vindicator | 9 | Lv 10 iron, iron sword | 4.0 / 7 / 8 / 82 % | 5.3 / 5 / 8 / 110 % | 8.3 / 3 / 8 / 173 % |
 | Ash Ghoul | 5 | Lv 1 leather, stone sword | 2.3 / 9 / 3 / 23 % | 3.0 / 7 / 3 / 30 % | 4.3 / 5 / 3 / 43 % |
 | Ash Ghoul | 5 | Lv 1 iron, iron sword | 1.4 / 15 / 3 / 14 % | 1.8 / 12 / 3 / 18 % | 2.7 / 8 / 3 / 27 % |
 | Ash Ghoul | 5 | Lv 10 iron, iron sword | 1.4 / 18 / 3 / 11 % | 1.8 / 14 / 3 / 15 % | 2.6 / 10 / 3 / 22 % |
 | Ash Ghoul | 13 | Lv 1 leather, stone sword | 3.2 / 7 / 5 / 48 % | 4.1 / 5 / 5 / 61 % | 6.0 / 4 / 5 / 90 % |
 | Ash Ghoul | 13 | Lv 1 iron, iron sword | 1.9 / 11 / 4 / 19 % | 2.5 / 8 / 4 / 25 % | 3.8 / 6 / 4 / 38 % |
 | Ash Ghoul | 13 | Lv 10 iron, iron sword | 1.9 / 13 / 4 / 16 % | 2.5 / 10 / 4 / 21 % | 3.8 / 7 / 4 / 31 % |
-| Hollow | 15 | Lv 1 leather, stone sword | 7.6 / 3 / 13 / 151 % | 9.9 / 3 / 13 / 198 % | 14.0 / 2 / 13 / 281 % |
-| Hollow | 15 | Lv 1 iron, iron sword | 4.8 / 5 / 11 / 97 % | 6.5 / 4 / 11 / 130 % | 10.4 / 2 / 11 / 208 % |
-| Hollow | 15 | Lv 10 iron, iron sword | 4.8 / 5 / 10 / 60 % | 6.5 / 4 / 10 / 81 % | 10.3 / 3 / 10 / 129 % |
-| Hollow | 20 | Lv 1 leather, stone sword | 8.9 / 3 / 15 / 223 % | 11.5 / 2 / 15 / 288 % | 16.1 / 2 / 15 / 403 % |
-| Hollow | 20 | Lv 1 iron, iron sword | 5.8 / 4 / 13 / 116 % | 7.8 / 3 / 13 / 157 % | 12.6 / 2 / 13 / 253 % |
-| Hollow | 20 | Lv 10 iron, iron sword | 5.8 / 5 / 12 / 96 % | 7.8 / 4 / 12 / 130 % | 12.6 / 2 / 12 / 210 % |
+| Hollow | 15 | Lv 1 leather, stone sword | 7.6 / 3 / 11 / 151 % | 9.9 / 3 / 11 / 198 % | 14.0 / 2 / 11 / 281 % |
+| Hollow | 15 | Lv 1 iron, iron sword | 4.8 / 5 / 9 / 73 % | 6.5 / 4 / 9 / 98 % | 10.4 / 2 / 9 / 156 % |
+| Hollow | 15 | Lv 10 iron, iron sword | 4.8 / 5 / 9 / 60 % | 6.5 / 4 / 9 / 81 % | 10.3 / 3 / 9 / 129 % |
+| Hollow | 20 | Lv 1 leather, stone sword | 8.9 / 3 / 13 / 178 % | 11.5 / 2 / 13 / 230 % | 16.1 / 2 / 13 / 322 % |
+| Hollow | 20 | Lv 1 iron, iron sword | 5.8 / 4 / 11 / 116 % | 7.8 / 3 / 11 / 157 % | 12.6 / 2 / 11 / 253 % |
+| Hollow | 20 | Lv 10 iron, iron sword | 5.8 / 5 / 10 / 72 % | 7.8 / 4 / 10 / 98 % | 12.6 / 2 / 10 / 157 % |
 | Ember Wisp | 11 | Lv 1 leather, stone sword | 1.1 / 18 / 3 / 13 % | 1.4 / 15 / 3 / 15 % | 2.0 / 10 / 3 / 18 % |
 | Ember Wisp | 11 | Lv 1 iron, iron sword | 0.6 / 32 / 3 / 11 % | 0.8 / 25 / 3 / 12 % | 1.2 / 17 / 3 / 13 % |
 | Ember Wisp | 11 | Lv 10 iron, iron sword | 0.6 / 38 / 3 / 9 % | 0.8 / 30 / 3 / 10 % | 1.2 / 21 / 3 / 11 % |
@@ -242,11 +249,11 @@ Second hits (one each, lowest level, level 1 in iron):
 | 20 | 5.4 | 7.2 | 11.6 |
 | 23 | 5.9 | 8.0 | 12.9 |
 
-### XP on the way to the Sanctum (Route[surfaceKills=30, caveKills=20, coalOre=40, ironSmelted=30, goldSmelted=4, redstoneOre=6, lapisOre=4, diamondOre=2, sanctumHollows=3.5, sanctumArchers=1.0, sanctumChests=4])
+### XP on the way to the Sanctum (Route[surfaceKills=30, caveKills=20, coalOre=40, ironSmelted=30, goldSmelted=4, redstoneOre=6, lapisOre=4, diamondOre=2, sanctumHollows=4.5, sanctumArchers=1.0, sanctumChests=6])
 
 | Surface kills | Cave kills | Mining | Smelting | Sanctum guards + chests | Total | Level bought from 1 |
 | --- | --- | --- | --- | --- | --- | --- |
-| 191.0 | 141.4 | 82 | 25 | 147.2 | 586.6 | 10 |
+| 191.0 | 141.4 | 82 | 25 | 190 | 629.4 | 11 |
 
 Mean XP per kill: surface 6.4, below y=0 7.1.
 
@@ -275,9 +282,9 @@ Mean XP per kill: surface 6.4, below y=0 7.1.
 | diamond axe | 9 | 1 | 7.0 | 7.1 | 9 | 9.1 |
 | Sanctum Longsword | 6.5 | 1.6 | 5.1 | 8.3 | 6.9 | 11.2 |
 | Ashbearer's Mace | 8 | 0.9 | 6.1 | 5.6 | 8 | 7.3 |
-| Ashen Scythe | 10 | 1.1 | 8.2 | 9.2 | 10.2 | 11.4 |
-| Warden's Scourge | 9 | 0.9 | 7.5 | 6.9 | 9.5 | 8.7 |
-| Royal Ash Rapier | 6 | 2 | 4.5 | 9.2 | 6.3 | 12.7 |
+| Ashen Scythe | 12 | 1.1 | 10.4 | 11.6 | 12.3 | 13.7 |
+| Warden's Scourge | 10 | 1 | 8.6 | 8.7 | 10.6 | 10.8 |
+| Royal Ash Rapier | 7 | 2.2 | 5.4 | 12.1 | 7.3 | 16.3 |
 
 Specials (armor 0): Wide Cleave 8.6 to every mob in the arc for 25 stamina / 3 s; Ground Slam 6 to every mob around for 30 stamina / 5 s.
 

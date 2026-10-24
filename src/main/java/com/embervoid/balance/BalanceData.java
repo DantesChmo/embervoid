@@ -197,15 +197,15 @@ public final class BalanceData {
 
 	// --- Moon nights (DESIGN §3.3) -------------------------------------------------------------------------------
 
-	/** Ashen Zombie: 24 HP, 4 dmg, armor 2, 20 XP. Ghost: 48 HP, 8 dmg, 40 XP (twice the zombie). */
-	public static final Mob ASHEN_ZOMBIE = new Mob("ashen_zombie", "Ashen Zombie", null, Role.FODDER, 24, 0, 2, 4, 20, false,
+	/** Ashen Zombie: 11 HP, 4 dmg, armor 2, 20 XP. Ghost: 36 HP, 5.5 dmg, 40 XP (twice the zombie). Retuned in PLAN 18.3. */
+	public static final Mob ASHEN_ZOMBIE = new Mob("ashen_zombie", "Ashen Zombie", null, Role.FODDER, 11, 0, 2, 4, 20, false,
 			List.of(melee("swing", 4, 20)));
-	public static final Mob GHOST = new Mob("ghost", "Ghost", null, Role.FLYER, 48, 0, 0, 8, 40, false,
-			List.of(melee("touch", 8, 40)));
-	public static final Boss VAMPIRE = new Boss("vampire_boss", "Vampire boss", null, 15, 220, 4, 5, 200,
+	public static final Mob GHOST = new Mob("ghost", "Ghost", null, Role.FLYER, 36, 0, 0, 5.5, 40, false,
+			List.of(melee("touch", 5.5, 40)));
+	public static final Boss VAMPIRE = new Boss("vampire_boss", "Vampire boss", null, 15, 100, 4, 3.5, 200,
 			1, 1, "-", 0, 4, 1, 1, "-", List.of(
-					melee("claw", 5, 30),
-					melee("leap", 7, 0),
+					melee("claw", 3.5, 30),
+					melee("leap", 5.5, 0),
 					melee("blood nova (heals 25 %)", 7.5, 0)));
 
 	// --- Fight length (PLAN 18.1, DESIGN §5.5) --------------------------------------------------------------------
@@ -302,8 +302,6 @@ public final class BalanceData {
 		}
 	}
 
-	/** Vanilla's {@code MeleeAttackGoal}: one swing per 20 ticks, no windup (the Vampire's claws). */
-	public static final int VANILLA_MELEE_COOLDOWN = 20;
 	/**
 	 * Share of a boss's picks made with the player out of melee range (pushed off by a hit, backing off to drink the
 	 * flask, a dodge that went too far): the boss's moves at range get this weight in a loop.
@@ -462,24 +460,25 @@ public final class BalanceData {
 	}
 
 	/**
-	 * Vampire boss: a melee chaser that trades claws (no windup), with the nova on its own cooldown from P1 on and its
-	 * leap and mist step only when the player is away. One shared boss, not scaled by the number of players.
+	 * Vampire boss: a melee chaser whose claws are drawn back with a tell and leave it open after (PLAN 18.3), with the
+	 * nova on its own cooldown from P1 on and its leap and mist step only when the player is away. One shared boss, not
+	 * scaled by the number of players.
 	 */
 	public static final Cadence VAMPIRE_CADENCE = new Cadence(VAMPIRE, false, List.of(
-			new Timing("claw", 0, Size.LIGHT, Tell.NONE),
+			new Timing("claw", VampireBossEntity.CLAW_WINDUP, Size.LIGHT, Tell.ANIMATION),
 			new Timing("leap", VampireBossEntity.LEAP_WINDUP, Size.HEAVY, Tell.SHAPE),
 			new Timing("blood nova (heals 25 %)", VampireBossEntity.NOVA_WINDUP, Size.BIGGEST, Tell.SHAPE)), List.of(
 			new Phase("P0", 1, VAMPIRE.armor(), 1, 0, List.of(
-					melee("claws, traded", 0, VANILLA_MELEE_COOLDOWN, 1 - OUT_OF_MELEE, Aim.NONE),
+					melee("claw", VampireBossEntity.CLAW_WINDUP, VampireBossEntity.CLAW_RECOVERY, 1 - OUT_OF_MELEE, Aim.TARGET),
 					closing("leap", VampireBossEntity.LEAP_WINDUP + 14, 0, OUT_OF_MELEE, Aim.TARGET)), List.of()),
 			new Phase("P1 (nova)", 0.6, VAMPIRE.armor(), 1, 0, vampireBeats(VampireBossEntity.NOVA_COOLDOWN), List.of()),
 			new Phase("P2 (mist step)", 0.3, VAMPIRE.armor(), 1, 0, vampireBeats(VampireBossEntity.NOVA_COOLDOWN_P2), List.of())));
 
-	/** One nova per its cooldown; claws traded the rest of it; a leap now and then when the player backs off. */
+	/** One nova per its cooldown; claws the rest of it; a leap now and then when the player backs off. */
 	private static List<Beat> vampireBeats(int novaCooldown) {
-		double claws = (novaCooldown - VampireBossEntity.NOVA_WINDUP) / (double) VANILLA_MELEE_COOLDOWN;
+		double claws = (novaCooldown - VampireBossEntity.NOVA_WINDUP) / (double) (VampireBossEntity.CLAW_WINDUP + VampireBossEntity.CLAW_RECOVERY);
 		return List.of(
-				melee("claws, traded", 0, VANILLA_MELEE_COOLDOWN, claws * (1 - OUT_OF_MELEE), Aim.NONE),
+				melee("claw", VampireBossEntity.CLAW_WINDUP, VampireBossEntity.CLAW_RECOVERY, claws * (1 - OUT_OF_MELEE), Aim.TARGET),
 				melee("blood nova", VampireBossEntity.NOVA_WINDUP, 0, 1, Aim.ALL),
 				closing("leap / mist step", VampireBossEntity.LEAP_WINDUP + 14, 0, claws * OUT_OF_MELEE, Aim.TARGET));
 	}

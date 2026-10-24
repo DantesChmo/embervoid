@@ -80,6 +80,7 @@ The mod reads `config/embervoid.json` (created with defaults on first launch). M
 | `mobs.levels.belowZeroBonus` | 3 | 0–999 | Overworld: extra levels below y = 0 |
 | `mobs.levels.dimensionBonus.<dimension id>` | Nether 5, End 8 | 0–999 | Extra levels in a dimension |
 | `mobs.levels.healthPerLevel` / `damagePerLevel` / `experiencePerLevel` | 0.06 / 0.05 / 0.06 | 0–10 | Per level above 1: mob health, damage and dropped XP, as a fraction of the base |
+| `mobs.levels.healthScale.<entity id>` / `damageScale.<entity id>` | per mob | 0.01–100 | A factor on a type's base health / damage under its level (unlisted: 1); e.g. zombie health 0.75, witch damage 0.5, Vindicator health 1.3; add modded ids here |
 | `mobs.difficulty.easy` / `normal` / `hard` | 1.0 / 1.25 / 1.75 | 0–100 | Damage factor of hostile mobs against players per difficulty (replaces vanilla's) |
 | `sanctum.hallGuardChance` / `hallArcherChance` | 0.6 / 0.3 | 0–1 | Chance of a Hollow at each side-hall spot / of a skeleton archer in a chamber, rolled at worldgen |
 | `sanctum.mapChanceCartographer` / `mapChanceTemple` / `mapChanceRuinedPortal` / `mapChanceShipwreck` | 0.25 / 0.1 / 0.08 / 0.25 | 0–1 | Chance of a Sanctum Map in those vanilla chests |

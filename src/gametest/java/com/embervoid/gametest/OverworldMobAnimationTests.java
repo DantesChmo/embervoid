@@ -90,6 +90,8 @@ public final class OverworldMobAnimationTests implements FabricGameTest {
 					float health = player.getHealth();
 					arena.after(windup + 3, () -> {
 						context.assertTrue(hollow.windup() < 0 && player.getHealth() < health, "the swing never landed");
+						// It may raise its guard at random between swings, and a guarded hit shows no flinch (by design).
+						lowerGuard(hollow);
 						hit(hollow);
 						context.assertTrue(hollow.hurtFlinches() == 1, "no flinch between swings (" + hollow.hurtFlinches() + ")");
 						hollow.discard();
@@ -108,6 +110,17 @@ public final class OverworldMobAnimationTests implements FabricGameTest {
 			return (boolean) method.invoke(hollow);
 		} catch (ReflectiveOperationException e) {
 			throw new GameTestException("startSwing: " + e);
+		}
+	}
+
+	/** Drops a raised guard: {@code HollowEntity.setStance} is private. */
+	private static void lowerGuard(HollowEntity hollow) {
+		try {
+			Method method = HollowEntity.class.getDeclaredMethod("setStance", byte.class, int.class);
+			method.setAccessible(true);
+			method.invoke(hollow, (byte) 0, 0);
+		} catch (ReflectiveOperationException e) {
+			throw new GameTestException("setStance: " + e);
 		}
 	}
 

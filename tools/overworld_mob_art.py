@@ -2035,6 +2035,20 @@ def vampire_boss():
             "head": rot(0, [4, 4, -2], 0.4, e("easeInOutSine", [4, -4, 2]), 0.8, e("easeInOutSine", [4, 4, -2])),
         })),
         # Claws: both arms drawn up and back, then raked down across; the hands open wide into it.
+        # The boss's claws (PLAN 18.3): both drawn back and up through the 12-tick tell, the body coiling and the jaw
+        # opening, then raked down crossways at 0.6 s and a slow recovery, the rags whipping after.
+        "attack.claw": anim(1.0, merge(loose_whip(0.62, 30, 0.34), {
+            "right_arm": rot(0, ZERO, 0.5, e("easeInOutSine", [-145, 25, 0]), 0.58, [-150, 26, 0], 0.62, e("easeOutBack", [-30, -20, 0]), 1.0, e("easeInOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 0.5, e("easeInOutSine", [-140, -25, 0]), 0.6, [-145, -26, 0], 0.66, e("easeOutBack", [-30, 20, 0]), 1.0, e("easeInOutSine", ZERO)),
+            "right_forearm": rot(0, ZERO, 0.5, e("easeInOutSine", [-50, 0, 0]), 0.62, e("easeOutCubic", [10, 0, 0]), 1.0, e("easeInOutSine", ZERO)),
+            "left_forearm": rot(0, ZERO, 0.5, e("easeInOutSine", [-50, 0, 0]), 0.66, e("easeOutCubic", [10, 0, 0]), 1.0, e("easeInOutSine", ZERO)),
+            "right_hand": rot(0, ZERO, 0.5, [-40, 0, 0], 0.62, [25, 0, 0], 1.0, ZERO),
+            "left_hand": rot(0, ZERO, 0.5, [-40, 0, 0], 0.66, [25, 0, 0], 1.0, ZERO),
+            "body": rot(0, ZERO, 0.5, e("easeInOutSine", [-12, 14, 0]), 0.58, [-13, 15, 0], 0.64, e("easeOutBack", [14, -14, 0]), 1.0, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.5, e("easeInOutSine", [-16, 0, 0]), 0.64, e("easeOutCubic", [12, 0, 0]), 1.0, e("easeInOutSine", ZERO)),
+            "jaw": rot(0, ZERO, 0.5, e("easeInOutSine", [-35, 0, 0]), 0.7, e("easeOutCubic", ZERO), 1.0, ZERO),
+            "root": pos(0, ZERO, 0.5, e("easeInOutSine", [0, -0.6, 1.2]), 0.64, e("easeOutCubic", [0, 0, -2]), 1.0, e("easeInOutSine", ZERO)),
+        }), loop=False),
         "attack.swing": anim(0.5, merge(loose_whip(0.22, 25, 0.28), {
             "right_arm": rot(0, ZERO, 0.18, e("easeInOutSine", [-135, 20, 0]), 0.3, e("easeOutBack", [-30, -20, 0]), 0.5, e("easeInOutSine", ZERO)),
             "left_arm": rot(0, ZERO, 0.22, e("easeInOutSine", [-125, -20, 0]), 0.34, e("easeOutBack", [-30, 20, 0]), 0.5, e("easeInOutSine", ZERO)),

@@ -108,7 +108,7 @@ public final class MobLevels {
 	public static float damageMultiplier(Entity attacker) {
 		MobConfig.Levels config = MobConfig.get().levels();
 		int level = getLevel(attacker);
-		return config.enabled() && level > 0 ? MobLevelRules.damageMultiplier(config, level) : 1;
+		return config.enabled() && level > 0 ? MobLevelRules.damageMultiplier(config, level) * config.damageScale(typeId(attacker)) : 1;
 	}
 
 	/** XP a dying entity drops, scaled by its level. */
@@ -158,7 +158,8 @@ public final class MobLevels {
 			return;
 		}
 		MobConfig.Levels config = MobConfig.get().levels();
-		double bonus = config.enabled() ? MobLevelRules.healthBonus(config, level) : 0;
+		// The type's scale and the level's bonus in one MULTIPLY_BASE modifier: max = base × scale × (1 + bonus).
+		double bonus = config.enabled() ? config.healthScale(typeId(entity)) * (1 + MobLevelRules.healthBonus(config, level)) - 1 : 0;
 		EntityAttributeModifier current = maxHealth.getModifier(HEALTH_MODIFIER_ID);
 		if (current == null ? bonus == 0 : current.getValue() == bonus) {
 			return;
@@ -170,6 +171,10 @@ public final class MobLevels {
 					EntityAttributeModifier.Operation.MULTIPLY_BASE));
 		}
 		entity.setHealth(fraction * entity.getMaxHealth());
+	}
+
+	private static String typeId(Entity entity) {
+		return Registries.ENTITY_TYPE.getId(entity.getType()).toString();
 	}
 
 	private static PacketByteBuf syncBuf(Entity entity, int level) {

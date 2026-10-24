@@ -53,7 +53,13 @@ public record MobConfig(Levels levels, Difficulty difficulty) {
 							Map.entry("embervoid:smoldering_knight", 25)),
 					1000, 5, 3,
 					Map.of("minecraft:the_nether", 5, "minecraft:the_end", 8),
-					0.06f, 0.05f, 0.06f),
+					0.06f, 0.05f, 0.06f,
+					// PLAN 18.3: vanilla mobs to the 0.5.0 bands for a level 1 player in iron (DESIGN §5.5); the creeper's
+					// blast stays (PLAN D13).
+					Map.of("minecraft:zombie", 0.75f, "minecraft:zombie_villager", 0.75f, "minecraft:husk", 0.75f,
+							"minecraft:drowned", 0.75f, "minecraft:creeper", 0.85f, "minecraft:witch", 0.65f,
+							"minecraft:enderman", 0.8f, "minecraft:vindicator", 1.3f),
+					Map.of("minecraft:witch", 0.5f, "minecraft:enderman", 0.65f, "minecraft:vindicator", 0.4f)),
 			new Difficulty(1.0f, 1.25f, 1.75f));
 
 	/**
@@ -67,10 +73,20 @@ public record MobConfig(Levels levels, Difficulty difficulty) {
 	 * @param healthPerLevel      HP = base × (1 + healthPerLevel·(L − 1))
 	 * @param damagePerLevel      damage = base × (1 + damagePerLevel·(L − 1))
 	 * @param experiencePerLevel  XP = base × (1 + experiencePerLevel·(L − 1))
+	 * @param healthScale         a factor on a type's base health under its level (entity type id; unlisted 1)
+	 * @param damageScale         a factor on a type's damage under its level (entity type id; unlisted 1)
 	 */
 	public record Levels(boolean enabled, int defaultBaseLevel, Map<String, Integer> baseLevels, int blocksPerLevel,
 			int maxDistanceBonus, int belowZeroBonus, Map<String, Integer> dimensionBonus, float healthPerLevel,
-			float damagePerLevel, float experiencePerLevel) {}
+			float damagePerLevel, float experiencePerLevel, Map<String, Float> healthScale, Map<String, Float> damageScale) {
+		public float healthScale(String type) {
+			return healthScale.getOrDefault(type, 1f);
+		}
+
+		public float damageScale(String type) {
+			return damageScale.getOrDefault(type, 1f);
+		}
+	}
 
 	/** Factors on difficulty-scaled damage to players, per difficulty (vanilla: Easy ×0.5+1, Normal ×1, Hard ×1.5). */
 	public record Difficulty(float easy, float normal, float hard) {}
@@ -97,7 +113,9 @@ public record MobConfig(Levels levels, Difficulty difficulty) {
 				readLevels(levels.section("dimensionBonus"), def.dimensionBonus, 0, 0),
 				levels.readFloat("healthPerLevel", def.healthPerLevel, 0, 10),
 				levels.readFloat("damagePerLevel", def.damagePerLevel, 0, 10),
-				levels.readFloat("experiencePerLevel", def.experiencePerLevel, 0, 10));
+				levels.readFloat("experiencePerLevel", def.experiencePerLevel, 0, 10),
+				readScales(levels.section("healthScale"), def.healthScale),
+				readScales(levels.section("damageScale"), def.damageScale));
 		Difficulty d = DEFAULT.difficulty;
 		SectionReader difficulty = in.section("difficulty");
 		return new MobConfig(read, new Difficulty(
@@ -122,6 +140,18 @@ public record MobConfig(Levels levels, Difficulty difficulty) {
 		return Map.copyOf(result);
 	}
 
+	/** One factor per key, like {@link #readLevels}: the defaults' keys plus any the user added (missing: 1). */
+	private static Map<String, Float> readScales(SectionReader in, Map<String, Float> defaults) {
+		Map<String, Float> result = new LinkedHashMap<>();
+		defaults.keySet().stream().sorted().forEach(key -> result.put(key, in.readFloat(key, defaults.get(key), 0.01f, 100)));
+		for (String key : in.keys()) {
+			if (!result.containsKey(key)) {
+				result.put(key, in.readFloat(key, 1, 0.01f, 100));
+			}
+		}
+		return Map.copyOf(result);
+	}
+
 	private static void write(MobConfig config, JsonObject out) {
 		Levels l = config.levels;
 		JsonObject levels = new JsonObject();
@@ -135,12 +165,20 @@ public record MobConfig(Levels levels, Difficulty difficulty) {
 		levels.addProperty("healthPerLevel", l.healthPerLevel);
 		levels.addProperty("damagePerLevel", l.damagePerLevel);
 		levels.addProperty("experiencePerLevel", l.experiencePerLevel);
+		levels.add("healthScale", writeScales(l.healthScale));
+		levels.add("damageScale", writeScales(l.damageScale));
 		JsonObject difficulty = new JsonObject();
 		difficulty.addProperty("easy", config.difficulty.easy);
 		difficulty.addProperty("normal", config.difficulty.normal);
 		difficulty.addProperty("hard", config.difficulty.hard);
 		out.add("levels", levels);
 		out.add("difficulty", difficulty);
+	}
+
+	private static JsonObject writeScales(Map<String, Float> scales) {
+		JsonObject json = new JsonObject();
+		scales.keySet().stream().sorted().forEach(key -> json.addProperty(key, scales.get(key)));
+		return json;
 	}
 
 	private static JsonObject writeLevels(Map<String, Integer> levels) {

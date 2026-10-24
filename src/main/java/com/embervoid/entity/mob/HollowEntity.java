@@ -109,7 +109,7 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 
 	public static DefaultAttributeContainer.Builder createAttributes() {
 		return HostileEntity.createHostileAttributes()
-				.add(EntityAttributes.GENERIC_MAX_HEALTH, 30)
+				.add(EntityAttributes.GENERIC_MAX_HEALTH, 25)
 				.add(EntityAttributes.GENERIC_ARMOR, 6)
 				.add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, 0.6)
 				.add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.2)

@@ -334,12 +334,12 @@ visuals; the quick fixes fit in anywhere. Milestones 15, 17 and 21 start with a 
 
 ## 16. The overworld dungeon
 
-**Status:** Built except the balance re-run (PLAN 16.1–16.3 done; 16.4 to do; not seen in game).
+**Status:** Done (PLAN 16.1–16.4; not seen in game).
 
 - [x] The overworld Sanctum becomes a dungeon: outer halls, guards and loot stay, the core gives way to a boss arena
 - [x] 2–3 variants, about one per 300–400 blocks; the Sanctum Map leads to the nearest
 - [x] Dungeon boss **Fallen Sister**, drops the **Crying Soul**
-- [ ] Overworld balance re-run
+- [x] Overworld balance re-run
 
 ## 17. Weapons above netherite
 
@@ -353,11 +353,11 @@ visuals; the quick fixes fit in anywhere. Milestones 15, 17 and 21 start with a 
 
 ## 18. Full rebalance
 
-**Status:** Realm 1 done (PLAN 18.1, 18.4); overworld, dungeon and moon nights to do (18.3).
+**Status:** Done (PLAN 18.1, 18.3, 18.4; every 0.5.0 target green in the build; not played).
 
 - [x] Balance model on fight length (bosses about 1.5–2.5 min with dodging, about 20–35 clean hits)
 - [x] Retune Realm 1 mobs, bosses and the Grieving Tree's cadence
-- [ ] Retune overworld, dungeon and moon nights (the Vampire boss's cadence)
+- [x] Retune overworld, dungeon and moon nights (the Vampire boss's cadence)
 
 ## 19. Mobs and bosses that look the part
 

@@ -60,6 +60,7 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 	public static final String MOVES = "moves";
 	public static final String HURT_CONTROLLER = "hurt";
 	public static final String SWING = "attack.swing";
+	public static final String CLAW = "attack.claw";
 	public static final String LEAP = "attack.leap";
 	public static final String NOVA = "attack.nova";
 	public static final String MIST = "misc.mist";
@@ -75,6 +76,9 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 	private static final DustParticleEffect BLOOD = new DustParticleEffect(new Vector3f(0.6f, 0.02f, 0.05f), 1.6f);
 
 	/** Windups and cooldowns in ticks (the balance model reads them, PLAN 18.1); later phases are faster. */
+	/** The claws: drawn back for {@value} ticks (the tell), then a cooldown of {@link #CLAW_RECOVERY} after the hit (PLAN 18.3). */
+	public static final int CLAW_WINDUP = 12;
+	public static final int CLAW_RECOVERY = 20;
 	public static final int LEAP_WINDUP = 20;
 	public static final int NOVA_WINDUP = 30;
 	public static final int MIST_WINDUP = 12;
@@ -84,7 +88,7 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 	public static final int NOVA_COOLDOWN_P2 = 120;
 	public static final int MIST_COOLDOWN = 100;
 	private static final double LEAP_RADIUS = 3.5;
-	private static final float LEAP_DAMAGE = 7;
+	private static final float LEAP_DAMAGE = 5.5f;
 	private static final double NOVA_RADIUS = 6;
 	private static final float NOVA_DAMAGE = 7.5f;
 	private static final float NOVA_HEAL = 0.25f;
@@ -94,6 +98,7 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 	private int leapCooldown = 60;
 	private int novaCooldown = 100;
 	private int mistCooldown = 80;
+	private int clawCooldown;
 	/** Landing spot of a leap in the air, or null. */
 	@Nullable
 	private Vec3d leapTarget;
@@ -109,8 +114,8 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 
 	public static DefaultAttributeContainer.Builder createAttributes() {
 		return HostileEntity.createHostileAttributes()
-				.add(EntityAttributes.GENERIC_MAX_HEALTH, 220)
-				.add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 5)
+				.add(EntityAttributes.GENERIC_MAX_HEALTH, 100)
+				.add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 3.5)
 				.add(EntityAttributes.GENERIC_ARMOR, 4)
 				.add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3)
 				.add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64)
@@ -119,7 +124,7 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 
 	@Override
 	protected void initGoals() {
-		goalSelector.add(2, new MeleeAttackGoal(this, 1.1, true));
+		goalSelector.add(2, new ClawGoal(this));
 		goalSelector.add(7, new LookAtEntityGoal(this, PlayerEntity.class, 16));
 		goalSelector.add(8, new LookAroundGoal(this));
 		targetSelector.add(1, new RevengeGoal(this));
@@ -139,6 +144,43 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 		}
 		if (leapTarget != null) {
 			tickLeap((ServerWorld) getWorld());
+		}
+		if (clawCooldown > 0) {
+			clawCooldown--;
+		}
+	}
+
+	/** Draws the claws back with the tell; they strike {@link #CLAW_WINDUP} ticks later if the target is still in reach. */
+	void startClaw() {
+		clawCooldown = CLAW_WINDUP + CLAW_RECOVERY;
+		Telegraph.windup(this, CLAW_WINDUP, CLAW, null, BLOOD, 0, () -> {
+			LivingEntity target = getTarget();
+			// A little extra reach: a player backing off at the last moment still has to commit to it.
+			if (target != null && target.isAlive() && squaredDistanceTo(target) <= clawReach(target) * 1.3) {
+				tryAttack(target);
+			}
+		});
+	}
+
+	private double clawReach(LivingEntity target) {
+		return getWidth() * 2.0f * getWidth() * 2.0f + target.getWidth();
+	}
+
+	/** Chases like vanilla's melee goal but attacks with the telegraphed claws instead of an instant swing. */
+	static class ClawGoal extends MeleeAttackGoal {
+		private final VampireBossEntity vampire;
+
+		ClawGoal(VampireBossEntity vampire) {
+			super(vampire, 1.1, true);
+			this.vampire = vampire;
+		}
+
+		@Override
+		protected void attack(LivingEntity target, double squaredDistance) {
+			if (squaredDistance <= vampire.clawReach(target) && vampire.clawCooldown <= 0 && !Telegraph.isWindingUp(vampire)
+					&& vampire.leapTarget == null) {
+				vampire.startClaw();
+			}
 		}
 	}
 
@@ -416,6 +458,7 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 				.triggerableAnim(HURT, RawAnimation.begin().thenPlay(HURT))
 				.triggerableAnim(STAGGER, RawAnimation.begin().thenPlay(STAGGER)));
 		controllers.add(new AnimationController<>(this, MOVES, 0, state -> PlayState.STOP)
+				.triggerableAnim(CLAW, RawAnimation.begin().thenPlay(CLAW))
 				.triggerableAnim(LEAP, RawAnimation.begin().thenPlay(LEAP))
 				.triggerableAnim(NOVA, RawAnimation.begin().thenPlay(NOVA))
 				.triggerableAnim(MIST, RawAnimation.begin().thenPlay(MIST))

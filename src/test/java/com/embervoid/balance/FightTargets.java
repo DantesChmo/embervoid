@@ -100,11 +100,20 @@ final class FightTargets {
 		return misses;
 	}
 
-	/** Mobs need at least their band's hits to kill the player from full health: fodder 6, skirmishers 5, elites 4. */
+	/** The creeper's blast is kept as it is (PLAN D13: the harder overworld; a level 10 player survives it). */
+	static final String CREEPER_KEPT = "minecraft:creeper";
+
+	/**
+	 * Mobs need at least their band's hits to kill the player from full health: fodder 6, skirmishers 5, elites 4. The
+	 * creeper is left out ({@link #CREEPER_KEPT}).
+	 */
 	static List<String> mobHitsOnPlayer(Playthrough run, Scope scope) {
 		List<String> misses = new ArrayList<>();
 		for (MobStage stage : FightLength.mobStages(run)) {
 			if (!scope.has(stage.mob())) {
+				continue;
+			}
+			if (stage.mob().id().equals(CREEPER_KEPT)) {
 				continue;
 			}
 			Band band = FightLength.bandOf(stage.mob());

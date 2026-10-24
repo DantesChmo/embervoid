@@ -53,7 +53,7 @@ public class AshenZombieEntity extends HostileEntity implements GeoEntity {
 
 	public static DefaultAttributeContainer.Builder createAttributes() {
 		return HostileEntity.createHostileAttributes()
-				.add(EntityAttributes.GENERIC_MAX_HEALTH, 24)
+				.add(EntityAttributes.GENERIC_MAX_HEALTH, 11)
 				.add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.25)
 				.add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 4)
 				.add(EntityAttributes.GENERIC_ARMOR, 2)

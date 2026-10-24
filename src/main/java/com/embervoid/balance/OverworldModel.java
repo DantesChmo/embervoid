@@ -125,13 +125,13 @@ public final class OverworldModel {
 	 * @param redstoneOre    redstone ore mined
 	 * @param lapisOre       lapis ore mined
 	 * @param diamondOre     diamond ore mined
-	 * @param sanctumHollows Hollows guarding the Sanctum, killed on the way in (a typical Sanctum has 2–5)
+	 * @param sanctumHollows Hollows guarding the dungeon, killed on the way in (PLAN 16.4: placed dungeons hold 4–5)
 	 * @param sanctumArchers skeletons in its side halls
-	 * @param sanctumChests  outer-hall chests opened (3–5)
+	 * @param sanctumChests  chests opened (PLAN 16.4: placed dungeons hold 5–7, the storeroom included)
 	 */
 	public record Route(int surfaceKills, int caveKills, int coalOre, int ironSmelted, int goldSmelted, int redstoneOre,
 			int lapisOre, int diamondOre, double sanctumHollows, double sanctumArchers, int sanctumChests) {
-		public static final Route TYPICAL = new Route(30, 20, 40, 30, 4, 6, 4, 2, 3.5, 1, 4);
+		public static final Route TYPICAL = new Route(30, 20, 40, 30, 4, 6, 4, 2, 4.5, 1, 6);
 	}
 
 	/** XP of one route by where it comes from. */

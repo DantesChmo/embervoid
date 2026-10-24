@@ -179,10 +179,11 @@ fought both ways has 1–2 hits of room. Making the first visit's reference weap
 smaller and faster) would widen it; nothing needed it yet. The feel was not played: the bark, the shorter stun and
 the Keeper's pace are numbers until someone fights them.
 
-**Left for 18.3** (17 misses in `./gradlew balanceTargets`, none in Realm 1; §7 lists them): the Vampire boss's
-cadence, claw and leap (63 % uptime, 66 hits in 1.1 min); the overworld zombie, creeper, witch, Enderman and
-Vindicator; the Ruined Sanctum's Hollow; the full moon's Ashen Zombie and Ghost. The model edits of 18.4 (the ×0
-beat, the bone pile) change none of their rows.
+**Done in 18.3:** the 17 misses left after 18.4 are closed and the targets run in `./gradlew build`. The Vampire
+boss's claws are telegraphed (12-tick windup, 20-tick recovery: 15 % uptime), claw 3.5, leap 5.5, HP 100 → 30
+clean hits in 2.1 min; the vanilla zombie, creeper, witch, Enderman and Vindicator through the new per-type
+`mobs.levels.healthScale` / `damageScale`; the Hollow 25 HP, the Ashen Zombie 11, the Ghost 36 HP and 5.5 damage.
+The creeper's blast is kept (PLAN D13) and left out of the hits-on-player target. PLAN 18.3 has the numbers.
 
 ### Before PLAN 18.4 (18.1's measurement)
 
@@ -296,7 +297,7 @@ the GameTest `bossWindupsAreTheEntities` (`./gradlew runGametest`).
 
 ## 7. Tables (from `build/balance/fight-length.md`)
 
-After PLAN 18.4; regenerate with `./gradlew test --tests 'com.embervoid.balance.*'` rather than editing by hand.
+After PLAN 18.3; regenerate with `./gradlew test --tests 'com.embervoid.balance.*'` rather than editing by hand.
 
 ### Boss cadence: openings per beat (escape 10 ticks, re-engage 16, out of melee 20 % of picks)
 
@@ -309,14 +310,14 @@ After PLAN 18.4; regenerate with `./gradlew test --tests 'com.embervoid.balance.
 | Fallen Sister | P2 (veil burnt, crying souls) | censer slam | 24 / 24 / 22 | 0.2 | 20 / 46 | melee, target |
 | Fallen Sister | P2 (veil burnt, crying souls) | backstep | 8 / 8 / 16 | 0.2 | 0 / 0 | ranged, target |
 | Fallen Sister | P2 (veil burnt, crying souls) | censer spin | 26 / 26 / 20 | 0.3 | 20 / 20 | melee, all |
-| Vampire boss | P0 | claws, traded | 0 / 0 / 20 | 0.8 | 20 / 20 | melee, none |
+| Vampire boss | P0 | claw | 12 / 12 / 20 | 0.8 | 6 / 32 | melee, target |
 | Vampire boss | P0 | leap | 34 / 34 / 0 | 0.2 | 0 / 0 | closing, target |
-| Vampire boss | P1 (nova) | claws, traded | 0 / 0 / 20 | 5.2 | 20 / 20 | melee, none |
+| Vampire boss | P1 (nova) | claw | 12 / 12 / 20 | 3.3 | 6 / 32 | melee, target |
 | Vampire boss | P1 (nova) | blood nova | 30 / 30 / 0 | 1 | 4 / 4 | melee, all |
-| Vampire boss | P1 (nova) | leap / mist step | 34 / 34 / 0 | 1.3 | 0 / 0 | closing, target |
-| Vampire boss | P2 (mist step) | claws, traded | 0 / 0 / 20 | 3.6 | 20 / 20 | melee, none |
+| Vampire boss | P1 (nova) | leap / mist step | 34 / 34 / 0 | 0.8 | 0 / 0 | closing, target |
+| Vampire boss | P2 (mist step) | claw | 12 / 12 / 20 | 2.3 | 6 / 32 | melee, target |
 | Vampire boss | P2 (mist step) | blood nova | 30 / 30 / 0 | 1 | 4 / 4 | melee, all |
-| Vampire boss | P2 (mist step) | leap / mist step | 34 / 34 / 0 | 0.9 | 0 / 0 | closing, target |
+| Vampire boss | P2 (mist step) | leap / mist step | 34 / 34 / 0 | 0.6 | 0 / 0 | closing, target |
 | Ash Colossus | P1 | fist cone | 18 / 18 / 32 | 0.5 | 24 / 50 | melee, target |
 | Ash Colossus | P1 | arm drag | 16 / 16 / 32 | 0.3 | 22 / 48 | melee, target |
 | Ash Colossus | P1 | leap ring | 36 / 36 / 50 | 0.1 | 34 / 34 | closing, target |
@@ -350,9 +351,9 @@ After PLAN 18.4; regenerate with `./gradlew test --tests 'com.embervoid.balance.
 | --- | --- | --- | --- | --- | --- | --- |
 | Fallen Sister | P1 (censer) | 100 % | 0 | 42.6 | 26 % | ember puddle: a step around it: 8 per 142.0 |
 | Fallen Sister | P2 (veil burnt, crying souls) | 50 % | 40 | 42.3 | 29 % | ember puddle: a step around it: 8 per 238; crying souls: 3.5 a flock, each dodged, reached and killed with one swing: 147 per 400 |
-| Vampire boss | P0 | 100 % | 0 | 22.8 | 70 % | - |
-| Vampire boss | P1 (nova) | 60 % | 0 | 178.2 | 61 % | - |
-| Vampire boss | P2 (mist step) | 30 % | 0 | 132.6 | 57 % | - |
+| Vampire boss | P0 | 100 % | 0 | 32.4 | 15 % | - |
+| Vampire boss | P1 (nova) | 60 % | 0 | 161.6 | 15 % | - |
+| Vampire boss | P2 (mist step) | 30 % | 0 | 121.1 | 14 % | - |
 | Ash Colossus | P1 | 100 % | 0 | 56.1 | 39 % | ash storm: roar, then behind a pillar: 150 per 400 |
 | Ash Colossus | P2 (stone shed) | 50 % | 30 | 45.1 | 28 % | ash storm: roar, then behind a pillar: 150 per 400; falling cinders: a step out of the shadow: 5.3 per 50 |
 | Grieving Tree | P1 (rooted) | 100 % | 0 | 94.7 | 20 % | Withered Thralls dropping (2): 73.9 per 500 |
@@ -369,7 +370,7 @@ After PLAN 18.4; regenerate with `./gradlew test --tests 'com.embervoid.balance.
 | Boss | Stage | Player | Boss HP | Clean hit (P1) | Clean hits | Swinging (s) | Uptime | Fight (min) | Hits / time ok |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Fallen Sister | Ruined Sanctum | Lv 1 iron, iron sword | 177.1 | 5.8 | 31 | 19.2 | 20 % | 1.6 | yes / yes |
-| Vampire boss | blood new moon | Lv 10 iron, iron sword | 404.8 | 6.2 | 66 | 40.5 | 63 % | 1.1 | **no** / **no** |
+| Vampire boss | blood new moon | Lv 10 iron, iron sword | 184.0 | 6.2 | 30 | 18.4 | 15 % | 2.1 | yes / yes |
 | Ash Colossus | Ashen Fields 1st | Lv 10 diamond, diamond sword | 212.1 | 5.6 | 34 | 20.8 | 19 % | 1.9 | yes / yes |
 | Ash Colossus | Ashen Fields 2nd (after Royal Woods), no melee unique yet | Lv 19 diamond, diamond sword | 212.1 | 6.1 | 32 | 18.8 | 19 % | 1.7 | yes / yes |
 | Ash Colossus | Ashen Fields 2nd (after Sunken Necropolis) | Lv 22 diamond, Warden's Scourge | 212.1 | 9.7 | 21 | 19.6 | 18 % | 1.8 | yes / yes |
@@ -393,9 +394,9 @@ After PLAN 18.4; regenerate with `./gradlew test --tests 'com.embervoid.balance.
 | Fallen Sister | Ruined Sanctum, iron sword | 1 | 177.1 | 30.7 | 20 % | 0 | 1.6 |
 | Fallen Sister | Ruined Sanctum, iron sword | 2 | 265.6 | 23.1 | 37 % | 0 | 0.7 |
 | Fallen Sister | Ruined Sanctum, iron sword | 3 | 354.2 | 20.5 | 42 % | 0 | 0.5 |
-| Vampire boss | blood new moon, iron sword | 1 | 404.8 | 65.8 | 63 % | 0 | 1.1 |
-| Vampire boss | blood new moon, iron sword | 2 | 404.8 | 32.9 | 63 % | 0 | 0.5 |
-| Vampire boss | blood new moon, iron sword | 3 | 404.8 | 21.9 | 63 % | 0 | 0.4 |
+| Vampire boss | blood new moon, iron sword | 1 | 184.0 | 29.9 | 15 % | 0 | 2.1 |
+| Vampire boss | blood new moon, iron sword | 2 | 184.0 | 15.0 | 42 % | 0 | 0.4 |
+| Vampire boss | blood new moon, iron sword | 3 | 184.0 | 10.0 | 51 % | 0 | 0.2 |
 | Ash Colossus | Ashen Fields 1st, diamond sword | 1 | 212.1 | 33.7 | 19 % | 0 | 1.9 |
 | Ash Colossus | Ashen Fields 1st, diamond sword | 2 | 318.1 | 25.3 | 30 % | 0.9 | 0.9 |
 | Ash Colossus | Ashen Fields 1st, diamond sword | 3 | 424.2 | 22.5 | 33 % | 1.2 | 0.7 |
@@ -426,7 +427,7 @@ After PLAN 18.4; regenerate with `./gradlew test --tests 'com.embervoid.balance.
 | Boss | Stage | Weapon | Swing (s) | Uptime | Clean hits for 1.5 min | for 2.5 min | Boss HP for 1.5–2.5 min (× today) | Hits meeting both bands | Boss HP for those (× today) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Fallen Sister | Ruined Sanctum | iron sword | 0.6 | 20 % | 28.8 | 48.4 | ×0.94–1.57 | 28.8–35 | ×0.94–1.14 |
-| Vampire boss | blood new moon | iron sword | 0.6 | 63 % | 92.0 | 153.4 | ×1.40–2.33 | **none** | - |
+| Vampire boss | blood new moon | iron sword | 0.6 | 15 % | 21.4 | 35.6 | ×0.71–1.19 | 21.4–35 | ×0.71–1.17 |
 | Ash Colossus | Ashen Fields 1st | diamond sword | 0.6 | 19 % | 27.1 | 45.5 | ×0.80–1.35 | 27.1–35 | ×0.80–1.04 |
 | Ash Colossus | Ashen Fields 2nd (after Royal Woods), no melee unique yet | diamond sword | 0.6 | 19 % | 27.6 | 46.3 | ×0.89–1.49 | 27.6–35 | ×0.89–1.12 |
 | Ash Colossus | Ashen Fields 2nd (after Sunken Necropolis) | Warden's Scourge | 1.0 | 18 % | 17.1 | 28.7 | ×0.84–1.41 | 20–28.7 | ×0.98–1.41 |
@@ -451,8 +452,8 @@ After PLAN 18.4; regenerate with `./gradlew test --tests 'com.embervoid.balance.
 | Fallen Sister | censer slam | heavy | 24 | shape | Lv 1 iron, iron sword (20 HP) | 6.7 | 34 % | 35 % | - |
 | Fallen Sister | crying soul dive (P2) | light | 20 | shape | Lv 1 iron, iron sword (20 HP) | 2.8 | 14 % | 20 % | - |
 | Fallen Sister | censer spin (P2) | biggest | 26 | shape | Lv 1 iron, iron sword (20 HP) | 10.0 | 50 % | 67 % | - |
-| Vampire boss | claw | light | 0 | none | Lv 10 iron, iron sword (24 HP) | 6.5 | 27 % | 20 % | **light above 20 %** |
-| Vampire boss | leap | heavy | 20 | shape | Lv 10 iron, iron sword (24 HP) | 10.3 | 43 % | 35 % | **heavy above 35 %** |
+| Vampire boss | claw | light | 12 | animation | Lv 10 iron, iron sword (24 HP) | 4.1 | 17 % | 20 % | - |
+| Vampire boss | leap | heavy | 20 | shape | Lv 10 iron, iron sword (24 HP) | 7.4 | 31 % | 35 % | - |
 | Vampire boss | blood nova (heals 25 %) | biggest | 30 | shape | Lv 10 iron, iron sword (24 HP) | 11.4 | 47 % | 67 % | - |
 | Ash Colossus | fist cone | heavy | 18 | shape | Lv 10 diamond, diamond sword (24 HP) | 7.1 | 30 % | 35 % | - |
 | Ash Colossus | leap ring | biggest | 22 | shape | Lv 10 diamond, diamond sword (24 HP) | 8.5 | 35 % | 67 % | - |
@@ -487,19 +488,19 @@ After PLAN 18.4; regenerate with `./gradlew test --tests 'com.embervoid.balance.
 
 | Stage | Mob | Lv | Band | Player | Mob HP | Hits to kill (want) | Its hit | Hits to kill the player (want) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| overworld | Zombie | 3 | fodder | Lv 1 iron, iron sword | 22.4 | **4** (2–3) | 2.0 | 11 (≥ 6) |
+| overworld | Zombie | 3 | fodder | Lv 1 iron, iron sword | 16.8 | 3 (2–3) | 2.0 | 11 (≥ 6) |
 | overworld | Spider | 3 | fodder | Lv 1 iron, iron sword | 17.9 | 3 (2–3) | 1.3 | 16 (≥ 6) |
 | overworld | Skeleton | 4 | skirmisher | Lv 1 iron, iron sword | 23.6 | 4 (3–4) | 3.0 | 7 (≥ 5) |
-| overworld | Creeper | 6 | skirmisher | Lv 1 iron, iron sword | 26.0 | **5** (3–4) | 33 | **1** (≥ 5) |
-| overworld | Witch | 6 | skirmisher | Lv 1 iron, iron sword | 33.8 | **6** (3–4) | 9.4 | **3** (≥ 5) |
-| overworld | Enderman | 12 | elite | Lv 1 iron, iron sword | 66.4 | **12** (6–10) | 9.1 | **3** (≥ 4) |
-| overworld | Vindicator | 4 | elite | Lv 1 iron, iron sword | 28.3 | **5** (6–10) | 14.5 | **2** (≥ 4) |
+| overworld | Creeper | 6 | skirmisher | Lv 1 iron, iron sword | 22.1 | 4 (3–4) | 33 | **1** (≥ 5) |
+| overworld | Witch | 6 | skirmisher | Lv 1 iron, iron sword | 22.0 | 4 (3–4) | 4.7 | 5 (≥ 5) |
+| overworld | Enderman | 12 | elite | Lv 1 iron, iron sword | 53.1 | 9 (6–10) | 5.1 | 4 (≥ 4) |
+| overworld | Vindicator | 4 | elite | Lv 1 iron, iron sword | 36.8 | 7 (6–10) | 4.1 | 5 (≥ 4) |
 | overworld | Ash Ghoul | 5 | fodder | Lv 1 iron, iron sword | 14.9 | 3 (2–3) | 1.8 | 12 (≥ 6) |
 | overworld | Ember Wisp | 11 | skirmisher | Lv 1 iron, iron sword | 12.8 | 3 (3–4) | 0.8 | 25 (≥ 5) |
-| Ruined Sanctum | Hollow | 15 | elite | Lv 1 iron, iron sword | 55.2 | **11** (6–10) | 6.5 | 4 (≥ 4) |
+| Ruined Sanctum | Hollow | 15 | elite | Lv 1 iron, iron sword | 46.0 | 9 (6–10) | 6.5 | 4 (≥ 4) |
 | Ruined Sanctum | Skeleton | 4 | skirmisher | Lv 1 iron, iron sword | 23.6 | 4 (3–4) | 3.0 | 7 (≥ 5) |
-| full moon | Ashen Zombie | 9 | fodder | Lv 5 iron, iron sword | 35.5 | **6** (2–3) | 3.8 | 6 (≥ 6) |
-| full moon | Ghost | 9 | elite | Lv 5 iron, iron sword | 71.0 | **12** (6–10) | 9.5 | **3** (≥ 4) |
+| full moon | Ashen Zombie | 9 | fodder | Lv 5 iron, iron sword | 16.3 | 3 (2–3) | 3.8 | 6 (≥ 6) |
+| full moon | Ghost | 9 | elite | Lv 5 iron, iron sword | 53.3 | 9 (6–10) | 5.7 | 4 (≥ 4) |
 | Ashen Fields 1st | Cinder Husk | 15 | fodder | Lv 10 diamond, diamond sword | 18.4 | 3 (2–3) | 1.7 | 15 (≥ 6) |
 | Ashen Fields 3rd (after Royal Woods + Sunken Necropolis) | Cinder Husk | 18 | fodder | Lv 27 diamond, Warden's Scourge | 20.2 | 2 (2–3) | 1.9 | 17 (≥ 6) |
 | Ashen Fields 1st | Ash Stalker | 15 | skirmisher | Lv 10 diamond, diamond sword | 25.8 | 4 (3–4) | 2.4 | 10 (≥ 5) |
@@ -546,38 +547,17 @@ The Scourge's ×1.6 is its tip crack, the last 1.5 blocks of the lash (PLAN 17.4
 
 ### Misses of the 0.5.0 targets (today's numbers; `./gradlew balanceTargets`)
 
-**Boss fight length, solo (1.5–2.5 min)**: 1 misses.
+**Boss fight length, solo (1.5–2.5 min)**: none.
 
-- Vampire boss (blood new moon, Lv 10 iron, iron sword): 1.1 min, want 1.5–2.5
+**Boss clean hits, solo (20–35)**: none.
 
-**Boss clean hits, solo (20–35)**: 1 misses.
+**Mob hits to kill (fodder 2–3, skirmishers 3–4, elites 6–10)**: none.
 
-- Vampire boss (blood new moon, Lv 10 iron, iron sword): 66 clean hits, want 20–35
+**Mob hits to kill the player (fodder ≥ 6, skirmishers ≥ 5, elites ≥ 4)**: none.
 
-**Mob hits to kill (fodder 2–3, skirmishers 3–4, elites 6–10)**: 8 misses.
-
-- Zombie Lv 3 (overworld, Lv 1 iron, iron sword): dies in 4, want 2–3
-- Creeper Lv 6 (overworld, Lv 1 iron, iron sword): dies in 5, want 3–4
-- Witch Lv 6 (overworld, Lv 1 iron, iron sword): dies in 6, want 3–4
-- Enderman Lv 12 (overworld, Lv 1 iron, iron sword): dies in 12, want 6–10
-- Vindicator Lv 4 (overworld, Lv 1 iron, iron sword): dies in 5, want 6–10
-- Hollow Lv 15 (Ruined Sanctum, Lv 1 iron, iron sword): dies in 11, want 6–10
-- Ashen Zombie Lv 9 (full moon, Lv 5 iron, iron sword): dies in 6, want 2–3
-- Ghost Lv 9 (full moon, Lv 5 iron, iron sword): dies in 12, want 6–10
-
-**Mob hits to kill the player (fodder ≥ 6, skirmishers ≥ 5, elites ≥ 4)**: 5 misses.
-
-- Creeper Lv 6 (overworld, Lv 1 iron, iron sword): kills in 1 (33 of 20), want ≥ 5
-- Witch Lv 6 (overworld, Lv 1 iron, iron sword): kills in 3 (9.4 of 20), want ≥ 5
-- Enderman Lv 12 (overworld, Lv 1 iron, iron sword): kills in 3 (9.1 of 20), want ≥ 4
-- Vindicator Lv 4 (overworld, Lv 1 iron, iron sword): kills in 2 (14.5 of 20), want ≥ 4
-- Ghost Lv 9 (full moon, Lv 5 iron, iron sword): kills in 3 (9.5 of 22), want ≥ 4
-
-**Boss hit sizes (light ≤ 20 %, heavy ≤ 35 %, biggest ≤ ⅔)**: 2 misses.
-
-- Vampire boss claw: 27 % of Lv 10 iron, iron sword (6.5 HP), light wants ≤ 20 %
-- Vampire boss leap: 43 % of Lv 10 iron, iron sword (10.3 HP), heavy wants ≤ 35 %
+**Boss hit sizes (light ≤ 20 %, heavy ≤ 35 %, biggest ≤ ⅔)**: none.
 
 **Wind-up rule (≥ ⅓: 12 ticks + tell; ≥ ½: 20 ticks + shape or sound)**: none.
 
 **Uniques above netherite (≥ +20 % in own use, ≥ netherite on one target)**: none.
+

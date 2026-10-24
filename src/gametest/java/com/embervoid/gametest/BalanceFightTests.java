@@ -249,9 +249,12 @@ public final class BalanceFightTests implements FabricGameTest {
 		for (OverworldMob mob : OverworldData.MOBS) {
 			EntityType<?> type = Registries.ENTITY_TYPE.get(new Identifier(mob.id()));
 			DefaultAttributeContainer attributes = DefaultAttributeRegistry.get(castLiving(type));
-			same(misses, mob.id() + " health", mob.mob().health(), attributes.getBaseValue(EntityAttributes.GENERIC_MAX_HEALTH));
+			// The model holds a vanilla type's numbers times its healthScale / damageScale (PLAN 18.3).
+			same(misses, mob.id() + " health", mob.mob().health(),
+					attributes.getBaseValue(EntityAttributes.GENERIC_MAX_HEALTH) * BalanceModel.LEVELS.healthScale(mob.id()));
 			same(misses, mob.id() + " armor", mob.mob().armor(), attributes.getBaseValue(EntityAttributes.GENERIC_ARMOR));
-			same(misses, mob.id() + " attack", mob.mob().attack(), attributes.getBaseValue(EntityAttributes.GENERIC_ATTACK_DAMAGE));
+			same(misses, mob.id() + " attack", mob.mob().attack(),
+					attributes.getBaseValue(EntityAttributes.GENERIC_ATTACK_DAMAGE) * BalanceModel.LEVELS.damageScale(mob.id()));
 			MobEntity entity = (MobEntity) type.create(context.getWorld());
 			same(misses, mob.id() + " XP", mob.mob().xp(), entity.getXpToDrop());
 			entity.discard();

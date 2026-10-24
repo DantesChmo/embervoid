@@ -10,9 +10,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * The 0.5.0 targets (DESIGN §5.5 fight length and hit sizes, §6.1 weapons) on the game's numbers, one test per target
- * ({@link FightTargets}; docs/balance-0.5.0.md). Red until the retune (PLAN 18.3, 18.4), so the tag keeps it out of
- * {@code ./gradlew build}; {@code ./gradlew balanceTargets} runs it alone and lists every miss. When a retune makes
- * them green, the exclusion in {@code build.gradle} goes and they join the build.
+ * ({@link FightTargets}; docs/balance-0.5.0.md). Green since the retune (PLAN 18.3, 18.4) and part of
+ * {@code ./gradlew build}; {@code ./gradlew balanceTargets} runs it alone and lists every miss.
  */
 @Tag("targets-0.5.0")
 class FightLengthTargetsTest {

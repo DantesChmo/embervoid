@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.ZombieEntity;
+import net.minecraft.registry.Registries;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 
@@ -67,7 +68,9 @@ public final class MobLevelTests implements FabricGameTest {
 	}
 
 	private static void assertMaxHealth(TestContext context, MobEntity mob, double base, int level) {
-		double expected = base * (1 + MobLevelRules.healthBonus(MobConfig.get().levels(), level));
+		MobConfig.Levels levels = MobConfig.get().levels();
+		double scale = levels.healthScale(Registries.ENTITY_TYPE.getId(mob.getType()).toString());
+		double expected = base * scale * (1 + MobLevelRules.healthBonus(levels, level));
 		context.assertTrue(Math.abs(mob.getMaxHealth() - expected) < 0.01,
 				"max health " + mob.getMaxHealth() + ", expected " + expected + " at level " + level);
 	}

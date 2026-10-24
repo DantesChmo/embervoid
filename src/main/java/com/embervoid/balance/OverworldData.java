@@ -5,6 +5,7 @@ import com.embervoid.balance.BalanceData.HitKind;
 import com.embervoid.balance.BalanceData.Mob;
 import com.embervoid.balance.BalanceData.Role;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -49,8 +50,12 @@ public final class OverworldData {
 		return new Hit(name, base, HitKind.PHYSICAL, interval);
 	}
 
+	/** Vanilla's numbers, times the type's {@code healthScale} / {@code damageScale} from the config defaults (PLAN 18.3). */
 	private static Mob mob(String id, String name, Role role, double health, double armor, double attack, int xp, Hit... hits) {
-		return new Mob(id, name, null, role, health, 0, armor, attack, xp, false, List.of(hits));
+		double hp = BalanceModel.LEVELS.healthScale(id);
+		double dmg = BalanceModel.LEVELS.damageScale(id);
+		List<Hit> scaled = Arrays.stream(hits).map(h -> new Hit(h.name(), h.base() * dmg, h.kind(), h.interval(), h.hazard())).toList();
+		return new Mob(id, name, null, role, health * hp, 0, armor, attack * dmg, xp, false, scaled);
 	}
 
 	/** Vanilla's explosion damage to an entity at {@code distance} from the centre with {@code exposure} (0–1). */
@@ -87,7 +92,7 @@ public final class OverworldData {
 	public static final OverworldMob ASH_GHOUL = new OverworldMob(mob("embervoid:ash_ghoul", "Ash Ghoul", Role.FODDER, 12, 0, 2.5, 5,
 			melee("claw", 2.5, 20)), true, true, 12, 4, 0);
 	/** Iron sword 70 % (5), stone sword 30 % (4); its own attack is 0. One swing per 40 ticks after an 8-tick wind-up. */
-	public static final OverworldMob HOLLOW = new OverworldMob(mob("embervoid:hollow", "Hollow", Role.TANK, 30, 6, 0, 20,
+	public static final OverworldMob HOLLOW = new OverworldMob(mob("embervoid:hollow", "Hollow", Role.TANK, 25, 6, 0, 20,
 			melee("iron sword", 5, 40), melee("stone sword", 4, 40)), true, false, 5, 1, 0);
 	/** Touch 1 + 4 s of fire, one dive per 20–40 ticks; the fire burns on between dives (1 per s, ignores armor). */
 	public static final OverworldMob EMBER_WISP = new OverworldMob(mob("embervoid:ember_wisp", "Ember Wisp", Role.FLYER, 8, 0, 1, 6,

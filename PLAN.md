@@ -704,7 +704,7 @@ B puts A out. Leaving an obelisk lands in the hub; the hub's exit leads to the a
 | 16.1 | **Sanctum → dungeon** | M | 15.0 | done (GameTests `SanctumTests` + server check; the arena previewed; not seen in game: the fog wall's ash, the dim light, the arena at eye level) |
 | 16.2 | **Dungeon variants and frequency** | M | 16.1 | done – in-game look not seen (`spacing` 22 / `separation` 8; three variants; JUnit `SanctumStructureSetTest`, GameTests `SanctumTests` per variant (build + all 249 GameTests green before the survey's last edit, land-only distances; after it only the `sanctum` JUnit and the server check ran; the full regression is left for the coordinator after merging); server check `/embervoid sanctum survey` on two seeds: 39 and 29 dungeons within 1500 blocks of 0 0, land a mean 171 / 174 blocks from the nearest, 99 % / 98 % within 400; variants seen only in `model_preview`) |
 | 16.3 | **The dungeon boss** | L | 15.0, 16.1 | done – look, motion and sound not seen or heard in game (GameTests `FallenSisterTests`, `BalanceFightTests`; server check; her `balanceTargets` rows pass: 31 clean hits, 1.6 min, 20 % uptime; motion judged only in `model_preview` sheets and GIFs) |
-| 16.4 | **Overworld balance re-run** | M | 15.1–16.3 | todo (from 16.2: 24–42 dungeons within 1500 blocks of 0 0 on eight land-rich seeds, about 6 at the old 48 / 16; land a mean 150–190 blocks from the nearest; per dungeon 2–4 guards in the variant's hall, 2 of them always there, 2 chests there, the side halls as before plus the storeroom; placed GameTest dungeons held 5–7 chests and 4–5 Hollows) |
+| 16.4 | **Overworld balance re-run** | M | 15.1–16.3 | done (the route at the placed dungeon's 4.5 guards and 6 chests: 629 XP, level 11 from 1; tables in `docs/balance-overworld.md` §8 regenerated; `OverworldTargetsTest` green. From 16.2: 24–42 dungeons within 1500 blocks of 0 0 on eight land-rich seeds, about 6 at the old 48 / 16; land a mean 150–190 blocks from the nearest; per dungeon 2–4 guards in the variant's hall, 2 of them always there, 2 chests there, the side halls as before plus the storeroom; placed GameTest dungeons held 5–7 chests and 4–5 Hollows) |
 
 - **16.1 Sanctum → dungeon.** The `ember_sanctum` structure keeps its outer halls, guards (Hollows and the rest) and
   loot (Flask Shards, Sanctum weapons); the core with the Maiden and the obelisks goes. An Ember Shrine at the boss
@@ -875,7 +875,7 @@ stats, weapons.
 | ID | Task | Size | Depends on | Status |
 |----|------|------|------------|--------|
 | 18.1 | **Balance model on fight length** | M | 17.0 | done (JUnit `FightLengthTest` in the build; the 0.5.0 targets in `FightLengthTargetsTest`, tag `targets-0.5.0`, run by `./gradlew balanceTargets`: 6 of 7 red, 80 misses listed in `docs/balance-0.5.0.md`; GameTest `bossWindupsAreTheEntities`; nothing played) |
-| 18.3 | **Retune: overworld, dungeon, moon nights** | M | 18.1, 16.4 | todo |
+| 18.3 | **Retune: overworld, dungeon, moon nights** | M | 18.1, 16.4 | done (every 0.5.0 target green, now in `./gradlew build`; vanilla types through new `mobs.levels.healthScale` / `damageScale`; the Vampire boss's claws telegraphed; the creeper's blast kept per D13; checks: build, 282 GameTests, server check; not played) |
 | 18.4 | **Retune: Realm 1 mobs and bosses, player stats** | L | 18.1, 17.3 | done (every Realm 1 row of the 0.5.0 targets green, now in the build as `RealmOneTargetsTest`; the Tree's bark turns hits outside a 2.2 s stun; boss HP ×0.38–0.97, the Keeper presses on; mob health to the bands; stat curve unchanged; GameTests measure it in the engine. Checks run here: compile, the balance JUnit, `balanceTargets` (17 misses, all 18.3's); one full build and GameTest run (247/247) before the last Tree commit (lantern regrow 8 s); the full regression is the coordinator's after merging. The feel was not played) |
 
 - **18.1 Balance model on fight length.** `com.embervoid.balance` turns hits to kill into seconds (weapon speed, an
@@ -896,6 +896,15 @@ stats, weapons.
   Vampire boss to the targets; the Vampire boss gets fewer openings first (wind-ups and recoveries on its claws;
   about 63 % uptime today, DESIGN §5.5), then HP. `OverworldTargetsTest`, `BalanceFightTests`, `./gradlew
   balanceTargets` for the stages it covers.
+  *Built:* **Vampire boss:** the claws are drawn back for 12 ticks with their own animation (`attack.claw`) and leave a
+  20-tick recovery instead of vanilla's traded swing (63 % → 15 % uptime); claw 5 → 3.5 (17 %, light), leap 7 → 5.5
+  (31 %, heavy), HP 220 → 100: 30 clean hits in 2.1 min. **Vanilla types** get a factor on their base health / damage
+  under the level (`mobs.levels.healthScale` / `damageScale`, applied in `MobLevels`, the model's `OverworldData` reads
+  the same defaults so `BalanceFightTests` still compares model and engine): zombie family health ×0.75, creeper
+  ×0.85, witch ×0.65 and damage ×0.5, Enderman ×0.8 / ×0.65, Vindicator ×1.3 / ×0.4. **Own mobs:** the Hollow 30 → 25 HP,
+  the Ashen Zombie 24 → 11, the Ghost 48 → 36 HP and 8 → 5.5 damage. The creeper's blast stays lethal for a level 1
+  player in iron (D13); its hits-on-player row is left out of the targets. Every mob now sits in its band, every
+  boss in 20–35 clean hits and 1.5–2.5 min; the tag's exclusion is gone from `build.gradle`. Not played.
 - **18.4 Retune: Realm 1.** Work list in `docs/balance-0.5.0.md` §5. The Grieving Tree's cadence first (its stun
   after every sweep is most of the fight; DESIGN §5.5), then zone and Citadel mobs and the four bosses: HP to the
   fight length, damage per hit under

@@ -120,22 +120,18 @@ dungeon Hollow).
 
 ### What is left
 
+Updated 2026-10-24 after the overhaul, the Golem / Knight remodels and 16.4 + 18.3 (done here, one session).
+
 | Task | Depends on | Note |
 |---|---|---|
 | 15.5 Worlds from 0.4.x | — | old Sanctum cores keep working, old player data (DESIGN §2 "Worlds from 0.4.x") |
-| 16.4 Overworld balance re-run | — | 16.2's counts: 24–42 dungeons within 1500 blocks |
-| 17.2 Weapon models in hand | — | the Scourge's lash is done in 17.4 |
-| 18.3 Retune overworld, dungeon, moon nights | 16.4 | closes the remaining `balanceTargets` misses |
-| 19.3 Death, hit, stagger animations (3 parts) | — | overworld + moon mobs after 18.3 (same entity classes) |
-| 19.4 Boss remodels (one per boss) | 19.3 for shared code | Colossus, Grieving Tree, Crypt Keeper, Smoldering Lord (face), Vampire |
 | 19.5 Photo tour (optional) | — | the user starts it in their own terminal |
-| 20.1 Set-piece framework, 20.2 moving set pieces | 20.1 → 20.2 | |
-| 20.4 Props into structures, more variants | — | after 21.3 for the Citadel pieces |
 | 21.3 Citadel in its sector, remove the depths dimension | — | 21.1 kept depths so the game stays completable |
 | 21.4 Old worlds' realm dimensions regenerated | 21.3 | the coordinator's call (nothing is published); it touches the user's playtest world |
 | 21.5 Release 0.5.0 | all | version, changelog, docs; tag and push wait for the user |
 
-Proposed next batch (not started): 16.4 + 18.3 in one session, 17.2, 19.3 for the Realm 1 zone mobs, 21.3.
+Done since batch 5: 16.4, 17.2, 18.3 (every 0.5.0 balance target green, in the build), 19.3, 19.4, 20.1–20.4 and the
+visual overhaul. After 18.3: build (with the targets), all 282 GameTests and the server check green.
 
 Open loose ends: the 21.2 session (`citadel-lock`) could not be deleted yet (a queued message); its branch is merged.
 Nothing of 0.5.0 has been seen or played in game.
