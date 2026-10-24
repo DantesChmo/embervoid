@@ -441,13 +441,13 @@ def exercise(rcon):
     for x, z in re.findall(r"bridge at (-?\d+) (-?\d+)", edge)[:2]:
         generate_around("Bridge", "embervoid:ashen_reach", (int(x), int(z)), 24)
     # The Smoldering Lord's courtyard and the Citadel in the final sector (PLAN 13.2, 21.3): the plan turned 180° with
-    # its origin 480 blocks out on +Z; its one start, then the whole route from the outskirts to the keep.
+    # its origin 128 blocks out on +Z (PLAN 21.6); its one start, then the whole route from the outskirts to the keep.
     pos = located(run("Final arena", "execute in embervoid:ashen_reach run locate structure embervoid:ashen_reach_arena_final"))
     if pos:
         generate_around("Final arena", "embervoid:ashen_reach", pos, 32)
     expect("Citadel", "execute in embervoid:ashen_reach run locate structure embervoid:ashen_reach_citadel",
-           r"at \[0, ~, 640\]")
-    run("Citadel", "execute in embervoid:ashen_reach run forceload add -76 510 76 752")
+           r"at \[0, ~, 288\]")
+    run("Citadel", "execute in embervoid:ashen_reach run forceload add -76 158 76 400")
     generate_around("Vampire arena", "embervoid:vampire_arena", (0, 0), 16)
     # The Vampire arena without players (PLAN 8.12): builds whole, keeps its chunks while open, closes cleanly.
     expect("Vampire arena open", "embervoid vampire arena open", r"Vampire arena open, 0 player")
@@ -481,7 +481,7 @@ def exercise(rcon):
     time.sleep(GENERATION_WAIT)
     # The Citadel's treasure chest in the keep and its placed mobs (7 Marksmen, 5 Golems, 4 Knights), once generated.
     citadel = "execute in embervoid:ashen_reach if "
-    expect_eventually("Citadel treasure", citadel + "block 0 89 745 minecraft:chest", r"Test passed")
+    expect_eventually("Citadel treasure", citadel + "block 0 89 393 minecraft:chest", r"Test passed")
     for mob, count in (("sparking_marksman", 7), ("furnace_golem", 5), ("smoldering_knight", 4)):
         expect_eventually(f"Citadel {mob}", citadel + f"entity @e[type=embervoid:{mob},tag=embervoid.placed]",
                           rf"Test passed, count: {count}$")
@@ -696,7 +696,7 @@ def perf_areas(rcon, log):
     pos = located(run("Locate final arena", f"execute in {reach} run locate structure embervoid:ashen_reach_arena_final"))
     if pos:
         areas.append(("Final arena", reach, around(pos, 48)))
-    areas.append(("Smoldering Citadel", reach, (-76, 510, 76, 752)))
+    areas.append(("Smoldering Citadel", reach, (-76, 158, 76, 400)))
     return areas
 
 

@@ -10,18 +10,20 @@ import java.util.List;
  * plaza, the Citadel's pieces and the Smoldering Lord's courtyard sit, and the ground height the terrain gives each
  * column. Pure, so the terrain ({@link CitadelTerrain}), the Citadel structure and the tests all read the same numbers.
  *
- * <p>The numbers are in the plan's own frame: the entry plaza (the old depths landing) at 0, 0 in the lower city (the
- * outskirts); the route runs north (−Z) up to the hill: outskirts → burning street → market → gatehouse in the city
+ * <p>The numbers are in the plan's own frame: the entry plaza at 0, 0 in the lower city, in front of the outskirts;
+ * the route runs north (−Z) up to the hill: outskirts → burning street → market → gatehouse in the city
  * wall on the hill's rim → inner ring around the courtyard → keep. The hill is a plateau at {@link #PLATEAU_Y} with
  * steep sides, the city wall on its south rim. In the realm (PLAN 21.3) the plan is turned 180° onto the final
  * sector's middle line (+Z), its origin {@link #ORIGIN_Z} blocks out: {@link #realmX} / {@link #realmZ} and back.
  */
 public final class CitadelLayout {
 	/**
-	 * Realm z of the plan's origin (the entry plaza) on the final sector's middle line (PLAN 21.3): the outskirts start
-	 * about 540 out, the keep stands about 750 out, the courtyard at 672.
+	 * Realm z of the plan's origin (the entry plaza's near edge) on the final sector's middle line (PLAN 21.3, 21.6):
+	 * 80 blocks past the gate road's end at 48, so the outskirts start at 158, about 110 blocks in, the courtyard is at
+	 * 320 and the keep ends at 400. A multiple of 16: the courtyard arena stands on its chunk's corner. The final sector
+	 * is narrow this close in (60°), so the entry plaza is no wider than the outskirts, clear of the border blend.
 	 */
-	public static final int ORIGIN_Z = 480;
+	public static final int ORIGIN_Z = 128;
 
 	/** Realm x of plan x (the plan is turned 180°). */
 	public static double realmX(double planX) {
@@ -45,6 +47,11 @@ public final class CitadelLayout {
 
 	/** Ground of the entry plaza (top block). */
 	public static final int LANDING_Y = 66;
+	/** The entry plaza's flat rectangle, in front of the outskirts. */
+	public static final int PLAZA_MIN_X = -16;
+	public static final int PLAZA_MAX_X = 16;
+	public static final int PLAZA_MIN_Z = -29;
+	public static final int PLAZA_MAX_Z = 0;
 	/** Ground of the hill's plateau (top block): the wall, the inner ring, the courtyard and the keep stand on it. */
 	public static final int PLATEAU_Y = 88;
 
@@ -131,7 +138,8 @@ public final class CitadelLayout {
 
 	private static List<Terrace> terraces() {
 		List<Terrace> result = new java.util.ArrayList<>();
-		result.add(new Terrace(-30, -29, 30, 30, LANDING_Y));
+		// The entry plaza: as wide as the outskirts, so it stays clear of the sector borders' blend (PLAN 21.6).
+		result.add(new Terrace(PLAZA_MIN_X, PLAZA_MIN_Z, PLAZA_MAX_X, PLAZA_MAX_Z, LANDING_Y));
 		for (Piece piece : PIECES) {
 			if (piece == GATEHOUSE) {
 				// Only the approach below the hill; the rest of the gatehouse is cut into the plateau.

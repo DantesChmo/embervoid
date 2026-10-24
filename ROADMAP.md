@@ -400,6 +400,7 @@ visuals; the quick fixes fit in anywhere. Milestones 15, 17 and 21 start with a 
 - [x] The Citadel generated in its sector; the depths dimension removed
 - [x] Fog wall: look and server lock (no pearls, chorus, elytra or riptide past it); the look redone as a volume in the overhaul (`FogWallDraw`)
 - [x] Old worlds' realm dimensions regenerated (progress kept)
+- [x] The Citadel pulled in: the city starts about 100 blocks past the gate, no wastes before it (PLAN 21.6; realm layout 3)
 
 ## 0.5.0 release
 

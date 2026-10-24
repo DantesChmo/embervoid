@@ -84,6 +84,29 @@ public final class RealmLayoutUpgradeTests implements FabricGameTest {
 		context.complete();
 	}
 
+	/** A world from 0.5.0–0.5.2 (layout 2, the Citadel far out; PLAN 21.6) gets its realm generated again too. */
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void worldsOnTheFarCitadelLayoutAreUpgraded(TestContext context) {
+		try {
+			Path root = Files.createTempDirectory("embervoid-050-world");
+			Path realm = root.resolve("dimensions/embervoid/ashen_reach");
+			Files.createDirectories(realm.resolve("region"));
+			Files.writeString(realm.resolve("region/r.0.0.mca"), "far Citadel");
+			Files.writeString(root.resolve(RealmLayoutUpgrade.VERSION_FILE), "2");
+			context.assertTrue(RealmLayoutUpgrade.upgrade(root) && !Files.exists(realm), "the layout 2 realm was kept");
+			context.assertTrue(Files.readString(root.resolve(RealmLayoutUpgrade.VERSION_FILE)).trim()
+					.equals(Integer.toString(RealmLayoutUpgrade.CURRENT)), "no layout number written");
+			try (var walk = Files.walk(root)) {
+				for (Path path : walk.sorted(java.util.Comparator.reverseOrder()).toList()) {
+					Files.delete(path);
+				}
+			}
+		} catch (IOException e) {
+			throw new GameTestException("0.5.0 world: " + e);
+		}
+		context.complete();
+	}
+
 	/**
 	 * After the start, the kept remnant lies on the hub's landing, the same entity, and the pending file is gone. Its own
 	 * batch: the pending file is the server's one, and the remnant may take a few ticks to show up in the hub.

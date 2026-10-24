@@ -352,7 +352,8 @@ Zone ids stay `zone_a/b/c`; the names change.
 - **Smoldering Citadel** (the final zone's sector, levels 25–30; was its own depths dimension until 0.5.0) —
   "Burning City": the burning capital in the fourth sector, seen from the open zones over its wall. The Citadel
   Gate at the plaza opens onto the outskirts; a road runs out through burning streets to the Citadel hill on the
-  sector's middle line, about 600–800 blocks from the landing. Ember-crack blocks and smouldering logs only here;
+  sector's middle line, the city starting about 100 blocks past the gate (outskirts 158, keep up to 400 from
+  the landing; 0.5.3, the user: no wastes before the castle). Ember-crack blocks and smouldering logs only here;
   the Citadel biome gives the dark red sky and fog (biome sky and fog colours, not a dimension type). Jigsaw route
   as before: outskirts → burning streets → city wall and gatehouse → inner ring and towers → courtyard below the
   keep wall (Smoldering Lord arena) → keep. The sector's outer part beyond the hill is burnt suburbs down to the

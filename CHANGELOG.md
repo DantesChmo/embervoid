@@ -21,6 +21,10 @@
   blocks out from it on each side (13 stones). The Crying Soul on any of its stones kindles it, the pillars flare and a
   column of mist rises over the centre; walk into it to reach the hub, and you come back beside it. New dungeons keep
   a cold circle on the arena's dais. Slabs built or lit before still work.
+- **Changed:** the Smoldering Citadel is no longer a long walk across empty wastes: the Burning City now starts about
+  100 blocks past the Citadel Gate, and the courtyard and keep follow (the Smoldering Lord's courtyard is about 300
+  blocks from the landing instead of 670). Worlds from 0.5.0–0.5.2 generate their realm again on the first start;
+  progress and remnants are kept, realm shrines go back to the landing.
 
 ## 0.5.2 — 2026-10-24
 

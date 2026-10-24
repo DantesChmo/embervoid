@@ -244,9 +244,9 @@ sections `moon`, `nightMobs`, `vampire`.
 - **Citadel Gate:** a fog wall on the plaza rim, open per player after all three zone bosses (`FinalZoneLock` holds
   the final sector otherwise); the player walks through it and down the gate road into the final zone's sector
   (+Z, 60° wide, biome `ashen_reach_citadel`, red dusk sky, levels 25–30). There (PLAN 21.3) the **Smoldering
-  Citadel** (`reach.citadel`, fixed plan `CitadelLayout` turned 180° with its origin 480 blocks out: entry plaza at
-  z 480, outskirts to the keep at z 540–750, 11 template pieces, placed Citadel mobs, treasury in the keep, terrain
-  `citadel_terrain` as the final zone's shape) and the Smoldering Lord's courtyard at (0, 672). The first Citadel
+  Citadel** (`reach.citadel`, fixed plan `CitadelLayout` turned 180° with its origin 128 blocks out: entry plaza at
+  z 128–157, outskirts to the keep at z 158–400, 11 template pieces, placed Citadel mobs, treasury in the keep, terrain
+  `citadel_terrain` as the final zone's shape) and the Smoldering Lord's courtyard at (0, 320). The first Citadel
   shrine stands beside the gate road's end (−4, 48). Beating the Lord completes Realm 1 and unlocks the next realm
   in `ProgressManager.REALM_ORDER` (its obelisk lights; entering says the realm is still forming). The old depths
   dimension (`ashen_reach_depths`) is gone since 0.5.0.
