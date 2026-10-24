@@ -38,9 +38,9 @@ session start only from the user's own message. Left for later: `art-items` (eve
 | V-A `art-blocks`: `tools/palette.py`, every block texture redrawn, 25 new blocks, every structure rebuilt (conflicts with V-C's placement lines resolved by keeping both, templates regenerated) | merge `50b90b6` |
 | V-B `bosses`: the six bosses at 71–128 cubes with secondary motion, hurt / stagger / death / phase animations, eased moves, `EmberHaloLayer`; art-kit helpers (`chamfered`, `octagon`, `chain_bones`, `lag_sway`, `whip`, eased keys) | merge `c1c19d5` |
 
-Not yet merged: `mobs` (`claude/mobs`, 14 Realm 1 mobs) and `overworld-mobs`
-(`claude/overworld-mobs`, the seven overworld and moon-night mobs; both run as the coordinator's background agents in
-their own worktrees). Nothing of the overhaul has been seen in game; the full regression runs once at the end.
+| `overworld-mobs`: Ash Ghoul, Hollow, Ember Wisp, Ashen Maiden, Ashen Zombie, Ghost, Vampire at 30–59 cubes with hurt / stagger / death (`entity.mob.MobAnimations`, `OverworldMobAnimationTests`) | merge `55511b8` |
+
+Not yet merged: `mobs` (`claude/mobs`, the 14 Realm 1 mobs, the coordinator's background agent in its own worktree). Nothing of the overhaul has been seen in game; the full regression runs once at the end.
 
 ### Rules for the overhaul tracks
 
