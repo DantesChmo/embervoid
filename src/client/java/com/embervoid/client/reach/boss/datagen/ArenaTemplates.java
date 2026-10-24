@@ -1,5 +1,9 @@
 package com.embervoid.client.reach.boss.datagen;
 
+import com.embervoid.block.prop.Props;
+import com.embervoid.block.prop.TallPropBlock;
+import com.embervoid.block.setpiece.SetPieceBlock;
+import com.embervoid.block.setpiece.SetPieces;
 import com.embervoid.reach.boss.arena.ReachArenas;
 import com.embervoid.reach.world.ReachBlocks;
 import com.embervoid.reach.boss.arena.ReachArenas.Arena;
@@ -13,7 +17,11 @@ import net.minecraft.block.PillarBlock;
 import net.minecraft.block.SkullBlock;
 import net.minecraft.block.SlabBlock;
 import net.minecraft.block.StairsBlock;
+import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.block.enums.SlabType;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -29,6 +37,13 @@ import static com.embervoid.registry.ModBlocks.*;
  * the helpers are offsets from the arena centre (x east, z south, north = towards the landing); the template is the
  * square of side 2·site + 1 around it, y = 0 the floor. The arena structure (track reach-world) clears the site,
  * places the template and puts the Ember Shrine on the platform left for it.
+ *
+ * <p>Set pieces (PLAN 20.2) make the arenas move with the fight through {@code BossFight}'s arena events: the
+ * Fields' ash mill spins up in the storm and the market scales sway; the grove's cages swing and its gallows wheel
+ * turns once the Tree uproots; the ossuary's great bell tolls on {@code raise_dead} and every phase and its sluice
+ * grates lift with the flood; the courtyard's portcullis slams at the summon and winds up at the kill, its keep gears
+ * turn through the fight, the great braziers over the signal campfires burn as the campfires do. Everything the
+ * bosses read (pillars, braziers, walkways, the gate, the shrine and chest) stays where {@link ReachArenas} says.
  */
 final class ArenaTemplates {
 	private static final BlockState AIR = Blocks.AIR.getDefaultState();
@@ -92,6 +107,30 @@ final class ArenaTemplates {
 			}
 			BlockPos chest = arena.chest();
 			builder.chest(chest.getX() + arena.site(), chest.getY(), chest.getZ() + arena.site(), Direction.NORTH, arena.chestLoot());
+		}
+
+		/** A set piece facing {@code facing} (the side its front shows to). */
+		void piece(int x, int y, int z, SetPieceBlock block, Direction facing) {
+			set(x, y, z, block.getDefaultState().with(SetPieceBlock.FACING, facing));
+		}
+
+		/** A set piece whose reactions to the arena events replace its kind's: {@code "event=effect"} entries. */
+		void piece(int x, int y, int z, SetPieceBlock block, Direction facing, String... reactions) {
+			NbtCompound nbt = new NbtCompound();
+			NbtList list = new NbtList();
+			for (String reaction : reactions) {
+				list.add(NbtString.of(reaction));
+			}
+			nbt.put("Reactions", list);
+			builder.blockEntity(x + arena.site(), y, z + arena.site(), block.getDefaultState().with(SetPieceBlock.FACING, facing),
+					"embervoid:set_piece", nbt);
+		}
+
+		/** A tattered standard (two blocks tall) standing on the block below {@code y}. */
+		void standard(int x, int y, int z, Direction facing) {
+			BlockState lower = Props.TATTERED_STANDARD.getDefaultState().with(TallPropBlock.FACING, facing);
+			set(x, y, z, lower.with(TallPropBlock.HALF, DoubleBlockHalf.LOWER));
+			set(x, y + 1, z, lower.with(TallPropBlock.HALF, DoubleBlockHalf.UPPER));
 		}
 
 		<T> T pick(T[] options, int[] weights) {
@@ -177,7 +216,13 @@ final class ArenaTemplates {
 					}
 				}
 			}
+			// Market scales swaying under every other standing roof.
+			if (!collapsed && i % 2 == 0) {
+				c.piece(sx, 2, sz, SetPieces.HANGING_SCALES, Direction.fromHorizontal(i / 2));
+			}
 		}
+		// The ash mill at the back of the square, its wheel facing the middle: still until the Colossus's storm.
+		c.piece(0, 3, 17, SetPieces.ASH_MILL, Direction.NORTH);
 		// Rubble around the crater floor.
 		for (int i = 0; i < 70; i++) {
 			double angle = c.random.nextDouble() * Math.PI * 2;
@@ -240,12 +285,40 @@ final class ArenaTemplates {
 				}
 			}
 		}
-		// Gate posts with lanterns.
+		// Gate posts with lanterns, a gallows beam across the gate with the great wheel the king's men hanged from:
+		// it turns once the Tree uproots.
+		int gateZ = 0;
 		for (int side : new int[]{-1, 1}) {
 			int x = side * (ReachArenas.GROVE_GATE_HALF_WIDTH + 1);
 			int z = -(int) Math.round(Math.sqrt((wall + 0.5) * (wall + 0.5) - x * x));
+			gateZ = z;
 			c.column(x, z, 1, ReachArenas.GROVE_WALL_HEIGHT + 1, CHISELED);
 			c.set(x, ReachArenas.GROVE_WALL_HEIGHT + 2, z, LANTERN);
+		}
+		int beamY = ReachArenas.GROVE_WALL_HEIGHT + 2; // the template is 8 high: the beam sits at the lanterns' height
+		for (int x = -ReachArenas.GROVE_GATE_HALF_WIDTH; x <= ReachArenas.GROVE_GATE_HALF_WIDTH; x++) {
+			c.set(x, beamY, gateZ, DEAD_LOG.getDefaultState().with(PillarBlock.AXIS, Direction.Axis.X));
+		}
+		c.piece(0, beamY, gateZ, SetPieces.GREAT_GEAR, Direction.SOUTH, "phase=turning", "kill=still", "reset=still");
+		// Gibbet cages on arms over the garden wall, swinging; a bundle of bones in every other one.
+		for (int i = 0; i < 4; i++) {
+			double angle = Math.toRadians(60 + 80 * i);
+			int wx = (int) Math.round(Math.sin(angle) * (wall + 0.5));
+			int wz = (int) Math.round(-Math.cos(angle) * (wall + 0.5));
+			int ax = (int) Math.round(Math.sin(angle) * (wall - 1.5));
+			int az = (int) Math.round(-Math.cos(angle) * (wall - 1.5));
+			int top = ReachArenas.GROVE_WALL_HEIGHT;
+			c.column(wx, wz, top + 1, top + 2, LOG);
+			Direction.Axis axis = Math.abs(ax - wx) >= Math.abs(az - wz) ? Direction.Axis.X : Direction.Axis.Z;
+			c.set(ax, top + 2, az, DEAD_LOG.getDefaultState().with(PillarBlock.AXIS, axis));
+			if (i % 2 == 1) {
+				NbtCompound nbt = new NbtCompound();
+				nbt.putBoolean("Bones", false);
+				c.builder.blockEntity(ax + arena.site(), top + 1, az + arena.site(),
+						SetPieces.HANGING_CAGE.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH), "embervoid:set_piece", nbt);
+			} else {
+				c.piece(ax, top + 1, az, SetPieces.HANGING_CAGE, Direction.NORTH);
+			}
 		}
 		// Lantern posts along the ring path, benches facing the middle.
 		for (int i = 0; i < 12; i++) {
@@ -314,6 +387,29 @@ final class ArenaTemplates {
 		// Unlit braziers on the pedestals (the Crypt Keeper's light, PLAN 12.3), candles on the dais.
 		for (BlockPos brazier : ReachArenas.braziers()) {
 			c.set(brazier.getX(), brazier.getY(), brazier.getZ(), Blocks.CAMPFIRE.getDefaultState().with(CampfireBlock.LIT, false));
+			// The great iron brazier over it follows the campfire: lit by a player, smothered by the moths.
+			c.piece(brazier.getX(), brazier.getY() + 1, brazier.getZ(), SetPieces.GREAT_BRAZIER, Direction.NORTH);
+		}
+		// The chapel niche on the south axis, before the roof: two bone columns, a lintel and the great bell that
+		// tolls when the dead rise and at every phase.
+		for (int x : new int[]{-2, 2}) {
+			c.column(x, 17, 1, 8, bone);
+			c.set(x, 9, 17, CHISELED);
+		}
+		for (int x = -1; x <= 1; x++) {
+			c.set(x, 9, 17, CHISELED);
+		}
+		c.set(0, 10, 17, roof);
+		c.piece(0, 8, 17, SetPieces.GREAT_BELL, Direction.NORTH);
+		// Sluice grates just beyond the fog wall on the east and west axis (outside the roof): they lift as the flood rises.
+		for (int side : new int[]{-1, 1}) {
+			int x = side * 33;
+			c.column(x, 1, 1, 3, bone);
+			c.column(x, -1, 1, 3, bone);
+			c.set(x, 4, 0, roof);
+			c.piece(x, 1, 0, SetPieces.SLUICE_GRATE, side < 0 ? Direction.EAST : Direction.WEST);
+			c.set(x, 2, 0, CRACKED);
+			c.set(x, 3, 0, CRACKED);
 		}
 		for (int[] candle : new int[][]{{3, 0}, {-3, 0}, {0, 3}, {0, -3}}) {
 			c.set(candle[0], ReachArenas.WALKWAY_TOP + 1, candle[1], Blocks.CANDLE.getDefaultState());
@@ -424,7 +520,8 @@ final class ArenaTemplates {
 						smoldering.with(PillarBlock.AXIS, alongX ? Direction.Axis.X : Direction.Axis.Z));
 			}
 		}
-		// Signal braziers on pedestals: lighting all three brings the Lord down from the wall.
+		// Signal braziers on pedestals: lighting all three brings the Lord down from the wall. The great iron brazier
+		// over each campfire follows it.
 		for (BlockPos brazier : ReachArenas.signalBraziers()) {
 			for (int dx = -1; dx <= 1; dx++) {
 				for (int dz = -1; dz <= 1; dz++) {
@@ -432,6 +529,16 @@ final class ArenaTemplates {
 				}
 			}
 			c.set(brazier.getX(), brazier.getY(), brazier.getZ(), Blocks.CAMPFIRE.getDefaultState().with(CampfireBlock.LIT, false));
+			c.piece(brazier.getX(), brazier.getY() + 1, brazier.getZ(), SetPieces.GREAT_BRAZIER, Direction.NORTH);
+		}
+		// The keep gate's portcullis in the lintel over the gate: it slams at the summon and winds up at the kill;
+		// two great gears in the wall face turn through the fight; the king's tattered standards along the walk.
+		c.piece(0, ReachArenas.KEEP_GATE_HEIGHT + 1, wallZ, SetPieces.PORTCULLIS, Direction.NORTH);
+		for (int x : new int[]{-8, 8}) {
+			c.piece(x, 5, wallZ, SetPieces.GREAT_GEAR, Direction.NORTH);
+		}
+		for (int x : new int[]{-11, -5, 5, 11}) {
+			c.standard(x, wallTop + 1, wallZ + 1, Direction.NORTH);
 		}
 		// Way in from the north edge (where the inner ring road meets the square, x −3…3) past the shrine.
 		for (int z = -arena.radius(); z >= -arena.site(); z--) {

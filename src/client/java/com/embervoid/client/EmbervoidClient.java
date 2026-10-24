@@ -19,6 +19,7 @@ import com.embervoid.client.realm.RealmClient;
 import com.embervoid.client.reach.gear.GearClient;
 import com.embervoid.client.reliquary.ReliquaryClient;
 import com.embervoid.client.sanctum.boss.SanctumBossClient;
+import com.embervoid.client.setpiece.SetPieceClient;
 import com.embervoid.client.vampire.VampireClient;
 import com.embervoid.config.EmbervoidClientConfig;
 import com.embervoid.config.EmbervoidConfig;
@@ -73,6 +74,7 @@ public class EmbervoidClient implements ClientModInitializer {
 		EmberParticlesClient.register();
 		AttackAnimationsClient.register();
 		PropClient.register();
+		SetPieceClient.register();
 		// Particles and the name label only; a model comes with the art pass.
 		EntityRendererRegistry.register(ModEntities.ASH_REMNANT, EmptyEntityRenderer::new);
 		FabricModelPredicateProviderRegistry.register(ModItems.HEALING_FLASK, Embervoid.id("empty"),

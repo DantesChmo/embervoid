@@ -113,6 +113,7 @@ public class GraveWardenEntity extends ReachMob {
 			return;
 		}
 		world.playSound(null, getX(), getY(), getZ(), ReachMobSounds.GRAVE_WARDEN_BELL, getSoundCategory(), 3.0f, 1.0f);
+		com.embervoid.block.setpiece.SetPieces.tollBellsNear(world, getBlockPos(), BELL_RANGE); // the chapel's great bell answers (PLAN 20.2)
 		world.spawnParticles(ParticleTypes.SONIC_BOOM, getX(), getBodyY(0.8), getZ(), 1, 0, 0, 0, 0);
 		List<RestlessBonesEntity> bones = world.getEntitiesByClass(RestlessBonesEntity.class, getBoundingBox().expand(BELL_RANGE),
 				b -> b.isAlive() && b.squaredDistanceTo(this) <= BELL_RANGE * BELL_RANGE);

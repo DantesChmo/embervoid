@@ -1,0 +1,71 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"state.open": {
+			"animation_length": 1.0,
+			"bones": {
+				"grate": {
+					"position": {
+						"0.0": [
+							0,
+							11,
+							0
+						]
+					}
+				}
+			},
+			"loop": true
+		},
+		"action.lift": {
+			"animation_length": 2.5,
+			"bones": {
+				"grate": {
+					"position": {
+						"0.0": {
+							"vector": [
+								0,
+								0,
+								0
+							],
+							"easing": "easeInOutSine"
+						},
+						"0.3": {
+							"vector": [
+								0,
+								0.5,
+								0
+							],
+							"easing": "easeInOutSine"
+						},
+						"2.2": {
+							"vector": [
+								0,
+								11,
+								0
+							],
+							"easing": "easeOutSine"
+						},
+						"2.5": {
+							"vector": [
+								0,
+								11,
+								0
+							]
+						}
+					}
+				}
+			},
+			"sound_effects": {
+				"0.1": {
+					"effect": "chain"
+				},
+				"1.0": {
+					"effect": "chain"
+				},
+				"1.9": {
+					"effect": "chain"
+				}
+			}
+		}
+	}
+}

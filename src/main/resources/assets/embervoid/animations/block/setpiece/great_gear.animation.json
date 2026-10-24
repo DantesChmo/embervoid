@@ -1,0 +1,33 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"state.turning": {
+			"animation_length": 8.0,
+			"bones": {
+				"gear": {
+					"rotation": {
+						"0.0": [
+							0,
+							0,
+							0
+						],
+						"8.0": [
+							0,
+							0,
+							360
+						]
+					}
+				}
+			},
+			"loop": true,
+			"sound_effects": {
+				"0.0": {
+					"effect": "creak"
+				},
+				"4.0": {
+					"effect": "creak"
+				}
+			}
+		}
+	}
+}

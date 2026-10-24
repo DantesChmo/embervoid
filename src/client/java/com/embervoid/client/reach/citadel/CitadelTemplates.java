@@ -1,6 +1,8 @@
 package com.embervoid.client.reach.citadel;
 
 import com.embervoid.Embervoid;
+import com.embervoid.block.setpiece.SetPieceBlock;
+import com.embervoid.block.setpiece.SetPieces;
 import com.embervoid.reach.citadel.CitadelLayout;
 import com.embervoid.reach.citadel.CitadelLayout.Piece;
 import com.embervoid.reach.gear.GearLootTables;
@@ -258,6 +260,7 @@ public final class CitadelTemplates {
 		c.clear(9, 1, 22, 15, 6, 27);
 		c.floor(9, 22, 15, 27, BLACK_POLISHED, BLACKSTONE, 0.3, BLACK_POLISHED, 0);
 		c.fill(9, 5, 27, 15, 6, 27, BARS);
+		c.set(12, 7, 27, SetPieces.PORTCULLIS.getDefaultState().with(SetPieceBlock.FACING, Direction.SOUTH)); // the gate's portcullis in the lintel, its gears on the face (PLAN 20.2)
 		c.set(6, 1, 29, BLACK_WALL).set(6, 2, 29, LANTERN).set(18, 1, 29, BLACK_WALL).set(18, 2, 29, LANTERN);
 		// The stair tunnel: one step up per row from z 21 to the plaza, headroom 5, ember cracks in the walls.
 		for (int i = 0; i < plateau; i++) {
@@ -409,6 +412,11 @@ public final class CitadelTemplates {
 		}
 		int g0 = (h0 + h1) / 2;
 		c.mob(g0 - 4, 1, 40, GOLEM, intoHall).mob(g0 + 4, 1, 51, GOLEM, intoHall);
+		if (!east) {
+			// The foundry breathes: bellows at the hearth, a winch on a beam over the floor (PLAN 20.2).
+			c.set(15, 1, 42, SetPieces.FORGE_BELLOWS.getDefaultState().with(SetPieceBlock.FACING, Direction.SOUTH));
+			c.set(h0 + 6, 10, 46, smoldering(Direction.Axis.X)).set(h0 + 6, 9, 46, SetPieces.CHAIN_WINCH.getDefaultState().with(SetPieceBlock.FACING, Direction.EAST));
+		}
 		// Burnt mansions at both ends.
 		int m0 = east ? w - 24 : 3;
 		int m1 = east ? w - 3 : 24;
@@ -489,11 +497,18 @@ public final class CitadelTemplates {
 		c.clear(mid + 4, 1, 7, mid + 4, 2, 8).fill(mid + 4, 3, 7, mid + 4, 3, 8, BARS);
 		c.fill(mid - 3, 0, 7, mid - 2, 0, 8, MAGMA).set(mid - 3, 1, 8, CAMPFIRE).set(mid + 2, 1, 7, GILDED);
 		c.chest(mid, 1, 7, Direction.SOUTH, GearLootTables.CITADEL_TREASURE);
+		c.set(mid - 1, 1, 8, SetPieces.FORGE_BELLOWS.getDefaultState().with(SetPieceBlock.FACING, Direction.WEST)); // bellows at the treasury's hearth (PLAN 20.2)
+		c.set(mid - 6, 3, 13, SetPieces.GREAT_BRAZIER.getDefaultState()).set(mid + 6, 3, 13, SetPieces.GREAT_BRAZIER.getDefaultState()); // great braziers over the dais fires
 		// Side alcove with a common chest, braziers in the forecourt.
 		c.chest(k0 + 3, 1, 31, Direction.EAST, GearLootTables.CITADEL_COMMON);
 		for (int x : new int[]{mid - 6, mid + 6}) {
 			c.set(x, 1, 40, BLACK_CHISELED).set(x, 2, 40, CAMPFIRE);
 		}
+		for (int x : new int[]{mid - 6, mid + 6}) {
+			c.set(x, 3, 40, SetPieces.GREAT_BRAZIER.getDefaultState()); // over the forecourt fires (PLAN 20.2)
+		}
+		// A winch on a beam over the keep's door, its bucket hanging before the wall (PLAN 20.2).
+		c.set(mid, 20, 36, smoldering(Direction.Axis.Z)).set(mid, 21, 36, SetPieces.CHAIN_WINCH.getDefaultState().with(SetPieceBlock.FACING, Direction.SOUTH));
 		c.mob(mid - 7, 1, 20, KNIGHT, Direction.SOUTH).mob(mid + 7, 1, 20, KNIGHT, Direction.SOUTH);
 		return c.build();
 	}

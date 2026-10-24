@@ -50,6 +50,7 @@
 			"com.embervoid.gametest.PropTests",
 			"com.embervoid.gametest.AttackAnimationTests",
 			"com.embervoid.gametest.WardensScourgeTests",
+			"com.embervoid.gametest.SetPieceTests",
 			"com.embervoid.gametest.ArenaWallTests"
 		]
 	},

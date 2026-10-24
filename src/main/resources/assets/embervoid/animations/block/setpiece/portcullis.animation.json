@@ -1,0 +1,319 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"state.open": {
+			"animation_length": 1.0,
+			"bones": {
+				"gate": {
+					"position": {
+						"0.0": [
+							0,
+							86,
+							0
+						]
+					}
+				}
+			},
+			"loop": true
+		},
+		"state.closed": {
+			"animation_length": 1.0,
+			"bones": {
+				"gate": {
+					"position": {
+						"0.0": [
+							0,
+							0,
+							0
+						]
+					}
+				}
+			},
+			"loop": true
+		},
+		"action.slam": {
+			"animation_length": 0.9,
+			"bones": {
+				"gate": {
+					"position": {
+						"0.0": {
+							"vector": [
+								0,
+								86,
+								0
+							],
+							"easing": "easeInQuad"
+						},
+						"0.45": {
+							"vector": [
+								0,
+								-2,
+								0
+							],
+							"easing": "easeOutBack"
+						},
+						"0.65": {
+							"vector": [
+								0,
+								0,
+								0
+							]
+						},
+						"0.9": {
+							"vector": [
+								0,
+								0,
+								0
+							]
+						}
+					}
+				},
+				"gear_l": {
+					"rotation": {
+						"0.0": {
+							"vector": [
+								0,
+								0,
+								0
+							],
+							"easing": "easeInQuad"
+						},
+						"0.45": {
+							"vector": [
+								0,
+								0,
+								-720
+							]
+						},
+						"0.9": {
+							"vector": [
+								0,
+								0,
+								-740
+							],
+							"easing": "easeOutSine"
+						}
+					}
+				},
+				"gear_r": {
+					"rotation": {
+						"0.0": {
+							"vector": [
+								0,
+								0,
+								0
+							],
+							"easing": "easeInQuad"
+						},
+						"0.45": {
+							"vector": [
+								0,
+								0,
+								720
+							]
+						},
+						"0.9": {
+							"vector": [
+								0,
+								0,
+								740
+							],
+							"easing": "easeOutSine"
+						}
+					}
+				},
+				"drum": {
+					"rotation": {
+						"0.0": {
+							"vector": [
+								0,
+								0,
+								0
+							],
+							"easing": "easeInQuad"
+						},
+						"0.45": {
+							"vector": [
+								-900,
+								0,
+								0
+							]
+						},
+						"0.9": {
+							"vector": [
+								-920,
+								0,
+								0
+							],
+							"easing": "easeOutSine"
+						}
+					}
+				},
+				"frame": {
+					"rotation": {
+						"0.0": {
+							"vector": [
+								0,
+								0,
+								0
+							]
+						},
+						"0.45": {
+							"vector": [
+								0,
+								0,
+								0
+							]
+						},
+						"0.5": {
+							"vector": [
+								0.8,
+								0,
+								0
+							],
+							"easing": "easeOutSine"
+						},
+						"0.7": {
+							"vector": [
+								-0.4,
+								0,
+								0
+							],
+							"easing": "easeInOutSine"
+						},
+						"0.9": {
+							"vector": [
+								0,
+								0,
+								0
+							],
+							"easing": "easeOutSine"
+						}
+					}
+				}
+			},
+			"sound_effects": {
+				"0.0": {
+					"effect": "chain"
+				},
+				"0.47": {
+					"effect": "slam"
+				}
+			}
+		},
+		"action.raise": {
+			"animation_length": 3.2,
+			"bones": {
+				"gate": {
+					"position": {
+						"0.0": {
+							"vector": [
+								0,
+								0,
+								0
+							],
+							"easing": "easeInOutSine"
+						},
+						"0.4": {
+							"vector": [
+								0,
+								2,
+								0
+							],
+							"easing": "easeInOutSine"
+						},
+						"3.0": {
+							"vector": [
+								0,
+								86,
+								0
+							],
+							"easing": "easeOutSine"
+						},
+						"3.2": {
+							"vector": [
+								0,
+								86,
+								0
+							]
+						}
+					}
+				},
+				"gear_l": {
+					"rotation": {
+						"0.0": {
+							"vector": [
+								0,
+								0,
+								0
+							],
+							"easing": "easeInSine"
+						},
+						"3.0": {
+							"vector": [
+								0,
+								0,
+								540
+							],
+							"easing": "easeOutSine"
+						}
+					}
+				},
+				"gear_r": {
+					"rotation": {
+						"0.0": {
+							"vector": [
+								0,
+								0,
+								0
+							],
+							"easing": "easeInSine"
+						},
+						"3.0": {
+							"vector": [
+								0,
+								0,
+								-540
+							],
+							"easing": "easeOutSine"
+						}
+					}
+				},
+				"drum": {
+					"rotation": {
+						"0.0": {
+							"vector": [
+								0,
+								0,
+								0
+							],
+							"easing": "easeInSine"
+						},
+						"3.0": {
+							"vector": [
+								700,
+								0,
+								0
+							],
+							"easing": "easeOutSine"
+						}
+					}
+				}
+			},
+			"sound_effects": {
+				"0.2": {
+					"effect": "chain"
+				},
+				"1.1": {
+					"effect": "chain"
+				},
+				"2.0": {
+					"effect": "chain"
+				},
+				"2.9": {
+					"effect": "clink"
+				}
+			}
+		}
+	}
+}

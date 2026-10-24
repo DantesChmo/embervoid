@@ -1,6 +1,7 @@
 package com.embervoid;
 
 import com.embervoid.block.prop.Props;
+import com.embervoid.block.setpiece.SetPieces;
 import com.embervoid.command.ModCommands;
 import com.embervoid.command.PerfCommands;
 import com.embervoid.config.ConfigSync;
@@ -56,6 +57,7 @@ public class Embervoid implements ModInitializer {
 		EmberParticles.register();
 		ModBlocks.register();
 		Props.register();
+		SetPieces.register();
 		ModItems.register();
 		DebugItems.register();
 		ModEntities.register();

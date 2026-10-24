@@ -1,0 +1,183 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"state.spinning": {
+			"animation_length": 1.6,
+			"bones": {
+				"wheel": {
+					"rotation": {
+						"0.0": [
+							0,
+							0,
+							0
+						],
+						"1.6": [
+							0,
+							0,
+							360
+						]
+					}
+				},
+				"frame": {
+					"rotation": {
+						"0.0": {
+							"vector": [
+								0.0,
+								0.0,
+								0.0
+							]
+						},
+						"0.05": {
+							"vector": [
+								0.283,
+								0.0,
+								0.0
+							]
+						},
+						"0.1": {
+							"vector": [
+								0.4,
+								0.0,
+								0.0
+							]
+						},
+						"0.15": {
+							"vector": [
+								0.283,
+								0.0,
+								0.0
+							]
+						},
+						"0.2": {
+							"vector": [
+								0.0,
+								0.0,
+								0.0
+							]
+						},
+						"0.25": {
+							"vector": [
+								-0.283,
+								0.0,
+								0.0
+							]
+						},
+						"0.3": {
+							"vector": [
+								-0.4,
+								0.0,
+								0.0
+							]
+						},
+						"0.35": {
+							"vector": [
+								-0.283,
+								0.0,
+								0.0
+							]
+						},
+						"0.4": {
+							"vector": [
+								-0.0,
+								0.0,
+								0.0
+							]
+						}
+					}
+				}
+			},
+			"loop": true,
+			"sound_effects": {
+				"0.0": {
+					"effect": "grind"
+				}
+			}
+		},
+		"action.spin_up": {
+			"animation_length": 2.0,
+			"bones": {
+				"wheel": {
+					"rotation": {
+						"0.0": {
+							"vector": [
+								0,
+								0,
+								0
+							],
+							"easing": "easeInQuad"
+						},
+						"1.0": {
+							"vector": [
+								0,
+								0,
+								120
+							],
+							"easing": "easeInQuad"
+						},
+						"2.0": {
+							"vector": [
+								0,
+								0,
+								480
+							]
+						}
+					}
+				},
+				"frame": {
+					"rotation": {
+						"0.0": {
+							"vector": [
+								0,
+								0,
+								0
+							]
+						},
+						"0.3": {
+							"vector": [
+								1.5,
+								0,
+								0
+							],
+							"easing": "easeInOutSine"
+						},
+						"0.6": {
+							"vector": [
+								-1.2,
+								0,
+								0
+							],
+							"easing": "easeInOutSine"
+						},
+						"1.0": {
+							"vector": [
+								0.6,
+								0,
+								0
+							],
+							"easing": "easeInOutSine"
+						},
+						"2.0": {
+							"vector": [
+								0,
+								0,
+								0
+							],
+							"easing": "easeOutSine"
+						}
+					}
+				}
+			},
+			"sound_effects": {
+				"0.0": {
+					"effect": "creak"
+				},
+				"0.6": {
+					"effect": "grind"
+				},
+				"1.4": {
+					"effect": "grind"
+				}
+			}
+		}
+	}
+}

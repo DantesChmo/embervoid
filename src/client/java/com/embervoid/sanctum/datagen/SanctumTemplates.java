@@ -2,6 +2,8 @@ package com.embervoid.sanctum.datagen;
 
 import com.embervoid.Embervoid;
 import com.embervoid.block.prop.HangingPropBlock;
+import com.embervoid.block.setpiece.SetPieceBlock;
+import com.embervoid.block.setpiece.SetPieces;
 import com.embervoid.block.prop.LongPropBlock;
 import com.embervoid.block.prop.PropBlock;
 import com.embervoid.block.prop.PropCandleBlock;
@@ -392,6 +394,15 @@ final class SanctumTemplates {
 			t.set(3, 1, z, WALL).set(3, 2, z, brazier.with(CampfireBlock.FACING, Direction.EAST));
 			t.set(17, 1, z, WALL).set(17, 2, z, brazier.with(CampfireBlock.FACING, Direction.WEST));
 		}
+		// Great braziers over the campfires follow them; censers under the cornice light at her phase (PLAN 20.2).
+		for (int z : new int[]{13, 19, 24}) {
+			t.set(3, 3, z, SetPieces.GREAT_BRAZIER.getDefaultState().with(SetPieceBlock.FACING, Direction.EAST));
+			t.set(17, 3, z, SetPieces.GREAT_BRAZIER.getDefaultState().with(SetPieceBlock.FACING, Direction.WEST));
+		}
+		for (int z : new int[]{16, 22}) {
+			t.set(1, 8, z, SetPieces.CENSER.getDefaultState().with(SetPieceBlock.FACING, Direction.EAST));
+			t.set(19, 8, z, SetPieces.CENSER.getDefaultState().with(SetPieceBlock.FACING, Direction.WEST));
+		}
 
 		// The dais with the cold Cleft Stele: four columns of Cleft Stone, the crack open (SteleFrame, along X).
 		t.fill(6, 1, 26, 14, 1, 28, POLISHED);
@@ -482,6 +493,7 @@ final class SanctumTemplates {
 		t.fill(3, 8, 16, 13, 8, 16, beamX).fill(3, 8, 12, 7, 8, 12, beamX);
 		t.fill(13, 1, 10, 13, 1, 14, DEAD_LOG.getDefaultState().with(PillarBlock.AXIS, Direction.Axis.Z));
 		t.set(sx, 7, 16, Props.IRON_CAGE.getDefaultState().with(HangingPropBlock.HANGING, true));
+		t.set(5, 7, 16, SetPieces.CENSER.getDefaultState()).set(11, 7, 16, SetPieces.CENSER.getDefaultState()); // censers swaying from the beam (PLAN 20.2)
 
 		// Pews facing the altar; some are gone.
 		BlockState pew = DEAD_STAIRS.getDefaultState().with(StairsBlock.FACING, Direction.NORTH);

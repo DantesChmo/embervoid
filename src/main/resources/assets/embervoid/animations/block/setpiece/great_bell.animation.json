@@ -1,0 +1,285 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"idle": {
+			"animation_length": 6.0,
+			"bones": {
+				"bell": {
+					"rotation": {
+						"0.0": {
+							"vector": [
+								0.0,
+								0.0,
+								0.0
+							]
+						},
+						"0.75": {
+							"vector": [
+								1.768,
+								0.0,
+								0.0
+							]
+						},
+						"1.5": {
+							"vector": [
+								2.5,
+								0.0,
+								0.0
+							]
+						},
+						"2.25": {
+							"vector": [
+								1.768,
+								0.0,
+								0.0
+							]
+						},
+						"3.0": {
+							"vector": [
+								0.0,
+								0.0,
+								0.0
+							]
+						},
+						"3.75": {
+							"vector": [
+								-1.768,
+								0.0,
+								0.0
+							]
+						},
+						"4.5": {
+							"vector": [
+								-2.5,
+								0.0,
+								0.0
+							]
+						},
+						"5.25": {
+							"vector": [
+								-1.768,
+								0.0,
+								0.0
+							]
+						},
+						"6.0": {
+							"vector": [
+								-0.0,
+								0.0,
+								0.0
+							]
+						}
+					}
+				},
+				"clapper": {
+					"rotation": {
+						"0.0": {
+							"vector": [
+								-0.964,
+								0.0,
+								0.0
+							]
+						},
+						"0.75": {
+							"vector": [
+								-1.921,
+								0.0,
+								0.0
+							]
+						},
+						"1.5": {
+							"vector": [
+								-1.753,
+								0.0,
+								0.0
+							]
+						},
+						"2.25": {
+							"vector": [
+								-0.558,
+								0.0,
+								0.0
+							]
+						},
+						"3.0": {
+							"vector": [
+								0.964,
+								0.0,
+								0.0
+							]
+						},
+						"3.75": {
+							"vector": [
+								1.921,
+								0.0,
+								0.0
+							]
+						},
+						"4.5": {
+							"vector": [
+								1.753,
+								0.0,
+								0.0
+							]
+						},
+						"5.25": {
+							"vector": [
+								0.558,
+								0.0,
+								0.0
+							]
+						},
+						"6.0": {
+							"vector": [
+								-0.964,
+								0.0,
+								0.0
+							]
+						}
+					}
+				}
+			},
+			"loop": true
+		},
+		"action.toll": {
+			"animation_length": 2.6,
+			"bones": {
+				"bell": {
+					"rotation": {
+						"0.0": {
+							"vector": [
+								0,
+								0,
+								0
+							],
+							"easing": "easeInOutSine"
+						},
+						"0.45": {
+							"vector": [
+								-38,
+								0,
+								0
+							],
+							"easing": "easeInOutSine"
+						},
+						"1.05": {
+							"vector": [
+								36,
+								0,
+								0
+							],
+							"easing": "easeInOutSine"
+						},
+						"1.6": {
+							"vector": [
+								-22,
+								0,
+								0
+							],
+							"easing": "easeInOutSine"
+						},
+						"2.1": {
+							"vector": [
+								10,
+								0,
+								0
+							],
+							"easing": "easeInOutSine"
+						},
+						"2.6": {
+							"vector": [
+								0,
+								0,
+								0
+							],
+							"easing": "easeOutSine"
+						}
+					}
+				},
+				"clapper": {
+					"rotation": {
+						"0.0": {
+							"vector": [
+								0,
+								0,
+								0
+							]
+						},
+						"0.3": {
+							"vector": [
+								12,
+								0,
+								0
+							],
+							"easing": "easeInOutSine"
+						},
+						"0.55": {
+							"vector": [
+								-28,
+								0,
+								0
+							],
+							"easing": "easeOutBack"
+						},
+						"0.9": {
+							"vector": [
+								-10,
+								0,
+								0
+							],
+							"easing": "easeInOutSine"
+						},
+						"1.15": {
+							"vector": [
+								30,
+								0,
+								0
+							],
+							"easing": "easeOutBack"
+						},
+						"1.5": {
+							"vector": [
+								8,
+								0,
+								0
+							],
+							"easing": "easeInOutSine"
+						},
+						"1.75": {
+							"vector": [
+								-18,
+								0,
+								0
+							],
+							"easing": "easeOutBack"
+						},
+						"2.2": {
+							"vector": [
+								6,
+								0,
+								0
+							],
+							"easing": "easeInOutSine"
+						},
+						"2.6": {
+							"vector": [
+								0,
+								0,
+								0
+							],
+							"easing": "easeOutSine"
+						}
+					}
+				}
+			},
+			"sound_effects": {
+				"0.5": {
+					"effect": "toll"
+				},
+				"1.1": {
+					"effect": "toll"
+				}
+			}
+		}
+	}
+}
