@@ -40,7 +40,11 @@ session start only from the user's own message. Left for later: `art-items` (eve
 
 | `overworld-mobs`: Ash Ghoul, Hollow, Ember Wisp, Ashen Maiden, Ashen Zombie, Ghost, Vampire at 30–59 cubes with hurt / stagger / death (`entity.mob.MobAnimations`, `OverworldMobAnimationTests`) | merge `55511b8` |
 
-Not yet merged: `mobs` (`claude/mobs`, the 14 Realm 1 mobs, the coordinator's background agent in its own worktree). Nothing of the overhaul has been seen in game; the full regression runs once at the end.
+| `mobs` (12 of 14): the Realm 1 mobs except the Furnace Golem and the Smoldering Knight, 30–76 cubes with hurt / stagger / death (`ReachMob` hurt controller, `MobAnimationTests`) | merge `821cbf8` |
+
+**Stopped by the user on the morning of 2026-10-24** before the final regression: the full record of what is on `main`,
+how it was made and what is left is [docs/overhaul-2026-10-24.md](docs/overhaul-2026-10-24.md). The Furnace Golem's
+half-done remodel sits uncommitted in the agent worktree `.claude/worktrees/agent-ac23cbd439b75ee25`. Nothing of the overhaul has been seen in game; the full regression runs once at the end.
 
 ### Rules for the overhaul tracks
 
