@@ -2400,84 +2400,163 @@ def cinder_hound():
 
 
 # --- Citadel: Sparking Marksman ------------------------------------------------------------------------------------
-# A crossbowman on the burning walls: soot-red quilted gambeson, a kettle hat over a mail hood, a scarf over the
-# face, bolts at the hip. A spark lights on the bolt tip (the spark bone) 20 ticks before it fires.
-
-GAMBESON = ramp("2a1714", "3c201b", "512b23", "67372c", "7d4536")
-
+# A crossbowman on the burning walls: a soot-red quilted gambeson with stitched diamonds and a yoke, a mail coif
+# under an eight-sided kettle hat with a brim, a scarf over the face with ember eyes and its tail hanging behind in
+# two segments, bracers and gloves with fingers, a belt with a pouch and a quiver of bolts at the hip with a tassel
+# that swings, greaves; the crossbow with a tiller, a curved prod, a string, a stirrup, a lever and a bolt in the
+# groove. A spark lights on the bolt tip (the spark bone) 20 ticks before it fires.
 
 def sparking_marksman():
-    quilt = Material(GAMBESON, base=2.4, noise=0.5, edge=0.4)
+    quilt = Material(mk.GAMBESON, base=2.8, noise=0.4, edge=0.4, bevel=0.4)
 
     def quilted(face, rng):
         if face.side():
             for y in range(1, face.h, 3):
-                face.hline(0, y, face.w, GAMBESON[1])
+                face.hline(0, y, face.w, mk.GAMBESON[1])
             for x in range(1, face.w, 3):
                 for y in range(face.h):
-                    if (y // 3) % 2 == 0:
-                        face.set(x, y, GAMBESON[1])
-        if face.name == "front":
-            band(face, face.h - 3, LEATHER[1])
-            face.set(face.cx, face.h - 3, BRONZE[4])
+                    if (y // 3 + x // 3) % 2 == 0:
+                        face.set(x, y, mk.GAMBESON[1])
+                    elif y % 3 == 2:
+                        face.tint(x, y, 12)
+            mk.edge_shadow(face, rng, -10)
 
     def face_front(face, rng):
-        face.rect(0, 0, face.w, 2, IRON[1])  # mail coif edge
-        face.set(2, 3, VOID)
-        face.set(5, 3, VOID)
-        face.lit(2, 3, EMBER, 0.9)
-        face.lit(5, 3, EMBER, 0.9)
-        face.rect(0, 5, face.w, 3, GAMBESON[3])  # scarf
-        face.hline(0, 5, face.w, GAMBESON[4])
+        cx = face.cx
+        face.rect(0, 0, face.w, 2, mk.GRAVE_IRON[2])  # the coif's edge
+        for ex in (cx - 2, cx + 1):
+            face.set(ex, 2, VOID)
+            face.lit(ex, 2, EMBER, 0.95)
+        face.rect(0, 4, face.w, 2, mk.GAMBESON[4])  # the scarf
+        face.hline(0, 4, face.w, mk.GAMBESON[5])
+        face.hline(0, 3, face.w, mk.SKIN_OLD[1])
 
     def sleeve(face, rng):
-        lower(face, 3, LEATHER, rng, 2.0)
-        quilted(face, rng) if face.name != "front" else None
+        if face.name != "front":
+            quilted(face, rng)
+        else:
+            mk.edge_shadow(face, rng, -10)
 
-    bones, top = humanoid(legs=12, body=(8, 12, 4), head=(8, 8, 8), arm=(4, 12, 4), leg=(4, 4),
-                          mats={"body": quilt, "head": Material(SKIN_OLD, base=1.4, noise=0.4),
-                                "arm": quilt.but(base=2.0), "leg": Material(LEATHER, base=1.6, noise=0.5, grain="v")},
-                          decals={"body": {"all": quilted}, "head": {"front": face_front}, "arm": {"all": sleeve},
-                                  "leg": {"all": lambda f, r: lower(f, 4, IRON, r, 1.6)}})
-    coif = Material(IRON, base=2.4, noise=0.4)
-    head = bone(bones, "head")
+    bones, top = mk.dense_humanoid(legs=12, body=(8, 12, 4), head=(8, 8, 8), arm=(4, 12, 4), leg=(4, 4),
+                                   mats={"body": quilt, "head": Material(mk.SKIN_OLD, base=1.6, noise=0.4),
+                                         "arm": quilt.but(base=2.4), "leg": Material(mk.LEATHER, base=2.0, noise=0.4, grain="v", bevel=0.3),
+                                         "hand": Material(mk.LEATHER, base=2.4, noise=0.4, bevel=0.4),
+                                         "shin": Material(mk.GRAVE_IRON, base=3.0, noise=0.4, bevel=0.6), "foot": Material(mk.LEATHER, base=1.4, noise=0.4)},
+                                   decals={"body": {"all": quilted}, "head": {"front": face_front}, "arm": {"all": sleeve}, "fore": {"all": sleeve},
+                                           "leg": {"all": lambda f, r: mk.fold_lines(f, r, 3, -12)},
+                                           "shin": {"all": lambda f, r: (mk.specular(f, r, mk.GRAVE_IRON[6], 1, 1), mk.edge_shadow(f, r, -10))}})
+    coif = Material(mk.GRAVE_IRON, base=3.0, noise=0.4)
+    head = mk.bone(bones, "head")
+    hat = Material(mk.GRAVE_IRON, base=3.4, noise=0.4, top=1.0, bevel=0.6, decal=lambda f, r: scatter(f, r, 1, mk.RUST[2]))
     head.add(Box([-4.5, top - 0.5, -4.5], [9, 8, 9], coif, {"all": mail_hood}, inflate=0.1),
-             Box([-4.5, top + 7.5, -4.5], [9, 2, 9], Material(IRON, base=2.8, noise=0.5, top=1.0),
-                 {"all": lambda f, r: scatter(f, r, 2, RUST[1])}),
-             Box([-5.5, top + 7, -5.5], [11, 1, 11], Material(IRON, base=2.4, noise=0.5),
-                 {"top": lambda f, r: trim(f, IRON[4])}))
-    bone(bones, "body").add(
-        Box([1.5, 14, -3], [3, 4, 2], Material(LEATHER, base=2.0, noise=0.4), rotation=[0, 0, -10],
-            pivot=[3, 16, -2]),
-        Box([2, 18, -2.5], [1, 2, 1], Material(WOOD, base=3.0, noise=0.3), {"top": lambda f, r: f.set(0, 0, IRON[4])}),
-        Box([3, 18, -2.5], [1, 2, 1], Material(WOOD, base=3.0, noise=0.3), {"top": lambda f, r: f.set(0, 0, IRON[4])}),
-    )
-    wood = Material(WOOD, base=1.6, noise=0.5, grain="h")
-    bones.append(Bone("crossbow", [-6, 12, 0], "right_arm", None, [
-        Box([-7, 11, -9], [2, 2, 8], wood, {"sides": lambda f, r: f.hline(0, 0, f.w, WOOD[3])}),
-        Box([-11, 12, -9], [10, 1, 1], Material(IRON, base=2.4, noise=0.4)),
-        Box([-11, 12, -8], [1, 1, 1], Material(IRON, base=1.6, noise=0.3)),
-        Box([-2, 12, -8], [1, 1, 1], Material(IRON, base=1.6, noise=0.3)),
-        Box([-10, 12.5, -7.5], [8, 0, 1], Material(ROPE, base=3.0, noise=0.2)),
-        Box([-6.5, 13, -10.5], [1, 0.5, 4], Material(WOOD, base=3.2, noise=0.2), inflate=0.05),
+             *mk.octagon([-4.5, top + 7.5, -4.5], [9, 2.5, 9], hat, {"sides": lambda f, r: mk.rivet_ring(f, mk.GRAVE_IRON[1], mk.GRAVE_IRON[6], 0, 3)}, shrink=0.8),
+             Box([-6, top + 7, -6], [12, 0.8, 12], hat.but(base=3.0), {"top": lambda f, r: (trim(f, mk.GRAVE_IRON[5]), mk.rivet_ring(f, mk.GRAVE_IRON[1], None, 1, 3))}),
+             Box([-1, top + 10, -1], [2, 1, 2], hat.but(base=4.0)))  # the hat's boss
+    scarf = Material(mk.GAMBESON, base=3.6, noise=0.5, grain="v")
+    head.add(Box([-4.2, top + 1.5, -4.6], [8.4, 2.5, 3], scarf, {"sides": lambda f, r: mk.fold_lines(f, r, 2, -12, "h")}, inflate=0.3))
+    bones += chain_bones("scarf", "head", [3.5, top + 2, 3.5], 2, 3, scarf, thickness=0.3,
+                         box=lambda i, o, s: [Box([2.2, o[1], 3.6], [2.6, s[1], 0.5], scarf, {"sides": lambda f, r: ragged_edge(f, r, "bottom", 1, 0.6)})])
+    body = mk.bone(bones, "body")
+    leather = Material(mk.LEATHER, base=2.2, noise=0.4, bevel=0.5)
+    body.add(Box([-4.5, 21.5, -2.5], [9, 2.5, 5], quilt.but(base=3.4), {"sides": lambda f, r: (stitch(f, 1, mk.GAMBESON[1], 2), mk.edge_shadow(f, r, -8))}, inflate=0.5),  # yoke
+             Box([-4, 14, -2], [8, 1.5, 4], leather, {"front": lambda f, r: (f.set(f.cx, 0, mk.BRASS[5]), f.set(f.cx - 1, 0, mk.BRASS[3]))}, inflate=0.6),  # belt
+             Box([-4.2, 11.5, -3.1], [2.6, 3, 1.4], leather.but(base=2.6), inflate=0.1),  # pouch
+             Box([1.5, 12.5, -3.2], [3, 6, 2.2], leather.but(base=2.0), {"top": lambda f, r: f.rect(0, 0, f.w, f.h, mk.LEATHER[0]),
+                                                                         "sides": lambda f, r: band(f, 1, mk.ROPE[3])}, rotation=[0, 0, -12], pivot=[3, 15, -2]),  # quiver
+             Box([2, 18.5, -3], [0.8, 2.5, 0.8], Material(mk.DEAD_WOOD, base=3.4, noise=0.3), {"top": lambda f, r: f.set(0, 0, mk.GRAVE_IRON[6])},
+                 rotation=[0, 0, -12], pivot=[3, 15, -2]),
+             Box([3.2, 18.5, -3], [0.8, 2.2, 0.8], Material(mk.DEAD_WOOD, base=3.4, noise=0.3), {"top": lambda f, r: f.set(0, 0, mk.GRAVE_IRON[6])},
+                 rotation=[0, 0, -12], pivot=[3, 15, -2]),
+             Box([2.6, 18.8, -2.2], [0.8, 2.4, 0.8], Material(mk.CRIMSON_CLOTH, base=4.0, noise=0.3), rotation=[0, 0, -12], pivot=[3, 15, -2]))  # a fletched one
+    bones += chain_bones("tassel", "body", [3.6, 12.5, -2.2], 2, 1.8, Material(mk.ROPE, base=2.6, noise=0.4), thickness=0.5,
+                         box=lambda i, o, s: [Box(o, s, Material(mk.ROPE, base=2.6, noise=0.4))] + (
+                             [Box([o[0] - 0.4, o[1] - 0.4, o[2] - 0.4], [1.3, 1.2, 1.3], Material(mk.BRASS, base=3.6, noise=0.3))] if i == 1 else []))
+    bracer = Box([-8.5, 13, -2.3], [5, 4, 4.6], leather, {"sides": lambda f, r: stitch(f, 1, mk.LEATHER[0], 2)}, inflate=0.3)
+    r_fingers = fingers(-7.6, 12, -1.6, 3, (0.9, 2, 0.9), Material(mk.LEATHER, base=2.4, noise=0.4), spread=0.3, curl=40, thumb=(3.2, 1))
+    mk.bone(bones, "right_fore").add(bracer, *r_fingers)
+    mk.bone(bones, "left_fore").add(mirror_box(bracer), *[mirror_box(b) for b in r_fingers])
+    knee = Box([-4.3, 5.5, -2.8], [4.6, 2, 1.2], Material(mk.GRAVE_IRON, base=3.2, noise=0.4, bevel=0.5), inflate=0.2)
+    mk.bone(bones, "right_leg").add(knee)
+    mk.bone(bones, "left_leg").add(mirror_box(knee))
+    wood = Material(mk.DEAD_WOOD, base=2.0, noise=0.5, grain="h", bevel=0.4)
+    iron = Material(mk.GRAVE_IRON, base=3.0, noise=0.4, bevel=0.6)
+    bones.append(Bone("crossbow", [-6, 12, 0], "right_fore", None, [
+        Box([-7, 11, -9], [2, 2, 9], wood, {"sides": lambda f, r: (mk.grain(f, r, mk.DEAD_WOOD[1], mk.DEAD_WOOD[5], 2, (2, 5)), f.hline(0, 0, f.w, mk.DEAD_WOOD[4]))}),  # the tiller
+        Box([-7.2, 10, 0], [2.4, 2.4, 2.5], wood.but(base=1.8), {"sides": lambda f, r: mk.grain(f, r, mk.DEAD_WOOD[1], None, 2, (2, 4))}),  # the stock's butt
+        Box([-6.4, 12.4, -7], [0.8, 0.8, 5], iron.but(base=2.6)),  # the groove plate
+        Box([-11.5, 12, -9], [5.5, 1, 1], iron, {"all": lambda f, r: mk.specular(f, r, mk.GRAVE_IRON[6], 0, 0)}),  # the prod, two halves
+        Box([-6, 12, -9], [5.5, 1, 1], iron, {"all": lambda f, r: mk.specular(f, r, mk.GRAVE_IRON[6], 0, 0)}),
+        Box([-13.6, 12, -8.6], [2.6, 0.9, 0.9], iron.but(base=2.6), rotation=[0, -18, 0], pivot=[-11.4, 12.5, -8.5]),  # the curved tips
+        Box([-1, 12, -8.6], [2.6, 0.9, 0.9], iron.but(base=2.6), rotation=[0, 18, 0], pivot=[-0.6, 12.5, -8.5]),
+        Box([-13.2, 12.5, -8.1], [14.4, 0, 0.8], Material(mk.ROPE, base=3.4, noise=0.2), rotation=[0, 0, 0]),  # the string
+        Box([-6.5, 11, -10.5], [1, 2.2, 1], iron.but(base=2.4), inflate=0.1),  # the stirrup
+        Box([-6.3, 9.5, -2.5], [0.6, 1.8, 3], iron.but(base=2.2), rotation=[20, 0, 0], pivot=[-6, 11, -2]),  # the lever
+        Box([-6.4, 13, -10.2], [0.8, 0.6, 4.2], Material(mk.DEAD_WOOD, base=3.4, noise=0.2), inflate=0.05),  # the bolt
+        Box([-6.3, 13.1, -6.4], [0.6, 0.8, 1.2], Material(mk.CRIMSON_CLOTH, base=4.0, noise=0.3)),  # its fletching
     ]))
     bones.append(Bone("spark", [-6, 12, -10], "crossbow", None, [
-        Box([-6.5, 11.5, -11], [1, 1, 1], Material(ramp("ffb347", "ffe9a0"), base=0.8, noise=0.4, glow=1.0),
-            inflate=0.2)]))
+        Box([-6.5, 12.8, -11.2], [1.2, 1.2, 1.2], Material(mk.AMBER_RAMP, base=5.0, noise=0.4, glow=1.0), inflate=0.15)]))
+    scarf_names = chain_names("scarf", 2)
+    tassel = chain_names("tassel", 2)
+    chains = scarf_names + tassel
     aim = [-90, 0, 0]
+    aim_fore = [-10, 0, 0]
     animations = {
-        "misc.idle": idle(3.0, 3, 2),
-        "move.walk": walk(1.0, 25, 15, 0.4),
-        "attack.aim": anim(1.0, {
-            "right_arm": rot(0, ZERO, 0.3, aim, 1.0, aim),
-            "left_arm": rot(0, ZERO, 0.3, [-80, 30, 0], 1.0, [-80, 30, 0]),
-            "head": rot(0, ZERO, 0.3, [5, 0, 0], 1.0, [5, 0, 0]),
-            "body": rot(0, ZERO, 0.3, [0, -10, 0], 1.0, [0, -10, 0]),
-        }, loop=False),
-        "attack.shoot": anim(0.3, {"right_arm": rot(0, aim, 0.1, [-110, 0, 0], 0.3, ZERO),
-                                   "crossbow": pos(0, ZERO, 0.1, [0, 0, 1.5], 0.3, ZERO)}, loop=False),
+        # At the post: the crossbow held low across the body, the head scanning the street, the scarf stirring.
+        "misc.idle": mk.breathe(3.0, 1.5, 1.5, 0, merge(
+            lag_sway(scarf_names, 3.0, 6, 0, phase=0.2), lag_sway(tassel, 3.0, 8, 0, phase=0.5),
+            {"head": rot(0, ZERO, 1.0, e("easeInOutSine", [2, 28, 0]), 2.0, e("easeInOutSine", [3, -22, 0]), 3.0, e("easeInOutSine", ZERO)),
+             "right_arm": rot(0, [-25, 0, -10], 1.5, e("easeInOutSine", [-27, 0, -10]), 3.0, e("easeInOutSine", [-25, 0, -10])),
+             "right_fore": rot(0, [-30, 0, 0], 3.0, [-30, 0, 0]),
+             "left_arm": rot(0, [-35, 25, 0], 1.5, e("easeInOutSine", [-37, 25, 0]), 3.0, e("easeInOutSine", [-35, 25, 0])),
+             "left_fore": rot(0, [-45, 0, 0], 3.0, [-45, 0, 0])})),
+        "move.walk": mk.weighted_walk(1.0, 25, 6, 0.4, 4, 5, extra=merge(
+            mk.limb_walk(1.0, 6, 12), lag_sway(scarf_names, 1.0, 12, 0, phase=0.1), lag_sway(tassel, 1.0, 14, 0, phase=0.3),
+            {"right_arm": rot(0, [-25, 0, -10], 1.0, [-25, 0, -10]), "right_fore": rot(0, [-30, 0, 0], 1.0, [-30, 0, 0]),
+             "left_arm": rot(0, [-35, 25, 0], 1.0, [-35, 25, 0]), "left_fore": rot(0, [-45, 0, 0], 1.0, [-45, 0, 0])})),
+        # The aim: the crossbow comes up to the shoulder and the cheek goes down on the stock; held, with a slow
+        # breath, through the 20 ticks while the spark burns on the bolt.
+        "attack.aim": anim(1.0, merge({
+            "right_arm": rot(0, [-25, 0, -10], 0.3, e("easeOutSine", aim), 0.65, e("easeInOutSine", [-91, 0, 0.5]), 1.0, e("easeInOutSine", aim)),
+            "right_fore": rot(0, [-30, 0, 0], 0.3, e("easeOutSine", aim_fore), 1.0, aim_fore),
+            "left_arm": rot(0, [-35, 25, 0], 0.3, e("easeOutSine", [-80, 32, 0]), 1.0, [-80, 32, 0]),
+            "left_fore": rot(0, [-45, 0, 0], 0.3, e("easeOutSine", [-30, 0, 0]), 1.0, [-30, 0, 0]),
+            "head": rot(0, ZERO, 0.3, e("easeOutSine", [8, -12, -6]), 1.0, [8, -12, -6]),
+            "body": rot(0, ZERO, 0.3, e("easeOutSine", [2, -14, 0]), 1.0, [2, -14, 0]),
+            "right_leg": rot(0, ZERO, 0.3, e("easeOutSine", [-8, 0, 0]), 1.0, [-8, 0, 0]),
+            "left_leg": rot(0, ZERO, 0.3, e("easeOutSine", [10, 0, 0]), 1.0, [10, 0, 0]),
+        }, whip(scarf_names, 0.05, 15, 0, settle=0.5), whip(tassel, 0.05, 20, 0, settle=0.5)), loop=False),
+        # The shot: the prod snaps, the crossbow kicks back and up and the body takes the recoil, then it settles.
+        "attack.shoot": anim(0.35, merge({
+            "right_arm": rot(0, aim, 0.05, e("easeOutCubic", [-108, 0, 4]), 0.35, e("easeOutSine", [-25, 0, -10])),
+            "right_fore": rot(0, aim_fore, 0.05, e("easeOutCubic", [-20, 0, 0]), 0.35, e("easeOutSine", [-30, 0, 0])),
+            "crossbow": pos(0, ZERO, 0.05, e("easeOutCubic", [0, 0.5, 2]), 0.35, e("easeOutSine", ZERO)),
+            "left_arm": rot(0, [-80, 32, 0], 0.05, e("easeOutCubic", [-90, 30, 0]), 0.35, e("easeOutSine", [-35, 25, 0])),
+            "left_fore": rot(0, [-30, 0, 0], 0.35, e("easeOutSine", [-45, 0, 0])),
+            "body": rot(0, [2, -14, 0], 0.05, e("easeOutCubic", [-6, -12, 0]), 0.35, e("easeOutSine", ZERO)),
+            "head": rot(0, [8, -12, -6], 0.05, e("easeOutCubic", [-4, -10, -4]), 0.35, e("easeOutSine", ZERO)),
+        }, whip(scarf_names, 0.03, -25, 0, settle=0.3), whip(tassel, 0.03, 25, 0, settle=0.3)), loop=False),
+        "misc.hurt": mk.hurt_flinch(0.45, chains=chains, extra={
+            "right_arm": rot(0, [-25, 0, -10], 0.1, e("easeOutCubic", [-45, 0, 5]), 0.45, e("easeOutSine", [-25, 0, -10])),
+            "right_fore": rot(0, [-30, 0, 0], 0.45, [-30, 0, 0]),
+            "left_arm": rot(0, [-35, 25, 0], 0.1, e("easeOutCubic", [-50, 20, -10]), 0.45, e("easeOutSine", [-35, 25, 0])),
+            "left_fore": rot(0, [-45, 0, 0], 0.45, [-45, 0, 0])}),
+        "misc.stagger": mk.stagger(0.9, chains=chains, extra={
+            "right_arm": rot(0, [-25, 0, -10], 0.12, e("easeOutCubic", [-80, 0, 30]), 0.9, e("easeOutSine", [-25, 0, -10])),
+            "right_fore": rot(0, [-30, 0, 0], 0.9, [-30, 0, 0]),
+            "left_arm": rot(0, [-35, 25, 0], 0.12, e("easeOutCubic", [-60, 10, -40]), 0.9, e("easeOutSine", [-35, 25, 0])),
+            "left_fore": rot(0, [-45, 0, 0], 0.9, [-45, 0, 0])}),
+        # Shot off its post: it goes down on its back, the crossbow arm flung out and the hat rolling off the brow.
+        "misc.death": mk.death_fall(2.0, legs=12, forward=False, chains=chains, chain_amp=30, arms_out=False, extra={
+            "right_arm": rot(0, [-25, 0, -10], 0.35, e("easeOutSine", [-60, 0, 20]), 0.9, e("easeInQuad", [-120, 0, 50]), 1.1, e("easeOutSine", [-100, 0, 60]), 2.0, [-100, 0, 60]),
+            "right_fore": rot(0, [-30, 0, 0], 0.9, e("easeInQuad", [-15, 0, 0]), 2.0, [-15, 0, 0]),
+            "crossbow": rot(0, ZERO, 0.9, e("easeInQuad", [0, 0, 50]), 1.15, e("easeOutBounce", [0, 0, 70]), 2.0, [0, 0, 70]),
+            "left_arm": rot(0, [-35, 25, 0], 0.35, e("easeOutSine", [-50, 10, -20]), 0.9, e("easeInQuad", [-30, 0, -50]), 2.0, [-30, 0, -50]),
+            "left_fore": rot(0, [-45, 0, 0], 0.9, e("easeInQuad", [-70, 0, 0]), 2.0, [-70, 0, 0]),
+            "right_shin": rot(0, ZERO, 0.35, e("easeOutSine", [40, 0, 0]), 0.9, e("easeInQuad", [30, 0, 0]), 2.0, [30, 0, 0]),
+            "left_shin": rot(0, ZERO, 0.35, e("easeOutSine", [25, 0, 0]), 0.9, e("easeInQuad", [50, 0, 0]), 2.0, [50, 0, 0])}),
     }
-    write_model("sparking_marksman", bones, animations, [2, 2.5])
+    write_model("sparking_marksman", bones, animations, [2, 2.5], tex_w=128)
 
 
 def mail_hood(face, rng):

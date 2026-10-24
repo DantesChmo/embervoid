@@ -1,5 +1,6 @@
 package com.embervoid.reach.mob;
 
+import com.embervoid.fx.particle.EmberParticles;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
@@ -33,6 +34,8 @@ public class SparkingMarksmanEntity extends ReachMob {
 	public static final int AIM_TICKS = 20;
 	public static final float BOLT_DAMAGE = 6;
 	public static final double RANGE = 24;
+	/** Ticks the body stays for {@code misc.death}: shot off its post, it goes down on its back, 2 s. */
+	public static final int DEATH_TICKS = 40;
 	/** Crossbow bolt speed, blocks per tick. */
 	private static final float BOLT_SPEED = 3.15f;
 	static final Move AIM = new Move("attack.aim", AIM_TICKS, 60, ReachMobSounds.SPARKING_MARKSMAN_SPARK, 1.0f);
@@ -97,9 +100,28 @@ public class SparkingMarksmanEntity extends ReachMob {
 			getLookControl().lookAt(target, 60, 60);
 		}
 		if (getWorld() instanceof ServerWorld world && ticksLeft % 2 == 0) {
+			// The spark on the bolt tip: cinder sparks and an ember, brighter as the shot nears.
 			Vec3d tip = getEyePos().add(getRotationVector().multiply(0.9)).add(0, -0.3, 0);
-			world.spawnParticles(ParticleTypes.ELECTRIC_SPARK, tip.x, tip.y, tip.z, 2, 0.03, 0.03, 0.03, 0.02);
-			world.spawnParticles(ParticleTypes.SMALL_FLAME, tip.x, tip.y, tip.z, 1, 0.02, 0.02, 0.02, 0);
+			EmberParticles.spawn(world, EmberParticles.CINDER_SPARK, tip, ticksLeft < 8 ? 2 : 1, 0.03, 0.04);
+			world.spawnParticles(ParticleTypes.ELECTRIC_SPARK, tip.x, tip.y, tip.z, 1, 0.03, 0.03, 0.03, 0.02);
+			if (ticksLeft % 4 == 0) {
+				EmberParticles.spawn(world, EmberParticles.EMBER, tip, 1, 0.02, 0.01);
+			}
+		}
+	}
+
+	@Override
+	public int deathTicks() {
+		return DEATH_TICKS;
+	}
+
+	/** The spark dies on the dropped crossbow: a last few cinders, then dust. */
+	@Override
+	protected void tickDeath(ServerWorld world, int deathTime) {
+		if (deathTime < 8 && deathTime % 2 == 0) {
+			EmberParticles.spawn(world, EmberParticles.CINDER_SPARK, getPos().add(0, 0.8, 0), 2, 0.3, 0.05);
+		} else if (deathTime == 18) {
+			EmberParticles.spawn(world, EmberParticles.SOOT, getPos().add(0, 0.2, 0), 6, 0.6, 0.02);
 		}
 	}
 
@@ -110,6 +132,7 @@ public class SparkingMarksmanEntity extends ReachMob {
 		if (target == null || !target.isAlive()) {
 			return;
 		}
+		triggerAnim(ACTION, "attack.shoot");
 		ArrowEntity bolt = new ArrowEntity(getWorld(), this);
 		bolt.setPosition(getX(), getEyeY() - 0.1, getZ());
 		double dx = target.getX() - bolt.getX();
