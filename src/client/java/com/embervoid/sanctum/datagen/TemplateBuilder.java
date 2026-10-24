@@ -191,7 +191,8 @@ public final class TemplateBuilder {
 	/**
 	 * A pitched roof over the box x0..x1, z0..z1 with its ridge along {@code axis}, eaves at height y: courses of
 	 * stairs climbing towards the ridge from both sides, the ridge a slab (odd span) or two stairs back to back (even).
-	 * {@code coverage} below 1 leaves holes where the roof fell in. Returns the ridge height.
+	 * {@code coverage} below 1 burns the roof away from the ridge down, in runs along the ridge (so what is left
+	 * stands on the eaves and nothing floats): at 0.5 about half the courses are gone on average.
 	 */
 	public TemplateBuilder pitchedRoof(int x0, int z0, int x1, int z1, int y, Direction.Axis axis, BlockState stairs, BlockState slab,
 			Random random, double coverage) {
@@ -199,18 +200,38 @@ public final class TemplateBuilder {
 		int hi = axis == Direction.Axis.X ? z1 : x1;
 		int a0 = axis == Direction.Axis.X ? x0 : z0;
 		int a1 = axis == Direction.Axis.X ? x1 : z1;
+		int courses = ridgeHeight(hi - lo + 1) + 1;
+		int[][] standing = new int[2][a1 - a0 + 1];
+		for (int side = 0; side < 2; side++) {
+			double run = random.nextDouble();
+			for (int i = 0; i <= a1 - a0; i++) {
+				run = 0.65 * run + 0.35 * random.nextDouble();
+				double c = coverage >= 1 ? 1 : Math.max(0, Math.min(1, coverage + (run - 0.5) * 0.9));
+				standing[side][i] = (int) Math.round(courses * c);
+			}
+		}
+		// A roof column stands only where its eave has a wall under it: over a gap the whole column is gone.
+		for (int i = 0; i <= a1 - a0; i++) {
+			for (int side = 0; side < 2; side++) {
+				int across = side == 0 ? lo : hi;
+				int bx = axis == Direction.Axis.X ? a0 + i : across;
+				int bz = axis == Direction.Axis.X ? across : a0 + i;
+				if (!(inside(bx, y - 1, bz) && isSet(bx, y - 1, bz) && !isAir(bx, y - 1, bz))) {
+					standing[side][i] = 0;
+				}
+			}
+		}
+		Direction towardsRidge = axis == Direction.Axis.X ? Direction.SOUTH : Direction.EAST;
 		for (int k = 0; lo + k <= hi - k; k++) {
 			int near = lo + k;
 			int far = hi - k;
 			for (int a = a0; a <= a1; a++) {
-				boolean keep = random.nextDouble() < coverage;
+				boolean keepNear = k < standing[0][a - a0];
+				boolean keepFar = k < standing[1][a - a0];
 				if (near == far) {
-					putRoof(axis, a, y + k, near, keep ? slab(slab, false) : Blocks.AIR.getDefaultState());
+					putRoof(axis, a, y + k, near, keepNear && keepFar ? slab(slab, false) : Blocks.AIR.getDefaultState());
 				} else {
-					// The near course faces the ridge: its tall half is on the ridge side.
-					Direction towardsRidge = axis == Direction.Axis.X ? Direction.SOUTH : Direction.EAST;
-					putRoof(axis, a, y + k, near, keep ? stair(stairs, towardsRidge, false) : Blocks.AIR.getDefaultState());
-					boolean keepFar = random.nextDouble() < coverage;
+					putRoof(axis, a, y + k, near, keepNear ? stair(stairs, towardsRidge, false) : Blocks.AIR.getDefaultState());
 					putRoof(axis, a, y + k, far, keepFar ? stair(stairs, towardsRidge.getOpposite(), false) : Blocks.AIR.getDefaultState());
 				}
 			}
