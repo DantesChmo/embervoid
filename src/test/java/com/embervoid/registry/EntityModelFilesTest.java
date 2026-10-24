@@ -1,5 +1,11 @@
 package com.embervoid.registry;
 
+import com.embervoid.entity.mob.AshGhoulEntity;
+import com.embervoid.entity.mob.EmberWispEntity;
+import com.embervoid.entity.mob.HollowEntity;
+import com.embervoid.entity.mob.MobAnimations;
+import com.embervoid.nightmob.AshenZombieEntity;
+import com.embervoid.nightmob.GhostEntity;
 import com.embervoid.reach.boss.AshColossusEntity;
 import com.embervoid.reach.boss.CryptKeeperEntity;
 import com.embervoid.reach.boss.GrievingTreeEntity;
@@ -40,14 +46,16 @@ class EntityModelFilesTest {
 	private static final Path ASSETS = Path.of("src", "main", "resources", "assets", "embervoid");
 
 	/** Animations each entity class plays (DefaultAnimations names and its own RawAnimations). */
-	private static final Map<String, List<String>> ANIMATIONS = Map.ofEntries(Map.entry(
-			"ash_ghoul", List.of("misc.idle", "move.walk", "attack.swing")),
-			Map.entry("hollow", List.of("misc.idle", "move.walk", "attack.swing", "attack.block")),
-			Map.entry("ember_wisp", List.of("misc.idle", "move.fly")),
+	private static final Map<String, List<String>> ANIMATIONS = Map.ofEntries(
+			// The overworld and moon-night mobs (track overworld-mobs, PLAN 19.3).
+			Map.entry("ash_ghoul", List.of("misc.idle", "move.walk", "attack.swing", MobAnimations.HURT, MobAnimations.DEATH)),
+			Map.entry("hollow", List.of("misc.idle", "move.walk", "attack.swing", "attack.block", MobAnimations.HURT, MobAnimations.STAGGER,
+					MobAnimations.DEATH)),
+			Map.entry("ember_wisp", List.of("misc.idle", "move.fly", MobAnimations.HURT, MobAnimations.DEATH)),
 			Map.entry("ashen_maiden", List.of("misc.idle", "misc.interact")),
-			Map.entry("ashen_zombie", List.of("misc.idle", "move.walk", "attack.swing")),
-			Map.entry("ghost", List.of("misc.idle", "move.fly", "attack.swing")),
-			Map.entry("vampire", List.of("misc.idle", "move.walk", "misc.transform")),
+			Map.entry("ashen_zombie", List.of("misc.idle", "move.walk", "attack.swing", MobAnimations.HURT, MobAnimations.STAGGER, MobAnimations.DEATH)),
+			Map.entry("ghost", List.of("misc.idle", "move.fly", "attack.swing", MobAnimations.HURT, MobAnimations.DEATH)),
+			Map.entry("vampire", List.of("misc.idle", "move.walk", "misc.transform", MobAnimations.HURT, MobAnimations.DEATH)),
 			Map.entry("vampire_boss", List.of("misc.idle", "move.walk", VampireBossEntity.SWING, VampireBossEntity.LEAP, VampireBossEntity.NOVA,
 					VampireBossEntity.MIST, VampireBossEntity.HURT, VampireBossEntity.STAGGER, VampireBossEntity.DEATH, VampireBossEntity.PHASE)),
 			Map.entry("fallen_sister", List.of("misc.idle", "move.walk", FallenSisterEntity.ARC_1, FallenSisterEntity.ARC_2, FallenSisterEntity.SLAM,
@@ -83,6 +91,14 @@ class EntityModelFilesTest {
 
 	/** Shortest length (s) of a telegraphed animation: the windup it shows, in ticks / 20; death animations at least 2 s. */
 	private static final Map<String, Double> MIN_LENGTH = Map.ofEntries(
+			// The overworld and moon-night mobs: each death animation at least as long as the body stays.
+			Map.entry("ash_ghoul/" + MobAnimations.DEATH, AshGhoulEntity.DEATH_TICKS / 20.0),
+			Map.entry("hollow/" + MobAnimations.DEATH, HollowEntity.DEATH_TICKS / 20.0),
+			Map.entry("ember_wisp/" + MobAnimations.DEATH, EmberWispEntity.DEATH_TICKS / 20.0),
+			Map.entry("ashen_zombie/" + MobAnimations.DEATH, AshenZombieEntity.DEATH_TICKS / 20.0),
+			Map.entry("ghost/" + MobAnimations.DEATH, GhostEntity.DEATH_TICKS / 20.0),
+			Map.entry("vampire/" + MobAnimations.DEATH, VampireEntity.DEATH_TICKS / 20.0),
+			Map.entry("hollow/" + MobAnimations.STAGGER, 60 / 20.0),         // HollowEntity.STAGGER_TICKS: held while the stagger lasts
 			Map.entry("hollow/attack.swing", 8 / 20.0),                       // HollowEntity.WINDUP_TICKS
 			Map.entry("vampire/misc.transform", VampireEntity.TURN_TICKS / 20.0),
 			Map.entry("vampire_boss/" + VampireBossEntity.LEAP, VampireBossEntity.LEAP_WINDUP / 20.0),

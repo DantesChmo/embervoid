@@ -1,5 +1,7 @@
 package com.embervoid.nightmob;
 
+import com.embervoid.entity.mob.MobAnimations;
+import com.embervoid.fx.particle.EmberParticles;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityGroup;
 import net.minecraft.entity.EntityType;
@@ -39,6 +41,10 @@ import java.util.EnumSet;
  * The full moon's answer to a player with no curse (DESIGN §3.3): three of these come instead of Ashen Zombies.
  * Twice an Ashen Zombie's HP and damage; it flies and drifts through blocks like a vex, sees through walls, and
  * {@link NightMobConfig#ghostMissChance} of the hits on it pass through it harmlessly.
+ *
+ * <p>Animations (PLAN 19.3, {@link MobAnimations}): {@code misc.hurt} on a hit that lands (a flinch and a shiver);
+ * on death it dissolves ({@code misc.death}: it rises, turns and shrinks away) over {@link #DEATH_TICKS} ticks in cold
+ * flame, the souls it was leaving upward at the end. Cold flame licks off it as it drifts.
  */
 public class GhostEntity extends HostileEntity implements GeoEntity {
 	/** Speed factor of the move control: about 4.4 blocks/s chasing (a vex is 1.0, about 11 blocks/s). */
@@ -46,8 +52,12 @@ public class GhostEntity extends HostileEntity implements GeoEntity {
 	private static final double WANDER_SPEED = 0.2;
 	/** One touch per 2 s (R40.1c: with one a second, three Ghosts out-traded any day-24 player). */
 	private static final int ATTACK_COOLDOWN_TICKS = 40;
+	/** How long the body stays after death: the length of {@code misc.death} (1.6 s). */
+	public static final int DEATH_TICKS = 32;
 
 	private final AnimatableInstanceCache animations = GeckoLibUtil.createInstanceCache(this);
+	private int lastHurtAnimation = -100;
+	private int hurtFlinches;
 
 	public GhostEntity(EntityType<? extends GhostEntity> type, World world) {
 		super(type, world);
@@ -95,6 +105,9 @@ public class GhostEntity extends HostileEntity implements GeoEntity {
 		if (getWorld().isClient && random.nextInt(5) == 0) {
 			getWorld().addParticle(ParticleTypes.SOUL, getParticleX(0.4), getRandomBodyY(), getParticleZ(0.4), 0, 0.02, 0);
 		}
+		if (getWorld() instanceof ServerWorld world && isAlive() && random.nextInt(6) == 0) {
+			EmberParticles.spawn(world, EmberParticles.COLD_FLAME, getPos().add(0, getHeight() * 0.3, 0), 1, 0.3, 0.01);
+		}
 	}
 
 	/** Some attacks pass through it: the hit does nothing, with a puff and a whoosh instead of the hurt sound. */
@@ -106,7 +119,54 @@ public class GhostEntity extends HostileEntity implements GeoEntity {
 			miss();
 			return false;
 		}
-		return super.damage(source, amount);
+		boolean hurt = super.damage(source, amount);
+		if (MobAnimations.mayFlinch(this, hurt, amount, lastHurtAnimation)) {
+			lastHurtAnimation = age;
+			hurtFlinches++;
+			triggerAnim(MobAnimations.HURT_CONTROLLER, MobAnimations.HURT);
+			if (getWorld() instanceof ServerWorld world) {
+				EmberParticles.spawn(world, EmberParticles.COLD_FLAME, getPos().add(0, getHeight() * 0.5, 0), 5, 0.4, 0.03);
+			}
+		}
+		return hurt;
+	}
+
+	/** Flinches shown so far (tests). */
+	public int hurtFlinches() {
+		return hurtFlinches;
+	}
+
+	@Override
+	public void onDeath(DamageSource source) {
+		boolean firstDeath = !dead;
+		super.onDeath(source);
+		if (firstDeath && !getWorld().isClient) {
+			triggerAnim(MobAnimations.DEATH_CONTROLLER, MobAnimations.DEATH);
+		}
+	}
+
+	/** How long the body stays after death for its death animation, in ticks. */
+	public int deathTicks() {
+		return DEATH_TICKS;
+	}
+
+	/** The dissolve: cold flame streams off the rising, shrinking shade; at the end its souls fly up and it is gone. */
+	@Override
+	protected void updatePostDeath() {
+		deathTime++;
+		if (getWorld() instanceof ServerWorld world && !isRemoved()) {
+			if (deathTime % 2 == 0) {
+				double rise = deathTime / (double) deathTicks();
+				EmberParticles.spawn(world, EmberParticles.COLD_FLAME, getPos().add(0, 0.4 + rise * 1.2, 0), 2, 0.5 * (1 - rise * 0.6), 0.03);
+			}
+			if (deathTime == deathTicks() - 1) {
+				Vec3d top = getPos().add(0, 1.8, 0);
+				EmberParticles.burst(world, top, 1.2f, 0x9fe8ff);
+				EmberParticles.spawn(world, EmberParticles.COLD_FLAME, top, 14, 0.4, 0.05);
+				EmberParticles.souls(world, top, top.add(0, 6, 0), 6);
+			}
+		}
+		MobAnimations.tickDeath(this, deathTime, deathTicks());
 	}
 
 	private void miss() {
@@ -167,10 +227,13 @@ public class GhostEntity extends HostileEntity implements GeoEntity {
 		return super.getSoundPitch() * 0.5f;
 	}
 
+	/** Fly / idle, the flinch, the claws, the dissolve last: later controllers win on the bones they animate. */
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
 		controllers.add(DefaultAnimations.genericFlyIdleController(this));
+		controllers.add(MobAnimations.hurtController(this, MobAnimations.HURT));
 		controllers.add(DefaultAnimations.genericAttackAnimation(this, DefaultAnimations.ATTACK_SWING));
+		controllers.add(MobAnimations.deathController(this));
 	}
 
 	@Override

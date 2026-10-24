@@ -31,7 +31,12 @@ public final class MobRenderers {
 	public static void register() {
 		EntityRendererRegistry.register(MobEntities.ASH_GHOUL, context -> {
 			GeoEntityRenderer<AshGhoulEntity> renderer =
-					new GeoEntityRenderer<>(context, new DefaultedEntityGeoModel<>(Embervoid.id("ash_ghoul"), true));
+					new GeoEntityRenderer<>(context, new DefaultedEntityGeoModel<>(Embervoid.id("ash_ghoul"), true)) {
+						@Override
+						protected float getDeathMaxRotation(AshGhoulEntity ghoul) {
+							return 0; // its own death animation (PLAN 19.3)
+						}
+					};
 			renderer.addRenderLayer(new AutoGlowingGeoLayer<>(renderer));
 			return renderer;
 		});
@@ -42,7 +47,12 @@ public final class MobRenderers {
 	/** Slightly larger than a player, with its weapon drawn at the {@code right_item} bone. */
 	private static GeoEntityRenderer<HollowEntity> hollow(EntityRendererFactory.Context context) {
 		GeoEntityRenderer<HollowEntity> renderer =
-				new GeoEntityRenderer<>(context, new DefaultedEntityGeoModel<>(Embervoid.id("hollow"), true));
+				new GeoEntityRenderer<>(context, new DefaultedEntityGeoModel<>(Embervoid.id("hollow"), true)) {
+					@Override
+					protected float getDeathMaxRotation(HollowEntity hollow) {
+						return 0; // its own death animation (PLAN 19.3)
+					}
+				};
 		renderer.withScale(1.1f);
 		renderer.addRenderLayer(new AutoGlowingGeoLayer<>(renderer));
 		renderer.addRenderLayer(new BlockAndItemGeoLayer<>(renderer) {
@@ -84,6 +94,11 @@ public final class MobRenderers {
 			@Override
 			protected int getBlockLight(EmberWispEntity wisp, BlockPos pos) {
 				return 15;
+			}
+
+			@Override
+			protected float getDeathMaxRotation(EmberWispEntity wisp) {
+				return 0; // its own death animation (PLAN 19.3)
 			}
 		};
 		renderer.addRenderLayer(new AutoGlowingGeoLayer<>(renderer));

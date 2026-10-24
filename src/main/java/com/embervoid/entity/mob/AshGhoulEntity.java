@@ -1,5 +1,6 @@
 package com.embervoid.entity.mob;
 
+import com.embervoid.fx.particle.EmberParticles;
 import net.minecraft.entity.AreaEffectCloudEntity;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityGroup;
@@ -28,6 +29,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LightType;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
@@ -48,6 +50,10 @@ import java.util.Set;
  * Fast, weak undead that hunts in packs of 3–5 at night and underground (DESIGN §3.2). When one finds a target the
  * rest of the pack nearby joins in. Burns in daylight. On death it bursts into a cloud of ash that blinds whoever
  * stands in it, so killing the first ghoul of a pack blinds you for the next ones.
+ *
+ * <p>Animations (PLAN 19.3, {@link MobAnimations}): a flinch on a hit with a cooldown, and on death the body collapses
+ * ({@code misc.death}) and lies there {@link #DEATH_TICKS} ticks, ash flaking off it, before it goes; the blinding
+ * cloud bursts at the moment of death as before.
  */
 public class AshGhoulEntity extends HostileEntity implements GeoEntity {
 	/** How far the pack call reaches when a ghoul picks a target. */
@@ -60,8 +66,12 @@ public class AshGhoulEntity extends HostileEntity implements GeoEntity {
 	/** ...and this many blocks above or below its feet. */
 	private static final int PACK_STEP = 2;
 	private static final int PACK_TRIES_PER_MEMBER = 10;
+	/** How long the body lies there after death: the length of {@code misc.death} (1.8 s). */
+	public static final int DEATH_TICKS = 36;
 
 	private final AnimatableInstanceCache animations = GeckoLibUtil.createInstanceCache(this);
+	private int lastHurtAnimation = -100;
+	private int hurtFlinches;
 
 	public AshGhoulEntity(EntityType<? extends AshGhoulEntity> type, World world) {
 		super(type, world);
@@ -169,12 +179,51 @@ public class AshGhoulEntity extends HostileEntity implements GeoEntity {
 	}
 
 	@Override
+	public boolean damage(DamageSource source, float amount) {
+		boolean hurt = super.damage(source, amount);
+		if (MobAnimations.mayFlinch(this, hurt, amount, lastHurtAnimation)) {
+			lastHurtAnimation = age;
+			hurtFlinches++;
+			triggerAnim(MobAnimations.HURT_CONTROLLER, MobAnimations.HURT);
+		}
+		return hurt;
+	}
+
+	/** Flinches shown so far (tests). */
+	public int hurtFlinches() {
+		return hurtFlinches;
+	}
+
+	@Override
 	public void onDeath(DamageSource source) {
 		boolean firstDeath = !dead;
 		super.onDeath(source);
 		if (firstDeath && getWorld() instanceof ServerWorld world) {
 			burstIntoAsh(world);
+			triggerAnim(MobAnimations.DEATH_CONTROLLER, MobAnimations.DEATH);
 		}
+	}
+
+	/** How long the body stays after death for its death animation, in ticks. */
+	public int deathTicks() {
+		return DEATH_TICKS;
+	}
+
+	/** The body lies there for {@link #deathTicks}, ash flaking off it and a last ember or two, then goes. */
+	@Override
+	protected void updatePostDeath() {
+		deathTime++;
+		if (getWorld() instanceof ServerWorld world && !isRemoved()) {
+			if (deathTime % 4 == 0) {
+				EmberParticles.spawn(world, EmberParticles.ASH_FLAKE, getPos().add(0, 0.4, 0), 2, 0.5, 0.02);
+			}
+			if (deathTime == 19) {
+				// It hits the ground (misc.death lands at 0.95 s): a puff of ash and sparks off the embers.
+				EmberParticles.spawn(world, EmberParticles.SOOT, getPos().add(0, 0.2, 0), 6, 0.5, 0.02);
+				EmberParticles.throwAll(world, EmberParticles.CINDER_SPARK, getPos().add(0, 0.3, 0), 5, new Vec3d(0, 0.15, 0), 0.12);
+			}
+		}
+		MobAnimations.tickDeath(this, deathTime, deathTicks());
 	}
 
 	private void burstIntoAsh(ServerWorld world) {
@@ -187,8 +236,12 @@ public class AshGhoulEntity extends HostileEntity implements GeoEntity {
 		cloud.setRadiusGrowth(-CLOUD_RADIUS / (CLOUD_TICKS * 2));
 		cloud.addEffect(new StatusEffectInstance(StatusEffects.BLINDNESS, BLINDNESS_TICKS));
 		world.spawnEntity(cloud);
-		world.spawnParticles(ParticleTypes.ASH, getX(), getBodyY(0.5), getZ(), 80, 1.0, 0.8, 1.0, 0.02);
+		world.spawnParticles(ParticleTypes.ASH, getX(), getBodyY(0.5), getZ(), 60, 1.0, 0.8, 1.0, 0.02);
 		world.spawnParticles(ParticleTypes.LARGE_SMOKE, getX(), getBodyY(0.5), getZ(), 20, 0.6, 0.5, 0.6, 0.02);
+		// The mod's own ash flakes drift out of the cloud, with a few embers thrown up from the body.
+		EmberParticles.spawn(world, EmberParticles.ASH_FLAKE, getPos().add(0, 0.8, 0), 40, 1.2, 0.03);
+		EmberParticles.ringOut(world, EmberParticles.SOOT, getPos().add(0, 0.3, 0), 10, 0.08, 0.04);
+		EmberParticles.throwAll(world, EmberParticles.EMBER, getPos().add(0, 1.0, 0), 8, new Vec3d(0, 0.12, 0), 0.08);
 		world.playSound(null, getX(), getY(), getZ(), MobSounds.ASH_GHOUL_BURST, SoundCategory.HOSTILE, 1.0f, 0.6f);
 	}
 
@@ -222,10 +275,13 @@ public class AshGhoulEntity extends HostileEntity implements GeoEntity {
 		return 5;
 	}
 
+	/** Walk / idle, the flinch, the claw rake, the death last: later controllers win on the bones they animate. */
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
 		controllers.add(DefaultAnimations.genericWalkIdleController(this));
+		controllers.add(MobAnimations.hurtController(this, MobAnimations.HURT));
 		controllers.add(DefaultAnimations.genericAttackAnimation(this, DefaultAnimations.ATTACK_SWING));
+		controllers.add(MobAnimations.deathController(this));
 	}
 
 	@Override
