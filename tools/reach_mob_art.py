@@ -2027,91 +2027,186 @@ def hollow_sentinel():
 
 
 # --- Necropolis: Grave Warden ----------------------------------------------------------------------------------------
-# The bell-ringer of the dead: a hulking hooded figure in a heavy shroud, a bone mask with a warm glow behind it,
-# keys at the belt, a bronze bell in the left hand and an iron-banded cudgel. Raises the bell for 20 ticks before it
-# rings; swing windup 12 ticks.
-
-WARM = hexc("ffdc8c")
-
+# The bell-ringer of the dead: a hulking hooded figure in a heavy shroud under a bone mantle and a layered mantle
+# cape, a cracked bone mask with a warm glow behind it and a stitched mouth, a hood with a point, a rope belt with
+# the crypt keys on a cord that swing, big hands with fingers, a bronze bell on its yoke with a clapper and a bell
+# rope in the left hand, an iron-banded cudgel with rivets. Raises the bell for 20 ticks before it rings; swing
+# windup 12 ticks.
 
 def grave_warden():
-    robe = Material(SHROUD, base=2.4, noise=0.6, grain="v", edge=0.5)
+    robe = Material(mk.SHROUD, base=2.8, noise=0.5, grain="v", edge=0.4, bevel=0.4)
 
     def mask(face, rng):
-        face.rect(0, 0, face.w, face.h, BONE[3])
+        face.rect(0, 0, face.w, face.h, mk.BONE[4])
         for x in range(face.w):
-            face.set(x, 0, BONE[1])
-        for ex in (1, 5):
-            face.rect(ex, 3, 2, 2, VOID)
-            face.lit(ex + (1 if ex == 1 else 0), 3, WARM, 0.9)
-        face.hline(2, 6, 4, BONE[1])
-        for x in range(2, 6):
-            face.set(x, 7 if x % 2 else 6, BONE[0])  # stitched mouth
-        crack(face, rng, BONE[1], None, 3, 6, 1)
+            face.set(x, 0, mk.BONE[1])
+        cx = face.cx
+        for ex in (cx - 3, cx + 1):
+            face.rect(ex, 2, 2, 2, VOID)
+            face.lit(ex + (1 if ex < cx else 0), 2, mk.WARM, 0.95)
+            face.lit(ex + (0 if ex < cx else 1), 3, mk.WARM, 0.5)
+        face.hline(cx - 2, 5, 4, mk.BONE[1])
+        for x in range(cx - 2, cx + 2):
+            face.set(x, 6 if x % 2 else 5, mk.BONE[0])  # the stitched mouth
+        mk.sutures(face, rng, mk.BONE[1], 1)
+        crack(face, rng, mk.BONE[1], None, 3, cx + 2, 0)
 
     def robe_deco(face, rng):
-        if face.name == "front":
-            face.vline(face.cx, 0, face.h, SHROUD[0])
         if face.side():
-            band(face, 3, ROPE[1])
-            if face.name == "front":
-                face.set(face.cx - 3, 4, BRONZE[4])
-                face.vline(face.cx - 3, 5, 3, BRONZE[3])
-                face.set(face.cx - 2, 7, BRONZE[3])
-                face.set(face.cx + 2, 4, BRONZE[4])
-                face.vline(face.cx + 2, 5, 2, BRONZE[2])
+            mk.fold_lines(face, rng, 3, -14)
+            mk.edge_shadow(face, rng, -10)
+        if face.name == "front":
+            face.vline(face.cx, 0, face.h, mk.SHROUD[0])
 
     def sleeve(face, rng):
-        lower(face, 3, SKIN_OLD, rng, 1.2)
-        band(face, face.h - 4, SHROUD[5])
+        mk.fold_lines(face, rng, 3, -12)
+        band(face, face.h - 2, mk.SHROUD[5])
 
-    bones, top = humanoid(legs=12, body=(12, 16, 7), head=(8, 8, 8), arm=(5, 15, 5), leg=(5, 5), hunch=10,
-                          mats={"body": robe, "head": Material(BONE, base=3.0, noise=0.4),
-                                "arm": robe.but(base=2.2), "leg": robe.but(base=1.4)},
-                          decals={"body": {"all": robe_deco}, "head": {"front": mask}, "arm": {"all": sleeve}})
-    hood = Material(SHROUD, base=2.0, noise=0.6, grain="v", top=0.6)
-    head = bone(bones, "head")
-    head.add(Box([-4.5, top, -4.5], [9, 9, 9], hood, {"front": lambda f, r: open_front(f, 1, 1),
-                                                       "bottom": clear_all}),
-             Box([-1.5, top + 6, 2], [3, 3, 5], hood.but(base=1.6), rotation=[-35, 0, 0], pivot=[0, top + 8, 3]))
-    body = bone(bones, "body")
-    body.add(Box([-7, top - 4, -4], [14, 4, 8], robe.but(base=3.0),
-                 {"sides": lambda f, r: ragged_edge(f, r, "bottom", 2, 0.5)}, inflate=0.3))
+    bones, top = mk.dense_humanoid(legs=12, body=(12, 16, 7), head=(8, 8, 8), arm=(5, 15, 5), leg=(5, 5), hunch=10,
+                                   mats={"body": robe, "head": Material(mk.BONE, base=3.4, noise=0.4, bevel=0.4),
+                                         "arm": robe.but(base=2.5), "leg": robe.but(base=1.8),
+                                         "hand": Material(mk.SKIN_OLD, base=1.4, noise=0.5, bevel=0.4),
+                                         "foot": Material(mk.LEATHER, base=1.4, noise=0.4)},
+                                   decals={"body": {"all": robe_deco}, "head": {"front": mask},
+                                           "arm": {"all": sleeve}, "fore": {"all": sleeve}, "leg": {"all": robe_deco}})
+    hood = Material(mk.SHROUD, base=2.3, noise=0.5, grain="v", top=0.6, bevel=0.3)
+    head = mk.bone(bones, "head")
+    head.add(Box([-4.5, top, -4.5], [9, 9, 9], hood, {"front": lambda f, r: open_front(f, 1, 1), "bottom": clear_all,
+                                                      "sides": lambda f, r: mk.fold_lines(f, r, 3, -12)}),
+             Box([-1.5, top + 7, 2], [3, 2.5, 4], hood.but(base=1.8), rotation=[-40, 0, 0], pivot=[0, top + 8, 3]),
+             Box([-3, top - 1, -4.6], [6, 1.6, 2], Material(mk.BONE, base=2.8, noise=0.4), {"front": lambda f, r: stitch(f, 0, mk.BONE[1], 2)}))  # the mask's chin
+    body = mk.bone(bones, "body")
+    bone_mat = Material(mk.BONE, base=3.0, noise=0.5, bevel=0.5)
+    body.add(Box([-7, top - 4, -4], [14, 4, 8], robe.but(base=3.4), {"sides": lambda f, r: (ragged_edge(f, r, "bottom", 2, 0.5), mk.fold_lines(f, r, 3, -10, "h"))},
+                 inflate=0.3),  # the mantle
+             Box([-7.5, top - 1.5, -4.3], [15, 2, 8.6], bone_mat, {"all": lambda f, r: (stitch(f, 0, mk.BONE[1], 3), mk.sutures(f, r, mk.BONE[1], 1))},
+                 inflate=0.5),  # the bone collar
+             Box([-7.6, top - 3.5, -2], [2, 3, 4], bone_mat.but(base=2.6), inflate=0.3),  # bone pauldron plates
+             Box([5.6, top - 3.5, -2], [2, 3, 4], bone_mat.but(base=2.6), inflate=0.3),
+             Box([-6.2, 14, -3.6], [12.4, 1.8, 7.2], Material(mk.ROPE, base=2.4, noise=0.5, grain="h", bevel=0.4), inflate=0.6),  # the rope belt
+             Box([-3, 13, -4.6], [2.5, 3, 1], Material(mk.LEATHER, base=2.0, noise=0.4), inflate=0.1))  # a pouch
+    for i, y in enumerate((16, 20, 24)):  # bone plates down the back
+        body.add(Box([-4 + i * 0.5, y, 3.7], [8 - i, 3.5, 1.2], bone_mat.but(base=2.8 - i * 0.2), {"all": lambda f, r: mk.sutures(f, r, mk.BONE[1], 1)}, inflate=0.2))
+    key = Material(mk.GRAVE_IRON, base=3.6, noise=0.4, bevel=0.5)
+    bones += chain_bones("keys", "body", [4.5, 14, -3.6], 2, 2.2, Material(mk.ROPE, base=2.4, noise=0.4), thickness=0.5,
+                         box=lambda i, o, s: [Box(o, s, Material(mk.ROPE, base=2.4, noise=0.4))] if i == 0 else [
+                             Box([o[0], o[1] + 0.8, o[2]], [0.5, 1.4, 0.5], Material(mk.ROPE, base=2.4, noise=0.4)),
+                             Box([o[0] - 1, o[1] - 0.4, o[2] - 0.2], [2.4, 1.2, 0.8], key),
+                             Box([o[0] - 0.6, o[1] - 2.6, o[2] - 0.2], [0.7, 2.4, 0.8], key),
+                             Box([o[0] + 0.5, o[1] - 2.6, o[2] - 0.2], [0.7, 2.4, 0.8], key),
+                             Box([o[0] - 1.2, o[1] - 2.6, o[2] - 0.2], [1.2, 0.6, 0.8], key)])
     bones.append(Bone("robe", [0, 12, 0], "root", None, [
-        Box([-6.5, 2, -4], [13, 10, 8], robe.but(base=1.9), {"sides": lambda f, r: tatter(f, r, 2, 0.5)})]))
-    bronze = Material(BRONZE, base=3.0, noise=0.6, speck=0.08, grad=1.4, top=0.8)
+        Box([-6.5, 2, -4], [13, 10, 8], robe.but(base=2.1), {"sides": lambda f, r: (tatter(f, r, 2, 0.5), mk.fold_lines(f, r, 3, -14))})]))
+    hem = robe.but(base=1.9)
+    bones += chain_bones("hem_f", "robe", [0, 2.2, -4.1], 2, 1.2, hem, thickness=0.3,
+                         box=lambda i, o, s: [Box([-5, o[1], -4.3], [10, s[1], 0.4], hem, {"sides": lambda f, r: ragged_edge(f, r, "bottom", 1, 0.6)})])
+    bones += chain_bones("hem_b", "robe", [0, 2.2, 4.1], 2, 1.2, hem, thickness=0.3,
+                         box=lambda i, o, s: [Box([-5, o[1], 3.9], [10, s[1], 0.4], hem, {"sides": lambda f, r: ragged_edge(f, r, "bottom", 1, 0.6)})])
+    r_fingers = fingers(-10.6, 12, -2, 4, (1, 2.6, 1), Material(mk.SKIN_OLD, base=1.4, noise=0.5), spread=0.2, curl=30, thumb=(4.8, 1.2))
+    mk.bone(bones, "right_fore").add(*r_fingers)
+    mk.bone(bones, "left_fore").add(*[mirror_box(b) for b in r_fingers])
+    bronze = Material(mk.BRASS, base=3.4, noise=0.5, speck=0.08, grad=1.4, top=0.8, bevel=0.6)
 
     def bell_face(face, rng):
         if face.side():
-            band(face, 1, BRONZE[5])
+            band(face, 1, mk.BRASS[6])
+            band(face, face.h - 2, mk.BRASS[1])
             scatter(face, rng, 2, hexc("4d6b4a"))  # verdigris
+            mk.specular(face, rng, mk.BRASS[6], 1, 2)
 
-    bones.append(Bone("bell", [8.5, 13, 0], "left_arm", None, [
-        Box([8, 9, -0.5], [1, 4, 1], Material(WOOD, base=2.0, noise=0.4)),
-        Box([6.5, 8, -2], [4, 1, 4], bronze),
-        Box([5.5, 3, -3], [6, 5, 6], bronze, {"all": bell_face}),
-        Box([5, 2, -3.5], [7, 1, 7], bronze.but(base=3.6)),
-        Box([8, 1, -0.5], [1, 2, 1], Material(IRON, base=1.6, noise=0.3)),
+    # The bell: a yoke in the hand, the bell on it, the clapper and the bell rope hanging below and swinging.
+    bones.append(Bone("bell", [8.5, 13, 0], "left_fore", None, [
+        Box([7.5, 9.5, -1], [2, 3.5, 2], Material(mk.DEAD_WOOD, base=2.4, noise=0.4, grain="v")),  # the yoke
+        Box([6.5, 8.5, -2], [4, 1, 4], bronze.but(base=2.8)),
+    ] + mk.octagon([5, 4, -3.5], [7, 5, 7], bronze, {"all": bell_face}, shrink=0.8)
+      + [Box([4.5, 3.2, -4], [8, 1, 8], bronze.but(base=3.8), {"all": lambda f, r: mk.rivet_ring(f, mk.BRASS[1], mk.BRASS[6], 0, 2)})]))
+    bones += chain_bones("rope", "bell", [8.5, 3.2, 0], 2, 1.6, Material(mk.GRAVE_IRON, base=2.2, noise=0.4), thickness=0.8,
+                         box=lambda i, o, s: [Box([o[0] - 0.2, o[1], o[2] - 0.2], [1.2, s[1], 1.2], Material(mk.GRAVE_IRON, base=2.2, noise=0.4))] if i == 0 else [
+                             Box([o[0] - 0.4, o[1] - 0.4, o[2] - 0.4], [1.6, 2.6, 1.6], Material(mk.GRAVE_IRON, base=1.8, noise=0.4, bevel=0.5)),  # the clapper
+                             Box([o[0] + 0.1, o[1] - 2.4, o[2] + 0.1], [0.6, 2.2, 0.6], Material(mk.ROPE, base=2.6, noise=0.4))])  # the rope
+    iron = Material(mk.GRAVE_IRON, base=2.8, noise=0.5, speck=0.1, bevel=0.6)
+    bones.append(Bone("cudgel", [-8.5, 13, 0], "right_fore", None, [
+        Box([-9.5, 12, -14], [2, 2, 14], Material(mk.DEAD_WOOD, base=2.2, noise=0.5, grain="h"),
+            {"sides": lambda f, r: (mk.grain(f, r, mk.DEAD_WOOD[1], None, 2, (2, 6)), [f.vline(x, 0, f.h, mk.GRAVE_IRON[3]) for x in range(2, f.w, 5)])}),
+        Box([-10.6, 11, -18], [4.2, 4, 4.5], iron, {"all": lambda f, r: mk.rivet_ring(f, mk.GRAVE_IRON[6], None, 1, 2)}),
+        Box([-9.8, 15, -17.2], [2.6, 0.8, 3], iron.but(base=3.6)),
+        Box([-10, 10, -16.8], [3, 1, 2], iron.but(base=2.2)),
+        Box([-9.8, 11.8, 0], [2.6, 2.6, 1.2], iron.but(base=2.6), inflate=0.2),  # the pommel band
     ]))
-    iron = Material(IRON, base=2.2, noise=0.6, speck=0.1)
-    bones.append(Bone("cudgel", [-8.5, 13, 0], "right_arm", None, [
-        Box([-9.5, 12, -14], [2, 2, 14], Material(WOOD, base=2.0, noise=0.6, grain="h"),
-            {"sides": lambda f, r: [f.vline(x, 0, f.h, IRON[2]) for x in range(2, f.w, 5)]}),
-        Box([-10.5, 11, -17], [4, 4, 4], iron, {"all": lambda f, r: rivets(f, IRON[5], 2)}),
-    ]))
-    ring = keys(0, ZERO, 1.0, ZERO, 1.1, [0, 0, 25], 1.2, [0, 0, -25], 1.3, [0, 0, 20], 1.4, ZERO)
+    keys_names = chain_names("keys", 2)
+    hems = chain_names("hem_f", 2) + chain_names("hem_b", 2)
+    rope_names = chain_names("rope", 2)
+    chains = keys_names + hems + rope_names
+    ring = keys(0, ZERO, 1.0, ZERO, 1.08, e("easeOutCubic", [0, 0, 28]), 1.18, e("easeInOutSine", [0, 0, -26]), 1.28, e("easeInOutSine", [0, 0, 22]),
+                1.38, e("easeInOutSine", [0, 0, -16]), 1.48, e("easeInOutSine", [0, 0, 8]), 1.6, e("easeOutSine", ZERO))
     animations = {
-        "misc.idle": idle(3.5, 3, 2, bell=rot(0, [0, 0, -3], 1.75, [0, 0, 3], 3.5, [0, 0, -3])),
-        "move.walk": walk(1.2, 20, 12, 0.5, robe=rot(0, [0, 0, 2], 0.6, [0, 0, -2], 1.2, [0, 0, 2]),
-                          bell=rot(0, [0, 0, 6], 0.6, [0, 0, -6], 1.2, [0, 0, 6])),
-        "attack.swing": overhead(0.6, 1.1),
-        "attack.bell": anim(1.6, {
-            "left_arm": rot(0, ZERO, 1.0, [-170, 0, -10], 1.4, [-170, 0, -10], 1.6, ZERO),
+        "misc.idle": mk.breathe(3.5, 2, 1.5, 3, merge(
+            lag_sway(keys_names, 3.5, 6, 0, phase=0.2), lag_sway(rope_names, 3.5, 7, 2, phase=0.0),
+            lag_sway(chain_names("hem_f", 2), 3.5, 3, 0, phase=0.5), lag_sway(chain_names("hem_b", 2), 3.5, -3, 0, phase=0.5),
+            {"bell": rot(0, [0, 0, -3], 1.75, e("easeInOutSine", [2, 0, 3]), 3.5, e("easeInOutSine", [0, 0, -3])),
+             "right_fore": rot(0, [-14, 0, 0], 1.75, e("easeInOutSine", [-18, 0, 0]), 3.5, e("easeInOutSine", [-14, 0, 0])),
+             "left_fore": rot(0, [-14, 0, 0], 1.75, e("easeInOutSine", [-10, 0, 0]), 3.5, e("easeInOutSine", [-14, 0, 0]))})),
+        "move.walk": mk.weighted_walk(1.2, 20, 12, 0.6, 5, 6, extra=mk.limb_walk(1.2, 8, 12, merge(
+            lag_sway(keys_names, 1.2, 14, 0, phase=0.1), lag_sway(rope_names, 1.2, 16, 0, phase=0.3), lag_sway(hems, 1.2, 8, 0, phase=0.0),
+            {"robe": rot(0, [0, 0, 2], 0.6, e("easeInOutSine", [0, 0, -2]), 1.2, e("easeInOutSine", [0, 0, 2])),
+             "bell": rot(0, [8, 0, 4], 0.6, e("easeInOutSine", [-8, 0, -4]), 1.2, e("easeInOutSine", [8, 0, 4]))}))),
+        # The cudgel hauled up over the shoulder through the 12-tick windup, the body winding; then it comes down.
+        "attack.swing": anim(1.1, merge({
+            "right_arm": rot(0, ZERO, 0.5, e("easeInOutSine", [-150, 0, 25]), 0.6, [-160, 0, 20], 0.68, e("easeOutBack", [-25, 0, -10]), 1.1, e("easeOutSine", ZERO)),
+            "right_fore": rot(0, [-14, 0, 0], 0.5, e("easeInOutSine", [-55, 0, 0]), 0.6, [-60, 0, 0], 0.68, e("easeOutCubic", [-5, 0, 0]), 1.1, e("easeOutSine", [-14, 0, 0])),
+            "cudgel": rot(0, ZERO, 0.5, e("easeInOutSine", [15, 0, 0]), 0.68, e("easeOutBack", [-12, 0, 0]), 1.1, e("easeOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 0.5, e("easeInOutSine", [-20, 0, -20]), 0.68, e("easeOutCubic", [15, 0, 10]), 1.1, e("easeOutSine", ZERO)),
+            "body": rot(0, ZERO, 0.5, e("easeInOutSine", [-14, 22, 0]), 0.6, [-16, 25, 0], 0.68, e("easeOutBack", [22, -22, 0]), 1.1, e("easeOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.5, e("easeInOutSine", [-12, -12, 0]), 0.68, e("easeOutCubic", [12, 8, 0]), 1.1, e("easeOutSine", ZERO)),
+            "root": pos(0, ZERO, 0.5, e("easeInOutSine", [0, 0, 1]), 0.68, e("easeOutCubic", [0, -1.5, -2]), 1.1, e("easeOutSine", ZERO)),
+            "right_leg": rot(0, ZERO, 0.5, e("easeInOutSine", [8, 0, 0]), 0.68, e("easeOutCubic", [-18, 0, 0]), 1.1, e("easeOutSine", ZERO)),
+            "left_leg": rot(0, ZERO, 0.5, e("easeInOutSine", [-8, 0, 0]), 0.68, e("easeOutCubic", [20, 0, 0]), 1.1, e("easeOutSine", ZERO)),
+        }, hold(chains, 0.55, ZERO), whip(keys_names, 0.65, 40, 0, settle=0.42), whip(hems, 0.65, 25, 0, settle=0.42), whip(rope_names, 0.65, 35, 0, settle=0.42)),
+            loop=False),
+        # The bell goes up slowly through the 20-tick windup (the tell), the head tipping back; at 1.0 s it rings,
+        # rocking on the yoke with the clapper and the rope flying, the whole body shuddering with each toll.
+        "attack.bell": anim(1.6, merge({
+            "left_arm": rot(0, ZERO, 0.8, e("easeInOutSine", [-165, 0, -12]), 1.0, [-172, 0, -10], 1.4, [-172, 0, -10], 1.6, e("easeOutSine", ZERO)),
+            "left_fore": rot(0, [-14, 0, 0], 0.8, e("easeInOutSine", [-25, 0, 0]), 1.4, [-25, 0, 0], 1.6, e("easeOutSine", [-14, 0, 0])),
             "bell": {"rotation": ring},
-            "head": rot(0, ZERO, 1.0, [-20, 0, 0], 1.6, ZERO),
-        }, loop=False),
+            "rope_1": rot(0, ZERO, 1.0, ZERO, 1.08, e("easeOutCubic", [0, 0, -45]), 1.18, e("easeInOutSine", [0, 0, 40]), 1.28, e("easeInOutSine", [0, 0, -35]),
+                          1.38, e("easeInOutSine", [0, 0, 25]), 1.48, e("easeInOutSine", [0, 0, -12]), 1.6, e("easeOutSine", ZERO)),
+            "rope_2": rot(0, ZERO, 1.0, ZERO, 1.12, e("easeOutCubic", [0, 0, -40]), 1.22, e("easeInOutSine", [0, 0, 40]), 1.32, e("easeInOutSine", [0, 0, -35]),
+                          1.42, e("easeInOutSine", [0, 0, 25]), 1.52, e("easeInOutSine", [0, 0, -10]), 1.6, e("easeOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.8, e("easeInOutSine", [-22, 0, 0]), 1.0, [-25, 0, 0], 1.08, e("easeOutCubic", [-15, 0, 4]), 1.28, e("easeInOutSine", [-20, 0, -4]),
+                        1.6, e("easeOutSine", ZERO)),
+            "body": rot(0, ZERO, 0.8, e("easeInOutSine", [-8, 0, 0]), 1.0, [-10, 0, 0], 1.08, e("easeOutCubic", [-4, 0, 3]), 1.28, e("easeInOutSine", [-8, 0, -3]),
+                        1.48, e("easeInOutSine", [-5, 0, 2]), 1.6, e("easeOutSine", ZERO)),
+            "right_arm": rot(0, ZERO, 0.8, e("easeInOutSine", [20, 0, 15]), 1.4, [20, 0, 15], 1.6, e("easeOutSine", ZERO)),
+        }, hold(keys_names + hems, 0.95, ZERO), whip(keys_names, 1.05, 30, 0, settle=0.5), whip(hems, 1.05, 15, 0, settle=0.5)), loop=False),
+        "misc.hurt": mk.hurt_flinch(0.45, chains=keys_names + hems + rope_names, extra={
+            "bell": rot(0, ZERO, 0.1, e("easeOutCubic", [12, 0, 10]), 0.45, e("easeOutSine", ZERO))}),
+        "misc.stagger": mk.stagger(1.0, lean=-22, chains=keys_names + hems + rope_names, extra={
+            "bell": rot(0, ZERO, 0.12, e("easeOutCubic", [30, 0, 25]), 0.5, e("easeInOutSine", [-10, 0, -10]), 1.0, e("easeOutSine", ZERO)),
+            "robe": rot(0, ZERO, 0.12, e("easeOutCubic", [-10, 0, 0]), 1.0, e("easeOutSine", ZERO))}),
+        # To its knees first, the bell hand dropping and the bell tolling once on the ground, then forward onto the
+        # mask; the keys and the rope settle.
+        "misc.death": anim(2.2, merge({
+            "root": pos(0, ZERO, 0.5, e("easeInSine", [0, -6, 0]), 1.0, [0, -6, 0], 1.4, e("easeInQuad", [0, -10.5, 2]), 1.55, e("easeOutSine", [0, -11, 2]), 2.2, [0, -11, 2]),
+            "body": rot(0, ZERO, 0.5, e("easeOutSine", [12, 0, 0]), 1.0, [15, 0, 0], 1.4, e("easeInQuad", [85, 0, 5]), 1.55, e("easeOutSine", [78, 0, 5]),
+                        1.75, e("easeOutSine", [85, 0, 5]), 2.2, [85, 0, 5]),
+            "head": rot(0, ZERO, 0.5, e("easeOutSine", [-12, 0, 0]), 1.0, [-15, 0, 0], 1.4, e("easeInQuad", [-30, 0, 0]), 1.6, e("easeOutBounce", [-10, 20, 8]), 2.2, [-10, 20, 8]),
+            "right_leg": rot(0, ZERO, 0.5, e("easeOutSine", [-80, 0, 0]), 1.0, [-85, 0, 0], 1.4, e("easeInQuad", [-70, 0, -8]), 2.2, [-70, 0, -8]),
+            "left_leg": rot(0, ZERO, 0.5, e("easeOutSine", [-80, 0, 0]), 1.0, [-85, 0, 0], 1.4, e("easeInQuad", [-75, 0, 10]), 2.2, [-75, 0, 10]),
+            "right_shin": rot(0, ZERO, 0.5, e("easeOutSine", [95, 0, 0]), 1.0, [95, 0, 0], 1.4, e("easeInQuad", [40, 0, 0]), 2.2, [40, 0, 0]),
+            "left_shin": rot(0, ZERO, 0.5, e("easeOutSine", [95, 0, 0]), 1.0, [95, 0, 0], 1.4, e("easeInQuad", [50, 0, 0]), 2.2, [50, 0, 0]),
+            "robe": rot(0, ZERO, 0.5, e("easeOutSine", [-60, 0, 0]), 1.0, [-65, 0, 0], 1.4, e("easeInQuad", [-20, 0, 0]), 2.2, [-20, 0, 0]),
+            "left_arm": rot(0, ZERO, 0.5, e("easeOutSine", [-20, 0, -25]), 1.0, [-25, 0, -30], 1.4, e("easeInQuad", [-100, 0, -40]), 1.6, e("easeOutSine", [-90, 0, -45]), 2.2, [-90, 0, -45]),
+            "left_fore": rot(0, [-14, 0, 0], 0.5, e("easeOutSine", [-5, 0, 0]), 2.2, [-5, 0, 0]),
+            "bell": rot(0, ZERO, 0.5, e("easeOutSine", [0, 0, 20]), 0.7, e("easeOutCubic", [0, 0, -25]), 0.85, e("easeInOutSine", [0, 0, 15]), 1.0, e("easeOutSine", ZERO),
+                        1.4, e("easeInQuad", [0, 0, 70]), 1.6, e("easeOutBounce", [0, 0, 85]), 2.2, [0, 0, 85]),
+            "right_arm": rot(0, ZERO, 0.5, e("easeOutSine", [-15, 0, 20]), 1.4, e("easeInQuad", [-110, 0, 35]), 1.6, e("easeOutSine", [-95, 0, 45]), 2.2, [-95, 0, 45]),
+            "right_fore": rot(0, [-14, 0, 0], 1.4, e("easeInQuad", [-30, 0, 0]), 2.2, [-30, 0, 0]),
+            "cudgel": rot(0, ZERO, 1.4, e("easeInQuad", [0, 0, 50]), 1.6, e("easeOutBounce", [10, 0, 65]), 2.2, [10, 0, 65]),
+        }, mk.settle(keys_names, 1.4, 40, 0, length=0.75), mk.settle(rope_names, 1.4, 50, 2, length=0.75), mk.settle(hems, 1.4, 25, 0, length=0.75)),
+            loop=False),
     }
-    write_model("grave_warden", bones, animations, [3, 3])
+    write_model("grave_warden", bones, animations, [3, 3], tex_w=128)
 
 
 # --- Citadel: Cinder Hound ------------------------------------------------------------------------------------------

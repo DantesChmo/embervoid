@@ -1,5 +1,6 @@
 package com.embervoid.reach.mob;
 
+import com.embervoid.fx.particle.EmberParticles;
 import net.minecraft.entity.EntityGroup;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -41,7 +42,10 @@ public class GraveWardenEntity extends ReachMob {
 	public static final int RAISED_PER_RING = 2;
 	public static final int MAX_RAISED = 4;
 	public static final int STAGGER_TICKS = 40;
-	static final Move MELEE = new Move("attack.swing", 12, 40, ReachMobSounds.GRAVE_WARDEN_WINDUP, 1.0f);
+	public static final int SWING_WINDUP = 12;
+	/** Ticks the body stays for {@code misc.death}: to its knees, the bell tolling once, then forward onto the mask, 2.2 s. */
+	public static final int DEATH_TICKS = 44;
+	static final Move MELEE = new Move("attack.swing", SWING_WINDUP, 40, ReachMobSounds.GRAVE_WARDEN_WINDUP, 1.0f);
 	static final Move BELL = new Move("attack.bell", BELL_WINDUP, 0, ReachMobSounds.GRAVE_WARDEN_RAISE_BELL, 1.0f);
 
 	private int bellTimer = -1;
@@ -115,6 +119,9 @@ public class GraveWardenEntity extends ReachMob {
 		world.playSound(null, getX(), getY(), getZ(), ReachMobSounds.GRAVE_WARDEN_BELL, getSoundCategory(), 3.0f, 1.0f);
 		com.embervoid.block.setpiece.SetPieces.tollBellsNear(world, getBlockPos(), BELL_RANGE); // the chapel's great bell answers (PLAN 20.2)
 		world.spawnParticles(ParticleTypes.SONIC_BOOM, getX(), getBodyY(0.8), getZ(), 1, 0, 0, 0, 0);
+		// The toll rolls out over the ground as a cold ring, and dust rises off the graves it wakes.
+		EmberParticles.shockwave(world, getPos(), (float) STAGGER_RANGE, 0x9FD4FF);
+		EmberParticles.ringOut(world, EmberParticles.ASH_FLAKE, getPos(), 16, 0.2, 0.15);
 		List<RestlessBonesEntity> bones = world.getEntitiesByClass(RestlessBonesEntity.class, getBoundingBox().expand(BELL_RANGE),
 				b -> b.isAlive() && b.squaredDistanceTo(this) <= BELL_RANGE * BELL_RANGE);
 		bones.forEach(RestlessBonesEntity::reform);
@@ -158,6 +165,23 @@ public class GraveWardenEntity extends ReachMob {
 			}
 		}
 		return getBlockPos();
+	}
+
+	@Override
+	public int deathTicks() {
+		return DEATH_TICKS;
+	}
+
+	/** The bell tolls once more as it goes down on its knees, and the mask hits the stone. */
+	@Override
+	protected void tickDeath(ServerWorld world, int deathTime) {
+		if (deathTime == 14) {
+			world.playSound(null, getX(), getY(), getZ(), ReachMobSounds.GRAVE_WARDEN_BELL, getSoundCategory(), 1.5f, 0.8f);
+			EmberParticles.shockwave(world, getPos(), 2.0f, 0x9FD4FF);
+		} else if (deathTime == 30) {
+			EmberParticles.spawn(world, EmberParticles.SOOT, getPos().add(0, 0.3, 0), 8, 0.8, 0.03);
+			EmberParticles.ringOut(world, EmberParticles.ASH_FLAKE, getPos(), 10, 0.1, 0.1);
+		}
 	}
 
 	@Override
