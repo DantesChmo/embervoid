@@ -992,7 +992,7 @@ and in mechanics. The hard lock (DESIGN §4.1 "Final zone lock") moves to the se
 | 21.1 | **Realm framework: final zone without its own dimension** | L | 21.0 | done – depths kept until 21.3 (JUnit `RealmLayoutTest`, `RoadLayoutTest`, `EdgeLayoutTest` on the data files; GameTests `RealmSectorTests`; server check: posts 20 / 28 / 39 and 28 / 37 / 33 on two seeds, all lit, gate road paved; `--perf` against `docs/perf-0.4.0.md`: arenas 0.9–1.0 s and minor structures 0.6–0.8 s per area as before, the landing 2.5 s (was 1.1) on a machine at load 5–6 where the untouched depths landing also went 0.9 → 1.6 s; a top-down zone map with an approximated warp noise looked right; not seen in game: the final sector's sky, fog and terrain, its straight borders at eye level, the gate road) |
 | 21.2 | **Fog wall: look and lock** | M | 21.1 | done – the look not seen in game (JUnit `FinalZoneRegionTest`, `EdgeLayoutTest`; GameTests `FinalZoneLockTests`: walking, pearl, chorus, elytra, riptide, boat and horse, bridge, tunnel, cleared, creative, two players at one spot, the border wall; 258 GameTests green; server check PASS: gate at 0 76 21, border wall 50 of 50 stretches, 80×80 blocks of border generated in 1.1–1.3 s; not seen in game: the border wall, the gate's fog wall and the client fog curtain) |
 | 21.3 | **Citadel generation in the realm dimension** | L | 21.1 | done – the city not seen in game (GameTests `CitadelWorldTests` on the realm, `RealmSectorTests` final-sector respawn; 282 green; server check PASS: Citadel at 0 ~ 640 with its treasury and 7 / 5 / 4 placed mobs, courtyard at 0 ~ 672, the first Citadel shrine at −4 73 48; `--perf` and preview renders not run) |
-| 21.4 | **Worlds from 0.4.x** (realm dimensions regenerated) | M | 21.1, 21.3 | todo |
+| 21.4 | **Worlds from 0.4.x** (realm dimensions regenerated) | M | 21.1, 21.3 | done (GameTests `RealmLayoutUpgradeTests` on a made-up old save, the remnants' return and a join; 285 green; server check PASS on a fresh world, which gets layout 2; not run on a real 0.4.x save) |
 | 21.5 | **Release 0.5.0** | M | 14.1–21.4 | todo |
 
 - **21.0 Design.** *Done 2026-10-23:* DESIGN §4.1 (layout, lock), §4.5 (Citadel), §10.15. The user picked the
@@ -1052,6 +1052,16 @@ and in mechanics. The hard lock (DESIGN §4.1 "Final zone lock") moves to the se
   landing), remnants left in realms (moved to the player's hub landing) and anyone logged out inside (moved to the
   hub) are handled; the depths dimension is removed. A layout version stored in the world. GameTests on old data;
   a server-check step with an old-layout world.
+  *Built:* `realm.RealmLayoutUpgrade`. A world's realm layout is a number in `embervoid_realm_layout.txt` in the save
+  (2 = 0.5.0). On `SERVER_STARTING`, before the worlds load, a world without it whose `dimensions/embervoid/ashen_reach`
+  or `…_depths` folder exists has both cleared; first the Ash Remnants in their entity region files are read out and the
+  players whose `playerdata` says they logged out there are noted (`embervoid_realm_upgrade.dat`). On `SERVER_STARTED`
+  the remnants are laid on the hub's landing (same entities and UUIDs, still their owners' current ones), the players
+  are remembered in an overworld state and sent to the hub's landing when they join. `RealmPlayerData` gets a `layout`
+  number: shrines saved before it are forgotten once on join. Progress is untouched (player data and the overworld).
+  The old `level.dat` entry of the depths is dropped on load by Fabric's fail-soft dimension codec, and the datapack's
+  realm entry wins over the old one, so the realm generates with the new layout. The server-check step with an old save
+  was not added (no 0.4.x save in the repository).
 - **21.5 Release 0.5.0.** Version, CHANGELOG, README (the boss-music slider, playerAnimator as a required mod), CORE,
   DESIGN; all checks green; the photo tour (19.5) offered to the user. Tag and push wait for the user; CI builds the
   jar.

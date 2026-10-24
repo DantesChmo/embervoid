@@ -124,7 +124,9 @@ Concept decided (the user, 2026-10-23); moves and numbers are the first draft fo
 Nothing generated is destroyed. Sanctum cores already in the world keep their Maiden (she still levels players)
 and obelisks (they still lead to realms); leaving a realm lands in the hub, and the hub exit, with no lit stele,
 leads back to the spot the player last left the overworld from, which is that old core. Attunement flags and old
-return points are ignored.
+return points are ignored. The realm itself is generated again on the first start with 0.5.0 (the four sectors, the
+Citadel in the final one): its old terrain and the depths go, progress stays, Ash Remnants left there are laid on the
+hub's landing, a player who logged out inside joins at the hub, and realm shrines rested at before are forgotten.
 
 ### Ashen Maiden (leveling NPC)
 - Talk → **level-up screen**: all stats, their current derived values (HP, stamina, damage bonus…), a preview

@@ -20,7 +20,8 @@ import java.util.Map;
 public final class RealmPlayerData {
 	// Unknown keys are skipped, so the old return_point / return_yaw are dropped on load.
 	public static final Codec<RealmPlayerData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-			Codec.unboundedMap(Identifier.CODEC, GlobalPos.CODEC).optionalFieldOf("shrines", Map.of()).forGetter(data -> data.shrines)
+			Codec.unboundedMap(Identifier.CODEC, GlobalPos.CODEC).optionalFieldOf("shrines", Map.of()).forGetter(data -> data.shrines),
+			Codec.INT.optionalFieldOf("layout", 0).forGetter(data -> data.layout)
 	).apply(instance, RealmPlayerData::new));
 
 	// Persistent and copied on death: a realm death must still know the shrine.
@@ -33,13 +34,16 @@ public final class RealmPlayerData {
 
 	/** Realm dimension id → last shrine block rested at in that dimension (open zones and final zone apart). */
 	public final Map<Identifier, GlobalPos> shrines;
+	/** Realm layout the shrines belong to ({@link RealmLayoutUpgrade#CURRENT}); older ones are forgotten on join. */
+	public int layout;
 
 	public RealmPlayerData() {
-		this(Map.of());
+		this(Map.of(), RealmLayoutUpgrade.CURRENT);
 	}
 
-	private RealmPlayerData(Map<Identifier, GlobalPos> shrines) {
+	private RealmPlayerData(Map<Identifier, GlobalPos> shrines, int layout) {
 		this.shrines = new HashMap<>(shrines);
+		this.layout = layout;
 	}
 
 	/** Loads the class so the attachment type is registered before any player data is read. */
@@ -53,6 +57,6 @@ public final class RealmPlayerData {
 
 	@Override
 	public String toString() {
-		return "RealmPlayerData{shrines=" + shrines + "}";
+		return "RealmPlayerData{shrines=" + shrines + ", layout=" + layout + "}";
 	}
 }
