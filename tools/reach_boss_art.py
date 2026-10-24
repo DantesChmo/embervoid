@@ -7,6 +7,7 @@ Replaces the greybox of the removed tools/boss_placeholders.py at the same size,
 animation names and timings: each attack animation contains its windup and lands at the tick the server lands the
 move. Check with python3 tools/model_preview.py check <name> && python3 tools/model_preview.py entity <name>.
 """
+import math
 import os
 import sys
 
@@ -782,63 +783,66 @@ def ash_colossus():
     write_model("ash_colossus", bones, animations, [5, 5.5], tex_w=256)
 
 
-# --- Grieving Tree: the king's oak, ~10 blocks -----------------------------------------------------------------------
-# Grey dead bark with moss, a weeping face whose sap tears glow amber, the king's iron crown band nailed round the
-# trunk, a withered canopy, frayed lantern ropes, and limbs reaching out over the lantern ring (the lanterns hang
-# 5.5 blocks out at 7-8.5 blocks while rooted, 3.5 out at 5.5-7 once it walks). The roots bone shows while rooted.
+# --- Grieving Tree: the king's oak, ~10 blocks (PLAN 19.4) -------------------------------------------------------
+# Grey dead bark with moss and plates of loose bark, a weeping face as geometry (a brow ridge, sunken sockets with
+# amber tears, a moaning mouth whose lower lip is a jaw bone), the king's iron crown band with its points nailed
+# round the trunk, a withered canopy with eight curtains of hanging leaves that swing, four limbs of three segments
+# each with a frayed lantern rope hanging from the second, roots of two segments (the roots bone shows while
+# rooted) and two root legs with splayed toes for walking. Lanterns hang 5.5 blocks out at 7–8.5 blocks while
+# rooted, 3.5 out at 5.5–7 once it walks (TreeLanternEntity, not part of the model).
 
-DEAD_OAK = ramp("1b1713", "27211b", "352d25", "443a30", "54493d", "665a4c")
+DEAD_OAK = ramp("1b1713", "27211b", "352d25", "443a30", "54493d", "665a4c", "7a6d5c")
 WITHERED = ramp("1c1c15", "27271c", "333223", "403d2a", "4f4a32", "5f583b")
 
 
 def grieving_tree():
     trunk_h = 104
-    bark = Material(DEAD_OAK, base=2.6, noise=0.7, grain="v", grad=0.5, top=0.4, speck=0.03)
+    bark = Material(DEAD_OAK, base=2.8, noise=0.6, grain="v", grad=0.5, top=0.4, speck=0.03, bevel=0.5)
+    iron = Material(IRON, base=2.4, noise=0.5, speck=0.08, bevel=0.6)
+    amber = Material(ramp("c97a2a", "e8a040", "ffb347", "ffd27a", "fff0c0"), base=2.2, noise=0.5, glow=1.0)
+    void = Material(ramp("0c0a0a", "15110f", "1c1714"), base=1.0, noise=0.4)
 
     def bark_deco(face, rng):
         if face.side():
-            for _ in range(max(1, face.w // 3)):
-                x, y = rng.randrange(face.w), rng.randrange(face.h)
-                face.vline(x, y, rng.randint(4, 12), DEAD_OAK[0])
-            for _ in range(face.w * face.h // 70):
+            grain(face, rng, DEAD_OAK[0], DEAD_OAK[5], 2, (4, 12))
+            for _ in range(face.w * face.h // 90):
                 x, y = rng.randrange(face.w), rng.randrange(face.h)
                 face.rect(x, y, rng.randint(1, 4), rng.randint(1, 2), MOSS[rng.randint(0, 3)])
+            if face.w >= 6 and face.h >= 6 and rng.random() < 0.5:   # a knot
+                x, y = rng.randrange(1, face.w - 3), rng.randrange(1, face.h - 3)
+                face.rect(x, y, 3, 3, DEAD_OAK[1])
+                face.set(x + 1, y + 1, DEAD_OAK[0])
+                face.set(x, y, DEAD_OAK[5])
 
-    def trunk_deco(face, rng):
+    def plate_bark(face, rng):
         bark_deco(face, rng)
         if face.side():
-            # The crown band: tarnished iron with points, 34-37 px below the top of the trunk.
-            y = face.h - 54
-            face.rect(0, y, face.w, 3, IRON[2])
-            face.hline(0, y, face.w, IRON[4])
-            for x in range(1, face.w, 4):
-                face.vline(x, y - 2, 2, IRON[3])
-                face.set(x, y - 3, GOLD[2])
-        if face.name == "front":
-            weeping_face(face, rng)
+            ragged_edge(face, rng, "bottom", 2, 0.5)
+            ragged_edge(face, rng, "top", 1, 0.4)
 
-    def weeping_face(face, rng):
-        # Rows from the top: the face sits around model y 80-92 (trunk spans 20-124).
-        y0 = 124 - 92
-        cx = face.cx
-        for ex in (cx - 7, cx + 3):
-            face.rect(ex, y0, 4, 3, DEAD_OAK[0])
-            face.rect(ex + 1, y0 + 1, 2, 2, VOID)
-            face.lit(ex + 1, y0 + 2, AMBER, 0.9)
-            for k in range(3, rng.randint(9, 14)):  # sap tears
-                face.lit(ex + 2, y0 + k, AMBER if k < 7 else hexc("c97a2a"), 1.0 - k * 0.05)
-        face.hline(cx - 8, y0 - 2, 6, DEAD_OAK[5])  # sorrowing brows, tilted
-        face.hline(cx + 2, y0 - 2, 6, DEAD_OAK[5])
-        face.set(cx - 8, y0 - 1, DEAD_OAK[5])
-        face.set(cx + 7, y0 - 1, DEAD_OAK[5])
-        face.rect(cx - 3, y0 + 7, 6, 5, DEAD_OAK[0])  # the mouth, open in a moan
-        face.rect(cx - 2, y0 + 8, 4, 4, VOID)
+    def band_deco(face, rng):
+        if face.side():
+            trim(face, IRON[5], ("top",))
+            for x in range(1, face.w, 4):
+                face.set(x, face.h // 2, IRON[0])      # nail heads
+                face.set(x, face.h - 1, RUST[2])
+            scatter(face, rng, max(1, face.w // 6), RUST[3])
+
+    def point_deco(face, rng):
+        if face.side():
+            trim(face, GOLD[3], ("top", "left"))
+            face.set(face.w - 1, face.h - 1, IRON[0])
+
+    def tear(face, rng):
+        if face.side():
+            for y in range(face.h):
+                face.lit(face.cx, y, AMBER if y < face.h // 2 else hexc("c97a2a"), 1.0 - 0.4 * y / face.h)
 
     leaves = Material(WITHERED, base=2.4, noise=0.9, cell=2.0, speck=0.08, top=0.8, grad=0.6)
 
     def curtain(face, rng):
         """The weeping fringe: strands of dead leaves and moss hanging from the canopy, ragged and gappy."""
-        if face.name in ("left", "right"):
+        if face.name in ("front", "back"):
             for x in range(face.w):
                 if x % 3 == 2 or rng.random() < 0.15:
                     for y in range(face.h):
@@ -859,84 +863,227 @@ def grieving_tree():
             for _ in range(face.w // 6):  # hanging moss strands
                 x = rng.randrange(face.w)
                 face.vline(x, face.h - 3, 3, MOSS[1])
+            for _ in range(face.w // 8):  # a few lit leaf tips (amber dusk on the canopy)
+                face.set(rng.randrange(face.w), rng.randrange(face.h // 2), WITHERED[5])
 
-    bones = [
-        Bone("root", [0, 0, 0]),
-        Bone("roots", [0, 0, 0], "root", None, [
-            Box([-30, 0, -4], [22, 6, 8], bark, {"all": bark_deco}, rotation=[0, 0, -8], pivot=[-10, 3, 0]),
-            Box([8, 0, -4], [22, 6, 8], bark, {"all": bark_deco}, rotation=[0, 0, 8], pivot=[10, 3, 0]),
-            Box([-4, 0, -30], [8, 6, 22], bark, {"all": bark_deco}, rotation=[8, 0, 0], pivot=[0, 3, -10]),
-            Box([-4, 0, 8], [8, 6, 22], bark, {"all": bark_deco}, rotation=[-8, 0, 0], pivot=[0, 3, 10]),
-        ] + [Box([-3, 0, 8], [6, 5, 18], bark.but(base=2.2), {"all": bark_deco}, rotation=[-6, a, 0],
-                 pivot=[0, 2, 0]) for a in (45, 135, -45, -135)]),
-        Bone("right_root_leg", [-8, 20, 0], "root", None, [
-            Box([-14, 0, -6], [12, 20, 12], bark, {"all": bark_deco}),
-            Box([-16, 0, -8], [16, 4, 16], bark.but(base=2.0), {"all": bark_deco})]),
-        Bone("left_root_leg", [8, 20, 0], "root", None, []),
-        Bone("trunk", [0, 20, 0], "root", None, [
-            Box([-12, 20, -12], [24, trunk_h, 24], bark, {"all": trunk_deco}),
-            Box([-14, 20, -14], [28, 10, 28], bark.but(base=2.0), {"all": bark_deco}),
-            Box([-10, 112, -10], [20, 16, 20], bark.but(base=2.8), {"all": bark_deco}),
-        ] + [Box([10, 114, -3], [58, 6, 6], bark.but(base=2.8), {"all": bark_deco}, rotation=[0, a, -12],
-                 pivot=[0, 117, 0]) for a in (45, 135, -45, -135)]),
-        Bone("crown", [0, 124, 0], "trunk", None, [
-            Box([-34, 128, -34], [68, 18, 68], leaves, {"all": canopy}),
-            Box([-24, 144, -24], [48, 8, 48], leaves.but(base=3.0), {"all": canopy}),
-        ] + [Box([24, 123 + (k % 2) * 6, -18], [52 - (k % 2) * 10, 14, 36], leaves.but(base=2.3 + (k % 2) * 0.4),
-                 {"all": canopy}, rotation=[0, k * 45, 0], pivot=[0, 130, 0]) for k in range(8)]
-          + [Box([74 - (k % 2) * 10, 100 + (k % 2) * 6, -17], [0, 24, 34], leaves.but(base=1.8), {"all": curtain},
-                 rotation=[0, k * 45, 0], pivot=[0, 130, 0]) for k in range(8)]),
-    ]
-    bone(bones, "left_root_leg").boxes = [mirror_box(b) for b in bone(bones, "right_root_leg").boxes]
     rope = Material(ROPE, base=1.8, noise=0.6, grain="v")
-    branches = [("branch_front", [0, 0, -1]), ("branch_back", [0, 0, 1]), ("branch_left", [1, 0, 0]),
-                ("branch_right", [-1, 0, 0])]
-    for name, (dx, _, dz) in branches:
-        # A limb out to 60 px (the P2 lanterns hang 56 px out), rising a little, with a frayed rope at its end.
+
+    def cord(face, rng):
+        if face.side():
+            ragged_edge(face, rng, "bottom", 2, 0.7)
+
+    # Animation signs (checked in the preview): +X bows the trunk forward, folds a leg back; -X raises the front
+    # limb, +X the back one; +Z raises the right limb, -Z the left one.
+    bones = [Bone("root", [0, 0, 0])]
+    # Roots (shown while rooted): four main roots of two segments, four diagonal ones, knuckles at the base.
+    root_boxes = []
+    for a in (0, 90, 180, 270):
+        root_boxes += [Box([-30, 0, -4], [22, 6, 8], bark, {"all": bark_deco}, rotation=[0, a, -8], pivot=[0, 3, 0]),
+                       Box([-42, -2, -3], [14, 4, 6], bark.but(base=2.2), {"all": bark_deco}, rotation=[0, a, -22], pivot=[-30, 2, 0]),
+                       Box([-16, 4, -3], [8, 5, 6], bark.but(base=3.2), {"all": bark_deco}, rotation=[0, a, -30], pivot=[-8, 4, 0])]
+    root_boxes += [Box([-3, 0, 8], [6, 5, 18], bark.but(base=2.2), {"all": bark_deco}, rotation=[-6, a, 0], pivot=[0, 2, 0])
+                   for a in (45, 135, -45, -135)]
+    bones.append(Bone("roots", [0, 0, 0], "root", None, root_boxes))
+    # Root legs: a thick root with a knot at the knee and three splayed toes.
+    leg = chamfered([-14, 0, -6], [12, 20, 12], bark, {"all": bark_deco}, c=1.5)
+    knee = Box([-15, 10, -7.5], [14, 5, 4], bark.but(base=3.2), {"all": plate_bark}, inflate=0.3)
+    toes = [Box([-15 + k * 4.5, 0, -11], [3.5, 4, 6], bark.but(base=2.0), {"all": bark_deco}, rotation=[0, (k - 1) * 20, 0],
+                pivot=[-13 + k * 4.5, 2, -6]) for k in range(3)]
+    toes.append(Box([-10, 0, 5], [4, 4, 5], bark.but(base=2.0), {"all": bark_deco}))
+    bones.append(Bone("right_root_leg", [-8, 20, 0], "root", None, leg + [knee] + toes))
+    bones.append(Bone("left_root_leg", [8, 20, 0], "root", None, [mirror_box(b) for b in leg + [knee] + toes]))
+    # Trunk: the chamfered bole with a flared base, loose bark plates, the crown band and its points, the face.
+    trunk_boxes = chamfered([-12, 20, -12], [24, trunk_h, 24], bark, {"all": bark_deco}, c=2)
+    trunk_boxes += chamfered([-15, 20, -15], [30, 12, 30], bark.but(base=2.2), {"all": bark_deco}, c=2, axes="xz")
+    trunk_boxes += chamfered([-10, 112, -10], [20, 16, 20], bark.but(base=3.0), {"all": bark_deco}, c=1.5)
+    for k, (x, y, z, w, h) in enumerate(((-12.6, 34, -4, 2, 22), (10.6, 50, 1, 2, 18), (-5, 40, -12.6, 9, 16), (2, 96, 10.6, 8, 12),
+                                        (-12.6, 98, 2, 2, 14), (-7, 60, 10.6, 11, 20))):
+        trunk_boxes.append(Box([x, y, z], [w, h, 2 if w > 2 else 9], bark.but(base=3.4 if k % 2 else 2.0), {"all": plate_bark}, inflate=0.4))
+    # The crown band 34 px below the top of the trunk, with five points, two bent.
+    trunk_boxes += octagon([-13, 88, -13], [26, 3.5, 26], iron, {"all": band_deco}, shrink=0.85)
+    for k, a in enumerate((0, 72, 144, 216, 288)):
+        trunk_boxes.append(Box([-1.5, 91, -14.5], [3, 5 + (k % 2) * 2, 1.5], iron.but(base=3.0), {"all": point_deco},
+                               rotation=[(-25 if k == 3 else 0), a, 0], pivot=[0, 91, 0]))
+    # The weeping face, 80–93 px up: a brow ridge, two sunken sockets with tears of amber sap running down, a
+    # knotted nose, the open mouth (its lower lip the jaw bone below).
+    trunk_boxes += [Box([-9, 92, -14.5], [18, 3, 3], bark.but(base=3.4), {"all": bark_deco}, rotation=[-10, 0, 0], pivot=[0, 93, -13]),
+                    Box([-8, 86, -13.5], [5, 5, 1.6], void), Box([3, 86, -13.5], [5, 5, 1.6], void),
+                    Box([-6.5, 83, -13.8], [2, 4, 1], amber, {"all": tear}), Box([4.5, 83, -13.8], [2, 4, 1], amber, {"all": tear}),
+                    Box([-6, 76, -13.4], [1.2, 7, 0.6], amber.but(base=1.2), {"all": tear}),
+                    Box([5, 78, -13.4], [1.2, 5, 0.6], amber.but(base=1.2), {"all": tear}),
+                    Box([-2, 82, -14], [4, 4, 2.5], bark.but(base=3.6), {"all": bark_deco}),
+                    Box([-4, 76, -13.5], [8, 6, 1.6], void)]
+    trunk_boxes += [Box([-13.5, 70 + k * 15, -3 + k * 6], [1.5, 4, 5], Material(MOSS, base=1.8, noise=0.5), {"all": curtain}) for k in range(2)]
+    bones.append(Bone("trunk", [0, 20, 0], "root", None, trunk_boxes))
+    bones.append(Bone("jaw", [0, 76, -11], "trunk", None, [
+        Box([-5, 73, -14.2], [10, 3.5, 3.5], bark.but(base=2.2), {"all": bark_deco}),
+    ]))
+    # The canopy: two chamfered masses and eight lobes; the eight curtains hang on their own bones.
+    crown_boxes = chamfered([-34, 128, -34], [68, 18, 68], leaves, {"all": canopy}, c=4)
+    crown_boxes += chamfered([-24, 144, -24], [48, 8, 48], leaves.but(base=3.0), {"all": canopy}, c=3)
+    crown_boxes += [Box([24, 123 + (k % 2) * 6, -18], [52 - (k % 2) * 10, 14, 36], leaves.but(base=2.3 + (k % 2) * 0.4),
+                        {"all": canopy}, rotation=[0, k * 45, 0], pivot=[0, 130, 0]) for k in range(8)]
+    bones.append(Bone("crown", [0, 124, 0], "trunk", None, crown_boxes))
+    for k in range(8):
+        r = 74 - (k % 2) * 10
+        a = math.radians(k * 45)
+        px, pz = r * math.cos(a), -r * math.sin(a)   # a point rotated by yaw k*45 about y (Bedrock: +yaw turns -x toward +z)
+        bones.append(Bone("curtain_%d" % (k + 1), [-px, 124 + (k % 2) * 6, pz], "crown", None, [
+            Box([r, 100 + (k % 2) * 6, -17], [0, 24, 34], leaves.but(base=1.8), {"all": curtain}, rotation=[0, k * 45, 0], pivot=[0, 130, 0])]))
+    # Four limbs of three segments, reaching out over the lantern ring, a frayed rope at the second segment's end.
+    branches = [("branch_front", (0, -1)), ("branch_back", (0, 1)), ("branch_left", (1, 0)), ("branch_right", (-1, 0))]
+    for name, (dx, dz) in branches:
         yaw = {(0, -1): -90, (0, 1): 90, (1, 0): 180, (-1, 0): 0}[(dx, dz)]
-        limb = Box([-62, 102, -3], [52, 6, 6], bark.but(base=3.0), {"all": bark_deco}, rotation=[0, yaw, -10],
-                   pivot=[0, 105, 0])
-        twig = Box([-60, 108, -2], [4, 18, 4], bark.but(base=3.2), rotation=[0, yaw, -35], pivot=[0, 105, 0])
-        cord = Box([-58, 92, -0.5], [1, 12, 1], rope, {"sides": lambda f, r: ragged_edge(f, r, "bottom", 2, 0.7)},
-                   rotation=[0, yaw, 0], pivot=[0, 105, 0])
-        bones.append(Bone(name, [dx * 10, 104, dz * 10], "trunk", None, [limb, twig, cord]))
+        # Segment 1: 10..38 px out, 102 up, rising; segment 2: 38..60, a knee bending up; segment 3: a forked twig.
+        seg1 = chamfered([-40, 101, -3.5], [30, 7, 7], bark.but(base=3.0), {"all": bark_deco}, c=1, rotation=[0, yaw, -10], pivot=[0, 105, 0])
+        seg1 += [Box([-26, 103, -5.5], [8, 5, 2.5], bark.but(base=3.6), {"all": plate_bark}, rotation=[0, yaw, -10], pivot=[0, 105, 0])]
+        # Every box turns by the limb's yaw about the trunk's axis, so the whole limb lands on its direction.
+        seg2 = [Box([-62, 104, -3], [26, 6, 6], bark.but(base=3.2), {"all": bark_deco}, rotation=[0, yaw, -4], pivot=[0, 106, 0]),
+                Box([-60, 109, -2], [4, 10, 4], bark.but(base=3.4), {"all": bark_deco}, rotation=[0, yaw, -20], pivot=[0, 110, 0])]
+        seg3 = [Box([-74, 106, -2], [14, 4, 4], bark.but(base=3.4), {"all": bark_deco}, rotation=[0, yaw, 6], pivot=[0, 108, 0]),
+                Box([-72, 108, -1.5], [3, 9, 3], bark.but(base=3.6), {"all": bark_deco}, rotation=[0, yaw, -15], pivot=[0, 108, 0])]
+        p1 = [dx * 10, 104, dz * 10]
+        p2 = [dx * 38, 106, dz * 38]
+        p3 = [dx * 60, 108, dz * 60]
+        bones.append(Bone(name, p1, "trunk", None, seg1))
+        bones.append(Bone(name + "_2", p2, name, None, seg2))
+        bones.append(Bone(name + "_3", p3, name + "_2", None, seg3))
+        bones += chain_bones(name + "_cord", name + "_2", [dx * 56, 104, dz * 56], 2, 7, rope, {"all": cord}, thickness=1)
     roots_t, branch, cage = t(26), t(20), t(24)
+    limb_axis = {"branch_front": (0, -1), "branch_back": (0, 1), "branch_left": (2, -1), "branch_right": (2, 1)}
+
+    def lift(name, deg):
+        """A rotation vector that raises limb name's tip by deg (world-aligned bones: the front and back limbs turn
+        about X, the side limbs about Z)."""
+        axis, sign = limb_axis[name]
+        v = [0, 0, 0]
+        v[axis] = deg * sign
+        return v
+
+    def limbs_sway(length, amp, phase=0.0):
+        out = {}
+        for i, (name, _) in enumerate(branches):
+            for seg, k in ((name, 1.0), (name + "_2", 0.8), (name + "_3", 1.2)):
+                frames = sway(length, amp * k, limb_axis[name][0], phase + i * 0.22 - (0.05 if seg.endswith("_2") else 0.1 if seg.endswith("_3") else 0))
+                if limb_axis[name][1] < 0:
+                    frames = {kk: [-v[0], -v[1], -v[2]] for kk, v in frames.items()}
+                out[seg] = {"rotation": frames}
+            out = merge(out, lag_sway(chain_names(name + "_cord", 2), length, amp * 2, axis=0, phase=i * 0.22))
+        return out
+
+    def curtains_sway(length, amp, phase=0.0):
+        out = {}
+        for k in range(8):
+            a = math.radians(k * 45)
+            # Each curtain swings in and out from the trunk: a rotation about the axis along its own face.
+            out["curtain_%d" % (k + 1)] = {"rotation": sway(length, amp, 0 if k % 2 == 0 else 2, phase + k * 0.125)}
+        return out
+
+    def limbs_whip(t0, amp, settle=0.8):
+        out = {}
+        for i, (name, _) in enumerate(branches):
+            axis, sign = limb_axis[name]
+            out = merge(out, whip([name + "_2", name + "_3"], t0 + 0.04 * i, amp * sign, axis=axis, settle=settle))
+            out = merge(out, whip(chain_names(name + "_cord", 2), t0 + 0.04 * i, amp * 1.5, axis=0, settle=settle))
+        return out
+
     animations = {
-        "misc.idle": anim(5.0, {
-            "trunk": rot(0, ZERO, 2.5, [1.5, 0, 1], 5.0, ZERO),
-            "crown": rot(0, ZERO, 2.5, [0, 3, 0], 5.0, ZERO),
-            "branch_left": rot(0, ZERO, 2.5, [0, 0, 2], 5.0, ZERO),
-            "branch_right": rot(0, ZERO, 2.5, [0, 0, -2], 5.0, ZERO),
-        }),
-        "move.walk": anim(2.4, {
-            "right_root_leg": rot(0, [15, 0, 0], 1.2, [-15, 0, 0], 2.4, [15, 0, 0]),
-            "left_root_leg": rot(0, [-15, 0, 0], 1.2, [15, 0, 0], 2.4, [-15, 0, 0]),
-            "trunk": rot(0, [0, 0, 3], 1.2, [0, 0, -3], 2.4, [0, 0, 3]),
-            "crown": rot(0, [0, 0, -2], 1.2, [0, 0, 2], 2.4, [0, 0, -2]),
-        }),
-        "attack.roots": anim(roots_t + 0.5, {
-            "trunk": rot(0, ZERO, roots_t, [-6, 0, 0], roots_t + 0.1, [4, 0, 0], roots_t + 0.5, ZERO),
-            "roots": pos(0, ZERO, roots_t, [0, -2, 0], roots_t + 0.1, [0, 2, 0], roots_t + 0.5, ZERO),
-        }, loop=False),
-        "attack.branch": anim(branch + 0.6, {
-            "branch_front": rot(0, ZERO, branch, [-40, -50, 0], branch + 0.15, [55, 40, 0], branch + 0.6, [55, 40, 0]),
-            "trunk": rot(0, ZERO, branch, [0, 15, 0], branch + 0.15, [6, -15, 0], branch + 0.6, ZERO),
-        }, loop=False),
-        "attack.cage": anim(cage + 0.5, {
-            "crown": rot(0, ZERO, cage, [-10, 0, 0], cage + 0.5, ZERO),
-            "trunk": rot(0, ZERO, cage, [8, 0, 0], cage + 0.1, [-4, 0, 0], cage + 0.5, ZERO),
-        }, loop=False),
-        "misc.thralls": anim(1.0, {
-            "crown": rot(0, ZERO, 0.3, [0, 0, 6], 0.6, [0, 0, -6], 1.0, ZERO),
-        }, loop=False),
-        "misc.stunned": anim(2.2, {  # GrievingTreeEntity.STUN_TICKS
-            "trunk": rot(0, ZERO, 0.3, [12, 0, 0], 1.8, [12, 0, 0], 2.2, ZERO),
-            "crown": rot(0, ZERO, 0.3, [8, 0, 0], 1.8, [8, 0, 0], 2.2, ZERO),
-        }, loop=False),
-        "misc.uproot": anim(2.0, {
-            "root": pos(0, ZERO, 0.6, [0, -4, 0], 1.2, [0, 6, 0], 2.0, ZERO),
-            "trunk": rot(0, ZERO, 0.6, [0, 0, 8], 1.2, [0, 0, -8], 2.0, ZERO),
-        }, loop=False),
+        "misc.idle": anim(5.0, merge(limbs_sway(5.0, 2.5), curtains_sway(5.0, 3), {
+            "trunk": rot(0, ZERO, 2.5, e("easeInOutSine", [1.5, 0, 1]), 5.0, e("easeInOutSine", ZERO)),
+            "crown": rot(0, ZERO, 2.5, e("easeInOutSine", [0, 3, 0]), 5.0, e("easeInOutSine", ZERO)),
+            "jaw": rot(0, ZERO, 2.5, [-6, 0, 0], 5.0, ZERO),
+        })),
+        "move.walk": anim(2.4, merge(limbs_sway(2.4, 5), curtains_sway(2.4, 6), {
+            "right_root_leg": rot(0, [15, 0, 0], 1.2, e("easeInOutSine", [-15, 0, 0]), 2.4, e("easeInOutSine", [15, 0, 0])),
+            "left_root_leg": rot(0, [-15, 0, 0], 1.2, e("easeInOutSine", [15, 0, 0]), 2.4, e("easeInOutSine", [-15, 0, 0])),
+            "root": pos(0, ZERO, 0.3, e("easeOutQuad", [0, -2, 0]), 0.75, e("easeInOutSine", [0, 1, 0]), 1.5,
+                        e("easeOutQuad", [0, -2, 0]), 1.95, e("easeInOutSine", [0, 1, 0]), 2.4, ZERO),
+            "trunk": rot(0, [2, -3, 3], 1.2, e("easeInOutSine", [2, 3, -3]), 2.4, e("easeInOutSine", [2, -3, 3])),
+            "crown": rot(0, [0, 3, -2], 1.2, e("easeInOutSine", [0, -3, 2]), 2.4, e("easeInOutSine", [0, 3, -2])),
+        })),
+        # Root lines: the trunk heaves and strains, the roots bone pulling in and bursting out, the limbs shaking.
+        "attack.roots": anim(roots_t + 0.5, merge(limbs_whip(roots_t + 0.05, 10, 0.45), {
+            "trunk": rot(0, ZERO, roots_t * 0.5, e("easeInOutSine", [-5, 0, 0]), roots_t, [-7, 0, 0], roots_t + 0.1, e("easeOutBack", [5, 0, 0]),
+                         roots_t + 0.5, e("easeInOutSine", ZERO)),
+            "roots": pos(0, ZERO, roots_t * 0.5, [0, -2, 0], roots_t, [0, -3, 0], roots_t + 0.1, e("easeOutBack", [0, 3, 0]), roots_t + 0.5, ZERO),
+            "root": pos(0, ZERO, roots_t, [0, -1, 0], roots_t + 0.1, [0, 1.5, 0], roots_t + 0.5, ZERO),
+            "jaw": rot(0, ZERO, roots_t * 0.5, [-15, 0, 0], roots_t + 0.1, [-30, 0, 0], roots_t + 0.5, ZERO),
+            "crown": rot(0, ZERO, roots_t, [-3, 0, 0], roots_t + 0.1, [4, 0, 0], roots_t + 0.5, ZERO),
+        }), loop=False),
+        # Branch sweep: the front limb draws up and to the side, hangs, then sweeps down across the ground; the
+        # second and third segments lag and whip, the rope flies.
+        "attack.branch": anim(branch + 0.6, merge(limbs_whip(branch + 0.15, 25, 0.45), {
+            "branch_front": rot(0, ZERO, branch * 0.6, e("easeInOutSine", [-35, -45, 0]), branch, [-40, -50, 0], branch + 0.15,
+                                e("easeOutBack", [55, 40, 0]), branch + 0.6, [55, 40, 0]),
+            "branch_front_2": rot(0, ZERO, branch * 0.6, [-15, 0, 0], branch, [-20, 0, 0], branch + 0.15, e("easeOutBack", [25, 0, 0]),
+                                  branch + 0.45, [10, 0, 0], branch + 0.6, [5, 0, 0]),
+            "branch_front_3": rot(0, ZERO, branch, [-15, 0, 0], branch + 0.2, e("easeOutBack", [30, 0, 0]), branch + 0.6, [5, 0, 0]),
+            "trunk": rot(0, ZERO, branch * 0.6, e("easeInOutSine", [-3, 12, 0]), branch, [-4, 15, 0], branch + 0.15, e("easeOutBack", [6, -15, 0]),
+                         branch + 0.6, e("easeInOutSine", ZERO)),
+            "crown": rot(0, ZERO, branch, [0, 8, 0], branch + 0.15, [3, -10, 0], branch + 0.6, ZERO),
+            "jaw": rot(0, ZERO, branch, [-10, 0, 0], branch + 0.15, [-25, 0, 0], branch + 0.6, ZERO),
+        }), loop=False),
+        # Root cage: the crown dips and the trunk bends as the roots close under the fighters.
+        "attack.cage": anim(cage + 0.5, merge(limbs_whip(cage + 0.05, 12, 0.45), curtains_sway(cage + 0.5, 4), {
+            "crown": rot(0, ZERO, cage * 0.6, e("easeInOutSine", [-8, 0, 0]), cage, [-10, 0, 0], cage + 0.1, e("easeOutBack", [6, 0, 0]),
+                         cage + 0.5, e("easeInOutSine", ZERO)),
+            "trunk": rot(0, ZERO, cage * 0.6, e("easeInOutSine", [6, 0, 0]), cage, [8, 0, 0], cage + 0.1, e("easeOutBack", [-4, 0, 0]),
+                         cage + 0.5, e("easeInOutSine", ZERO)),
+            "jaw": rot(0, ZERO, cage, [-20, 0, 0], cage + 0.5, ZERO),
+        }), loop=False),
+        # Thralls: the canopy shakes and the limbs toss as the thralls drop out of it.
+        "misc.thralls": anim(1.0, merge(limbs_whip(0.15, 15, 0.8), {
+            "crown": rot(0, ZERO, 0.15, e("easeOutBack", [0, 0, 7]), 0.4, [0, 0, -7], 0.65, [0, 0, 5], 1.0, e("easeInOutSine", ZERO)),
+            "trunk": rot(0, ZERO, 0.15, [0, 0, 2], 0.4, [0, 0, -2], 1.0, ZERO),
+        }), loop=False),
+        # Stunned (GrievingTreeEntity.STUN_TICKS, 2.2 s): a lantern broke; it lurches, the limbs droop, the jaw
+        # falls open in a moan and the curtains hang still, then it rights itself.
+        "misc.stunned": anim(2.2, merge({
+            "trunk": rot(0, ZERO, 0.25, e("easeOutBack", [12, 0, 4]), 1.0, [11, 0, -3], 1.8, [12, 0, 2], 2.2, e("easeInOutSine", ZERO)),
+            "crown": rot(0, ZERO, 0.25, e("easeOutBack", [8, 0, 0]), 1.8, [8, 0, 0], 2.2, e("easeInOutSine", ZERO)),
+            "jaw": rot(0, ZERO, 0.25, e("easeOutBack", [-35, 0, 0]), 1.8, [-35, 0, 0], 2.2, ZERO),
+            "root": pos(0, ZERO, 0.25, [0, -2, 0], 1.8, [0, -2, 0], 2.2, ZERO),
+        }, {name: {"rotation": keys(0, ZERO, 0.3, e("easeOutBack", lift(name, -22)), 1.8, lift(name, -22), 2.2, e("easeInOutSine", ZERO))}
+            for name, _ in branches},
+           {name + "_2": {"rotation": keys(0, ZERO, 0.4, e("easeOutBack", lift(name, -18)), 1.8, lift(name, -18), 2.2, ZERO)}
+            for name, _ in branches}), loop=False),
+        # Uproot (P2): it strains against the ground, the roots tear free, and it lurches up onto the root legs.
+        "misc.uproot": anim(2.0, merge(limbs_whip(1.2, 20, 0.7), curtains_sway(2.0, 6), {
+            "root": pos(0, ZERO, 0.6, e("easeInOutSine", [0, -4, 0]), 1.0, [0, -5, 0], 1.2, e("easeOutBack", [0, 6, 0]), 2.0, e("easeInOutSine", ZERO)),
+            "trunk": rot(0, ZERO, 0.6, e("easeInOutSine", [-4, 0, 8]), 1.0, [-4, 0, -8], 1.2, e("easeOutBack", [4, 0, 6]), 2.0, e("easeInOutSine", ZERO)),
+            "roots": pos(0, ZERO, 1.0, ZERO, 1.2, [0, 4, 0], 2.0, [0, 4, 0]),
+            "right_root_leg": rot(0, ZERO, 1.2, e("easeOutBack", [-30, 0, 0]), 1.6, [20, 0, 0], 2.0, ZERO),
+            "left_root_leg": rot(0, ZERO, 1.2, ZERO, 1.5, e("easeOutBack", [-30, 0, 0]), 1.9, [15, 0, 0], 2.0, ZERO),
+            "jaw": rot(0, ZERO, 0.6, [-20, 0, 0], 1.2, [-40, 0, 0], 2.0, ZERO),
+            "crown": rot(0, ZERO, 1.2, [-6, 0, 0], 2.0, ZERO),
+        }), loop=False),
+        # Hurt (a hit landing while it is stunned): a shudder through the trunk and the canopy.
+        "misc.hurt": anim(0.4, merge(limbs_whip(0.02, 6, 0.36), {
+            "trunk": rot(0, ZERO, 0.08, e("easeOutCubic", [-3, 0, 2]), 0.4, e("easeInOutSine", ZERO)),
+            "crown": rot(0, ZERO, 0.1, e("easeOutCubic", [-4, 0, 3]), 0.4, e("easeInOutSine", ZERO)),
+            "jaw": rot(0, ZERO, 0.08, [-12, 0, 0], 0.4, ZERO),
+        }), loop=False),
+        # Stagger (a heavy hit while stunned): the whole trunk jolts, the limb tips and the ropes fly, the canopy sheds.
+        "misc.stagger": anim(0.7, merge(limbs_whip(0.03, 14, 0.6), curtains_sway(0.7, 8), {
+            "trunk": rot(0, ZERO, 0.1, e("easeOutCubic", [-6, 0, 4]), 0.4, [3, 0, -2], 0.7, e("easeInOutSine", ZERO)),
+            "crown": rot(0, ZERO, 0.12, e("easeOutCubic", [-8, 0, 5]), 0.45, [4, 0, -3], 0.7, e("easeInOutSine", ZERO)),
+            "jaw": rot(0, ZERO, 0.1, [-30, 0, 0], 0.7, ZERO),
+            "root": pos(0, ZERO, 0.1, [0, -1.5, 0], 0.7, ZERO),
+        }), loop=False),
+        # Death (3 s): it groans and sways, the trunk cracks at the base, and the whole tree topples forward and
+        # crashes down, the canopy and the limbs bouncing; the mouth gapes, the tears flare.
+        "misc.death": anim(3.0, merge(limbs_whip(2.35, 30, 0.6), curtains_sway(3.0, 5), {
+            "root": {"rotation": keys(0, ZERO, 0.8, e("easeInOutSine", [-4, 0, 3]), 1.5, e("easeInOutSine", [6, 0, -2]), 2.3,
+                                      e("easeInCubic", [82, 0, 2]), 2.45, e("easeOutBounce", [88, 0, 2]), 3.0, [88, 0, 2]),
+                     # Lifted as it goes over so the fallen trunk lies on the ground, not half in it.
+                     "position": keys(0, ZERO, 1.5, ZERO, 2.3, [0, 9, 0], 2.45, [0, 12, 0], 3.0, [0, 12, 0])},
+            "trunk": rot(0, ZERO, 0.8, [2, 0, 0], 1.5, [-3, 0, 2], 2.3, e("easeInCubic", [8, 0, 0]), 2.45, e("easeOutBounce", [4, 0, 0]), 3.0, [4, 0, 0]),
+            "crown": rot(0, ZERO, 1.5, [-4, 0, 0], 2.3, [-10, 0, 0], 2.45, e("easeOutBounce", [12, 0, 0]), 3.0, [10, 0, 0]),
+            "jaw": rot(0, ZERO, 0.8, [-25, 0, 0], 1.5, [-40, 0, 0], 2.45, [-45, 0, 0], 3.0, [-45, 0, 0]),
+            "right_root_leg": rot(0, ZERO, 2.3, ZERO, 2.45, [-30, 0, 0], 3.0, [-30, 0, 0]),
+            "left_root_leg": rot(0, ZERO, 2.3, ZERO, 2.45, [-20, 0, 0], 3.0, [-20, 0, 0]),
+        }, {name: {"rotation": keys(0, ZERO, 1.5, lift(name, 4), 2.3, lift(name, -8), 2.45, e("easeOutBounce", lift(name, 10)), 3.0, lift(name, 6))}
+            for name, _ in branches}), loop=False),
     }
     write_model("grieving_tree", bones, animations, [12, 11], tex_w=512)
 
