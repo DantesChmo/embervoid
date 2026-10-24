@@ -361,7 +361,7 @@ visuals; the quick fixes fit in anywhere. Milestones 15, 17 and 21 start with a 
 
 ## 19. Mobs and bosses that look the part
 
-**Status:** Tooling, effects and the boss remodels done (PLAN 19.1, 19.2, 19.4; 19.3 for the bosses); the mobs' animations and remodels in progress (the overhaul's wave 2); nothing seen in game.
+**Status:** Tooling, effects and the boss remodels done (PLAN 19.1, 19.2, 19.4; 19.3 for the bosses); the mobs' animations and remodels done (the overhaul's wave 2); nothing seen in game.
 
 - [x] Offline viewer for structures and animation motion (`tools/model_preview.py` extended)
 - [x] Combat effects: camera shake, swing trails, hit flashes
@@ -379,7 +379,7 @@ visuals; the quick fixes fit in anywhere. Milestones 15, 17 and 21 start with a 
 
 ## Visual overhaul (the night of 2026-10-24)
 
-**Status:** Done except the mob remodels (in progress) and the look in game; the bar is [docs/art-direction.md](docs/art-direction.md).
+**Status:** Done except the look in game; the bar is [docs/art-direction.md](docs/art-direction.md).
 
 - [x] Art direction: hue-shifted palettes, light from the top-left, structural detail, dense models, motion everywhere
 - [x] Every block texture redrawn, 25 new building blocks, every structure rebuilt (track `art-blocks`)
@@ -387,7 +387,7 @@ visuals; the quick fixes fit in anywhere. Milestones 15, 17 and 21 start with a 
 - [x] Weapon signatures: trails per weapon kind, the Scourge's crack and heat, the Scythe's souls and ash wave, the Rapier's ramp glow, the Crossbow's ember bolts, Wide Cleave and Ground Slam
 - [x] Fog walls as volumes (arena wall and Citadel border): scrolling ember cloud, light streaks, ground ring, embers, flares, a hum
 - [x] Six boss remodels (track `bosses`), fourteen moving set pieces and arenas that move (track `setpieces`)
-- [ ] 21 mob remodels with hurt / death / stagger (wave 2: `mobs`, `overworld-mobs`)
+- [x] 21 mob remodels with hurt / death / stagger (wave 2: `mobs`, `overworld-mobs`)
 - [ ] A look in game (nobody plays; the photo tour 19.5 is still optional)
 
 ## 21. The Citadel behind a fog wall

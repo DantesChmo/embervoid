@@ -923,7 +923,7 @@ Mobs for bosses.
 |----|------|------|------------|--------|
 | 19.1 | **Offline viewer: structures and motion** | M | — | done (`tools/model_preview.py structure` / `motion` / `self-check`; no three.js page, the GIFs and trail strips are enough) |
 | 19.2 | **Combat effects**: camera shake, swing trails, hit flashes | M | — | done (`com.embervoid.fx.CombatFx`: `shake` / `trail` / `flash` / `impact`; Camera Shake slider and Hit Flashes toggle in Accessibility; wired into the Colossus leap and drag, the Lord's landing, swings and slam, the Vampire leap; GameTests on range and on those moves, JUnit on the curves; looks not seen in game) |
-| 19.3 | **Death, hit and stagger animations for the 24 mobs** (3 parts) | L | 19.1 | bosses done (track `bosses`, `ReachBoss` hurt controller, `deathTicks()`, `BossAnimationTests`); the 21 mobs in progress (wave 2 `mobs`, `overworld-mobs`) |
+| 19.3 | **Death, hit and stagger animations for the 24 mobs** (3 parts) | L | 19.1 | done: bosses (track `bosses`, `ReachBoss` hurt controller, `deathTicks()`, `BossAnimationTests`) and the 21 mobs (wave 2 `mobs`, `overworld-mobs`; `MobAnimationTests`, `OverworldMobAnimationTests` not run yet) |
 | 19.4 | **Boss remodels** (one task per boss) | XL | 19.1, 19.2 | done – seen only offline (Colossus 108 / 26, Lord 105 / 28, Keeper 103 / 27, Tree 128 / 35, Sister 78 / 25, Vampire boss 71 / 24 cubes / bones; chamfered forms, layered plates, 2–3 segment secondary bones, eased moves with the windups unchanged, `EmberHaloLayer`; `plans/bosses.md`) |
 | 19.5 | **Photo tour** (optional) | M | — | todo |
 
