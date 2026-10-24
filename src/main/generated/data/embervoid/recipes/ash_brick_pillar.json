@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "B": {
+      "item": "embervoid:ash_bricks"
+    }
+  },
+  "pattern": [
+    "B",
+    "B"
+  ],
+  "result": {
+    "count": 2,
+    "item": "embervoid:ash_brick_pillar"
+  },
+  "show_notification": true
+}

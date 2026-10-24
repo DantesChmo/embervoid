@@ -20,6 +20,7 @@ import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleEffect;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -44,12 +45,25 @@ import java.util.List;
  * pick a move when the cooldown is over, stand still while a move winds up ({@link Telegraph}). Moves hit the players
  * standing in the {@link TelegraphShape} they marked.
  *
- * <p>Controllers: {@code movement} (walk/idle) and {@link #ACTION} (one-shot move animations from
- * {@link #actionAnimations}; {@link #playAnimation} triggers them, as {@link Telegraph} does at a windup's start).
+ * <p>Controllers: {@code movement} (walk/idle), {@link #HURT_CONTROLLER} (the flinch, PLAN 19.3) and {@link #ACTION}
+ * (one-shot move animations from {@link #actionAnimations}; {@link #playAnimation} triggers them, as {@link Telegraph}
+ * does at a windup's start). Later controllers win on the bones they animate, so a move's animation beats a flinch.
+ *
+ * <p>Hurt, death and stagger (PLAN 19.3, 19.4): a hit outside a windup plays {@link #HURT} (or {@link #STAGGER} where
+ * {@link #hurtAnimation} says so), never over a windup; {@link #DEATH} plays on death and the body stays
+ * {@link #deathTicks} ticks (the fight has ended and credited the fighters at once, as before) before it goes.
  */
 public abstract class ReachBoss extends HostileEntity implements ArenaBoss, GeoEntity {
 	/** The controller of one-shot move animations. */
 	public static final String ACTION = "action";
+	/** The controller of the hit reaction, under the move animations. */
+	public static final String HURT_CONTROLLER = "hurt";
+	/** The flinch on a hit between moves, a heavier stagger, the fall on death. */
+	public static final String HURT = "misc.hurt";
+	public static final String STAGGER = "misc.stagger";
+	public static final String DEATH = "misc.death";
+	/** Ticks between two flinches. */
+	public static final int HURT_COOLDOWN = 10;
 	/** The shared zone-boss theme (Ash Colossus, Grieving Tree, Crypt Keeper), {@link ReachBossSounds#ZONE_BOSS_MUSIC}. */
 	public static final Identifier ZONE_BOSS_MUSIC = ReachBossSounds.ZONE_BOSS_MUSIC.getId();
 
@@ -58,6 +72,8 @@ public abstract class ReachBoss extends HostileEntity implements ArenaBoss, GeoE
 	private final AnimatableInstanceCache animations = GeckoLibUtil.createInstanceCache(this);
 	/** Ticks until the brain may pick the next move. */
 	protected int moveCooldown = 40;
+	private int lastHurtAnimation = -100;
+	private int hurtFlinches;
 
 	protected ReachBoss(EntityType<? extends ReachBoss> type, World world) {
 		super(type, world);
@@ -148,11 +164,33 @@ public abstract class ReachBoss extends HostileEntity implements ArenaBoss, GeoE
 	}
 
 	/**
-	 * How long the body stays after death for its death animation, in ticks; 0 (the default): it goes with its fight
-	 * at once. A boss that keeps its body removes itself in {@code updatePostDeath}.
+	 * How long the body stays after death for its death animation, in ticks; 0: it goes with its fight at once. The
+	 * body removes itself in {@link #updatePostDeath} once they are over.
 	 */
-	protected int deathTicks() {
-		return 0;
+	public int deathTicks() {
+		return 60;
+	}
+
+	/** Particles and sounds while the body lies there, {@code deathTime} ticks after the death (server side). */
+	protected void tickDeath(ServerWorld world, int deathTime) {
+	}
+
+	/**
+	 * The hit reaction to a damaging hit outside a windup: {@link #HURT}, or {@link #STAGGER} for a boss that has one
+	 * and a hit that staggers it (visual only: it never changes what the hit does).
+	 */
+	protected String hurtAnimation(DamageSource source, float amount) {
+		return HURT;
+	}
+
+	/** The hit reactions of this boss, on the {@link #HURT_CONTROLLER}: {@link #HURT} and, where it staggers, {@link #STAGGER}. */
+	protected List<String> hurtAnimations() {
+		return List.of(HURT);
+	}
+
+	/** How many flinches and staggers the boss has shown (tests: a hit during a windup shows none). */
+	public int hurtFlinches() {
+		return hurtFlinches;
 	}
 
 	/** True while something other than a windup keeps the boss in place (a leap in the air, a stun). */
@@ -251,7 +289,43 @@ public abstract class ReachBoss extends HostileEntity implements ArenaBoss, GeoE
 		if (source.isOf(DamageTypes.FALL) || source.isOf(DamageTypes.DROWN) || source.isOf(DamageTypes.IN_WALL)) {
 			return false;
 		}
-		return super.damage(source, amount);
+		boolean hurt = super.damage(source, amount);
+		// A flinch between moves; never over a windup (the tell must stay readable).
+		if (hurt && amount > 0 && isAlive() && !getWorld().isClient && !Telegraph.isWindingUp(this) && age - lastHurtAnimation > HURT_COOLDOWN) {
+			lastHurtAnimation = age;
+			hurtFlinches++;
+			triggerAnim(HURT_CONTROLLER, hurtAnimation(source, amount));
+		}
+		return hurt;
+	}
+
+	@Override
+	public void onDeath(DamageSource source) {
+		super.onDeath(source);
+		if (getWorld().isClient) {
+			return;
+		}
+		Telegraph.cancel(this);
+		if (deathTicks() > 0) {
+			playAnimation(DEATH);
+		}
+	}
+
+	@Override
+	protected void updatePostDeath() {
+		if (deathTicks() <= 0) {
+			super.updatePostDeath();
+			return;
+		}
+		deathTime++;
+		if (!(getWorld() instanceof ServerWorld world) || isRemoved()) {
+			return;
+		}
+		tickDeath(world, deathTime);
+		if (deathTime >= deathTicks()) {
+			world.sendEntityStatus(this, (byte) 60);
+			remove(RemovalReason.KILLED);
+		}
 	}
 
 	@Override
@@ -306,13 +380,21 @@ public abstract class ReachBoss extends HostileEntity implements ArenaBoss, GeoE
 		triggerAnim(ACTION, name);
 	}
 
+	/** Walk / idle first, then the hit reaction, then the moves, so a move's animation wins over a flinch. */
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
 		controllers.add(DefaultAnimations.genericWalkIdleController(this));
+		AnimationController<ReachBoss> hurt = new AnimationController<>(this, HURT_CONTROLLER, 0, state -> PlayState.STOP);
+		for (String name : hurtAnimations()) {
+			hurt.triggerableAnim(name, RawAnimation.begin().thenPlay(name));
+		}
+		controllers.add(hurt);
 		AnimationController<ReachBoss> action = new AnimationController<>(this, ACTION, 0, state -> PlayState.STOP);
 		for (String name : actionAnimations()) {
 			action.triggerableAnim(name, RawAnimation.begin().thenPlay(name));
 		}
+		// The fall is held on its last frame while the body lies there.
+		action.triggerableAnim(DEATH, RawAnimation.begin().thenPlayAndHold(DEATH));
 		controllers.add(action);
 	}
 

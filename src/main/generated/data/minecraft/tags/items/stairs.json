@@ -4,6 +4,11 @@
     "embervoid:ash_stone_stairs",
     "embervoid:cobbled_ash_stone_stairs",
     "embervoid:polished_ash_stone_stairs",
-    "embervoid:ash_brick_stairs"
+    "embervoid:ash_brick_stairs",
+    "embervoid:mossy_ash_brick_stairs",
+    "embervoid:ash_cobble_brick_stairs",
+    "embervoid:ash_tile_stairs",
+    "embervoid:slate_tile_stairs",
+    "embervoid:charred_stairs"
   ]
 }

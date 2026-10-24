@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 1,
+  "ingredient": {
+    "item": "embervoid:mossy_ash_bricks"
+  },
+  "result": "embervoid:mossy_ash_brick_wall"
+}

@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "embervoid:block/charred_slab"
+    },
+    "type=double": {
+      "model": "embervoid:block/charred_planks"
+    },
+    "type=top": {
+      "model": "embervoid:block/charred_slab_top"
+    }
+  }
+}

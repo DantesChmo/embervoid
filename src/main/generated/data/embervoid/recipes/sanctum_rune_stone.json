@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "P": {
+      "item": "embervoid:polished_ash_stone"
+    },
+    "S": {
+      "item": "embervoid:cinder_shard"
+    }
+  },
+  "pattern": [
+    "PPP",
+    "PSP",
+    "PPP"
+  ],
+  "result": {
+    "count": 8,
+    "item": "embervoid:sanctum_rune_stone"
+  },
+  "show_notification": true
+}

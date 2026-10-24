@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_burnt_straw": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "embervoid:burnt_straw"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "embervoid:burnt_thatch"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_burnt_straw",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "embervoid:burnt_thatch"
+    ]
+  },
+  "sends_telemetry_event": false
+}

@@ -51,7 +51,8 @@
 			"com.embervoid.gametest.AttackAnimationTests",
 			"com.embervoid.gametest.WardensScourgeTests",
 			"com.embervoid.gametest.SetPieceTests",
-			"com.embervoid.gametest.ArenaWallTests"
+			"com.embervoid.gametest.ArenaWallTests",
+			"com.embervoid.gametest.BossAnimationTests"
 		]
 	},
 	"mixins": [

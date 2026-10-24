@@ -16,8 +16,9 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from art_kit import ZERO, Bone, Box, Material, anim, ember_cracks, hexc, keys, merge, mirror_box, pos, ramp, rot, \
-    scatter, t, write_model  # noqa: E402
+from art_kit import (ZERO, Bone, Box, Material, anim, chain_bones, chain_names, chamfered, e, ember_cracks,  # noqa: E402
+                     fingers, hexc, keys, lag_sway, merge, mirror_box, octagon, pos, ramp, rot, scatter, t, whip,
+                     write_model)
 from reach_mob_art import (BRONZE, CHAR, EMBER, EMBER_DARK, EMBER_DEEP, EMBER_HOT, IRON, VOID, clear_all,  # noqa: E402
                            holes, open_front, ragged_edge, trim)
 from overworld_mob_art import HAIR_ASH, glow_all, round_corners  # noqa: E402
@@ -51,10 +52,10 @@ SISTER_SKIN = ramp("443c38", "574e48", "6b615a", "80756c", "94887e", "a89b90")
 
 
 def sister():
-    robe = Material(SISTER_ROBE, base=2.5, noise=0.55, grain="v", grad=0.9, top=0.6, edge=0.4)
+    robe = Material(SISTER_ROBE, base=2.5, noise=0.55, grain="v", grad=0.9, top=0.6, edge=0.4, bevel=0.3)
     dark = robe.but(base=1.5)
-    veil = Material(VEIL, base=2.6, noise=0.5, grain="v", grad=0.7)
-    skin = Material(SISTER_SKIN, base=2.6, noise=0.35, grad=0.6, top=0.4)
+    veil = Material(VEIL, base=2.6, noise=0.5, grain="v", grad=0.7, bevel=0.3)
+    skin = Material(SISTER_SKIN, base=2.6, noise=0.35, grad=0.6, top=0.4, bevel=0.3)
 
     def folds(face, step=3):
         for x in range(1, face.w - 1, step):
@@ -264,15 +265,18 @@ def sister():
             trim(face, BRONZE[4], ("top",))
 
     W = 26  # the waist
+    ember_drip = Material(ramp("d8521c", "ff8a2a", "ffb347", "ffd27a"), base=1.8, noise=0.5, glow=1.0)
+    # Animation signs (checked in the preview): -X raises an arm forward, tilts the head and body back; +X bows the
+    # body forward. Big forms are chamfered (three boxes) so the silhouette reads sculpted, not boxed (PLAN 19.4).
     bones = [
         Bone("root", [0, 0, 0]),
-        # The robe widens in three tiers to the floor; panels over it hide the steps and flare out.
-        Bone("skirt", [0, W, 0], "root", None, [
-            Box([-4, 19, -3], [8, 8, 6], robe, {"all": lambda f, r: folds(f) if f.side() else None}),
-            Box([-5, 9, -3.75], [10, 10.5, 7.5], robe.but(base=2.4), {"all": lambda f, r: (
-                folds(f) if f.side() else None, holes(f, r, 1) if f.side() else None)}),
-            Box([-6, 0, -4.5], [12, 9.5, 9], robe.but(base=2.1), {"all": skirt}),
-        ]),
+        # The robe widens in three chamfered tiers to the floor; panels over it hide the steps and flare out.
+        Bone("skirt", [0, W, 0], "root", None,
+             chamfered([-4, 19, -3], [8, 8, 6], robe, {"all": lambda f, r: folds(f) if f.side() else None}, c=0.5)
+             + chamfered([-5, 9, -3.75], [10, 10.5, 7.5], robe.but(base=2.4), {"all": lambda f, r: (
+                 folds(f) if f.side() else None, holes(f, r, 1) if f.side() else None)}, c=0.6)
+             + chamfered([-6, 0, -4.5], [12, 9.5, 9], robe.but(base=2.1), {"all": skirt}, c=0.7, axes="xz")
+             + [Box([-4.5, -0.5, -4.8], [1, 2, 0.6], ember_drip), Box([3, -0.3, -4.8], [1, 1.5, 0.6], ember_drip.but(base=1.2))]),
         Bone("hem_front", [0, 20, -4], "skirt", [-4, 0, 0], [
             Box([-4.5, 0.5, -4.7], [9, 19.5, 0], dark.but(base=1.9), {"all": panel}),
         ]),
@@ -285,58 +289,81 @@ def sister():
         Bone("hem_left", [5, 20, 0], "skirt", [0, 0, 5], [
             Box([5.6, 0.5, -4], [0, 19.5, 8], robe.but(base=2.0), {"all": panel}),
         ]),
-        Bone("body", [0, W, 0], "root", [4, 0, 0], [
-            Box([-3.5, W, -2], [7, 12, 4], robe.but(base=2.5), {"all": bodice}),
-            Box([-4, W, -2.5], [8, 2.5, 5], dark, {"all": sash}),
-            Box([-5, W + 8, -2.8], [10, 4, 5.6], robe.but(base=3.2), {"all": mantle}),
-        ]),
-        Bone("head", [0, W + 12, 0], "body", [-4, 0, 0], [
-            Box([-1, W + 12, -1], [2, 1.5, 2], skin.but(base=1.6)),
-            Box([-2.5, W + 13.5, -2.5], [5, 6, 5], skin, {"front": face_front, "back": face_back,
-                                                         "left": lambda f, r: f.rect(0, 0, 1, 3, HAIR_ASH[1]),
-                                                         "right": lambda f, r: f.rect(f.w - 1, 0, 1, 3, HAIR_ASH[1]),
-                                                         "top": lambda f, r: f.rect(0, 0, f.w, f.h, HAIR_ASH[1])}),
-            Box([-2.6, W + 8, 2.6], [5.2, 11.5, 0], Material(HAIR_ASH, base=1.5, noise=0.4), {"all": hair}),
-        ]),
-        # A mourning veil: a hood with a band of blackened silver, gauze down to the chest in front and to the
-        # shoulders at the sides, a long train down her back.
-        Bone("veil", [0, W + 19, 0], "head", None, [
-            Box([-3.2, W + 13.6, -3.2], [6.4, 6.6, 6.4], veil, {"all": hood}),
-            Box([-3.3, W + 5, -3.5], [6.6, 15.2, 0], veil.but(base=3.0), {"all": face_veil}),
-            Box([-3.4, W + 7, -3.2], [0, 12.5, 6.4], veil.but(base=2.6), {"all": drape}),
-            Box([3.4, W + 7, -3.2], [0, 12.5, 6.4], veil.but(base=2.6), {"all": drape}),
-        ]),
+        Bone("body", [0, W, 0], "root", [4, 0, 0],
+             chamfered([-3.5, W, -2], [7, 12, 4], robe.but(base=2.5), {"all": bodice}, c=0.5)
+             + [Box([-4, W, -2.5], [8, 2.5, 5], dark, {"all": sash})]
+             + chamfered([-5, W + 8, -2.8], [10, 4, 5.6], robe.but(base=3.2), {"all": mantle}, c=0.6)
+             + [Box([-0.75, W + 9.5, -3.1], [1.5, 1.5, 0.5], ember_drip.but(base=2.5))]),
+        # The head: a chamfered skull on a thin neck, the ash hair down her back in two strands that swing, and the
+        # broken circlet of blackened silver (seen once the veil has burnt).
+        Bone("head", [0, W + 12, 0], "body", [-4, 0, 0],
+             [Box([-1, W + 12, -1], [2, 1.5, 2], skin.but(base=1.6))]
+             + chamfered([-2.5, W + 13.5, -2.5], [5, 6, 5], skin, {"front": face_front, "back": face_back,
+                                                                  "left": lambda f, r: f.rect(0, 0, 1, 3, HAIR_ASH[1]),
+                                                                  "right": lambda f, r: f.rect(f.w - 1, 0, 1, 3, HAIR_ASH[1]),
+                                                                  "top": lambda f, r: f.rect(0, 0, f.w, f.h, HAIR_ASH[1])}, c=0.5)
+             + octagon([-2.9, W + 18.2, -2.9], [5.8, 1.2, 5.8], iron.but(base=2.6), {"all": circlet}, shrink=0.8)
+             + [Box([-0.6 + k * 1.8 - 1.8, W + 19.4, -3.0], [1, 1.5 + (k == 1) * 0.8, 0.8], iron.but(base=3.2)) for k in range(3)]
+             + [Box([-0.5, W + 19.4, -3.1], [1, 0.8, 0.8], ember_drip.but(base=2.6))]),
+    ]
+    bones += chain_bones("hair", "head", [0, W + 17, 2.6], 2, 5.5, Material(HAIR_ASH, base=1.5, noise=0.4), None, thickness=1,
+                         box=lambda i, o, sz: [Box([-2.6 + i * 0.6, o[1], 2.7 + i * 0.2], [5.2 - i * 1.2, 6, 0], Material(HAIR_ASH, base=1.5, noise=0.4),
+                                                   {"all": hair})])
+    # A mourning veil: a hood (an octagon, so it reads round) with a band of blackened silver, gauze down to the
+    # chest in front and to the shoulders at the sides, embers dripping from its hem, a long train down her back in
+    # two pieces, and a tassel of gauze at each shoulder.
+    bones += [
+        Bone("veil", [0, W + 19, 0], "head", None,
+             octagon([-3.2, W + 13.6, -3.2], [6.4, 6.6, 6.4], veil, {"all": hood}, shrink=0.8)
+             + [Box([-3.3, W + 5, -3.5], [6.6, 15.2, 0], veil.but(base=3.0), {"all": face_veil}),
+                Box([-3.4, W + 7, -3.2], [0, 12.5, 6.4], veil.but(base=2.6), {"all": drape}),
+                Box([3.4, W + 7, -3.2], [0, 12.5, 6.4], veil.but(base=2.6), {"all": drape}),
+                Box([-2.5, W + 3.5, -3.7], [0.8, 1.8, 0.5], ember_drip), Box([0.2, W + 4, -3.7], [0.8, 1.2, 0.5], ember_drip.but(base=1.0)),
+                Box([2.2, W + 3.8, -3.7], [0.8, 1.5, 0.5], ember_drip.but(base=2.4))]),
         Bone("veil_train", [0, W + 19, 3.2], "veil", [8, 0, 0], [
-            Box([-3.2, W, 3.4], [6.4, 19, 0], veil.but(base=2.4), {"all": train}),
+            Box([-3.2, W + 9, 3.4], [6.4, 10, 0], veil.but(base=2.4), {"all": train}),
         ]),
+        Bone("veil_train_2", [0, W + 9, 3.4], "veil_train", None, [
+            Box([-2.8, W, 3.5], [5.6, 9.2, 0], veil.but(base=2.1), {"all": train}),
+        ]),
+        Bone("veil_tassel_right", [-3.4, W + 12, 0], "veil", None, [Box([-3.6, W + 5, -1.5], [0, 7, 3], veil.but(base=2.2), {"all": drape})]),
+        Bone("veil_tassel_left", [3.4, W + 12, 0], "veil", None, [Box([3.6, W + 5, -1.5], [0, 7, 3], veil.but(base=2.2), {"all": drape})]),
     ]
     sh = W + 11  # shoulders
     hand = sh - 15
-    arm = Box([-5.5, hand, -1], [2, 15, 2], skin.but(base=2.2), {"all": arm_skin})
+    arm = Box([-5.5, hand + 2, -1], [2, 13, 2], skin.but(base=2.2), {"all": arm_skin})
     sleeve_box = Box([-6.4, sh - 8, -1.8], [3.8, 8, 3.6], robe.but(base=2.8), {"all": sleeve_top})
     bell_box = Box([-7.2, sh - 13, -2.6], [5.4, 5.5, 5.2], robe.but(base=2.5), {"all": sleeve})
+    palm = Box([-5.6, hand - 0.5, -1.1], [2.2, 2.5, 2.2], skin.but(base=2.0), {"all": arm_skin})
+    digits = fingers(-5.6, hand - 0.5, -1.2, 3, [0.6, 2.2, 0.7], skin.but(base=2.4), spread=0.2, curl=25, thumb=(2.0, 0.3))
     bones += [
         Bone("right_arm", [-4.5, sh, 0], "body", [-30, 0, 0], [arm]),
         Bone("right_sleeve", [-4.5, sh, 0], "right_arm", None, [sleeve_box, bell_box]),
+        Bone("right_hand", [-4.5, hand + 2, 0], "right_arm", None, [palm] + digits),
         Bone("chain_wrap", [-4.5, hand + 4, 0], "right_arm", None, [
             Box([-6, hand + 1, -1.5], [3, 1, 3], iron.but(base=3.0), {"all": links}),
             Box([-6, hand + 3.5, -1.5], [3, 1, 3], iron.but(base=3.0), {"all": links}),
             Box([-6, hand + 6, -1.5], [3, 1, 3], iron.but(base=3.0), {"all": links}),
         ]),
+        # The chain: four links on two bones (each link a thin box, turned 90 degrees from the one above).
         Bone("chain1", [-4.5, hand, 0], "right_arm", [30, 0, 0], [
-            Box([-5, hand - 6, -0.5], [1, 6, 1], iron, {"all": links}),
+            Box([-5, hand - 3, -0.4], [1, 3, 0.8], iron, {"all": links}),
+            Box([-4.9, hand - 6, -0.5], [0.8, 3, 1], iron.but(base=2.0), {"all": links}),
         ]),
         Bone("chain2", [-4.5, hand - 6, 0], "chain1", None, [
-            Box([-5, hand - 12, -0.5], [1, 6, 1], iron, {"all": links}),
+            Box([-5, hand - 9, -0.4], [1, 3, 0.8], iron, {"all": links}),
+            Box([-4.9, hand - 12, -0.5], [0.8, 3, 1], iron.but(base=2.0), {"all": links}),
         ]),
-        Bone("censer", [-4.5, hand - 12, 0], "chain2", None, [
-            Box([-5, hand - 13, -0.5], [1, 1, 1], iron.but(base=3.2)),
-            Box([-6.5, hand - 14.5, -2], [4, 1.5, 4], bronze.but(base=2.2), {"all": lid}),
-            Box([-7, hand - 19, -2.5], [5, 4.5, 5], bronze, {"all": pierced}),
-            Box([-6, hand - 20, -1.5], [3, 1, 3], bronze.but(base=0.8)),
-        ]),
+        Bone("censer", [-4.5, hand - 12, 0], "chain2", None,
+             [Box([-5, hand - 13, -0.5], [1, 1, 1], iron.but(base=3.2)),
+              Box([-6.5, hand - 14.5, -2], [4, 1.5, 4], bronze.but(base=2.2), {"all": lid})]
+             + octagon([-7, hand - 19, -2.5], [5, 4.5, 5], bronze, {"all": pierced}, shrink=0.75)
+             + [Box([-6, hand - 20, -1.5], [3, 1, 3], bronze.but(base=0.8)),
+                Box([-5.2, hand - 21.5, -0.6], [0.8, 1.6, 0.6], ember_drip), Box([-3.8, hand - 21, -1.2], [0.6, 1.2, 0.6], ember_drip.but(base=1.0)),
+                Box([-6.4, hand - 21.2, 0.4], [0.6, 1.4, 0.6], ember_drip.but(base=2.6))]),
         Bone("left_arm", [4.5, sh, 0], "body", [-35, 15, 8], [mirror_box(arm)]),
         Bone("left_sleeve", [4.5, sh, 0], "left_arm", None, [mirror_box(sleeve_box), mirror_box(bell_box)]),
+        Bone("left_hand", [4.5, hand + 2, 0], "left_arm", None, [mirror_box(b) for b in [palm] + digits]),
     ]
     animations = sister_animations()
     write_model("fallen_sister", bones, animations, [3, 3.5], tex_w=128)
@@ -356,13 +383,16 @@ def sister_animations():
                 v[axis] = a * amp * math.sin(2 * math.pi * (i / 4 + ph + phase))
                 pairs += [length * i / 4, v]
             return keys(*pairs)
-        return {
+        return merge({
             "hem_front": {"rotation": wave(-5, 0.10)},
             "hem_back": {"rotation": wave(6, 0.25)},
             "veil_train": {"rotation": wave(5, 0.35)},
+            "veil_train_2": {"rotation": wave(6, 0.45)},
+            "veil_tassel_right": {"rotation": wave(4, 0.3, 2)},
+            "veil_tassel_left": {"rotation": wave(-4, 0.4, 2)},
             "right_sleeve": {"rotation": wave(4, 0.2, 2)},
             "left_sleeve": {"rotation": wave(-4, 0.3, 2)},
-        }
+        }, lag_sway(chain_names("hair", 2), length, 5 * amp, axis=0, phase=0.3 + phase))
 
     def pendulum(length, amp, phase=0.0):
         """The censer swinging on its chain: the lower link and the censer lag the upper one."""
@@ -379,6 +409,19 @@ def sister_animations():
     a1, a2, slam, spin, step = t(ARC_1_WINDUP), t(ARC_2_WINDUP), t(SLAM_WINDUP), t(SPIN_WINDUP), t(BACKSTEP_WINDUP)
     burn, death, hurt = t(VEIL_BURN_TICKS), t(DEATH_TICKS), t(HURT_TICKS)
     rest_arm = [0, 0, 0]
+    loose = [chain_names("hair", 2), ["veil_train_2"], ["veil_tassel_right"], ["veil_tassel_left"]]
+
+    def loose_whip(t0, amp, settle=0.5):
+        """Hair, train and tassels flung after a strike at t0."""
+        out = {}
+        for i, names in enumerate(loose):
+            out = merge(out, whip(names, t0 + 0.03 * i, amp, axis=0 if i < 2 else 2, settle=settle))
+        return out
+
+    def grip(t0, t1, curl=-25):
+        """The censer hand closes on the chain for the swing and opens again."""
+        return {"right_hand": rot(0, ZERO, t0, [curl, 0, 0], t1, [curl, 0, 0], t1 + 0.2, ZERO)}
+
     animations = {
         "misc.idle": anim(3.2, merge(unwound, cloth(3.2, 0.8), pendulum(3.2, 9), {
             "body": rot(0, ZERO, 1.6, [3, 0, 0], 3.2, ZERO),
@@ -396,10 +439,10 @@ def sister_animations():
         })),
         # The chain winds around her forearm as she draws the censer back to her right (the coils grow, the chain
         # shortens), then it lashes out across her front from right to left and runs loose again.
-        "attack.censer_arc_1": anim(a1 + 0.45, {
+        "attack.censer_arc_1": anim(a1 + 0.45, merge(loose_whip(a1 + 0.05, 30), grip(a1 * 0.3, a1 + 0.1), {
             "right_arm": rot(0, rest_arm, a1 * 0.7, [-60, -55, -35], a1, [-70, -65, -40],
-                             a1 + 0.1, [-80, 60, -20], a1 + 0.45, rest_arm),
-            "body": rot(0, ZERO, a1, [4, 35, 0], a1 + 0.1, [0, -30, 0], a1 + 0.45, ZERO),
+                             a1 + 0.1, e("easeOutBack", [-80, 60, -20]), a1 + 0.45, e("easeInOutSine", rest_arm)),
+            "body": rot(0, ZERO, a1, e("easeInOutSine", [4, 35, 0]), a1 + 0.1, e("easeOutBack", [0, -30, 0]), a1 + 0.45, e("easeInOutSine", ZERO)),
             "skirt": rot(0, ZERO, a1, [0, 12, 0], a1 + 0.15, [0, -14, 0], a1 + 0.45, ZERO),
             "chain_wrap": {"scale": keys(0, hidden, a1 * 0.25, [0.4, 0.4, 0.4], a1 * 0.8, [1, 1, 1], a1, [1, 1, 1],
                                          a1 + 0.05, hidden)},
@@ -410,11 +453,11 @@ def sister_animations():
             "hem_front": rot(0, ZERO, a1 + 0.1, [-6, 0, 0], a1 + 0.3, [10, 0, 0], a1 + 0.45, ZERO),
             "veil_train": rot(0, ZERO, a1, [6, 0, -8], a1 + 0.2, [14, 0, 12], a1 + 0.45, ZERO),
             "right_sleeve": rot(0, ZERO, a1, [0, 0, 10], a1 + 0.15, [0, 0, -18], a1 + 0.45, ZERO),
-        }, loop=False),
+        }), loop=False),
         # The backhand: from where the first arc ended, a shorter windup back across to the right.
-        "attack.censer_arc_2": anim(a2 + 0.5, {
-            "right_arm": rot(0, [-80, 60, -20], a2, [-85, 75, -15], a2 + 0.1, [-70, -55, -30], a2 + 0.5, rest_arm),
-            "body": rot(0, [0, -30, 0], a2, [0, -38, 0], a2 + 0.1, [0, 30, 0], a2 + 0.5, ZERO),
+        "attack.censer_arc_2": anim(a2 + 0.5, merge(loose_whip(a2 + 0.05, 28), grip(0, a2 + 0.1), {
+            "right_arm": rot(0, [-80, 60, -20], a2, e("easeInOutSine", [-85, 75, -15]), a2 + 0.1, e("easeOutBack", [-70, -55, -30]), a2 + 0.5, e("easeInOutSine", rest_arm)),
+            "body": rot(0, [0, -30, 0], a2, e("easeInOutSine", [0, -38, 0]), a2 + 0.1, e("easeOutBack", [0, 30, 0]), a2 + 0.5, e("easeInOutSine", ZERO)),
             "skirt": rot(0, [0, -14, 0], a2 + 0.15, [0, 14, 0], a2 + 0.5, ZERO),
             "chain_wrap": {"scale": keys(0, hidden, a2 * 0.5, [0.7, 0.7, 0.7], a2, [1, 1, 1], a2 + 0.05, hidden)},
             "chain1": rot(0, [15, 0, -20], a2, [-80, 0, -50], a2 + 0.1, [-20, 0, 70], a2 + 0.3, [10, 0, 20], a2 + 0.5, ZERO),
@@ -422,15 +465,15 @@ def sister_animations():
             "censer": rot(0, ZERO, a2 + 0.15, [0, 0, 40], a2 + 0.5, ZERO),
             "veil_train": rot(0, [14, 0, 12], a2 + 0.2, [14, 0, -12], a2 + 0.5, ZERO),
             "left_sleeve": rot(0, ZERO, a2 + 0.15, [0, 0, 16], a2 + 0.5, ZERO),
-        }, loop=False),
+        }), loop=False),
         # Both hands raise the censer over her head and she rises on the robe, the chain winding up short; then it
         # comes down in front of her into the floor, she bows over it, and straightens slowly.
-        "attack.slam": anim(slam + 0.9, {
-            "right_arm": rot(0, rest_arm, slam * 0.75, [-160, 0, 10], slam, [-170, 0, 12], slam + 0.08, [-45, 0, 5],
+        "attack.slam": anim(slam + 0.9, merge(loose_whip(slam + 0.05, 40), grip(slam * 0.5, slam + 0.1, -35), {
+            "right_arm": rot(0, rest_arm, slam * 0.75, [-160, 0, 10], slam, [-170, 0, 12], slam + 0.08, e("easeOutBack", [-45, 0, 5]),
                              slam + 0.55, [-45, 0, 5], slam + 0.9, rest_arm),
             "left_arm": rot(0, ZERO, slam * 0.75, [-125, -15, -20], slam, [-135, -15, -20], slam + 0.08, [-15, -10, -10],
                             slam + 0.55, [-15, -10, -10], slam + 0.9, ZERO),
-            "body": rot(0, ZERO, slam, [-14, 0, 0], slam + 0.08, [28, 0, 0], slam + 0.55, [24, 0, 0], slam + 0.9, ZERO),
+            "body": rot(0, ZERO, slam, e("easeInOutSine", [-14, 0, 0]), slam + 0.08, e("easeOutBack", [28, 0, 0]), slam + 0.55, [24, 0, 0], slam + 0.9, e("easeInOutSine", ZERO)),
             "head": rot(0, ZERO, slam, [-20, 0, 0], slam + 0.1, [15, 0, 0], slam + 0.9, ZERO),
             "root": pos(0, ZERO, slam, [0, 2.5, 0], slam + 0.08, [0, -1.5, 0], slam + 0.55, [0, -1.5, 0], slam + 0.9, ZERO),
             "chain_wrap": {"scale": keys(0, hidden, slam * 0.6, [1, 1, 1], slam, [1, 1, 1], slam + 0.04, hidden)},
@@ -444,12 +487,12 @@ def sister_animations():
             "veil_train": rot(0, ZERO, slam, [-10, 0, 0], slam + 0.15, [30, 0, 0], slam + 0.9, ZERO),
             "right_sleeve": rot(0, ZERO, slam, [20, 0, 0], slam + 0.15, [-15, 0, 0], slam + 0.9, ZERO),
             "left_sleeve": rot(0, ZERO, slam, [20, 0, 0], slam + 0.15, [-15, 0, 0], slam + 0.9, ZERO),
-        }, loop=False),
+        }), loop=False),
         # She sinks low and lets the chain run out, the censer starting to circle at her side; then she turns twice
         # on the spot with the chain straight out, the robe flaring, and slows to a stop.
-        "attack.spin": anim(spin + 1.0, {
-            "root": {"rotation": keys(0, ZERO, spin, [0, 25, 0], spin + 0.5, [0, -720, 0], spin + 0.7, [0, -740, 0],
-                                      spin + 1.0, [0, -720, 0]),
+        "attack.spin": anim(spin + 1.0, merge(loose_whip(spin + 0.3, 45), grip(spin * 0.5, spin + 0.8, -30), {
+            "root": {"rotation": keys(0, ZERO, spin, e("easeInOutSine", [0, 25, 0]), spin + 0.5, e("easeInQuad", [0, -720, 0]), spin + 0.7, [0, -740, 0],
+                                      spin + 1.0, e("easeOutSine", [0, -720, 0])),
                      "position": keys(0, ZERO, spin, [0, -2, 0], spin + 0.5, [0, -1, 0], spin + 1.0, ZERO)},
             "right_arm": rot(0, rest_arm, spin * 0.5, [-40, 0, -50], spin, [-60, 0, -75], spin + 0.5, [-80, 0, -85],
                              spin + 1.0, rest_arm),
@@ -464,16 +507,16 @@ def sister_animations():
             "veil_train": rot(0, ZERO, spin, [10, 0, 0], spin + 0.5, [55, 0, 0], spin + 0.8, [10, 0, 0], spin + 1.0, ZERO),
             "right_sleeve": rot(0, ZERO, spin + 0.5, [0, 0, -35], spin + 1.0, ZERO),
             "left_sleeve": rot(0, ZERO, spin + 0.5, [0, 0, 35], spin + 1.0, ZERO),
-        }, loop=False),
+        }), loop=False),
         # A crouch and a hop back from someone behind her: the hems trail forward as she lands.
-        "misc.backstep": anim(step + 0.6, {
+        "misc.backstep": anim(step + 0.6, merge(loose_whip(step + 0.2, 25), {
             "root": pos(0, ZERO, step, [0, -1.5, 0], step + 0.2, [0, 3, 3], step + 0.4, [0, 0, 1], step + 0.6, ZERO),
             "body": rot(0, ZERO, step, [12, 0, 0], step + 0.2, [-10, 0, 0], step + 0.6, ZERO),
             "hem_front": rot(0, ZERO, step + 0.2, [-25, 0, 0], step + 0.45, [8, 0, 0], step + 0.6, ZERO),
             "hem_back": rot(0, ZERO, step + 0.2, [-8, 0, 0], step + 0.45, [20, 0, 0], step + 0.6, ZERO),
             "veil_train": rot(0, ZERO, step + 0.2, [-15, 0, 0], step + 0.45, [25, 0, 0], step + 0.6, ZERO),
             "chain1": rot(0, ZERO, step + 0.2, [-35, 0, 0], step + 0.45, [20, 0, 0], step + 0.6, ZERO),
-        }, loop=False),
+        }), loop=False),
         # Phase 2: she clutches her head as the veil catches fire and burns away upward (shrinks to nothing), then
         # throws her head back in a scream (the souls come out of it).
         "misc.veil_burn": anim(burn + 0.4, {
@@ -496,17 +539,30 @@ def sister_animations():
             "chain2": rot(0, ZERO, 0.5, [-15, 0, 0], burn * 0.6, [10, 0, 0], burn + 0.4, ZERO),
         }, loop=False),
         # A flinch that never stops a windup (the code plays it only between moves).
-        "misc.hurt": anim(hurt, {
+        "misc.hurt": anim(hurt, merge(loose_whip(0.02, 14), {
             "body": rot(0, ZERO, hurt * 0.3, [-9, 6, 0], hurt, ZERO),
             "head": rot(0, ZERO, hurt * 0.3, [-14, -8, 0], hurt, ZERO),
             "root": pos(0, ZERO, hurt * 0.3, [0, 0, 0.8], hurt, ZERO),
             "hem_front": rot(0, ZERO, hurt * 0.4, [-12, 0, 0], hurt, ZERO),
             "veil_train": rot(0, ZERO, hurt * 0.45, [14, 0, 0], hurt, ZERO),
             "chain1": rot(0, ZERO, hurt * 0.4, [-18, 0, 8], hurt, ZERO),
-        }, loop=False),
+        }), loop=False),
+        # Stagger (a heavy hit): she is thrown back a step, the chain flung out, and gathers herself.
+        "misc.stagger": anim(0.9, merge(loose_whip(0.03, 35, 0.8), {
+            "root": pos(0, ZERO, 0.15, e("easeOutCubic", [0, -1, 3]), 0.5, [0, -1.5, 4], 0.9, e("easeInOutSine", ZERO)),
+            "body": rot(0, ZERO, 0.15, e("easeOutBack", [-22, 10, 0]), 0.5, [-16, -8, 0], 0.9, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.15, [-25, 12, 0], 0.5, [-15, -10, 0], 0.9, ZERO),
+            "right_arm": rot(0, rest_arm, 0.15, e("easeOutBack", [-50, 0, -50]), 0.9, e("easeInOutSine", rest_arm)),
+            "left_arm": rot(0, ZERO, 0.15, e("easeOutBack", [-60, 0, 40]), 0.9, e("easeInOutSine", ZERO)),
+            "chain1": rot(0, ZERO, 0.15, [-40, 0, -30], 0.45, [20, 0, 20], 0.9, ZERO),
+            "chain2": rot(0, ZERO, 0.2, [-30, 0, -10], 0.5, [25, 0, 10], 0.9, ZERO),
+            "hem_front": rot(0, ZERO, 0.2, [-20, 0, 0], 0.55, [8, 0, 0], 0.9, ZERO),
+            "hem_back": rot(0, ZERO, 0.2, [-10, 0, 0], 0.55, [18, 0, 0], 0.9, ZERO),
+            "skirt": rot(0, ZERO, 0.15, [-6, 0, 0], 0.9, ZERO),
+        }), loop=False),
         # She sways, the censer slips from her hand to the floor, she sinks to her knees in the robe and folds
         # forward over it; the last embers go out (the server bursts them into ash at the end).
-        "misc.death": anim(death, {
+        "misc.death": anim(death, merge(loose_whip(death * 0.55, 30), {
             "root": pos(0, ZERO, death * 0.25, [0, 0, 0.5], death * 0.55, [0, -9, 0], death * 0.8, [0, -11, -1],
                         death, [0, -12, -1]),
             "skirt": {"scale": keys(0, [1, 1, 1], death * 0.55, [1.15, 0.55, 1.15], death, [1.25, 0.45, 1.25])},
@@ -522,7 +578,7 @@ def sister_animations():
             "veil_train": rot(0, ZERO, death * 0.6, [-30, 0, 0], death, [-10, 0, 0]),
             "right_sleeve": rot(0, ZERO, death, [10, 0, 0]),
             "left_sleeve": rot(0, ZERO, death, [10, 0, 0]),
-        }, loop=False),
+        }), loop=False),
     }
     return animations
 

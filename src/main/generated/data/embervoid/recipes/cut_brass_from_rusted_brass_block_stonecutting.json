@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 1,
+  "ingredient": {
+    "item": "embervoid:rusted_brass_block"
+  },
+  "result": "embervoid:cut_brass"
+}

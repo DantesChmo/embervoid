@@ -343,11 +343,11 @@ visuals; the quick fixes fit in anywhere. Milestones 15, 17 and 21 start with a 
 
 ## 17. Weapons above netherite
 
-**Status:** Built except the in-hand models (PLAN 17.0, 17.1, 17.3, 17.4 done; 17.2 to do; feel not played).
+**Status:** Built (PLAN 17.0–17.4 done; feel not played, the in-hand models seen only in the offline preview).
 
 - [x] Design: loot ladder with Realm 1 uniques about 30 % above netherite, weapon identities, target fight lengths — DESIGN §5.5, §6, §6.1
 - [x] Player attack animations (new dependency: playerAnimator)
-- [ ] Bigger in-hand weapon models
+- [x] Bigger in-hand weapon models — 3D element models for the five melee weapons and the Scourge's handle (`tools/weapon_model_art.py`, `InHandModels`); every weapon also has its signature in the air: swing trails, the mod's own particles, the Scourge's crack, the Scythe's souls and ash wave (the visual overhaul, 2026-10-24)
 - [x] New weapon stats and identities
 - [x] **Warden's Scourge** as a real whip: segmented, hits along an arc, the tip cracks
 
@@ -361,21 +361,34 @@ visuals; the quick fixes fit in anywhere. Milestones 15, 17 and 21 start with a 
 
 ## 19. Mobs and bosses that look the part
 
-**Status:** Tooling and effects done (PLAN 19.1, 19.2); animations and remodels to do.
+**Status:** Tooling, effects and the boss remodels done (PLAN 19.1, 19.2, 19.4; 19.3 for the bosses); the mobs' animations and remodels in progress (the overhaul's wave 2); nothing seen in game.
 
 - [x] Offline viewer for structures and animation motion (`tools/model_preview.py` extended)
 - [x] Combat effects: camera shake, swing trails, hit flashes
-- [ ] Death, hit-reaction and stagger animations for all 24 animated mobs
-- [ ] Boss remodels with secondary motion, phase and death animations (the Smoldering Lord's face included)
+- [ ] Death, hit-reaction and stagger animations for all 24 animated mobs — the six bosses done; the 21 mobs in the overhaul's wave 2 (remodels to 30–80 cubes with them)
+- [x] Boss remodels with secondary motion, phase and death animations (the Smoldering Lord's face included) — 71–128 cubes each, eased moves, `EmberHaloLayer`; seen only in the offline preview
 - [ ] Optional: a dev photo tour the user starts in their own terminal
 
 ## 20. Props and moving set pieces
 
-**Status:** Props done (PLAN 20.3); set pieces and structure variety to do.
+**Status:** Done (PLAN 20.1–20.4; the overhaul rebuilt every structure from 25 new blocks and placed fourteen moving set pieces); nothing seen in game.
 
-- [ ] Animated set pieces (GeckoLib block entities, capped): windmill sails, hoists, bells, cages, portcullis gears, bellows, chain lifts, censers, smoke
+- [x] Animated set pieces (GeckoLib block entities, capped): windmill sails, hoists, bells, cages, portcullis gears, bellows, chain lifts, censers, smoke — fourteen pieces, arenas react to the fight (`block.setpiece`, `ArenaEvents`)
 - [x] 14 3D props with matching hitboxes
-- [ ] Props in the structures, more piece variants
+- [x] Props in the structures, more piece variants — every builder rebuilt from the wider palette with cornices, pitched roofs, arches, buttresses, grilles and decay gradients (docs/art-direction.md §3)
+
+## Visual overhaul (the night of 2026-10-24)
+
+**Status:** Done except the mob remodels (in progress) and the look in game; the bar is [docs/art-direction.md](docs/art-direction.md).
+
+- [x] Art direction: hue-shifted palettes, light from the top-left, structural detail, dense models, motion everywhere
+- [x] Every block texture redrawn, 25 new building blocks, every structure rebuilt (track `art-blocks`)
+- [x] The mod's own particles (ember, ash, soot, sparks, blood, amber, cold flame, souls, shockwave, scorch, burst)
+- [x] Weapon signatures: trails per weapon kind, the Scourge's crack and heat, the Scythe's souls and ash wave, the Rapier's ramp glow, the Crossbow's ember bolts, Wide Cleave and Ground Slam
+- [x] Fog walls as volumes (arena wall and Citadel border): scrolling ember cloud, light streaks, ground ring, embers, flares, a hum
+- [x] Six boss remodels (track `bosses`), fourteen moving set pieces and arenas that move (track `setpieces`)
+- [ ] 21 mob remodels with hurt / death / stagger (wave 2: `mobs`, `overworld-mobs`)
+- [ ] A look in game (nobody plays; the photo tour 19.5 is still optional)
 
 ## 21. The Citadel behind a fog wall
 
@@ -384,7 +397,7 @@ visuals; the quick fixes fit in anywhere. Milestones 15, 17 and 21 start with a 
 - [x] Design: the final zone as the realm's fourth sector behind the Citadel Gate — DESIGN §4.1, §4.5
 - [x] Four sectors (final zone 60°, radius 1300), the Citadel Gate at the plaza
 - [ ] The Citadel generated in its sector; the depths dimension removed
-- [x] Fog wall: look and server lock (no pearls, chorus, elytra or riptide past it)
+- [x] Fog wall: look and server lock (no pearls, chorus, elytra or riptide past it); the look redone as a volume in the overhaul (`FogWallDraw`)
 - [ ] Old worlds' realm dimensions regenerated (progress kept)
 
 ## 0.5.0 release

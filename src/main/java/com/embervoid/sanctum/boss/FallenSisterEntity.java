@@ -6,6 +6,7 @@ import com.embervoid.boss.BossHits;
 import com.embervoid.boss.Telegraph;
 import com.embervoid.boss.TelegraphShape;
 import com.embervoid.fx.CombatFx;
+import com.embervoid.fx.particle.EmberParticles;
 import com.embervoid.fx.SwingArc;
 import com.embervoid.reach.boss.ReachBoss;
 import net.minecraft.block.BlockState;
@@ -31,11 +32,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.constant.DefaultAnimations;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.animation.RawAnimation;
-import software.bernie.geckolib.core.object.PlayState;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -75,8 +71,9 @@ public class FallenSisterEntity extends ReachBoss {
 	public static final int BACKSTEP_COOLDOWN = 16;
 	/** The veil burning at 50 %: she stands, untouchable, for this long. */
 	public static final int VEIL_BURN_TICKS = 40;
-	/** How long her body stays for the death animation. */
+	/** How long her body stays for the death animation, and the hit (a share of her health) that staggers her. */
 	public static final int DEATH_TICKS = 50;
+	public static final float STAGGER_SHARE = 0.12f;
 	/** The slam's ember puddle: how long it burns, and how often it hurts whoever stands in it. */
 	public static final int PUDDLE_TICKS = 80;
 	public static final int PUDDLE_INTERVAL = 10;
@@ -92,10 +89,6 @@ public class FallenSisterEntity extends ReachBoss {
 	public static final String SPIN = "attack.spin";
 	public static final String BACKSTEP = "misc.backstep";
 	public static final String VEIL_BURN = "misc.veil_burn";
-	public static final String HURT = "misc.hurt";
-	public static final String DEATH = "misc.death";
-	/** The controller of the hit reaction, under the move animations. */
-	public static final String HURT_CONTROLLER = "hurt";
 
 	private static final float ARC_DAMAGE = 4;
 	private static final float SLAM_DAMAGE = 6;
@@ -125,7 +118,6 @@ public class FallenSisterEntity extends ReachBoss {
 	private int flockTimer;
 	private int diveTimer;
 	private int flocks;
-	private int lastHurtAnimation = -100;
 	@Nullable
 	private Vec3d slamAt;
 
@@ -189,7 +181,9 @@ public class FallenSisterEntity extends ReachBoss {
 		veilBurnLeft = VEIL_BURN_TICKS;
 		playAnimation(VEIL_BURN);
 		world.playSound(null, getX(), getY(), getZ(), SanctumBossSounds.FALLEN_SISTER_VEIL_BURN, SoundCategory.HOSTILE, 2.0f, 1.0f);
-		world.spawnParticles(ParticleTypes.FLAME, getX(), getY() + 2.6, getZ(), 30, 0.3, 0.3, 0.3, 0.02);
+		world.spawnParticles(EmberParticles.EMBER, getX(), getY() + 2.6, getZ(), 30, 0.3, 0.3, 0.3, 0.02);
+		CombatFx.flash(world, getPos().add(0, 2.6, 0), 2.0f, CombatFx.EMBER);
+		CombatFx.shake(world, getPos(), 0.4f, CombatFx.shakeTicks(0.4f), 20);
 	}
 
 	@Override
@@ -475,13 +469,7 @@ public class FallenSisterEntity extends ReachBoss {
 		if (veilBurnLeft > 0 && !source.isOf(DamageTypes.GENERIC_KILL) && !source.isOf(DamageTypes.OUT_OF_WORLD)) {
 			return false;
 		}
-		boolean hurt = super.damage(source, amount);
-		// A flinch between moves; never over a windup.
-		if (hurt && isAlive() && !Telegraph.isWindingUp(this) && age - lastHurtAnimation > 10) {
-			lastHurtAnimation = age;
-			triggerAnim(HURT_CONTROLLER, HURT);
-		}
-		return hurt;
+		return super.damage(source, amount);
 	}
 
 	/**
@@ -494,8 +482,6 @@ public class FallenSisterEntity extends ReachBoss {
 		if (!(getWorld() instanceof ServerWorld world)) {
 			return;
 		}
-		Telegraph.cancel(this);
-		playAnimation(DEATH);
 		if (arenaCenter != null) {
 			SanctumBossArena.markCleared(world, arenaCenter);
 		}
@@ -508,45 +494,37 @@ public class FallenSisterEntity extends ReachBoss {
 		}
 	}
 
+	/** A heavy hit throws her back (visual only); any other is a flinch. */
 	@Override
-	protected int deathTicks() {
+	protected String hurtAnimation(DamageSource source, float amount) {
+		return amount >= getMaxHealth() * STAGGER_SHARE ? STAGGER : HURT;
+	}
+
+	@Override
+	protected List<String> hurtAnimations() {
+		return List.of(HURT, STAGGER);
+	}
+
+	@Override
+	public int deathTicks() {
 		return DEATH_TICKS;
 	}
 
 	@Override
-	protected void updatePostDeath() {
-		deathTime++;
-		if (!(getWorld() instanceof ServerWorld world) || isRemoved()) {
-			return;
-		}
+	protected void tickDeath(ServerWorld world, int deathTime) {
 		if (deathTime % 4 == 0) {
-			world.spawnParticles(ParticleTypes.SMALL_FLAME, getX(), getY() + 1.2, getZ(), 3, 0.3, 0.6, 0.3, 0.01);
+			world.spawnParticles(EmberParticles.EMBER, getX(), getY() + 1.2, getZ(), 3, 0.3, 0.6, 0.3, 0.01);
 		}
 		if (deathTime >= DEATH_TICKS) {
 			// The last embers go out: what is left of her falls to ash.
-			world.spawnParticles(ParticleTypes.WHITE_ASH, getX(), getY() + 0.8, getZ(), 60, 0.5, 0.6, 0.5, 0.02);
-			world.spawnParticles(ParticleTypes.SOUL, getX(), getY() + 0.8, getZ(), 12, 0.4, 0.4, 0.4, 0.04);
-			world.sendEntityStatus(this, (byte) 60);
-			remove(RemovalReason.KILLED);
+			world.spawnParticles(EmberParticles.ASH_FLAKE, getX(), getY() + 0.8, getZ(), 60, 0.5, 0.6, 0.5, 0.02);
+			EmberParticles.souls(world, new Vec3d(getX(), getY() + 0.8, getZ()), new Vec3d(getX(), getY() + 0.8 + 3.0, getZ()), 12);
 		}
 	}
 
 	@Override
 	protected List<String> actionAnimations() {
-		return List.of(ARC_1, ARC_2, SLAM, SPIN, BACKSTEP, VEIL_BURN, DEATH);
-	}
-
-	/** Walk / idle first, then the hit reaction, then the moves, so a move's animation wins over a flinch. */
-	@Override
-	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-		controllers.add(DefaultAnimations.genericWalkIdleController(this));
-		controllers.add(new AnimationController<>(this, HURT_CONTROLLER, 0, state -> PlayState.STOP)
-				.triggerableAnim(HURT, RawAnimation.begin().thenPlay(HURT)));
-		AnimationController<FallenSisterEntity> action = new AnimationController<>(this, ACTION, 0, state -> PlayState.STOP);
-		for (String name : actionAnimations()) {
-			action.triggerableAnim(name, RawAnimation.begin().thenPlay(name));
-		}
-		controllers.add(action);
+		return List.of(ARC_1, ARC_2, SLAM, SPIN, BACKSTEP, VEIL_BURN);
 	}
 
 	/** Not a giant: her sounds carry like a player's. */
