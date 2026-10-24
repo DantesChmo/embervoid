@@ -95,6 +95,11 @@ public final class MobRenderers {
 			protected int getBlockLight(EmberWispEntity wisp, BlockPos pos) {
 				return 15;
 			}
+
+			@Override
+			protected float getDeathMaxRotation(EmberWispEntity wisp) {
+				return 0; // its own death animation (PLAN 19.3)
+			}
 		};
 		renderer.addRenderLayer(new AutoGlowingGeoLayer<>(renderer));
 		return renderer;

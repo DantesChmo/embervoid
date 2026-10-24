@@ -641,65 +641,134 @@ def hollow():
 
 # --- Ember Wisp -----------------------------------------------------------------------------------------------------
 # A loose ember of the Ember drifting in the dark under the ground (DESIGN §3.2): a white-hot core with two dark
-# eyes inside a licking shell of translucent flame, a flickering crown of tongues and three sparks circling it.
-# Drawn translucent and full bright (MobRenderers), so the flame's alpha is its body.
+# eyes inside a licking shell of translucent flame, both octagonal, a crown of flame with three tongues on two-bone
+# chains that lick and lag, a trailing tail of four fading segments streaming behind it as it flies, and two rings
+# of sparks circling it the opposite ways. 30 cubes on 16 bones. Drawn translucent and full bright (MobRenderers),
+# so the flame's alpha is its body. misc.hurt is a jolt and a flare; misc.death gutters out: the shell shrinks, the
+# core falls and flickers, the sparks fly off (EmberWispEntity keeps the body 24 ticks).
 
 def ember_wisp():
-    core = Material(CORE, base=1.6, noise=0.6, grad=0.8, top=1.0, bottom=-0.6)
-
-    def core_front(face, rng):
-        # Two dark eyes in the white heat.
-        face.vline(0, 1, 2, EMBER_DARK)
-        face.vline(face.w - 1, 1, 2, EMBER_DARK)
-        face.set(1, 2, EMBER_DEEP)
-        face.set(face.w - 2, 2, EMBER_DEEP)
+    core = Material(CORE, base=2.6, noise=0.5, grad=0.8, top=1.0, bottom=-0.6)
 
     def flame_mat(base):
         # Hotter at the bottom: the gradient runs the other way (grad < 0).
-        return Material(FLAME, base=base, noise=0.8, grain="v", grad=-1.6, top=1.0, bottom=1.4)
+        return Material(FLAME, base=base, noise=0.7, grain="v", grad=-1.6, top=1.0, bottom=1.4)
+
+    def core_front(face, rng):
+        # Two dark eyes in the white heat, the glow cleared under them.
+        for x in (0, face.w - 1):
+            for y in (1, 2):
+                face.set(x, y, EMBER_DARK)
+                face.glow.set(face.x0 + x, face.y0 + y, (0, 0, 0, 0))
+        face.set(1, 2, EMBER_DEEP)
+        face.set(face.w - 2, 2, EMBER_DEEP)
+
+    shell_deco = compose(round_corners, lambda f, r: flame_tongues(f, r, 3, 0.55), on("top", clear_all), fade(105, 185), glow_all(85, 0.9))
+    tongue_deco = compose(lambda f, r: flame_tongues(f, r, 1, 0.4), fade(190, 235), glow_all(170))
+    tail_deco = [compose(lambda f, r: flame_tongues(f, r, 1, 0.3), fade(170 - 35 * i, 110 - 25 * i), glow_all(150 - 30 * i, 1.0 - 0.1 * i)) for i in range(4)]
+    spark = lambda base, colors=FLAME: Material(colors, base=base, noise=0.3, glow=1.0)
 
     bones = [
         Bone("root", [0, 0, 0]),
-        Bone("core", [0, 4, 0], "root", None, [
-            Box([-2, 2, -2], [4, 4, 4], core, {"front": compose(core_front, glow_all()),
-                                               "back": glow_all(), "left": glow_all(), "right": glow_all(),
-                                               "top": glow_all(), "bottom": glow_all()}),
-        ]),
-        Bone("shell", [0, 4, 0], "root", None, [
-            Box([-3, 1, -3], [6, 6, 6], flame_mat(2.6),
-                {"all": compose(round_corners, lambda f, r: flame_tongues(f, r, 3, 0.55),
-                                lambda f, r: clear_all(f) if f.name == "top" else None,
-                                fade(105, 185), glow_all(85, 0.9))}),
-        ]),
-        Bone("orbit", [0, 4, 0], "root", None, [
-            Box([4.5, 3.5, -0.5], [1, 1, 1], Material(CORE, base=1.0, noise=0.4), {"all": glow_all()}),
-            Box([-5.5, 4.5, -0.5], [1, 1, 1], Material(FLAME, base=4.0, noise=0.4), {"all": glow_all()}),
-            Box([-0.5, 2.5, 4.5], [1, 1, 1], Material(FLAME, base=3.4, noise=0.4), {"all": glow_all()}),
-        ]),
+        Bone("core", [0, 4, 0], "root", None,
+             octagon([-2, 2, -2], [4, 4, 4], core, {"all": compose(glow_all(), on("front", core_front))}, shrink=0.8)
+             + [Box([-1, 3, -1], [2, 2, 2], Material(CORE, base=4.5, noise=0.3, glow=1.0))]),
+        Bone("shell", [0, 4, 0], "root", None,
+             octagon([-3, 1, -3], [6, 6, 6], flame_mat(2.6), {"all": shell_deco}, shrink=0.8)),
         Bone("flame", [0, 7, 0], "root", None, [
-            Box([-1, 7, -1], [2, 3, 2], flame_mat(3.4),
-                {"all": compose(lambda f, r: flame_tongues(f, r, 1, 0.4), fade(170, 230), glow_all(150))}),
-            Box([-2.5, 6.5, 0.5], [1, 2, 1], flame_mat(3.0), {"all": compose(fade(150, 210), glow_all(130))}),
-            Box([1.5, 6.5, -1.5], [1, 2.5, 1], flame_mat(3.0), {"all": compose(fade(150, 210), glow_all(130))}),
-            Box([0.5, 6.5, 1.5], [1, 1.5, 1], flame_mat(3.6), {"all": compose(fade(160, 220), glow_all(140))}),
+            Box([-1.2, 6.8, -1.2], [2.4, 1.8, 2.4], flame_mat(3.2), {"all": tongue_deco}),
+            Box([-2.4, 6.4, 0.2], [1.2, 1.6, 1.2], flame_mat(3.0), {"all": tongue_deco}),
+            Box([1.3, 6.4, -1.5], [1.2, 2.0, 1.2], flame_mat(3.0), {"all": tongue_deco}),
+            Box([0.4, 6.6, 1.3], [1.0, 1.4, 1.0], flame_mat(3.5), {"all": tongue_deco}),
+            Box([-3.6, 3.5, -0.6], [1.2, 2.2, 1.2], flame_mat(2.8), {"all": tongue_deco}, rotation=[0, 0, 25]),
+            Box([2.4, 3.2, -0.6], [1.2, 2.2, 1.2], flame_mat(2.8), {"all": tongue_deco}, rotation=[0, 0, -25]),
         ]),
     ]
+    # The crown's three tongues: two bones each, licking up from the flame base.
+    for name, (x, z), lean in (("tongue_a", (0, 0), [0, 0, 0]), ("tongue_b", (-1.5, 0.8), [6, 0, 18]), ("tongue_c", (1.3, -1.0), [-10, 0, -14])):
+        bones += [
+            Bone(name + "_1", [x, 8.2, z], "flame", lean, [Box([x - 0.6, 8.2, z - 0.6], [1.2, 1.5, 1.2], flame_mat(3.4), {"all": tongue_deco})]),
+            Bone(name + "_2", [x, 9.7, z], name + "_1", None, [Box([x - 0.45, 9.7, z - 0.45], [0.9, 1.1, 0.9], flame_mat(3.8), {"all": tongue_deco})]),
+        ]
+    # The tail: four segments hanging behind and below, thinner and fainter toward the tip.
+    bones += chain_bones("tail", "root", [0, 3.5, 2.0], 4, 1.2, flame_mat(2.4), None, thickness=1.6, rotation=[55, 0, 0],
+                         box=lambda i, o, sz: [Box([o[0] + 0.15 * i, o[1], o[2] + 0.15 * i], [1.6 - 0.3 * i, 1.2, 1.6 - 0.3 * i],
+                                                   flame_mat(2.4 + 0.3 * i), {"all": tail_deco[i]})])
+    bones += [
+        Bone("orbit", [0, 4, 0], "root", None, [
+            Box([4.8, 3.5, -0.5], [1, 1, 1], spark(1.5, CORE)),
+            Box([-5.3, 4.6, -0.5], [1, 1, 1], spark(4.0)),
+            Box([-0.5, 2.6, 4.6], [0.8, 0.8, 0.8], spark(3.4)),
+            Box([-0.4, 5.2, -4.4], [0.8, 0.8, 0.8], spark(4.5)),
+            Box([-3.4, 1.9, -2.6], [0.7, 0.7, 0.7], spark(3.8)),
+            Box([3.2, 2.4, 3.2], [0.7, 0.7, 0.7], spark(3.0)),
+        ]),
+        Bone("orbit2", [0, 4, 0], "root", [0, 0, 28], [
+            Box([3.8, 3.6, -0.4], [0.8, 0.8, 0.8], spark(4.2)),
+            Box([-4.2, 4.2, -0.4], [0.8, 0.8, 0.8], spark(2.0, CORE)),
+            Box([-0.4, 3.8, -3.9], [0.7, 0.7, 0.7], spark(3.6)),
+        ]),
+    ]
+    tongues = [chain_names("tongue_" + k, 2) for k in "abc"]
+    tail = chain_names("tail", 4)
 
-    def float_anim(length, bob, flicker):
+    def lick(length, amp, phase=0.0):
+        """The tongues licking: each chain sways on X and Z out of phase, the tip lagging behind the root."""
+        out = {}
+        for i, names in enumerate(tongues):
+            out = merge(out, lag_sway(names, length, amp, axis=0, lag=0.12, gain=1.3, phase=phase + i * 0.33))
+            z = lag_sway(names, length, amp * 0.7, axis=2, lag=0.12, gain=1.3, phase=phase + i * 0.33 + 0.25)
+            for n in names:
+                for k, v in z[n]["rotation"].items():
+                    out[n]["rotation"][k][2] = v[2]
+        return out
+
+    def float_anim(length, bob, flicker, tail_back, tongue_amp):
         n = 8
         flame_scale = []
         for i in range(n + 1):
             s = 1.0 + flicker * (0.5 + 0.5 * ((i * 7) % 5) / 4) if i % n else 1.0
             flame_scale += [length * i / n, [1, s, 1]]
-        return anim(length, {
-            "root": pos(0, ZERO, length / 2, [0, bob, 0], length, ZERO),
+        return anim(length, merge(lick(length, tongue_amp), drift(tail, length, 10, axis=2, lag=0.12, gain=1.1, base=[tail_back, 0, 0]), {
+            "root": pos(0, ZERO, length / 2, e("easeInOutSine", [0, bob, 0]), length, e("easeInOutSine", ZERO)),
             "orbit": rot(0, ZERO, length / 2, [0, 180, 0], length, [0, 360, 0]),
+            "orbit2": rot(0, ZERO, length / 2, [0, -180, 0], length, [0, -360, 0]),
             "shell": rot(0, ZERO, length / 2, [0, -45, 0], length, [0, -90, 0]),
             "flame": {"scale": keys(*flame_scale), "rotation": sway(length, 6, 2)},
             "core": {"scale": keys(0, [1, 1, 1], length / 2, [1.1, 1.1, 1.1], length, [1, 1, 1])},
-        })
+        }))
 
-    animations = {"misc.idle": float_anim(2.0, 1, 0.35), "move.fly": float_anim(1.0, 1.5, 0.5)}
+    animations = {
+        "misc.idle": float_anim(2.0, 1, 0.35, 0, 9),
+        # Flying: a quicker bob, the tail streaming out behind, the tongues blown back.
+        "move.fly": float_anim(1.0, 1.5, 0.5, 35, 14),
+        # A hit knocks it back a pixel and it flares: the shell swells and the tongues whip.
+        "misc.hurt": anim(0.35, merge(whip(tongues[0], 0.0, 40, settle=0.3), whip(tongues[1], 0.03, 35, settle=0.3), whip(tongues[2], 0.02, -38, settle=0.3), {
+            "root": pos(0, ZERO, 0.06, e("easeOutCubic", [0, 0.6, 1.8]), 0.35, e("easeInOutSine", ZERO)),
+            "shell": {"scale": keys(0, [1, 1, 1], 0.08, e("easeOutBack", [1.35, 1.35, 1.35]), 0.2, [0.85, 0.85, 0.85], 0.35, [1, 1, 1])},
+            "core": {"scale": keys(0, [1, 1, 1], 0.06, [1.3, 1.3, 1.3], 0.35, [1, 1, 1])},
+            "orbit": {"scale": keys(0, [1, 1, 1], 0.1, [1.4, 1.4, 1.4], 0.35, [1, 1, 1])},
+        }), loop=False),
+        # It gutters out: the shell flares once and shrinks to nothing, the tongues whip and die, the sparks fly
+        # off, and the bare core drops to the ground, flickers, and goes dark.
+        "misc.death": anim(1.2, merge(whip(tongues[0], 0.05, 60, settle=0.5), whip(tongues[1], 0.08, 55, settle=0.5), whip(tongues[2], 0.06, -58, settle=0.5), {
+            "shell": {"scale": keys(0, [1, 1, 1], 0.12, e("easeOutBack", [1.5, 1.5, 1.5]), 0.55, e("easeInCubic", [0.05, 0.05, 0.05]), 1.2, [0.05, 0.05, 0.05]),
+                      "rotation": keys(0, ZERO, 0.55, [0, 160, 0])},
+            "flame": {"scale": keys(0, [1, 1, 1], 0.12, [1.4, 1.6, 1.4], 0.5, e("easeInCubic", [0.05, 0.05, 0.05]), 1.2, [0.05, 0.05, 0.05])},
+            "orbit": {"scale": keys(0, [1, 1, 1], 0.3, e("easeOutCubic", [2.2, 1.2, 2.2]), 0.7, [0.05, 0.05, 0.05], 1.2, [0.05, 0.05, 0.05]),
+                      "rotation": keys(0, ZERO, 0.7, [0, 240, 0])},
+            "orbit2": {"scale": keys(0, [1, 1, 1], 0.3, e("easeOutCubic", [2.0, 1.4, 2.0]), 0.7, [0.05, 0.05, 0.05], 1.2, [0.05, 0.05, 0.05]),
+                       "rotation": keys(0, ZERO, 0.7, [0, -240, 0])},
+            "root": pos(0, ZERO, 0.2, e("easeOutCubic", [0, 1.2, 0]), 0.9, e("easeInQuad", [0, -3.5, 0]), 1.0, e("easeOutBounce", [0, -3.0, 0]), 1.2, [0, -3.0, 0]),
+            "core": {"scale": keys(0, [1, 1, 1], 0.5, [1.1, 1.1, 1.1], 0.75, [0.6, 0.6, 0.6], 0.85, [0.9, 0.9, 0.9], 0.95, [0.5, 0.5, 0.5],
+                                   1.05, [0.7, 0.7, 0.7], 1.2, e("easeInCubic", [0.05, 0.05, 0.05])),
+                     "rotation": keys(0, ZERO, 1.0, [40, 90, 20], 1.2, [40, 90, 20])},
+            "tail_1": rot(0, [55, 0, 0], 0.4, e("easeInOutSine", [20, 0, 0]), 1.0, e("easeInQuad", [-10, 0, 0]), 1.2, [-10, 0, 0]),
+            "tail_2": rot(0, ZERO, 0.45, [-20, 0, 0], 1.0, [-30, 0, 0], 1.2, [-30, 0, 0]),
+            "tail_3": rot(0, ZERO, 0.5, [-25, 0, 0], 1.2, [-30, 0, 0]),
+            "tail_4": rot(0, ZERO, 0.55, [-25, 0, 0], 1.2, [-30, 0, 0]),
+        }), loop=False),
+    }
     write_model("ember_wisp", bones, animations, [1, 1], tex_w=32)
 
 

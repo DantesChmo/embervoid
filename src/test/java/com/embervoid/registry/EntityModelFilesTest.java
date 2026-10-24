@@ -1,6 +1,7 @@
 package com.embervoid.registry;
 
 import com.embervoid.entity.mob.AshGhoulEntity;
+import com.embervoid.entity.mob.EmberWispEntity;
 import com.embervoid.entity.mob.HollowEntity;
 import com.embervoid.entity.mob.MobAnimations;
 import com.embervoid.reach.boss.AshColossusEntity;
@@ -48,7 +49,7 @@ class EntityModelFilesTest {
 			Map.entry("ash_ghoul", List.of("misc.idle", "move.walk", "attack.swing", MobAnimations.HURT, MobAnimations.DEATH)),
 			Map.entry("hollow", List.of("misc.idle", "move.walk", "attack.swing", "attack.block", MobAnimations.HURT, MobAnimations.STAGGER,
 					MobAnimations.DEATH)),
-			Map.entry("ember_wisp", List.of("misc.idle", "move.fly")),
+			Map.entry("ember_wisp", List.of("misc.idle", "move.fly", MobAnimations.HURT, MobAnimations.DEATH)),
 			Map.entry("ashen_maiden", List.of("misc.idle", "misc.interact")),
 			Map.entry("ashen_zombie", List.of("misc.idle", "move.walk", "attack.swing")),
 			Map.entry("ghost", List.of("misc.idle", "move.fly", "attack.swing")),
@@ -91,6 +92,7 @@ class EntityModelFilesTest {
 			// The overworld and moon-night mobs: each death animation at least as long as the body stays.
 			Map.entry("ash_ghoul/" + MobAnimations.DEATH, AshGhoulEntity.DEATH_TICKS / 20.0),
 			Map.entry("hollow/" + MobAnimations.DEATH, HollowEntity.DEATH_TICKS / 20.0),
+			Map.entry("ember_wisp/" + MobAnimations.DEATH, EmberWispEntity.DEATH_TICKS / 20.0),
 			Map.entry("hollow/" + MobAnimations.STAGGER, 60 / 20.0),         // HollowEntity.STAGGER_TICKS: held while the stagger lasts
 			Map.entry("hollow/attack.swing", 8 / 20.0),                       // HollowEntity.WINDUP_TICKS
 			Map.entry("vampire/misc.transform", VampireEntity.TURN_TICKS / 20.0),

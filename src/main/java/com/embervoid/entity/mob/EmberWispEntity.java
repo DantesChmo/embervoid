@@ -1,5 +1,6 @@
 package com.embervoid.entity.mob;
 
+import com.embervoid.fx.particle.EmberParticles;
 import it.unimi.dsi.fastutil.longs.Long2BooleanOpenHashMap;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.block.BlockState;
@@ -22,6 +23,7 @@ import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -43,6 +45,10 @@ import java.util.EnumSet;
 /**
  * Small cave flyer below y=0 (DESIGN §3.2, bestiary in plans/track-mobs.md). It dives at players in the dark, sets
  * them on fire and lights fires around them, and flees from light: a torch is the counter.
+ *
+ * <p>Animations (PLAN 19.3, {@link MobAnimations}): {@code misc.hurt} is a jolt and a flare; on death it gutters out
+ * ({@code misc.death}, the shell shrinking, the core dropping and flickering) over {@link #DEATH_TICKS} ticks, embers
+ * streaming off it, and goes in a last burst. Embers drift off it as it flies.
  */
 public class EmberWispEntity extends HostileEntity implements GeoEntity {
 	/** Block light at or above which the wisp flees and will not attack. */
@@ -52,8 +58,12 @@ public class EmberWispEntity extends HostileEntity implements GeoEntity {
 	private static final int BURN_SECONDS = 4;
 	private static final int ATTACK_COOLDOWN_TICKS = 20;
 	private static final int RETREAT_TICKS = 60;
+	/** How long the body stays after death: the length of {@code misc.death} (1.2 s). */
+	public static final int DEATH_TICKS = 24;
 
 	private final AnimatableInstanceCache animations = GeckoLibUtil.createInstanceCache(this);
+	private int lastHurtAnimation = -100;
+	private int hurtFlinches;
 	private int fireCooldown = 160;
 	/** Ticks left of backing off after giving up a target that stood in the light. */
 	private int retreatTicks;
@@ -214,6 +224,62 @@ public class EmberWispEntity extends HostileEntity implements GeoEntity {
 		if (getWorld().isClient && random.nextInt(3) == 0) {
 			getWorld().addParticle(ParticleTypes.SMALL_FLAME, getParticleX(0.3), getRandomBodyY(), getParticleZ(0.3), 0, 0.01, 0);
 		}
+		// Embers drift off it, more while it dives.
+		if (getWorld() instanceof ServerWorld world && isAlive() && random.nextInt(getTarget() != null ? 3 : 6) == 0) {
+			EmberParticles.throwAll(world, EmberParticles.EMBER, getPos().add(0, 0.2, 0), 1, getVelocity().multiply(-0.3).add(0, 0.03, 0), 0.03);
+		}
+	}
+
+	@Override
+	public boolean damage(DamageSource source, float amount) {
+		boolean hurt = super.damage(source, amount);
+		if (MobAnimations.mayFlinch(this, hurt, amount, lastHurtAnimation)) {
+			lastHurtAnimation = age;
+			hurtFlinches++;
+			triggerAnim(MobAnimations.HURT_CONTROLLER, MobAnimations.HURT);
+			if (getWorld() instanceof ServerWorld world) {
+				EmberParticles.throwAll(world, EmberParticles.CINDER_SPARK, getPos().add(0, 0.25, 0), 6, new Vec3d(0, 0.1, 0), 0.15);
+			}
+		}
+		return hurt;
+	}
+
+	/** Flinches shown so far (tests). */
+	public int hurtFlinches() {
+		return hurtFlinches;
+	}
+
+	@Override
+	public void onDeath(DamageSource source) {
+		boolean firstDeath = !dead;
+		super.onDeath(source);
+		if (firstDeath && !getWorld().isClient) {
+			triggerAnim(MobAnimations.DEATH_CONTROLLER, MobAnimations.DEATH);
+		}
+	}
+
+	/** How long the body stays after death for its death animation, in ticks. */
+	public int deathTicks() {
+		return DEATH_TICKS;
+	}
+
+	/** It gutters out: embers and sparks stream off the shrinking shell, and the core goes in a last burst. */
+	@Override
+	protected void updatePostDeath() {
+		deathTime++;
+		if (getWorld() instanceof ServerWorld world && !isRemoved()) {
+			if (deathTime % 2 == 0) {
+				EmberParticles.throwAll(world, EmberParticles.EMBER, getPos().add(0, 0.25, 0), 2, new Vec3d(0, 0.06, 0), 0.08);
+			}
+			if (deathTime == 3) {
+				EmberParticles.ringOut(world, EmberParticles.CINDER_SPARK, getPos().add(0, 0.25, 0), 10, 0.18, 0.1);
+			}
+			if (deathTime == deathTicks() - 1) {
+				EmberParticles.burst(world, getPos().add(0, 0.1, 0), 0.8f, 0xffa040);
+				EmberParticles.spawn(world, EmberParticles.SOOT, getPos().add(0, 0.1, 0), 4, 0.2, 0.01);
+			}
+		}
+		MobAnimations.tickDeath(this, deathTime, deathTicks());
 	}
 
 	@Override
@@ -260,9 +326,12 @@ public class EmberWispEntity extends HostileEntity implements GeoEntity {
 		return super.getSoundPitch() * 1.8f;
 	}
 
+	/** Fly / idle, the flare on a hit, the guttering death last. */
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
 		controllers.add(DefaultAnimations.genericFlyIdleController(this));
+		controllers.add(MobAnimations.hurtController(this, MobAnimations.HURT));
+		controllers.add(MobAnimations.deathController(this));
 	}
 
 	@Override
