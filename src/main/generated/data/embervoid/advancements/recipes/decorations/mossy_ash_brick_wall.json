@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_mossy_ash_bricks": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "embervoid:mossy_ash_bricks"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "embervoid:mossy_ash_brick_wall"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_mossy_ash_bricks",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "embervoid:mossy_ash_brick_wall"
+    ]
+  },
+  "sends_telemetry_event": false
+}

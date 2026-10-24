@@ -3,6 +3,7 @@ package com.embervoid.vampire;
 import com.embervoid.boss.ArenaBoss;
 import com.embervoid.boss.Telegraph;
 import com.embervoid.fx.CombatFx;
+import com.embervoid.fx.particle.EmberParticles;
 import com.embervoid.fx.SwingArc;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -218,7 +219,7 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 		if (getWorld() instanceof ServerWorld world) {
 			CombatFx.trail(this, SwingArc.sweep(2.5f, 1.6f, true, 4, CombatFx.BLOOD));
 			if (hit) {
-				world.spawnParticles(BLOOD, target.getX(), target.getY() + 1, target.getZ(), 12, 0.3, 0.4, 0.3, 0); // TODO own particle (blood drop)
+				world.spawnParticles(EmberParticles.BLOOD_DROP, target.getX(), target.getY() + 1, target.getZ(), 12, 0.3, 0.4, 0.3, 0);
 				CombatFx.flash(world, target.getPos().add(0, 1, 0), 0.8f, CombatFx.BLOOD);
 			}
 		}
@@ -230,7 +231,7 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 			return;
 		}
 		world.playSound(null, getX(), getY(), getZ(), VampireSounds.VAMPIRE_BOSS_NOVA, SoundCategory.HOSTILE, 1.5f, 1.4f);
-		world.spawnParticles(BLOOD, getX(), getY() + 1, getZ(), 120, NOVA_RADIUS / 2, 0.8, NOVA_RADIUS / 2, 0); // TODO own particle (blood drop)
+		world.spawnParticles(EmberParticles.BLOOD_DROP, getX(), getY() + 1, getZ(), 120, NOVA_RADIUS / 2, 0.8, NOVA_RADIUS / 2, 0);
 		CombatFx.impact(world, getPos().add(0, 1, 0), 0.9f, (float) NOVA_RADIUS, 32, CombatFx.BLOOD);
 		CombatFx.trail(this, new SwingArc(-180, 180, 0, (float) NOVA_RADIUS, 1.0f, 8, CombatFx.BLOOD));
 		float dealt = 0;
@@ -291,7 +292,7 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 		if (getWorld() instanceof ServerWorld world) {
 			Telegraph.cancel(this);
 			playAnimation(PHASE);
-			world.spawnParticles(BLOOD, getX(), getY() + 1, getZ(), 50, 0.5, 1.0, 0.5, 0); // TODO own particle (blood drop)
+			world.spawnParticles(EmberParticles.BLOOD_DROP, getX(), getY() + 1, getZ(), 50, 0.5, 1.0, 0.5, 0);
 			world.spawnParticles(ParticleTypes.LARGE_SMOKE, getX(), getY() + 1.2, getZ(), 24, 0.6, 0.8, 0.6, 0.02);
 			CombatFx.shake(world, getPos(), 0.5f, CombatFx.shakeTicks(0.5f), 20);
 		}
@@ -360,16 +361,16 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 		}
 		if (deathTime % 3 == 0) {
 			world.spawnParticles(ParticleTypes.SMOKE, getX(), getY() + 0.6, getZ(), 2, 0.5, 0.3, 0.5, 0.01);
-			world.spawnParticles(BLOOD, getX(), getY() + 0.4, getZ(), 1, 0.4, 0.1, 0.4, 0); // TODO own particle (blood drop)
+			world.spawnParticles(EmberParticles.BLOOD_DROP, getX(), getY() + 0.4, getZ(), 1, 0.4, 0.1, 0.4, 0);
 		}
 		if (deathTime == 40) {
 			// It folds forward onto its hands (misc.death lands at 2 s).
 			CombatFx.impact(world, getPos(), 0.5f, 1.5f, 20, CombatFx.BLOOD);
-			world.spawnParticles(BLOOD, getX(), getY() + 0.3, getZ(), 20, 0.8, 0.1, 0.8, 0); // TODO own particle (blood drop)
+			world.spawnParticles(EmberParticles.BLOOD_DROP, getX(), getY() + 0.3, getZ(), 20, 0.8, 0.1, 0.8, 0);
 		}
 		if (deathTime >= DEATH_TICKS) {
 			world.spawnParticles(ParticleTypes.LARGE_SMOKE, getX(), getY() + 0.8, getZ(), 40, 0.6, 0.5, 0.6, 0.03);
-			world.spawnParticles(ParticleTypes.WHITE_ASH, getX(), getY() + 0.5, getZ(), 30, 0.6, 0.3, 0.6, 0.02); // TODO own particle (ash flake)
+			world.spawnParticles(EmberParticles.ASH_FLAKE, getX(), getY() + 0.5, getZ(), 30, 0.6, 0.3, 0.6, 0.02);
 			world.playSound(null, getX(), getY(), getZ(), VampireSounds.VAMPIRE_BOSS_MIST_STEP, SoundCategory.HOSTILE, 1.5f, 0.6f);
 			world.sendEntityStatus(this, (byte) 60);
 			remove(RemovalReason.KILLED);

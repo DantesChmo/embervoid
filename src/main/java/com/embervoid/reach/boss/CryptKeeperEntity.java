@@ -12,6 +12,7 @@ import com.embervoid.reach.mob.ReachMobs;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import com.embervoid.fx.CombatFx;
+import com.embervoid.fx.particle.EmberParticles;
 import com.embervoid.fx.SwingArc;
 import net.minecraft.block.CampfireBlock;
 import net.minecraft.entity.EntityType;
@@ -168,8 +169,8 @@ public class CryptKeeperEntity extends ReachBoss {
 	@Override
 	protected void tickDeath(ServerWorld world, int deathTime) {
 		if (deathTime % 4 == 0) {
-			world.spawnParticles(ParticleTypes.SOUL, getX(), getY() + 1.5, getZ(), 2, 0.5, 0.8, 0.5, 0.02); // TODO own particle (soul wisp)
-			world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME, getX(), getY() + 1.0, getZ(), 2, 0.5, 0.5, 0.5, 0.01); // TODO own particle (cold flame)
+			EmberParticles.souls(world, new Vec3d(getX(), getY() + 1.5, getZ()), new Vec3d(getX(), getY() + 1.5 + 3.0, getZ()), 2);
+			world.spawnParticles(EmberParticles.COLD_FLAME, getX(), getY() + 1.0, getZ(), 2, 0.5, 0.5, 0.5, 0.01);
 		}
 		if (deathTime == 40) {
 			world.playSound(null, getX(), getY(), getZ(), SoundEvents.BLOCK_CHAIN_FALL, SoundCategory.HOSTILE, 1.5f, 0.6f);
@@ -177,8 +178,8 @@ public class CryptKeeperEntity extends ReachBoss {
 			world.spawnParticles(ParticleTypes.CLOUD, getX(), getY() + 0.3, getZ(), 20, 1.2, 0.2, 1.2, 0.02);
 		}
 		if (deathTime == DEATH_TICKS) {
-			world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME, getX(), getY() + 0.6, getZ(), 60, 1.2, 0.5, 1.2, 0.06); // TODO own particle (cold flame)
-			world.spawnParticles(ParticleTypes.SOUL, getX(), getY() + 0.8, getZ(), 30, 1.0, 0.6, 1.0, 0.05); // TODO own particle (soul wisp)
+			world.spawnParticles(EmberParticles.COLD_FLAME, getX(), getY() + 0.6, getZ(), 60, 1.2, 0.5, 1.2, 0.06);
+			EmberParticles.souls(world, new Vec3d(getX(), getY() + 0.8, getZ()), new Vec3d(getX(), getY() + 0.8 + 3.0, getZ()), 30);
 			world.spawnParticles(ParticleTypes.LARGE_SMOKE, getX(), getY() + 0.8, getZ(), 20, 1.0, 0.5, 1.0, 0.02);
 		}
 	}
@@ -220,9 +221,9 @@ public class CryptKeeperEntity extends ReachBoss {
 		if (phase == 1) {
 			playAnimation(LANTERN_SHATTER);
 			world.playSound(null, getX(), getY(), getZ(), ReachBossSounds.CRYPT_KEEPER_LANTERN_SHATTER, SoundCategory.HOSTILE, 2.0f, 1.0f);
-			world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME, getX(), getY() + 2.5, getZ(), 40, 0.6, 0.6, 0.6, 0.05); // TODO own particle (cold flame)
+			world.spawnParticles(EmberParticles.COLD_FLAME, getX(), getY() + 2.5, getZ(), 40, 0.6, 0.6, 0.6, 0.05);
 			world.spawnParticles(ParticleTypes.LARGE_SMOKE, getX(), getY() + 2.5, getZ(), 30, 0.6, 0.6, 0.6, 0.02);
-			world.spawnParticles(ParticleTypes.SOUL, getX(), getY() + 2.5, getZ(), 40, 1.5, 1.0, 1.5, 0.1); // TODO own particle (soul wisp)
+			EmberParticles.souls(world, new Vec3d(getX(), getY() + 2.5, getZ()), new Vec3d(getX(), getY() + 2.5 + 3.0, getZ()), 40);
 			// The flash of the lantern bursting (misc.lantern_shatter holds it up at 0.55 s) and the dark rushing in.
 			CombatFx.impact(world, getPos().add(0, 2.5, 0), 0.8f, 3.5f, 40, 0x7FD0F5);
 			fight.addHazard(new FloodHazard(flood, 1, 60));
@@ -232,7 +233,7 @@ public class CryptKeeperEntity extends ReachBoss {
 			playAnimation(RAISE_DEAD);
 			world.playSound(null, getX(), getY(), getZ(), ReachBossSounds.CRYPT_KEEPER_RAISE_DEAD, SoundCategory.HOSTILE, 2.0f, 1.0f);
 			CombatFx.shake(world, getPos(), 0.6f, 40, 48);
-			world.spawnParticles(ParticleTypes.SOUL, getX(), getY() + 1, getZ(), 60, 3.0, 0.5, 3.0, 0.05); // TODO own particle (soul wisp)
+			EmberParticles.souls(world, new Vec3d(getX(), getY() + 1, getZ()), new Vec3d(getX(), getY() + 1 + 3.0, getZ()), 60);
 			fight.addHazard(new FloodHazard(flood, 2, 60));
 			raiseDead(fight);
 			getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).setBaseValue(0.26);
@@ -311,7 +312,7 @@ public class CryptKeeperEntity extends ReachBoss {
 				world.playSound(null, end.x, end.y, end.z, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.HOSTILE, 1.0f, 0.8f);
 				CombatFx.trail(this, SwingArc.overhead(6.5f, 3.0f, 6, cold));
 				CombatFx.impact(world, end, 0.9f, 2.5f, 32, cold);
-				world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME, end.x, end.y + 0.3, end.z, 20, 1.5, 0.2, 1.5, 0.03); // TODO own particle (cold flame)
+				world.spawnParticles(EmberParticles.COLD_FLAME, end.x, end.y + 0.3, end.z, 20, 1.5, 0.2, 1.5, 0.03);
 			}
 			case SWEEP -> {
 				CombatFx.trail(this, new SwingArc(-180, 180, 0, (float) SWEEP_RADIUS, 1.4f, 10, cold));
@@ -362,7 +363,7 @@ public class CryptKeeperEntity extends ReachBoss {
 			if (fight != null && getWorld() instanceof ServerWorld world) {
 				world.playSound(null, landing.x, landing.y, landing.z, ReachMobSounds.FIRE_FLASK_IGNITE, SoundCategory.HOSTILE, 1.5f, 1.0f);
 				CombatFx.impact(world, landing, 0.5f, (float) FIRE_POOL_RADIUS, 20, CombatFx.EMBER);
-				world.spawnParticles(ParticleTypes.LAVA, landing.x, landing.y + 0.3, landing.z, 10, 1.0, 0.2, 1.0, 0); // TODO own particle (cinder spark)
+				world.spawnParticles(EmberParticles.CINDER_SPARK, landing.x, landing.y + 0.3, landing.z, 10, 1.0, 0.2, 1.0, 0);
 				fight.addHazard(new AreaHazard(TelegraphShape.ring(landing, FIRE_POOL_RADIUS), 100, 10,
 						BossHits.source(this, DamageTypes.IN_FIRE), FIRE_POOL_DAMAGE, ParticleTypes.FLAME, player -> player.setOnFireFor(2)));
 			}
@@ -497,6 +498,7 @@ public class CryptKeeperEntity extends ReachBoss {
 
 	/** P3: Restless Bones rise from the flooded floor, one more per fighter beyond the first. */
 	private void raiseDead(BossFight fight) {
+		fight.fireArenaEvent("raise_dead"); // the ossuary's bell tolls (PLAN 20.2 arena events)
 		int count = RISEN_BONES + Math.max(0, fight.fighters().size() - 1);
 		for (int i = 0; i < count; i++) {
 			double angle = Math.PI * 2 * i / count + random.nextDouble() * 0.5;

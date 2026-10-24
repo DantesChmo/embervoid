@@ -4,6 +4,7 @@ import com.embervoid.boss.BossFight;
 import com.embervoid.boss.Telegraph;
 import com.embervoid.boss.TelegraphShape;
 import com.embervoid.fx.CombatFx;
+import com.embervoid.fx.particle.EmberParticles;
 import com.embervoid.fx.SwingArc;
 import com.embervoid.reach.mob.ReachMobs;
 import net.minecraft.block.Blocks;
@@ -156,7 +157,7 @@ public class GrievingTreeEntity extends ReachBoss {
 		if (deathTime % 3 == 0) {
 			world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.OAK_LEAVES.getDefaultState()),
 					getX(), getY() + 8, getZ(), 8, 3.0, 1.0, 3.0, 0.05);
-			world.spawnParticles(ParticleTypes.FALLING_HONEY, getX(), getY() + 5.5, getZ(), 2, 0.5, 0.3, 0.5, 0); // TODO own particle (amber mote)
+			world.spawnParticles(EmberParticles.AMBER_MOTE, getX(), getY() + 5.5, getZ(), 2, 0.5, 0.3, 0.5, 0);
 		}
 		if (deathTime == 30) {
 			world.playSound(null, getX(), getY(), getZ(), SoundEvents.BLOCK_WOOD_BREAK, SoundCategory.HOSTILE, 2.0f, 0.4f);
@@ -170,10 +171,10 @@ public class GrievingTreeEntity extends ReachBoss {
 			CombatFx.impact(world, crash, 1.3f, 6f, 48, 0xC97A2A);
 			world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.OAK_LEAVES.getDefaultState()),
 					crash.x, crash.y + 1, crash.z, 150, 4.0, 1.0, 4.0, 0.15);
-			world.spawnParticles(ParticleTypes.MYCELIUM, crash.x, crash.y + 0.5, crash.z, 60, 4.0, 0.3, 4.0, 0.05); // TODO own particle (ash flake)
+			world.spawnParticles(EmberParticles.ASH_FLAKE, crash.x, crash.y + 0.5, crash.z, 60, 4.0, 0.3, 4.0, 0.05);
 		}
 		if (deathTime == DEATH_TICKS) {
-			world.spawnParticles(ParticleTypes.SOUL, getX(), getY() + 4, getZ(), 30, 1.5, 3.0, 1.5, 0.04); // TODO own particle (soul wisp)
+			EmberParticles.souls(world, new Vec3d(getX(), getY() + 4, getZ()), new Vec3d(getX(), getY() + 4 + 3.0, getZ()), 30);
 			world.spawnParticles(ParticleTypes.LARGE_SMOKE, getX(), getY() + 2, getZ(), 40, 2.0, 2.0, 2.0, 0.02);
 		}
 	}
@@ -267,7 +268,7 @@ public class GrievingTreeEntity extends ReachBoss {
 			CombatFx.shake(world, getPos(), 0.5f, 16, 32);
 			world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.OAK_LEAVES.getDefaultState()),
 					getX(), getY() + 8, getZ(), 40, 3.0, 1.0, 3.0, 0.08);
-			world.spawnParticles(ParticleTypes.FALLING_HONEY, getX(), getY() + 5.3, getZ(), 6, 0.3, 0.2, 0.3, 0); // TODO own particle (amber mote)
+			world.spawnParticles(EmberParticles.AMBER_MOTE, getX(), getY() + 5.3, getZ(), 6, 0.3, 0.2, 0.3, 0);
 		}
 		if (fight != null) {
 			fogLiftTicks = FOG_LIFT_TICKS;

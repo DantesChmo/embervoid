@@ -1,14 +1,18 @@
 package com.embervoid.hub.datagen;
 
 import com.embervoid.hub.HubLayout;
+import com.embervoid.block.setpiece.LitSetPieceBlock;
+import com.embervoid.block.setpiece.SetPieces;
 import com.embervoid.hub.stele.CleftStoneBlock;
 import com.embervoid.hub.stele.HubStele;
 import com.embervoid.hub.stele.SteleBlocks;
 import com.embervoid.hub.stele.SteleCrackBlock;
+import com.embervoid.reach.world.ReachBlocks;
 import com.embervoid.sanctum.SanctumBlocks;
 import com.embervoid.sanctum.SanctumEntities;
 import com.embervoid.sanctum.datagen.TemplateBuilder;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.PillarBlock;
 import net.minecraft.block.Blocks;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtFloat;
@@ -16,6 +20,7 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 
 import java.util.Map;
 import java.util.Random;
@@ -38,9 +43,19 @@ import static com.embervoid.registry.ModBlocks.*;
 final class HubTemplates {
 	private static final BlockState BRICKS = ASH_BRICKS.getDefaultState();
 	private static final BlockState CRACKED = CRACKED_ASH_BRICKS.getDefaultState();
+	private static final BlockState MOSSY = MOSSY_ASH_BRICKS.getDefaultState();
+	private static final BlockState COBBLE_BRICKS = ASH_COBBLE_BRICKS.getDefaultState();
 	private static final BlockState POLISHED = POLISHED_ASH_STONE.getDefaultState();
 	private static final BlockState CHISELED = CHISELED_ASH_STONE.getDefaultState();
+	private static final BlockState CARVED = CARVED_ASH_STONE.getDefaultState();
+	private static final BlockState PILLAR = ASH_BRICK_PILLAR.getDefaultState();
+	private static final BlockState TILES = ASH_TILES.getDefaultState();
+	private static final BlockState CRACKED_TILES = CRACKED_ASH_TILES.getDefaultState();
+	private static final BlockState RUNE = SANCTUM_RUNE_STONE.getDefaultState();
+	private static final BlockState BRICK_STAIRS = ASH_BRICK_STAIRS.getDefaultState();
 	private static final BlockState COBBLED = COBBLED_ASH_STONE.getDefaultState();
+	private static final BlockState MOSSY_COBBLED = MOSSY_COBBLED_ASH_STONE.getDefaultState();
+	private static final BlockState PATH = ReachBlocks.ASH_COBBLE_PATH.getDefaultState();
 	private static final BlockState STONE = ASH_STONE.getDefaultState();
 	private static final BlockState SOIL = ASH_SOIL.getDefaultState();
 	private static final BlockState WALL = ASH_BRICK_WALL.getDefaultState();
@@ -77,7 +92,8 @@ final class HubTemplates {
 			}
 		}
 
-		// Core walls: broken, low, open in the middle of each side.
+		// Core walls: broken, low, open in the middle of each side; a cobble-brick base course, bricks cracking
+		// upwards and mossy at the foot, a slab coping where a stretch stands level.
 		for (int i = -core; i <= core; i++) {
 			for (int[] p : new int[][]{{i, -core}, {i, core}, {-core, i}, {core, i}}) {
 				if (Math.abs(i) <= 1) {
@@ -85,7 +101,10 @@ final class HubTemplates {
 				}
 				int height = 1 + random.nextInt(3);
 				for (int y = 1; y <= height; y++) {
-					t.set(p[0], y, p[1], random.nextInt(4) == 0 ? CRACKED : y == 1 ? POLISHED : BRICKS);
+					t.set(p[0], y, p[1], TemplateBuilder.weathered(random, (y - 1) / 3.0, 0, COBBLE_BRICKS, 2, y, BRICKS, CRACKED, MOSSY));
+				}
+				if (height == 3 && random.nextBoolean()) {
+					t.set(p[0], 4, p[1], ASH_BRICK_SLAB.getDefaultState());
 				}
 			}
 		}
@@ -98,6 +117,16 @@ final class HubTemplates {
 		}
 		for (int[] p : new int[][]{{-core, -core}, {core, -core}, {-core, core}, {core, core}}) {
 			pillar(t, p[0], p[1], 6, true);
+		}
+		// Lit censers over the four gaps into the core, on beams between the gap pillars (PLAN 20.2).
+		NbtCompound lit = new NbtCompound();
+		lit.putString("State", "lit");
+		for (int[] gap : new int[][]{{0, -core}, {0, core}, {-core, 0}, {core, 0}}) {
+			boolean alongX = gap[1] != 0;
+			for (int i = -1; i <= 1; i++) {
+				t.set(alongX ? i : gap[0], 6, alongX ? gap[1] : i, DEAD_LOG.getDefaultState().with(PillarBlock.AXIS, alongX ? Direction.Axis.X : Direction.Axis.Z));
+			}
+			t.builder.blockEntity(gap[0] + half, 5, gap[1] + half, SetPieces.CENSER.getDefaultState().with(LitSetPieceBlock.LIT, true), "embervoid:set_piece", lit);
 		}
 
 		t.set(HubLayout.SHRINE, SanctumBlocks.EMBER_SHRINE.getDefaultState());
@@ -118,18 +147,24 @@ final class HubTemplates {
 		t.builder.entity(HubLayout.MAIDEN.getX() + half, HubLayout.MAIDEN.getY() - HubLayout.FLOOR_Y,
 				HubLayout.MAIDEN.getZ() + half, maiden);
 
-		// North of the core: the path out of the gap, past the landing, to the stele pad.
+		// North of the core: the tiled path out of the gap, past the landing, to the stele pad, a rune every third
+		// block down its middle.
 		BlockPos stele = HubLayout.STELE_CRACK_BOTTOM;
 		int steleHalf = HubLayout.STELE_WIDTH / 2;
 		for (int z = stele.getZ() + 2; z < -core; z++) {
 			for (int x = -1; x <= 1; x++) {
-				t.set(x, 0, z, POLISHED);
+				t.set(x, 0, z, x == 0 && z % 3 == 0 ? RUNE : random.nextInt(6) == 0 ? CRACKED_TILES : TILES);
 			}
 		}
 		for (int x = stele.getX() - steleHalf - 1; x <= stele.getX() + steleHalf + 1; x++) {
 			for (int z = stele.getZ() - 1; z <= stele.getZ() + 1; z++) {
-				t.set(x, 0, z, CHISELED);
+				boolean corner = Math.abs(x - stele.getX()) == steleHalf + 1 && z != stele.getZ();
+				t.set(x, 0, z, corner ? RUNE : CHISELED);
 			}
+		}
+		// The gateposts of the core's four gaps: pillars with carved capitals.
+		for (int[] g : new int[][]{{-2, -core}, {2, -core}, {-2, core}, {2, core}, {-core, -2}, {-core, 2}, {core, -2}, {core, 2}}) {
+			t.set(g[0], 1, g[1], CHISELED);
 		}
 		// The hub's own stele, always lit: kindled stones either side of the crack.
 		for (BlockPos pos : HubStele.FRAME.stones()) {
@@ -156,7 +191,7 @@ final class HubTemplates {
 			return FLAGSTONE;
 		}
 		double r = random.nextDouble();
-		return r < 0.45 ? SOIL : r < 0.75 ? COBBLED : STONE;
+		return r < 0.4 ? SOIL : r < 0.55 ? PATH : r < 0.7 ? COBBLED : r < 0.8 ? MOSSY_COBBLED : STONE;
 	}
 
 	private static BlockState rock(Random random) {
@@ -164,10 +199,13 @@ final class HubTemplates {
 		return r < 0.5 ? STONE : r < 0.75 ? COBBLED : r < 0.9 ? Blocks.TUFF.getDefaultState() : Blocks.BLACKSTONE.getDefaultState();
 	}
 
+	/** A pillar: a chiseled base, a brick-pillar shaft, a carved capital, a lantern on top where asked. */
 	private static void pillar(Island t, int x, int z, int height, boolean lantern) {
-		for (int y = 1; y <= height; y++) {
-			t.set(x, y, z, CHISELED);
+		t.set(x, 1, z, CHISELED);
+		for (int y = 2; y < height; y++) {
+			t.set(x, y, z, PILLAR);
 		}
+		t.set(x, height, z, height > 1 ? CARVED : CHISELED);
 		if (lantern) {
 			t.set(x, height + 1, z, LANTERN);
 		}

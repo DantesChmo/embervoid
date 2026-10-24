@@ -13,4 +13,16 @@ public interface ArenaHazard {
 	/** The hazard is over or its fight ended (kill or reset): undo whatever it left. */
 	default void end(BossFight fight) {
 	}
+
+	/**
+	 * The hazard's name in the arena event {@code hazard <id>} the fight fires to its set pieces when the hazard
+	 * starts: the class name without {@code Hazard}, in snake case ({@code ash_storm}, {@code flood}, {@code area}).
+	 */
+	default String id() {
+		String name = getClass().getSimpleName();
+		if (name.endsWith("Hazard")) {
+			name = name.substring(0, name.length() - "Hazard".length());
+		}
+		return name.replaceAll("([a-z])([A-Z])", "$1_$2").toLowerCase(java.util.Locale.ROOT);
+	}
 }

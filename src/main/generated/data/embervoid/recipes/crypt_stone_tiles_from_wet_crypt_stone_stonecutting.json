@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 1,
+  "ingredient": {
+    "item": "embervoid:wet_crypt_stone"
+  },
+  "result": "embervoid:crypt_stone_tiles"
+}

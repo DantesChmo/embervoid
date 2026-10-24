@@ -1007,13 +1007,20 @@ def fit_for(quad_sets, views, cell_w, cell_h, hitbox, margin=0.88):
 
 
 def load_entity(name):
+    """An entity model, or a block model (PLAN 20.1 set pieces) named by its path under geo/block: setpiece/great_bell."""
+    folder = "entity"
     geo_data = resource(MOD, "geo/entity/%s.geo.json" % name) or resource(MOD, "geo/%s.geo.json" % name)
+    if geo_data is None and resource(MOD, "geo/block/%s.geo.json" % name) is not None:
+        folder = "block"
+        geo_data = resource(MOD, "geo/block/%s.geo.json" % name)
     if geo_data is None:
-        raise SystemExit("no model geo/entity/%s.geo.json" % name)
+        raise SystemExit("no model geo/entity/%s.geo.json or geo/block/%s.geo.json" % (name, name))
+    if "/" in name:
+        os.makedirs(os.path.join(DEFAULT_OUT, os.path.dirname(name)), exist_ok=True)
     model = GeoModel(json.loads(geo_data))
-    tex = prepare(texture(MOD, "entity/" + name), model.tex_w, model.tex_h)
-    glow = prepare(texture(MOD, "entity/%s_glowmask" % name), model.tex_w, model.tex_h)
-    anim_data = resource(MOD, "animations/entity/%s.animation.json" % name)
+    tex = prepare(texture(MOD, folder + "/" + name), model.tex_w, model.tex_h)
+    glow = prepare(texture(MOD, "%s/%s_glowmask" % (folder, name)), model.tex_w, model.tex_h)
+    anim_data = resource(MOD, "animations/%s/%s.animation.json" % (folder, name))
     animations = json.loads(anim_data)["animations"] if anim_data else {}
     return model, tex, glow, animations
 

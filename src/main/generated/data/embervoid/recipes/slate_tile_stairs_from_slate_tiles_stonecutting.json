@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 1,
+  "ingredient": {
+    "item": "embervoid:slate_tiles"
+  },
+  "result": "embervoid:slate_tile_stairs"
+}

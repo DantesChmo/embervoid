@@ -11,6 +11,7 @@ import net.minecraft.block.DoorBlock;
 import net.minecraft.block.FenceBlock;
 import net.minecraft.block.FenceGateBlock;
 import net.minecraft.block.LanternBlock;
+import net.minecraft.block.MapColor;
 import net.minecraft.block.PillarBlock;
 import net.minecraft.block.SlabBlock;
 import net.minecraft.block.StairsBlock;
@@ -46,6 +47,31 @@ public final class ModBlocks {
 	public static final Block ASH_BRICK_WALL = register("ash_brick_wall", new WallBlock(AbstractBlock.Settings.copy(ASH_BRICKS)));
 	public static final Block CRACKED_ASH_BRICKS = register("cracked_ash_bricks", new Block(AbstractBlock.Settings.copy(Blocks.CRACKED_DEEPSLATE_BRICKS)));
 	public static final Block CHISELED_ASH_STONE = register("chiseled_ash_stone", new Block(AbstractBlock.Settings.copy(Blocks.CHISELED_DEEPSLATE)));
+
+	// The wider building palette of the 0.5.0 art pass (docs/art-direction.md §3): floors, trims, details and roofs.
+	public static final Block ASH_TILES = register("ash_tiles", new Block(AbstractBlock.Settings.copy(Blocks.DEEPSLATE_TILES)));
+	public static final Block ASH_TILE_STAIRS = register("ash_tile_stairs", stairs(ASH_TILES));
+	public static final Block ASH_TILE_SLAB = register("ash_tile_slab", new SlabBlock(AbstractBlock.Settings.copy(ASH_TILES)));
+	public static final Block CRACKED_ASH_TILES = register("cracked_ash_tiles", new Block(AbstractBlock.Settings.copy(Blocks.CRACKED_DEEPSLATE_TILES)));
+	public static final Block MOSSY_ASH_BRICKS = register("mossy_ash_bricks", new Block(AbstractBlock.Settings.copy(Blocks.DEEPSLATE_BRICKS)));
+	public static final Block MOSSY_ASH_BRICK_STAIRS = register("mossy_ash_brick_stairs", stairs(MOSSY_ASH_BRICKS));
+	public static final Block MOSSY_ASH_BRICK_SLAB = register("mossy_ash_brick_slab", new SlabBlock(AbstractBlock.Settings.copy(MOSSY_ASH_BRICKS)));
+	public static final Block MOSSY_ASH_BRICK_WALL = register("mossy_ash_brick_wall", new WallBlock(AbstractBlock.Settings.copy(MOSSY_ASH_BRICKS)));
+	public static final Block SOOTY_ASH_BRICKS = register("sooty_ash_bricks", new Block(AbstractBlock.Settings.copy(Blocks.DEEPSLATE_BRICKS)));
+	public static final Block MOSSY_COBBLED_ASH_STONE = register("mossy_cobbled_ash_stone", new Block(AbstractBlock.Settings.copy(Blocks.COBBLED_DEEPSLATE)));
+	/** Small bricks of cobble, the base course of walls and the old field walls. */
+	public static final Block ASH_COBBLE_BRICKS = register("ash_cobble_bricks", new Block(AbstractBlock.Settings.copy(Blocks.COBBLED_DEEPSLATE)));
+	public static final Block ASH_COBBLE_BRICK_STAIRS = register("ash_cobble_brick_stairs", stairs(ASH_COBBLE_BRICKS));
+	public static final Block ASH_COBBLE_BRICK_SLAB = register("ash_cobble_brick_slab", new SlabBlock(AbstractBlock.Settings.copy(ASH_COBBLE_BRICKS)));
+	public static final Block ASH_COBBLE_BRICK_WALL = register("ash_cobble_brick_wall", new WallBlock(AbstractBlock.Settings.copy(ASH_COBBLE_BRICKS)));
+	public static final Block ASH_BRICK_PILLAR = register("ash_brick_pillar", new PillarBlock(AbstractBlock.Settings.copy(Blocks.DEEPSLATE_BRICKS)));
+	public static final Block CARVED_ASH_STONE = register("carved_ash_stone", new Block(AbstractBlock.Settings.copy(Blocks.CHISELED_DEEPSLATE)));
+	/** Roof slates: a cool blue-grey against the ash stone. */
+	public static final Block SLATE_TILES = register("slate_tiles", new Block(AbstractBlock.Settings.copy(Blocks.DEEPSLATE_TILES).mapColor(MapColor.DEEPSLATE_GRAY)));
+	public static final Block SLATE_TILE_STAIRS = register("slate_tile_stairs", stairs(SLATE_TILES));
+	public static final Block SLATE_TILE_SLAB = register("slate_tile_slab", new SlabBlock(AbstractBlock.Settings.copy(SLATE_TILES)));
+	/** A rune of the Sanctum cut into polished stone, lit faintly with cold flame (the hub and the dungeon). */
+	public static final Block SANCTUM_RUNE_STONE = register("sanctum_rune_stone", new Block(AbstractBlock.Settings.copy(Blocks.POLISHED_DEEPSLATE).luminance(state -> 3)));
 
 	// Dead wood: bleached, brittle wood of the ash wasteland. Uses oak sounds and behaviour.
 	public static final Block DEAD_LOG = register("dead_log", new PillarBlock(AbstractBlock.Settings.copy(Blocks.OAK_LOG)));

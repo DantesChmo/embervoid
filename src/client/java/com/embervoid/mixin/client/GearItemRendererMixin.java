@@ -1,8 +1,8 @@
 package com.embervoid.mixin.client;
 
+import com.embervoid.client.reach.gear.InHandModels;
 import com.embervoid.client.reach.gear.ScourgeLashes;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.render.model.BakedModel;
@@ -18,9 +18,9 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Warden's Scourge (track reach-gear, PLAN 17.4): in a hand it is drawn as its handle, the way vanilla swaps the
- * trident's and the spyglass's models (the icon stays for the GUI, the ground and item frames), and the lash
- * ({@link ScourgeLashes}) learns where the handle is drawn and whose hand it is in.
+ * The weapons' in-hand models (PLAN 17.2, 17.4): in a hand each is drawn as its big 3D model ({@link InHandModels}),
+ * the way vanilla swaps the trident's and the spyglass's models (the icon stays for the GUI, the ground and item
+ * frames), and the Scourge's lash ({@link ScourgeLashes}) learns where its handle is drawn and whose hand it is in.
  */
 @Mixin(ItemRenderer.class)
 abstract class GearItemRendererMixin {
@@ -46,8 +46,8 @@ abstract class GearItemRendererMixin {
 	@ModifyVariable(method = RENDER_MODEL, at = @At("HEAD"), argsOnly = true)
 	private BakedModel embervoid$scourgeHandle(BakedModel model, @Local(argsOnly = true) ItemStack stack,
 			@Local(argsOnly = true) ModelTransformationMode mode) {
-		return ScourgeLashes.inHand(stack, mode)
-				? MinecraftClient.getInstance().getBakedModelManager().getModel(ScourgeLashes.IN_HAND_MODEL) : model;
+		BakedModel inHand = InHandModels.modelFor(stack, mode);
+		return inHand != null ? inHand : model;
 	}
 
 	// Right after the display transform and the move to the model's corner: the pose the handle is drawn with.

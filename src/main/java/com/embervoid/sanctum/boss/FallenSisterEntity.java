@@ -6,6 +6,7 @@ import com.embervoid.boss.BossHits;
 import com.embervoid.boss.Telegraph;
 import com.embervoid.boss.TelegraphShape;
 import com.embervoid.fx.CombatFx;
+import com.embervoid.fx.particle.EmberParticles;
 import com.embervoid.fx.SwingArc;
 import com.embervoid.reach.boss.ReachBoss;
 import net.minecraft.block.BlockState;
@@ -180,7 +181,7 @@ public class FallenSisterEntity extends ReachBoss {
 		veilBurnLeft = VEIL_BURN_TICKS;
 		playAnimation(VEIL_BURN);
 		world.playSound(null, getX(), getY(), getZ(), SanctumBossSounds.FALLEN_SISTER_VEIL_BURN, SoundCategory.HOSTILE, 2.0f, 1.0f);
-		world.spawnParticles(ParticleTypes.FLAME, getX(), getY() + 2.6, getZ(), 30, 0.3, 0.3, 0.3, 0.02); // TODO own particle (ember)
+		world.spawnParticles(EmberParticles.EMBER, getX(), getY() + 2.6, getZ(), 30, 0.3, 0.3, 0.3, 0.02);
 		CombatFx.flash(world, getPos().add(0, 2.6, 0), 2.0f, CombatFx.EMBER);
 		CombatFx.shake(world, getPos(), 0.4f, CombatFx.shakeTicks(0.4f), 20);
 	}
@@ -512,12 +513,12 @@ public class FallenSisterEntity extends ReachBoss {
 	@Override
 	protected void tickDeath(ServerWorld world, int deathTime) {
 		if (deathTime % 4 == 0) {
-			world.spawnParticles(ParticleTypes.SMALL_FLAME, getX(), getY() + 1.2, getZ(), 3, 0.3, 0.6, 0.3, 0.01); // TODO own particle (ember)
+			world.spawnParticles(EmberParticles.EMBER, getX(), getY() + 1.2, getZ(), 3, 0.3, 0.6, 0.3, 0.01);
 		}
 		if (deathTime >= DEATH_TICKS) {
 			// The last embers go out: what is left of her falls to ash.
-			world.spawnParticles(ParticleTypes.WHITE_ASH, getX(), getY() + 0.8, getZ(), 60, 0.5, 0.6, 0.5, 0.02); // TODO own particle (ash flake)
-			world.spawnParticles(ParticleTypes.SOUL, getX(), getY() + 0.8, getZ(), 12, 0.4, 0.4, 0.4, 0.04); // TODO own particle (soul wisp)
+			world.spawnParticles(EmberParticles.ASH_FLAKE, getX(), getY() + 0.8, getZ(), 60, 0.5, 0.6, 0.5, 0.02);
+			EmberParticles.souls(world, new Vec3d(getX(), getY() + 0.8, getZ()), new Vec3d(getX(), getY() + 0.8 + 3.0, getZ()), 12);
 		}
 	}
 

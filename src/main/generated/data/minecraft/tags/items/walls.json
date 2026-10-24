@@ -4,6 +4,9 @@
     "embervoid:ash_stone_wall",
     "embervoid:cobbled_ash_stone_wall",
     "embervoid:polished_ash_stone_wall",
-    "embervoid:ash_brick_wall"
+    "embervoid:ash_brick_wall",
+    "embervoid:mossy_ash_brick_wall",
+    "embervoid:ash_cobble_brick_wall",
+    "embervoid:bone_brick_wall"
   ]
 }

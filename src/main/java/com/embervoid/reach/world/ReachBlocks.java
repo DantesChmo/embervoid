@@ -8,8 +8,14 @@ import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ExperienceDroppingBlock;
+import net.minecraft.block.GlassBlock;
 import net.minecraft.block.MapColor;
+import net.minecraft.block.PaneBlock;
 import net.minecraft.block.PillarBlock;
+import net.minecraft.block.SlabBlock;
+import net.minecraft.block.StairsBlock;
+import net.minecraft.block.WallBlock;
+import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
@@ -61,12 +67,57 @@ public final class ReachBlocks {
 	public static final Block GRAVE_IRON_ORE = register("grave_iron_ore", new ExperienceDroppingBlock(AbstractBlock.Settings.copy(Blocks.DIAMOND_ORE)
 			.mapColor(MapColor.BLACK).sounds(ReachBlockSounds.GRAVE_IRON_ORE), ConstantIntProvider.create(0)));
 
+	// The zones' accent materials of the 0.5.0 art pass (docs/art-direction.md §3): Citadel gilt, ember glass and
+	// charred wood; Fields thatch and brass; Necropolis bone, grave iron and crypt tiles; Woods amber.
+	/** Citadel trim: polished ash stone with a gold inlay. */
+	public static final Block GILDED_ASH_STONE = register("gilded_ash_stone", new Block(AbstractBlock.Settings.copy(ModBlocks.POLISHED_ASH_STONE)
+			.mapColor(MapColor.GOLD)));
+	/** Citadel windows: translucent, lit from within. */
+	public static final Block EMBER_GLASS = register("ember_glass", new GlassBlock(AbstractBlock.Settings.copy(Blocks.GLASS)
+			.mapColor(MapColor.ORANGE).luminance(state -> 10)));
+	public static final Block CHARRED_PLANKS = register("charred_planks", new Block(AbstractBlock.Settings.copy(ModBlocks.DEAD_PLANKS)
+			.mapColor(MapColor.BLACK)));
+	public static final Block CHARRED_STAIRS = register("charred_stairs", new StairsBlock(CHARRED_PLANKS.getDefaultState(),
+			AbstractBlock.Settings.copy(CHARRED_PLANKS)));
+	public static final Block CHARRED_SLAB = register("charred_slab", new SlabBlock(AbstractBlock.Settings.copy(CHARRED_PLANKS)));
+	/** A beam burnt black, ember still in its seams; lit faintly. */
+	public static final Block CHARRED_LOG = register("charred_log", new PillarBlock(AbstractBlock.Settings.copy(ModBlocks.DEAD_LOG)
+			.mapColor(MapColor.BLACK).luminance(state -> 3)));
+	/** Fields roofing: thatch burnt from below. */
+	public static final Block BURNT_THATCH = register("burnt_thatch", new PillarBlock(AbstractBlock.Settings.copy(Blocks.HAY_BLOCK)
+			.mapColor(MapColor.BLACK).sounds(ReachBlockSounds.BURNT_STRAW)));
+	public static final Block BONE_BRICKS = register("bone_bricks", new Block(AbstractBlock.Settings.copy(Blocks.BONE_BLOCK)));
+	public static final Block BONE_BRICK_WALL = register("bone_brick_wall", new WallBlock(AbstractBlock.Settings.copy(BONE_BRICKS)));
+	public static final Block BONE_PILLAR = register("bone_pillar", new PillarBlock(AbstractBlock.Settings.copy(Blocks.BONE_BLOCK)));
+	/** A grille of grave iron: a pane like iron bars. */
+	public static final Block GRAVE_IRON_GRATE = register("grave_iron_grate", new PaneBlock(AbstractBlock.Settings.copy(Blocks.IRON_BARS)));
+	/** Riveted grave-iron floor plates. */
+	public static final Block GRAVE_IRON_PLATE = register("grave_iron_plate", new Block(AbstractBlock.Settings.copy(Blocks.IRON_BLOCK)
+			.mapColor(MapColor.DEEPSLATE_GRAY)));
+	public static final Block RUSTED_BRASS_BLOCK = register("rusted_brass_block", new Block(AbstractBlock.Settings.copy(Blocks.CUT_COPPER)
+			.mapColor(MapColor.TERRACOTTA_YELLOW)));
+	public static final Block CUT_BRASS = register("cut_brass", new Block(AbstractBlock.Settings.copy(Blocks.CUT_COPPER)
+			.mapColor(MapColor.GOLD)));
+	public static final Block TAR_BLOCK = register("tar_block", new Block(AbstractBlock.Settings.copy(Blocks.COAL_BLOCK)
+			.mapColor(MapColor.BLACK).sounds(BlockSoundGroup.MUD)));
+	/** Cobbles trodden into the ash: a path block. */
+	public static final Block ASH_COBBLE_PATH = register("ash_cobble_path", new Block(AbstractBlock.Settings.copy(ModBlocks.ASH_SOIL)
+			.mapColor(MapColor.STONE_GRAY).strength(0.8f).sounds(BlockSoundGroup.GRAVEL)));
+	/** Royal amber in the block; glows a little. */
+	public static final Block AMBER_BLOCK = register("amber_block", new Block(AbstractBlock.Settings.copy(Blocks.AMETHYST_BLOCK)
+			.mapColor(MapColor.ORANGE).luminance(state -> 6)));
+	/** Crypt floor tiles, as wet as the crypt stone. */
+	public static final Block CRYPT_STONE_TILES = register("crypt_stone_tiles", new WetStoneBlock(AbstractBlock.Settings.copy(WET_CRYPT_STONE)));
+
 	public static final List<Block> ORES = List.of(CINDER_ORE, AMBER_VEIN, GRAVE_IRON_ORE);
 	public static final List<Block> ALL = List.of(BURNT_STRAW, MILESTONE, KINGSROAD_FLAGSTONES, KINGSROAD_KERB, GRAVESTONE, EMBER_CRACK, SMOLDERING_LOG,
-			WET_CRYPT_STONE, CINDER_ORE, AMBER_VEIN, GRAVE_IRON_ORE);
+			WET_CRYPT_STONE, CINDER_ORE, AMBER_VEIN, GRAVE_IRON_ORE, GILDED_ASH_STONE, EMBER_GLASS, CHARRED_PLANKS, CHARRED_STAIRS, CHARRED_SLAB,
+			CHARRED_LOG, BURNT_THATCH, BONE_BRICKS, BONE_BRICK_WALL, BONE_PILLAR, GRAVE_IRON_GRATE, GRAVE_IRON_PLATE, RUSTED_BRASS_BLOCK, CUT_BRASS,
+			TAR_BLOCK, ASH_COBBLE_PATH, AMBER_BLOCK, CRYPT_STONE_TILES);
 
 	public static void register() {
 		FlammableBlockRegistry.getDefaultInstance().add(BURNT_STRAW, 60, 20);
+		FlammableBlockRegistry.getDefaultInstance().add(BURNT_THATCH, 60, 20);
 	}
 
 	private static Block register(String name, Block block) {

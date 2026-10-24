@@ -7,6 +7,7 @@ import com.embervoid.boss.BossHits;
 import com.embervoid.boss.Telegraph;
 import com.embervoid.boss.TelegraphShape;
 import com.embervoid.fx.CombatFx;
+import com.embervoid.fx.particle.EmberParticles;
 import com.embervoid.fx.SwingArc;
 import com.embervoid.reach.boss.arena.ArenaFrame;
 import com.embervoid.reach.boss.arena.ReachArenas;
@@ -159,18 +160,18 @@ public class SmolderingLordEntity extends ReachBoss {
 	@Override
 	protected void tickDeath(ServerWorld world, int deathTime) {
 		if (deathTime % 3 == 0) {
-			world.spawnParticles(ParticleTypes.FLAME, getX(), getY() + 1.2, getZ(), 4, 0.5, 0.8, 0.5, 0.02); // TODO own particle (ember)
-			world.spawnParticles(ParticleTypes.LAVA, getX(), getY() + 1.0, getZ(), 1, 0.4, 0.5, 0.4, 0); // TODO own particle (cinder spark)
+			world.spawnParticles(EmberParticles.EMBER, getX(), getY() + 1.2, getZ(), 4, 0.5, 0.8, 0.5, 0.02);
+			world.spawnParticles(EmberParticles.CINDER_SPARK, getX(), getY() + 1.0, getZ(), 1, 0.4, 0.5, 0.4, 0);
 		}
 		if (deathTime == 40) {
 			world.playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.HOSTILE, 1.2f, 0.6f);
 			CombatFx.impact(world, getPos(), 0.9f, 2.5f, 32, CombatFx.EMBER);
-			world.spawnParticles(ParticleTypes.LAVA, getX(), getY() + 0.5, getZ(), 16, 1.2, 0.3, 1.2, 0); // TODO own particle (cinder spark)
+			world.spawnParticles(EmberParticles.CINDER_SPARK, getX(), getY() + 0.5, getZ(), 16, 1.2, 0.3, 1.2, 0);
 		}
 		if (deathTime == DEATH_TICKS) {
-			world.spawnParticles(ParticleTypes.FLAME, getX(), getY() + 0.6, getZ(), 80, 1.2, 0.5, 1.2, 0.08); // TODO own particle (ember)
+			world.spawnParticles(EmberParticles.EMBER, getX(), getY() + 0.6, getZ(), 80, 1.2, 0.5, 1.2, 0.08);
 			world.spawnParticles(ParticleTypes.LARGE_SMOKE, getX(), getY() + 0.8, getZ(), 30, 1.0, 0.6, 1.0, 0.02);
-			world.spawnParticles(ParticleTypes.ASH, getX(), getY() + 0.5, getZ(), 40, 1.5, 0.5, 1.5, 0.04); // TODO own particle (ash flake)
+			world.spawnParticles(EmberParticles.ASH_FLAKE, getX(), getY() + 0.5, getZ(), 40, 1.5, 0.5, 1.5, 0.04);
 		}
 	}
 
@@ -245,8 +246,8 @@ public class SmolderingLordEntity extends ReachBoss {
 		} else if (phase == 2) {
 			playAnimation(SHATTER);
 			world.playSound(null, getX(), getY(), getZ(), ReachBossSounds.SMOLDERING_LORD_SHATTER, SoundCategory.HOSTILE, 2.0f, 1.0f);
-			world.spawnParticles(ParticleTypes.LAVA, getX(), getY() + 2, getZ(), 30, 0.5, 0.8, 0.5, 0); // TODO own particle (cinder spark)
-			world.spawnParticles(ParticleTypes.FLAME, getX(), getY() + 2, getZ(), 60, 0.8, 1.0, 0.8, 0.1); // TODO own particle (ember)
+			world.spawnParticles(EmberParticles.CINDER_SPARK, getX(), getY() + 2, getZ(), 30, 0.5, 0.8, 0.5, 0);
+			world.spawnParticles(EmberParticles.EMBER, getX(), getY() + 2, getZ(), 60, 0.8, 1.0, 0.8, 0.1);
 			world.spawnParticles(ParticleTypes.LARGE_SMOKE, getX(), getY() + 2.2, getZ(), 20, 0.6, 0.8, 0.6, 0.03);
 			// The plates burst off him (misc.shatter flings the armor bone at 0.4 s).
 			CombatFx.impact(world, getPos().add(0, 1.5, 0), 0.9f, 3.0f, 36, CombatFx.EMBER);
@@ -390,7 +391,7 @@ public class SmolderingLordEntity extends ReachBoss {
 				Vec3d at = target.getPos();
 				fight.world().playSound(null, at.x, at.y, at.z, ReachBossSounds.SMOLDERING_LORD_MORTAR_IMPACT, SoundCategory.HOSTILE, 1.5f, 1.0f);
 				fight.world().spawnParticles(ParticleTypes.EXPLOSION, at.x, at.y + 0.3, at.z, 2, 1, 0.1, 1, 0);
-				fight.world().spawnParticles(ParticleTypes.LAVA, at.x, at.y + 0.3, at.z, 10, 1.5, 0.2, 1.5, 0); // TODO own particle (cinder spark)
+				fight.world().spawnParticles(EmberParticles.CINDER_SPARK, at.x, at.y + 0.3, at.z, 10, 1.5, 0.2, 1.5, 0);
 				CombatFx.impact(fight.world(), at, 0.6f, 3.0f, 24, CombatFx.EMBER);
 				for (PlayerEntity hit : Telegraph.playersIn(this, ring)) {
 					hit.damage(BossHits.source(this, DamageTypes.IN_FIRE), MORTAR_DAMAGE);
@@ -421,7 +422,7 @@ public class SmolderingLordEntity extends ReachBoss {
 			// The blade comes down on the wall's foot and the fire runs out along the line.
 			CombatFx.flash(fight.world(), lineStart, 2.0f, CombatFx.EMBER);
 			CombatFx.shake(fight.world(), lineStart, 0.4f, CombatFx.shakeTicks(0.4f), 36);
-			fight.world().spawnParticles(ParticleTypes.LAVA, lineStart.x, lineStart.y + 0.3, lineStart.z, 12, 0.8, 0.2, 0.8, 0); // TODO own particle (cinder spark)
+			fight.world().spawnParticles(EmberParticles.CINDER_SPARK, lineStart.x, lineStart.y + 0.3, lineStart.z, 12, 0.8, 0.2, 0.8, 0);
 		});
 	}
 
@@ -492,7 +493,7 @@ public class SmolderingLordEntity extends ReachBoss {
 				// He launches: the blade's point drags a flash along the line and the ground kicks under him.
 				CombatFx.flash(world, getPos().add(facing.multiply(1.5)).add(0, 0.8, 0), 1.5f, CombatFx.EMBER);
 				CombatFx.shake(world, getPos(), 0.5f, CombatFx.shakeTicks(0.5f), 24);
-				world.spawnParticles(ParticleTypes.FLAME, getX(), getY() + 0.3, getZ(), 30, 0.6, 0.2, 0.6, 0.06); // TODO own particle (ember)
+				world.spawnParticles(EmberParticles.EMBER, getX(), getY() + 0.3, getZ(), 30, 0.6, 0.2, 0.6, 0.06);
 			}
 		});
 	}
@@ -509,7 +510,7 @@ public class SmolderingLordEntity extends ReachBoss {
 		if (getWorld() instanceof ServerWorld world) {
 			// The curse called down: the courtyard trembles, embers stream up off him.
 			CombatFx.shake(world, getPos(), 0.4f, 30, 48);
-			world.spawnParticles(ParticleTypes.FLAME, getX(), getY() + 2.5, getZ(), 40, 0.8, 0.8, 0.8, 0.1); // TODO own particle (ember)
+			world.spawnParticles(EmberParticles.EMBER, getX(), getY() + 2.5, getZ(), 40, 0.8, 0.8, 0.8, 0.1);
 		}
 		switch (which) {
 			case 0 -> Telegraph.windup(this, STORM_WINDUP, null, ReachBossSounds.SMOLDERING_LORD_STORM, ParticleTypes.ASH, 6,

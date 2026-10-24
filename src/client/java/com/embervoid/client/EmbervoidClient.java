@@ -5,7 +5,9 @@ import com.embervoid.config.ConfigSync;
 import com.embervoid.client.anim.AttackAnimationsClient;
 import com.embervoid.client.boss.ArenaFogClient;
 import com.embervoid.client.boss.ArenaShrinesClient;
+import com.embervoid.client.boss.ArenaWallClient;
 import com.embervoid.client.fx.CombatFxClient;
+import com.embervoid.client.fx.particle.EmberParticlesClient;
 import com.embervoid.client.reach.boss.ReachBossClient;
 import com.embervoid.client.mob.MobLevelClient;
 import com.embervoid.client.mob.MobRenderers;
@@ -17,10 +19,12 @@ import com.embervoid.client.realm.RealmClient;
 import com.embervoid.client.reach.gear.GearClient;
 import com.embervoid.client.reliquary.ReliquaryClient;
 import com.embervoid.client.sanctum.boss.SanctumBossClient;
+import com.embervoid.client.setpiece.SetPieceClient;
 import com.embervoid.client.vampire.VampireClient;
 import com.embervoid.config.EmbervoidClientConfig;
 import com.embervoid.config.EmbervoidConfig;
 import com.embervoid.hub.stele.SteleClient;
+import com.embervoid.reach.world.ReachBlocks;
 import com.embervoid.registry.ModBlocks;
 import com.embervoid.registry.ModEntities;
 import com.embervoid.registry.ModItems;
@@ -46,7 +50,8 @@ public class EmbervoidClient implements ClientModInitializer {
 
 		// Blocks with see-through pixels.
 		BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getCutout(),
-				ModBlocks.DEAD_DOOR, ModBlocks.DEAD_TRAPDOOR, ModBlocks.EMBER_LANTERN);
+				ModBlocks.DEAD_DOOR, ModBlocks.DEAD_TRAPDOOR, ModBlocks.EMBER_LANTERN, ReachBlocks.GRAVE_IRON_GRATE);
+		BlockRenderLayerMap.INSTANCE.putBlock(ReachBlocks.EMBER_GLASS, RenderLayer.getTranslucent());
 
 		ClientPlayerData.register();
 		ClientStamina.register();
@@ -64,11 +69,14 @@ public class EmbervoidClient implements ClientModInitializer {
 		ReliquaryClient.register();
 		ArenaFogClient.register();
 		ArenaShrinesClient.register();
+		ArenaWallClient.register();
 		ReachBossClient.register();
 		SanctumBossClient.register();
 		CombatFxClient.register();
+		EmberParticlesClient.register();
 		AttackAnimationsClient.register();
 		PropClient.register();
+		SetPieceClient.register();
 		// Particles and the name label only; a model comes with the art pass.
 		EntityRendererRegistry.register(ModEntities.ASH_REMNANT, EmptyEntityRenderer::new);
 		FabricModelPredicateProviderRegistry.register(ModItems.HEALING_FLASK, Embervoid.id("empty"),

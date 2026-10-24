@@ -54,6 +54,7 @@ public class HuntsmansCrossbowItem extends CrossbowItem {
 		bolt.setPunch(Math.max(bolt.getPunch(), config.punch()));
 		bolt.setPierceLevel((byte) Math.min(127, bolt.getPierceLevel() + config.pierce()));
 		bolt.addCommandTag(BOLT_TAG);
+		WeaponFx.trackBolt(bolt);
 	}
 
 	/** Whether {@code source} is this crossbow's bolt landing on a mob that is not targeting the shooter. */

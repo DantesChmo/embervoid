@@ -13,6 +13,7 @@ public final class ReachGear {
 		GearEffects.register();
 		GearWeapons.register();
 		GearReach.register();
+		WeaponFx.register();
 		GearConsumables.register();
 		FlaskEmberItem.register();
 		GearLoot.register();

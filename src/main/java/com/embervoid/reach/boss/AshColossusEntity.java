@@ -6,6 +6,7 @@ import com.embervoid.boss.BossHits;
 import com.embervoid.boss.Telegraph;
 import com.embervoid.boss.TelegraphShape;
 import com.embervoid.fx.CombatFx;
+import com.embervoid.fx.particle.EmberParticles;
 import com.embervoid.fx.SwingArc;
 import com.embervoid.reach.mob.ReachMobs;
 import com.embervoid.registry.ModBlocks;
@@ -164,7 +165,7 @@ public class AshColossusEntity extends ReachBoss {
 		if (deathTime % 4 == 0) {
 			world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, ModBlocks.ASH_STONE.getDefaultState()),
 					getX(), getY() + 2, getZ(), 6, 1.0, 1.2, 1.0, 0.1);
-			world.spawnParticles(ParticleTypes.FLAME, getX(), getY() + 2.2, getZ(), 3, 0.8, 1.0, 0.8, 0.02); // TODO own particle (ember)
+			world.spawnParticles(EmberParticles.EMBER, getX(), getY() + 2.2, getZ(), 3, 0.8, 1.0, 0.8, 0.02);
 		}
 		if (deathTime == 40) {
 			// The mass topples onto its fists (misc.death lands at 2.0 s).
@@ -172,10 +173,10 @@ public class AshColossusEntity extends ReachBoss {
 			CombatFx.impact(world, getPos(), 1.2f, 3.5f, 40, CombatFx.EMBER);
 			world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, ModBlocks.ASH_STONE.getDefaultState()),
 					getX(), getY() + 0.5, getZ(), 80, 2.0, 0.4, 2.0, 0.2);
-			world.spawnParticles(ParticleTypes.ASH, getX(), getY() + 1, getZ(), 60, 2.5, 0.8, 2.5, 0.05); // TODO own particle (ash flake)
+			world.spawnParticles(EmberParticles.ASH_FLAKE, getX(), getY() + 1, getZ(), 60, 2.5, 0.8, 2.5, 0.05);
 		}
 		if (deathTime == DEATH_TICKS) {
-			world.spawnParticles(ParticleTypes.LAVA, getX(), getY() + 1, getZ(), 20, 1.0, 0.5, 1.0, 0); // TODO own particle (cinder spark)
+			world.spawnParticles(EmberParticles.CINDER_SPARK, getX(), getY() + 1, getZ(), 20, 1.0, 0.5, 1.0, 0);
 			world.spawnParticles(ParticleTypes.LARGE_SMOKE, getX(), getY() + 1, getZ(), 30, 1.5, 0.8, 1.5, 0.02);
 		}
 	}
@@ -213,11 +214,11 @@ public class AshColossusEntity extends ReachBoss {
 		world.playSound(null, getX(), getY(), getZ(), ReachBossSounds.ASH_COLOSSUS_SHED, SoundCategory.HOSTILE, 2.0f, 1.0f);
 		world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, ModBlocks.ASH_STONE.getDefaultState()),
 				getX(), getY() + 2.5, getZ(), 80, 1.0, 1.5, 1.0, 0.2);
-		world.spawnParticles(ParticleTypes.FLAME, getX(), getY() + 2.5, getZ(), 40, 0.8, 1.0, 0.8, 0.05); // TODO own particle (ember)
+		world.spawnParticles(EmberParticles.EMBER, getX(), getY() + 2.5, getZ(), 40, 0.8, 1.0, 0.8, 0.05);
 		// The plates come off its back (misc.shed drops them at 0.9 s) and crash behind it.
 		Vec3d behind = getPos().subtract(Vec3d.fromPolar(0, getYaw()).multiply(1.5));
 		CombatFx.impact(world, behind, 0.9f, 3.0f, 32, CombatFx.EMBER);
-		world.spawnParticles(ParticleTypes.LAVA, getX(), getY() + 2.5, getZ(), 12, 0.5, 0.5, 0.5, 0); // TODO own particle (cinder spark)
+		world.spawnParticles(EmberParticles.CINDER_SPARK, getX(), getY() + 2.5, getZ(), 12, 0.5, 0.5, 0.5, 0);
 		getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(3);
 		getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).setBaseValue(0.26);
 	}
@@ -317,7 +318,7 @@ public class AshColossusEntity extends ReachBoss {
 		if (animation.equals(DRAG)) {
 			CombatFx.trail(this, SwingArc.sweep(6, 1.4f, true, 6, CombatFx.EMBER));
 			CombatFx.shake(world, getPos(), 0.5f, CombatFx.shakeTicks(0.5f), 24);
-			world.spawnParticles(ParticleTypes.ASH, front.x, front.y + 0.3, front.z, 30, 2.0, 0.2, 2.0, 0.05); // TODO own particle (ash flake)
+			world.spawnParticles(EmberParticles.ASH_FLAKE, front.x, front.y + 0.3, front.z, 30, 2.0, 0.2, 2.0, 0.05);
 		} else if (animation.equals(FIST)) {
 			CombatFx.trail(this, SwingArc.overhead(4, 2.8f, 5, CombatFx.EMBER));
 			CombatFx.impact(world, front, 0.7f, 2.5f, 24, CombatFx.EMBER);
@@ -365,7 +366,7 @@ public class AshColossusEntity extends ReachBoss {
 			CombatFx.impact(world, getPos(), 1.0f, (float) LEAP_RADIUS, 32, CombatFx.EMBER);
 			world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, ModBlocks.ASH_STONE.getDefaultState()),
 					getX(), getY() + 0.3, getZ(), 60, LEAP_RADIUS / 2, 0.3, LEAP_RADIUS / 2, 0.2);
-			world.spawnParticles(ParticleTypes.ASH, getX(), getY() + 0.5, getZ(), 40, LEAP_RADIUS / 2, 0.5, LEAP_RADIUS / 2, 0.05); // TODO own particle (ash flake)
+			world.spawnParticles(EmberParticles.ASH_FLAKE, getX(), getY() + 0.5, getZ(), 40, LEAP_RADIUS / 2, 0.5, LEAP_RADIUS / 2, 0.05);
 			for (PlayerEntity player : Telegraph.playersIn(this, ring)) {
 				player.damage(getDamageSources().mobAttack(this), LEAP_DAMAGE);
 				knockAway(player, 1.0, 0.6);
@@ -388,7 +389,7 @@ public class AshColossusEntity extends ReachBoss {
 				world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, ModBlocks.ASH_STONE.getDefaultState()),
 						impact.x, impact.y + 0.5, impact.z, 40, 1.0, 0.4, 1.0, 0.2);
 				CombatFx.impact(world, impact, 0.7f, (float) BOULDER_RADIUS, 28, CombatFx.EMBER);
-				world.spawnParticles(ParticleTypes.LAVA, impact.x, impact.y + 0.4, impact.z, 8, 1.0, 0.2, 1.0, 0); // TODO own particle (cinder spark)
+				world.spawnParticles(EmberParticles.CINDER_SPARK, impact.x, impact.y + 0.4, impact.z, 8, 1.0, 0.2, 1.0, 0);
 			}
 		});
 	}
@@ -438,7 +439,7 @@ public class AshColossusEntity extends ReachBoss {
 			if (getWorld() instanceof ServerWorld world) {
 				// The roar: the ground trembles and ash bursts off its shoulders.
 				CombatFx.shake(world, getPos(), 0.6f, 30, 40);
-				world.spawnParticles(ParticleTypes.ASH, getX(), getY() + 3, getZ(), 120, 2.0, 1.0, 2.0, 0.1); // TODO own particle (ash flake)
+				world.spawnParticles(EmberParticles.ASH_FLAKE, getX(), getY() + 3, getZ(), 120, 2.0, 1.0, 2.0, 0.1);
 			}
 		});
 	}

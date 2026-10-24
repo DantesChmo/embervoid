@@ -10,11 +10,21 @@
     "embervoid:dead_door",
     "embervoid:dead_trapdoor",
     "embervoid:smoldering_log",
+    "embervoid:charred_planks",
+    "embervoid:charred_stairs",
+    "embervoid:charred_slab",
+    "embervoid:charred_log",
     "embervoid:burnt_barrel",
     "embervoid:broken_cart",
     "embervoid:scarecrow",
     "embervoid:weapon_rack",
     "embervoid:tattered_standard",
-    "embervoid:coffin"
+    "embervoid:coffin",
+    "embervoid:windmill_sails",
+    "embervoid:windmill_sails_torn",
+    "embervoid:granary_hoist",
+    "embervoid:great_gear",
+    "embervoid:forge_bellows",
+    "embervoid:chain_winch"
   ]
 }

@@ -1,6 +1,7 @@
 package com.embervoid.boss;
 
 import com.embervoid.Embervoid;
+import com.embervoid.block.setpiece.ArenaEvents;
 import com.embervoid.mob.MobLevels;
 import com.embervoid.progress.ProgressManager;
 import com.embervoid.realm.RealmDefinition;
@@ -18,7 +19,6 @@ import net.minecraft.entity.boss.BossBar;
 import net.minecraft.entity.boss.ServerBossBar;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -56,10 +56,6 @@ import java.util.UUID;
  * </ul>
  */
 public class BossFight {
-	/** Fog wall particles are drawn this often, in ticks. */
-	private static final int FOG_INTERVAL = 10;
-	/** Fog wall height above the arena floor. */
-	private static final int FOG_HEIGHT = 4;
 	private static final UUID FIGHTERS_HEALTH_ID = UUID.fromString("6f1b8c52-3a9e-4f0d-b2c1-8e7d5a4c3b21");
 
 	private final ServerWorld world;
@@ -179,8 +175,20 @@ public class BossFight {
 		BossConfig config = BossConfig.get();
 		switchIn = BossScaling.switchTicks(config.targetSwitchMinSeconds(), config.targetSwitchMaxSeconds(), world.random.nextDouble());
 		arenaBoss.onPhaseChange(0);
+		fireArenaEvent(ArenaEvents.SUMMON);
 		return true;
 	}
+
+	/**
+	 * Tells the arena's set pieces what happened (PLAN 20.1): {@code summon}, {@code phase <n>}, {@code hazard <id>},
+	 * {@code bossHit heavy}, {@code kill}, {@code reset}, or a boss's own word. Returns how many pieces heard it.
+	 */
+	public int fireArenaEvent(String event) {
+		return ArenaEvents.fire(this, event);
+	}
+
+	/** Share of the boss's max health one hit must take to count as {@code bossHit heavy}. */
+	public static final float HEAVY_HIT_FRACTION = 0.04f;
 
 	/** The lowest spot over the arena centre where {@code entity} fits (a dais or rubble may stand there). */
 	private Vec3d standingSpot(Entity entity) {
@@ -308,6 +316,7 @@ public class BossFight {
 	public void addHazard(ArenaHazard hazard) {
 		if (!ended) {
 			hazards.add(hazard);
+			fireArenaEvent(ArenaEvents.HAZARD + " " + hazard.id());
 		}
 	}
 
@@ -346,12 +355,17 @@ public class BossFight {
 		}
 		phase++;
 		arenaBoss.onPhaseChange(phase);
+		fireArenaEvent(ArenaEvents.PHASE + " " + phase);
 	}
 
-	/** A fighter hurt the boss (before armor): counts toward the next target switch. */
+	/** A fighter hurt the boss (before armor): counts toward the next target switch; a heavy one shakes the arena. */
 	void recordDamage(ServerPlayerEntity player, float amount) {
 		if (fighters.contains(player.getUuid())) {
 			damageDealt.merge(player.getUuid(), amount, Float::sum);
+		}
+		MobEntity boss = boss();
+		if (boss != null && amount >= boss.getMaxHealth() * HEAVY_HIT_FRACTION) {
+			fireArenaEvent(ArenaEvents.BOSS_HIT_HEAVY);
 		}
 	}
 
@@ -403,6 +417,7 @@ public class BossFight {
 		while (phase >= scripted && phase - scripted < thresholds.length && fraction <= thresholds[phase - scripted]) {
 			phase++;
 			arenaBoss.onPhaseChange(phase);
+			fireArenaEvent(ArenaEvents.PHASE + " " + phase);
 		}
 	}
 
@@ -442,7 +457,7 @@ public class BossFight {
 		boss.setTarget(next);
 	}
 
-	/** Pushes fighters back in and everyone else back out; draws the wall near the arena edge. */
+	/** Pushes fighters back in and everyone else back out; the wall's look is the client's ({@link ArenaWalls}). */
 	private void holdFogWall() {
 		double cx = center.getX() + 0.5;
 		double cz = center.getZ() + 0.5;
@@ -465,16 +480,6 @@ public class BossFight {
 				player.sendMessage(Text.translatable("embervoid.boss.fog"), true);
 			}
 		}
-		if (world.getTime() % FOG_INTERVAL == 0) {
-			int points = (int) (r * 4);
-			for (int i = 0; i < points; i++) {
-				double angle = Math.PI * 2 * i / points;
-				for (int y = 1; y <= FOG_HEIGHT; y++) {
-					world.spawnParticles(ParticleTypes.WHITE_ASH, cx + Math.cos(angle) * r, center.getY() + y, cz + Math.sin(angle) * r,
-							2, 0.2, 0.4, 0.2, 0);
-				}
-			}
-		}
 	}
 
 	/** The boss died: credit the fighters still inside, hand out Ember Hearts, mark realms completed. */
@@ -482,6 +487,7 @@ public class BossFight {
 		if (ended) {
 			return;
 		}
+		fireArenaEvent(ArenaEvents.KILL);
 		RealmDefinition realm = Realms.byWorld(world.getRegistryKey());
 		boolean finalBoss = realm != null && realm.finalBoss().equals(spec.bossId());
 		boolean shrine = ensureShrine();
@@ -571,6 +577,7 @@ public class BossFight {
 		if (boss != null) {
 			boss.discard();
 		}
+		fireArenaEvent(ArenaEvents.RESET);
 		end();
 	}
 
