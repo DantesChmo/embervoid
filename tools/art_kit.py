@@ -398,7 +398,13 @@ def write_model(name, bones, animations, bounds, tex_w=64, seed=None, glow_extra
     write_json(os.path.join(ROOT, "animations", folder, name + ".animation.json"),
                {"format_version": "1.8.0", "animations": animations})
     tex.save(os.path.join(ROOT, "textures", folder, name + ".png"))
-    glow.save(os.path.join(ROOT, "textures", folder, name + "_glowmask.png"))
+    # GeckoLib refuses a glowmask without a lit pixel (and crashes the client drawing it): a model with nothing that
+    # glows has no glowmask, and SetPieceRenderer draws the glow layer only where one exists.
+    glow_path = os.path.join(ROOT, "textures", folder, name + "_glowmask.png")
+    if any(c[3] for row in glow.px for c in row):
+        glow.save(glow_path)
+    elif os.path.exists(glow_path):
+        os.remove(glow_path)
     print("wrote %s (%dx%d, %d bones, %d boxes)" % (name, tex_w, tex_h, len(bones),
                                                     sum(len(b.boxes) for b in bones)))
 

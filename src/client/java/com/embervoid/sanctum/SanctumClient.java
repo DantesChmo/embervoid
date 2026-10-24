@@ -14,6 +14,7 @@ public final class SanctumClient {
 	public static void register() {
 		ProgressClient.register();
 		BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getCutout(), SanctumBlocks.EMBER_SHRINE, SanctumBlocks.VOID_OBELISK);
+		BlockRenderLayerMap.INSTANCE.putBlock(SanctumBlocks.FOG_WALL, RenderLayer.getTranslucent());
 		BlockEntityRendererFactories.register(SanctumBlocks.VOID_OBELISK_ENTITY, VoidObeliskRenderer::new);
 		EntityRendererRegistry.register(SanctumEntities.ASHEN_MAIDEN, AshenMaidenRenderer::new);
 

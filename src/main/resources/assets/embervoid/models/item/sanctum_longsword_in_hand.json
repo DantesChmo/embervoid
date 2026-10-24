@@ -1,5 +1,4 @@
 {
-	"parent": "minecraft:item/handheld",
 	"textures": {
 		"0": "embervoid:item/sanctum_longsword_in_hand",
 		"particle": "embervoid:item/sanctum_longsword"

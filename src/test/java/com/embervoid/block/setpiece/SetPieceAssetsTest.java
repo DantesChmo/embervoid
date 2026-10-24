@@ -22,9 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * The set-piece assets tools/setpiece_art.py writes: every model under geo/block/setpiece has its animation file,
- * texture, glowmask, item icon and particle model; every animation is named {@code idle}, {@code state.<s>} or
- * {@code action.<a>}; every animated bone exists in the model; the model stays within the art direction's budget
- * (20–80 cubes). A kind whose names do not match its files is caught by the SetPieceTests GameTest.
+ * texture, item icon and particle model (a glowmask only where something glows, see ClientAssetRulesTest); every
+ * animation is named {@code idle}, {@code state.<s>} or {@code action.<a>}; every animated bone exists in the model;
+ * the model stays within the art direction's budget (20–80 cubes). A kind whose names do not match its files is caught by the SetPieceTests GameTest.
  */
 class SetPieceAssetsTest {
 	private static final Path ASSETS = Path.of("src", "main", "resources", "assets", "embervoid");
@@ -40,7 +40,7 @@ class SetPieceAssetsTest {
 		List<String> problems = new ArrayList<>();
 		for (String name : names) {
 			for (String file : List.of("animations/block/setpiece/" + name + ".animation.json", "textures/block/setpiece/" + name + ".png",
-					"textures/block/setpiece/" + name + "_glowmask.png", "textures/item/setpiece/" + name + ".png",
+					"textures/item/setpiece/" + name + ".png",
 					"models/block/setpiece/" + name + ".json")) {
 				if (!Files.exists(ASSETS.resolve(file))) {
 					problems.add(name + ": missing " + file);

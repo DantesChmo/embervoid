@@ -190,7 +190,8 @@ public final class SetPieceTests implements FabricGameTest {
 				context.assertTrue(list.has(name), kind.name() + ": animation " + name + " missing (has " + list.keySet() + ")");
 			}
 			context.assertTrue(json(base + "geo/block/setpiece/" + kind.name() + ".geo.json") != null, kind.name() + ": no geo file");
-			for (String texture : List.of("textures/block/setpiece/" + kind.name() + ".png", "textures/block/setpiece/" + kind.name() + "_glowmask.png",
+			for (String texture : List.of("textures/block/setpiece/" + kind.name() + ".png",
+					// No glowmask for a kind with nothing that glows (GeckoLib refuses an empty one; ClientAssetRulesTest).
 					"textures/item/setpiece/" + kind.name() + ".png", "models/block/setpiece/" + kind.name() + ".json")) {
 				try (InputStream in = SetPieceTests.class.getResourceAsStream(base + texture)) {
 					context.assertTrue(in != null, kind.name() + ": missing " + texture);

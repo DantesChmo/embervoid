@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.2 — 2026-10-24
+
+- **Fixed:** the game crashed as soon as a player reached an obelisk realm: the windmill and 11 other set pieces had an
+  empty glowmask, which GeckoLib refuses while drawing. Set pieces with nothing that glows have no glowmask now and
+  are drawn without the glow layer.
+- **Fixed:** the weapons' in-hand models were invisible: their parent (item/handheld) made the game build them as flat
+  icons from a texture they do not have, so they drew nothing. They are plain element models now with the handheld
+  hand positions written out.
+- **Changed:** the fog wall in a Ruined Sanctum's boss doorway is a glowing curtain of rising ember fog, not just
+  drifting ash; you still walk through it.
+
 ## 0.5.1 — 2026-10-24
 
 - **Fixed:** 0.5.0 broke the client's resources: the Crypt Keeper's lantern throw had its keyframes out of order, GeckoLib

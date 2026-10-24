@@ -269,9 +269,9 @@ if __name__ == "__main__":
 
 # --- Fog wall sheet (textures/misc) --------------------------------------------------------------------------------
 
-def fog_wall():
-    """A 64x64 tiling sheet of ember fog for the arena wall and the Citadel border: turbulent cloud noise, warm in the
-    bright knots and dark red in the hollows, its alpha the brightness so the wall is a volume of light and smoke."""
+def fog_sheet():
+    """A 64x64 tiling sheet of ember fog: turbulent cloud noise, warm in the bright knots and dark red in the hollows,
+    its alpha the brightness so the wall is a volume of light and smoke."""
     from art_kit import value_noise
     c = Canvas(64, 64)
     for y in range(64):
@@ -296,11 +296,39 @@ def fog_wall():
             if v > 0.85:
                 col = mix(col, hexc("fff0c0"), (v - 0.85) * 4)
             c.set(x, y, (col[0], col[1], col[2], int(40 + 215 * v)))
+    return c
+
+
+def fog_wall():
+    """The sheet for the arena wall and the Citadel border (FogWallDraw)."""
     out = os.path.join(ROOT, "textures", "misc")
     os.makedirs(out, exist_ok=True)
-    c.save(os.path.join(out, "fog_wall.png"))
+    fog_sheet().save(os.path.join(out, "fog_wall.png"))
     print("wrote misc/fog_wall")
+
+
+def fog_wall_block():
+    """The fog wall block in a Sanctum's arena doorway: the same sheet brought down to 16x16 (4x4 averages, so it
+    still tiles from block to block) and rising one pixel a frame, 16 frames, the full height once a loop."""
+    sheet = fog_sheet()
+    small = []
+    for y in range(16):
+        row = []
+        for x in range(16):
+            px = [sheet.get(x * 4 + i, y * 4 + j) for j in range(4) for i in range(4)]
+            row.append(tuple(sum(p[k] for p in px) // 16 for k in range(4)))
+        small.append(row)
+    strip = Canvas(16, 16 * 16)
+    for frame in range(16):
+        for y in range(16):
+            for x in range(16):
+                strip.set(x, frame * 16 + y, small[(y + frame) % 16][x])
+    path = os.path.join(ROOT, "textures", "block", "fog_wall.png")
+    strip.save(path)
+    write_json(path + ".mcmeta", {"animation": {"frametime": 4, "interpolate": True}})
+    print("wrote block/fog_wall")
 
 
 if __name__ == "__main__":
     fog_wall()
+    fog_wall_block()

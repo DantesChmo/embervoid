@@ -1,5 +1,4 @@
 {
-	"parent": "minecraft:item/handheld",
 	"textures": {
 		"0": "embervoid:item/royal_ash_rapier_in_hand",
 		"particle": "embervoid:item/royal_ash_rapier"

@@ -26,6 +26,9 @@ public final class SanctumBlocks {
 			AbstractBlock.Settings.create()
 					.noCollision()
 					.nonOpaque()
+					// The fog glows: drawn full bright and a little light in the doorway.
+					.emissiveLighting((state, world, pos) -> true)
+					.luminance(state -> 6)
 					// Counts as solid so flowing water does not wash it away.
 					.solid()
 					.strength(-1.0f, 3_600_000.0f)

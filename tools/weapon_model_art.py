@@ -168,20 +168,23 @@ def build(name, boxes, root=None):
             element["name"] = box.name
         elements.append(element)
     sheet.canvas.save(os.path.join(ITEM_TEX, "%s_in_hand.png" % name))
+    # No parent: a chain that ends in builtin/generated (item/handheld does) bakes from layer0 and drops the elements,
+    # so the model would draw nothing. The handheld display is written out instead.
     model = {
-        "parent": "minecraft:item/handheld",
         "textures": {"0": "embervoid:item/%s_in_hand" % name, "particle": "embervoid:item/%s" % name},
         "elements": elements,
     }
+    scale = 1.0
     if any(not BOUNDS[0] <= c <= BOUNDS[1] for e in elements for c in e["from"] + e["to"]):
+        scale = SHRINK
         shrink = lambda p: [round(CENTRE + (c - CENTRE) * SHRINK, 4) for c in p]
         for e in elements:
             e["from"], e["to"] = shrink(e["from"]), shrink(e["to"])
             e["rotation"]["origin"] = shrink(e["rotation"]["origin"])
         if any(not BOUNDS[0] <= c <= BOUNDS[1] for e in elements for c in e["from"] + e["to"]):
             raise ValueError("%s does not fit the model bounds even at %s" % (name, SHRINK))
-        model["display"] = {k: {"rotation": v["rotation"], "translation": v["translation"],
-                                "scale": [round(v["scale"] / SHRINK, 4)] * 3} for k, v in HANDHELD_DISPLAY.items()}
+    model["display"] = {k: {"rotation": v["rotation"], "translation": v["translation"],
+                            "scale": [round(v["scale"] / scale, 4)] * 3} for k, v in HANDHELD_DISPLAY.items()}
     write_json(os.path.join(ITEM_MODELS, "%s_in_hand.json" % name), model)
     print("wrote %s_in_hand (%d elements)" % (name, len(elements)))
 

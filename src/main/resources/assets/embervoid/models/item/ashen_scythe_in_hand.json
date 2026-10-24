@@ -1,5 +1,4 @@
 {
-	"parent": "minecraft:item/handheld",
 	"textures": {
 		"0": "embervoid:item/ashen_scythe_in_hand",
 		"particle": "embervoid:item/ashen_scythe"
