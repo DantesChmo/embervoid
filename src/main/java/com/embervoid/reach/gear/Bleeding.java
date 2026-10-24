@@ -1,6 +1,7 @@
 package com.embervoid.reach.gear;
 
 import com.embervoid.Embervoid;
+import com.embervoid.fx.particle.EmberParticles;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
@@ -9,6 +10,7 @@ import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -74,6 +76,10 @@ public final class Bleeding extends StatusEffect {
 			return;
 		}
 		entity.damage(damageSource(entity), BleedRules.damagePerTick(amplifier + 1, GearConfig.get().bleeding().damagePerLevel()));
+		if (entity.getWorld() instanceof ServerWorld world) {
+			world.spawnParticles(EmberParticles.BLOOD_DROP, entity.getX(), entity.getBodyY(0.6), entity.getZ(), 2 + amplifier,
+					entity.getWidth() * 0.3, entity.getHeight() * 0.2, entity.getWidth() * 0.3, 0.02);
+		}
 	}
 
 	static void register() {

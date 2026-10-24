@@ -11,6 +11,7 @@ public final class BossInit {
 		Telegraph.register();
 		ArenaManager.register();
 		ArenaShrines.register();
+		ArenaWalls.register();
 		BossCommands.register();
 	}
 

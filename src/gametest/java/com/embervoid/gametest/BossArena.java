@@ -1,6 +1,7 @@
 package com.embervoid.gametest;
 
 import com.embervoid.boss.ArenaFog;
+import com.embervoid.boss.ArenaWalls;
 import com.embervoid.boss.ArenaManager;
 import com.embervoid.boss.ArenaSpec;
 import com.embervoid.boss.BossFight;
@@ -208,7 +209,7 @@ final class BossArena {
 	 * combat effects ({@link CombatFx}, by channel).
 	 */
 	static final class FogRecorder extends ClientConnection {
-		private static final Set<Identifier> FX = Set.of(CombatFx.SHAKE_PACKET, CombatFx.TRAIL_PACKET, CombatFx.FLASH_PACKET);
+		private static final Set<Identifier> FX = Set.of(CombatFx.SHAKE_PACKET, CombatFx.TRAIL_PACKET, CombatFx.FLASH_PACKET, ArenaWalls.PACKET);
 		final List<float[]> fog = new ArrayList<>();
 		final List<CustomPayloadS2CPacket> fx = new ArrayList<>();
 
@@ -230,6 +231,19 @@ final class BossArena {
 			} else if (packet instanceof CustomPayloadS2CPacket payload && FX.contains(payload.getChannel())) {
 				fx.add(payload);
 			}
+		}
+
+		/** Arena wall packets so far that removed a wall (true) or placed one (false). */
+		List<Boolean> walls() {
+			List<Boolean> walls = new ArrayList<>();
+			for (CustomPayloadS2CPacket payload : fx) {
+				if (payload.getChannel().equals(ArenaWalls.PACKET)) {
+					PacketByteBuf buf = new PacketByteBuf(payload.getData().copy());
+					buf.readLong();
+					walls.add(buf.readBoolean());
+				}
+			}
+			return walls;
 		}
 
 		/** Combat effect packets sent on {@code channel} so far. */

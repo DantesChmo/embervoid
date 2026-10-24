@@ -647,5 +647,9 @@
 	"block.embervoid.forge_bellows": "Forge Bellows",
 	"block.embervoid.chain_winch": "Chain Winch",
 	"block.embervoid.censer": "Censer",
-	"embervoid.setpiece.chunk_full": "Too much machinery here already"
+	"embervoid.setpiece.chunk_full": "Too much machinery here already",
+	"subtitles.embervoid.item.ashen_scythe.reap": "A soul is reaped",
+	"subtitles.embervoid.item.royal_ash_rapier.ramp_peak": "Rapier sings",
+	"subtitles.embervoid.boss.fog_wall.hum": "Fog wall hums",
+	"subtitles.embervoid.boss.fog_wall.flare": "Fog wall flares"
 }

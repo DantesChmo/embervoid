@@ -647,5 +647,9 @@
 	"block.embervoid.forge_bellows": "Кузнечные мехи",
 	"block.embervoid.chain_winch": "Цепная лебёдка",
 	"block.embervoid.censer": "Кадило",
-	"embervoid.setpiece.chunk_full": "Здесь и так слишком много механизмов"
+	"embervoid.setpiece.chunk_full": "Здесь и так слишком много механизмов",
+	"subtitles.embervoid.item.ashen_scythe.reap": "Душа пожата",
+	"subtitles.embervoid.item.royal_ash_rapier.ramp_peak": "Рапира поёт",
+	"subtitles.embervoid.boss.fog_wall.hum": "Гудит стена тумана",
+	"subtitles.embervoid.boss.fog_wall.flare": "Вспыхивает стена тумана"
 }

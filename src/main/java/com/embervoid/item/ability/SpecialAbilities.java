@@ -4,6 +4,7 @@ import com.embervoid.anim.AttackAnimations;
 import com.embervoid.player.PlayerDataManager;
 import com.embervoid.player.PlayerSounds;
 import com.embervoid.player.StaminaManager;
+import com.embervoid.reach.gear.WeaponFx;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -35,6 +36,7 @@ public final class SpecialAbilities {
 			}
 			ability.perform((ServerWorld) world, serverPlayer, stack);
 			AttackAnimations.special(serverPlayer, stack);
+			WeaponFx.onSpecial(serverPlayer, stack);
 		} else if (!player.getAbilities().creativeMode && PlayerDataManager.get(player).stamina <= 0) {
 			// The client checks its synced copy so it does not swing for an attack the server will refuse.
 			return TypedActionResult.fail(stack);

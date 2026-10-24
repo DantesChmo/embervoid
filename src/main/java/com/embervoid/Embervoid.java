@@ -7,6 +7,7 @@ import com.embervoid.command.PerfCommands;
 import com.embervoid.config.ConfigSync;
 import com.embervoid.config.EmbervoidConfig;
 import com.embervoid.entity.mob.MobEntities;
+import com.embervoid.fx.particle.EmberParticles;
 import com.embervoid.hub.Hub;
 import com.embervoid.hub.stele.CleftStele;
 import com.embervoid.mob.MobLevels;
@@ -53,6 +54,7 @@ public class Embervoid implements ModInitializer {
 
 		// Order matters: blocks before items (BlockItems), items before item groups.
 		ModSounds.register();
+		EmberParticles.register();
 		ModBlocks.register();
 		Props.register();
 		SetPieces.register();

@@ -1,6 +1,9 @@
 package com.embervoid.sanctum.gear;
 
+import com.embervoid.fx.CombatFx;
+import com.embervoid.fx.particle.EmberParticles;
 import com.embervoid.item.ability.SpecialAbility;
+import com.embervoid.reach.gear.WeaponFx;
 import com.embervoid.reach.gear.GearWeaponItem;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
@@ -53,10 +56,16 @@ public final class SanctumAbilities {
 					target.damage(world.getDamageSources().playerAttack(player), damage);
 				}
 			}
-			for (int i = -2; i <= 2; i++) {
-				Vec3d at = player.getPos().add(look.multiply(1.6)).add(side.multiply(i * 0.6)).add(0, player.getHeight() * 0.6, 0);
-				world.spawnParticles(ParticleTypes.SWEEP_ATTACK, at.x, at.y, at.z, 1, 0, 0, 0, 0);
+			// The cleave seen: a fan of cold flame across the arc, a thin ring of it on the ground.
+			for (int i = -4; i <= 4; i++) {
+				double angle = Math.toRadians(config.cleaveArc() / 2 * i / 4.0);
+				Vec3d dir = look.multiply(Math.cos(angle)).add(side.multiply(Math.sin(angle)));
+				for (double r = 1.0; r <= config.cleaveRange(); r += 0.7) {
+					Vec3d at = player.getPos().add(dir.multiply(r)).add(0, player.getHeight() * 0.55, 0);
+					world.spawnParticles(EmberParticles.COLD_FLAME, at.x, at.y, at.z, 1, 0.08, 0.15, 0.08, 0.01);
+				}
 			}
+			EmberParticles.shockwave(world, player.getPos().add(look.multiply(1.2)).add(0, 0.05, 0), config.cleaveRange() * 0.8f, WeaponFx.COLD);
 			world.playSound(null, player.getX(), player.getY(), player.getZ(), SanctumGearSounds.WIDE_CLEAVE,
 					SoundCategory.PLAYERS, 1.2f, 0.8f);
 		}
@@ -105,7 +114,13 @@ public final class SanctumAbilities {
 							player.getY() + 0.1, player.getZ() + Math.sin(angle) * r, 3, 0.2, 0.05, 0.2, 0.1);
 				}
 			}
-			world.spawnParticles(ParticleTypes.EXPLOSION, player.getX(), player.getY() + 0.2, player.getZ(), 1, 0, 0, 0, 0);
+			// The slam seen and felt: a shockwave ring, a scorch, sparks thrown out, the camera kicked for everyone near.
+			Vec3d feet = player.getPos();
+			EmberParticles.shockwave(world, feet.add(0, 0.05, 0), config.slamRadius(), WeaponFx.EMBER);
+			EmberParticles.scorch(world, feet.add(0, 0.02, 0), 1.6f);
+			EmberParticles.ringOut(world, EmberParticles.CINDER_SPARK, feet.add(0, 0.3, 0), 24, 0.35, 0.2);
+			EmberParticles.spawn(world, EmberParticles.SOOT, feet.add(0, 0.4, 0), 8, 0.8, 0.02);
+			CombatFx.impact(world, feet, 0.6f, 1.2f, 10, WeaponFx.EMBER);
 			world.playSound(null, player.getX(), player.getY(), player.getZ(), SanctumGearSounds.GROUND_SLAM,
 					SoundCategory.PLAYERS, 0.5f, 1.4f);
 		}

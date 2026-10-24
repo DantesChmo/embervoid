@@ -4,7 +4,6 @@ import com.embervoid.reach.gear.FlaskEmberItem;
 import com.embervoid.reach.gear.GearConsumables;
 import com.embervoid.reach.gear.GearWeapons;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
-import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
@@ -37,7 +36,7 @@ public final class GearClient {
 		FabricModelPredicateProviderRegistry.register(crossbow, new Identifier("firework"), (stack, world, entity, seed) ->
 				entity != null && CrossbowItem.isCharged(stack) && CrossbowItem.hasProjectile(stack, Items.FIREWORK_ROCKET) ? 1 : 0);
 
-		ModelLoadingPlugin.register(plugin -> plugin.addModels(ScourgeLashes.IN_HAND_MODEL));
+		InHandModels.load();
 		ScourgeLashes.register();
 
 		EntityRendererRegistry.register(GearConsumables.ASH_BOMB_ENTITY, FlyingItemEntityRenderer::new);

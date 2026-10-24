@@ -3,6 +3,7 @@ package com.embervoid.client.reach.gear;
 import com.embervoid.Embervoid;
 import com.embervoid.anim.WeaponKind;
 import com.embervoid.client.anim.AttackAnimationsClient;
+import com.embervoid.fx.particle.EmberParticles;
 import com.embervoid.reach.gear.GearWeapons;
 import com.embervoid.reach.gear.WardensScourgeItem;
 import com.embervoid.reach.gear.WhipArc;
@@ -61,8 +62,8 @@ public final class ScourgeLashes {
 	/** The Scourge's model in a hand: the handle; the inventory icon is the whole coiled whip. */
 	public static final Identifier IN_HAND_MODEL = Embervoid.id("item/wardens_scourge_in_hand");
 	private static final Identifier TEXTURE = Embervoid.id("textures/entity/wardens_scourge_lash.png");
-	/** Where the lash leaves the handle in the in-hand model (the sprite's pixel (9, 6), mid-depth). */
-	private static final Vector4f ROOT = new Vector4f(9.5f / 16, 9.5f / 16, 0.5f, 1);
+	/** Where the lash leaves the handle in the in-hand model: the tip ring of tools/weapon_model_art.py's handle, mid-depth. */
+	private static final Vector4f ROOT = new Vector4f(8.8f / 16, 8.8f / 16, 0.5f, 1);
 	private static final int LINKS = 20;
 	/** Lash length hanging from the hand when nothing is swung, blocks. */
 	private static final double IDLE_LENGTH = 0.8;
@@ -89,6 +90,14 @@ public final class ScourgeLashes {
 	private static final double TEXTURE_LENGTH = 0.3;
 	/** A lash not drawn for this many frames starts over hanging when seen again. */
 	private static final int STALE_FRAMES = 20;
+	/** The heat pass: how much wider than the links the glow is drawn, and its colours from the handle to the tip. */
+	private static final float HEAT_WIDTH = 2.6f;
+	private static final float[] HEAT_ROOT = {0.85f, 0.25f, 0.08f};
+	private static final float[] HEAT_TIP = {1.0f, 0.78f, 0.40f};
+	private static final float[] FLASH = {1.0f, 0.96f, 0.82f};
+	/** How fast the heat and the crack's flash fade, per tick. */
+	private static final float HEAT_FADE = 0.10f;
+	private static final float FLASH_FADE = 0.30f;
 
 	private static final Map<Integer, Lash> LASHES = new HashMap<>();
 	@Nullable
@@ -110,8 +119,7 @@ public final class ScourgeLashes {
 
 	/** Whether {@code stack} is drawn with {@link #IN_HAND_MODEL} in {@code mode}. */
 	public static boolean inHand(ItemStack stack, ModelTransformationMode mode) {
-		return stack.isOf(GearWeapons.WARDENS_SCOURGE) && mode != ModelTransformationMode.GUI
-				&& mode != ModelTransformationMode.GROUND && mode != ModelTransformationMode.FIXED;
+		return stack.isOf(GearWeapons.WARDENS_SCOURGE) && InHandModels.isHand(mode);
 	}
 
 	/** The entity whose held item is being drawn ({@code null} after it), from {@code GearItemRendererMixin}. */
@@ -166,6 +174,8 @@ public final class ScourgeLashes {
 		VertexConsumerProvider.Immediate immediate = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
 		RenderLayer layer = RenderLayer.getEntityCutoutNoCull(TEXTURE);
 		VertexConsumer buffer = immediate.getBuffer(layer);
+		VertexConsumerProvider.Immediate effects = MinecraftClient.getInstance().getBufferBuilders().getEffectVertexConsumers();
+		VertexConsumer glow = effects.getBuffer(RenderLayer.getLightning());
 		for (Iterator<Map.Entry<Integer, Lash>> it = LASHES.entrySet().iterator(); it.hasNext(); ) {
 			Map.Entry<Integer, Lash> entry = it.next();
 			if (!(world.getEntityById(entry.getKey()) instanceof AbstractClientPlayerEntity player) || !player.isAlive()
@@ -180,8 +190,10 @@ public final class ScourgeLashes {
 			}
 			lash.update(world, player, anchor, now, tickDelta);
 			lash.draw(world, buffer, view, normals, camera);
+			lash.drawHeat(glow, view, camera);
 		}
 		immediate.draw(layer);
+		effects.draw(RenderLayer.getLightning());
 	}
 
 	/** How a swing lays the lash out. */
@@ -212,6 +224,10 @@ public final class ScourgeLashes {
 		Swing swing;
 		float swingStart;
 		boolean kinematic;
+		/** How hot the lash runs (0–1): up through a swing, fading after; and the white flash of the crack itself. */
+		float heat;
+		float flash;
+		boolean cracked;
 		float last = Float.NaN;
 		float pending;
 		int drawnFrame = Integer.MIN_VALUE;
@@ -227,6 +243,40 @@ public final class ScourgeLashes {
 		void swing(Swing swing, float start) {
 			this.swing = swing;
 			swingStart = start;
+			cracked = false;
+		}
+
+		/** Hot streaks and a spark or two off the tip while the lash flies. */
+		private void tipSparks(ClientWorld world, float dt) {
+			if (pos[LINKS] == null || speed[LINKS] == null || dt <= 0) {
+				return;
+			}
+			Vec3d tip = pos[LINKS];
+			Vec3d v = speed[LINKS];
+			if (v.lengthSquared() < 0.04) {
+				return;
+			}
+			int links = (int) (LINKS * 0.6);
+			for (int i = links; i < LINKS; i += 2) {
+				world.addParticle(EmberParticles.WHIP_LINE, pos[i].x, pos[i].y, pos[i].z, 0, 0, 0);
+			}
+			world.addParticle(EmberParticles.CINDER_SPARK, tip.x, tip.y, tip.z, v.x * 0.15 + (world.random.nextDouble() - 0.5) * 0.1,
+					0.05 + world.random.nextDouble() * 0.05, v.z * 0.15 + (world.random.nextDouble() - 0.5) * 0.1);
+		}
+
+		/** The crack: a ring of sparks and a puff of soot off the tip (the server adds the report, the burst and the ring). */
+		private void crackSparks(ClientWorld world) {
+			if (pos[LINKS] == null) {
+				return;
+			}
+			Vec3d tip = pos[LINKS];
+			for (int i = 0; i < 10; i++) {
+				double angle = world.random.nextDouble() * Math.PI * 2;
+				double speed = 0.15 + world.random.nextDouble() * 0.2;
+				world.addParticle(EmberParticles.CINDER_SPARK, tip.x, tip.y, tip.z, Math.cos(angle) * speed,
+						0.1 + world.random.nextDouble() * 0.15, Math.sin(angle) * speed);
+			}
+			world.addParticle(EmberParticles.SOOT, tip.x, tip.y, tip.z, 0, 0.02, 0);
 		}
 
 		/** Where the lash starts this frame, or null if the handle was not drawn lately. */
@@ -256,13 +306,23 @@ public final class ScourgeLashes {
 			last = now;
 			WhipArc arc = ((WardensScourgeItem) player.getMainHandStack().getItem()).arc();
 			float age = now - swingStart;
+			heat = Math.max(0, heat - HEAT_FADE * dt);
+			flash = Math.max(0, flash - FLASH_FADE * dt);
 			// Let go while the tip still overshoots, so the lash goes on moving.
 			if (swing != null && age < arc.crackAge(arc.length()) + 0.5f) {
 				layOut(world, player, arc, anchor, age, tickDelta, dt);
 				kinematic = true;
 				pending = 0;
+				heat = Math.min(1, age / arc.crackAge(arc.length()));
+				if (!cracked && age >= arc.crackAge(arc.length()) - 0.5f) {
+					cracked = true;
+					flash = 1;
+					crackSparks(world);
+				}
+				tipSparks(world, dt);
 				return;
 			}
+			cracked = false;
 			if (kinematic) {
 				kinematic = false;
 				if (swing != null && swing.yank > 0) {
@@ -399,6 +459,74 @@ public final class ScourgeLashes {
 				ribbon(buffer, view, normals, a, b, across, other, widthA, widthB, u0, v0, v1, lightA, lightB);
 				ribbon(buffer, view, normals, a, b, other, across, widthA, widthB, u0, v0, v1, lightA, lightB);
 			}
+		}
+
+		/**
+		 * The heat pass: the lash drawn again wider on the additive layer, dull red at the handle to a bright tip, as hot
+		 * as the swing has made it, and white all along for the crack's own instant.
+		 */
+		void drawHeat(VertexConsumer buffer, Matrix4f view, Vec3d camera) {
+			if (heat <= 0.02f && flash <= 0.02f) {
+				return;
+			}
+			for (int i = 0; i < LINKS; i++) {
+				if (pos[i] == null || pos[i + 1] == null) {
+					return;
+				}
+				Vec3d a = pos[i].subtract(camera);
+				Vec3d b = pos[i + 1].subtract(camera);
+				Vec3d dir = b.subtract(a);
+				if (dir.lengthSquared() < 1e-8) {
+					continue;
+				}
+				dir = dir.normalize();
+				Vec3d across = dir.crossProduct(Math.abs(dir.y) > 0.99 ? new Vec3d(1, 0, 0) : new Vec3d(0, 1, 0)).normalize();
+				Vec3d other = dir.crossProduct(across);
+				float shareA = (float) i / LINKS;
+				float shareB = (float) (i + 1) / LINKS;
+				// Heat grows toward the tip: the tip is what moves and burns.
+				float alphaA = heatAlpha(shareA);
+				float alphaB = heatAlpha(shareB);
+				float widthA = MathHelper.lerp(shareA, WIDTH_ROOT, WIDTH_TIP) * HEAT_WIDTH * (1 + flash);
+				float widthB = MathHelper.lerp(shareB, WIDTH_ROOT, WIDTH_TIP) * HEAT_WIDTH * (1 + flash);
+				glowRibbon(buffer, view, a, b, across, widthA, widthB, shareA, shareB, alphaA, alphaB);
+				glowRibbon(buffer, view, a, b, other, widthA, widthB, shareA, shareB, alphaA, alphaB);
+			}
+		}
+
+		private float heatAlpha(float share) {
+			float along = 0.15f + 0.85f * share * share;
+			return Math.min(1, heat * along * 0.75f + flash * 0.9f);
+		}
+
+		private void glowRibbon(VertexConsumer buffer, Matrix4f view, Vec3d a, Vec3d b, Vec3d side, float widthA, float widthB,
+				float shareA, float shareB, float alphaA, float alphaB) {
+			Vec3d sa = side.multiply(widthA / 2);
+			Vec3d sb = side.multiply(widthB / 2);
+			float[] ca = heatColor(shareA);
+			float[] cb = heatColor(shareB);
+			glowVertex(buffer, view, a.subtract(sa), ca, alphaA);
+			glowVertex(buffer, view, a.add(sa), ca, alphaA);
+			glowVertex(buffer, view, b.add(sb), cb, alphaB);
+			glowVertex(buffer, view, b.subtract(sb), cb, alphaB);
+			// The other winding too: the layer culls back faces.
+			glowVertex(buffer, view, b.subtract(sb), cb, alphaB);
+			glowVertex(buffer, view, b.add(sb), cb, alphaB);
+			glowVertex(buffer, view, a.add(sa), ca, alphaA);
+			glowVertex(buffer, view, a.subtract(sa), ca, alphaA);
+		}
+
+		private float[] heatColor(float share) {
+			float[] c = new float[3];
+			for (int k = 0; k < 3; k++) {
+				float hot = MathHelper.lerp(share, HEAT_ROOT[k], HEAT_TIP[k]);
+				c[k] = MathHelper.lerp(Math.min(1, flash), hot, FLASH[k]);
+			}
+			return c;
+		}
+
+		private static void glowVertex(VertexConsumer buffer, Matrix4f view, Vec3d at, float[] rgb, float alpha) {
+			buffer.vertex(view, (float) at.x, (float) at.y, (float) at.z).color(rgb[0], rgb[1], rgb[2], alpha).next();
 		}
 
 		private static void ribbon(VertexConsumer buffer, Matrix4f view, Matrix3f normals, Vec3d a, Vec3d b, Vec3d side,
