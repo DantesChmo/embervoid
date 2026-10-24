@@ -15,9 +15,9 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from art_kit import (ZERO, Bone, Box, Material, anim, chain_bones, chain_names, clamp, crack, e, ember_cracks,  # noqa: E402
-                     fingers, hexc, hold, keys, lag_sway, merge, mirror_box, pos, ramp, rot, scatter, shade, stitch,
-                     sway, tatter, whip, write_model)
+from art_kit import (ZERO, Bone, Box, Material, anim, chain_bones, chain_names, chamfered, clamp, crack, e,  # noqa: E402
+                     ember_cracks, fingers, hexc, hold, keys, lag_sway, merge, mirror_box, octagon, pos, ramp, rot,
+                     scatter, shade, stitch, sway, tatter, whip, write_model)
 import mob_kit as mk  # noqa: E402
 
 # --- Palettes (dark to light) -------------------------------------------------------------------------------------
@@ -681,104 +681,188 @@ def ash_stalker():
 
 
 # --- Fields: Ashen Carrion -------------------------------------------------------------------------------------------
-# A big carrion bird of the burnt fields: soot-black feathers, a grey ruff, a bald scorched head with a bone beak.
+# A big carrion bird of the burnt fields: a rounded soot-black body under layered coverts, a ragged grey ruff, a bald
+# scorched head on a neck that cranes, a bone beak that opens, wings in two segments with primaries spread like
+# fingers and coverts shingled over them, tail feathers in two segments that trail behind, scaled legs with talons.
 # Shriek (15 ticks, head up, wings spread) before each dive.
 
-SCORCHED = ramp("2e1c1a", "432824", "5a3630", "72463c", "8a5848")
-
-
 def ashen_carrion():
-    plume = Material(FEATHER, base=2.4, noise=0.6, grain="h", top=0.8)
+    plume = Material(mk.FEATHER, base=2.6, noise=0.5, grain="h", top=0.8, bevel=0.3)
+
+    def plumage(face, rng):
+        mk.scales(face, rng, mk.FEATHER[1], mk.FEATHER[4], 2)
+        mk.edge_shadow(face, rng, -10)
 
     def wing_top(face, rng):
         if face.name in ("top", "bottom"):
-            feathers(face, rng, FEATHER[4] if face.name == "top" else FEATHER[3], FEATHER[1])
-
-    def wing_trailing(face, rng):
-        # Ragged trailing (back) edge of the wing: the top face's first rows are its back (v0 is +z).
-        if face.name in ("top", "bottom"):
-            ragged_edge(face, rng, "top", 2, 0.5)
+            mk.scales(face, rng, mk.FEATHER[1], mk.FEATHER[4] if face.name == "top" else mk.FEATHER[3], 2)
+            ragged_edge(face, rng, "top", 2, 0.5)  # the trailing (+z) edge is the top face's first rows
 
     def tip_fingers(face, rng):
         if face.name in ("top", "bottom"):
-            feathers(face, rng, FEATHER[4], FEATHER[1])
-            # Primary feathers spread like fingers at the outer end (+x is the left of the face on top).
-            for y in range(1, face.h, 2):
-                for x in range(0, 3):
-                    face.clear(x if face.name == "top" else face.w - 1 - x, y)
+            mk.scales(face, rng, mk.FEATHER[1], mk.FEATHER[4], 2)
+            ragged_edge(face, rng, "top", 1, 0.4)
 
+    def ruff(face, rng):
+        if face.side():
+            ragged_edge(face, rng, "bottom", 2, 0.6)
+            for x in range(0, face.w, 2):
+                face.vline(x, 0, face.h, mk.ASH[1])
+
+    skin = Material(mk.SCORCHED, base=2.4, noise=0.5, speck=0.03, bevel=0.5)
+    bone_mat = Material(mk.BONE, base=3.0, noise=0.4, bevel=0.5)
     bones = [
         Bone("root", [0, 0, 0]),
-        Bone("body", [0, 8, 0], "root", None, [
-            Box([-3, 5, -5], [6, 5, 10], plume, {"sides": lambda f, r: feathers(f, r, FEATHER[4]),
-                                                 "top": lambda f, r: feathers(f, r, FEATHER[5])}),
-            Box([-3.5, 7.5, -6], [7, 3, 3], Material(ASH, base=2.0, noise=0.7, grain="v"),
-                {"sides": lambda f, r: ragged_edge(f, r, "bottom", 1, 0.5)}, inflate=0.3),
-        ]),
-        Bone("head", [0, 9, -5], "body", None, [
-            Box([-1, 8.5, -8], [2, 2, 3], Material(SCORCHED, base=2.0, noise=0.6)),
-            Box([-2, 9, -10.5], [4, 3, 3], Material(SCORCHED, base=2.4, noise=0.6, top=0.4),
-                {"left": lambda f, r: (f.set(1, 1, VOID), f.lit(1, 1, EMBER, 0.9)),
-                 "right": lambda f, r: (f.set(f.w - 2, 1, VOID), f.lit(f.w - 2, 1, EMBER, 0.9))}),
-            Box([-1, 9, -13], [2, 2, 3], Material(BONE, base=2.6, noise=0.4)),
-            Box([-1, 8, -13.5], [2, 1, 1], Material(BONE, base=1.6, noise=0.3)),
-        ]),
+        Bone("body", [0, 8, 0], "root", None,
+             mk.octagon([-3, 5, -5], [6, 5, 10], plume, {"all": plumage}, axis="z", shrink=0.8)
+             + [Box([-3.5, 8.5, -3], [7, 2.2, 8], plume.but(base=3.4), {"all": plumage}, inflate=0.3),  # back coverts
+                Box([-2.5, 4.4, -2], [5, 1.4, 6], plume.but(base=1.6), {"all": plumage}, inflate=0.2)]),  # belly down
+        Bone("neck", [0, 8.5, -5], "body", None, [
+            Box([-1.5, 7, -7.5], [3, 3, 3], skin.but(base=2.0), {"sides": lambda f, r: mk.fold_lines(f, r, 2, -14, "h")}),
+            Box([-3.5, 7.5, -6.5], [7, 3, 3.5], Material(mk.ASH, base=2.4, noise=0.6, grain="v"), {"all": ruff},
+                inflate=0.4)]),
     ]
-    wing = Box([-17, 9.5, -4], [14, 1, 8], plume.but(base=2.2), {"all": wing_top, "top": wing_trailing})
-    coverts = Box([-14, 10, -4], [11, 1, 4], plume.but(base=3.2),
-                  {"top": lambda f, r: feathers(f, r, FEATHER[5], FEATHER[2])}, inflate=0.15)
-    tip = Box([-25, 9.5, -3], [8, 1, 6], plume.but(base=1.8), {"all": tip_fingers})
+
+    def eye_side(face, rng):
+        ex = 1 if face.name == "right" else face.w - 2
+        face.rect(ex, 1, 1, 1, VOID)
+        face.lit(ex, 1, EMBER, 1.0)
+        face.tint(ex, 0, -30)
+
+    bones.append(Bone("head", [0, 9.5, -7.5], "neck", None,
+                      mk.chamfer_decals(chamfered([-2, 8.5, -11], [4, 3.5, 4], skin.but(base=2.8), c=0.6),
+                                        {"left": eye_side, "right": eye_side,
+                                         "top": lambda f, r: scatter(f, r, 2, mk.SCORCHED[0])})
+                      + [Box([-1, 9.6, -14], [2, 1.4, 3.4], bone_mat, {"sides": lambda f, r: f.hline(0, 0, f.w, mk.BONE[6])}),
+                         Box([-0.5, 10, -15], [1, 1, 1.2], bone_mat.but(base=1.8))]))
+    bones.append(Bone("beak", [0, 9.6, -11], "head", None, [
+        Box([-1, 8.8, -13.8], [2, 0.9, 3], bone_mat.but(base=2.0))]))
+    crest = plume.but(base=2.0, grain="v")
+    bones += mk.tail_chain("crest", "head", [0, 11.5, -9.5], 2, 2.2, crest, thickness=1.2, rotation=[35, 0, 0],
+                           box=lambda i, o, s: [Box([o[0] - 0.8, o[1] - 0.3, o[2]], [s[0] + 1.6, 0.6, s[2]], crest,
+                                                    {"all": lambda f, r: ragged_edge(f, r, "top", 1, 0.5)})])
+    # Wings: the arm with coverts shingled over it, then the hand with the primaries spread like fingers.
+    wing = Box([-16, 9.4, -4], [13, 1, 8], plume.but(base=2.4), {"all": wing_top})
+    coverts = Box([-15, 9.9, -4], [11, 0.8, 4.5], plume.but(base=3.3), {"all": lambda f, r: mk.scales(f, r, mk.FEATHER[2], mk.FEATHER[5], 2)},
+                  inflate=0.15)
+    coverts2 = Box([-12, 10.3, -4], [8, 0.6, 2.5], plume.but(base=4.0), inflate=0.1)
+    hand = Box([-22, 9.4, -3.5], [7, 1, 5], plume.but(base=2.0), {"all": tip_fingers})
+    primaries = [Box([-26.5 + i * 0.1, 9.4, -3.2 + i * 1.4], [5.5 - i * 0.4, 0.8, 1.2], plume.but(base=1.8 + i * 0.2),
+                     rotation=[0, -6 - i * 9, 0], pivot=[-21, 9.8, -3 + i * 1.4]) for i in range(4)]
     bones += [
-        Bone("right_wing", [-3, 10, 0], "body", None, [wing, coverts]),
-        Bone("right_wing_tip", [-17, 10, 0], "right_wing", None, [tip]),
-        Bone("left_wing", [3, 10, 0], "body", None, [mirror_box(wing), mirror_box(coverts)]),
-        Bone("left_wing_tip", [17, 10, 0], "left_wing", None, [mirror_box(tip)]),
-        Bone("tail", [0, 8, 5], "body", None, [
-            Box([-3, 7, 5], [6, 1, 6], plume, {"top": lambda f, r: (feathers(f, r, FEATHER[4]),
-                                                                    ragged_edge(f, r, "top", 2, 0.5))})]),
+        Bone("right_wing", [-3, 10, 0], "body", None, [wing, coverts, coverts2]),
+        Bone("right_wing_tip", [-16, 10, 0], "right_wing", None, [hand] + primaries),
+        Bone("left_wing", [3, 10, 0], "body", None, [mirror_box(wing), mirror_box(coverts), mirror_box(coverts2)]),
+        Bone("left_wing_tip", [16, 10, 0], "left_wing", None, [mirror_box(hand)] + [mirror_box(p) for p in primaries]),
     ]
-    leg = [Box([-2, 0.5, 0.5], [1, 4.5, 1], Material(SCORCHED, base=1.5, noise=0.4)),
-           Box([-2.5, 0, -0.5], [2, 1, 2], Material(BONE, base=1.2, noise=0.3))]
+    tail = plume.but(base=2.3)
+    bones += mk.tail_chain("tail", "body", [0, 7.5, 5], 2, 4, tail, thickness=1.0,
+                           box=lambda i, o, s: [Box([-3 + i * 0.5, o[1] - 0.4, o[2]], [6 - i, 0.8, s[2]], tail,
+                                                    {"all": lambda f, r: (mk.scales(f, r, mk.FEATHER[1], mk.FEATHER[4], 2),
+                                                                           ragged_edge(f, r, "top", 2, 0.5))})])
+    scale = Material(mk.SCORCHED, base=1.6, noise=0.4, bevel=0.4)
+    leg = [Box([-2, 1, 0.5], [1, 4, 1], scale, {"sides": lambda f, r: stitch(f, 1, mk.SCORCHED[0], 2)}),
+           Box([-2.5, 0, -1.2], [2, 1, 2.2], scale.but(base=2.0))]
+    leg += mk.claws(-2.5, 0.6, -1.6, 2, (0.6, 1.2, 0.6), bone_mat.but(base=1.6), spread=0.9, curl=-70, splay=15)
     bones += [Bone("right_leg", [-1.5, 5, 1], "body", None, leg),
               Bone("left_leg", [1.5, 5, 1], "body", None, [mirror_box(b) for b in leg])]
+    tail_names = chain_names("tail", 2)
+    crest_names = chain_names("crest", 2)
 
-    def flap(length, angle, tip_angle):
+    def flap(length, angle, tip_angle, lag=0.1):
         h = length / 2
-        return {
-            "right_wing": rot(0, [0, 0, angle], h, [0, 0, -angle], length, [0, 0, angle]),
-            "left_wing": rot(0, [0, 0, -angle], h, [0, 0, angle], length, [0, 0, -angle]),
-            "right_wing_tip": rot(0, [0, 0, tip_angle], h, [0, 0, -tip_angle], length, [0, 0, tip_angle]),
-            "left_wing_tip": rot(0, [0, 0, -tip_angle], h, [0, 0, tip_angle], length, [0, 0, -tip_angle]),
-            "tail": rot(0, [-5, 0, 0], h, [5, 0, 0], length, [-5, 0, 0]),
-            "root": pos(0, [0, -0.5, 0], h, [0, 0.5, 0], length, [0, -0.5, 0]),
-        }
+        d = length * lag
+        return merge({
+            "right_wing": rot(0, [0, 0, angle], h, e("easeInOutSine", [0, 0, -angle]), length, e("easeInOutSine", [0, 0, angle])),
+            "left_wing": rot(0, [0, 0, -angle], h, e("easeInOutSine", [0, 0, angle]), length, e("easeInOutSine", [0, 0, -angle])),
+            "right_wing_tip": rot(0, [0, 0, tip_angle * 0.3], d, e("easeInOutSine", [0, 0, tip_angle]), h + d,
+                                  e("easeInOutSine", [0, 0, -tip_angle]), length, e("easeInOutSine", [0, 0, tip_angle * 0.3])),
+            "left_wing_tip": rot(0, [0, 0, -tip_angle * 0.3], d, e("easeInOutSine", [0, 0, -tip_angle]), h + d,
+                                 e("easeInOutSine", [0, 0, tip_angle]), length, e("easeInOutSine", [0, 0, -tip_angle * 0.3])),
+            "root": pos(0, [0, -0.6, 0], h, e("easeInOutSine", [0, 0.6, 0]), length, e("easeInOutSine", [0, -0.6, 0])),
+            "body": rot(0, [4, 0, 0], h, e("easeInOutSine", [-3, 0, 0]), length, e("easeInOutSine", [4, 0, 0])),
+            "neck": rot(0, [-4, 0, 0], h, e("easeInOutSine", [3, 0, 0]), length, e("easeInOutSine", [-4, 0, 0])),
+        }, lag_sway(tail_names, length, 8, 0, phase=0.25), lag_sway(crest_names, length, 10, 0, phase=0.5))
 
+    folded = {"right_wing": [0, 0, -82], "left_wing": [0, 0, 82], "right_wing_tip": [0, 0, -105], "left_wing_tip": [0, 0, 105]}
     animations = {
-        "move.fly": anim(0.8, flap(0.8, 25, 15)),
-        "misc.idle": anim(3.0, {
-            "right_wing": rot(0, [0, 0, -80], 3, [0, 0, -80]),
-            "left_wing": rot(0, [0, 0, 80], 3, [0, 0, 80]),
-            "right_wing_tip": rot(0, [0, 0, -100], 3, [0, 0, -100]),
-            "left_wing_tip": rot(0, [0, 0, 100], 3, [0, 0, 100]),
-            "head": rot(0, ZERO, 1.5, [15, 10, 0], 3, ZERO),
-        }),
-        "attack.shriek": anim(0.75, {
-            "head": rot(0, ZERO, 0.3, [-40, 0, 0], 0.75, [-40, 0, 0]),
-            "right_wing": rot(0, ZERO, 0.3, [0, 0, 35], 0.75, [0, 0, 35]),
-            "left_wing": rot(0, ZERO, 0.3, [0, 0, -35], 0.75, [0, 0, -35]),
-            "tail": rot(0, ZERO, 0.3, [-20, 0, 0], 0.75, [-20, 0, 0]),
+        "move.fly": anim(0.8, flap(0.8, 28, 18)),
+        # Perched: the wings folded against the body, the neck craning, the beak working, the tail twitching.
+        "misc.idle": anim(3.0, merge(
+            {b: rot(0, v, 1.5, e("easeInOutSine", [v[0], v[1], v[2] + (3 if v[2] < 0 else -3)]), 3, e("easeInOutSine", v))
+             for b, v in folded.items()},
+            {"neck": rot(0, ZERO, 1.0, e("easeInOutSine", [12, 20, 0]), 2.0, e("easeInOutSine", [-6, -15, 0]), 3,
+                         e("easeInOutSine", ZERO)),
+             "head": rot(0, ZERO, 1.0, e("easeInOutSine", [8, 10, 0]), 2.0, e("easeInOutSine", [-5, -10, 0]), 3,
+                         e("easeInOutSine", ZERO)),
+             "beak": rot(0, ZERO, 1.2, e("easeInOutSine", [12, 0, 0]), 1.5, e("easeInOutSine", ZERO), 3, ZERO),
+             "body": rot(0, ZERO, 1.5, e("easeInOutSine", [2, 0, 0]), 3, e("easeInOutSine", ZERO))},
+            lag_sway(tail_names, 3.0, 5, 1, phase=0.3), lag_sway(crest_names, 3.0, 6, 0, phase=0.1))),
+        # The shriek: wings thrown wide and up, the head flung back, the beak gaping; held through the 15 ticks.
+        "attack.shriek": anim(0.75, merge({
+            "neck": rot(0, ZERO, 0.25, e("easeOutBack", [-45, 0, 0]), 0.75, [-45, 0, 0]),
+            "head": rot(0, ZERO, 0.25, e("easeOutBack", [-30, 0, 0]), 0.75, [-30, 0, 0]),
+            "beak": rot(0, ZERO, 0.25, e("easeOutCubic", [35, 0, 0]), 0.75, [35, 0, 0]),
+            "right_wing": rot(0, ZERO, 0.3, e("easeOutBack", [0, 0, 38]), 0.75, [0, 0, 38]),
+            "left_wing": rot(0, ZERO, 0.3, e("easeOutBack", [0, 0, -38]), 0.75, [0, 0, -38]),
+            "right_wing_tip": rot(0, ZERO, 0.35, e("easeOutBack", [0, 0, 25]), 0.75, [0, 0, 25]),
+            "left_wing_tip": rot(0, ZERO, 0.35, e("easeOutBack", [0, 0, -25]), 0.75, [0, 0, -25]),
+            "body": rot(0, ZERO, 0.3, e("easeOutSine", [-15, 0, 0]), 0.75, [-15, 0, 0]),
+        }, whip(tail_names, 0.2, -25, 0, settle=0.5), whip(crest_names, 0.2, -30, 0, settle=0.5)), loop=False),
+        "attack.dive": anim(1.0, merge({
+            "body": rot(0, [32, 0, 0], 1, [32, 0, 0]),
+            "neck": rot(0, [-20, 0, 0], 1, [-20, 0, 0]),
+            "right_wing": rot(0, [0, 50, -10], 0.5, e("easeInOutSine", [0, 55, -8]), 1, e("easeInOutSine", [0, 50, -10])),
+            "left_wing": rot(0, [0, -50, 10], 0.5, e("easeInOutSine", [0, -55, 8]), 1, e("easeInOutSine", [0, -50, 10])),
+            "right_wing_tip": rot(0, [0, 30, 0], 1, [0, 30, 0]), "left_wing_tip": rot(0, [0, -30, 0], 1, [0, -30, 0]),
+            "right_leg": rot(0, [-70, 0, 0], 1, [-70, 0, 0]), "left_leg": rot(0, [-70, 0, 0], 1, [-70, 0, 0]),
+        }, lag_sway(tail_names, 1.0, 10, 0, phase=0.0, base=[-20, 0, 0]), lag_sway(crest_names, 1.0, 12, 0, base=[-30, 0, 0]))),
+        "attack.peck": anim(0.4, {
+            "neck": rot(0, ZERO, 0.12, e("easeInSine", [-25, 0, 0]), 0.22, e("easeOutBack", [40, 0, 0]), 0.4, e("easeOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.12, e("easeInSine", [-10, 0, 0]), 0.22, e("easeOutBack", [25, 0, 0]), 0.4, e("easeOutSine", ZERO)),
+            "beak": rot(0, ZERO, 0.12, e("easeInSine", [30, 0, 0]), 0.22, e("easeOutCubic", ZERO), 0.4, ZERO),
         }, loop=False),
-        "attack.dive": anim(1.0, {
-            "body": rot(0, [30, 0, 0], 1, [30, 0, 0]),
-            "right_wing": rot(0, [0, 55, 0], 1, [0, 55, 0]),
-            "left_wing": rot(0, [0, -55, 0], 1, [0, -55, 0]),
-            "right_leg": rot(0, [-60, 0, 0], 1, [-60, 0, 0]),
-            "left_leg": rot(0, [-60, 0, 0], 1, [-60, 0, 0]),
-        }),
-        "attack.peck": anim(0.4, {"head": rot(0, ZERO, 0.15, [-20, 0, 0], 0.25, [40, 0, 0], 0.4, ZERO)},
-                            loop=False),
+        "misc.hurt": anim(0.4, merge({
+            "body": rot(0, ZERO, 0.08, e("easeOutCubic", [-10, 0, 12]), 0.4, e("easeOutSine", ZERO)),
+            "neck": rot(0, ZERO, 0.08, e("easeOutCubic", [-20, 15, 0]), 0.4, e("easeOutSine", ZERO)),
+            "beak": rot(0, ZERO, 0.08, e("easeOutCubic", [25, 0, 0]), 0.4, e("easeOutSine", ZERO)),
+            "right_wing": rot(0, ZERO, 0.1, e("easeOutCubic", [0, 0, 20]), 0.4, e("easeOutSine", ZERO)),
+            "left_wing": rot(0, ZERO, 0.1, e("easeOutCubic", [0, 0, -14]), 0.4, e("easeOutSine", ZERO)),
+        }, whip(tail_names, 0.04, 25, 0, settle=0.34), whip(crest_names, 0.04, 30, 0, settle=0.34)), loop=False),
+        "misc.stagger": anim(0.8, merge({
+            "body": rot(0, ZERO, 0.12, e("easeOutCubic", [-25, 0, 40]), 0.45, e("easeInOutSine", [-15, 0, -20]), 0.8,
+                        e("easeOutBack", ZERO)),
+            "neck": rot(0, ZERO, 0.1, e("easeOutCubic", [-35, 20, 0]), 0.8, e("easeOutBack", ZERO)),
+            "beak": rot(0, ZERO, 0.1, e("easeOutCubic", [35, 0, 0]), 0.8, e("easeOutSine", ZERO)),
+            "right_wing": rot(0, ZERO, 0.12, e("easeOutCubic", [0, 0, 45]), 0.45, e("easeInOutSine", [0, 0, -20]), 0.8,
+                              e("easeOutSine", ZERO)),
+            "left_wing": rot(0, ZERO, 0.12, e("easeOutCubic", [0, 0, -40]), 0.45, e("easeInOutSine", [0, 0, 15]), 0.8,
+                             e("easeOutSine", ZERO)),
+            "right_wing_tip": rot(0, ZERO, 0.15, e("easeOutCubic", [0, 0, 30]), 0.8, e("easeOutSine", ZERO)),
+            "left_wing_tip": rot(0, ZERO, 0.15, e("easeOutCubic", [0, 0, -30]), 0.8, e("easeOutSine", ZERO)),
+            "root": pos(0, ZERO, 0.12, e("easeOutCubic", [0, -1.5, 2]), 0.8, e("easeOutSine", ZERO)),
+        }, whip(tail_names, 0.05, 35, 0, settle=0.7), whip(crest_names, 0.05, 40, 0, settle=0.7)), loop=False),
+        # Shot out of the air: the wings go limp and fold, it rolls onto its side as it drops (the server gives it
+        # gravity), lands on its back with the legs curled, the tail and crest settling.
+        "misc.death": anim(1.8, merge({
+            "body": {"rotation": keys(0, ZERO, 0.3, e("easeInSine", [20, 0, 30]), 0.8, e("easeInQuad", [10, 0, 150]), 0.95,
+                                      e("easeOutBounce", [5, 0, 170]), 1.8, [5, 0, 170]),
+                     "position": keys(0, ZERO, 0.8, e("easeInQuad", [0, -4, 0]), 0.95, e("easeOutSine", [0, -5, 0]), 1.8, [0, -5, 0])},
+            "right_wing": rot(0, ZERO, 0.3, e("easeOutSine", [0, 0, -40]), 0.8, e("easeInQuad", [0, 0, -75]), 1.0,
+                              e("easeOutSine", [0, 0, -60]), 1.8, [0, 0, -60]),
+            "left_wing": rot(0, ZERO, 0.3, e("easeOutSine", [0, 0, 30]), 0.8, e("easeInQuad", [0, 0, 60]), 1.0,
+                             e("easeOutSine", [0, 0, 70]), 1.8, [0, 0, 70]),
+            "right_wing_tip": rot(0, ZERO, 0.3, e("easeOutSine", [0, 0, -60]), 0.9, e("easeInQuad", [0, 0, -100]), 1.8, [0, 0, -100]),
+            "left_wing_tip": rot(0, ZERO, 0.3, e("easeOutSine", [0, 0, 50]), 0.9, e("easeInQuad", [0, 0, 95]), 1.8, [0, 0, 95]),
+            "neck": rot(0, ZERO, 0.3, e("easeOutSine", [-20, 0, 0]), 0.9, e("easeInQuad", [35, 20, 0]), 1.1,
+                        e("easeOutBounce", [45, 25, 0]), 1.8, [45, 25, 0]),
+            "head": rot(0, ZERO, 0.9, e("easeInQuad", [25, 0, 15]), 1.8, [25, 0, 15]),
+            "beak": rot(0, ZERO, 0.3, e("easeOutSine", [30, 0, 0]), 1.0, e("easeInQuad", [12, 0, 0]), 1.8, [12, 0, 0]),
+            "right_leg": rot(0, ZERO, 0.4, e("easeOutSine", [-60, 0, 10]), 1.8, [-60, 0, 10]),
+            "left_leg": rot(0, ZERO, 0.4, e("easeOutSine", [-70, 0, -10]), 1.8, [-70, 0, -10]),
+        }, mk.settle(tail_names, 0.9, 35, 0, length=0.85), mk.settle(crest_names, 0.9, 40, 0, length=0.85)), loop=False),
     }
-    write_model("ashen_carrion", bones, animations, [3.5, 1.5])
+    write_model("ashen_carrion", bones, animations, [3.5, 1.5], tex_w=128)
 
 
 # --- Woods: Withered Thrall ------------------------------------------------------------------------------------------

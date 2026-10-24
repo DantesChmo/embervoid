@@ -1,6 +1,7 @@
 package com.embervoid.reach.mob;
 
 import com.embervoid.boss.Telegraph;
+import com.embervoid.fx.particle.EmberParticles;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -42,6 +43,8 @@ public class AshenCarrionEntity extends FlyingReachMob {
 	public static final int DIVE_MAX_TICKS = 240;
 	/** A wounded target draws a dive at once, but no sooner than this after the last one. */
 	public static final int DIVE_SPACING_TICKS = 40;
+	/** Ticks the body stays for {@code misc.death}: shot out of the air, it rolls over as it drops, 1.8 s. */
+	public static final int DEATH_TICKS = 36;
 	static final Move SHRIEK = new Move("attack.shriek", SHRIEK_TICKS, 0, ReachMobSounds.ASHEN_CARRION_SHRIEK, 1.0f);
 	/** Longest dive before it gives up and climbs. */
 	private static final int DIVE_TICKS = 40;
@@ -268,6 +271,32 @@ public class AshenCarrionEntity extends FlyingReachMob {
 			setVelocity(0, 0.5, 0);
 		}
 		return hurt;
+	}
+
+	@Override
+	public int deathTicks() {
+		return DEATH_TICKS;
+	}
+
+	/** Shot out of the air: the body gets its weight back and drops while the fall plays. */
+	@Override
+	public void onDeath(DamageSource source) {
+		super.onDeath(source);
+		if (!getWorld().isClient) {
+			setState(STATE_NONE);
+			setNoGravity(false);
+		}
+	}
+
+	/** Feathers and ash drift off the falling body. */
+	@Override
+	protected void tickDeath(ServerWorld world, int deathTime) {
+		if (deathTime % 3 == 0) {
+			EmberParticles.spawn(world, EmberParticles.ASH_FLAKE, getPos().add(0, 0.4, 0), 2, 0.6, 0.03);
+		}
+		if (deathTime == 16) {
+			EmberParticles.spawn(world, EmberParticles.SOOT, getPos().add(0, 0.4, 0), 6, 0.5, 0.03);
+		}
 	}
 
 	@Override
