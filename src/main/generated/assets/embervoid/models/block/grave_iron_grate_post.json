@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/template_glass_pane_post",
+  "textures": {
+    "edge": "embervoid:block/grave_iron_grate_top",
+    "pane": "embervoid:block/grave_iron_grate"
+  }
+}

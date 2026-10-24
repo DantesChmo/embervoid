@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "embervoid:block/mossy_ash_brick_slab"
+    },
+    "type=double": {
+      "model": "embervoid:block/mossy_ash_bricks"
+    },
+    "type=top": {
+      "model": "embervoid:block/mossy_ash_brick_slab_top"
+    }
+  }
+}

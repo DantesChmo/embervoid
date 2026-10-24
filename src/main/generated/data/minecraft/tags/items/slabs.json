@@ -4,6 +4,11 @@
     "embervoid:ash_stone_slab",
     "embervoid:cobbled_ash_stone_slab",
     "embervoid:polished_ash_stone_slab",
-    "embervoid:ash_brick_slab"
+    "embervoid:ash_brick_slab",
+    "embervoid:mossy_ash_brick_slab",
+    "embervoid:ash_cobble_brick_slab",
+    "embervoid:ash_tile_slab",
+    "embervoid:slate_tile_slab",
+    "embervoid:charred_slab"
   ]
 }

@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:smelting",
+  "category": "blocks",
+  "cookingtime": 100,
+  "experience": 0.1,
+  "group": "charred_log",
+  "ingredient": {
+    "item": "embervoid:dead_log"
+  },
+  "result": "embervoid:charred_log"
+}

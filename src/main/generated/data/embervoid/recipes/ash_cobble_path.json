@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "embervoid:ash_soil"
+    },
+    {
+      "item": "embervoid:cobbled_ash_stone"
+    }
+  ],
+  "result": {
+    "count": 2,
+    "item": "embervoid:ash_cobble_path"
+  }
+}

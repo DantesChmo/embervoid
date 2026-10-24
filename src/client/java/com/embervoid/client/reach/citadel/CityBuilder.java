@@ -143,6 +143,35 @@ final class CityBuilder {
 		return this;
 	}
 
+	/**
+	 * A Citadel façade round a box from y0 to y1 (docs/art-direction.md §3): a polished blackstone base course,
+	 * blackstone bricks cracking upwards and sooty at the foot, broken towards the top with chance {@code broken},
+	 * rubble outside where a stretch fell.
+	 */
+	CityBuilder facade(int x0, int z0, int x1, int z1, int y0, int y1, double broken) {
+		t.weatheredWalls(x0, z0, x1, z1, y0, y1, random, broken, Blocks.POLISHED_BLACKSTONE.getDefaultState(), 1,
+				Blocks.POLISHED_BLACKSTONE_BRICKS.getDefaultState(), Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS.getDefaultState(),
+				com.embervoid.registry.ModBlocks.SOOTY_ASH_BRICKS.getDefaultState(),
+				com.embervoid.block.prop.Props.RUBBLE_PILE.getDefaultState());
+		return this;
+	}
+
+	/** A pillar from y0 to y1: chiseled blackstone base, brick-pillar shaft, carved capital. */
+	CityBuilder pillar(int x, int z, int y0, int y1) {
+		t.set(x, y0, z, Blocks.CHISELED_POLISHED_BLACKSTONE.getDefaultState());
+		if (y1 - y0 >= 2) {
+			t.fill(x, y0 + 1, z, x, y1 - 1, z, com.embervoid.registry.ModBlocks.ASH_BRICK_PILLAR.getDefaultState());
+		}
+		t.set(x, y1, z, com.embervoid.registry.ModBlocks.CARVED_ASH_STONE.getDefaultState());
+		return this;
+	}
+
+	/** Soot up a wall over a fire at (x, y, z): the wall blocks above it, {@code height} high, turned sooty. */
+	CityBuilder sootOver(int x, int y, int z, int height) {
+		t.soot(x, y + 1, z, height, com.embervoid.registry.ModBlocks.SOOTY_ASH_BRICKS.getDefaultState(), random);
+		return this;
+	}
+
 	/** A placed enemy (reach-world's marker) standing at x, y, z. */
 	CityBuilder mob(int x, int y, int z, Identifier mob, Direction facing) {
 		t.set(x, y, z, PlacedEnemies.MARKER.getDefaultState().with(PlacedEnemyMarkerBlock.FACING, facing),
