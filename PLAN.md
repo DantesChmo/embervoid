@@ -1001,6 +1001,7 @@ and in mechanics. The hard lock (DESIGN §4.1 "Final zone lock") moves to the se
 | 21.2 | **Fog wall: look and lock** | M | 21.1 | done – the look not seen in game (JUnit `FinalZoneRegionTest`, `EdgeLayoutTest`; GameTests `FinalZoneLockTests`: walking, pearl, chorus, elytra, riptide, boat and horse, bridge, tunnel, cleared, creative, two players at one spot, the border wall; 258 GameTests green; server check PASS: gate at 0 76 21, border wall 50 of 50 stretches, 80×80 blocks of border generated in 1.1–1.3 s; not seen in game: the border wall, the gate's fog wall and the client fog curtain) |
 | 21.3 | **Citadel generation in the realm dimension** | L | 21.1 | done – the city not seen in game (GameTests `CitadelWorldTests` on the realm, `RealmSectorTests` final-sector respawn; 282 green; server check PASS: Citadel at 0 ~ 640 with its treasury and 7 / 5 / 4 placed mobs, courtyard at 0 ~ 672, the first Citadel shrine at −4 73 48; `--perf` and preview renders not run) |
 | 21.4 | **Worlds from 0.4.x** (realm dimensions regenerated) | M | 21.1, 21.3 | done (GameTests `RealmLayoutUpgradeTests` on a made-up old save, the remnants' return and a join; 285 green; server check PASS on a fresh world, which gets layout 2; not run on a real 0.4.x save) |
+| 21.6 | **The Citadel pulled in** (the 0.5.x playtest: "big and empty") | S | 21.3 | done – compile and JUnit (`CitadelLayoutTest`, new `CitadelPlacementTest`); GameTests, server check and the city in game not run here |
 | 21.5 | **Release 0.5.0** | M | 14.1–21.4 | done – version 0.5.0, CHANGELOG, README, CORE; datagen unchanged, build, 286 GameTests, server check green; tag, push and the CI jar wait for the user |
 
 - **21.0 Design.** *Done 2026-10-23:* DESIGN §4.1 (layout, lock), §4.5 (Citadel), §10.15. The user picked the
@@ -1054,6 +1055,18 @@ and in mechanics. The hard lock (DESIGN §4.1 "Final zone lock") moves to the se
   GameTest built Woods pieces at 90°, now inside the city, so it uses the zones' real middle lines; the border wall
   check counts brickwork only (the city's cracks and logs lie there too); the lock tests' pearl sampler schedules one
   timer at a time (29 at once could crash the test server's timer walk).
+- **21.6 The Citadel pulled in.** The user after playing 0.5.x: the Citadel is very big and empty, no wastes are
+  needed there, the castle can start about 100 blocks in. *Done 2026-10-24:* `CitadelLayout.ORIGIN_Z` 480 → 128 (a
+  multiple of 16: the courtyard arena stands on its chunk's corner): entry plaza at z 128–157, outskirts from 158
+  (110 blocks past the gate road's end at 48), courtyard arena at 320, Citadel start at 288, keep to 400; structure
+  sets 289 / 321. The final sector is only ~150 blocks wide there, so the entry plaza shrank from 61 × 60 to the
+  outskirts' 33 × 30 to stay clear of the border blend (`CitadelPlacementTest`: every terrace column is final-zone
+  terrain with no landing or neighbour blend, the structure sets land where the layout says). Gate, gate road, first
+  Citadel shrine (−4, 48), border wall and respawn unchanged. `RealmLayoutUpgrade.CURRENT` 2 → 3: 0.5.0–0.5.2 worlds
+  regenerate their realm the 21.4 way (remnants to the hub, players inside to the hub, realm shrines forgotten);
+  new GameTest `worldsOnTheFarCitadelLayoutAreUpgraded`. `CitadelWorldTests` (plaza grid, hill foot, debris spot)
+  and `tools/server_check.py` (start at 0 ~ 288, forceload and perf box −76 158 76 400, treasury at 0 89 393)
+  follow the new positions.
 - **21.4 Worlds from 0.4.x.** On the first start with 0.5.0, a world whose realm dimensions were generated with the
   old layout gets them regenerated: the realm and depths dimension folders are cleared before the worlds load
   (never the overworld, the Nether, the End or the hub); per-player progress, realm shrines rested (reset to the

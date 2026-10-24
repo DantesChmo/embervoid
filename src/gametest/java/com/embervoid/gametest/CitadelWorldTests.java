@@ -84,16 +84,20 @@ public final class CitadelWorldTests implements FabricGameTest {
 		ChunkGenerator generator = realm.getChunkManager().getChunkGenerator();
 		for (int dx = -24; dx <= 24; dx += 8) {
 			for (int dz = -24; dz <= 24; dz += 8) {
-				assertGround(context, realm, generator, rx(dx), rz(dz), CitadelLayout.LANDING_Y);
 				assertGround(context, realm, generator, rx(CitadelLayout.COURTYARD_X + dx), rz(CitadelLayout.COURTYARD_Z + dz),
 						CitadelLayout.PLATEAU_Y);
+			}
+		}
+		for (int x = CitadelLayout.PLAZA_MIN_X; x <= CitadelLayout.PLAZA_MAX_X; x += 8) {
+			for (int z = CitadelLayout.PLAZA_MIN_Z; z <= CitadelLayout.PLAZA_MAX_Z; z += 8) {
+				assertGround(context, realm, generator, rx(x), rz(z), CitadelLayout.LANDING_Y);
 			}
 		}
 		for (CitadelLayout.Piece piece : List.of(CitadelLayout.OUTSKIRTS, CitadelLayout.MARKET, CitadelLayout.KEEP)) {
 			assertGround(context, realm, generator, rx((piece.minX() + piece.maxX()) / 2), rz((piece.minZ() + piece.maxZ()) / 2),
 					piece.floorY());
 		}
-		int below = height(realm, generator, rx(130), rz(-200));
+		int below = height(realm, generator, rx(105), rz(-200));
 		context.assertTrue(below < CitadelLayout.PLATEAU_Y - 12, "the hill's foot east of the plateau is at " + below);
 		context.complete();
 	}
@@ -102,7 +106,7 @@ public final class CitadelWorldTests implements FabricGameTest {
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 2400)
 	public void emberCracksAndSmolderingLogsOnlyInTheCity(TestContext context) {
 		ServerWorld realm = realm(context);
-		int[] inCity = count(realm, rx(120), rz(-40), 3);
+		int[] inCity = count(realm, rx(45), rz(-50), 2);
 		context.assertTrue(inCity[0] > 0 && inCity[1] > 0,
 				"city: " + inCity[0] + " ember cracks, " + inCity[1] + " smouldering logs");
 		// The open zones' middles (120–420°, 100° each).

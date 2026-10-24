@@ -48,11 +48,15 @@ import java.util.stream.Stream;
  *   {@link RealmPlayerData}), so they come back at the landing.</li>
  * </ul>
  *
- * The world's layout number is a small file in the save's root; a world without realm folders yet just gets it.
+ * The world's layout number is a small file in the save's root; a world without realm folders yet just gets it. A
+ * later layout change (the Citadel pulled in, PLAN 21.6) bumps {@link #CURRENT} and goes the same way.
  */
 public final class RealmLayoutUpgrade {
-	/** Realm layout of 0.5.0 (four sectors, the Citadel in the final one). 0.4.x worlds have no number. */
-	public static final int CURRENT = 2;
+	/**
+	 * Realm layout: 2 was 0.5.0 (four sectors, the Citadel in the final one, 480 blocks out), 3 the Citadel pulled in
+	 * to 128 out (PLAN 21.6), so 0.5.0–0.5.2 worlds generate their realm again too. 0.4.x worlds have no number.
+	 */
+	public static final int CURRENT = 3;
 	public static final String VERSION_FILE = "embervoid_realm_layout.txt";
 	public static final String PENDING_FILE = "embervoid_realm_upgrade.dat";
 	private static final String STATE_ID = "embervoid_realm_upgrade";
@@ -114,7 +118,7 @@ public final class RealmLayoutUpgrade {
 			for (Path folder : folders) {
 				deleteTree(folder);
 			}
-			Embervoid.LOGGER.info("Realm layout upgrade: cleared {} for the 0.5.0 layout; {} remnant(s) to the hub, {} player(s) to move",
+			Embervoid.LOGGER.info("Realm layout upgrade: cleared {} for realm layout " + CURRENT + "; {} remnant(s) to the hub, {} player(s) to move",
 					folders, remnants.size(), players.size());
 		}
 		Files.writeString(version, Integer.toString(CURRENT));

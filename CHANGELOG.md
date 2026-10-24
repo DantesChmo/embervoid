@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- **Changed:** the Smoldering Citadel is no longer a long walk across empty wastes: the Burning City now starts about
+  100 blocks past the Citadel Gate, and the courtyard and keep follow (the Smoldering Lord's courtyard is about 300
+  blocks from the landing instead of 670). Worlds from 0.5.0–0.5.2 generate their realm again on the first start;
+  progress and remnants are kept, realm shrines go back to the landing.
+
 ## 0.5.2 — 2026-10-24
 
 - **Fixed:** the game crashed as soon as a player reached an obelisk realm: the windmill and 11 other set pieces had an

@@ -35,7 +35,13 @@ class CitadelLayoutTest {
 				for (double hills : HILLS) {
 					assertEquals(CitadelLayout.PLATEAU_Y, CitadelLayout.groundHeight(CitadelLayout.COURTYARD_X + dx,
 							CitadelLayout.COURTYARD_Z + dz, hills), 1e-9);
-					assertEquals(CitadelLayout.LANDING_Y, CitadelLayout.groundHeight(dx * 28.0 / r, dz * 28.0 / r, hills), 1e-9);
+				}
+			}
+		}
+		for (int x = CitadelLayout.PLAZA_MIN_X; x <= CitadelLayout.PLAZA_MAX_X; x += 4) {
+			for (int z = CitadelLayout.PLAZA_MIN_Z; z <= CitadelLayout.PLAZA_MAX_Z; z += 4) {
+				for (double hills : HILLS) {
+					assertEquals(CitadelLayout.LANDING_Y, CitadelLayout.groundHeight(x, z, hills), 1e-9);
 				}
 			}
 		}
