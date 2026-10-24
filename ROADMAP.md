@@ -365,7 +365,7 @@ visuals; the quick fixes fit in anywhere. Milestones 15, 17 and 21 start with a 
 
 - [x] Offline viewer for structures and animation motion (`tools/model_preview.py` extended)
 - [x] Combat effects: camera shake, swing trails, hit flashes
-- [ ] Death, hit-reaction and stagger animations for all 24 animated mobs — the six bosses done; the 21 mobs in the overhaul's wave 2 (remodels to 30–80 cubes with them)
+- [x] Death, hit-reaction and stagger animations for all 24 animated mobs — the six bosses and the 21 mobs (the overhaul's wave 2, remodels to 30–80 cubes with them)
 - [x] Boss remodels with secondary motion, phase and death animations (the Smoldering Lord's face included) — 71–128 cubes each, eased moves, `EmberHaloLayer`; seen only in the offline preview
 - [ ] Optional: a dev photo tour the user starts in their own terminal
 
