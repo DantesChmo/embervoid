@@ -18,6 +18,7 @@ Ghost, black, crimson and bone-white for the Vampires of the blood moon. The Emb
 translucent (their renderers use RenderLayer.getEntityTranslucent): their textures carry partial alpha, and so do
 their glowmasks (GeckoLib's glow layer blends with alpha, full bright).
 """
+import math
 import os
 import sys
 
@@ -774,157 +775,267 @@ def ember_wisp():
 
 # --- Ashen Maiden ---------------------------------------------------------------------------------------------------
 # The keeper of the Sanctum who turns souls into strength (DESIGN §2): a tall, quiet figure in a long ash-grey robe
-# with an ember-red embroidered hem, a fringed shawl pinned with an ember, a deep hood, a pale face with closed eyes
-# under ash tear-marks, and the ember she holds in cupped hands. She is invulnerable and never fights, so nothing in
-# her is armour or weapon.
+# with an ember-red embroidered hem, a fringed shawl pinned with an ember, a deep hood with a lace veil over a pale
+# calm face with closed eyes and ash tear-marks, bell sleeves, and the brazier bowl of embers she holds in cupped
+# hands. 64 cubes on 24 bones: chamfered skirt, bodice and head, the robe's hem in two hanging pieces front and back,
+# the veil in two, the sleeves' falls, forearms, hands with fingers, an octagonal bowl with a two-bone flame. She is
+# seen for minutes in the hub, so misc.idle is a six-second cycle: a slow breath, a slow look, the veil, hem and
+# sleeves drifting out of phase, the flame licking and the ember pulsing. She is invulnerable and never fights:
+# no hurt, no death. misc.interact raises the bowl toward the player who talks to her.
 
 def ashen_maiden():
-    robe = Material(MAIDEN_ROBE, base=2.6, noise=0.5, grain="v", grad=0.8, top=0.6)
-    dark = robe.but(base=1.6)
-    skin = Material(MAIDEN_SKIN, base=3.3, noise=0.2, grad=0.5, top=0.4)
+    robe = Material(MAIDEN_ROBE, base=3.2, noise=0.4, grain="v", grad=0.9, top=0.6, edge=0.4)
+    dark = robe.but(base=2.2)
+    skin = Material(MAIDEN_SKIN, base=3.6, noise=0.2, grad=0.5, top=0.4)
+    hair = Material(V_HAIR, base=2.6, noise=0.5, top=0.5)
+    iron = Material(HOLLOW_IRON, base=3.0, noise=0.4, bevel=0.5)
+    brass = Material(BRASS, base=3.6, noise=0.4, bevel=0.6)
+    folds = cloth(3, -16)
 
     def hem(face, rng):
-        if face.side():
-            folds(face)
-            # Two rows of ember-red stitching above a dark hem, a little wear.
+        if face.name not in ("front", "back"):
+            clear_all(face)
+            return
+        folds(face, rng)
+        # Two rows of ember-red stitching above a dark hem, a little wear.
+        face.hline(0, face.h - 1, face.w, MAIDEN_ROBE[0])
+        for x in range(face.w):
+            face.set(x, face.h - 3, EMBER_DARK if x % 2 else TABARD[4])
+            if x % 4 == 1:
+                face.set(x, face.h - 2, TABARD[5])
+        ragged_edge(face, rng, "bottom", 1, 0.25)
+
+    def side_hem(face, rng):
+        if face.name in ("left", "right"):
+            folds(face, rng)
             face.hline(0, face.h - 1, face.w, MAIDEN_ROBE[0])
             for x in range(face.w):
-                face.set(x, face.h - 3, EMBER_DARK if x % 2 else TABARD[3])
-                if x % 4 == 1:
-                    face.set(x, face.h - 2, TABARD[4])
-            ragged_edge(face, rng, "bottom", 1, 0.25)
+                face.set(x, face.h - 3, EMBER_DARK if x % 2 else TABARD[4])
+        else:
+            clear_all(face)
 
-    def folds(face):
-        for x in range(1, face.w - 1, 3):
-            face.vline(x, 0, face.h, shade(face.get(x, face.h // 2), -14))
+    def skirt(face, rng):
+        folds(face, rng)
 
     def bodice(face, rng):
+        folds(face, rng)
         if face.name == "front":
-            # A crossed wrap over the chest, a sash at the waist.
-            for y in range(face.h - 3):
+            # A crossed wrap over the chest.
+            for y in range(face.h - 2):
                 face.set(min(face.w - 1, 1 + y // 2), y, MAIDEN_ROBE[1])
                 face.set(max(0, face.w - 2 - y // 2), y, MAIDEN_ROBE[1])
+                face.set(min(face.w - 1, 2 + y // 2), y, MAIDEN_ROBE[4])
+
+    def sash(face, rng):
         if face.side():
-            face.hline(0, face.h - 2, face.w, TABARD[2])
+            face.rect(0, 0, face.w, face.h, TABARD[3])
+            face.hline(0, 0, face.w, TABARD[4])
             face.hline(0, face.h - 1, face.w, TABARD[1])
             if face.name == "front":
-                face.set(face.cx - 1, face.h - 1, EMBER_DARK)
+                face.rect(face.cx - 1, 0, 2, face.h, TABARD[2])    # the knot
 
     def shawl(face, rng):
-        if face.side():
-            ragged_edge(face, rng, "bottom", 2, 0.45)  # fringe
-            for x in range(0, face.w, 2):
-                face.set(x, face.h - 1, MAIDEN_ROBE[1]) if face.get(x, face.h - 1)[3] else None
+        folds(face, rng)
         if face.name == "front":
             # The clasp: an ember set in iron.
-            face.set(face.cx - 1, 1, IRON[3])
-            face.set(face.cx, 1, IRON[3])
+            face.rect(face.cx - 1, 1, 2, 3, HOLLOW_IRON[3])
+            face.set(face.cx - 1, 1, HOLLOW_IRON[5])
             face.lit(face.cx - 1, 2, EMBER, 0.9)
             face.lit(face.cx, 2, EMBER_HOT, 0.9)
-            face.set(face.cx - 1, 3, IRON[2])
-            face.set(face.cx, 3, IRON[2])
+
+    def fringe(face, rng):
+        if face.name in ("front", "back", "left", "right"):
+            for x in range(face.w):
+                face.set(x, 0, MAIDEN_ROBE[3])
+                face.set(x, 1, MAIDEN_ROBE[2] if x % 2 else MAIDEN_ROBE[1])
+                if x % 2:
+                    face.clear(x, face.h - 1)
+        else:
+            clear_all(face)
 
     def face_front(face, rng):
-        # Dark grey hair parted under the hood, closed eyes with a faint glow between the lashes, ash tear-marks.
-        face.hline(0, 0, face.w, HAIR_ASH[1])
-        face.hline(0, 1, face.w, HAIR_ASH[2])
-        face.set(face.cx, 1, HAIR_ASH[0])
-        face.set(0, 2, HAIR_ASH[1])
-        face.set(face.w - 1, 2, HAIR_ASH[1])
+        # Hair parted under the hood; brows; closed eyes with a faint ember glow between the lashes; a straight
+        # nose; ash tear-marks under one eye; a calm small mouth.
+        face.rect(0, 0, face.w, 2, V_HAIR[2])
+        face.set(face.cx, 1, V_HAIR[1])
+        face.set(0, 2, V_HAIR[2])
+        face.set(face.w - 1, 2, V_HAIR[2])
+        face.hline(1, 2, 2, MAIDEN_SKIN[2])
+        face.hline(face.w - 3, 2, 2, MAIDEN_SKIN[2])
         for ex in (1, face.w - 3):
-            face.hline(ex, 4, 2, MAIDEN_SKIN[1])     # closed lids, lashes at the outer corner
-            face.set(ex if ex == 1 else ex + 1, 4, HAIR_ASH[1])
-            face.hline(ex, 3, 2, MAIDEN_SKIN[2])
-        face.set(1, 5, ASH[3])                       # an ash tear-mark under one eye
-        face.set(1, 6, ASH[4])
+            face.hline(ex, 3, 2, MAIDEN_SKIN[1])          # the closed lids
+            face.set(ex + (0 if ex == 1 else 1), 3, V_HAIR[3])
+            face.lit(ex + (1 if ex == 1 else 0), 4, EMBER_DEEP, 0.35)
+        face.set(face.cx, 4, MAIDEN_SKIN[2])
         face.set(face.cx, 5, MAIDEN_SKIN[1])
-        face.hline(face.cx - 1, 6, 2, MAIDEN_SKIN[1])
-        face.set(face.cx - 1, 7, TABARD[3])
+        face.set(1, 5, MAIDEN_SKIN[1])                    # an ash tear-mark under one eye
+        face.set(1, 6, MAIDEN_SKIN[2])
+        face.set(face.w - 2, 5, MAIDEN_SKIN[5])           # a touch of light on the other cheek
+        face.hline(face.cx - 1, 6, 2, TABARD[4])
+        face.set(face.cx - 1, 7, MAIDEN_SKIN[2])
+        face.set(face.cx, 7, MAIDEN_SKIN[2])
 
-    def face_back(face, rng):
-        face.rect(0, 0, face.w, face.h, HAIR_ASH[1])
-        for x in range(0, face.w, 2):
-            face.vline(x, 0, face.h, HAIR_ASH[2])
-
-    def hood(face, rng):
+    def hair_deco(face, rng):
         if face.name == "front":
-            # Open, the rim turned back a little.
-            open_front(face, 1, 2)
-            face.hline(1, 1, face.w - 2, MAIDEN_ROBE[4])
+            clear_all(face)
         elif face.name == "bottom":
             clear_all(face)
-        elif face.side():
-            folds(face)
+        else:
+            for x in range(0, face.w, 2):
+                face.vline(x, 0, face.h, V_HAIR[3])
+
+    def hood(face, rng):
+        folds(face, rng)
+        if face.name == "front":
+            open_front(face, 1, 1)
+            face.hline(1, 0, face.w - 2, MAIDEN_ROBE[5])
+        elif face.name == "bottom":
+            clear_all(face)
+
+    def veil(face, rng):
+        if face.name not in ("front", "back"):
+            clear_all(face)
+            return
+        # Lace: a diagonal lattice with the threads kept, the rim rows solid, the bottom ragged.
+        for y in range(1, face.h):
+            for x in range(face.w):
+                if (x + y) % 3 != 0 and not (y == face.h - 1 and x % 3 == 0):
+                    face.clear(x, y)
+                else:
+                    face.set(x, y, MAIDEN_ROBE[6] if (x + y) % 6 == 0 else MAIDEN_ROBE[5])
+        face.hline(0, 0, face.w, MAIDEN_ROBE[6])
 
     def sleeve(face, rng):
+        folds(face, rng)
         if face.side():
-            folds(face)
             face.hline(0, face.h - 1, face.w, TABARD[2])
 
     def cuff(face, rng):
+        folds(face, rng)
         if face.side():
             face.hline(0, face.h - 1, face.w, TABARD[3])
-            ragged_edge(face, rng, "bottom", 1, 0.3)
-        if face.name == "bottom":
+            face.hline(0, face.h - 2, face.w, TABARD[1])
+        if face.name in ("bottom", "top"):
             clear_all(face)
 
+    def bowl(face, rng):
+        plate_face(face, rng, BRASS, rivet_step=2, dent=0.0)
+        if face.name == "top":
+            for y in range(1, face.h - 1):
+                for x in range(1, face.w - 1):
+                    face.lit(x, y, EMBER_DEEP if (x + y) % 2 else EMBER, 0.8)
+
+    flame = Material(FLAME, base=3.4, noise=0.6, grain="v", grad=-1.2, glow=1.0)
     bones = [
         Bone("root", [0, 0, 0]),
-        Bone("robe", [0, 12, 0], "root", None, [
-            Box([-5, 0, -3.5], [10, 13, 7], robe, {"all": hem}),
-            Box([-1.5, 0.5, -3.6], [3, 11, 0], dark, {"all": lambda f, r: (
-                trim(f, TABARD[3], ("left", "right")) if f.name in ("front", "back") else clear_all(f))}),
-        ]),
-        Bone("body", [0, 13, 0], "root", None, [
-            Box([-4, 13, -2], [8, 11, 4], robe.but(base=2.2), {"all": bodice}),
-        ]),
-        Bone("head", [0, 24, 0], "body", None, [
-            Box([-3.5, 24, -3.5], [7, 8, 7], skin, {"front": face_front, "back": face_back,
-                                                     "top": lambda f, r: f.rect(0, 0, f.w, f.h, HAIR_ASH[1])}),
-        ]),
-        Bone("hood", [0, 24, 0], "head", None, [
-            Box([-4.5, 24, -4.5], [9, 9.5, 9], robe.but(base=2.0), {"all": hood}),
-            Box([-3.5, 19, 3.5], [7, 6, 1], robe.but(base=1.8), {"all": lambda f, r: (
-                folds(f) if f.side() else None, ragged_edge(f, r, "bottom", 1, 0.4))},
-                rotation=[12, 0, 0], pivot=[0, 25, 4]),
-        ]),
-        Bone("mantle", [0, 23, 0], "body", None, [
-            Box([-5, 19, -2.5], [10, 5, 5], robe.but(base=3.0), {"all": shawl}),
-        ]),
+        Bone("robe", [0, 12, 0], "root", None,
+             chamfered([-5, 6, -3.5], [10, 7.5, 7], robe, {"all": skirt}, c=0.6)
+             + [Box([-5.2, 0.5, -3.3], [0.6, 6.5, 6.6], robe.but(base=2.8), {"all": side_hem}),
+                Box([4.6, 0.5, -3.3], [0.6, 6.5, 6.6], robe.but(base=2.8), {"all": side_hem}),
+                Box([-1.5, 6.2, -3.9], [3, 7, 0.5], dark, {"front": lambda f, r: trim(f, TABARD[3], ("left", "right"))})]),
     ]
-    arm = Box([-6.5, 12, -1.5], [3, 11, 3], robe, {"all": sleeve})
-    bell = Box([-6.8, 12, -1.8], [3.6, 4, 3.6], robe.but(base=2.4), {"all": cuff})
-    hand = Box([-6, 10.5, -1], [2, 2, 2], skin, {"bottom": lambda f, r: f.set(0, 0, MAIDEN_SKIN[1])})
+    bones += hanging("hem_front", "robe", [0, 6.5, -3.7], 2, 3.4, 10, robe, {"all": hem}, z_step=-0.2, taper=0.4)
+    bones += hanging("hem_back", "robe", [0, 6.5, 3.7], 2, 3.4, 10, robe.but(base=2.8), {"all": hem}, z_step=0.2, taper=0.4)
     bones += [
-        Bone("right_arm", [-4.5, 22, 0], "body", [-45, -25, 12], [arm, bell, hand]),
-        Bone("left_arm", [4.5, 22, 0], "body", [-45, 25, -12], [mirror_box(arm), mirror_box(bell), mirror_box(hand)]),
+        Bone("body", [0, 13, 0], "root", None,
+             chamfered([-4, 13, -2], [8, 11, 4], robe.but(base=2.8), {"all": bodice}, c=0.6)
+             + [Box([-4.3, 12.5, -2.3], [8.6, 2.2, 4.6], Material(TABARD, base=3.0, noise=0.4, grain="h"), {"all": sash}),
+                Box([3.2, 7.5, 0.5], [1.2, 5.5, 0.5], Material(TABARD, base=2.8, noise=0.4, grain="v"),
+                    {"all": lambda f, r: ragged_edge(f, r, "bottom", 1, 0.5) if f.side() else None}, rotation=[0, 0, -8], pivot=[3.8, 13, 0.75])]),
+        Bone("mantle", [0, 23, 0], "body", None, [
+            Box([-5, 19, -2.6], [10, 5, 5.2], robe.but(base=4.0), {"all": shawl}, inflate=0.2),
+            Box([-5.3, 17.6, -2.9], [10.6, 2, 5.8], robe.but(base=3.4), {"all": fringe}),
+            Box([-4.2, 23.6, -2.2], [8.4, 1.2, 4.4], robe.but(base=3.0), {"all": folds}),
+        ]),
+        Bone("head", [0, 24, 0], "body", None,
+             chamfered([-3.5, 24, -3.5], [7, 8, 7], skin, None, c=0.7)
+             + [Box([-3.5, 24, -3.9], [7, 8, 0.6], skin, {"front": face_front}),
+                Box([-3.7, 25, -3.7], [7.4, 7.3, 7.4], hair, {"all": hair_deco}),
+                Box([-4.1, 24.5, -2.5], [0.8, 5, 2.5], hair.but(base=2.2)),
+                Box([3.3, 24.5, -2.5], [0.8, 5, 2.5], hair.but(base=2.2))]),
+        Bone("hood", [0, 24, 0], "head", None,
+             octagon([-4.6, 24.2, -4.6], [9.2, 8.8, 9.2], robe.but(base=3.4), {"all": hood}, shrink=0.72)
+             + [Box([-4.8, 31.0, -5.2], [9.6, 1.6, 2.2], robe.but(base=3.8), {"all": folds}, rotation=[14, 0, 0], pivot=[0, 32, -4]),
+                Box([-3.6, 18.5, 3.0], [7.2, 6.5, 1], robe.but(base=2.2), {"all": compose(folds, tatters(1, 0.4))}, rotation=[10, 0, 0], pivot=[0, 25, 3.5]),
+                Box([-4.9, 30.2, -5.0], [9.8, 0.8, 9.8], iron.but(base=2.6), {"all": lambda f, r: f.set(f.cx, 0, BRASS[5]) if f.name == "front" else None})]),
     ]
-    ember_core = Material(CORE, base=1.5, noise=0.5)
-    bones.append(Bone("ember", [0, 15, -6], "body", None, [
-        Box([-1, 14, -7], [2, 2, 2], ember_core, {"all": glow_all()}),
-        Box([-0.5, 16, -6.5], [1, 1.5, 1], Material(FLAME, base=3.4, noise=0.5), {"all": glow_all()}),
-        Box([-1.5, 13.5, -7.5], [3, 3, 3], Material(FLAME, base=2.4, noise=0.7),
-            {"all": compose(round_corners, lambda f, r: holes_clear(f, r, 2), glow_all(200))}),
-    ]))
-    pulse = keys(0, [1, 1, 1], 1, [1.25, 1.25, 1.25], 2, [1, 1, 1], 3, [1.2, 1.2, 1.2], 4, [1, 1, 1])
+    bones += hanging("veil", "hood", [0, 30.6, -5.1], 2, 3.4, 7, robe.but(base=4.2), {"all": veil}, z_step=-0.15, taper=0.2)
+    upper = Box([-6.5, 16, -1.5], [3, 6.5, 3], robe, {"all": sleeve})
+    shoulder = Box([-6.9, 20.3, -1.9], [3.8, 2.2, 3.8], robe.but(base=3.4), {"all": folds})
+    fore = Box([-6.3, 11, -1.3], [2.6, 5.8, 2.6], robe.but(base=2.8), {"all": sleeve})
+    bell = Box([-7.3, 10.2, -2.3], [4.6, 3.4, 4.6], robe.but(base=2.6), {"all": cuff})
+    palm = Box([-6, 9.2, -1], [2, 2, 2], skin)
+    digits = fingers(-6, 9.2, -1, 3, (0.5, 1.6, 0.5), skin.but(base=3.2), spread=0.25, curl=40)
+    bones += [
+        Bone("right_arm", [-4.5, 22, 0], "body", [-25, -25, 12], [upper, shoulder]),
+        Bone("right_forearm", [-5, 16.5, 0], "right_arm", [-35, 0, 0], [fore, bell]),
+        Bone("right_hand", [-5, 11, 0], "right_forearm", [-30, 0, 0], [palm] + digits),
+        Bone("left_arm", [4.5, 22, 0], "body", [-25, 25, -12], [mirror_box(upper), mirror_box(shoulder)]),
+        Bone("left_forearm", [5, 16.5, 0], "left_arm", [-35, 0, 0], [mirror_box(fore), mirror_box(bell)]),
+        Bone("left_hand", [5, 11, 0], "left_forearm", [-30, 0, 0], [mirror_box(palm)] + [mirror_box(d) for d in digits]),
+    ]
+    bones += hanging("sleeve_right", "right_forearm", [-5, 10.4, 2.0], 2, 2.6, 4.2, robe.but(base=2.6), {"all": compose(folds, tatters(1, 0.3))}, z_step=0.15, taper=0.4)
+    bones += hanging("sleeve_left", "left_forearm", [5, 10.4, 2.0], 2, 2.6, 4.2, robe.but(base=2.6), {"all": compose(folds, tatters(1, 0.3))}, z_step=0.15, taper=0.4)
+    bones += [
+        Bone("ember", [0, 14, -7.5], "body", None,
+             octagon([-2.6, 13.2, -10.1], [5.2, 2.2, 5.2], brass, {"all": bowl}, shrink=0.8)
+             + [Box([-1.1, 14.4, -8.6], [2.2, 2, 2.2], Material(CORE, base=3.2, noise=0.5, glow=1.0)),
+                Box([-2.4, 16.0, -7.7], [0.7, 0.7, 0.7], Material(FLAME, base=5.0, noise=0.3, glow=1.0)),
+                Box([1.6, 15.6, -9.5], [0.6, 0.6, 0.6], Material(FLAME, base=4.4, noise=0.3, glow=1.0))]),
+        Bone("flame_1", [0, 16.2, -7.5], "ember", None, [Box([-0.8, 16.2, -8.3], [1.6, 1.6, 1.6], flame, {"all": lambda f, r: flame_tongues(f, r, 1, 0.5)})]),
+        Bone("flame_2", [0, 17.8, -7.5], "flame_1", None, [Box([-0.5, 17.8, -8.0], [1.0, 1.3, 1.0], flame.but(base=4.4), {"all": lambda f, r: flame_tongues(f, r, 1, 0.5)})]),
+    ]
+    hems = [chain_names("hem_front", 2), chain_names("hem_back", 2)]
+    veils = chain_names("veil", 2)
+    sleeves = [chain_names("sleeve_right", 2), chain_names("sleeve_left", 2)]
+    flames = ["flame_1", "flame_2"]
+
+    def flicker(names, length, amp, cycles, phase=0.0):
+        """A fast lick for the flame inside a long cycle: cycles sine periods over the length, the tip lagging."""
+        out = {}
+        for i, n in enumerate(names):
+            pairs = []
+            steps = int(cycles * 6)
+            for k in range(steps + 1):
+                t = length * k / steps
+                a = 2 * math.pi * (cycles * k / steps + phase - 0.1 * i)
+                pairs += [t, [amp * 1.3 ** i * math.sin(a), 0, amp * 0.7 * 1.3 ** i * math.cos(a * 0.7)]]
+            out[n] = {"rotation": keys(*pairs)}
+        return out
+
+    def loose_drift(length, amp, phase=0.0):
+        return merge(drift(hems[0], length, amp, phase=phase), drift(hems[1], length, -amp, phase=phase + 0.3),
+                     drift(veils, length, amp * 0.8, phase=phase + 0.15), drift(sleeves[0], length, amp * 1.2, phase=phase + 0.4),
+                     drift(sleeves[1], length, amp * 1.2, phase=phase + 0.55))
+
+    pulse = keys(0, [1, 1, 1], 1.0, e("easeInOutSine", [1.2, 1.2, 1.2]), 2.0, e("easeInOutSine", [1, 1, 1]), 3.5, e("easeInOutSine", [1.15, 1.15, 1.15]),
+                 4.5, e("easeInOutSine", [1, 1, 1]), 5.2, [1.1, 1.1, 1.1], 6.0, [1, 1, 1])
     animations = {
-        "misc.idle": anim(4.0, {
-            "body": rot(0, ZERO, 2, [2, 0, 0], 4, ZERO),
-            "head": rot(0, [5, 0, 0], 2, [8, 3, 0], 4, [5, 0, 0]),
-            "hood": rot(0, ZERO, 2, [-1, 0, 0], 4, ZERO),
-            "right_arm": rot(0, ZERO, 2, [-2, 0, 0], 4, ZERO),
-            "left_arm": rot(0, ZERO, 2, [-2, 0, 0], 4, ZERO),
-            "ember": {"position": keys(0, ZERO, 2, [0, 0.5, 0], 4, ZERO), "scale": pulse},
-        }),
-        # Raises the ember toward the player when they talk to her.
-        "misc.interact": anim(1.5, {
-            "right_arm": rot(0, ZERO, 0.5, [-25, 0, 0], 1.5, ZERO),
-            "left_arm": rot(0, ZERO, 0.5, [-25, 0, 0], 1.5, ZERO),
-            "ember": {"position": keys(0, ZERO, 0.5, [0, 2, -1], 1.5, ZERO),
-                      "scale": keys(0, [1, 1, 1], 0.5, [1.35, 1.35, 1.35], 1.5, [1, 1, 1])},
-            "head": rot(0, ZERO, 0.5, [-10, 0, 0], 1.5, ZERO),
-            "body": rot(0, ZERO, 0.5, [-3, 0, 0], 1.5, ZERO),
-        }, loop=False),
+        "misc.idle": anim(6.0, merge(breathe(6.0, chest=1.2, head=0, shoulders=0.5), loose_drift(6.0, 2.5), flicker(flames, 6.0, 10, 4), {
+            "head": rot(0, [4, 0, 0], 1.6, e("easeInOutSine", [3, 9, 1]), 3.0, e("easeInOutSine", [5, 4, 0]), 4.4, e("easeInOutSine", [2, -7, -1]), 6.0, e("easeInOutSine", [4, 0, 0])),
+            "hood": rot(0, ZERO, 3.0, e("easeInOutSine", [-1.5, 0, 0]), 6.0, e("easeInOutSine", ZERO)),
+            "right_forearm": rot(0, ZERO, 3.0, e("easeInOutSine", [-2.5, 0, 0]), 6.0, e("easeInOutSine", ZERO)),
+            "left_forearm": rot(0, ZERO, 3.0, e("easeInOutSine", [-2.5, 0, 0]), 6.0, e("easeInOutSine", ZERO)),
+            "right_hand": rot(0, ZERO, 2.0, e("easeInOutSine", [-4, 0, 0]), 4.5, e("easeInOutSine", [2, 0, 0]), 6.0, e("easeInOutSine", ZERO)),
+            "left_hand": rot(0, [2, 0, 0], 2.5, e("easeInOutSine", [-3, 0, 0]), 5.0, e("easeInOutSine", [2, 0, 0]), 6.0, [2, 0, 0]),
+            "ember": {"position": keys(0, ZERO, 3.0, e("easeInOutSine", [0, 0.5, 0]), 6.0, e("easeInOutSine", ZERO)), "scale": pulse},
+            "mantle": rot(0, ZERO, 3.0, e("easeInOutSine", [1, 0, 0]), 6.0, e("easeInOutSine", ZERO)),
+        })),
+        # She lifts the bowl toward the player who speaks to her and bows her head over it; the flame flares.
+        "misc.interact": anim(1.5, merge(flicker(flames, 1.5, 16, 2), {
+            "right_arm": rot(0, ZERO, 0.5, e("easeInOutSine", [-22, 4, 0]), 1.0, [-22, 4, 0], 1.5, e("easeInOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 0.5, e("easeInOutSine", [-22, -4, 0]), 1.0, [-22, -4, 0], 1.5, e("easeInOutSine", ZERO)),
+            "right_forearm": rot(0, ZERO, 0.5, e("easeInOutSine", [-8, 0, 0]), 1.0, [-8, 0, 0], 1.5, e("easeInOutSine", ZERO)),
+            "left_forearm": rot(0, ZERO, 0.5, e("easeInOutSine", [-8, 0, 0]), 1.0, [-8, 0, 0], 1.5, e("easeInOutSine", ZERO)),
+            "ember": {"position": keys(0, ZERO, 0.5, e("easeInOutSine", [0, 3.5, -2.5]), 1.0, [0, 3.5, -2.5], 1.5, e("easeInOutSine", ZERO)),
+                      "scale": keys(0, [1, 1, 1], 0.5, e("easeOutBack", [1.4, 1.4, 1.4]), 1.0, [1.3, 1.3, 1.3], 1.5, [1, 1, 1])},
+            "head": rot(0, ZERO, 0.5, e("easeInOutSine", [-10, 0, 0]), 0.9, e("easeInOutSine", [8, 0, 0]), 1.5, e("easeInOutSine", ZERO)),
+            "body": rot(0, ZERO, 0.5, e("easeInOutSine", [-3, 0, 0]), 1.5, e("easeInOutSine", ZERO)),
+            "veil_1": rot(0, ZERO, 0.5, [-6, 0, 0], 1.0, [4, 0, 0], 1.5, ZERO),
+            "veil_2": rot(0, ZERO, 0.6, [-8, 0, 0], 1.1, [5, 0, 0], 1.5, ZERO),
+            "sleeve_right_1": rot(0, ZERO, 0.55, [10, 0, 0], 1.5, ZERO),
+            "sleeve_left_1": rot(0, ZERO, 0.55, [10, 0, 0], 1.5, ZERO),
+        }), loop=False),
     }
     write_model("ashen_maiden", bones, animations, [1.5, 2.5])
 
