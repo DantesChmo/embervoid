@@ -991,7 +991,7 @@ and in mechanics. The hard lock (DESIGN §4.1 "Final zone lock") moves to the se
 | 21.0 | **Design: the final zone inside the realm** | S | — | done (DESIGN §4.1, §4.5, §10.15) |
 | 21.1 | **Realm framework: final zone without its own dimension** | L | 21.0 | done – depths kept until 21.3 (JUnit `RealmLayoutTest`, `RoadLayoutTest`, `EdgeLayoutTest` on the data files; GameTests `RealmSectorTests`; server check: posts 20 / 28 / 39 and 28 / 37 / 33 on two seeds, all lit, gate road paved; `--perf` against `docs/perf-0.4.0.md`: arenas 0.9–1.0 s and minor structures 0.6–0.8 s per area as before, the landing 2.5 s (was 1.1) on a machine at load 5–6 where the untouched depths landing also went 0.9 → 1.6 s; a top-down zone map with an approximated warp noise looked right; not seen in game: the final sector's sky, fog and terrain, its straight borders at eye level, the gate road) |
 | 21.2 | **Fog wall: look and lock** | M | 21.1 | done – the look not seen in game (JUnit `FinalZoneRegionTest`, `EdgeLayoutTest`; GameTests `FinalZoneLockTests`: walking, pearl, chorus, elytra, riptide, boat and horse, bridge, tunnel, cleared, creative, two players at one spot, the border wall; 258 GameTests green; server check PASS: gate at 0 76 21, border wall 50 of 50 stretches, 80×80 blocks of border generated in 1.1–1.3 s; not seen in game: the border wall, the gate's fog wall and the client fog curtain) |
-| 21.3 | **Citadel generation in the realm dimension** | L | 21.1 | todo |
+| 21.3 | **Citadel generation in the realm dimension** | L | 21.1 | done – the city not seen in game (GameTests `CitadelWorldTests` on the realm, `RealmSectorTests` final-sector respawn; 282 green; server check PASS: Citadel at 0 ~ 640 with its treasury and 7 / 5 / 4 placed mobs, courtyard at 0 ~ 672, the first Citadel shrine at −4 73 48; `--perf` and preview renders not run) |
 | 21.4 | **Worlds from 0.4.x** (realm dimensions regenerated) | M | 21.1, 21.3 | todo |
 | 21.5 | **Release 0.5.0** | M | 14.1–21.4 | todo |
 
@@ -1032,6 +1032,20 @@ and in mechanics. The hard lock (DESIGN §4.1 "Final zone lock") moves to the se
   burning streets from the gate to the hill, burnt suburbs beyond it; the first Citadel shrine just inside the gate;
   Citadel mobs placed as before, Cinder Hounds natural only in the sector. Server check: generation time against
   `docs/perf-0.4.0.md`; GameTests on the pieces; renders through `tools/model_preview.py structure`.
+  *Built:* the plan stays in its own frame and is turned 180° into the realm (`CitadelLayout.ORIGIN_Z` 480,
+  `realmX` / `realmZ`): `CitadelTerrain` samples realm columns in the plan's frame and is the final zone's shape in
+  `zone_blend` (minus the realm's y gradient, so the city's own heights hold inside the sector and blend at its
+  borders); `CitadelPiece` places each template rotated 180° from its box's far corner; structure sets on the sector's
+  middle line put the Citadel's start at z 640 and the courtyard arena (`ashen_reach_arena_final`) at 672. The
+  sector's biome gets the old depths' surface rule, ember cracks and smouldering logs and the Cinder Hounds' natural
+  spawns. Removed: the `ashen_reach_depths` dimension, type, biome, noise settings, structures, `RealmDefinition.depths`
+  / `depthsRadius`, `RealmConfig` (`realm.depthsOpen`), the gate's teleports (it only says open or sealed now; the
+  player walks through), the depths branches of mob levels and zone titles. Respawn: the final sector counts on its
+  own (`RealmTeleports.finalShrineKey`), else the first Citadel shrine the road feature puts beside the gate road's
+  end. The roads leave the courtyard out (only the gate road goes there). Tests brought along: the minor-structure
+  GameTest built Woods pieces at 90°, now inside the city, so it uses the zones' real middle lines; the border wall
+  check counts brickwork only (the city's cracks and logs lie there too); the lock tests' pearl sampler schedules one
+  timer at a time (29 at once could crash the test server's timer walk).
 - **21.4 Worlds from 0.4.x.** On the first start with 0.5.0, a world whose realm dimensions were generated with the
   old layout gets them regenerated: the realm and depths dimension folders are cleared before the worlds load
   (never the overworld, the Nether, the End or the hub); per-player progress, realm shrines rested (reset to the

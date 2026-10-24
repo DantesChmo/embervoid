@@ -2,10 +2,13 @@ package com.embervoid.reach.world;
 
 import com.embervoid.Embervoid;
 import com.embervoid.realm.RealmArenas;
+import com.embervoid.realm.RealmDefinition;
+import com.embervoid.realm.Realms;
 import com.embervoid.realm.RoadLayout;
 import com.embervoid.realm.placed.PlacedEnemyProcessor;
 import com.embervoid.realm.worldgen.RealmRoads;
 import com.embervoid.registry.ModBlocks;
+import com.embervoid.sanctum.SanctumBlocks;
 import com.mojang.serialization.Codec;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
@@ -130,6 +133,20 @@ public class RoadFeature extends Feature<DefaultFeatureConfig> {
 				placeOutpost(world, placed, context.getRandom());
 				changed = true;
 			}
+		}
+
+		// The first Citadel shrine beside the gate road's end, on a little paved pad (PLAN 21.3).
+		RealmDefinition realm = Realms.byWorld(server.getRegistryKey());
+		int[] shrine = realm == null || RealmRoads.gate(server) == null ? null : RealmRoads.citadelShrine(realm);
+		if (shrine != null && (shrine[0] >> 4) == chunk.x && (shrine[1] >> 4) == chunk.z) {
+			int y = world.getTopY(Heightmap.Type.WORLD_SURFACE_WG, shrine[0], shrine[1]);
+			for (int dx = -1; dx <= 1; dx++) {
+				for (int dz = -1; dz <= 1; dz++) {
+					world.setBlockState(new BlockPos(shrine[0] + dx, y - 1, shrine[1] + dz), ModBlocks.POLISHED_ASH_STONE.getDefaultState(), 2);
+				}
+			}
+			world.setBlockState(new BlockPos(shrine[0], y, shrine[1]), SanctumBlocks.EMBER_SHRINE.getDefaultState(), 2);
+			changed = true;
 		}
 		return changed;
 	}

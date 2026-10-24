@@ -22,7 +22,7 @@ import java.util.Set;
  * ({@link #NATURAL_GROUND}), so it never lands on the landing or a Citadel piece. Smouldering logs generate only here.
  */
 public class SmolderingDebrisFeature extends Feature<DefaultFeatureConfig> {
-	/** The depths' surface blocks (noise settings {@code ashen_reach_depths}). */
+	/** The Burning City's surface blocks (the final zone's surface rule in noise settings {@code ashen_reach}). */
 	public static final Set<BlockState> NATURAL_GROUND = Set.of(ModBlocks.ASH_SOIL.getDefaultState(),
 			Blocks.BLACKSTONE.getDefaultState(), ModBlocks.COBBLED_ASH_STONE.getDefaultState(),
 			ReachBlocks.EMBER_CRACK.getDefaultState());

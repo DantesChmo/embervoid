@@ -117,14 +117,16 @@ public class BorderWallFeature extends Feature<DefaultFeatureConfig> {
 		return changed;
 	}
 
-	/** Whether the wall stands in the column at x, z: one of its blocks within 16 below the top. For checks. */
+	/**
+	 * Whether the wall stands in the column at x, z: its brickwork within 16 below the top. For checks. Its ember
+	 * cracks and charred beams do not count: the Burning City's ground has them too (PLAN 21.3).
+	 */
 	public static boolean standsAt(World world, int x, int z) {
 		int top = world.getTopY(Heightmap.Type.MOTION_BLOCKING, x, z);
 		BlockPos.Mutable pos = new BlockPos.Mutable();
 		for (int y = top; y > top - 16 && y > world.getBottomY(); y--) {
 			BlockState state = world.getBlockState(pos.set(x, y, z));
-			if (state.isOf(ModBlocks.ASH_BRICKS) || state.isOf(ModBlocks.CRACKED_ASH_BRICKS) || state.isOf(ReachBlocks.EMBER_CRACK)
-					|| state.isOf(ModBlocks.ASH_BRICK_WALL) || state.isOf(ReachBlocks.SMOLDERING_LOG)) {
+			if (state.isOf(ModBlocks.ASH_BRICKS) || state.isOf(ModBlocks.CRACKED_ASH_BRICKS) || state.isOf(ModBlocks.ASH_BRICK_WALL)) {
 				return true;
 			}
 		}

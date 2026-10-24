@@ -16,7 +16,6 @@ public final class Realms {
 	public static final RealmDefinition ASHEN_REACH = new RealmDefinition(
 			ProgressManager.REALM_1,
 			RegistryKey.of(RegistryKeys.WORLD, Embervoid.id("ashen_reach")),
-			RegistryKey.of(RegistryKeys.WORLD, Embervoid.id("ashen_reach_depths")),
 			List.of(Embervoid.id("ashen_reach/zone_a"), Embervoid.id("ashen_reach/zone_b"), Embervoid.id("ashen_reach/zone_c")),
 			Embervoid.id("ashen_reach/final"),
 			// DESIGN §4.1 (0.5.0): three open zones of 100° from 120° on, then the final zone's 60° sector, centred on +Z
@@ -26,11 +25,11 @@ public final class Realms {
 			List.of(new LevelBand(15, 18), new LevelBand(18, 21), new LevelBand(21, 25)),
 			new LevelBand(15, 15),
 			new LevelBand(25, 30),
-			1300, 400);
+			1300);
 
 	public static final List<RealmDefinition> ALL = List.of(ASHEN_REACH);
 
-	/** The realm the world belongs to (the realm dimension or, until PLAN 21.3, its depths), or null outside realms. */
+	/** The realm whose dimension the world is, or null outside realms. */
 	@Nullable
 	public static RealmDefinition byWorld(RegistryKey<World> key) {
 		for (RealmDefinition realm : ALL) {

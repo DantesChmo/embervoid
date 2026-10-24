@@ -98,13 +98,26 @@ public final class RealmTeleports {
 
 	/** To the last shrine rested at in that realm dimension. Returns false (and does nothing) if there is none. */
 	public static boolean toShrine(ServerPlayerEntity player, RegistryKey<World> dimension) {
-		GlobalPos shrine = RealmPlayerData.get(player).shrines.get(dimension.getValue());
+		return toShrine(player, dimension.getValue());
+	}
+
+	/**
+	 * To the shrine stored under {@code key} (a realm dimension's id, or {@link #finalShrineKey} for its final zone).
+	 * Returns false (and does nothing) if there is none.
+	 */
+	public static boolean toShrine(ServerPlayerEntity player, Identifier key) {
+		GlobalPos shrine = RealmPlayerData.get(player).shrines.get(key);
 		ServerWorld world = shrine == null ? null : player.getServer().getWorld(shrine.getDimension());
 		if (world == null) {
 			return false;
 		}
 		teleport(player, world, standingSpot(world, shrine.getPos()), player.getYaw());
 		return true;
+	}
+
+	/** Key of a realm dimension's final-zone shrine: the final zone counts on its own (DESIGN §4.2, PLAN 21.3). */
+	public static Identifier finalShrineKey(RegistryKey<World> dimension) {
+		return new Identifier(dimension.getValue().getNamespace(), dimension.getValue().getPath() + "/final");
 	}
 
 	/** Where a player stands when arriving at a landing: in front of its shrine, facing the return obelisk. */

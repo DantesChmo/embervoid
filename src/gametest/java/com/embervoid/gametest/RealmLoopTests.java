@@ -32,7 +32,8 @@ public final class RealmLoopTests implements FabricGameTest {
 	private static final int RADIUS = 6;
 	private static final Identifier REALM_2 = ProgressManager.nextRealm(ProgressManager.REALM_1);
 	/** A spot in the depths away from the landing, the Citadel and its courtyard. */
-	private static final BlockPos DEPTHS_CENTER = new BlockPos(240, 160, 240);
+	/** A test floor high over the final sector's middle line, short of the Citadel (PLAN 21.3). */
+	private static final BlockPos FINAL_CENTER = new BlockPos(0, 160, 300);
 
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "realm_loop", tickLimit = 1200)
 	public void realmOneLoopLightsTheNextObelisk(TestContext context) {
@@ -58,21 +59,21 @@ public final class RealmLoopTests implements FabricGameTest {
 					+ player.getInventory().count(SanctumItems.FLASK_SHARD));
 			context.assertTrue(!ProgressManager.isRealmCompleted(player, ProgressManager.REALM_1), "completed before the Lord");
 
-			// Through the gate: the Lord's fight in the depths.
-			ServerWorld depths = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.depths());
-			context.assertTrue(depths != null, "no depths dimension in the test world");
+			// Through the gate: the Lord's fight in the final sector.
+			ServerWorld finalSector = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
+			context.assertTrue(finalSector != null, "no realm dimension in the test world");
 			for (int dx = -RADIUS - 1; dx <= RADIUS + 1; dx++) {
 				for (int dz = -RADIUS - 1; dz <= RADIUS + 1; dz++) {
-					depths.setBlockState(DEPTHS_CENTER.add(dx, 0, dz), Blocks.STONE.getDefaultState());
+					finalSector.setBlockState(FINAL_CENTER.add(dx, 0, dz), Blocks.STONE.getDefaultState());
 				}
 			}
-			arena.forceChunks(depths, DEPTHS_CENTER, RADIUS + 16);
-			player.teleport(depths, DEPTHS_CENTER.getX() + 0.5, DEPTHS_CENTER.getY() + 1, DEPTHS_CENTER.getZ() + 2.5, 0, 0);
+			arena.forceChunks(finalSector, FINAL_CENTER, RADIUS + 16);
+			player.teleport(finalSector, FINAL_CENTER.getX() + 0.5, FINAL_CENTER.getY() + 1, FINAL_CENTER.getZ() + 2.5, 0, 0);
 
-			arena.await(() -> depths.shouldTickEntity(DEPTHS_CENTER), PlacedFight.LOAD_LIMIT, "the depths arena to tick", () -> {
-				BossFight lord = ArenaManager.start(depths, new ArenaSpec(ReachBosses.CITADEL, BossEntities.TEST_BOSS, 1, RADIUS),
-						DEPTHS_CENTER);
-				context.assertTrue(lord != null, "the Lord's fight did not start in the depths");
+			arena.await(() -> finalSector.shouldTickEntity(FINAL_CENTER), PlacedFight.LOAD_LIMIT, "the final arena to tick", () -> {
+				BossFight lord = ArenaManager.start(finalSector, new ArenaSpec(ReachBosses.CITADEL, BossEntities.TEST_BOSS, 1, RADIUS),
+						FINAL_CENTER);
+				context.assertTrue(lord != null, "the Lord's fight did not start in the final sector");
 				arena.track(lord);
 				BossRewardTests.kill(lord);
 
@@ -84,7 +85,7 @@ public final class RealmLoopTests implements FabricGameTest {
 
 				// Realm 2 is lit but not built: the obelisk keeps the player where they are.
 				context.assertTrue(!RealmTeleports.enterRealm(player, REALM_2, false), "entered a realm that does not exist");
-				context.assertTrue(player.getServerWorld() == depths, "moved by an obelisk that leads nowhere");
+				context.assertTrue(player.getServerWorld() == finalSector, "moved by an obelisk that leads nowhere");
 				arena.finish();
 			});
 		});

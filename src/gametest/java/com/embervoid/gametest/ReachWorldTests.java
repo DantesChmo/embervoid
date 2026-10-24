@@ -15,6 +15,7 @@ import com.embervoid.realm.RoadLayout;
 import com.embervoid.realm.worldgen.RealmRoads;
 import com.embervoid.realm.worldgen.RealmScatterPlacement;
 import com.embervoid.registry.ModBlocks;
+import com.embervoid.realm.RealmLayout;
 import com.embervoid.realm.Realms;
 import com.embervoid.realm.placed.PlacedEnemies;
 import com.embervoid.realm.placed.PlacedEnemyMarkerBlock;
@@ -193,7 +194,7 @@ public final class ReachWorldTests implements FabricGameTest {
 				"realm time is not fixed at dusk: " + realm.getDimension().fixedTime());
 		Registry<Biome> biomes = realm.getRegistryManager().get(RegistryKeys.BIOME);
 		for (RegistryKey<Biome> key : List.of(ReachZones.LANDING, ReachZones.FIELDS, ReachZones.WOODS,
-				ReachZones.NECROPOLIS, ReachZones.ABYSS, ReachZones.DEPTHS, ReachZones.CITADEL)) {
+				ReachZones.NECROPOLIS, ReachZones.ABYSS, ReachZones.CITADEL)) {
 			Biome biome = biomes.get(key);
 			context.assertTrue(biome != null, "missing biome " + key.getValue());
 			for (SpawnGroup group : SpawnGroup.values()) {
@@ -235,8 +236,9 @@ public final class ReachWorldTests implements FabricGameTest {
 		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
 		Registry<Structure> structures = realm.getRegistryManager().get(RegistryKeys.STRUCTURE);
 		ChunkGenerator generator = realm.getChunkManager().getChunkGenerator();
+		// The three zone arenas and, since PLAN 21.3, the Smoldering Lord's courtyard in the final sector.
 		List<RealmArenas.Location> arenas = RealmArenas.all(realm);
-		context.assertTrue(arenas.size() == 3, "expected 3 zone arenas, found " + arenas.size());
+		context.assertTrue(arenas.size() == 4, "expected 3 zone arenas and the final one, found " + arenas.size());
 		for (String zone : List.of("a", "b", "c")) {
 			String name = "ashen_reach_arena_" + zone;
 			Structure structure = structures.get(Embervoid.id(name));
@@ -448,7 +450,10 @@ public final class ReachWorldTests implements FabricGameTest {
 		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
 		Registry<Structure> structures = realm.getRegistryManager().get(RegistryKeys.STRUCTURE);
 		ChunkGenerator generator = realm.getChunkManager().getChunkGenerator();
-		Map<String, Double> zoneAngles = Map.of("fields", -30.0, "woods", 90.0, "necropolis", 210.0);
+		// Each zone's middle line (the final sector, with the Citadel, is +Z since PLAN 21.1 / 21.3).
+		RealmLayout.Sectors sectors = Realms.ASHEN_REACH.sectors();
+		Map<String, Double> zoneAngles = Map.of("fields", Math.toDegrees(sectors.openCenter(0)),
+				"woods", Math.toDegrees(sectors.openCenter(1)), "necropolis", Math.toDegrees(sectors.openCenter(2)));
 		int built = 0;
 		int index = 0;
 		for (Map.Entry<RegistryKey<Structure>, Structure> entry : structures.getEntrySet()) {

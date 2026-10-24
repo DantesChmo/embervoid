@@ -1,7 +1,6 @@
 package com.embervoid.gametest;
 
 import com.embervoid.Embervoid;
-import com.embervoid.registry.ModEntities;
 import com.embervoid.progress.ProgressManager;
 import com.embervoid.reach.world.ReachBlocks;
 import com.embervoid.reach.world.ReachZones;
@@ -11,7 +10,9 @@ import com.embervoid.realm.RealmDefinition;
 import com.embervoid.realm.RealmLayout;
 import com.embervoid.realm.RealmMobLevels;
 import com.embervoid.realm.RealmPlayerData;
+import com.embervoid.realm.RealmEvents;
 import com.embervoid.realm.Realms;
+import com.embervoid.sanctum.SanctumBlocks;
 import com.embervoid.realm.RoadLayout;
 import com.embervoid.realm.api.RealmTeleports;
 import com.embervoid.realm.worldgen.RealmBiomeSource;
@@ -47,7 +48,6 @@ import java.util.List;
  * on the landing plaza facing that sector with the gate road out to it, and realm respawn as before.
  */
 public final class RealmSectorTests implements FabricGameTest {
-	private static final double NEAR = 2.5;
 
 	/** The dimension's biome source and {@link RealmDefinition#sectors} agree, and so does the radius. */
 	@GameTest(templateName = EMPTY_STRUCTURE)
@@ -184,49 +184,65 @@ public final class RealmSectorTests implements FabricGameTest {
 	}
 
 	/**
-	 * A death in the final sector follows the open-zone rules until PLAN 21.3 gives it its own shrines: with no shrine
-	 * rested at, back at the landing; with one rested at in the realm, at that shrine.
+	 * The final zone counts on its own (DESIGN §4.2, PLAN 21.3): a death in the final sector with no shrine rested at
+	 * there goes to the first Citadel shrine beside the gate road's end, also when a shrine in an open zone was rested
+	 * at; with one rested at in the sector, to that one.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "realm_sector_respawn", tickLimit = 200)
-	public void realmRespawnIsUnchangedInTheFinalSector(TestContext context) {
+	public void finalSectorDeathsGoToItsOwnShrines(TestContext context) {
 		ServerWorld realm = realm(context);
 		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
 		ServerPlayerEntity[] now = {player};
 		try {
 			ProgressManager.unlockRealm(player, ProgressManager.REALM_1);
+			int[] first = RealmRoads.citadelShrine(Realms.ASHEN_REACH);
+			realm.getChunk(first[0] >> 4, first[1] >> 4);
+			BlockPos citadelShrine = realm.getTopPosition(Heightmap.Type.MOTION_BLOCKING, new BlockPos(first[0], 0, first[1])).down();
+			context.assertTrue(realm.getBlockState(citadelShrine).isOf(SanctumBlocks.EMBER_SHRINE),
+					"no first Citadel shrine at " + citadelShrine.toShortString() + ": " + realm.getBlockState(citadelShrine));
 			now[0] = dieInTheFinalSector(context, realm, current(player));
-			context.assertTrue(now[0].getServerWorld() == realm, "respawned in " + now[0].getServerWorld().getRegistryKey().getValue());
-			context.assertTrue(now[0].getPos().distanceTo(RealmTeleports.landingSpot(realm)) < NEAR,
-					"respawned away from the landing, at " + now[0].getBlockPos().toShortString());
+			context.assertTrue(now[0].getServerWorld() == realm && now[0].getPos().distanceTo(Vec3d.ofBottomCenter(citadelShrine)) < 5,
+					"respawned at " + now[0].getBlockPos().toShortString() + ", not beside the Citadel shrine at " + citadelShrine.toShortString());
 
-			// A shrine rested at in an open zone: the final-sector death goes back there.
+			// A shrine rested at in an open zone does not count for the final sector.
 			double angle = Realms.ASHEN_REACH.sectors().openCenter(1);
 			BlockPos column = BlockPos.ofFloored(Math.cos(angle) * 200, 0, Math.sin(angle) * 200);
 			realm.getChunk(column);
-			BlockPos shrine = realm.getTopPosition(Heightmap.Type.MOTION_BLOCKING, column);
-			realm.setBlockState(shrine.down(), Blocks.STONE.getDefaultState());
-			RealmPlayerData.get(now[0]).shrines.put(realm.getRegistryKey().getValue(), GlobalPos.create(realm.getRegistryKey(), shrine));
+			BlockPos open = realm.getTopPosition(Heightmap.Type.MOTION_BLOCKING, column);
+			RealmPlayerData.get(now[0]).shrines.put(realm.getRegistryKey().getValue(), GlobalPos.create(realm.getRegistryKey(), open));
 			now[0] = dieInTheFinalSector(context, realm, now[0]);
-			context.assertTrue(now[0].getServerWorld() == realm && now[0].getPos().distanceTo(Vec3d.ofBottomCenter(shrine)) < 5,
-					"respawned at " + now[0].getBlockPos().toShortString() + ", not beside the shrine at " + shrine.toShortString());
+			context.assertTrue(now[0].getPos().distanceTo(Vec3d.ofBottomCenter(citadelShrine)) < 5,
+					"respawned at " + now[0].getBlockPos().toShortString() + ", not beside the Citadel shrine");
+
+			// One rested at in the sector: back there.
+			realm.getChunk(new BlockPos(0, 0, 300));
+			BlockPos inSector = realm.getTopPosition(Heightmap.Type.MOTION_BLOCKING, new BlockPos(0, 0, 300));
+			realm.setBlockState(inSector.down(), Blocks.STONE.getDefaultState());
+			RealmPlayerData.get(now[0]).shrines.put(RealmTeleports.finalShrineKey(realm.getRegistryKey()),
+					GlobalPos.create(realm.getRegistryKey(), inSector));
+			now[0] = dieInTheFinalSector(context, realm, now[0]);
+			context.assertTrue(now[0].getServerWorld() == realm && now[0].getPos().distanceTo(Vec3d.ofBottomCenter(inSector)) < 5,
+					"respawned at " + now[0].getBlockPos().toShortString() + ", not beside the sector's shrine at " + inSector.toShortString());
 		} finally {
 			TestPlayers.complete(context, current(now[0]));
 		}
 	}
 
+	/**
+	 * A death in the final sector, 400 out on its middle line, and the respawn the realm gives it
+	 * ({@link RealmEvents#respawnAfterDeath} with the death's spot: a test player's position does not follow a
+	 * cross-dimension teleport until its client confirms, so the death itself would be recorded where it stood before).
+	 */
 	private static ServerPlayerEntity dieInTheFinalSector(TestContext context, ServerWorld realm, ServerPlayerEntity player) {
 		double angle = Realms.ASHEN_REACH.sectors().finalCenter();
-		BlockPos column = BlockPos.ofFloored(Math.cos(angle) * 400, 0, Math.sin(angle) * 400);
-		realm.getChunk(column);
-		BlockPos top = realm.getTopPosition(Heightmap.Type.MOTION_BLOCKING, column);
-		ServerPlayerEntity moved = RealmTeleports.teleport(player, realm, Vec3d.ofBottomCenter(top.up()), 0);
-		ServerPlayerEntity inRealm = current(moved == null ? player : moved);
-		context.assertTrue(RealmMobLevels.zoneAt(realm, inRealm.getBlockPos()) == RealmLayout.FINAL,
-				"not in the final sector at " + inRealm.getBlockPos().toShortString());
-		inRealm.kill();
-		ServerPlayerEntity respawned = TestPlayers.respawn(inRealm);
-		realm.getEntitiesByType(ModEntities.ASH_REMNANT, r -> player.getUuid().equals(r.getOwner())).forEach(r -> r.discard());
-		return respawned;
+		double x = Math.cos(angle) * 400 + 0.5;
+		double z = Math.sin(angle) * 400 + 0.5;
+		context.assertTrue(RealmMobLevels.zoneAt(realm, BlockPos.ofFloored(x, 70, z)) == RealmLayout.FINAL,
+				"not in the final sector at " + x + ", " + z);
+		ServerPlayerEntity respawned = TestPlayers.respawn(current(player));
+		ServerPlayerEntity now = current(respawned);
+		RealmEvents.respawnAfterDeath(now, realm.getRegistryKey(), x, z);
+		return current(now);
 	}
 
 	private static RegistryEntry<Biome> biomeAt(ServerWorld world, BlockPos column) {

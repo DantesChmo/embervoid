@@ -5,7 +5,6 @@ import net.minecraft.util.Identifier;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Why our realm dimensions do not trigger vanilla's "experimental settings" warning.
@@ -20,10 +19,10 @@ public final class RealmDimensionLifecycle {
 	/** Overworld, nether, end. */
 	public static final int VANILLA_DIMENSION_COUNT = 3;
 
-	/** Ids of the realm dimensions (both of each realm). */
+	/** Ids of the realm dimensions. */
 	public static Set<Identifier> realmDimensions() {
 		return Realms.ALL.stream()
-				.flatMap(realm -> Stream.of(realm.world().getValue(), realm.depths().getValue()))
+				.map(realm -> realm.world().getValue())
 				.collect(Collectors.toUnmodifiableSet());
 	}
 

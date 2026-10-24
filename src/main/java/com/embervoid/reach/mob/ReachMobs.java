@@ -33,7 +33,7 @@ import java.util.function.Supplier;
 /**
  * Realm 1 mobs (DESIGN §4.5, PLAN 10): entity types under the fixed ids, attributes, spawn eggs and natural spawns.
  *
- * <p>Only fodder, ranged mobs and the rare Ashen Carrion spawn naturally (Cinder Hounds in the depths), and only in their own biome
+ * <p>Only fodder, ranged mobs and the rare Ashen Carrion spawn naturally (Cinder Hounds in the Burning City), and only in their own biome
  * ({@link ReachMobConfig#spawns}); tanks and elites come from structures (placed, {@link ReachMob#PLACED_TAG}).
  * Natural spawns ignore sky light (the realm is in eternal dusk) and need block light ≤ {@link #MAX_BLOCK_LIGHT}, so
  * torches still keep a camp clear.
@@ -42,8 +42,8 @@ public final class ReachMobs {
 	public static final RegistryKey<Biome> FIELDS = zoneBiome("ashen_reach_zone_a");
 	public static final RegistryKey<Biome> WOODS = zoneBiome("ashen_reach_zone_b");
 	public static final RegistryKey<Biome> NECROPOLIS = zoneBiome("ashen_reach_zone_c");
-	/** The Smoldering Citadel's depths ("Burning City"). */
-	public static final RegistryKey<Biome> DEPTHS = zoneBiome("ashen_reach_depths");
+	/** The final zone's sector: the Burning City and the Smoldering Citadel (PLAN 21.3). */
+	public static final RegistryKey<Biome> CITADEL = zoneBiome("ashen_reach_citadel");
 	/** Natural spawns need block light at or below this. */
 	public static final int MAX_BLOCK_LIGHT = 7;
 
@@ -111,7 +111,7 @@ public final class ReachMobs {
 		naturalSpawn(LANTERN_HAG, WOODS, ReachMobs::canSpawnInRealm);
 		naturalSpawn(RESTLESS_BONES, NECROPOLIS, ReachMobs::canSpawnInRealm);
 		naturalSpawn(CRYPT_MOTH, NECROPOLIS, ReachMobs::canSpawnUnderCover);
-		naturalSpawn(CINDER_HOUND, DEPTHS, ReachMobs::canSpawnInRealm);
+		naturalSpawn(CINDER_HOUND, CITADEL, ReachMobs::canSpawnInRealm);
 		// The Scarecrow's Mask (track reach-gear) hides its wearer from buried Ash Stalkers.
 		AshStalkerEntity.addAmbushImmunity(GearArmor::hiddenFromAmbush);
 

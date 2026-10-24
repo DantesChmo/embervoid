@@ -90,7 +90,6 @@ The mod reads `config/embervoid.json` (created with defaults on first launch). M
 | `sanctumGear.slamRadius` / `slamMultiplier` / `slamKnockback` | 3 / 0.75 / 0.8 | 1–8 / 0–10 / 0–4 | Ashbearer's Mace's Ground Slam: ring radius, share of the weapon's hit, knockback strength |
 | `sanctumGear.slamSlownessTicks` / `slamSlownessAmplifier` | 40 / 1 | 0–1200 / 0–9 | Ground Slam's Slowness: duration (ticks) and amplifier (1 = Slowness II) |
 | `sanctumGear.slamStamina` / `slamCooldown` | 30 / 100 | 0–1000 / 0–1200 | Ground Slam's stamina cost and cooldown (ticks) |
-| `realm.depthsOpen` | true | true, false | Whether an unsealed Sealed Gate leads into the depths (off: "the depths are still forming"; was off in 0.3.0) |
 | `boss.healthPerExtraFighter` | 0.5 | 0–10 | Boss health bonus per fighter beyond the first: HP × (1 + this·(n − 1)) |
 | `boss.addsPerExtraFighter` | 1 | 0–10 | Extra adds per fighter beyond the first |
 | `boss.addLevelOffset` | 3 | −50–50 | Level of a boss's adds relative to the boss |

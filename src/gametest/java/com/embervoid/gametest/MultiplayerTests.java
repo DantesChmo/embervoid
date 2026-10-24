@@ -25,10 +25,10 @@ import com.embervoid.reach.boss.ReachBosses;
 import com.embervoid.reach.gear.GearItems;
 import com.embervoid.reach.mob.ReachMobs;
 import com.embervoid.realm.RealmArenas;
-import com.embervoid.realm.RealmBlocks;
 import com.embervoid.realm.RealmPlayerData;
 import com.embervoid.realm.Realms;
 import com.embervoid.realm.CitadelGateBlock;
+import com.embervoid.realm.FinalZoneLock;
 import com.embervoid.realm.api.RealmTeleports;
 import com.embervoid.realm.worldgen.RealmFeaturePiece;
 import com.embervoid.realm.worldgen.RealmFeatures;
@@ -145,16 +145,12 @@ public final class MultiplayerTests implements FabricGameTest {
 					+ CitadelGateBlock.remainingZoneBosses(b, Realms.ASHEN_REACH));
 			context.assertTrue(CitadelGateBlock.remainingZoneBosses(c, Realms.ASHEN_REACH) == 3, "C's locks");
 
-			// The gate itself, used by each: B and C stay, A goes to the depths.
-			ServerWorld realm = arena.server.getWorld(Realms.ASHEN_REACH.world());
-			BlockPos gate = new BlockPos(0, 100, 10);
+			// The gate lets each through on their own (PLAN 21.2, 21.3: no more teleport, they walk in): A, not B or C.
+			context.assertTrue(FinalZoneLock.isCleared(a, Realms.ASHEN_REACH), "the final zone is locked for A");
 			for (ServerPlayerEntity player : List.of(b, c)) {
-				useGate(realm, gate, player);
-				context.assertTrue(player.getServerWorld() == context.getWorld(), player.getName().getString() + " went through a sealed gate");
+				context.assertTrue(!FinalZoneLock.isCleared(player, Realms.ASHEN_REACH),
+						player.getName().getString() + " may walk through a sealed gate");
 			}
-			useGate(realm, gate, a);
-			context.assertTrue(a.getServerWorld().getRegistryKey() == Realms.ASHEN_REACH.depths(),
-					"A did not reach the depths: " + a.getServerWorld().getRegistryKey().getValue());
 			arena.finish();
 		});
 	}
@@ -483,11 +479,6 @@ public final class MultiplayerTests implements FabricGameTest {
 
 	private static Glow glow(ServerPlayerEntity player, Identifier realm) {
 		return Glow.of(ProgressManager.get(player), realm);
-	}
-
-	private static void useGate(ServerWorld realm, BlockPos gate, ServerPlayerEntity player) {
-		BlockHitResult hit = new BlockHitResult(Vec3d.ofCenter(gate), Direction.NORTH, gate, false);
-		RealmBlocks.CITADEL_GATE.getDefaultState().onUse(realm, player, Hand.MAIN_HAND, hit);
 	}
 
 	/** The fight's boss with its moves held: only the framework acts. */

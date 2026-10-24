@@ -74,7 +74,7 @@ class BalanceDataTest {
 	@Test
 	void bossLevelsMatchTheArenas() {
 		Map<Boss, String> arenas = Map.of(BalanceData.ASH_COLOSSUS, "ashen_reach_arena_a", BalanceData.GRIEVING_TREE, "ashen_reach_arena_b",
-				BalanceData.CRYPT_KEEPER, "ashen_reach_arena_c", BalanceData.SMOLDERING_LORD, "ashen_reach_depths_arena");
+				BalanceData.CRYPT_KEEPER, "ashen_reach_arena_c", BalanceData.SMOLDERING_LORD, "ashen_reach_arena_final");
 		arenas.forEach((boss, arena) -> {
 			JsonObject json = GameFiles.arenaBoss(arena);
 			assertEquals("embervoid:" + boss.id(), json.get("entity").getAsString());

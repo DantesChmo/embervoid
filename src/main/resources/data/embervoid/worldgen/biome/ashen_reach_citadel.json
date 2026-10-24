@@ -53,7 +53,10 @@
     [],
     [],
     [],
-    [],
+    [
+      "embervoid:ashen_reach/citadel/ember_cracks",
+      "embervoid:ashen_reach/citadel/smoldering_debris"
+    ],
     []
   ]
 }

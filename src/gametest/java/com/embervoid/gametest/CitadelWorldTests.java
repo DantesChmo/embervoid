@@ -43,61 +43,70 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** The depths "Burning City" and the Smoldering Citadel (PLAN 13.1–13.2, track citadel). */
+/**
+ * The Burning City and the Smoldering Citadel (PLAN 13.1–13.2) in the realm's final sector (PLAN 21.3): the plan's
+ * numbers turned into the realm with {@link CitadelLayout#realmX} / {@link CitadelLayout#realmZ}.
+ */
 public final class CitadelWorldTests implements FabricGameTest {
-	private static ServerWorld depths(TestContext context) {
-		ServerWorld depths = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.depths());
-		context.assertTrue(depths != null, "the depths dimension is missing from the test world");
-		return depths;
+	private static ServerWorld realm(TestContext context) {
+		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
+		context.assertTrue(realm != null, "the Ashen Reach dimension is missing from the test world");
+		return realm;
 	}
 
-	/** Own dimension type: the same dusk as the open zones, ultrawarm, dark red sky. */
+	private static int rx(double planX) {
+		return (int) CitadelLayout.realmX(planX);
+	}
+
+	private static int rz(double planZ) {
+		return (int) CitadelLayout.realmZ(planZ);
+	}
+
+	/** The final sector's biome under the city: dark red sky, the final band's levels. */
 	@GameTest(templateName = EMPTY_STRUCTURE)
-	public void depthsHaveTheirOwnDuskAndRedSky(TestContext context) {
-		ServerWorld depths = depths(context);
-		context.assertTrue(depths.getDimensionKey().getValue().equals(Embervoid.id("ashen_reach_depths")),
-				"depths dimension type is " + depths.getDimensionKey().getValue());
-		context.assertTrue(depths.getDimension().fixedTime().orElse(-1) == 13500, "depths time is not fixed at dusk");
-		context.assertTrue(depths.getDimension().ultrawarm(), "the Burning City is not ultrawarm");
-		Biome biome = depths.getRegistryManager().get(RegistryKeys.BIOME).get(ReachZones.DEPTHS);
+	public void burningCityHasItsRedSkyAndFinalLevels(TestContext context) {
+		ServerWorld realm = realm(context);
+		BlockPos city = new BlockPos(0, 80, rz(-100));
+		context.assertTrue(realm.getBiome(city).matchesKey(ReachZones.CITADEL), "biome under the city: " + realm.getBiome(city).getKey());
+		Biome biome = realm.getRegistryManager().get(RegistryKeys.BIOME).get(ReachZones.CITADEL);
 		int sky = biome.getSkyColor();
 		context.assertTrue((sky >> 16 & 0xff) > 2 * (sky & 0xff) && (sky >> 16 & 0xff) > 2 * (sky >> 8 & 0xff),
 				"sky is not dark red: " + Integer.toHexString(sky));
-		RealmDefinition.LevelBand band = RealmMobLevels.bandAt(depths, new BlockPos(0, 80, -100));
-		context.assertTrue(band != null && band.min() == 25 && band.max() == 30, "depths levels " + band);
+		RealmDefinition.LevelBand band = RealmMobLevels.bandAt(realm, city);
+		context.assertTrue(band != null && band.min() == 25 && band.max() == 30, "city levels " + band);
 		context.complete();
 	}
 
-	/** The ground matches the layout: the landing and the courtyard flat at their heights, the hill above the city. */
+	/** The ground matches the plan: the entry plaza and the courtyard flat at their heights, the hill above the city. */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 400)
-	public void depthsTerrainFollowsTheLayout(TestContext context) {
-		ServerWorld depths = depths(context);
-		ChunkGenerator generator = depths.getChunkManager().getChunkGenerator();
+	public void cityTerrainFollowsTheLayout(TestContext context) {
+		ServerWorld realm = realm(context);
+		ChunkGenerator generator = realm.getChunkManager().getChunkGenerator();
 		for (int dx = -24; dx <= 24; dx += 8) {
 			for (int dz = -24; dz <= 24; dz += 8) {
-				assertGround(context, depths, generator, dx, dz, CitadelLayout.LANDING_Y);
-				assertGround(context, depths, generator, CitadelLayout.COURTYARD_X + dx, CitadelLayout.COURTYARD_Z + dz,
+				assertGround(context, realm, generator, rx(dx), rz(dz), CitadelLayout.LANDING_Y);
+				assertGround(context, realm, generator, rx(CitadelLayout.COURTYARD_X + dx), rz(CitadelLayout.COURTYARD_Z + dz),
 						CitadelLayout.PLATEAU_Y);
 			}
 		}
 		for (CitadelLayout.Piece piece : List.of(CitadelLayout.OUTSKIRTS, CitadelLayout.MARKET, CitadelLayout.KEEP)) {
-			assertGround(context, depths, generator, (piece.minX() + piece.maxX()) / 2, (piece.minZ() + piece.maxZ()) / 2,
+			assertGround(context, realm, generator, rx((piece.minX() + piece.maxX()) / 2), rz((piece.minZ() + piece.maxZ()) / 2),
 					piece.floorY());
 		}
-		int below = height(depths, generator, 130, -200);
+		int below = height(realm, generator, rx(130), rz(-200));
 		context.assertTrue(below < CitadelLayout.PLATEAU_Y - 12, "the hill's foot east of the plateau is at " + below);
 		context.complete();
 	}
 
 	/** Ember cracks and smouldering logs lie in the Burning City, and nowhere in the open zones. */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 2400)
-	public void emberCracksAndSmolderingLogsOnlyInTheDepths(TestContext context) {
-		ServerWorld depths = depths(context);
-		int[] inDepths = count(depths, 120, -40, 3);
-		context.assertTrue(inDepths[0] > 0 && inDepths[1] > 0,
-				"depths: " + inDepths[0] + " ember cracks, " + inDepths[1] + " smouldering logs");
-		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
-		for (double angle : new double[]{-30, 90, 210}) {
+	public void emberCracksAndSmolderingLogsOnlyInTheCity(TestContext context) {
+		ServerWorld realm = realm(context);
+		int[] inCity = count(realm, rx(120), rz(-40), 3);
+		context.assertTrue(inCity[0] > 0 && inCity[1] > 0,
+				"city: " + inCity[0] + " ember cracks, " + inCity[1] + " smouldering logs");
+		// The open zones' middles (120–420°, 100° each).
+		for (double angle : new double[]{170, 270, 10}) {
 			double a = Math.toRadians(angle);
 			int[] inZone = count(realm, (int) (Math.cos(a) * 300), (int) (Math.sin(a) * 300), 2);
 			context.assertTrue(inZone[0] == 0 && inZone[1] == 0,
@@ -106,14 +115,15 @@ public final class CitadelWorldTests implements FabricGameTest {
 		context.complete();
 	}
 
-	/** The Smoldering Lord's courtyard is the depths arena, fixed north of the landing on the plateau. */
+	/** The Smoldering Lord's courtyard is the final sector's arena, fixed on the plateau past the gatehouse. */
 	@GameTest(templateName = EMPTY_STRUCTURE)
-	public void courtyardIsTheDepthsArena(TestContext context) {
-		ServerWorld depths = depths(context);
-		List<RealmArenas.Location> arenas = RealmArenas.all(depths);
-		context.assertTrue(arenas.size() == 1, "expected one depths arena, found " + arenas.size());
+	public void courtyardIsTheFinalArena(TestContext context) {
+		ServerWorld realm = realm(context);
+		List<RealmArenas.Location> arenas = RealmArenas.all(realm).stream()
+				.filter(a -> a.spec().bossId().equals(Realms.ASHEN_REACH.finalBoss())).toList();
+		context.assertTrue(arenas.size() == 1, "expected one final arena, found " + arenas.size());
 		RealmArenas.Location arena = arenas.get(0);
-		context.assertTrue(arena.pos().getX() == CitadelLayout.COURTYARD_X && arena.pos().getZ() == CitadelLayout.COURTYARD_Z,
+		context.assertTrue(arena.pos().getX() == rx(CitadelLayout.COURTYARD_X) && arena.pos().getZ() == rz(CitadelLayout.COURTYARD_Z),
 				"courtyard at " + arena.pos());
 		context.assertTrue(arena.siteRadius() == CitadelLayout.COURTYARD_RADIUS, "courtyard site radius " + arena.siteRadius());
 		context.assertTrue(arena.spec().bossId().equals(Realms.ASHEN_REACH.finalBoss()) && arena.spec().level() == 30,
@@ -128,9 +138,9 @@ public final class CitadelWorldTests implements FabricGameTest {
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 6000)
 	public void citadelBuildsAlongTheRoute(TestContext context) {
-		ServerWorld depths = depths(context);
+		ServerWorld depths = realm(context);
 		ChunkGenerator generator = depths.getChunkManager().getChunkGenerator();
-		Identifier id = Embervoid.id("ashen_reach_depths_citadel");
+		Identifier id = Embervoid.id("ashen_reach_citadel");
 		Structure structure = depths.getRegistryManager().get(RegistryKeys.STRUCTURE).get(id);
 		context.assertTrue(structure != null, "no structure " + id);
 		ChunkPos startChunk = null;
@@ -140,7 +150,7 @@ public final class CitadelWorldTests implements FabricGameTest {
 				startChunk = placement.getStartChunk(depths.getSeed(), 0, 0);
 			}
 		}
-		context.assertTrue(new ChunkPos(new BlockPos(CitadelLayout.START_X, 0, CitadelLayout.START_Z)).equals(startChunk),
+		context.assertTrue(new ChunkPos(new BlockPos(rx(CitadelLayout.START_X), 0, rz(CitadelLayout.START_Z))).equals(startChunk),
 				"the Citadel starts in chunk " + startChunk);
 		StructureStart start = structure.createStructureStart(depths.getRegistryManager(), generator, generator.getBiomeSource(),
 				depths.getChunkManager().getNoiseConfig(), depths.getStructureTemplateManager(), depths.getSeed(), startChunk, 0,
@@ -204,8 +214,8 @@ public final class CitadelWorldTests implements FabricGameTest {
 			}
 		}
 		CitadelLayout.Piece keep = CitadelLayout.KEEP;
-		context.assertTrue(treasure.size() == 1 && treasure.get(0).getX() >= keep.minX() && treasure.get(0).getX() <= keep.maxX()
-				&& treasure.get(0).getZ() >= keep.minZ() && treasure.get(0).getZ() <= keep.maxZ(), "treasure chests at " + treasure);
+		context.assertTrue(treasure.size() == 1 && treasure.get(0).getX() >= rx(keep.maxX()) && treasure.get(0).getX() <= rx(keep.minX())
+				&& treasure.get(0).getZ() >= rz(keep.maxZ()) && treasure.get(0).getZ() <= rz(keep.minZ()), "treasure chests at " + treasure);
 		context.assertTrue(common >= 7, "only " + common + " common chests");
 
 		// The spawned mobs, then gone again (test worlds are shared).
@@ -220,13 +230,15 @@ public final class CitadelWorldTests implements FabricGameTest {
 			placed++;
 			entity.discard();
 		}
-		context.assertTrue(placed == 16, "spawned " + placed + " placed mobs, expected 16");
+		context.assertTrue(placed == 16, "spawned " + placed + " placed mobs, expected 16: "
+				+ spawned.stream().map(e -> e.getType().getUntranslatedName() + "@" + e.getBlockPos().toShortString()).toList());
 
 		// The route is open: the gate, the tunnel, the plaza, the courtyard's edge, the keep door and its hall.
 		int floor = CitadelLayout.PLATEAU_Y;
-		for (BlockPos stand : List.of(new BlockPos(0, 67 + 1, -45), new BlockPos(0, 71 + 1, -100), new BlockPos(0, 75, -130),
+		for (BlockPos plan : List.of(new BlockPos(0, 67 + 1, -45), new BlockPos(0, 71 + 1, -100), new BlockPos(0, 75, -130),
 				new BlockPos(0, 82, -140), new BlockPos(0, floor + 1, -150), new BlockPos(0, floor + 1, -231),
 				new BlockPos(4, floor + 1, -255))) {
+			BlockPos stand = new BlockPos(rx(plan.getX()), plan.getY(), rz(plan.getZ()));
 			context.assertTrue(!depths.getBlockState(stand.down()).isAir(), "no floor under " + stand);
 			context.assertTrue(depths.getBlockState(stand).getCollisionShape(depths, stand).isEmpty()
 					&& depths.getBlockState(stand.up()).getCollisionShape(depths, stand.up()).isEmpty(), "route blocked at " + stand);

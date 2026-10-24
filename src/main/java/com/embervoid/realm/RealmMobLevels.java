@@ -32,10 +32,6 @@ public final class RealmMobLevels {
 		if (realm == null) {
 			return null;
 		}
-		// PLAN 21.3 removes the depths dimension; the final band then comes from the sector alone.
-		if (realm.depths().equals(world.getRegistryKey())) {
-			return realm.finalLevels();
-		}
 		return realm.levelsOf(zoneAt(world, pos));
 	}
 

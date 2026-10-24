@@ -99,19 +99,18 @@ public final class FinalZoneLockTests implements FabricGameTest {
 			EnderPearlEntity clearedPearl = spot.throwPearl(cleared, 3);
 			boolean[] clearedPearlIn = {false};
 			StringBuilder flight = new StringBuilder();
-			for (int t = 1; t < 30; t++) {
-				int tick = t;
-				context.waitAndRun(t, () -> {
-					if (!clearedPearl.isRemoved() && spot.region.contains(clearedPearl.getX(), clearedPearl.getZ())) {
-						clearedPearlIn[0] = true;
-					}
-					if (tick < 10) {
-						double[] at = spot.coordinates(clearedPearl);
-						flight.append(String.format(" %d:%.1f/%.1f%s", tick, at[1], clearedPearl.getY() - spot.floor,
-								clearedPearl.isRemoved() ? "x" : ""));
-					}
-				});
-			}
+			// One sample a tick, each scheduling the next: 29 timers added at once from inside a timer can make the
+			// test framework's timer map rehash while it is being walked, which crashes the test server.
+			sample(context, 1, 30, tick -> {
+				if (!clearedPearl.isRemoved() && spot.region.contains(clearedPearl.getX(), clearedPearl.getZ())) {
+					clearedPearlIn[0] = true;
+				}
+				if (tick < 10) {
+					double[] at = spot.coordinates(clearedPearl);
+					flight.append(String.format(" %d:%.1f/%.1f%s", tick, at[1], clearedPearl.getY() - spot.floor,
+							clearedPearl.isRemoved() ? "x" : ""));
+				}
+			});
 			context.waitAndRun(30, () -> guard(context, spot, () -> {
 				context.assertTrue(lockedPearl.isRemoved(), "the locked-out player's pearl is still flying at " + lockedPearl.getPos());
 				List<ItemEntity> dropped = spot.realm.getEntitiesByClass(ItemEntity.class, spot.box(12),
@@ -404,6 +403,16 @@ public final class FinalZoneLockTests implements FabricGameTest {
 	private static void finish(TestContext context, Spot spot, ServerPlayerEntity... players) {
 		spot.release();
 		TestPlayers.complete(context, players);
+	}
+
+	/** Runs {@code each} once a tick for ticks {@code tick} up to (not including) {@code until}, one timer at a time. */
+	private static void sample(TestContext context, int tick, int until, java.util.function.IntConsumer each) {
+		if (tick < until) {
+			context.waitAndRun(1, () -> {
+				each.accept(tick);
+				sample(context, tick + 1, until, each);
+			});
+		}
 	}
 
 	/**

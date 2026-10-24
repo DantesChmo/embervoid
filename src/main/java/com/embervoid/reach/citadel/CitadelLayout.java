@@ -6,17 +6,44 @@ import net.minecraft.util.Identifier;
 import java.util.List;
 
 /**
- * The fixed plan of the Burning City (PLAN 13.1–13.2, DESIGN §4.5 "Smoldering Citadel"): where the landing, the
- * Citadel's pieces and the Smoldering Lord's courtyard sit in {@code embervoid:ashen_reach_depths}, and the ground
- * height the terrain gives each column. Pure, so the terrain ({@link CitadelTerrain}), the Citadel structure and the
- * tests all read the same numbers.
+ * The fixed plan of the Burning City (PLAN 13.1–13.2, DESIGN §4.5 "Smoldering Citadel"): where the city's entry
+ * plaza, the Citadel's pieces and the Smoldering Lord's courtyard sit, and the ground height the terrain gives each
+ * column. Pure, so the terrain ({@link CitadelTerrain}), the Citadel structure and the tests all read the same numbers.
  *
- * <p>The landing is at 0, 0 in the lower city (the outskirts); the route runs north (−Z) up to the hill: outskirts →
- * burning street → market → gatehouse in the city wall on the hill's rim → inner ring around the courtyard → keep.
- * The hill is a plateau at {@link #PLATEAU_Y} with steep sides, the city wall on its south rim.
+ * <p>The numbers are in the plan's own frame: the entry plaza (the old depths landing) at 0, 0 in the lower city (the
+ * outskirts); the route runs north (−Z) up to the hill: outskirts → burning street → market → gatehouse in the city
+ * wall on the hill's rim → inner ring around the courtyard → keep. The hill is a plateau at {@link #PLATEAU_Y} with
+ * steep sides, the city wall on its south rim. In the realm (PLAN 21.3) the plan is turned 180° onto the final
+ * sector's middle line (+Z), its origin {@link #ORIGIN_Z} blocks out: {@link #realmX} / {@link #realmZ} and back.
  */
 public final class CitadelLayout {
-	/** Ground of the landing (top block). */
+	/**
+	 * Realm z of the plan's origin (the entry plaza) on the final sector's middle line (PLAN 21.3): the outskirts start
+	 * about 540 out, the keep stands about 750 out, the courtyard at 672.
+	 */
+	public static final int ORIGIN_Z = 480;
+
+	/** Realm x of plan x (the plan is turned 180°). */
+	public static double realmX(double planX) {
+		return -planX;
+	}
+
+	/** Realm z of plan z. */
+	public static double realmZ(double planZ) {
+		return ORIGIN_Z - planZ;
+	}
+
+	/** Plan x of realm x (the turn is its own inverse). */
+	public static double planX(double realmX) {
+		return -realmX;
+	}
+
+	/** Plan z of realm z. */
+	public static double planZ(double realmZ) {
+		return ORIGIN_Z - realmZ;
+	}
+
+	/** Ground of the entry plaza (top block). */
 	public static final int LANDING_Y = 66;
 	/** Ground of the hill's plateau (top block): the wall, the inner ring, the courtyard and the keep stand on it. */
 	public static final int PLATEAU_Y = 88;

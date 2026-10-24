@@ -16,8 +16,8 @@ writing content: every new mob, boss, zone, weapon or structure is described aga
    into the core. (0.5.0: the core moves to the hub dimension; Realm 1 unlocks on the first hub visit, PLAN 15.2.)
 3. In the core: the **Ashen Maiden** sells stat points for vanilla XP points; the **Ember Shrine** heals and
    refills the flask; the lit **Void Obelisk** sends the player to **Ashen Reach** (Realm 1).
-4. In the realm: three zones, one boss arena each. Beating all three opens the **Sealed Gate** to the depths and
-   the realm boss. Beating it completes the realm and kindles its obelisk in the Sanctum.
+4. In the realm: three zones, one boss arena each. Beating all three opens the **Citadel Gate** into the final
+   zone's sector (the Burning City, the Smoldering Citadel) and the realm boss. Beating it completes the realm and kindles its obelisk in the Sanctum.
 5. Death anywhere leaves an **Ash Remnant** with the player's XP and items; in a realm the player respawns at
    the last shrine rested at in that dimension.
 
@@ -212,23 +212,25 @@ sections `moon`, `nightMobs`, `vampire`.
   embervoid:ashen_reach_arena_a|b|c`). The arena JSON's `site` (`ArenaSite`) shapes the ground; the arena itself
   is a template (`embervoid:ashen_reach/arena_fields|woods|necropolis`, track reach-bosses): crater market, Royal
   Grove, sinkhole ossuary, each with its Ember Shrine outside the fog wall and an arena-side chest. Protected.
-- **Sealed Gate:** opens per player after all three zone bosses → `embervoid:ashen_reach_depths` (own dimension type
-  `embervoid:ashen_reach_depths`, red dusk sky, radius ~400, levels 25–30): the **Smoldering Citadel**
-  (`reach.citadel`, fixed layout `CitadelLayout`, 11 template pieces from the outskirts to the keep, placed Citadel
-  mobs, treasury in the keep) and the Smoldering Lord's courtyard at (0, −192). Beating the Lord completes Realm 1
-  and unlocks the next realm in `ProgressManager.REALM_ORDER` (its obelisk lights; entering says the realm is still
-  forming).
-  `realm.depthsOpen` (default true since 0.4.0, false in 0.3.0): when off, an unsealed gate only says the depths are still
-  forming; `/embervoid realm` commands still reach them.
+- **Citadel Gate:** a fog wall on the plaza rim, open per player after all three zone bosses (`FinalZoneLock` holds
+  the final sector otherwise); the player walks through it and down the gate road into the final zone's sector
+  (+Z, 60° wide, biome `ashen_reach_citadel`, red dusk sky, levels 25–30). There (PLAN 21.3) the **Smoldering
+  Citadel** (`reach.citadel`, fixed plan `CitadelLayout` turned 180° with its origin 480 blocks out: entry plaza at
+  z 480, outskirts to the keep at z 540–750, 11 template pieces, placed Citadel mobs, treasury in the keep, terrain
+  `citadel_terrain` as the final zone's shape) and the Smoldering Lord's courtyard at (0, 672). The first Citadel
+  shrine stands beside the gate road's end (−4, 48). Beating the Lord completes Realm 1 and unlocks the next realm
+  in `ProgressManager.REALM_ORDER` (its obelisk lights; entering says the realm is still forming). The old depths
+  dimension (`ashen_reach_depths`) is gone since 0.5.0.
 - **Ember Lodestar** (`embervoid:ember_lodestar`): compass needle to the nearest unbeaten arena, right-click
   gives the distance. Cold outside realms.
-- **Respawn:** death in a realm dimension → last shrine rested at in that same dimension, else its landing.
+- **Respawn:** death in a realm dimension → last shrine rested at there, else its landing; the final sector counts
+  on its own (its last shrine, else the first Citadel shrine by the gate road; `RealmEvents.respawnAfterDeath`).
   The overworld bed spawn is untouched; beds in realms don't set spawn. Building and mining are allowed outside
   landings and arenas.
 
 ### 5.2 Where realm content goes
-- **Realm definition** (`realm.Realms`): ids of the realm, its two dimensions, zone boss ids, realm boss id,
-  level band per zone / landing / depths, radii. A new realm is a new `RealmDefinition` plus its datapack.
+- **Realm definition** (`realm.Realms`): ids of the realm, its dimension, zone boss ids, realm boss id, sectors,
+  level band per zone / landing / final zone, radius. A new realm is a new `RealmDefinition` plus its datapack.
 - **Datapack** (`data/embervoid/`): `dimension/`, `dimension_type/realm.json`, `worldgen/noise_settings/`,
   `worldgen/biome/ashen_reach_*.json` (look, particles, mob spawners), `worldgen/structure/` +
   `structure_set/` for landing and arenas.

@@ -392,11 +392,11 @@ visuals; the quick fixes fit in anywhere. Milestones 15, 17 and 21 start with a 
 
 ## 21. The Citadel behind a fog wall
 
-**Status:** Layout and lock done (PLAN 21.0–21.2); the Citadel still sits in the depths dimension until 21.3.
+**Status:** Built except old worlds (PLAN 21.0–21.3; 21.4 to do; the city not seen in game).
 
 - [x] Design: the final zone as the realm's fourth sector behind the Citadel Gate — DESIGN §4.1, §4.5
 - [x] Four sectors (final zone 60°, radius 1300), the Citadel Gate at the plaza
-- [ ] The Citadel generated in its sector; the depths dimension removed
+- [x] The Citadel generated in its sector; the depths dimension removed
 - [x] Fog wall: look and server lock (no pearls, chorus, elytra or riptide past it); the look redone as a volume in the overhaul (`FogWallDraw`)
 - [ ] Old worlds' realm dimensions regenerated (progress kept)
 

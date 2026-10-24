@@ -1,8 +1,0 @@
-{
-  "type": "embervoid:realm_feature",
-  "biomes": "#embervoid:ashen_reach_depths",
-  "spawn_overrides": {},
-  "step": "surface_structures",
-  "terrain_adaptation": "none",
-  "feature": "landing"
-}

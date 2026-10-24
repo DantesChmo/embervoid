@@ -3,6 +3,7 @@ package com.embervoid.realm;
 import com.embervoid.realm.api.RealmTeleports;
 import com.embervoid.realm.api.ShrineHooks;
 import com.embervoid.realm.worldgen.RealmFeatures;
+import com.embervoid.realm.worldgen.RealmRoads;
 import com.embervoid.sanctum.SanctumBlocks;
 import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
@@ -20,25 +21,60 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.GlobalPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.Heightmap;
 import net.minecraft.world.World;
 
 /** Server-side realm rules: respawn, shrines, the void edge and protected landings/arenas. */
 public final class RealmEvents {
 	/** How far past the realm radius the void starts pushing players back. */
+
+	/** Where a player who died at x, z in world {@code died} comes back, if that is a realm dimension (see above). */
+	public static void respawnAfterDeath(ServerPlayerEntity player, RegistryKey<World> died, double x, double z) {
+		RealmDefinition realm = Realms.byWorld(died);
+		if (realm == null) {
+			return;
+		}
+		if (FinalZoneLock.region(realm).contains(x, z)) {
+			if (!RealmTeleports.toShrine(player, RealmTeleports.finalShrineKey(died)) && !toCitadelShrine(player, realm)) {
+				RealmTeleports.toLanding(player, died);
+			}
+		} else if (!RealmTeleports.toShrine(player, died)) {
+			RealmTeleports.toLanding(player, died);
+		}
+	}
+
+	/** To the first Citadel shrine beside the gate road's end ({@link RealmRoads#citadelShrine}); false if there is none. */
+	private static boolean toCitadelShrine(ServerPlayerEntity player, RealmDefinition realm) {
+		int[] column = RealmRoads.citadelShrine(realm);
+		ServerWorld world = player.getServer().getWorld(realm.world());
+		if (column == null || world == null) {
+			return false;
+		}
+		world.getChunk(column[0] >> 4, column[1] >> 4);
+		int top = world.getTopY(Heightmap.Type.WORLD_SURFACE, column[0], column[1]);
+		BlockPos.Mutable shrine = new BlockPos.Mutable(column[0], top, column[1]);
+		while (!world.getBlockState(shrine).isOf(SanctumBlocks.EMBER_SHRINE)) {
+			if (shrine.getY() < top - 4) {
+				return false;
+			}
+			shrine.move(0, -1, 0);
+		}
+		RealmTeleports.teleport(player, world, RealmTeleports.standingSpot(world, shrine.toImmutable()), player.getYaw());
+		return true;
+	}
 	private static final int VOID_MARGIN = 32;
 
 	public static void register() {
-		// Death in a realm dimension: respawn at the last shrine rested at in that dimension, else its landing (the
-		// open zones and the final zone each count on their own, DESIGN §4.2). The bed spawn stays as it was.
-		// The final zone is still the depths dimension until PLAN 21.3; a death in the realm dimension's final sector
-		// follows the open-zone rules until 21.3 gives the sector its own shrines and the Citadel's first shrine.
+		// Death in a realm dimension: respawn at the last shrine rested at in that dimension, else its landing. The open
+		// zones and the final zone each count on their own (DESIGN §4.2, PLAN 21.3): a death in the final sector goes to
+		// the last shrine rested at there, else the first Citadel shrine just inside the gate. The bed spawn stays.
 		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
-			RegistryKey<World> died = oldPlayer.getWorld().getRegistryKey();
-			if (!alive && Realms.byWorld(died) != null && !RealmTeleports.toShrine(newPlayer, died)) {
-				RealmTeleports.toLanding(newPlayer, died);
+			if (!alive) {
+				respawnAfterDeath(newPlayer, oldPlayer.getWorld().getRegistryKey(), oldPlayer.getX(), oldPlayer.getZ());
 			}
 		});
 		// Beds work in realms (DESIGN §10.1) but never move the player's spawn point there.
@@ -47,7 +83,9 @@ public final class RealmEvents {
 		ShrineHooks.RESTED.register((player, world, pos) -> {
 			RealmDefinition realm = Realms.byWorld(world.getRegistryKey());
 			if (realm != null) {
-				RealmPlayerData.get(player).shrines.put(world.getRegistryKey().getValue(), GlobalPos.create(world.getRegistryKey(), pos));
+				Identifier key = FinalZoneLock.region(realm).contains(pos.getX() + 0.5, pos.getZ() + 0.5)
+						? RealmTeleports.finalShrineKey(world.getRegistryKey()) : world.getRegistryKey().getValue();
+				RealmPlayerData.get(player).shrines.put(key, GlobalPos.create(world.getRegistryKey(), pos));
 			}
 		});
 
@@ -67,7 +105,7 @@ public final class RealmEvents {
 			if (world.getTime() % 10 == 0) {
 				RealmDefinition realm = Realms.byWorld(world.getRegistryKey());
 				if (realm != null) {
-					pushBackFromVoid(world, realm.radiusOf(world.getRegistryKey()) + VOID_MARGIN);
+					pushBackFromVoid(world, realm.radius() + VOID_MARGIN);
 				}
 			}
 		});

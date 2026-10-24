@@ -7,9 +7,10 @@ import net.minecraft.util.dynamic.CodecHolder;
 import net.minecraft.world.gen.densityfunction.DensityFunction;
 
 /**
- * Density function {@code embervoid:citadel_terrain} (PLAN 13.1): the Burning City's ground from
- * {@link CitadelLayout#groundHeight}: the lower city around the landing, the hill's plateau with the Citadel, flat
- * terraces under its pieces and the courtyard. Positive below the ground, {@code 1 / scale} per block.
+ * Density function {@code embervoid:citadel_terrain} (PLAN 13.1, 21.3): the Burning City's ground from
+ * {@link CitadelLayout#groundHeight}: the lower city around the entry plaza, the hill's plateau with the Citadel, flat
+ * terraces under its pieces and the courtyard. Positive below the ground, {@code 1 / scale} per block. Sampled at
+ * realm columns, turned into the plan's frame ({@link CitadelLayout#planX}); the realm's final zone shape.
  *
  * @param hills     2D hills noise (the realm's {@code realm_hills}), roughly in [-1, 1]
  * @param roughness 3D noise that breaks up the ground away from the terraces, most on the hill's sides
@@ -29,8 +30,8 @@ public record CitadelTerrain(DensityFunction hills, DensityFunction roughness, d
 
 	@Override
 	public double sample(NoisePos pos) {
-		double x = pos.blockX();
-		double z = pos.blockZ();
+		double x = CitadelLayout.planX(pos.blockX());
+		double z = CitadelLayout.planZ(pos.blockZ());
 		double ground = CitadelLayout.groundHeight(x, z, hills.sample(pos));
 		double density = (ground + 0.5 - pos.blockY()) / scale;
 		double rough = 1 - CitadelLayout.flatness(x, z);

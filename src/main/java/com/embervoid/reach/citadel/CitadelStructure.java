@@ -13,7 +13,7 @@ import java.util.Optional;
  * of {@link CitadelLayout} on the terrain {@link CitadelTerrain} shaped for them. Not a vanilla jigsaw: a jigsaw turns
  * its start piece at random and reaches only 128 blocks, while this route has to meet the courtyard (an arena site at
  * a fixed spot) and the hill. Placed once, by reach-world's {@code realm_feature} placement at
- * {@link CitadelLayout#START_X}, {@link CitadelLayout#START_Z}.
+ * {@link CitadelLayout#START_X}, {@link CitadelLayout#START_Z} turned into the realm.
  */
 public class CitadelStructure extends Structure {
 	public static final Codec<CitadelStructure> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -26,7 +26,8 @@ public class CitadelStructure extends Structure {
 
 	@Override
 	protected Optional<StructurePosition> getStructurePosition(Context context) {
-		BlockPos start = new BlockPos(CitadelLayout.START_X, CitadelLayout.PLATEAU_Y, CitadelLayout.START_Z);
+		BlockPos start = new BlockPos((int) CitadelLayout.realmX(CitadelLayout.START_X), CitadelLayout.PLATEAU_Y,
+				(int) CitadelLayout.realmZ(CitadelLayout.START_Z));
 		return Optional.of(new StructurePosition(start, collector -> {
 			for (CitadelLayout.Piece piece : CitadelLayout.PIECES) {
 				collector.addPiece(new CitadelPiece(context.structureTemplateManager(), piece));

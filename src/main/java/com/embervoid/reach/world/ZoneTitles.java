@@ -23,8 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Zone names (PLAN 9.3): crossing into another zone of a realm shows its name as a title, like a Souls area name.
- * Keys {@code embervoid.zone.<realm world path>.<landing|zone_a|zone_b|…|final|depths>}; nothing past the abyss edge.
- * {@code depths} is the old final-zone dimension, removed in PLAN 21.3.
+ * Keys {@code embervoid.zone.<realm world path>.<landing|zone_a|zone_b|…|final>}; nothing past the abyss edge.
  */
 public final class ZoneTitles {
 	private static final int CHECK_EVERY = 10;
@@ -44,9 +43,6 @@ public final class ZoneTitles {
 			return null;
 		}
 		String prefix = "embervoid.zone." + realm.world().getValue().getPath() + ".";
-		if (realm.depths().equals(world.getRegistryKey())) {
-			return prefix + "depths";
-		}
 		int zone = RealmMobLevels.zoneAt(world, player.getBlockPos());
 		return switch (zone) {
 			case RealmLayout.LANDING -> prefix + "landing";

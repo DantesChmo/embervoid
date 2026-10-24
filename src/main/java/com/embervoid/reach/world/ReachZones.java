@@ -20,8 +20,7 @@ public final class ReachZones {
 	/** Sunken Necropolis, zone_c. */
 	public static final RegistryKey<Biome> NECROPOLIS = biome("ashen_reach_zone_c");
 	public static final RegistryKey<Biome> ABYSS = biome("ashen_reach_abyss");
-	public static final RegistryKey<Biome> DEPTHS = biome("ashen_reach_depths");
-	/** The final zone's sector of the realm dimension (PLAN 21.1): burnt outskirts until 21.3 builds the Citadel there. */
+	/** The final zone's sector of the realm dimension (PLAN 21.1, 21.3): the Burning City and the Smoldering Citadel. */
 	public static final RegistryKey<Biome> CITADEL = biome("ashen_reach_citadel");
 
 	/** Zone fog (PLAN 9.1): Fields grey-ochre, Woods dense grey-green, Necropolis blue-grey; dusk-dark colours. */
@@ -31,7 +30,6 @@ public final class ReachZones {
 			WOODS, new FogStack.Layer(0.60f, 0x38412F, true),
 			NECROPOLIS, new FogStack.Layer(0.45f, 0x343C49, true),
 			ABYSS, new FogStack.Layer(0.35f, 0x2A2622, true),
-			DEPTHS, new FogStack.Layer(0.40f, 0x4A2318, true),
 			CITADEL, new FogStack.Layer(0.40f, 0x4A2318, true));
 
 	/** Fog of a realm biome, or null for biomes without zone fog. */

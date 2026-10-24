@@ -1,6 +1,6 @@
 {
   "type": "embervoid:citadel",
-  "biomes": "#embervoid:ashen_reach_depths",
+  "biomes": "#embervoid:ashen_reach",
   "spawn_overrides": {},
   "step": "surface_structures",
   "terrain_adaptation": "none"

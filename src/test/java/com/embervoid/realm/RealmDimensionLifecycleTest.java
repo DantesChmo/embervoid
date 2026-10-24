@@ -14,12 +14,11 @@ class RealmDimensionLifecycleTest {
 	private static final Identifier NETHER = new Identifier("the_nether");
 	private static final Identifier END = new Identifier("the_end");
 	private static final Identifier REALM = new Identifier("embervoid", "ashen_reach");
-	private static final Identifier DEPTHS = new Identifier("embervoid", "ashen_reach_depths");
-	private static final Set<Identifier> OURS = Set.of(REALM, DEPTHS);
+	private static final Set<Identifier> OURS = Set.of(REALM);
 
 	@Test
 	void vanillaPlusRealmsIsStable() {
-		assertTrue(RealmDimensionLifecycle.onlyVanillaBesides(List.of(OVERWORLD, NETHER, END, REALM, DEPTHS), OURS));
+		assertTrue(RealmDimensionLifecycle.onlyVanillaBesides(List.of(OVERWORLD, NETHER, END, REALM), OURS));
 	}
 
 	@Test
@@ -30,11 +29,11 @@ class RealmDimensionLifecycleTest {
 	@Test
 	void anotherModsDimensionStillWarns() {
 		assertFalse(RealmDimensionLifecycle.onlyVanillaBesides(
-				List.of(OVERWORLD, NETHER, END, REALM, DEPTHS, new Identifier("othermod", "moon")), OURS));
+				List.of(OVERWORLD, NETHER, END, REALM, new Identifier("othermod", "moon")), OURS));
 	}
 
 	@Test
 	void missingVanillaDimensionStillWarns() {
-		assertFalse(RealmDimensionLifecycle.onlyVanillaBesides(List.of(OVERWORLD, END, REALM, DEPTHS), OURS));
+		assertFalse(RealmDimensionLifecycle.onlyVanillaBesides(List.of(OVERWORLD, END, REALM), OURS));
 	}
 }

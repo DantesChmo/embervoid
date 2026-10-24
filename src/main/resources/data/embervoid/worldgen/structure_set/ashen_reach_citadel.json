@@ -2,14 +2,15 @@
   "placement": {
     "type": "embervoid:realm_feature",
     "salt": 718222,
-    "start_angle": 90.001,
+    "start_angle": -0.001,
+    "sector_width": 180.0,
     "angle_spread": 0.0,
-    "min_distance": 160,
-    "max_distance": 160
+    "min_distance": 641,
+    "max_distance": 641
   },
   "structures": [
     {
-      "structure": "embervoid:ashen_reach_depths_citadel",
+      "structure": "embervoid:ashen_reach_citadel",
       "weight": 1
     }
   ]

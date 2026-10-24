@@ -1,6 +1,5 @@
 package com.embervoid.realm;
 
-import com.embervoid.realm.api.RealmTeleports;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -27,10 +26,7 @@ import net.minecraft.world.World;
  * their own: solid to a player the {@link FinalZoneLock} keeps out (and to anything that is not a player), open to one
  * who has beaten all the realm's zone bosses, who walks through it into the sector. The client knows the clearance
  * too (progress is synced), so both sides agree on the collision.
- *
- * <p>Until PLAN 21.3 the Smoldering Citadel is still in the depths dimension, so using the gate with clearance also
- * teleports there as the Sealed Gate did, and in the depths the same gate leads back to the landing; 21.3 removes the
- * depths branches below.
+ * Using it says which: open, or how many zone bosses still stand.
  */
 public class CitadelGateBlock extends Block {
 	public CitadelGateBlock(Settings settings) {
@@ -74,23 +70,13 @@ public class CitadelGateBlock extends Block {
 			return ActionResult.PASS;
 		}
 		if (player instanceof ServerPlayerEntity serverPlayer) {
-			if (realm.depths().equals(world.getRegistryKey())) {
-				RealmTeleports.toLanding(serverPlayer, realm.world());
-				RealmTeleports.travelled(serverPlayer);
+			long remaining = remainingZoneBosses(serverPlayer, realm);
+			if (remaining == 0) {
+				serverPlayer.sendMessage(Text.translatable("embervoid.realm.gate.open"), true);
+				serverPlayer.playSound(RealmSounds.GATE_OPEN, SoundCategory.BLOCKS, 1.0f, 1.0f);
 			} else {
-				long remaining = remainingZoneBosses(serverPlayer, realm);
-				if (remaining == 0 && !RealmConfig.get().depthsOpen()) {
-					serverPlayer.sendMessage(Text.translatable("embervoid.realm.gate.forming"), true);
-					serverPlayer.playSound(RealmSounds.GATE_SEALED, SoundCategory.BLOCKS, 1.0f, 1.0f);
-				} else if (remaining == 0) {
-					serverPlayer.sendMessage(Text.translatable("embervoid.realm.gate.open"), true);
-					serverPlayer.playSound(RealmSounds.GATE_OPEN, SoundCategory.BLOCKS, 1.0f, 1.0f);
-					RealmTeleports.toLanding(serverPlayer, realm.depths());
-					RealmTeleports.travelled(serverPlayer);
-				} else {
-					serverPlayer.sendMessage(Text.translatable("embervoid.realm.gate.sealed", remaining), true);
-					serverPlayer.playSound(RealmSounds.GATE_SEALED, SoundCategory.BLOCKS, 1.0f, 1.0f);
-				}
+				serverPlayer.sendMessage(Text.translatable("embervoid.realm.gate.sealed", remaining), true);
+				serverPlayer.playSound(RealmSounds.GATE_SEALED, SoundCategory.BLOCKS, 1.0f, 1.0f);
 			}
 		}
 		return ActionResult.success(world.isClient);

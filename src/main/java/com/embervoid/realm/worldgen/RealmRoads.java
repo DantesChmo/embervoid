@@ -65,6 +65,25 @@ public final class RealmRoads {
 		return RoadLayout.gateRoad(realm.sectors().finalCenter(), PLAZA_RADIUS, GATE_ROAD_END);
 	}
 
+	/** How far beside the gate road's end the first Citadel shrine stands (PLAN 21.3). */
+	public static final double CITADEL_SHRINE_SIDE = 4;
+
+	/**
+	 * Column (x, z) of the first Citadel shrine, just inside the Citadel Gate beside the gate road's end (PLAN 21.3): the
+	 * final zone's respawn until the player rests at another shrine there. Null for a realm without a final sector.
+	 */
+	@Nullable
+	public static int[] citadelShrine(RealmDefinition realm) {
+		if (!realm.sectors().hasFinal()) {
+			return null;
+		}
+		double angle = realm.sectors().finalCenter();
+		double dirX = Math.cos(angle);
+		double dirZ = Math.sin(angle);
+		return new int[]{(int) Math.round(dirX * GATE_ROAD_END - dirZ * CITADEL_SHRINE_SIDE),
+				(int) Math.round(dirZ * GATE_ROAD_END + dirX * CITADEL_SHRINE_SIDE)};
+	}
+
 	/** Every road painted in the world: {@link #of} and the {@link #gate} road. */
 	public static List<RoadLayout.Road> painted(ServerWorld world) {
 		List<RoadLayout.Road> roads = of(world);
@@ -82,8 +101,13 @@ public final class RealmRoads {
 		return arenas(world.getChunkManager().getStructurePlacementCalculator());
 	}
 
+	/**
+	 * The zone arenas the roads lead to, by boss id. The realm boss's arena in the final sector is left out: only the
+	 * gate road goes there (PLAN 21.3).
+	 */
 	public static List<RealmArenas.Location> arenas(StructurePlacementCalculator calculator) {
 		return RealmArenas.all(calculator).stream()
+				.filter(a -> Realms.ALL.stream().noneMatch(realm -> realm.finalBoss().equals(a.spec().bossId())))
 				.sorted(Comparator.comparing(a -> a.spec().bossId().toString()))
 				.toList();
 	}

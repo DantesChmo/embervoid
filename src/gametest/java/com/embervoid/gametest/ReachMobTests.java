@@ -150,7 +150,7 @@ public final class ReachMobTests implements FabricGameTest {
 				ReachMobs.FIELDS, Set.of(ReachMobs.CINDER_HUSK, ReachMobs.ASH_STALKER, ReachMobs.ASHEN_CARRION),
 				ReachMobs.WOODS, Set.of(ReachMobs.WITHERED_THRALL, ReachMobs.LANTERN_HAG),
 				ReachMobs.NECROPOLIS, Set.of(ReachMobs.RESTLESS_BONES, ReachMobs.CRYPT_MOTH),
-				ReachMobs.DEPTHS, Set.of(ReachMobs.CINDER_HOUND));
+				ReachMobs.CITADEL, Set.of(ReachMobs.CINDER_HOUND));
 		Set<EntityType<?>> realmMobs = expected.values().stream().flatMap(Set::stream).collect(Collectors.toCollection(HashSet::new));
 		realmMobs.addAll(List.of(ReachMobs.BARK_HOLLOW, ReachMobs.HOLLOW_SENTINEL, ReachMobs.GRAVE_WARDEN,
 				ReachMobs.SPARKING_MARKSMAN, ReachMobs.FURNACE_GOLEM, ReachMobs.SMOLDERING_KNIGHT));
