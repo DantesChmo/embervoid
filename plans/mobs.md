@@ -38,7 +38,9 @@ animations and effects add no user-facing string.
 | Mob | Cubes / bones | Seen offline | Not seen offline |
 |---|---|---|---|
 | Cinder Husk | 57 / 21 | Entity sheet and close-up: the hat, the ember eyes and the teeth, the open smock with the rib embers, the belt with its knot and ends, tatters at the hem, the straw tuft, the fingers; motion sheet: the swing hauls the scythe over the right shoulder and brings it down with the body, the flinch, the reel, the fall forward ending flat with the scythe thrown out | ember particles in idle and the fall, the glowmask under in-game light, the eased curves at game frame rate, the hurt / action controller blending |
+| Furnace Golem | 72 / 16 | Entity sheet: the chamfered cast-iron body, the firebox bars behind the hinged door, the eight-sided chimney with its cap, the shoulder chains; motion sheet: the slam hauled overhead and brought down, the heat shudder, the wave flinging the door open; the death from the side (sits down, tips onto its face with the arms flung ahead, the door slammed shut — first pass had the arms and the open door through the ground, fixed) | the heat overlay toggled in game, the fire pouring out on death, the shockwave and burst sizes |
+| Smoldering Knight | 76 / 20 | Entity sheet and close-up: the eight-sided great helm with the ember visor and the gold crest, the plume behind it, the breastplate's ridge and ember seams, the layered pauldrons, gauntlets with fingers, the crimson surcoat with the crown and the cape, the greatsword's gold guard and hot edge; motion sheet: the three blows of the combo, the crouch and the level thrust of the lunge (first pass thrust upward, fixed with a sword-bone turn), the death on one knee then onto the face with the sword laid flat | the swing trails and the finisher's scorch in game, the ember stream along the dash, the glowing edge under in-game light |
 
 ## Status
 
-In progress; mobs are committed one by one on `claude/mobs`.
+Done: all 14 mobs committed one by one on `claude/mobs`; the Golem and the Knight were finished after the usage limit stopped the track (their rows above; earlier mobs are described in their commit messages).

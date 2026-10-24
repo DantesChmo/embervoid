@@ -2769,114 +2769,278 @@ def furnace_golem():
 
 
 # --- Citadel: Smoldering Knight --------------------------------------------------------------------------------------
-# The king's guard: blackened plate split by ember seams, a tattered crimson surcoat with the gold crown, a crested
-# great helm with a red plume, a greatsword with a glowing edge. 3-hit combo; a lunge after a 15-tick crouch.
-
-CRIMSON = ramp("2a0d0c", "3f1411", "571b16", "70241c", "8a2f22")
-GOLD = ramp("5a3d12", "7f5a1a", "a67b26", "c99a36", "e8be55")
-BLACK_STEEL = ramp("121214", "1b1b1e", "252529", "303035", "3d3d43", "4e4e55")
-
+# The king's guard: blackened plate split by ember seams (a breastplate with a ridge, lames down the belly, a gorget,
+# layered pauldrons, couters, gauntlets with fingers, cuisses, poleyns, greaves and sabatons) over a mail skirt and
+# tassets, a tattered crimson surcoat with the gold crown and a cape in three segments, an eight-sided great helm
+# with an ember-lit visor, a gold crest and a crimson plume that swings, a greatsword with a gold guard, a ricasso
+# and an ember-hot edge. 3-hit combo; a lunge after a 15-tick crouch.
 
 def smoldering_knight():
-    steel = Material(BLACK_STEEL, base=2.8, noise=0.5, edge=0.8, grad=1.0, top=1.0)
+    steel = Material(mk.BLACK_STEEL, base=3.0, noise=0.4, speck=0.04, edge=0.6, grad=1.0, top=0.9, bevel=0.8)
+    gold = Material(mk.GOLD_TRIM, base=3.4, noise=0.4, top=0.8, bevel=0.6)
+    crimson = Material(mk.CRIMSON_CLOTH, base=2.8, noise=0.5, grain="v", bevel=0.3)
+    S = mk.BLACK_STEEL
+
+    def scorched(face, rng):
+        scatter(face, rng, max(1, face.w * face.h // 70), mk.SOOT[1])
+        mk.specular(face, rng, S[6], 1, 1)
+        mk.edge_shadow(face, rng, -10)
 
     def seams(face, rng):
+        # Plate split by seams that still smoulder.
+        scorched(face, rng)
         if face.side():
-            for y in range(3, face.h, 5):
-                face.hline(0, y, face.w, BLACK_STEEL[0])
-                if rng.random() < 0.7:
-                    face.lit(rng.randrange(face.w), y, EMBER, 0.9)
+            for y in range(3, face.h - 1, 4):
+                face.hline(0, y, face.w, S[0])
+                if rng.random() < 0.6:
+                    x = rng.randrange(face.w)
+                    face.lit(x, y, EMBER, 0.9)
+                    if x + 1 < face.w and rng.random() < 0.5:
+                        face.lit(x + 1, y, EMBER_DEEP, 0.7)
+
+    def riveted(face, rng):
+        scorched(face, rng)
+        if face.side():
+            mk.rivet_ring(face, S[0], S[6], 1, 3)
+
+    def breastplate(face, rng):
+        seams(face, rng)
+        if face.name == "front":
+            face.vline(face.cx, 0, face.h, S[6])  # the ridge
+            face.vline(face.cx - 1, 0, face.h, S[1])
+            ember_cracks(face, rng, 2, EMBER_HOT, EMBER, 0.9, (2, 4))
+
+    def gold_band(face, rng):
+        if face.side():
+            band(face, face.h - 1, mk.GOLD_TRIM[5])
+            band(face, 0, mk.GOLD_TRIM[1])
+
+    bones, top = mk.dense_humanoid(legs=13, body=(9, 14, 5), head=(8, 8, 8), arm=(4, 14, 4), leg=(4, 4),
+                                   mats={"body": steel.but(base=2.6), "head": Material(mk.CHAR, base=1.0, noise=0.4),
+                                         "arm": steel.but(base=2.7), "leg": steel.but(base=2.6), "hand": steel.but(base=2.3),
+                                         "foot": steel.but(base=2.2)},
+                                   decals={"body": {"all": seams}, "arm": {"all": seams}, "fore": {"all": seams},
+                                           "leg": {"all": seams}, "shin": {"all": riveted}, "foot": {"all": scorched}})
 
     def helm(face, rng):
+        scorched(face, rng)
         if face.name == "front":
-            face.hline(1, 3, face.w - 2, VOID)
-            face.lit(2, 3, EMBER_HOT, 1.0)
-            face.lit(face.w - 3, 3, EMBER_HOT, 1.0)
-            face.vline(face.cx, 4, 3, BLACK_STEEL[0])
-            for x in range(1, face.w - 1, 2):
-                face.set(x, 6, BLACK_STEEL[0])
-        if face.side():
-            band(face, 0, GOLD[2])
+            face.hline(1, 3, face.w - 2, VOID)  # the visor slit
+            face.lit(face.cx - 2, 3, EMBER_HOT, 1.0)
+            face.lit(face.cx + 1, 3, EMBER_HOT, 1.0)
+            face.lit(face.cx - 1, 3, EMBER_DEEP, 0.5)
+            face.lit(face.cx, 3, EMBER_DEEP, 0.5)
+            face.vline(face.cx, 4, 3, S[6])
+            for x in range(1, face.w - 1, 2):  # breathing holes
+                for y in (6, 7):
+                    if x != face.cx:
+                        face.set(x, y, VOID)
+            face.hline(0, 1, face.w, mk.GOLD_TRIM[4])  # the gold brow
+        elif face.side():
+            face.hline(0, 1, face.w, mk.GOLD_TRIM[4])
+            mk.rivet_ring(face, S[0], S[6], 1, 3)
         if face.name == "bottom":
             clear_all(face)
 
-    bones, top = humanoid(legs=13, body=(9, 14, 5), head=(8, 8, 8), arm=(4, 14, 4), leg=(4, 4),
-                          mats={"body": steel, "head": Material(CHAR, base=1.0, noise=0.4), "arm": steel.but(base=2.5),
-                                "leg": steel.but(base=2.4)},
-                          decals={"body": {"all": seams}, "arm": {"all": seams}, "leg": {"all": seams}})
-    head = bone(bones, "head")
-    head.add(Box([-4.5, top, -4.5], [9, 9, 9], steel.but(base=3.0), {"all": helm}),
-             Box([-0.5, top + 9, -3], [1, 2, 7], Material(GOLD, base=2.6, noise=0.4)),
-             Box([-0.5, top + 10, -1], [1, 3, 7], Material(CRIMSON, base=3.0, noise=0.6, grain="h"),
-                 {"sides": lambda f, r: ragged_edge(f, r, "right", 2, 0.5)}, rotation=[-20, 0, 0],
-                 pivot=[0, top + 10, 0]))
-    surcoat = Material(CRIMSON, base=2.6, noise=0.6, grain="v")
+    head = mk.bone(bones, "head")
+    head.add(*mk.octagon([-4.5, top, -4.5], [9, 9, 9], steel.but(base=3.2), {"all": helm}, shrink=0.82),
+             Box([-0.7, top + 8.6, -4.6], [1.4, 1.8, 9.2], gold, {"sides": lambda f, r: mk.specular(f, r, mk.GOLD_TRIM[6], 0, 0)}),  # the crest
+             Box([-1.4, top + 9.6, -4.2], [2.8, 1.2, 1.8], gold.but(base=4.0)))  # the crest's fleur
+    bones += chain_bones("plume", "head", [0, top + 10, 0.5], 3, 3.0, crimson, thickness=1.6, rotation=[70, 0, 0],
+                         box=lambda i, o, s: [Box([o[0] - 0.4 + i * 0.2, o[1], o[2] - 0.4 + i * 0.2], [2.4 - i * 0.4, s[1], 2.4 - i * 0.4],
+                                                  crimson.but(base=3.4 - i * 0.5), {"sides": lambda f, r: ragged_edge(f, r, "bottom", 1, 0.5)})])
 
     def coat(face, rng):
         if face.name in ("front", "back"):
-            ragged_edge(face, rng, "bottom", 3, 0.5)
+            trim(face, mk.GOLD_TRIM[3], ("left", "right"))
+            mk.fold_lines(face, rng, 3, -14)
             holes(face, rng, 1)
-            trim(face, GOLD[1], ("left", "right"))
-            if face.name == "front":
-                cx = face.cx
-                face.hline(cx - 2, 4, 4, GOLD[4])          # the crown of the Ashen King
-                for x in (cx - 2, cx, cx + 1):
-                    face.set(x, 3, GOLD[3])
-                face.set(cx - 1, 2, GOLD[4])
         else:
             clear_all(face)
 
-    body = bone(bones, "body")
-    body.add(Box([-3.5, 7, -2.8], [7, 16, 0], surcoat, {"all": coat}),
-             Box([-3.5, 7, 2.8], [7, 16, 0], surcoat, {"all": coat}),
-             Box([-5, 12, -3], [10, 3, 6], steel.but(base=2.0), {"all": lambda f, r: band(f, 1, GOLD[2])},
-                 inflate=0.3))
-    pauldron = Box([-9.5, top - 4, -3], [5, 4, 6], steel.but(base=3.2),
-                   {"all": lambda f, r: (seams(f, r), band(f, f.h - 1, GOLD[2]))}, inflate=0.3)
-    bone(bones, "right_arm").add(pauldron)
-    bone(bones, "left_arm").add(mirror_box(pauldron))
+    def coat_crown(face, rng):
+        coat(face, rng)
+        if face.name == "front":
+            cx = face.cx  # the crown of the Ashen King
+            face.hline(cx - 2, 3, 4, mk.GOLD_TRIM[5])
+            for x in (cx - 2, cx, cx + 1):
+                face.set(x, 2, mk.GOLD_TRIM[4])
+            face.set(cx - 1, 1, mk.GOLD_TRIM[6])
 
-    def edge(face, rng):
+    def coat_hem(face, rng):
+        coat(face, rng)
+        if face.name in ("front", "back"):
+            ragged_edge(face, rng, "bottom", 2, 0.5)
+
+    body = mk.bone(bones, "body")
+    body.add(
+        Box([-4.8, 19, -3.4], [9.6, 8, 1.2], steel.but(base=3.4), {"all": breastplate}, inflate=0.3),
+        Box([-4.8, 19, 2.2], [9.6, 8, 1.2], steel.but(base=3.0), {"all": riveted}, inflate=0.3),  # the back plate
+        Box([-5, 25.5, -3.2], [10, 2.2, 6.4], steel.but(base=3.6), {"all": lambda f, r: (riveted(f, r), gold_band(f, r))}, inflate=0.4),  # gorget
+        Box([-4.4, 17.2, -3.3], [8.8, 1.6, 0.9], steel.but(base=3.2), {"all": riveted}, inflate=0.2),  # lames down the belly
+        Box([-4.2, 15.6, -3.2], [8.4, 1.6, 0.9], steel.but(base=3.0), {"all": riveted}, inflate=0.2),
+        Box([-5, 14, -3], [10, 1.6, 6], Material(mk.LEATHER, base=2.0, noise=0.4, bevel=0.5),
+            {"front": lambda f, r: (f.rect(f.cx - 1, 0, 2, f.h, mk.GOLD_TRIM[5]), f.set(f.cx - 1, 0, mk.GOLD_TRIM[6]))}, inflate=0.6),  # belt
+        Box([-4.6, 10, -2.8], [9.2, 4, 5.6], Material(mk.STEEL, base=2.2, noise=0.4),
+            {"sides": lambda f, r: (mail(f, r, mk.STEEL[0], mk.STEEL[4]), ragged_edge(f, r, "bottom", 1, 0.4))}, inflate=0.4),  # mail skirt
+        Box([-6, 10.5, -3.8], [3.5, 4, 1.2], steel.but(base=3.0), {"all": riveted}, inflate=0.2, rotation=[0, 0, 8], pivot=[-4, 14.5, -3]),  # tassets
+        Box([2.5, 10.5, -3.8], [3.5, 4, 1.2], steel.but(base=3.0), {"all": riveted}, inflate=0.2, rotation=[0, 0, -8], pivot=[4, 14.5, -3]),
+    )
+    bones += chain_bones("coat", "body", [0, 15, -4.2], 2, 4.0, crimson, thickness=0.3,
+                         box=lambda i, o, s: [Box([-3.5, o[1], -4.4], [7, s[1], 0.4], crimson, {"all": coat_crown if i == 0 else coat_hem})])
+    bones += chain_bones("cape", "body", [0, 26, 3.6], 3, 5.0, crimson, thickness=0.4,
+                         box=lambda i, o, s: [Box([-4.5 - i * 0.5, o[1], 3.5], [9 + i, s[1], 0.5], crimson.but(base=2.6 - i * 0.2),
+                                                  {"all": coat_hem if i == 2 else coat})])
+    pauldron = Box([-10.5, 24, -3.5], [6, 3.2, 7], steel.but(base=3.4), {"all": lambda f, r: (seams(f, r), gold_band(f, r))}, inflate=0.3)
+    lame = Box([-10.2, 21.6, -3.2], [5.2, 2.6, 6.4], steel.but(base=3.0), {"all": riveted}, inflate=0.2)
+    couter = Box([-8.9, 16.6, -2.7], [4.8, 2.2, 5.4], steel.but(base=3.4), {"all": riveted}, inflate=0.2)
+    couter_fan = Box([-9.6, 16.2, -1.5], [1, 3, 3], steel.but(base=3.6), {"all": scorched})
+    vambrace = Box([-8.8, 13, -2.5], [4.6, 3.6, 5], steel.but(base=3.1), {"all": seams}, inflate=0.2)
+    cuff = Box([-9.1, 11.6, -2.7], [5.2, 1.6, 5.4], steel.but(base=3.5), {"all": lambda f, r: band(f, 0, mk.GOLD_TRIM[4]) if f.side() else None}, inflate=0.2)
+    r_fingers = fingers(-8.6, 11, -1.8, 3, (1, 2, 1), steel.but(base=2.4), spread=0.3, curl=60, thumb=(3.4, 1))
+    mk.bone(bones, "right_arm").add(pauldron, lame)
+    mk.bone(bones, "left_arm").add(mirror_box(pauldron), mirror_box(lame))
+    mk.bone(bones, "right_fore").add(couter, couter_fan, vambrace, cuff, *r_fingers)
+    mk.bone(bones, "left_fore").add(*[mirror_box(b) for b in [couter, couter_fan, vambrace, cuff] + r_fingers])
+    cuisse = Box([-4.4, 8, -2.8], [4.8, 5, 1.2], steel.but(base=3.2), {"all": seams}, inflate=0.2)
+    poleyn = Box([-4.5, 5.4, -3.2], [5, 2.6, 1.6], steel.but(base=3.6), {"all": riveted}, inflate=0.2)
+    greave = Box([-4.3, 1.5, -2.9], [4.6, 4, 1.2], steel.but(base=3.0), {"all": riveted}, inflate=0.2)
+    sabaton = Box([-4.4, 0, -3.9], [4.8, 1.3, 1.8], steel.but(base=3.2), {"top": lambda f, r: mk.specular(f, r, S[6], 0, 0)})
+    mk.bone(bones, "right_leg").add(cuisse, poleyn)
+    mk.bone(bones, "left_leg").add(mirror_box(cuisse), mirror_box(poleyn))
+    mk.bone(bones, "right_shin").add(greave, sabaton)
+    mk.bone(bones, "left_shin").add(mirror_box(greave), mirror_box(sabaton))
+
+    def blade(face, rng):
+        # The edges glow from the forge; the flats carry a dark fuller with an ember line down it.
         if face.name in ("top", "bottom"):
             for y in range(face.h):
-                face.lit(0, y, EMBER, 0.8)
-                face.lit(face.w - 1, y, EMBER_DEEP, 0.6)
-        if face.side():
-            face.hline(0, 0, face.w, BLACK_STEEL[5])
+                face.lit(0, y, EMBER_HOT if y % 4 else EMBER, 0.9)
+        elif face.name in ("left", "right"):
+            face.hline(0, 0, face.w, S[6])
+            face.hline(0, face.h - 1, face.w, S[5])
+            face.hline(1, face.h // 2, face.w - 2, S[0])
+            for x in range(2, face.w - 2, 3):
+                face.lit(x, face.h // 2, EMBER_DEEP, 0.6)
 
-    bones.append(Bone("sword", [-6.5, 13, 0], "right_arm", None, [
-        Box([-7, 12, -22], [1, 3, 18], Material(BLACK_STEEL, base=3.6, noise=0.4), {"all": edge}),
-        Box([-7, 12.5, -23], [1, 2, 1], Material(BLACK_STEEL, base=4.0, noise=0.3)),
-        Box([-8.5, 12.5, -4], [4, 2, 1], Material(GOLD, base=2.6, noise=0.4)),
-        Box([-7, 12.5, -3], [1, 2, 3], Material(LEATHER, base=1.6, noise=0.4)),
-        Box([-7, 12.5, 0], [1, 2, 1], Material(GOLD, base=3.0, noise=0.3)),
+    edge_mat = Material(mk.BLACK_STEEL, base=4.4, noise=0.3, bevel=0.6)
+    bones.append(Bone("sword", [-6.5, 12, 0], "right_fore", None, [
+        Box([-7.1, 11.4, -3], [1.2, 1.2, 4], Material(mk.LEATHER, base=1.8, noise=0.4),
+            {"sides": lambda f, r: stitch(f, f.h // 2, mk.LEATHER[4], 2)}),  # the grip
+        Box([-7.6, 10.9, 1], [2.2, 2.2, 1.6], gold.but(base=3.8)),  # the pommel
+        Box([-9.6, 11.2, -4.3], [6.2, 1.6, 1.3], gold, {"top": lambda f, r: mk.specular(f, r, mk.GOLD_TRIM[6], 1, 0)}),  # the guard
+        Box([-10.1, 10.3, -4.3], [1, 1.4, 1.3], gold.but(base=3.0)),  # the quillons' drooping ends
+        Box([-4.1, 10.3, -4.3], [1, 1.4, 1.3], gold.but(base=3.0)),
+        Box([-7.4, 11.0, -6.8], [1.8, 2.0, 2.5], steel.but(base=3.6)),  # the ricasso
+        Box([-7.0, 10.6, -21.5], [1, 2.8, 14.7], edge_mat, {"all": blade}),
+        Box([-7.0, 11.0, -23], [1, 2, 1.5], edge_mat.but(base=4.8), {"all": blade}),
+        Box([-7.0, 11.5, -24], [1, 1, 1], edge_mat.but(base=5.0)),
     ]))
-
-    def cut(windup, length, start, end, body_y=(0, 0)):
-        return anim(length, {
-            "right_arm": rot(0, ZERO, windup, start, windup + 0.1, end, length, ZERO),
-            "body": rot(0, ZERO, windup, [0, body_y[0], 0], windup + 0.1, [0, body_y[1], 0], length, ZERO),
-        }, loop=False)
-
+    plume = chain_names("plume", 3)
+    coat_n = chain_names("coat", 2)
+    cape = chain_names("cape", 3)
+    cloth = coat_n + cape
+    chains = cloth + plume
+    held = [-8, 0, 0]        # the sword arm at rest: forward a little
+    held_fore = [-45, 0, 0]  # the forearm raised so the blade points up and out
     animations = {
-        "misc.idle": idle(3.0, 2, 1),
-        "move.walk": walk(1.1, 22, 10, 0.4),
-        "attack.combo1": cut(0.3, 0.6, [-120, 0, 40], [-40, 0, -30], (30, -30)),
-        "attack.combo2": cut(0.25, 0.55, [-60, 0, -60], [-60, 0, 50], (-30, 35)),
-        "attack.combo3": cut(0.4, 0.8, [-170, 0, 0], [-20, 0, 0]),
-        "attack.crouch": anim(0.75, {
-            "body": rot(0, ZERO, 0.75, [25, 0, 0]),
-            "right_leg": rot(0, ZERO, 0.75, [-40, 0, 0]), "left_leg": rot(0, ZERO, 0.75, [30, 0, 0]),
-            "right_arm": rot(0, ZERO, 0.75, [40, 0, 0]),
-            "root": pos(0, ZERO, 0.75, [0, -3, 0]),
-        }, loop=False),
-        "attack.lunge": anim(0.5, {
-            "right_arm": rot(0, [40, 0, 0], 0.1, [-95, 0, 0], 0.5, ZERO),
-            "body": rot(0, [25, 0, 0], 0.1, [10, 0, 0], 0.5, ZERO),
-            "root": pos(0, [0, -3, 0], 0.2, ZERO),
-        }, loop=False),
+        # Idle: it breathes behind the blade, the point lifting and dipping; the plume and the cape stir.
+        "misc.idle": mk.breathe(3.0, 1.5, 1, 2, merge(
+            lag_sway(cape, 3.0, 3, 0, phase=0.2), lag_sway(coat_n, 3.0, 2, 0), lag_sway(plume, 3.0, 6, 0, phase=0.5),
+            {"right_arm": rot(0, held, 1.5, e("easeInOutSine", [-10, 0, 2]), 3.0, e("easeInOutSine", held)),
+             "right_fore": rot(0, held_fore, 1.5, e("easeInOutSine", [-29, 0, 0]), 3.0, e("easeInOutSine", held_fore)),
+             "left_fore": rot(0, [-12, 0, 0], 3.0, [-12, 0, 0])})),
+        "move.walk": mk.weighted_walk(1.1, 22, 8, 0.5, 4, 5, extra=merge(
+            mk.limb_walk(1.1, 6, 14), lag_sway(cape, 1.1, 12, 0, phase=0.15), lag_sway(coat_n, 1.1, 10, 0),
+            lag_sway(plume, 1.1, 12, 0, phase=0.3),
+            {"right_arm": rot(0, held, 0.55, e("easeInOutSine", [-14, 0, 0]), 1.1, e("easeInOutSine", held)),
+             "right_fore": rot(0, held_fore, 1.1, held_fore)})),
+        # Combo 1: the blade drawn high over the right shoulder through the 6-tick windup, then cut down and across
+        # to the left with the body turning into it.
+        "attack.combo1": anim(0.6, merge({
+            "right_arm": rot(0, held, 0.25, e("easeInOutSine", [-135, 0, 40]), 0.3, [-140, 0, 42], 0.38, e("easeOutBack", [-40, 0, -35]), 0.6, e("easeOutSine", held)),
+            "right_fore": rot(0, held_fore, 0.25, e("easeInOutSine", [-35, 0, 0]), 0.38, e("easeOutCubic", [-5, 0, 0]), 0.6, e("easeOutSine", held_fore)),
+            "body": rot(0, ZERO, 0.25, e("easeInOutSine", [-5, 28, 0]), 0.3, [-6, 30, 0], 0.38, e("easeOutBack", [10, -30, 0]), 0.6, e("easeOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.25, e("easeInOutSine", [0, -18, 0]), 0.38, e("easeOutCubic", [5, 18, 0]), 0.6, e("easeOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 0.25, e("easeInOutSine", [-20, 0, -20]), 0.38, e("easeOutCubic", [15, 0, -10]), 0.6, e("easeOutSine", ZERO)),
+            "root": pos(0, ZERO, 0.38, e("easeOutCubic", [0, -0.5, -1.5]), 0.6, e("easeOutSine", ZERO)),
+            "right_leg": rot(0, ZERO, 0.25, e("easeInOutSine", [8, 0, 0]), 0.38, e("easeOutCubic", [-14, 0, 0]), 0.6, e("easeOutSine", ZERO)),
+            "left_leg": rot(0, ZERO, 0.25, e("easeInOutSine", [-6, 0, 0]), 0.38, e("easeOutCubic", [14, 0, 0]), 0.6, e("easeOutSine", ZERO)),
+        }, hold(chains, 0.2, ZERO), whip(cloth, 0.35, 25, 0, settle=0.22), whip(plume, 0.35, 30, 0, settle=0.22)), loop=False),
+        # Combo 2: from the left, the blade swung back across the body in a flat backhand (5-tick windup).
+        "attack.combo2": anim(0.55, merge({
+            "right_arm": rot(0, [-40, 0, -35], 0.2, e("easeInOutSine", [-75, 0, -60]), 0.25, [-76, 0, -62], 0.33, e("easeOutBack", [-75, 0, 55]), 0.55, e("easeOutSine", held)),
+            "right_fore": rot(0, [-5, 0, 0], 0.2, e("easeInOutSine", [-40, 0, 0]), 0.33, e("easeOutCubic", [-10, 0, 0]), 0.55, e("easeOutSine", held_fore)),
+            "body": rot(0, [10, -30, 0], 0.2, e("easeInOutSine", [4, -38, 0]), 0.25, [4, -40, 0], 0.33, e("easeOutBack", [6, 35, 0]), 0.55, e("easeOutSine", ZERO)),
+            "head": rot(0, [5, 18, 0], 0.2, e("easeInOutSine", [0, 20, 0]), 0.33, e("easeOutCubic", [3, -20, 0]), 0.55, e("easeOutSine", ZERO)),
+            "left_arm": rot(0, [15, 0, -10], 0.2, e("easeInOutSine", [10, 0, -20]), 0.33, e("easeOutCubic", [-25, 0, -25]), 0.55, e("easeOutSine", ZERO)),
+            "root": {"rotation": keys(0, ZERO, 0.2, e("easeInOutSine", [0, -8, 0]), 0.33, e("easeOutCubic", [0, 10, 0]), 0.55, e("easeOutSine", ZERO))},
+        }, whip(cloth, 0.3, 22, 2, settle=0.22), whip(plume, 0.3, 30, 2, settle=0.22)), loop=False),
+        # Combo 3: the finisher. Both hands take the hilt high over the helm through the 8-tick windup, the body
+        # arching back, then the blade comes down with the whole weight into a deep lunge.
+        "attack.combo3": anim(0.8, merge({
+            "right_arm": rot(0, [-75, 0, 55], 0.35, e("easeInOutSine", [-170, 0, 8]), 0.4, [-175, 0, 6], 0.48, e("easeOutBack", [-35, 0, 0]), 0.8, e("easeOutSine", held)),
+            "left_arm": rot(0, ZERO, 0.35, e("easeInOutSine", [-165, 0, -20]), 0.4, [-170, 0, -18], 0.48, e("easeOutBack", [-40, 0, -25]), 0.8, e("easeOutSine", ZERO)),
+            "right_fore": rot(0, [-10, 0, 0], 0.35, e("easeInOutSine", [-30, 0, 0]), 0.48, e("easeOutCubic", [-5, 0, 0]), 0.8, e("easeOutSine", held_fore)),
+            "left_fore": rot(0, ZERO, 0.35, e("easeInOutSine", [-35, 0, 0]), 0.48, e("easeOutCubic", [-10, 0, 0]), 0.8, e("easeOutSine", [-12, 0, 0])),
+            "body": rot(0, [6, 35, 0], 0.35, e("easeInOutSine", [-16, 0, 0]), 0.4, [-18, 0, 0], 0.48, e("easeOutBack", [26, 0, 0]), 0.8, e("easeOutSine", ZERO)),
+            "head": rot(0, [3, -20, 0], 0.35, e("easeInOutSine", [-10, 0, 0]), 0.48, e("easeOutCubic", [-12, 0, 0]), 0.8, e("easeOutSine", ZERO)),
+            "root": pos(0, ZERO, 0.35, e("easeInOutSine", [0, 0.5, 1.5]), 0.48, e("easeOutCubic", [0, -2.5, -3]), 0.8, e("easeOutSine", ZERO)),
+            "right_leg": rot(0, ZERO, 0.35, e("easeInOutSine", [8, 0, 0]), 0.48, e("easeOutCubic", [-30, 0, 0]), 0.8, e("easeOutSine", ZERO)),
+            "right_shin": rot(0, ZERO, 0.48, e("easeOutCubic", [25, 0, 0]), 0.8, e("easeOutSine", ZERO)),
+            "left_leg": rot(0, ZERO, 0.35, e("easeInOutSine", [-8, 0, 0]), 0.48, e("easeOutCubic", [28, 0, 0]), 0.8, e("easeOutSine", ZERO)),
+        }, hold(chains, 0.3, ZERO), whip(cloth, 0.46, 40, 0, settle=0.3), whip(plume, 0.46, 45, 0, settle=0.3)), loop=False),
+        # The crouch (15-tick tell): it sinks onto bent knees, the blade drawn back low beside the hip, point forward.
+        "attack.crouch": anim(0.75, merge({
+            "root": pos(0, ZERO, 0.6, e("easeInOutSine", [0, -3, 1.5]), 0.75, [0, -3.2, 1.6]),
+            "body": rot(0, ZERO, 0.6, e("easeInOutSine", [24, 12, 0]), 0.75, [25, 12, 0]),
+            "head": rot(0, ZERO, 0.6, e("easeInOutSine", [-20, -10, 0]), 0.75, [-21, -10, 0]),
+            "right_leg": rot(0, ZERO, 0.6, e("easeInOutSine", [20, 0, 0]), 0.75, [21, 0, 0]),
+            "right_shin": rot(0, ZERO, 0.6, e("easeInOutSine", [40, 0, 0]), 0.75, [42, 0, 0]),
+            "left_leg": rot(0, ZERO, 0.6, e("easeInOutSine", [-40, 0, 0]), 0.75, [-42, 0, 0]),
+            "left_shin": rot(0, ZERO, 0.6, e("easeInOutSine", [45, 0, 0]), 0.75, [46, 0, 0]),
+            "right_arm": rot(0, held, 0.6, e("easeInOutSine", [30, 0, 15]), 0.75, [32, 0, 15]),
+            "right_fore": rot(0, held_fore, 0.6, e("easeInOutSine", [-45, 0, 0]), 0.75, [-46, 0, 0]),
+            "left_arm": rot(0, ZERO, 0.6, e("easeInOutSine", [-35, 0, -15]), 0.75, [-36, 0, -15]),
+        }, lag_sway(plume, 0.75, 4, 0)), loop=False),
+        # The lunge: launched out of the crouch, the blade driven straight ahead at full reach, then recovered.
+        "attack.lunge": anim(0.5, merge({
+            "root": pos(0, [0, -3.2, 1.6], 0.08, e("easeOutCubic", [0, 0, -3]), 0.5, e("easeOutSine", ZERO)),
+            "body": rot(0, [25, 12, 0], 0.08, e("easeOutBack", [16, -10, 0]), 0.5, e("easeOutSine", ZERO)),
+            "head": rot(0, [-21, -10, 0], 0.08, e("easeOutCubic", [-12, 8, 0]), 0.5, e("easeOutSine", ZERO)),
+            "right_arm": rot(0, [32, 0, 15], 0.08, e("easeOutBack", [-40, 0, 0]), 0.3, [-38, 0, 0], 0.5, e("easeOutSine", held)),
+            "right_fore": rot(0, [-46, 0, 0], 0.08, e("easeOutCubic", [0, 0, 0]), 0.5, e("easeOutSine", held_fore)),
+            "sword": rot(0, ZERO, 0.08, e("easeOutCubic", [40, 0, 0]), 0.3, [38, 0, 0], 0.5, e("easeOutSine", ZERO)),
+            "left_arm": rot(0, [-36, 0, -15], 0.08, e("easeOutCubic", [30, 0, -20]), 0.5, e("easeOutSine", ZERO)),
+            "right_leg": rot(0, [21, 0, 0], 0.08, e("easeOutCubic", [-35, 0, 0]), 0.5, e("easeOutSine", ZERO)),
+            "right_shin": rot(0, [42, 0, 0], 0.08, e("easeOutCubic", [15, 0, 0]), 0.5, e("easeOutSine", ZERO)),
+            "left_leg": rot(0, [-42, 0, 0], 0.08, e("easeOutCubic", [35, 0, 0]), 0.5, e("easeOutSine", ZERO)),
+            "left_shin": rot(0, [46, 0, 0], 0.08, e("easeOutCubic", [10, 0, 0]), 0.5, e("easeOutSine", ZERO)),
+        }, whip(cloth, 0.03, 45, 0, settle=0.4), whip(plume, 0.03, 50, 0, settle=0.4)), loop=False),
+        "misc.hurt": mk.hurt_flinch(0.45, lean=-7, twist=5, head=-10, chains=chains, extra={
+            "right_fore": rot(0, held_fore, 0.45, held_fore)}),
+        "misc.stagger": mk.stagger(0.9, lean=-22, head=-25, chains=chains, chain_amp=40, extra={
+            "right_fore": rot(0, held_fore, 0.12, e("easeOutCubic", [-5, 0, 0]), 0.9, e("easeOutSine", held_fore)),
+            "sword": rot(0, ZERO, 0.12, e("easeOutCubic", [0, 0, -20]), 0.9, e("easeOutSine", ZERO))}),
+        # It sinks to one knee, the sword planted point-down and both hands on the pommel, the helm bowed while the
+        # seams go dark; then it slides off the hilt and goes over onto its face, the sword left standing a moment
+        # before it tips after.
+        "misc.death": anim(2.2, merge({
+            "root": pos(0, ZERO, 0.45, e("easeInSine", [0, -5, 0]), 1.0, [0, -5, 0], 1.45, e("easeInQuad", [0, -10.5, -1]), 1.6, e("easeOutSine", [0, -11, -1.5]), 2.2, [0, -11, -1.5]),
+            "body": rot(0, ZERO, 0.45, e("easeOutSine", [15, 0, 0]), 1.0, [20, 0, 0], 1.45, e("easeInQuad", [84, 0, 6]), 1.58, e("easeOutSine", [78, 0, 6]), 1.75, e("easeOutSine", [86, 0, 6]), 2.2, [86, 0, 6]),
+            "head": rot(0, ZERO, 0.45, e("easeOutSine", [25, 0, 0]), 1.0, [30, 0, 0], 1.45, e("easeInQuad", [-20, 0, 0]), 1.7, e("easeOutBounce", [-10, 25, 8]), 2.2, [-10, 25, 8]),
+            "right_leg": rot(0, ZERO, 0.45, e("easeOutSine", [-80, 0, 0]), 1.0, [-85, 0, 0], 1.45, e("easeInQuad", [-75, 0, -8]), 2.2, [-75, 0, -8]),
+            "right_shin": rot(0, ZERO, 0.45, e("easeOutSine", [95, 0, 0]), 1.0, [95, 0, 0], 1.45, e("easeInQuad", [20, 0, 0]), 2.2, [20, 0, 0]),
+            "left_leg": rot(0, ZERO, 0.45, e("easeOutSine", [25, 0, 0]), 1.0, [28, 0, 0], 1.45, e("easeInQuad", [-70, 0, 12]), 2.2, [-70, 0, 12]),
+            "left_shin": rot(0, ZERO, 0.45, e("easeOutSine", [10, 0, 0]), 1.45, e("easeInQuad", [15, 0, 0]), 2.2, [15, 0, 0]),
+            "right_arm": rot(0, held, 0.45, e("easeOutSine", [-55, 0, -12]), 1.0, [-58, 0, -12], 1.45, e("easeInQuad", [-160, 0, 25]), 1.7, e("easeOutSine", [-155, 0, 30]), 2.2, [-155, 0, 30]),
+            "right_fore": rot(0, held_fore, 0.45, e("easeOutSine", [-20, 0, 0]), 1.45, e("easeInQuad", [-10, 0, 0]), 2.2, [-10, 0, 0]),
+            "left_arm": rot(0, ZERO, 0.45, e("easeOutSine", [-55, 0, 25]), 1.0, [-58, 0, 25], 1.45, e("easeInQuad", [-150, 0, -30]), 1.7, e("easeOutSine", [-145, 0, -35]), 2.2, [-145, 0, -35]),
+            "left_fore": rot(0, ZERO, 0.45, e("easeOutSine", [-20, 0, 0]), 1.45, e("easeInQuad", [-10, 0, 0]), 2.2, [-10, 0, 0]),
+            "sword": rot(0, ZERO, 0.45, e("easeOutSine", [-55, 0, 0]), 1.0, [-60, 0, 0], 1.45, e("easeInQuad", [40, 0, 20]), 1.65, e("easeOutBounce", [85, 0, 25]), 2.2, [85, 0, 25]),
+        }, mk.settle(cloth, 1.45, 35, 0, length=0.7), mk.settle(plume, 1.45, 50, 0, length=0.7)), loop=False),
     }
-    write_model("smoldering_knight", bones, animations, [3, 3])
+    write_model("smoldering_knight", bones, animations, [3, 3], tex_w=128)
 
 
 CITADEL_MOBS = [

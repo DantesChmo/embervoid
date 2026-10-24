@@ -17,6 +17,7 @@ import com.embervoid.reach.mob.HollowSentinelEntity;
 import com.embervoid.reach.mob.LanternHagEntity;
 import com.embervoid.reach.mob.ReachMob;
 import com.embervoid.reach.mob.RestlessBonesEntity;
+import com.embervoid.reach.mob.SmolderingKnightEntity;
 import com.embervoid.reach.mob.SparkingMarksmanEntity;
 import com.embervoid.reach.mob.WitheredThrallEntity;
 import com.embervoid.sanctum.boss.CryingSoulEntity;
@@ -219,7 +220,9 @@ class EntityModelFilesTest {
 			Map.entry("sparking_marksman", List.of("misc.idle", "move.walk", "attack.aim", "attack.shoot", ReachMob.HURT, ReachMob.STAGGER,
 					ReachMob.DEATH)),
 			Map.entry("furnace_golem", List.of("misc.idle", "move.walk", "attack.slam", "misc.heat", "attack.wave", ReachMob.HURT, ReachMob.STAGGER,
-					ReachMob.DEATH)));
+					ReachMob.DEATH)),
+			Map.entry("smoldering_knight", List.of("misc.idle", "move.walk", "attack.combo1", "attack.combo2", "attack.combo3", "attack.crouch",
+					"attack.lunge", ReachMob.HURT, ReachMob.STAGGER, ReachMob.DEATH)));
 
 	/** Bones the Realm 1 renderers turn (head) or toggle ({@code ReachMob#toggledBones}). */
 	private static final Map<String, List<String>> REACH_MOB_BONES = Map.ofEntries(
@@ -235,7 +238,8 @@ class EntityModelFilesTest {
 			Map.entry("grave_warden", List.of("head", "bell")),
 			Map.entry("cinder_hound", List.of("head")),
 			Map.entry("sparking_marksman", List.of("head", "spark")),
-			Map.entry("furnace_golem", List.of("heat")));
+			Map.entry("furnace_golem", List.of("heat")),
+			Map.entry("smoldering_knight", List.of("head")));
 
 	/** Shortest length (s) of a Realm 1 mob's telegraphed animation: its move's windup in ticks / 20. */
 	private static final Map<String, Double> REACH_MOB_MIN_LENGTH = Map.ofEntries(
@@ -257,7 +261,8 @@ class EntityModelFilesTest {
 			Map.entry("cinder_hound/attack.bite", CinderHoundEntity.BITE_WINDUP / 20.0),
 			Map.entry("sparking_marksman/attack.aim", SparkingMarksmanEntity.AIM_TICKS / 20.0),
 			Map.entry("furnace_golem/attack.slam", FurnaceGolemEntity.SLAM_WINDUP / 20.0),
-			Map.entry("furnace_golem/misc.heat", FurnaceGolemEntity.HEAT_TICKS / 20.0));
+			Map.entry("furnace_golem/misc.heat", FurnaceGolemEntity.HEAT_TICKS / 20.0),
+			Map.entry("smoldering_knight/attack.crouch", SmolderingKnightEntity.CROUCH_TICKS / 20.0));
 
 	/** Ticks each Realm 1 mob's body stays for its fall ({@code ReachMob#deathTicks}): the fall must fill them. */
 	private static final Map<String, Integer> REACH_MOB_DEATH_TICKS = Map.ofEntries(
@@ -273,7 +278,8 @@ class EntityModelFilesTest {
 			Map.entry("grave_warden", GraveWardenEntity.DEATH_TICKS),
 			Map.entry("cinder_hound", CinderHoundEntity.DEATH_TICKS),
 			Map.entry("sparking_marksman", SparkingMarksmanEntity.DEATH_TICKS),
-			Map.entry("furnace_golem", FurnaceGolemEntity.DEATH_TICKS));
+			Map.entry("furnace_golem", FurnaceGolemEntity.DEATH_TICKS),
+			Map.entry("smoldering_knight", SmolderingKnightEntity.DEATH_TICKS));
 
 	@Test
 	void reachMobsKeepWhatTheirCodeUses() throws IOException {
