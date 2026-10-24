@@ -70,8 +70,9 @@ public class FallenSisterEntity extends ReachBoss {
 	public static final int BACKSTEP_COOLDOWN = 16;
 	/** The veil burning at 50 %: she stands, untouchable, for this long. */
 	public static final int VEIL_BURN_TICKS = 40;
-	/** How long her body stays for the death animation. */
+	/** How long her body stays for the death animation, and the hit (a share of her health) that staggers her. */
 	public static final int DEATH_TICKS = 50;
+	public static final float STAGGER_SHARE = 0.12f;
 	/** The slam's ember puddle: how long it burns, and how often it hurts whoever stands in it. */
 	public static final int PUDDLE_TICKS = 80;
 	public static final int PUDDLE_INTERVAL = 10;
@@ -179,7 +180,9 @@ public class FallenSisterEntity extends ReachBoss {
 		veilBurnLeft = VEIL_BURN_TICKS;
 		playAnimation(VEIL_BURN);
 		world.playSound(null, getX(), getY(), getZ(), SanctumBossSounds.FALLEN_SISTER_VEIL_BURN, SoundCategory.HOSTILE, 2.0f, 1.0f);
-		world.spawnParticles(ParticleTypes.FLAME, getX(), getY() + 2.6, getZ(), 30, 0.3, 0.3, 0.3, 0.02);
+		world.spawnParticles(ParticleTypes.FLAME, getX(), getY() + 2.6, getZ(), 30, 0.3, 0.3, 0.3, 0.02); // TODO own particle (ember)
+		CombatFx.flash(world, getPos().add(0, 2.6, 0), 2.0f, CombatFx.EMBER);
+		CombatFx.shake(world, getPos(), 0.4f, CombatFx.shakeTicks(0.4f), 20);
 	}
 
 	@Override
@@ -488,6 +491,17 @@ public class FallenSisterEntity extends ReachBoss {
 				kindle(world, pos);
 			}
 		}
+	}
+
+	/** A heavy hit throws her back (visual only); any other is a flinch. */
+	@Override
+	protected String hurtAnimation(DamageSource source, float amount) {
+		return amount >= getMaxHealth() * STAGGER_SHARE ? STAGGER : HURT;
+	}
+
+	@Override
+	protected List<String> hurtAnimations() {
+		return List.of(HURT, STAGGER);
 	}
 
 	@Override
