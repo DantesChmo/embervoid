@@ -270,15 +270,44 @@ the bar name, point the arena JSON's `boss.entity` at it, add its id to the real
 
 ## 7. Blocks and items
 
-- **Building palette:** ash stone (plain, cobbled, polished, chiseled; stairs, slabs, walls), ash bricks and
-  cracked ash bricks (stairs, slabs, walls), ash soil, dead wood set (log, stripped log, planks, stairs, slab,
-  fence, gate, door, trapdoor), ember lantern (animated, light source).
-- **Functional blocks:** Ember Shrine, Void Obelisk, Sanctum Flagstone, Return Obelisk, Sealed Gate.
+- **Building palette:** ash stone (plain, cobbled, polished, chiseled, carved; stairs, slabs, walls), ash bricks
+  (plain, cracked, mossy, sooty; pillar; stairs, slabs, walls), ash tiles and cracked ash tiles, ash cobble bricks,
+  mossy cobbled ash stone, ash cobble path, slate tiles (roofs), gilded ash stone and the Sanctum rune stone
+  (glowmask), ash soil, dead wood set (log, stripped log, planks, stairs, slab, fence, gate, door, trapdoor),
+  charred planks and charred log (Citadel), burnt thatch, bone bricks and bone pillar (Necropolis), grave-iron grate
+  and plate, rusted brass and cut brass (Fields machinery), tar, amber block, ember glass, crypt stone tiles, ember
+  lantern (animated, light source). Textures by `tools/block_art.py` on the shared ramps of `tools/palette.py`
+  (docs/art-direction.md §1); every structure builder draws from the whole palette (`TemplateBuilder` masonry
+  helpers: cornices, string courses, pitched roofs, gables, arches, buttresses, grilles, blended floors, decay).
+- **Props and set pieces:** 14 static 3D props (`block.prop.Props`, `tools/prop_art.py`) and 14 moving set pieces
+  (`block.setpiece.SetPieces`, GeckoLib block entities by `tools/setpiece_art.py`: windmill sails, granary hoist,
+  hanging scales, ash mill, hanging cage, great gear, great bell, sluice grate, great brazier, portcullis, forge
+  bellows, chain winch, censer). A set piece is ALWAYS (loops client-side, no server tick) or TRIGGERED (a synced
+  state and one-shot actions; `SetPieces.trigger(world, pos, "closed+slam" | "spinning 160" | "lit" | …)`).
+  `BossFight` fires arena events (`summon`, `phase <n>`, `hazard <id>`, `bossHit heavy`, `kill`, `reset`, the
+  Keeper's `raise_dead`) to the pieces within the arena radius + 8, which react by their kind's table or a template
+  NBT `Reactions` override. Config `setpieces.maxPerChunk` (8), `setpieces.animate`.
+- **Functional blocks:** Ember Shrine, Void Obelisk, Sanctum Flagstone, Return Obelisk, Citadel Gate, Cleft Stone.
 - **Items:** Healing Flask, Flask Shard, Sanctum Map, Ember Lodestar, Ember Heart, the two Sanctum weapons, spawn
   eggs; dev-only `debug_sweep`. Realm 1 gear: §5 and DESIGN §4.5.
 - **Sounds:** every mod sound is an own `embervoid:` event on vanilla files (`assets/embervoid/sounds.json`), one sound
   class per package registered from `registry.ModSounds`, subtitles in both languages; `SoundTests` and
   `OverworldSoundTests` check them. Boss music: `CREDITS.md`.
+- **Particles:** the mod's own (`fx.particle.EmberParticles`, sprites by `tools/particle_art.py`): ember, ash flake,
+  soot, cinder spark, blood drop, amber mote, cold flame, the whip's heat streak; `SOUL_WISP` flies to a point
+  (`SeekParticleEffect`); `SHOCKWAVE`, `SCORCH` and `BURST` take a size and a colour (`TintedParticleEffect`). Server
+  helpers `spawn`, `throwAll`, `line`, `ringOut`, `shockwave`, `scorch`, `burst`, `souls`. Vanilla particles only
+  where vanilla already shows a thing well (smoke).
+- **Weapon signatures** (`reach.gear.WeaponFx`, docs/art-direction.md §4): a swing trail per weapon kind on every
+  swing and special (`CombatFx.trail`), the Scourge's crack (burst, shockwave, sparks, blood, camera kick; a tip hit
+  stops the mob and breaks its wind-up, `gear.weapons.whipTipStunTicks`; the client lash runs hot and flashes),
+  the Scythe's souls on a kill and its ash wave rolling forward (`WeaponFx.unfold`), the Rapier's ramp glow and
+  peak, the Crossbow's ember bolts, the Sanctum weapons' cold cleave and ground slam. In a hand the melee weapons are
+  big 3D models (`client.reach.gear.InHandModels`, `tools/weapon_model_art.py`); the icons stay in the GUI.
+- **Fog walls:** `boss.ArenaWalls` tells players near a running fight where its wall stands; `client.boss.FogWallDraw`
+  draws it (and the Citadel border's `FogCurtain`) as a volume: two scrolling layers of ember cloud
+  (`textures/misc/fog_wall.png`), light streaks, a glowing ground ring, embers, flares and a hum. The hold on
+  players stays in `BossFight`.
 
 ---
 

@@ -808,7 +808,7 @@ attack animations; the Warden's Scourge as a real whip.
 |----|------|------|------------|--------|
 | 17.0 | **Design: loot ladder, weapons, fight length** (with the user) | M | — | done (DESIGN §5.5, §6, §6.1, §10.14) |
 | 17.1 | **Player attack animations** (playerAnimator) | M | 17.0 | done – not seen in game (playerAnimator 1.0.2-rc1+1.20 required; `com.embervoid.anim.AttackAnimations` sends the clip to the player and everyone tracking them on a swing, a special and the crossbow's load and shot, vanilla weapons untouched; 13 clips by `tools/player_anim_art.py`, swings as long as the attack cooldown; JUnit `WeaponKindTest`, GameTests `AttackAnimationTests`; motion seen only in `model_preview player` sheets) |
-| 17.2 | **Weapon models in hand** | M | 17.0 | todo |
+| 17.2 | **Weapon models in hand** | M | 17.0 | done – seen only in `model_preview blocks` (3D element models on the icon's diagonal, `tools/weapon_model_art.py`, `client.reach.gear.InHandModels`; the Scourge's lash leaves the handle's tip ring; the overhaul of 2026-10-24) |
 | 17.3 | **Weapon stats and identities** | M | 17.0, 18.1 | done – feel not played (DESIGN §6.1 numbers in `GearWeapons`; Scythe 3 stamina back per enemy a sweep or Harvest catches, Rapier ramp `RapierRamp`, Crossbow 1.6 s / bolt 16 / pierce 2 / ×1.5 opener; zone uniques from soul + 4 zone material + part, the Rapier keeps its ingots; Smoldering Plate at netherite; `BalanceTargetsTest.realmUniquesBeatNetherite`, the weapon target of `./gradlew balanceTargets` green; GameTests in `GearTests`; the Scourge's tip waits for 17.4) |
 | 17.4 | **Warden's Scourge as a real whip** | L | 17.1 | done – look and feel not seen or played; the coordinator's regression found the crack re-entering itself through Fabric's attack event (a stack overflow on every hit), fixed with `WardensScourgeItem.cracking`, all GameTests green (`WardensScourgeItem`: every mob within 0.3 of the lash's curve (`WhipArc`, hand to the crosshair at 6, bowed up-right) hit once at the swing's charge, the lash stops at the first block, the last 1.5 blocks ×1.6 with `item.wardens_scourge.crack` and a flash, one durability a swing, a click is a crack too; Lash unchanged but no free crack after it; client lash `ScourgeLashes`, a rope of 20 links from the in-hand handle model, laid along the same curve, then physics; JUnit `WhipArcTest`; GameTests `WardensScourgeTests` written, not run here (the coordinator's regression: `runGametest`, full `build`); checked here: compile of all source sets, `WhipArcTest` and `com.embervoid.balance.*`; seen only in `model_preview player whip_crack whip_lash`) |
 
@@ -923,8 +923,8 @@ Mobs for bosses.
 |----|------|------|------------|--------|
 | 19.1 | **Offline viewer: structures and motion** | M | — | done (`tools/model_preview.py structure` / `motion` / `self-check`; no three.js page, the GIFs and trail strips are enough) |
 | 19.2 | **Combat effects**: camera shake, swing trails, hit flashes | M | — | done (`com.embervoid.fx.CombatFx`: `shake` / `trail` / `flash` / `impact`; Camera Shake slider and Hit Flashes toggle in Accessibility; wired into the Colossus leap and drag, the Lord's landing, swings and slam, the Vampire leap; GameTests on range and on those moves, JUnit on the curves; looks not seen in game) |
-| 19.3 | **Death, hit and stagger animations for the 24 mobs** (3 parts) | L | 19.1 | todo |
-| 19.4 | **Boss remodels** (one task per boss) | XL | 19.1, 19.2 | todo |
+| 19.3 | **Death, hit and stagger animations for the 24 mobs** (3 parts) | L | 19.1 | bosses done (track `bosses`, `ReachBoss` hurt controller, `deathTicks()`, `BossAnimationTests`); the 21 mobs in progress (wave 2 `mobs`, `overworld-mobs`) |
+| 19.4 | **Boss remodels** (one task per boss) | XL | 19.1, 19.2 | done – seen only offline (Colossus 108 / 26, Lord 105 / 28, Keeper 103 / 27, Tree 128 / 35, Sister 78 / 25, Vampire boss 71 / 24 cubes / bones; chamfered forms, layered plates, 2–3 segment secondary bones, eased moves with the windups unchanged, `EmberHaloLayer`; `plans/bosses.md`) |
 | 19.5 | **Photo tour** (optional) | M | — | todo |
 
 - **19.1 Offline viewer.** `tools/model_preview.py` already renders our geo models and key poses to PNG (pure
@@ -954,10 +954,10 @@ moving machinery.
 
 | ID | Task | Size | Depends on | Status |
 |----|------|------|------------|--------|
-| 20.1 | **Animated set-piece framework** | M | 19.1 | todo |
-| 20.2 | **Moving set pieces** | L | 20.1 | todo |
+| 20.1 | **Animated set-piece framework** | M | 19.1 | done – not seen in game (`block.setpiece`: one block entity type, ALWAYS / TRIGGERED modes, synced state, `SetPieces.trigger`, `ArenaEvents` fired by `BossFight`, chunk cap `setpieces.maxPerChunk`, `setpieces.animate`; `SetPieceTests` written) |
+| 20.2 | **Moving set pieces** | L | 20.1 | done – not seen in game (fourteen pieces by `tools/setpiece_art.py`: windmill sails, hoist, scales, ash mill, cage, gear, bell, sluice grate, great brazier, portcullis, bellows, winch, censer; placed in the templates and the four arenas; `plans/setpieces.md`) |
 | 20.3 | **3D props** | M–L | 19.1 | done – not verified in game (14 props in `block.prop.Props`, models and textures by `tools/prop_art.py`; shapes checked by `PropShapesTest`, placing, turning and drops by `PropTests`; looks seen only in `model_preview` sheets) |
-| 20.4 | **Structure variety** | M | 20.3 | todo |
+| 20.4 | **Structure variety** | M | 20.3 | done – seen only in `model_preview structures` (track `art-blocks`: 25 new blocks, every builder rebuilt with masonry helpers in `TemplateBuilder` and zone palettes in `Ruin`; `plans/art-blocks.md`) |
 
 - **20.1 Set-piece framework.** GeckoLib block entities for moving machinery: always on or triggered, no server
   ticking for pure decor, client culling by distance, a cap per chunk. GameTests on the cap and the triggers.
