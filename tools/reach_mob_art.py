@@ -2572,96 +2572,198 @@ def mail_hood(face, rng):
 
 
 # --- Citadel: Furnace Golem ------------------------------------------------------------------------------------------
-# The king's furnace given legs: riveted soot-black cast iron, a glowing grate in the chest, a chimney for a crown,
-# heavy fists. Heats with each hit taken: the heat bone (shown by the renderer) lights the seams for 25 ticks before
-# the fire wave.
-
-CAST = ramp("141314", "1e1d1f", "29282b", "353438", "434246", "55545a")
-
+# The king's furnace given legs: a chamfered cast-iron body under riveted side plates, a grate of glowing bars behind
+# a hinged door, a collar plate, chains hanging from the shoulder rings that swing, a chamfered head with an eye
+# slit under an eight-sided chimney with a rattling cap, arms in two segments with chamfered fists and knuckle
+# plates, legs with shin plates and heavy feet. Heats with each hit taken: the heat bone (shown by the renderer)
+# lights the seams for 25 ticks before the fire wave.
 
 def furnace_golem():
-    cast = Material(CAST, base=2.6, noise=0.5, speck=0.05, edge=1.0, grad=0.8, top=0.8)
+    cast = Material(mk.CAST, base=3.0, noise=0.4, speck=0.05, edge=0.8, grad=0.8, top=0.8, bevel=0.8)
 
     def plates(face, rng):
         if face.side() or face.name == "top":
-            for y in range(4, face.h, 6):
-                face.hline(0, y, face.w, CAST[0])
-            rivets(face, CAST[5], 3)
-            scatter(face, rng, face.w * face.h // 50, RUST[1])
+            mk.plate_rows(face, rng, mk.CAST[0], mk.CAST[5], 5, mk.CAST[6])
+            scatter(face, rng, max(1, face.w * face.h // 60), mk.RUST[2])
+            mk.specular(face, rng, mk.CAST[6], 1, 1)
+            mk.edge_shadow(face, rng, -8)
+
+    def riveted(face, rng):
+        if face.side():
+            mk.rivet_ring(face, mk.CAST[0], mk.CAST[6], 1, 3)
+            scatter(face, rng, max(1, face.w * face.h // 80), mk.RUST[2])
+            mk.edge_shadow(face, rng, -8)
 
     def grate(face, rng):
         if face.name == "front":
-            face.rect(0, 0, face.w, face.h, CAST[1])
-            for x in range(1, face.w - 1, 2):
-                for y in range(1, face.h - 1):
-                    face.lit(x, y, EMBER if (x + y) % 3 else EMBER_HOT, 1.0)
-            trim(face, CAST[4])
+            face.rect(0, 0, face.w, face.h, VOID)
+            for y in range(face.h):
+                for x in range(face.w):
+                    face.lit(x, y, EMBER if (x + y) % 3 else EMBER_HOT, 0.9 if y % 2 else 0.7)
 
     def heat_seams(face, rng):
         # Only the seams and rivet lines glow; the rest of the overlay is clear so the iron shows.
         clear_all(face)
         if face.side() or face.name == "top":
-            for y in range(4, face.h, 6):
+            for y in range(4, face.h, 5):
                 for x in range(face.w):
                     if rng.random() < 0.8:
                         face.lit(x, y, EMBER, 1.0)
             ember_cracks(face, rng, max(2, face.w // 3), EMBER_HOT, EMBER, 1.0, (2, 5))
 
-    def helm_front(face, rng):
+    def eye_slit(face, rng):
+        plates(face, rng)
+        cx = face.cx
         face.hline(1, 2, face.w - 2, VOID)
-        for x in (2, face.w - 3):
-            face.lit(x, 2, EMBER_HOT, 1.0)
-        face.lit(face.cx, 2, EMBER, 0.6)
+        face.lit(cx - 2, 2, EMBER_HOT, 1.0)
+        face.lit(cx + 1, 2, EMBER_HOT, 1.0)
+        face.lit(cx - 1, 2, EMBER, 0.5)
+        face.lit(cx, 2, EMBER, 0.5)
 
     def chimney(face, rng):
         if face.name == "top":
-            face.rect(0, 0, face.w, face.h, CAST[0])
+            face.rect(0, 0, face.w, face.h, mk.CAST[0])
             face.lit(1, 1, EMBER, 0.9)
             face.lit(2, 2, EMBER_HOT, 0.9)
         elif face.side():
-            band(face, 0, CAST[5])
-            band(face, 1, CAST[0])
+            band(face, 0, mk.CAST[6])
+            band(face, 1, mk.CAST[0])
+            mk.edge_shadow(face, rng, -8)
 
-    body_box = Box([-8, 12, -6], [16, 18, 12], cast, {"all": plates})
+    bar = Material(mk.CAST, base=4.0, noise=0.3, bevel=0.6)
+    body_parts = mk.chamfer_decals(chamfered([-8, 12, -6], [16, 18, 12], cast, c=1.2, axes="xz"), {"all": plates})
+    body_parts += [
+        Box([-8.6, 14, -4], [1.2, 14, 8], cast.but(base=3.4), {"all": riveted}, inflate=0.2),  # riveted side plates
+        Box([7.4, 14, -4], [1.2, 14, 8], cast.but(base=3.4), {"all": riveted}, inflate=0.2),
+        Box([-6, 13, 5.4], [12, 16, 1.2], cast.but(base=3.2), {"all": riveted}, inflate=0.2),  # the back plate
+        Box([-5, 16, -6.8], [10, 10, 1], cast.but(base=2.2), {"all": grate}),  # the firebox behind the bars
+        Box([-9, 28, -5], [18, 3, 10], cast.but(base=3.6), {"all": lambda f, r: (mk.rivet_ring(f, mk.CAST[0], mk.CAST[6], 0, 3), mk.edge_shadow(f, r, -8))}),  # the collar
+        Box([-8.5, 12, -5], [17, 1.6, 10], cast.but(base=2.4), {"sides": lambda f, r: mk.rivet_ring(f, mk.CAST[0], mk.CAST[6], 0, 3)}),  # the belt plate
+        Box([-7, 27.8, -7.2], [3, 1.6, 3], Material(mk.GRAVE_IRON, base=3.0, noise=0.4, bevel=0.5)),  # the shoulder rings
+        Box([4, 27.8, -7.2], [3, 1.6, 3], Material(mk.GRAVE_IRON, base=3.0, noise=0.4, bevel=0.5)),
+    ]
+    for i in range(4):  # the grate bars
+        body_parts.append(Box([-4.4 + i * 2.4, 16.5, -7.4], [1, 9, 0.8], bar))
     bones = [
         Bone("root", [0, 0, 0]),
-        Bone("body", [0, 12, 0], "root", None, [
-            body_box,
-            Box([-4, 17, -6.5], [8, 8, 1], cast, {"all": grate}),
-            Box([-9, 26, -4], [18, 3, 8], cast.but(base=3.2), {"all": lambda f, r: rivets(f, CAST[5], 2)}),
+        Bone("body", [0, 12, 0], "root", None, body_parts),
+        Bone("door", [5.5, 21, -7.4], "body", None, [
+            Box([-5.5, 15.5, -7.8], [11, 11, 0.6], cast.but(base=3.4), {"front": lambda f, r: (mk.rivet_ring(f, mk.CAST[0], mk.CAST[6], 1, 3),
+                                                                                             mk.cutout(f, r, cols=range(2, f.w - 2), rows=()),)}, inflate=0.1),
+            Box([4.6, 17, -8.2], [1.2, 2, 0.8], Material(mk.GRAVE_IRON, base=3.4, noise=0.4)),  # the hinges
+            Box([4.6, 23, -8.2], [1.2, 2, 0.8], Material(mk.GRAVE_IRON, base=3.4, noise=0.4)),
+            Box([-4.6, 20, -8.6], [1.4, 2.4, 1], Material(mk.GRAVE_IRON, base=2.6, noise=0.4)),  # the latch
         ]),
-        Bone("heat", [0, 12, 0], "body", None, [Box([-8, 12, -6], [16, 18, 12], cast, {"all": heat_seams},
-                                                    inflate=0.3)]),
-        Bone("head", [0, 30, 0], "body", None, [
-            Box([-4, 30, -4], [8, 6, 8], cast.but(base=2.9), {"front": helm_front}),
-            Box([-2, 36, -2], [4, 8, 4], cast.but(base=2.2), {"all": chimney}),
-        ]),
+        Bone("heat", [0, 12, 0], "body", None, [Box([-8, 12, -6], [16, 18, 12], cast, {"all": heat_seams}, inflate=0.5)]),
+        Bone("head", [0, 31, 0], "body", None,
+             mk.chamfer_decals(chamfered([-4, 31, -4], [8, 6, 8], cast.but(base=3.3), c=1.0, axes="xz"), {"front": eye_slit, "left": plates, "right": plates, "back": plates})
+             + mk.octagon([-2.5, 37, -2.5], [5, 7, 5], cast.but(base=2.6), {"all": chimney}, shrink=0.8)
+             + [Box([-3, 43.5, -3], [6, 1, 6], cast.but(base=3.4), {"sides": lambda f, r: mk.rivet_ring(f, mk.CAST[0], mk.CAST[6], 0, 2)})]),  # the chimney rim
+        Bone("cap", [0, 44.5, 2.5], "head", None, [
+            Box([-3.2, 44.5, -3.2], [6.4, 1, 6.4], cast.but(base=3.8), {"top": lambda f, r: (mk.rivet_ring(f, mk.CAST[0], mk.CAST[6], 0, 3), mk.specular(f, r, mk.CAST[6], 1, 1))}),
+            Box([-1, 45.5, -1], [2, 1, 2], cast.but(base=4.0))]),
     ]
-    arm = Box([-12.5, 15, -2.5], [4, 13, 5], cast, {"all": plates})
-    fist = Box([-13.5, 8, -3.5], [6, 7, 7], cast.but(base=2.2), {"all": lambda f, r: (rivets(f, CAST[5], 2),
-                                                                                    f.hline(0, 1, f.w, CAST[0]))})
-    shoulder = Box([-14, 24, -3.5], [6, 5, 7], cast.but(base=3.0), {"all": lambda f, r: rivets(f, CAST[5], 2)})
-    bones.append(Bone("right_arm", [-10.5, 28, 0], "body", None, [arm, fist, shoulder]))
-    bones.append(Bone("left_arm", [10.5, 28, 0], "body", None, [mirror_box(arm), mirror_box(fist),
-                                                                   mirror_box(shoulder)]))
-    leg = Box([-7, 0, -3], [6, 12, 6], cast.but(base=2.3), {"all": plates})
-    foot = Box([-7.5, 0, -4], [7, 2, 7], cast.but(base=1.8))
-    bones.append(Bone("right_leg", [-4, 12, 0], "root", None, [leg, foot]))
-    bones.append(Bone("left_leg", [4, 12, 0], "root", None, [mirror_box(leg), mirror_box(foot)]))
+    link = Material(mk.GRAVE_IRON, base=2.6, noise=0.4, bevel=0.5)
+    for side, x in (("r", -5.5), ("l", 5.5)):
+        bones += chain_bones("chain_" + side, "body", [x, 27.8, -5.7], 2, 3.2, link, thickness=1.0,
+                             box=lambda i, o, s: [Box([o[0] - 0.1, o[1] + 0.2, o[2] - 0.6], [1.2, s[1] - 0.4, 2.2], link),
+                                                  Box([o[0] - 0.6, o[1] - 0.4, o[2] - 0.1], [2.2, 1.4, 1.2], link)] + (
+                                 [Box([o[0] - 0.8, o[1] - 1.8, o[2] - 0.6], [2.6, 1.6, 2.2], Material(mk.GRAVE_IRON, base=2.0, noise=0.4, bevel=0.5))] if i == 1 else []))
+    arm = mk.chamfer_decals(chamfered([-12.5, 20, -2.5], [4, 9, 5], cast, c=0.8, axes="xz"), {"all": plates})
+    shoulder = Box([-14, 25, -3.5], [6, 5, 7], cast.but(base=3.4), {"all": lambda f, r: (mk.rivet_ring(f, mk.CAST[0], mk.CAST[6], 1, 2), mk.edge_shadow(f, r, -8))})
+    fore = mk.chamfer_decals(chamfered([-12.8, 14, -2.8], [4.6, 7, 5.6], cast.but(base=3.2), c=0.8, axes="xz"), {"all": plates})
+    fist = mk.chamfer_decals(chamfered([-13.5, 7.5, -3.5], [6, 7, 7], cast.but(base=2.6), c=1.0),
+                             {"all": lambda f, r: (mk.rivet_ring(f, mk.CAST[0], mk.CAST[6], 1, 2), f.hline(0, 1, f.w, mk.CAST[0]))})
+    knuckles = Box([-13.8, 11, -4.2], [6.6, 2.5, 1.2], cast.but(base=3.8), {"all": lambda f, r: stitch(f, 1, mk.CAST[6], 2)}, inflate=0.1)
+    bones.append(Bone("right_arm", [-10.5, 28, 0], "body", None, arm + [shoulder]))
+    bones.append(Bone("right_fore", [-10.5, 20, 0], "right_arm", None, fore + fist + [knuckles]))
+    bones.append(Bone("left_arm", [10.5, 28, 0], "body", None, [mirror_box(b) for b in arm] + [mirror_box(shoulder)]))
+    bones.append(Bone("left_fore", [10.5, 20, 0], "left_arm", None, [mirror_box(b) for b in fore + fist] + [mirror_box(knuckles)]))
+    leg = mk.chamfer_decals(chamfered([-7, 2, -3], [6, 10, 6], cast.but(base=2.7), c=0.8, axes="xz"), {"all": plates})
+    shin_plate = Box([-6.5, 3, -3.8], [5, 7, 1.2], cast.but(base=3.4), {"all": riveted}, inflate=0.2)
+    foot = Box([-7.5, 0, -4.5], [7, 2, 8], cast.but(base=2.2), {"sides": lambda f, r: mk.rivet_ring(f, mk.CAST[0], mk.CAST[6], 0, 3)})
+    toe = Box([-7, 0, -5.5], [6, 1.6, 1.4], cast.but(base=3.0))
+    bones.append(Bone("right_leg", [-4, 12, 0], "root", None, leg + [shin_plate, foot, toe]))
+    bones.append(Bone("left_leg", [4, 12, 0], "root", None, [mirror_box(b) for b in leg] + [mirror_box(shin_plate), mirror_box(foot), mirror_box(toe)]))
+    chains = chain_names("chain_r", 2) + chain_names("chain_l", 2)
     animations = {
-        "misc.idle": idle(4.0, 2, 1),
-        "move.walk": walk(1.6, 18, 12, 0.8),
-        "attack.slam": overhead(0.7, 1.2, ("right_arm", "left_arm")),
-        "misc.heat": anim(1.25, {
-            "body": rot(0, ZERO, 0.25, [0, 0, 2], 0.5, [0, 0, -2], 0.75, [0, 0, 2], 1.0, [0, 0, -2], 1.25, ZERO),
-            "right_arm": rot(0, ZERO, 1.25, [0, 0, 25]), "left_arm": rot(0, ZERO, 1.25, [0, 0, -25]),
-            "head": rot(0, ZERO, 1.25, [-15, 0, 0]),
-        }, loop=False),
-        "attack.wave": anim(0.5, {
-            "right_arm": rot(0, [0, 0, 25], 0.1, [0, 0, 70], 0.5, ZERO),
-            "left_arm": rot(0, [0, 0, -25], 0.1, [0, 0, -70], 0.5, ZERO),
-            "head": rot(0, [-15, 0, 0], 0.5, ZERO),
-        }, loop=False),
+        # Idle: the furnace breathes, the whole body lifting with a slow heave; the chains sway, the cap rattles.
+        "misc.idle": anim(4.0, merge({
+            "body": {"rotation": keys(0, ZERO, 2.0, e("easeInOutSine", [1.5, 0, 0]), 4.0, e("easeInOutSine", ZERO)),
+                     "position": keys(0, ZERO, 2.0, e("easeInOutSine", [0, 0.8, 0]), 4.0, e("easeInOutSine", ZERO))},
+            "head": rot(0, ZERO, 1.5, e("easeInOutSine", [2, 6, 0]), 3.0, e("easeInOutSine", [1, -5, 0]), 4.0, e("easeInOutSine", ZERO)),
+            "right_arm": rot(0, ZERO, 2.0, e("easeInOutSine", [-2, 0, 2]), 4.0, e("easeInOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 2.0, e("easeInOutSine", [-2, 0, -2]), 4.0, e("easeInOutSine", ZERO)),
+            "right_fore": rot(0, [-8, 0, 0], 2.0, e("easeInOutSine", [-11, 0, 0]), 4.0, e("easeInOutSine", [-8, 0, 0])),
+            "left_fore": rot(0, [-8, 0, 0], 2.0, e("easeInOutSine", [-5, 0, 0]), 4.0, e("easeInOutSine", [-8, 0, 0])),
+            "cap": pos(0, ZERO, 1.9, ZERO, 2.0, e("easeOutCubic", [0, 0.6, 0]), 2.1, e("easeInCubic", ZERO), 2.2, e("easeOutCubic", [0, 0.3, 0]), 2.3, ZERO, 4.0, ZERO),
+        }, lag_sway(chain_names("chain_r", 2), 4.0, 5, 0, phase=0.0), lag_sway(chain_names("chain_l", 2), 4.0, 5, 0, phase=0.35))),
+        "move.walk": mk.weighted_walk(1.6, 18, 10, 0.9, 5, 6, extra=merge(
+            {"right_fore": rot(0, [-8, 0, 0], 0.8, e("easeInOutSine", [-14, 0, 0]), 1.6, e("easeInOutSine", [-8, 0, 0]))},
+            {"left_fore": rot(0, [-14, 0, 0], 0.8, e("easeInOutSine", [-8, 0, 0]), 1.6, e("easeInOutSine", [-14, 0, 0])),
+             "cap": pos(0, ZERO, 0.4, e("easeOutCubic", [0, 0.5, 0]), 0.5, e("easeInCubic", ZERO), 1.2, e("easeOutCubic", [0, 0.5, 0]), 1.3, e("easeInCubic", ZERO), 1.6, ZERO)},
+            lag_sway(chains, 1.6, 12, 0, phase=0.2))),
+        # The slam: both fists hauled high over the head through the 14-tick windup, the body leaning back, then
+        # brought down with the whole weight behind them; the chains whip and the cap jumps.
+        "attack.slam": anim(1.2, merge({
+            "right_arm": rot(0, ZERO, 0.55, e("easeInOutSine", [-150, 0, 14]), 0.7, [-160, 0, 12], 0.78, e("easeOutBack", [-30, 0, 4]), 1.2, e("easeOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 0.55, e("easeInOutSine", [-150, 0, -14]), 0.7, [-160, 0, -12], 0.78, e("easeOutBack", [-30, 0, -4]), 1.2, e("easeOutSine", ZERO)),
+            "right_fore": rot(0, [-8, 0, 0], 0.55, e("easeInOutSine", [-40, 0, 0]), 0.7, [-45, 0, 0], 0.78, e("easeOutCubic", [-5, 0, 0]), 1.2, e("easeOutSine", [-8, 0, 0])),
+            "left_fore": rot(0, [-8, 0, 0], 0.55, e("easeInOutSine", [-40, 0, 0]), 0.7, [-45, 0, 0], 0.78, e("easeOutCubic", [-5, 0, 0]), 1.2, e("easeOutSine", [-8, 0, 0])),
+            "body": rot(0, ZERO, 0.55, e("easeInOutSine", [-16, 0, 0]), 0.7, [-18, 0, 0], 0.78, e("easeOutBack", [28, 0, 0]), 1.2, e("easeOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.55, e("easeInOutSine", [-12, 0, 0]), 0.78, e("easeOutCubic", [12, 0, 0]), 1.2, e("easeOutSine", ZERO)),
+            "root": pos(0, ZERO, 0.55, e("easeInOutSine", [0, 0.5, 1.5]), 0.78, e("easeOutCubic", [0, -2, -2]), 1.2, e("easeOutSine", ZERO)),
+            "right_leg": rot(0, ZERO, 0.55, e("easeInOutSine", [8, 0, 0]), 0.78, e("easeOutCubic", [-20, 0, 0]), 1.2, e("easeOutSine", ZERO)),
+            "left_leg": rot(0, ZERO, 0.55, e("easeInOutSine", [-8, 0, 0]), 0.78, e("easeOutCubic", [22, 0, 0]), 1.2, e("easeOutSine", ZERO)),
+            "cap": pos(0, ZERO, 0.76, ZERO, 0.82, e("easeOutCubic", [0, 1.2, 0]), 0.95, e("easeInCubic", ZERO), 1.0, e("easeOutCubic", [0, 0.4, 0]), 1.08, ZERO, 1.2, ZERO),
+        }, hold(chains, 0.65, ZERO), whip(chains, 0.75, 40, 0, settle=0.42)), loop=False),
+        # Heating: the whole furnace shudders, the arms spreading, the door rattling on its latch, the cap jumping.
+        "misc.heat": anim(1.25, merge({
+            "body": rot(0, ZERO, 0.12, e("easeInOutSine", [0, 0, 2]), 0.25, e("easeInOutSine", [0, 0, -2]), 0.37, e("easeInOutSine", [0, 0, 2]), 0.5, e("easeInOutSine", [0, 0, -2]),
+                        0.62, e("easeInOutSine", [0, 0, 2.5]), 0.75, e("easeInOutSine", [0, 0, -2.5]), 0.87, e("easeInOutSine", [0, 0, 3]), 1.0, e("easeInOutSine", [0, 0, -3]),
+                        1.12, e("easeInOutSine", [0, 0, 3]), 1.25, e("easeInOutSine", ZERO)),
+            "right_arm": rot(0, ZERO, 1.25, e("easeInOutSine", [0, 0, 25])), "left_arm": rot(0, ZERO, 1.25, e("easeInOutSine", [0, 0, -25])),
+            "head": rot(0, ZERO, 1.25, e("easeInOutSine", [-15, 0, 0])),
+            "door": rot(0, ZERO, 0.2, e("easeOutCubic", [0, -8, 0]), 0.3, e("easeInCubic", ZERO), 0.6, e("easeOutCubic", [0, -10, 0]), 0.7, e("easeInCubic", ZERO),
+                        1.0, e("easeOutCubic", [0, -12, 0]), 1.1, e("easeInCubic", ZERO), 1.25, ZERO),
+            "cap": pos(0, ZERO, 0.2, e("easeOutCubic", [0, 1, 0]), 0.35, e("easeInCubic", ZERO), 0.6, e("easeOutCubic", [0, 1.2, 0]), 0.75, e("easeInCubic", ZERO),
+                       1.0, e("easeOutCubic", [0, 1.5, 0]), 1.15, e("easeInCubic", ZERO), 1.25, ZERO),
+        }, lag_sway(chains, 1.25, 14, 0, phase=0.0)), loop=False),
+        # The fire wave: the arms thrown wide, the door bursting open, the body popping up and back.
+        "attack.wave": anim(0.5, merge({
+            "right_arm": rot(0, [0, 0, 25], 0.08, e("easeOutBack", [0, 0, 75]), 0.5, e("easeOutSine", ZERO)),
+            "left_arm": rot(0, [0, 0, -25], 0.08, e("easeOutBack", [0, 0, -75]), 0.5, e("easeOutSine", ZERO)),
+            "head": rot(0, [-15, 0, 0], 0.08, e("easeOutCubic", [-30, 0, 0]), 0.5, e("easeOutSine", ZERO)),
+            "body": rot(0, ZERO, 0.08, e("easeOutCubic", [-12, 0, 0]), 0.5, e("easeOutSine", ZERO)),
+            "door": rot(0, ZERO, 0.06, e("easeOutBack", [0, -110, 0]), 0.35, [0, -110, 0], 0.5, e("easeOutSine", ZERO)),
+            "root": pos(0, ZERO, 0.08, e("easeOutCubic", [0, 1.5, 0]), 0.5, e("easeOutSine", ZERO)),
+            "cap": pos(0, ZERO, 0.06, e("easeOutCubic", [0, 2.5, 0]), 0.3, e("easeInCubic", ZERO), 0.5, ZERO),
+        }, whip(chains, 0.03, 60, 0, settle=0.45)), loop=False),
+        "misc.hurt": mk.hurt_flinch(0.5, lean=-5, twist=3, head=-8, chains=chains, chain_amp=22, extra={
+            "right_arm": rot(0, ZERO, 0.1, e("easeOutCubic", [-10, 0, 6]), 0.5, e("easeOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 0.1, e("easeOutCubic", [-8, 0, -6]), 0.5, e("easeOutSine", ZERO)),
+            "cap": pos(0, ZERO, 0.08, e("easeOutCubic", [0, 0.8, 0]), 0.2, e("easeInCubic", ZERO), 0.5, ZERO)}),
+        "misc.stagger": mk.stagger(1.0, lean=-18, head=-18, knee=25, chains=chains, chain_amp=40, extra={
+            "door": rot(0, ZERO, 0.12, e("easeOutCubic", [0, -40, 0]), 0.5, e("easeInOutSine", [0, -10, 0]), 1.0, e("easeOutSine", ZERO)),
+            "cap": pos(0, ZERO, 0.1, e("easeOutCubic", [0, 1.5, 0]), 0.3, e("easeInCubic", ZERO), 1.0, ZERO)}),
+        # It sits down heavily on its heels, the door swinging open and the fire pouring out (particles), then the
+        # furnace tips forward onto its face, arms flung out ahead, the fall slamming the door shut; chains and cap settle.
+        "misc.death": anim(2.4, merge({
+            "root": pos(0, ZERO, 0.5, e("easeInSine", [0, -7, 0]), 0.7, e("easeOutBounce", [0, -8, 0]), 1.3, [0, -8, 0], 1.7, e("easeInQuad", [0, -11, 2]),
+                        1.85, e("easeOutSine", [0, -11.5, 2]), 2.4, [0, -11.5, 2]),
+            "body": rot(0, ZERO, 0.5, e("easeOutSine", [-10, 0, 0]), 0.7, e("easeOutBounce", [-6, 0, 0]), 1.3, [-4, 0, 0], 1.7, e("easeInQuad", [86, 0, 3]),
+                        1.85, e("easeOutSine", [80, 0, 3]), 2.05, e("easeOutSine", [86, 0, 3]), 2.4, [86, 0, 3]),
+            "head": rot(0, ZERO, 0.5, e("easeOutSine", [-12, 0, 0]), 1.3, [-15, 0, 0], 1.7, e("easeInQuad", [-30, 0, 0]), 1.9, e("easeOutBounce", [-8, 15, 6]), 2.4, [-8, 15, 6]),
+            "right_leg": rot(0, ZERO, 0.5, e("easeOutSine", [-70, 0, 0]), 0.7, e("easeOutBounce", [-75, 0, 0]), 1.3, [-75, 0, 0], 1.7, e("easeInQuad", [-80, 0, -6]), 2.4, [-80, 0, -6]),
+            "left_leg": rot(0, ZERO, 0.5, e("easeOutSine", [-70, 0, 0]), 0.7, e("easeOutBounce", [-75, 0, 0]), 1.3, [-75, 0, 0], 1.7, e("easeInQuad", [-80, 0, 6]), 2.4, [-80, 0, 6]),
+            "right_arm": rot(0, ZERO, 0.5, e("easeOutSine", [-20, 0, 15]), 1.3, [-25, 0, 18], 1.7, e("easeInQuad", [-165, 0, 20]), 1.9, e("easeOutSine", [-158, 0, 24]), 2.4, [-158, 0, 24]),
+            "left_arm": rot(0, ZERO, 0.5, e("easeOutSine", [-20, 0, -15]), 1.3, [-25, 0, -18], 1.7, e("easeInQuad", [-165, 0, -20]), 1.9, e("easeOutSine", [-158, 0, -24]), 2.4, [-158, 0, -24]),
+            "right_fore": rot(0, [-8, 0, 0], 1.7, e("easeInQuad", [-30, 0, 0]), 2.4, [-30, 0, 0]),
+            "left_fore": rot(0, [-8, 0, 0], 1.7, e("easeInQuad", [-30, 0, 0]), 2.4, [-30, 0, 0]),
+            "door": rot(0, ZERO, 0.6, ZERO, 0.75, e("easeOutBack", [0, -120, 0]), 1.3, [0, -120, 0], 1.7, e("easeInQuad", [0, -20, 0]), 1.8, e("easeOutBounce", [0, -6, 0]), 2.4, [0, -6, 0]),
+            "cap": {"position": keys(0, ZERO, 0.6, ZERO, 0.7, e("easeOutCubic", [0, 3, 0]), 0.95, e("easeInCubic", ZERO), 1.05, e("easeOutCubic", [0, 0.8, 0]), 1.15, ZERO, 2.4, ZERO),
+                    "rotation": keys(0, ZERO, 1.7, ZERO, 1.9, e("easeOutBounce", [-35, 0, 0]), 2.4, [-35, 0, 0])},
+        }, mk.settle(chains, 1.7, 45, 0, length=0.7)), loop=False),
     }
     write_model("furnace_golem", bones, animations, [3, 3.5], tex_w=128)
 

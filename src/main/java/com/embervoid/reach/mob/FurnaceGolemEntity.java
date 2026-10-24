@@ -1,5 +1,7 @@
 package com.embervoid.reach.mob;
 
+import com.embervoid.fx.CombatFx;
+import com.embervoid.fx.particle.EmberParticles;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
@@ -28,7 +30,10 @@ public class FurnaceGolemEntity extends ReachMob {
 	public static final double WAVE_RADIUS = 4;
 	public static final float WAVE_DAMAGE_FACTOR = 0.7f;
 	public static final int WAVE_FIRE_SECONDS = 4;
-	static final Move SLAM = new Move("attack.slam", 14, 50, ReachMobSounds.FURNACE_GOLEM_WINDUP, 1.0f);
+	public static final int SLAM_WINDUP = 14;
+	/** Ticks the body stays for {@code misc.death}: it sits down heavily, the door swinging open, then tips onto its face, 2.4 s. */
+	public static final int DEATH_TICKS = 48;
+	static final Move SLAM = new Move("attack.slam", SLAM_WINDUP, 50, ReachMobSounds.FURNACE_GOLEM_WINDUP, 1.0f);
 	static final Move HEAT = new Move("misc.heat", HEAT_TICKS, 0, ReachMobSounds.FURNACE_GOLEM_HEAT, 1.0f);
 	private static final byte STATE_HEATING = 1;
 
@@ -93,12 +98,26 @@ public class FurnaceGolemEntity extends ReachMob {
 	protected void performMove(Move landed) {
 		if (landed != HEAT) {
 			super.performMove(landed);
+			if (landed == SLAM && getWorld() instanceof ServerWorld world) {
+				// The fists come down: the ground shakes, soot and sparks fly up where they land.
+				Vec3d front = getPos().add(Vec3d.fromPolar(0, getYaw()).multiply(1.4));
+				CombatFx.impact(world, front, 0.6f, 1.2f, 12, CombatFx.EMBER);
+				EmberParticles.spawn(world, EmberParticles.SOOT, front.add(0, 0.2, 0), 10, 0.8, 0.04);
+				EmberParticles.ringOut(world, EmberParticles.CINDER_SPARK, front, 12, 0.2, 0.25);
+			}
 			return;
 		}
 		setState(STATE_NONE);
 		heat = 0;
 		triggerAnim(ACTION, "attack.wave");
 		playSound(ReachMobSounds.FURNACE_GOLEM_FIRE_WAVE, 2.0f, 1.0f);
+		if (getWorld() instanceof ServerWorld world) {
+			// The heat wave: a burst flash at the grate and a ring spreading to its reach.
+			EmberParticles.burst(world, getPos().add(0, getHeight() * 0.5, 0), 2.5f, CombatFx.EMBER);
+			EmberParticles.shockwave(world, getPos(), (float) WAVE_RADIUS, CombatFx.EMBER);
+			EmberParticles.ringOut(world, EmberParticles.EMBER, getPos(), 36, 0.35, 0.2);
+			CombatFx.shake(world, getPos(), 0.5f, CombatFx.shakeTicks(0.5f), 12);
+		}
 		float damage = (float) getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE) * WAVE_DAMAGE_FACTOR;
 		for (LivingEntity victim : getWorld().getEntitiesByClass(LivingEntity.class, getBoundingBox().expand(WAVE_RADIUS),
 				entity -> entity != this && entity.isAlive() && entity.squaredDistanceTo(this) <= WAVE_RADIUS * WAVE_RADIUS)) {
@@ -124,6 +143,31 @@ public class FurnaceGolemEntity extends ReachMob {
 	@Override
 	public boolean isFireImmune() {
 		return true;
+	}
+
+	@Override
+	public int deathTicks() {
+		return DEATH_TICKS;
+	}
+
+	/** The door swings open as it sits down and the fire pours out; the fall shakes the ground. */
+	@Override
+	protected void tickDeath(ServerWorld world, int deathTime) {
+		Vec3d grate = getPos().add(Vec3d.fromPolar(0, getYaw()).multiply(0.6)).add(0, 0.9, 0);
+		if (deathTime == 14) {
+			CombatFx.shake(world, getPos(), 0.3f, CombatFx.shakeTicks(0.3f), 10);
+			EmberParticles.spawn(world, EmberParticles.SOOT, getPos().add(0, 0.3, 0), 10, 1.0, 0.04);
+		} else if (deathTime > 14 && deathTime < 34 && deathTime % 2 == 0) {
+			EmberParticles.throwAll(world, EmberParticles.EMBER, grate, 3, Vec3d.fromPolar(0, getYaw()).multiply(0.1).add(0, 0.05, 0), 0.08);
+			EmberParticles.spawn(world, EmberParticles.CINDER_SPARK, grate, 2, 0.2, 0.1);
+		} else if (deathTime == 36) {
+			Vec3d front = getPos().add(Vec3d.fromPolar(0, getYaw()).multiply(1.0));
+			CombatFx.shake(world, front, 0.6f, CombatFx.shakeTicks(0.6f), 14);
+			EmberParticles.spawn(world, EmberParticles.SOOT, front.add(0, 0.2, 0), 14, 1.2, 0.05);
+			EmberParticles.ringOut(world, EmberParticles.ASH_FLAKE, front, 14, 0.15, 0.15);
+		} else if (deathTime > 36 && deathTime % 4 == 0) {
+			EmberParticles.spawn(world, EmberParticles.SOOT, getPos().add(0, 0.4, 0), 1, 0.6, 0.02);
+		}
 	}
 
 	@Override
