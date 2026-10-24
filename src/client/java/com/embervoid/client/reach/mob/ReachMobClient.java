@@ -16,7 +16,8 @@ import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 /**
  * GeckoLib renderers for the Realm 1 mobs. Assets follow GeckoLib's default layout (see {@code MobRenderers});
  * models come from {@code tools/reach_mob_art.py}. Bones a mob shows only at times
- * ({@link ReachMob#toggledBones}) are hidden or shown every frame.
+ * ({@link ReachMob#toggledBones}) are hidden or shown every frame. No vanilla death tilt: every mob has its own death
+ * animation (PLAN 19.3), held while the body lies there.
  */
 public final class ReachMobClient {
 	public static void register() {
@@ -42,7 +43,12 @@ public final class ReachMobClient {
 	private static <T extends ReachMob> void renderer(EntityType<T> type, boolean turnsHead) {
 		String name = Registries.ENTITY_TYPE.getId(type).getPath();
 		EntityRendererRegistry.register(type, context -> {
-			GeoEntityRenderer<T> renderer = new GeoEntityRenderer<>(context, new Model<>(name, turnsHead));
+			GeoEntityRenderer<T> renderer = new GeoEntityRenderer<>(context, new Model<>(name, turnsHead)) {
+				@Override
+				protected float getDeathMaxRotation(T mob) {
+					return mob.deathTicks() > 0 ? 0 : super.getDeathMaxRotation(mob);
+				}
+			};
 			renderer.addRenderLayer(new AutoGlowingGeoLayer<>(renderer));
 			return renderer;
 		});

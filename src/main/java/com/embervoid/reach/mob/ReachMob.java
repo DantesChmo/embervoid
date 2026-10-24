@@ -11,6 +11,7 @@ import net.minecraft.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.entity.ai.goal.RevengeGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.WanderAroundFarGoal;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -18,6 +19,7 @@ import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
@@ -51,14 +53,30 @@ import java.util.List;
  *
  * <p><b>Animations.</b> Controller {@code movement} plays walk/idle (or {@link #movementAnimation}); controller
  * {@code state} plays the looping animation of the synced {@link #getState state} byte ({@link #stateAnimation}),
- * and pauses the movement controller while it does; controller {@link #ACTION} holds the one-shot move animations
- * listed by {@link #actionAnimations}.
+ * and pauses the movement controller while it does; controller {@link #HURT_CONTROLLER} holds the hit reactions;
+ * controller {@link #ACTION} holds the one-shot move animations listed by {@link #actionAnimations}. Later
+ * controllers win on the bones they animate, so a move's animation beats a flinch.
+ *
+ * <p><b>Hurt, death and stagger</b> (PLAN 19.3, the same names and approach as {@code ReachBoss}): a damaging hit
+ * outside a windup plays {@link #HURT} (or {@link #STAGGER} where {@link #hurtAnimation} says so), never over a windup
+ * (the tell stays readable); {@link #DEATH} plays on death and the body stays {@link #deathTicks} ticks (the length
+ * of its fall) before it goes, with no vanilla death tilt (the renderer turns it off).
  */
 public abstract class ReachMob extends HostileEntity implements GeoEntity {
 	/** Command tag of a mob placed by a structure. */
 	public static final String PLACED_TAG = "embervoid.placed";
 	/** The controller of one-shot move animations. */
 	public static final String ACTION = "action";
+	/** The controller of the hit reactions, under the move animations. */
+	public static final String HURT_CONTROLLER = "hurt";
+	/** The flinch on a hit between moves, a heavier stagger, the fall on death. */
+	public static final String HURT = "misc.hurt";
+	public static final String STAGGER = "misc.stagger";
+	public static final String DEATH = "misc.death";
+	/** Ticks between two flinches. */
+	public static final int HURT_COOLDOWN = 10;
+	/** A hit of this share of the max health staggers a mob with no stagger state of its own. */
+	public static final float HEAVY_HIT_SHARE = 0.35f;
 	/** {@link #getState} value with no looping state animation. */
 	public static final byte STATE_NONE = 0;
 
@@ -74,6 +92,8 @@ public abstract class ReachMob extends HostileEntity implements GeoEntity {
 	private boolean placed;
 	@Nullable
 	private BlockPos home;
+	private int lastHurtAnimation = -100;
+	private int hurtFlinches;
 
 	/**
 	 * A telegraphed move.
@@ -231,6 +251,81 @@ public abstract class ReachMob extends HostileEntity implements GeoEntity {
 		}
 	}
 
+	// --- Hurt and death ------------------------------------------------------------------------------------------
+
+	@Override
+	public boolean damage(DamageSource source, float amount) {
+		boolean hurt = super.damage(source, amount);
+		// A flinch between moves; never over a windup (the tell must stay readable).
+		if (hurt && amount > 0 && isAlive() && !getWorld().isClient && !isWindingUp() && age - lastHurtAnimation > HURT_COOLDOWN) {
+			lastHurtAnimation = age;
+			hurtFlinches++;
+			triggerAnim(HURT_CONTROLLER, hurtAnimation(source, amount));
+		}
+		return hurt;
+	}
+
+	/**
+	 * The hit reaction to a damaging hit outside a windup: {@link #HURT}, or {@link #STAGGER} for a heavy hit
+	 * ({@link #HEAVY_HIT_SHARE} of the max health); mobs with a stagger state of their own (the Sentinel's open
+	 * shield, the Thrall knocked off its cage, the Bones kicked as a pile) decide there. Visual only: it never
+	 * changes what the hit does.
+	 */
+	protected String hurtAnimation(DamageSource source, float amount) {
+		return amount >= getMaxHealth() * HEAVY_HIT_SHARE ? STAGGER : HURT;
+	}
+
+	/** The hit reactions of this mob, on the {@link #HURT_CONTROLLER}. */
+	protected List<String> hurtAnimations() {
+		return List.of(HURT, STAGGER);
+	}
+
+	/** How many flinches and staggers the mob has shown (tests: a hit during a windup shows none). */
+	public int hurtFlinches() {
+		return hurtFlinches;
+	}
+
+	/**
+	 * How long the body stays after death for its death animation ({@link #DEATH}), in ticks: the animation's length.
+	 * 0: vanilla's death. The body removes itself in {@link #updatePostDeath} once they are over.
+	 */
+	public int deathTicks() {
+		return 40;
+	}
+
+	/** Particles and sounds while the body lies there, {@code deathTime} ticks after the death (server side). */
+	protected void tickDeath(ServerWorld world, int deathTime) {
+	}
+
+	@Override
+	public void onDeath(DamageSource source) {
+		super.onDeath(source);
+		if (getWorld().isClient) {
+			return;
+		}
+		cancelMove();
+		if (deathTicks() > 0) {
+			triggerAnim(ACTION, DEATH);
+		}
+	}
+
+	@Override
+	protected void updatePostDeath() {
+		if (deathTicks() <= 0) {
+			super.updatePostDeath();
+			return;
+		}
+		deathTime++;
+		if (!(getWorld() instanceof ServerWorld world) || isRemoved()) {
+			return;
+		}
+		tickDeath(world, deathTime);
+		if (deathTime >= deathTicks()) {
+			world.sendEntityStatus(this, (byte) 60);
+			remove(RemovalReason.KILLED);
+		}
+	}
+
 	// --- Sounds --------------------------------------------------------------------------------------------------
 
 	/** The mob's footsteps ({@link ReachMobSounds}), or null for the block's own step sound. */
@@ -348,6 +443,11 @@ public abstract class ReachMob extends HostileEntity implements GeoEntity {
 	/** The one-shot animations of this mob's moves (and other events), all on the {@link #ACTION} controller. */
 	protected abstract List<String> actionAnimations();
 
+	/** Plays a one-shot animation of {@link #actionAnimations} (server side: GeckoLib syncs it). */
+	public void playAnimation(String name) {
+		triggerAnim(ACTION, name);
+	}
+
 	/** Walk while moving, idle otherwise. Flyers override this. */
 	protected PlayState movementAnimation(AnimationState<ReachMob> state) {
 		return state.setAndContinue(state.isMoving() ? DefaultAnimations.WALK : DefaultAnimations.IDLE);
@@ -361,10 +461,17 @@ public abstract class ReachMob extends HostileEntity implements GeoEntity {
 			RawAnimation animation = stateAnimation(getState());
 			return animation == null ? PlayState.STOP : state.setAndContinue(animation);
 		}));
+		AnimationController<ReachMob> hurt = new AnimationController<>(this, HURT_CONTROLLER, 0, state -> PlayState.STOP);
+		for (String name : hurtAnimations()) {
+			hurt.triggerableAnim(name, RawAnimation.begin().thenPlay(name));
+		}
+		controllers.add(hurt);
 		AnimationController<ReachMob> action = new AnimationController<>(this, ACTION, 0, state -> PlayState.STOP);
 		for (String name : actionAnimations()) {
 			action.triggerableAnim(name, RawAnimation.begin().thenPlay(name));
 		}
+		// The fall is held on its last frame while the body lies there.
+		action.triggerableAnim(DEATH, RawAnimation.begin().thenPlayAndHold(DEATH));
 		controllers.add(action);
 	}
 
