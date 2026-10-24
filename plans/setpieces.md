@@ -81,13 +81,50 @@ boss classes as separate commits, placement lines in V-A's template files (last)
 
 ## Status
 
-- [ ] Framework (block, block entity, kinds, API, events hook, cap, config, GameTests, JUnit)
-- [ ] `tools/setpiece_art.py` and the pieces
-- [ ] Registration, lang, datagen
-- [ ] Arenas that move
-- [ ] Placement into V-A's templates (after `git merge main`)
-- [ ] Previews and what was seen
+- [x] Framework (`6054929`): block, block entity, kinds, `SetPieces.trigger`, `ArenaEvents` fired from `BossFight`
+  (+ `ArenaHazard.id()`), the chunk cap, config `setpieces`, GameTests `SetPieceTests` (cap, triggers, arena
+  events inside / outside, the brazier following its campfire, animation files vs. kinds), JUnit `SetPieceCapTest`,
+  `ReactionTest`, `SetPieceAssetsTest`
+- [x] `tools/setpiece_art.py` and the fourteen pieces (`e97bd36`, the portcullis widened in `436e0fe`)
+- [x] Registration, both lang files, datagen (blockstates, item models, loot, tool tags; `src/main/generated`)
+- [x] Arenas that move (`2919e1c`); one-line hooks in their own commits: Crypt Keeper `raise_dead` (`3528dcb`),
+  Grave Warden ring → `SetPieces.tollBellsNear` (`a446fa3`)
+- [x] `git merge main` (`e126c38`: both-sides-append conflicts in the GameTest list and the lang files, both kept) and
+  placement (`436e0fe`) as added lines in `MinorTemplates`, `CitadelTemplates`, `SanctumTemplates`,
+  `HubTemplates`, `OutpostTemplates` (`CryptTemplates` untouched)
+- [x] Previews below
+
+Checks run here: `compileJava compileClientJava compileTestJava compileGametestJava`, `runDatagen`, JUnit
+`com.embervoid.block.setpiece.*`, `SanctumStructureSetTest`, `HubLayoutTest`, `EntityModelFilesTest`,
+`python3 tools/model_preview.py self-check` (68 templates). Not run (the coordinator's): GameTests, build, server check.
 
 ## Seen / not seen
 
-(filled at the end)
+Seen in `tools/model_preview.py entity setpiece/<name>` / `motion` (the tool now reads `geo/block` too):
+- Every piece's rest pose from six angles, close-ups lit and at dusk, texture and glowmask atlases. Bevelled bells,
+  brazier bowls, censers, cog hubs and the mill hub read as rounded forms; iron is dark with a specular edge, bronze
+  and brass warm; the cage bars, grate bars and portcullis read at a distance. The ash mill is an octagonal stone
+  disc with an iron tyre in a wooden frame; the windmill wheel has four laths-and-cloth blades, a tail vane and rope
+  stays tip to tip. The great brazier's flame planes and the censer's pierced band glow on the glowmask.
+- Motion sheets: the bell's toll (swing to ±38°, the clapper lagging and overshooting, two "toll" keyframes), the
+  portcullis's slam (86 px drop in 0.45 s with a bounce, gears spinning) and raise (3 s), the sails turning, the
+  cages' and scales' sways, the bellows breathing with the bag scaling.
+- Structure renders of the four arenas and of the windmill, chapel, gatehouse and hanging-cages templates: the
+  pieces are at the intended spots (as cubes of their particle texture: the structure renderer does not draw GeckoLib
+  block models; teaching it to would be a follow-up).
+
+Not seen offline (the coordinator's regression and the user's eyes): in-game lighting of the glowmasks, the sound
+keyframes (vanilla door creak, bell, chain, anvil, grindstone), the client puffs (signal smoke and embers over a lit
+brazier, soot and sparks from the bellows, soot over a lit censer), the sync of a state change to clients, the
+per-position phase offsets, culling distances, how the sails look against the windmill tower in the world, whether
+the seven-bar portcullis's outer bars are truly hidden in the courtyard's five-wide gate, the hoist brace's angle.
+
+## Known limits / follow-ups
+
+- A closed portcullis and a sluice grate are looks: only the piece's own block is solid (the fog wall is the lock).
+- The windmill's torn-sail variant exists as a block but is placed nowhere yet (20.4 structure variety).
+- No winch at the Necropolis sinkhole: the arena template has no rim platform to stand it on.
+- The structure preview draws set pieces as cubes; rendering their geo models in place would make arena renders
+  honest about the pieces' size.
+- The hub island and the toll gates place censers / braziers already lit through NBT `State: lit`; the blockstate's
+  `lit` is set in the template too so the light is right before the block entity loads.
