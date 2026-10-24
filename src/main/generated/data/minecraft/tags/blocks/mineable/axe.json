@@ -15,6 +15,12 @@
     "embervoid:scarecrow",
     "embervoid:weapon_rack",
     "embervoid:tattered_standard",
-    "embervoid:coffin"
+    "embervoid:coffin",
+    "embervoid:windmill_sails",
+    "embervoid:windmill_sails_torn",
+    "embervoid:granary_hoist",
+    "embervoid:great_gear",
+    "embervoid:forge_bellows",
+    "embervoid:chain_winch"
   ]
 }
