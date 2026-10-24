@@ -1048,95 +1048,153 @@ def withered_thrall():
 
 
 # --- Woods: Lantern Hag ----------------------------------------------------------------------------------------------
-# A hunched crone in a moss-dark shawl and hood, a hooked nose and grey hair, an amber lantern in the left hand and a
-# fire flask in the right. Raises the lantern 15 ticks before a throw.
-
-ROBE_MOSS = ramp("20231c", "2c3126", "394031", "474f3d", "57614b")
-SKIN_OLD = ramp("4d4a3e", "625e4f", "787361", "8e8874", "a39d88")
-HAIR = ramp("57544f", "706c66", "8c8882", "a7a39c")
-GLASS_FIRE = ramp("7a2a12", "b8461a", "e66d22", "ff9a3a", "ffc66a")
-
+# A hunched crone in a moss-dark robe and shawl under a hood: a hooked nose, a jutting chin, amber eyes, grey hair in
+# strands that swing, a bandolier of fire flasks across the chest, knobbly hands with fingers, a swinging amber
+# lantern on a chain in the left hand and a flask in the right, a skirt with hem rags. Raises the lantern 15 ticks
+# before a throw.
 
 def lantern_hag():
-    robe = Material(ROBE_MOSS, base=2.2, noise=0.6, grain="v", edge=0.5)
-    skin = Material(SKIN_OLD, base=2.8, noise=0.6, speck=0.04)
+    robe = Material(mk.ROBE_MOSS, base=2.6, noise=0.5, grain="v", edge=0.4, bevel=0.4)
+    skin = Material(mk.SKIN_OLD, base=3.0, noise=0.5, speck=0.04, bevel=0.4)
 
     def face_front(face, rng):
-        for ex in (1, 4):
-            face.set(ex, 3, VOID)
-            face.lit(ex + (1 if ex == 1 else 0), 3, AMBER, 0.8)
-        face.hline(2, 5, 3, SKIN_OLD[0])
-        face.set(1, 6, SKIN_OLD[0])
-        face.set(5, 6, SKIN_OLD[0])
-        face.set(5, 4, hexc("5e6a3a"))  # wart
+        cx = face.cx
+        face.hline(cx - 3, 1, 6, mk.SKIN_OLD[1])  # the brow
+        for ex in (cx - 3, cx + 1):
+            face.rect(ex, 2, 2, 1, VOID)
+            face.lit(ex + (1 if ex < cx else 0), 2, AMBER, 0.85)
+        face.hline(cx - 2, 5, 3, mk.SKIN_OLD[0])  # the mouth, sunken
+        face.set(cx - 3, 4, mk.SKIN_OLD[1])
+        face.set(cx + 2, 4, mk.SKIN_OLD[1])
+        face.set(cx + 2, 3, hexc("5e6a3a"))  # wart
 
     def robe_deco(face, rng):
-        if face.name == "front":
-            face.vline(face.cx, 3, face.h - 3, ROBE_MOSS[0])
-            for y in range(4, face.h - 1, 3):
-                face.set(face.cx, y, BRONZE[3])
         if face.side():
-            band(face, face.h - 4, ROPE[1])
+            mk.fold_lines(face, rng, 3, -14)
+            mk.edge_shadow(face, rng, -10)
+        if face.name == "front":
+            face.vline(face.cx, 2, face.h - 3, mk.ROBE_MOSS[0])
+            for y in range(3, face.h - 1, 3):
+                face.set(face.cx, y, mk.BRASS[4])
 
     def sleeve(face, rng):
-        lower(face, 2, SKIN_OLD, rng)
+        mk.fold_lines(face, rng, 2, -12)
         tatter(face, rng, 1, 0.3)
 
-    bones, top = humanoid(legs=10, body=(8, 14, 5), head=(7, 7, 7), arm=(3, 12, 3), leg=(3, 3), hunch=20,
-                          mats={"body": robe, "head": skin, "arm": robe.but(base=2.0), "leg": robe.but(base=1.4)},
-                          decals={"body": {"all": robe_deco}, "head": {"front": face_front},
-                                  "arm": {"all": sleeve}})
-    head = bone(bones, "head")
-    hood = Material(ROBE_MOSS, base=2.6, noise=0.6, grain="v", top=0.4)
+    bones, top = mk.dense_humanoid(legs=10, body=(8, 14, 5), head=(7, 7, 7), arm=(3, 12, 3), leg=(3, 3), hunch=20,
+                                   mats={"body": robe, "head": skin, "arm": robe.but(base=2.3), "leg": robe.but(base=1.6),
+                                         "hand": skin.but(base=2.4), "foot": Material(mk.LEATHER, base=1.6, noise=0.4)},
+                                   decals={"body": {"all": robe_deco}, "head": {"front": face_front},
+                                           "arm": {"all": sleeve}, "fore": {"all": sleeve}})
+    head = mk.bone(bones, "head")
+    hood = Material(mk.ROBE_MOSS, base=3.0, noise=0.5, grain="v", top=0.4, bevel=0.3)
     head.add(Box([-3.5, top + 1, -3.5], [7, 7, 7], hood,
                  {"front": lambda f, r: open_front(f, 1, 1), "bottom": clear_all,
-                  "sides": lambda f, r: ragged_edge(f, r, "bottom", 1, 0.4)}, inflate=0.5))
-    head.add(Box([-0.5, top + 1.5, -6], [1, 3, 3], skin.but(base=3.2), rotation=[30, 0, 0], pivot=[0, top + 3, -4]))
-    hair = Material(HAIR, base=1.6, noise=0.7, grain="v")
-    strand = Box([-4, top - 5, -2.5], [1, 7, 3], hair, {"sides": lambda f, r: ragged_edge(f, r, "bottom", 3, 0.6)})
-    head.add(strand, mirror_box(strand))
-    body = bone(bones, "body")
-    shawl = Material(ROBE_MOSS, base=3.0, noise=0.6, grain="h")
+                  "sides": lambda f, r: (ragged_edge(f, r, "bottom", 1, 0.4), mk.fold_lines(f, r, 3, -12))}, inflate=0.5),
+             Box([-1, top + 6.2, 0.8], [2, 1.8, 3], hood.but(base=2.2), rotation=[-60, 0, 0], pivot=[0, top + 6.2, 0.8]),
+             Box([-0.6, top + 1.5, -5.6], [1.2, 1.4, 2.4], skin.but(base=3.4), rotation=[35, 0, 0], pivot=[0, top + 3, -4]),  # the hooked nose
+             Box([-1.5, top - 0.8, -4.2], [3, 1.6, 2], skin.but(base=2.6), rotation=[-10, 0, 0], pivot=[0, top, -3]))  # the chin
+    hair = Material(mk.HAIR, base=1.8, noise=0.6, grain="v")
+    for side, x in (("r", -3.8), ("l", 3.8)):
+        bones += chain_bones("hair_" + side, "head", [x, top + 2, -1.5], 2, 3, hair, thickness=0.3,
+                             box=lambda i, o, s, x=x: [Box([x - 0.4, o[1], -3], [0.8, s[1], 3.5], hair,
+                                                           {"sides": lambda f, r: ragged_edge(f, r, "bottom", 2, 0.6)})])
+    body = mk.bone(bones, "body")
+    shawl = Material(mk.ROBE_MOSS, base=3.4, noise=0.5, grain="h", bevel=0.3)
     body.add(Box([-4.5, top - 5, -3], [9, 5, 6], shawl,
-                 {"sides": lambda f, r: (ragged_edge(f, r, "bottom", 2, 0.6), stitch(f, 1, ROPE[2], 3))},
-                 inflate=0.3))
-    vial = Material(GLASS_FIRE, base=2.5, noise=0.5, glow=0.5)
-    body.add(Box([-3.5, 11, -3.6], [2, 3, 1], vial), Box([1.5, 11.5, -3.6], [2, 2, 1], vial))
+                 {"sides": lambda f, r: (ragged_edge(f, r, "bottom", 2, 0.6), stitch(f, 1, mk.ROPE[2], 3), mk.fold_lines(f, r, 3, -10, "h"))},
+                 inflate=0.4),
+             Box([-4.5, top - 7, -3], [9, 1.2, 6], Material(mk.LEATHER, base=2.0, noise=0.4, bevel=0.4),
+                 rotation=[0, 0, -28], pivot=[0, top - 6.5, 0], inflate=0.6))  # the bandolier
+    vial = Material(mk.EMBER_GLASS, base=3.0, noise=0.5, glow=0.55)
+    cork = Material(mk.ROPE, base=2.0, noise=0.3)
+    for i, x in enumerate((-3.2, -1.4, 0.4, 2.2)):
+        y = top - 7.2 + i * 0.95
+        body.add(Box([x, y - 2.2, -3.9], [1.2, 2.2, 1.2], vial, rotation=[0, 0, -28], pivot=[0, top - 6.5, 0]),
+                 Box([x + 0.2, y, -3.7], [0.8, 0.6, 0.8], cork, rotation=[0, 0, -28], pivot=[0, top - 6.5, 0]))
     bones.append(Bone("skirt", [0, 10, 0], "root", None, [
-        Box([-4.5, 1, -3], [9, 10, 6], robe.but(base=1.8), {"sides": lambda f, r: (tatter(f, r, 3, 0.55),
-                                                                                  band(f, 1, ROPE[1]))})]))
-    iron = Material(IRON, base=1.8, noise=0.5, speck=0.08)
+        Box([-4.5, 1, -3], [9, 10, 6], robe.but(base=2.0), {"sides": lambda f, r: (tatter(f, r, 2, 0.5), band(f, 1, mk.ROPE[1]),
+                                                                                    mk.fold_lines(f, r, 3, -14))})]))
+    hem = robe.but(base=1.8)
+    bones += chain_bones("rag", "skirt", [0, 3.4, -3.1], 2, 1.7, hem, thickness=0.3,
+                         box=lambda i, o, s: [Box([-2.5, o[1], -3.3], [5, s[1], 0.4], hem,
+                                                  {"sides": lambda f, r: ragged_edge(f, r, "bottom", 1, 0.6)}),
+                                              Box([-2, o[1], 2.9], [4, s[1], 0.4], hem,
+                                                  {"sides": lambda f, r: ragged_edge(f, r, "bottom", 1, 0.6)})])
+    r_fingers = fingers(-7, 12, -1.3, 3, (0.8, 2.2, 0.8), skin.but(base=2.2), spread=0.3, curl=30, thumb=(2.6, 0.8))
+    mk.bone(bones, "right_fore").add(*r_fingers)
+    mk.bone(bones, "left_fore").add(*[mirror_box(b) for b in r_fingers])
+    iron = Material(mk.IRON, base=2.0, noise=0.5, speck=0.08, bevel=0.5)
 
     def lantern_glass(face, rng):
         if face.side():
-            face.vline(0, 0, face.h, IRON[1])
-            face.vline(face.w - 1, 0, face.h, IRON[1])
+            face.vline(0, 0, face.h, mk.IRON[1])
+            face.vline(face.w - 1, 0, face.h, mk.IRON[1])
             face.lit(face.cx, face.h // 2, EMBER_HOT, 1.0)
+            face.lit(face.cx, face.h // 2 + 1, AMBER, 0.9)
 
-    bones.append(Bone("lantern", [5.5, 13, 0], "left_arm", None, [
-        Box([5.5, 12, -0.5], [1, 2, 1], iron),
-        Box([4.5, 11, -1.5], [3, 1, 3], iron),
-        Box([4.5, 8, -1.5], [3, 3, 3], Material(ramp("a0501a", "e08a2e", "ffb347", "ffd27a"), base=2.0,
-                                                noise=0.5, glow=0.9), {"all": lantern_glass}),
-        Box([4.5, 7, -1.5], [3, 1, 3], iron),
+    # The lantern hangs off the left hand on a short chain and swings behind the motion.
+    bones.append(Bone("lantern", [5.5, 11.5, -0.5], "left_fore", None, [
+        Box([5, 10, -1], [1, 1.5, 1], iron.but(base=3.0)),
+        Box([4.8, 9, -1.2], [1.4, 1, 1.4], iron),
+        Box([3.5, 8, -2], [4, 1, 4], iron, {"all": lambda f, r: mk.rivet_ring(f, mk.IRON[5], None, 0, 3)}),
+        Box([3.5, 4.5, -2], [4, 3.5, 4], Material(mk.AMBER_RAMP, base=4.0, noise=0.5, glow=0.9), {"all": lantern_glass}),
+        Box([3.2, 3.5, -2.3], [4.6, 1, 4.6], iron, {"all": lambda f, r: mk.rivet_ring(f, mk.IRON[5], None, 0, 3)}),
+        Box([5, 2.5, -1], [1, 1, 1], iron.but(base=1.6)),
     ]))
-    bones.append(Bone("flask", [-5.5, 12, 0], "right_arm", None, [
-        Box([-6.5, 9, -1], [2, 2, 2], Material(GLASS_FIRE, base=2.6, noise=0.5, glow=0.7)),
-        Box([-6, 11, -0.5], [1, 1, 1], Material(GLASS_FIRE, base=1.0, noise=0.3)),
-        Box([-6, 12, -0.5], [1, 1, 1], Material(LINEN, base=3.0, noise=0.3)),
+    bones.append(Bone("flask", [-5.5, 12, 0], "right_fore", None, [
+        Box([-6.5, 9, -1], [2, 2.2, 2], Material(mk.EMBER_GLASS, base=3.2, noise=0.5, glow=0.7)),
+        Box([-6, 11.2, -0.5], [1, 1, 1], Material(mk.EMBER_GLASS, base=1.0, noise=0.3)),
+        Box([-6, 12.2, -0.5], [1, 0.8, 1], Material(mk.LINEN, base=3.5, noise=0.3)),
     ]))
+    hair_names = chain_names("hair_r", 2) + chain_names("hair_l", 2)
+    rags = chain_names("rag", 2)
+    chains = hair_names + rags + ["lantern"]
     animations = {
-        "misc.idle": idle(3.0, 4, 2, lantern=rot(0, [0, 0, -5], 1.5, [0, 0, 5], 3.0, [0, 0, -5])),
-        "move.walk": walk(1.2, 20, 8, 0.3, lantern=rot(0, [-10, 0, 0], 0.6, [10, 0, 0], 1.2, [-10, 0, 0]),
-                          skirt=rot(0, [0, 0, 2], 0.6, [0, 0, -2], 1.2, [0, 0, 2])),
-        "attack.throw": anim(1.0, {
-            "left_arm": rot(0, ZERO, 0.6, [-165, 0, -10], 0.75, [-165, 0, -10], 1.0, ZERO),
-            "right_arm": rot(0, ZERO, 0.6, [45, 0, 0], 0.8, [-130, 0, 0], 1.0, ZERO),
-            "body": rot(0, ZERO, 0.6, [0, -20, 0], 0.8, [0, 15, 0], 1.0, ZERO),
-            "lantern": rot(0, ZERO, 0.6, [160, 0, 0], 0.75, [165, 0, 0], 1.0, ZERO),
-        }, loop=False),
+        "misc.idle": mk.breathe(3.0, 2, 1.5, 3, merge(
+            lag_sway(chain_names("hair_r", 2), 3.0, 5, 0, phase=0.0), lag_sway(chain_names("hair_l", 2), 3.0, 5, 0, phase=0.4),
+            lag_sway(rags, 3.0, 4, 0, phase=0.2),
+            {"lantern": rot(0, [0, 0, -6], 1.5, e("easeInOutSine", [4, 0, 6]), 3.0, e("easeInOutSine", [0, 0, -6])),
+             "head": rot(0, ZERO, 1.0, e("easeInOutSine", [4, 12, 0]), 2.0, e("easeInOutSine", [2, -10, 0]), 3.0, e("easeInOutSine", ZERO)),
+             "right_fore": rot(0, [-12, 0, 0], 1.5, e("easeInOutSine", [-18, 0, 0]), 3.0, e("easeInOutSine", [-12, 0, 0])),
+             "left_fore": rot(0, [-12, 0, 0], 1.5, e("easeInOutSine", [-8, 0, 0]), 3.0, e("easeInOutSine", [-12, 0, 0]))})),
+        "move.walk": mk.weighted_walk(1.2, 20, 8, 0.3, 4, 5, extra=mk.limb_walk(1.2, 10, 10, merge(
+            lag_sway(hair_names, 1.2, 8, 0, phase=0.2), lag_sway(rags, 1.2, 10, 0, phase=0.0),
+            {"lantern": rot(0, [-12, 0, -3], 0.6, e("easeInOutSine", [12, 0, 3]), 1.2, e("easeInOutSine", [-12, 0, -3])),
+             "skirt": rot(0, [0, 0, 2], 0.6, e("easeInOutSine", [0, 0, -2]), 1.2, e("easeInOutSine", [0, 0, 2]))}))),
+        # The lantern goes up and stays up through the 15-tick windup (the tell); the flask hand draws back behind
+        # her, the body coiling away; at 0.8 s the flask is flung with the whole body and the hair whips after it.
+        "attack.throw": anim(1.0, merge({
+            "left_arm": rot(0, ZERO, 0.55, e("easeInOutSine", [-160, 0, -12]), 0.75, [-165, 0, -10], 1.0, e("easeOutSine", ZERO)),
+            "left_fore": rot(0, [-12, 0, 0], 0.55, e("easeInOutSine", [-20, 0, 0]), 0.75, [-20, 0, 0], 1.0, e("easeOutSine", [-12, 0, 0])),
+            "lantern": rot(0, ZERO, 0.55, e("easeInOutSine", [160, 0, 0]), 0.75, [168, 0, 0], 0.85, e("easeOutBack", [172, 0, 10]), 1.0,
+                           e("easeOutSine", ZERO)),
+            "right_arm": rot(0, ZERO, 0.6, e("easeInOutSine", [55, 0, 15]), 0.75, [60, 0, 18], 0.82,
+                             e("easeOutBack", [-135, 0, -10]), 1.0, e("easeOutSine", ZERO)),
+            "right_fore": rot(0, [-12, 0, 0], 0.6, e("easeInOutSine", [-70, 0, 0]), 0.75, [-75, 0, 0], 0.82,
+                              e("easeOutCubic", [-5, 0, 0]), 1.0, e("easeOutSine", [-12, 0, 0])),
+            "body": rot(0, ZERO, 0.6, e("easeInOutSine", [-8, -28, 0]), 0.75, [-10, -32, 0], 0.82,
+                        e("easeOutBack", [16, 22, 0]), 1.0, e("easeOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.6, e("easeInOutSine", [-10, 15, 0]), 0.82, e("easeOutCubic", [8, -10, 0]), 1.0, e("easeOutSine", ZERO)),
+            "root": pos(0, ZERO, 0.6, e("easeInOutSine", [0, 0, 1.5]), 0.82, e("easeOutCubic", [0, -0.5, -1.5]), 1.0, e("easeOutSine", ZERO)),
+            "skirt": rot(0, ZERO, 0.6, e("easeInOutSine", [0, -8, 0]), 0.82, e("easeOutCubic", [0, 6, 0]), 1.0, e("easeOutSine", ZERO)),
+        }, hold(hair_names + rags, 0.7, ZERO), whip(hair_names, 0.78, 30, 0, settle=0.2), whip(rags, 0.78, 25, 0, settle=0.2)), loop=False),
+        "misc.hurt": mk.hurt_flinch(0.45, chains=hair_names + rags, extra={
+            "lantern": rot(0, ZERO, 0.1, e("easeOutCubic", [25, 0, 15]), 0.45, e("easeOutSine", ZERO))}),
+        "misc.stagger": mk.stagger(0.9, chains=hair_names + rags, extra={
+            "lantern": rot(0, ZERO, 0.12, e("easeOutCubic", [45, 0, 25]), 0.5, e("easeInOutSine", [-20, 0, -10]), 0.9, e("easeOutSine", ZERO)),
+            "skirt": rot(0, ZERO, 0.12, e("easeOutCubic", [-12, 0, 0]), 0.9, e("easeOutSine", ZERO))}),
+        # She goes down on her back, the lantern arm thrown out and the lantern rolling over, the hair settling.
+        "misc.death": mk.death_fall(2.0, legs=10, forward=False, chains=rags, chain_amp=30, extra=merge(
+            mk.settle(hair_names, 0.9, 40, 0, length=1.0),
+            {"lantern": rot(0, ZERO, 0.9, e("easeInQuad", [60, 0, 80]), 1.15, e("easeOutBounce", [40, 0, 95]), 2.0, [40, 0, 95]),
+             "skirt": rot(0, ZERO, 0.9, e("easeInQuad", [-75, 0, 0]), 1.1, e("easeOutSine", [-82, 0, 0]), 2.0, [-82, 0, 0]),
+             "right_fore": rot(0, [-12, 0, 0], 0.9, e("easeInQuad", [-50, 0, 0]), 2.0, [-50, 0, 0]),
+             "left_fore": rot(0, [-12, 0, 0], 0.9, e("easeInQuad", [-25, 0, 0]), 2.0, [-25, 0, 0]),
+             "right_shin": rot(0, ZERO, 0.35, e("easeOutSine", [45, 0, 0]), 0.9, e("easeInQuad", [30, 0, 0]), 2.0, [30, 0, 0]),
+             "left_shin": rot(0, ZERO, 0.35, e("easeOutSine", [30, 0, 0]), 0.9, e("easeInQuad", [55, 0, 0]), 2.0, [55, 0, 0])})),
     }
-    write_model("lantern_hag", bones, animations, [2, 2.5])
+    write_model("lantern_hag", bones, animations, [2, 2.5], tex_w=128)
 
 
 # --- Woods: Bark Hollow ----------------------------------------------------------------------------------------------
