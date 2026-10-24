@@ -1,5 +1,7 @@
 package com.embervoid.registry;
 
+import com.embervoid.entity.mob.AshGhoulEntity;
+import com.embervoid.entity.mob.MobAnimations;
 import com.embervoid.reach.boss.AshColossusEntity;
 import com.embervoid.reach.boss.CryptKeeperEntity;
 import com.embervoid.reach.boss.GrievingTreeEntity;
@@ -40,8 +42,9 @@ class EntityModelFilesTest {
 	private static final Path ASSETS = Path.of("src", "main", "resources", "assets", "embervoid");
 
 	/** Animations each entity class plays (DefaultAnimations names and its own RawAnimations). */
-	private static final Map<String, List<String>> ANIMATIONS = Map.ofEntries(Map.entry(
-			"ash_ghoul", List.of("misc.idle", "move.walk", "attack.swing")),
+	private static final Map<String, List<String>> ANIMATIONS = Map.ofEntries(
+			// The overworld and moon-night mobs (track overworld-mobs, PLAN 19.3).
+			Map.entry("ash_ghoul", List.of("misc.idle", "move.walk", "attack.swing", MobAnimations.HURT, MobAnimations.DEATH)),
 			Map.entry("hollow", List.of("misc.idle", "move.walk", "attack.swing", "attack.block")),
 			Map.entry("ember_wisp", List.of("misc.idle", "move.fly")),
 			Map.entry("ashen_maiden", List.of("misc.idle", "misc.interact")),
@@ -83,6 +86,8 @@ class EntityModelFilesTest {
 
 	/** Shortest length (s) of a telegraphed animation: the windup it shows, in ticks / 20; death animations at least 2 s. */
 	private static final Map<String, Double> MIN_LENGTH = Map.ofEntries(
+			// The overworld and moon-night mobs: each death animation at least as long as the body stays.
+			Map.entry("ash_ghoul/" + MobAnimations.DEATH, AshGhoulEntity.DEATH_TICKS / 20.0),
 			Map.entry("hollow/attack.swing", 8 / 20.0),                       // HollowEntity.WINDUP_TICKS
 			Map.entry("vampire/misc.transform", VampireEntity.TURN_TICKS / 20.0),
 			Map.entry("vampire_boss/" + VampireBossEntity.LEAP, VampireBossEntity.LEAP_WINDUP / 20.0),

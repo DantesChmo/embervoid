@@ -1,44 +1,53 @@
 #!/usr/bin/env python3
-"""Final models, animations and textures for the overworld entities of 0.2.0 and 0.3.0 (PLAN L4): Ash Ghoul,
-Hollow, Ember Wisp, Ashen Maiden, Ashen Zombie, Ghost, Vampire and the Vampire boss.
+"""Models, animations and textures of the overworld and moon-night entities: Ash Ghoul, Hollow, Ember Wisp, Ashen
+Maiden, Ashen Zombie, Ghost, Vampire (PLAN 19.3, docs/art-direction.md §1.8 and §2: 30–80 cubes, bevels, layered
+cloth and plate, hands with claws, hanging parts on their own bones, a breathing idle, a weighted walk, moves keyed as
+anticipation → strike → recovery, and misc.hurt / misc.death / misc.stagger that the entity classes play), and the
+Vampire boss (the bosses track's remodel, PLAN 19.4, kept as it was merged).
 
 Run from the repository root: python3 tools/overworld_mob_art.py [name ...]
-Replaces the placeholders of tools/mob_placeholders.py, tools/maiden_placeholder.py, tools/nightmob_placeholders.py
-and tools/vampire_placeholders.py at the same size (tools/model_bounds.json), with the placeholders' bone names,
-hierarchy and pivots (the head the renderers turn, the Hollow's right_item bone its sword is drawn at) and the same
-animation names and lengths (the Vampire boss telegraphs end where VampireBossEntity lands them: leap 20, nova 30,
-mist 12 ticks). Check with
+Sizes stay within tools/model_bounds.json, the bone names the code uses stay (the head the renderers turn, the
+Hollow's right_item its sword is drawn at), and so do the animation names and the telegraph lengths
+(EntityModelFilesTest). Check with
     python3 tools/model_preview.py check <name> && python3 tools/model_preview.py entity <name>
+    python3 tools/model_preview.py motion <name>
 
-Look: the same kit and banded ramps as the Ashen Reach mobs (tools/reach_mob_art.py), but the overworld under a
-normal sky: ash and embers for the creatures of the Ember (ghoul, wisp, zombie, maiden), rusted iron and a faded
-ember-red for the Sanctum's fallen guards (Hollow), cold pale blue for the Ghost, black, crimson and bone-white
-for the Vampires of the blood moon. The Ember Wisp and the Ghost are drawn translucent (their renderers use
-RenderLayer.getEntityTranslucent): their textures carry partial alpha, and so do their glowmasks (GeckoLib's glow
-layer blends with alpha, full bright).
+Look (tools/overworld_kit.py holds the ramps): ash and embers for the creatures of the Ember (ghoul, wisp, zombie,
+maiden), cold iron, rust and a faded ember-red for the Sanctum's fallen guard (Hollow), moonlit grey-blue for the
+Ghost, black, crimson and bone-white for the Vampires of the blood moon. The Ember Wisp and the Ghost are drawn
+translucent (their renderers use RenderLayer.getEntityTranslucent): their textures carry partial alpha, and so do
+their glowmasks (GeckoLib's glow layer blends with alpha, full bright).
 """
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from art_kit import (ZERO, Bone, Box, Material, anim, chain_bones, chain_names, chamfered, clamp, crack, e,  # noqa: E402
-                     ember_cracks, hexc, keys, lag_sway, merge, mirror_box, pos, ramp, rot, scatter, shade, sway, tatter,
-                     whip, write_model)
-from reach_mob_art import (ASH, BONE, BRONZE, CHAR, COLD, COLD_DIM, EMBER, EMBER_DARK, EMBER_DEEP,  # noqa: E402
-                           EMBER_HOT, IRON, LEATHER, LINEN, ROPE, RUST, VOID, WOOD, band, bone, clear_all, eyes,
-                           holes, lower, mail, open_front, ragged_edge, rivets, trim)
+                     ember_cracks, fingers, hexc, keys, lag_sway, merge, mirror_box, octagon, pos, ramp, rot, scatter,
+                     shade, sutures, sway, tatter, whip, write_model)
+from overworld_kit import (CLOTH_BLUE, COLD, COLD_DIM, CORE, EMBER, EMBER_DARK, EMBER_DEEP, EMBER_HOT, FLAME,  # noqa: E402
+                           GHOST_DARK, GHOST_EYE, GHOST_PALE, GHOUL_SKIN, HOLLOW_IRON, IVORY, LINEN, MAIDEN_ROBE,
+                           MAIDEN_SKIN, RUST, STRAP, TABARD, VAMP_SKIN, V_BLACK, V_BURGUNDY, V_CRIMSON, V_HAIR, V_LACE,
+                           V_SILVER, ZOMBIE_SKIN, GOLD_TRIM, BRASS, DEAD_WOOD, breathe, cloth, compose, drift, ember_seams,
+                           fade, flame_tongues, flinch, glow_all, hanging, hold_from, lit_eyes, lower, mail, on,
+                           plate_face, round_corners, rust_spots, settle, skin_cracks, tatters, walk)
 
-# --- Palettes (dark to light) -------------------------------------------------------------------------------------
+# --- Kept for vampire_boss() and the entities not yet redone: the Ashen Reach kit's banded ramps and helpers -------
+# (copied from tools/reach_mob_art.py with the same values, so the boss's texture stays byte-identical when the
+# script is rerun; the mobs track rewrites that module, which this one therefore no longer imports)
+
+ASH = ramp("3a3634", "4d4844", "625c56", "7a736b", "948c83", "aea69c")
+BONE = ramp("5e5544", "7c725c", "9a8f75", "b5aa8e", "ccc2a6", "e0d8c0")
+BRONZE = ramp("3f2b14", "5c3f1d", "7d5928", "9e7535", "bd9145", "d9ad5c")
+CHAR = ramp("1a1412", "271e1a", "362a23", "47372d", "5b483b", "74604f")
+IRON = ramp("26272b", "37393e", "4a4d53", "5f6369", "777b81", "92969b", "b0b4b8")
+LEATHER = ramp("2a1c14", "3b281c", "4f3726", "654832", "7c5a40", "93704f")
+ROPE = ramp("47361f", "614c2f", "7c6340", "967c53", "ad9467")
+WOOD = ramp("33291f", "463a2d", "5b4c3c", "715f4c", "88745e")
+VOID = hexc("0c0a0a")
 
 GHOUL = ramp("2a2725", "3a3633", "4d4844", "625c56", "79726a", "8f877d")
 ZOMBIE = ramp("34312f", "46423e", "5a5550", "706a63", "878077", "9f978c")
-CLOTH_BLUE = ramp("1f2228", "2a2f37", "363d47", "434c58", "525c69")
-TABARD = ramp("2a1311", "3c1a16", "50231c", "652d23", "7a382b")
-MAIDEN_ROBE = ramp("29262a", "363237", "443f45", "534d54", "635c64", "746c75")
-MAIDEN_SKIN = ramp("6e6259", "84776c", "998b7f", "ad9f92", "bfb1a3", "cfc2b4")
-GHOST_PALE = ramp("4e5a6b", "62708a", "7888a3", "8fa0ba", "a8b8cf", "c3d1e2")
-GHOST_DARK = ramp("161a24", "1e2431", "272f3f", "323c4f")
-VAMP_SKIN = ramp("8d8590", "a39ba6", "b7b0b9", "c9c3ca", "dad5da", "e8e4e8")
 BOSS_SKIN = ramp("4a4049", "5c515b", "6f636d", "82767f", "958a92", "a89ea5")
 NOBLE_BLACK = ramp("0f0d10", "171419", "201c22", "29242c", "332d37", "3f3843")
 VCRIMSON = ramp("2b070b", "420c12", "5c121a", "771823", "92202c", "ad2a36")
@@ -49,190 +58,286 @@ SILVER = ramp("3d3f46", "5a5d66", "7a7e88", "9a9fa9", "bcc0c8", "dde0e6")
 GOLD = ramp("5a3d12", "7f5a1a", "a67b26", "c99a36", "e8be55")
 HAIR_ASH = ramp("26242a", "34313a", "45414b", "57525e")
 MEMBRANE = ramp("1b070b", "28090f", "360d14", "45121a", "561822")
-
-FLAME = ramp("a8320c", "d2501a", "f07424", "ff9a3a", "ffbe5c", "ffdc8c")
-CORE = ramp("ffb347", "ffd27a", "ffe6a8", "fff4d6")
 BLOOD = hexc("ff2a2a")
 BLOOD_DIM = hexc("b0141e")
-GHOST_EYE = hexc("8ff0ff")
 FANG = hexc("f2eee6")
 
 
-# --- Helpers ------------------------------------------------------------------------------------------------------
-
-def compose(*fns):
-    """Several decals as one (a Box takes one decal per face key)."""
-    def fn(face, rng):
-        for f in fns:
-            f(face, rng)
-    return fn
-
-
-def fade(alpha, bottom=None, glow=0, glow_bottom=None):
-    """Translucency for the entities drawn with RenderLayer.getEntityTranslucent: sets the alpha of every painted
-    pixel (from alpha at the top of a side face to bottom at its foot), and with glow > 0 gives every pixel that does
-    not glow yet a faint glow of its own colour at that alpha (so it still reads at night). Run it last."""
-    def fn(face, rng):
-        for y in range(face.h):
-            k = y / (face.h - 1) if face.side() and face.h > 1 else 0.0
-            a = alpha if bottom is None else alpha + (bottom - alpha) * k
-            ga = glow if glow_bottom is None else glow + (glow_bottom - glow) * k
-            for x in range(face.w):
-                c = face.get(x, y)
-                if not c[3]:
-                    continue
-                face.tex.set(face.x0 + x, face.y0 + y, c[:3] + (clamp(a),))
-                g = face.glow.get(face.x0 + x, face.y0 + y)
-                if g[3]:
-                    continue
-                if ga > 0:
-                    face.glow.set(face.x0 + x, face.y0 + y, c[:3] + (clamp(ga),))
-    return fn
-
-
-def glow_all(alpha=255, scale=1.0):
-    """Every painted pixel glows with its own colour (a body made of light)."""
-    def fn(face, rng):
-        for y in range(face.h):
-            for x in range(face.w):
-                c = face.get(x, y)
-                if c[3]:
-                    face.glow.set(face.x0 + x, face.y0 + y,
-                                  tuple(clamp(v * scale) for v in c[:3]) + (clamp(alpha),))
-    return fn
-
-
-def flame_tongues(face, rng, depth=3, chance=0.5):
-    """Licking flame: clears notches down from the top edge of a side face, deeper here and there."""
+def band(face, y, color, h=1):
     if face.side():
+        face.rect(0, y, face.w, h, color)
+
+
+def clear_all(face, rng=None):
+    for y in range(face.h):
         for x in range(face.w):
-            if rng.random() < chance:
-                for k in range(rng.randint(1, depth)):
-                    face.clear(x, k)
+            face.clear(x, y)
+
+
+def holes(face, rng, count, size=1):
+    """Burn holes: transparent pixels with a scorched rim (the cutout shows what is under the cloth)."""
+    for _ in range(count):
+        x, y = rng.randrange(face.w), rng.randrange(face.h)
+        for dx in range(size):
+            for dy in range(size):
+                face.clear(x + dx, y + dy)
+        for dx, dy in ((-1, 0), (size, 0), (0, -1), (0, size)):
+            if face.get(x + dx, y + dy)[3]:
+                face.set(x + dx, y + dy, CHAR[1])
+
+
+def open_front(face, inset=1, top_rows=1):
+    """A hood's front: cleared except a rim, so the face inside shows."""
+    for y in range(top_rows, face.h):
+        for x in range(inset, face.w - inset):
+            face.clear(x, y)
+
+
+def ragged_edge(face, rng, side, depth=2, chance=0.6, every=1):
+    """Clears notches along one edge of a face: 'bottom', 'top', 'left', 'right'."""
+    span = face.w if side in ("top", "bottom") else face.h
+    for i in range(0, span, every):
+        if rng.random() < chance:
+            for k in range(rng.randint(1, depth)):
+                if side == "bottom":
+                    face.clear(i, face.h - 1 - k)
+                elif side == "top":
+                    face.clear(i, k)
+                elif side == "left":
+                    face.clear(k, i)
+                else:
+                    face.clear(face.w - 1 - k, i)
+
+
+def rivets(face, color, step=3, inset=1):
+    for x in range(inset, face.w - inset, step):
+        face.set(x, inset, color)
+        face.set(x, face.h - 1 - inset, color)
+
+
+def trim(face, color, sides=("top", "bottom", "left", "right")):
+    """Outlines the face's edges (a rim on a shield, a hem)."""
+    for x in range(face.w):
+        if "top" in sides:
+            face.set(x, 0, color)
+        if "bottom" in sides:
+            face.set(x, face.h - 1, color)
+    for y in range(face.h):
+        if "left" in sides:
+            face.set(0, y, color)
+        if "right" in sides:
+            face.set(face.w - 1, y, color)
 
 
 def seams(face, rng, n, length=(2, 4)):
     ember_cracks(face, rng, n, EMBER, EMBER_DEEP, 0.85, length)
 
 
-def lit_eyes(face, y, color, xs, strength=1.0, socket=None, w=1):
-    for x in xs:
-        if socket is not None:
-            face.rect(x - 1, y - 1, w + 2, 3, socket)
-        for k in range(w):
-            face.lit(x + k, y, color, strength)
-
-
 # --- Ash Ghoul ------------------------------------------------------------------------------------------------------
-# Fast, weak pack hunter of the night (DESIGN §3.2): a gaunt, hunched corpse of ash with embers still in its cracks,
-# arms too long and ending in claws, ribs and spine pushing through the skin, a hanging jaw. It bursts into an ash
-# cloud on death, so it looks dry and flaking.
+# Fast, weak pack hunter of the night (DESIGN §3.2): a gaunt, hunched corpse of dry ash, embers still alive in the
+# splits of its skin, arms too long ending in bone claws, ribs and spine pushing through, a skull face with sunken
+# sockets and a hanging jaw, rags of a shroud at the waist. 57 cubes on 20 bones: chamfered torso and skull, a face
+# plate and a rib plate carrying the drawn features, forearms, hands with three claws and a thumb, shins, feet with
+# toe claws, four tatters on two-bone chains. It bursts into an ash cloud on death (AshGhoulEntity), so misc.death
+# is a collapse onto its face with the ash still rising.
 
 def ash_ghoul():
-    skin = Material(GHOUL, base=2.6, noise=0.8, speck=0.06, grad=1.0, top=1.0, edge=0.4)
+    skin = Material(GHOUL_SKIN, base=3.0, noise=0.55, cell=2.5, speck=0.04, grad=1.0, top=0.8, bottom=-1.0, edge=0.5,
+                    bevel=0.35)
+    dark_skin = skin.but(base=2.4)
+    ivory = Material(IVORY, base=3.2, noise=0.45, grad=1.0, bevel=0.3)
+    rag = Material(LINEN, base=2.4, noise=0.5, grain="v", grad=0.8)
 
-    def flaking(face, rng, seam=0.7):
+    def hide(face, rng):
         if face.side():
-            scatter(face, rng, max(1, face.w * face.h // 18), GHOUL[1])
-            if rng.random() < seam:
-                ember_cracks(face, rng, 1, EMBER, EMBER_DEEP, 0.8, (1, 2))
+            skin_cracks(face, rng, GHOUL_SKIN[0], max(1, face.w * face.h // 20))
+            if face.w * face.h >= 12 and rng.random() < 0.6:
+                ember_seams(face, rng, 1, length=(1, 3), dark=GHOUL_SKIN[0])
 
     def limb(face, rng):
-        flaking(face, rng, 0.35)
+        if face.side():
+            skin_cracks(face, rng, GHOUL_SKIN[0], max(1, face.w * face.h // 28), (1, 3))
 
-    def torso_front(face, rng):
-        # Ribs through the skin, a glowing split under them.
-        for i, y in enumerate((1, 3, 5)):
-            face.hline(1, y, face.w - 2, GHOUL[4])
-            face.hline(1, y + 1, face.w - 2, GHOUL[1])
-        face.vline(face.cx, 1, 6, GHOUL[0])
-        face.lit(face.cx, 7, EMBER, 0.9)
-        face.lit(face.cx - 1, 8, EMBER_DEEP, 0.7)
-        face.lit(face.cx, 8, EMBER_HOT, 0.9)
+    def chest(face, rng):
+        # Ribs through the skin, the sternum split and glowing under them.
+        for y in (1, 3, 5):
+            # Each rib curves down from the sternum to the side, its underside in shadow.
+            face.hline(1, y, face.w - 2, IVORY[3])
+            face.set(1, y + 1, IVORY[2])
+            face.set(face.w - 2, y + 1, IVORY[2])
+            face.hline(2, y + 1, face.w - 4, GHOUL_SKIN[0])
+            face.set(0, y + 1, GHOUL_SKIN[1])
+            face.set(face.w - 1, y + 1, GHOUL_SKIN[1])
+        face.vline(face.cx, 0, face.h, GHOUL_SKIN[0])
+        face.set(face.cx, 1, IVORY[1])
+        face.set(face.cx, 3, IVORY[1])
+        face.lit(face.cx, 6, EMBER, 0.9)
+        face.lit(face.cx - 1, 7, EMBER_DEEP, 0.7)
+        face.lit(face.cx, 7, EMBER_HOT, 1.0)
+        face.set(face.cx + 1, 7, GHOUL_SKIN[0])
 
-    def torso_back(face, rng):
-        face.vline(face.cx, 0, face.h, GHOUL[1])
-        for y in range(1, face.h, 2):
-            face.set(face.cx, y, GHOUL[5])
-        flaking(face, rng)
-
-    def head_front(face, rng):
-        # Skull-tight face: deep sockets with ember pupils, a slit nose, cheekbones, the jaw hangs below.
-        face.hline(0, 1, face.w, GHOUL[4])          # brow ridge
-        face.hline(0, 2, face.w, GHOUL[1])
+    def face_plate(face, rng):
+        # Skull-tight face: a brow ridge, deep sockets with ember pupils, a slit nose between hollow cheeks, the upper
+        # teeth over the dark of the mouth (the jaw hangs below on its own bone).
+        face.hline(0, 0, face.w, GHOUL_SKIN[4])
+        face.hline(0, 1, face.w, GHOUL_SKIN[2])
         for ex in (1, face.w - 3):
-            face.rect(ex, 2, 2, 2, VOID)
-        face.lit(2, 3, EMBER_HOT, 1.0)
-        face.lit(face.w - 3, 3, EMBER_HOT, 1.0)
-        face.lit(1, 3, EMBER_DEEP, 0.6)
-        face.lit(face.w - 2, 3, EMBER_DEEP, 0.6)
-        face.set(face.cx, 4, VOID)
-        face.set(face.cx, 5, GHOUL[0])
-        face.hline(1, 5, 1, GHOUL[4])
-        face.hline(face.w - 2, 5, 1, GHOUL[4])
-        face.hline(1, 6, face.w - 2, VOID)
-        for x in range(1, face.w - 1, 2):
-            face.set(x, 6, BONE[2])
+            face.rect(ex, 1, 2, 2, VOID)
+        face.lit(2, 2, EMBER_HOT, 1.0)
+        face.lit(face.w - 3, 2, EMBER_HOT, 1.0)
+        face.lit(1, 2, EMBER_DEEP, 0.5)
+        face.lit(face.w - 2, 2, EMBER_DEEP, 0.5)
+        face.hline(0, 3, face.w, GHOUL_SKIN[3])
+        face.set(0, 3, GHOUL_SKIN[1])
+        face.set(face.w - 1, 3, GHOUL_SKIN[1])
+        face.set(face.cx, 3, VOID)
+        face.set(face.cx - 1, 3, GHOUL_SKIN[1])
+        face.hline(0, 4, face.w, VOID)
+        for x in range(1, face.w, 2):
+            face.set(x, 4, IVORY[4])
+        face.hline(0, 5, face.w, GHOUL_SKIN[1])
 
     def jaw_front(face, rng):
         face.hline(0, 0, face.w, VOID)
         for x in range(0, face.w, 2):
-            face.set(x, 0, BONE[3])
-        face.lit(face.cx, 0, EMBER_DEEP, 0.6)
+            face.set(x, 0, IVORY[5])
 
+    def crust(face, rng):
+        scatter(face, rng, max(1, face.w * face.h // 6), GHOUL_SKIN[1])
+        scatter(face, rng, max(1, face.w * face.h // 10), GHOUL_SKIN[5])
+
+    tatter_deco = compose(cloth(2, -18, LINEN[0]), tatters(2, 0.6), lambda f, r: holes(f, r, 1) if f.side() else None)
+
+    # Animation signs (checked in the preview): -X raises an arm or swings a leg forward and tilts the head and body
+    # back; +X bows the body forward, folds a leg back, opens the jaw (its box lies in front of its pivot).
     bones = [
         Bone("root", [0, 0, 0]),
-        Bone("body", [0, 11, 0], "root", [20, 0, 0], [
-            Box([-3.5, 11, -1.5], [7, 10, 3], skin, {"front": torso_front, "back": torso_back,
-                                                     "left": flaking, "right": flaking}),
-            Box([-3.5, 8.5, -1.8], [7, 3, 3.6], Material(LINEN, base=1.2, noise=0.7, grain="v"),
-                {"sides": lambda f, r: (tatter(f, r, 2, 0.6), holes(f, r, 1))}, inflate=0.2),
-        ] + [Box([-0.5, y, 1.5], [1, 1, 1], skin.but(base=4.0)) for y in (13, 15.5, 18)]),
-        Bone("head", [0, 20, -3], "root", None, [
-            Box([-3.5, 20, -6.5], [7, 7, 7], skin.but(base=2.8), {"front": head_front, "back": flaking,
-                                                                 "left": flaking, "right": flaking}),
-            Box([-2.5, 18.5, -6.6], [5, 1.5, 4], skin.but(base=2.0), {"front": jaw_front}),
-            Box([-3, 26.5, -5], [6, 1, 5], Material(GHOUL, base=0.8, noise=0.6),
-                {"all": lambda f, r: ragged_edge(f, r, "bottom" if f.side() else "top", 1, 0.5)}),
+        Bone("body", [0, 11, 0], "root", [16, 0, 0],
+             chamfered([-3.5, 11, -1.5], [7, 10, 3], skin, {"all": hide}, c=0.6)
+             + [Box([-3.2, 12, -1.9], [6.4, 8.5, 0.6], skin.but(base=2.8), {"front": chest}),
+                Box([-3.5, 19.8, -1.9], [7, 1, 0.8], ivory.but(base=2.6)),
+                Box([-3.3, 16.5, 1.3], [2.2, 3, 0.7], ivory.but(base=2.2), {"back": lambda f, r: sutures(f, r, IVORY[0], 1)}),
+                Box([1.1, 16.5, 1.3], [2.2, 3, 0.7], ivory.but(base=2.2), {"back": lambda f, r: sutures(f, r, IVORY[0], 1)})]
+             + [Box([-0.6, y, 1.3], [1.2, 1.2, 1.2], ivory.but(base=3.6)) for y in (12.5, 14.8, 18.4)]),
+        Bone("head", [0, 20.5, -2], "body", [-14, 0, 0],
+             chamfered([-3.5, 20.5, -5], [7, 6.5, 7], skin.but(base=3.2), {"all": hide}, c=1.0)
+             + [Box([-3.5, 20.5, -5.4], [7, 6, 0.6], skin.but(base=3.0), {"front": face_plate}),
+                Box([-3.7, 24.8, -5.6], [7.4, 1.3, 1.2], ivory.but(base=2.4)),
+                Box([-3.8, 22.3, -5.2], [1.3, 1.1, 1.4], ivory.but(base=2.2)),
+                Box([2.5, 22.3, -5.2], [1.3, 1.1, 1.4], ivory.but(base=2.2)),
+                Box([-2.2, 26.8, -4.4], [3.2, 0.6, 3.4], skin.but(base=1.6), {"top": crust}, rotation=[0, 18, 0]),
+                Box([-0.8, 26.8, -2.2], [3.4, 0.6, 2.6], skin.but(base=1.8), {"top": crust}, rotation=[0, -25, 0])]),
+        Bone("jaw", [0, 21.2, -1.2], "head", None, [
+            Box([-2.5, 19.7, -4.9], [5, 1.4, 4.4], dark_skin, {"front": jaw_front, "top": lambda f, r: f.rect(0, 0, f.w, f.h, VOID)}),
+            Box([-1.9, 21, -5.2], [0.7, 0.8, 0.7], ivory.but(base=4.0)),
+            Box([1.2, 21, -5.2], [0.7, 0.8, 0.7], ivory.but(base=4.0)),
         ]),
     ]
-    arm = Box([-6, 6, -4.5], [3, 14, 3], skin, {"sides": limb})
-    claws = [Box([-6, 3.5, -4.5], [1, 2.5, 1], Material(BONE, base=1.4, noise=0.4), rotation=[-20, 0, 0],
-                 pivot=[-5.5, 6, -4]),
-             Box([-4, 3.5, -4.5], [1, 2.5, 1], Material(BONE, base=1.4, noise=0.4), rotation=[-20, 0, 0],
-                 pivot=[-3.5, 6, -4]),
-             Box([-5, 4.5, -2.5], [1, 1.5, 1], Material(BONE, base=1.0, noise=0.4))]
+    # Tatters of the shroud at the waist, front and back, each two segments.
+    bones += hanging("rag_front", "body", [0, 11.5, -1.9], 2, 3.5, 6, rag, {"all": tatter_deco}, z_step=-0.2, taper=1.2, rotation=[-16, 0, 0])
+    bones += hanging("rag_back", "body", [0, 11.5, 1.9], 2, 3.5, 6, rag.but(base=2.0), {"all": tatter_deco}, z_step=0.2, taper=1.2, rotation=[-16, 0, 0])
+    # Arms: a shoulder knob, the upper arm, a bony elbow, the forearm, a palm with three claws and a thumb.
+    upper = Box([-6.5, 13, -2.5], [3, 7, 3], skin, {"sides": limb})
+    knob = Box([-7, 18.8, -2.8], [3.6, 2, 3.6], skin.but(base=3.4), {"sides": limb})
+    fore = Box([-6.3, 6.5, -2.3], [2.6, 7.5, 2.6], skin.but(base=2.7), {"sides": limb})
+    elbow = Box([-6.6, 12.3, -2.6], [3.2, 1.6, 3.2], ivory.but(base=2.0))
+    palm = Box([-6.5, 4.5, -2.3], [3, 2.2, 2.4], skin.but(base=2.6))
+    claws = fingers(-6.4, 4.5, -2.4, 3, (0.8, 3, 0.8), ivory.but(base=3.6), spread=0.3, curl=28, thumb=(1.1, -0.9))
     bones += [
-        Bone("right_arm", [-4.5, 20, -3], "root", [-15, 0, 0], [arm] + claws),
-        Bone("left_arm", [4.5, 20, -3], "root", [-15, 0, 0], [mirror_box(arm)] + [mirror_box(c) for c in claws]),
+        Bone("right_arm", [-4.5, 19.5, -1], "body", [-6, 0, 3], [upper, knob]),
+        Bone("right_forearm", [-5, 13.5, -1], "right_arm", [-22, 0, 0], [fore, elbow]),
+        Bone("right_hand", [-5, 6.5, -1], "right_forearm", [-8, 0, 0], [palm] + claws),
+        Bone("left_arm", [4.5, 19.5, -1], "body", [-6, 0, -3], [mirror_box(upper), mirror_box(knob)]),
+        Bone("left_forearm", [5, 13.5, -1], "left_arm", [-22, 0, 0], [mirror_box(fore), mirror_box(elbow)]),
+        Bone("left_hand", [5, 6.5, -1], "left_forearm", [-8, 0, 0], [mirror_box(palm)] + [mirror_box(c) for c in claws]),
     ]
-    leg = Box([-3.5, 0, -1.5], [3, 11, 3], skin.but(base=2.2), {"sides": lambda f, r: flaking(f, r, 0.0)})
-    toes = Box([-3.5, 0, -2.5], [3, 1, 1], Material(BONE, base=1.2, noise=0.4))
-    bones += [Bone("right_leg", [-2, 11, 0], "root", None, [leg, toes]),
-              Bone("left_leg", [2, 11, 0], "root", None, [mirror_box(leg), mirror_box(toes)])]
+    # Legs: thigh, a kneecap on the shin, a foot with two toe claws.
+    thigh = Box([-3.3, 5.5, -1.5], [3, 5.8, 3], skin.but(base=2.8), {"sides": limb})
+    shin = Box([-3.2, 0.9, -1.4], [2.8, 4.8, 2.8], skin.but(base=2.5), {"sides": limb})
+    knee = Box([-3.4, 4.6, -2.0], [3.2, 1.6, 1.0], ivory.but(base=2.2))
+    foot = Box([-3.3, 0, -2.6], [3, 1, 4.2], dark_skin)
+    toes = [Box([-3.2, 0, -3.6], [0.9, 0.9, 1.1], ivory.but(base=3.4)), Box([-1.7, 0, -3.6], [0.9, 0.9, 1.1], ivory.but(base=3.4))]
+    bones += [
+        Bone("right_leg", [-1.8, 11, 0], "root", [-8, 0, 0], [thigh]),
+        Bone("right_shin", [-1.8, 5.5, 0], "right_leg", [14, 0, 0], [shin, knee]),
+        Bone("right_foot", [-1.8, 1, 0], "right_shin", [-6, 0, 0], [foot] + toes),
+        Bone("left_leg", [1.8, 11, 0], "root", [-8, 0, 0], [mirror_box(thigh)]),
+        Bone("left_shin", [1.8, 5.5, 0], "left_leg", [14, 0, 0], [mirror_box(shin), mirror_box(knee)]),
+        Bone("left_foot", [1.8, 1, 0], "left_shin", [-6, 0, 0], [mirror_box(foot)] + [mirror_box(t) for t in toes]),
+    ]
+    rags = [chain_names("rag_front", 2), chain_names("rag_back", 2)]
+
+    def rags_drift(length, amp, phase=0.0):
+        return merge(drift(rags[0], length, amp, phase=phase), drift(rags[1], length, amp * 0.8, phase=phase + 0.3))
+
+    def rags_whip(t0, amp, settle_t=0.4):
+        return merge(whip(rags[0], t0, amp, settle=settle_t), whip(rags[1], t0 + 0.03, -amp * 0.8, settle=settle_t))
+
+    arms_rest = [[-6, 0, 3], [-6, 0, -3]]
+    fall = {"body": [8, 0, 0], "head": [-10, 28, 12], "jaw": [16, 0, 0], "right_arm": [-75, 0, 35], "left_arm": [-60, 0, -40],
+            "right_forearm": [-20, 0, 0], "left_forearm": [-30, 0, 0], "right_hand": [-25, 0, 0], "left_hand": [-25, 0, 0],
+            "right_leg": [14, 0, 8], "left_leg": [8, 0, -6], "right_shin": [-30, 0, 0], "left_shin": [-18, 0, 0],
+            "right_foot": [20, 0, 0], "left_foot": [25, 0, 0]}
     animations = {
-        "misc.idle": anim(2.0, {
-            "body": rot(0, ZERO, 1, [4, 0, 0], 2, ZERO),
-            "head": rot(0, ZERO, 0.5, [6, -8, 0], 1.1, [2, 10, 4], 1.6, [8, 0, 0], 2, ZERO),
-            "right_arm": rot(0, ZERO, 1, [-8, 0, 4], 2, ZERO),
-            "left_arm": rot(0, ZERO, 1, [-5, 0, -4], 2, ZERO),
-        }),
-        "move.walk": anim(0.6, {
-            "right_leg": rot(0, [35, 0, 0], 0.3, [-35, 0, 0], 0.6, [35, 0, 0]),
-            "left_leg": rot(0, [-35, 0, 0], 0.3, [35, 0, 0], 0.6, [-35, 0, 0]),
-            "right_arm": rot(0, [-35, 0, 5], 0.3, [20, 0, 5], 0.6, [-35, 0, 5]),
-            "left_arm": rot(0, [20, 0, -5], 0.3, [-35, 0, -5], 0.6, [20, 0, -5]),
-            "body": rot(0, [8, 4, 0], 0.15, [10, 0, 0], 0.3, [8, -4, 0], 0.45, [10, 0, 0], 0.6, [8, 4, 0]),
-            "head": rot(0, [-6, 0, 0], 0.15, [-2, 0, 0], 0.3, [-6, 0, 0], 0.45, [-2, 0, 0], 0.6, [-6, 0, 0]),
-            "root": pos(0, ZERO, 0.15, [0, 0.6, 0], 0.3, ZERO, 0.45, [0, 0.6, 0], 0.6, ZERO),
-        }),
-        # A rake with the right claws, then the left.
-        "attack.swing": anim(0.4, {
-            "right_arm": rot(0, ZERO, 0.12, [-120, 0, 15], 0.22, [-30, 0, -10], 0.4, ZERO),
-            "left_arm": rot(0, ZERO, 0.1, [-50, 0, -10], 0.24, [-115, 0, -15], 0.34, [-30, 0, 10], 0.4, ZERO),
-            "body": rot(0, ZERO, 0.12, [-4, 10, 0], 0.24, [8, -10, 0], 0.4, ZERO),
-            "head": rot(0, ZERO, 0.12, [-12, 0, 0], 0.3, [6, 0, 0], 0.4, ZERO),
-        }, loop=False),
+        # Hunched and twitchy: the chest heaves, the head snaps from side to side, the jaw works, the claws flex.
+        "misc.idle": anim(2.0, merge(breathe(2.0, chest=2.5, head=0, shoulders=1.5), rags_drift(2.0, 4), {
+            "head": rot(0, ZERO, 0.4, e("easeOutCubic", [4, -20, 4]), 0.9, [5, -20, 4], 1.0, e("easeOutCubic", [-3, 16, -3]),
+                        1.55, [-2, 16, -3], 2.0, e("easeInOutSine", ZERO)),
+            "jaw": rot(0, ZERO, 0.5, [8, 0, 0], 0.7, [2, 0, 0], 1.3, [10, 0, 0], 2.0, ZERO),
+            "right_hand": rot(0, ZERO, 1.0, e("easeInOutSine", [-14, 0, 0]), 2.0, e("easeInOutSine", ZERO)),
+            "left_hand": rot(0, [-10, 0, 0], 1.0, e("easeInOutSine", ZERO), 2.0, e("easeInOutSine", [-10, 0, 0])),
+            "right_forearm": rot(0, ZERO, 1.0, [-6, 0, 0], 2.0, ZERO),
+            "left_forearm": rot(0, [-4, 0, 0], 1.0, ZERO, 2.0, [-4, 0, 0]),
+        })),
+        # A fast lope (speed 0.33): long strides, the arms swinging wide with the forearms bent, the body pitching
+        # with each plant, the head level and the rags trailing.
+        "move.walk": anim(0.5, merge(walk(0.5, stride=40, swing=32, bob=0.9, lean=6, twist=7, roll=3, arm_rest=arms_rest),
+                                     rags_drift(0.5, 10, 0.1), {
+            "right_forearm": rot(0, [-30, 0, 0], 0.25, e("easeInOutSine", [-45, 0, 0]), 0.5, e("easeInOutSine", [-30, 0, 0])),
+            "left_forearm": rot(0, [-45, 0, 0], 0.25, e("easeInOutSine", [-30, 0, 0]), 0.5, e("easeInOutSine", [-45, 0, 0])),
+            "right_shin": rot(0, [10, 0, 0], 0.12, [45, 0, 0], 0.25, e("easeInOutSine", [5, 0, 0]), 0.5, e("easeInOutSine", [10, 0, 0])),
+            "left_shin": rot(0, [5, 0, 0], 0.25, e("easeInOutSine", [10, 0, 0]), 0.37, [45, 0, 0], 0.5, e("easeInOutSine", [5, 0, 0])),
+            "jaw": rot(0, [6, 0, 0], 0.25, [10, 0, 0], 0.5, [6, 0, 0]),
+        })),
+        # A rake with the right claws, then the left: both drawn up and back first, raked down and across with a snap,
+        # the jaw open at the strike, the rags whipping after it.
+        "attack.swing": anim(0.45, merge(rags_whip(0.2, 30, 0.22), {
+            "right_arm": rot(0, arms_rest[0], 0.12, e("easeInOutSine", [-150, 0, 28]), 0.2, e("easeOutBack", [-35, 0, -12]), 0.45, e("easeInOutSine", arms_rest[0])),
+            "right_forearm": rot(0, ZERO, 0.12, [-45, 0, 0], 0.2, e("easeOutCubic", [8, 0, 0]), 0.45, ZERO),
+            "right_hand": rot(0, ZERO, 0.12, [-35, 0, 0], 0.2, [25, 0, 0], 0.45, ZERO),
+            "left_arm": rot(0, arms_rest[1], 0.14, [-60, 0, -20], 0.24, e("easeInOutSine", [-145, 0, -28]), 0.32, e("easeOutBack", [-30, 0, 12]), 0.45, e("easeInOutSine", arms_rest[1])),
+            "left_forearm": rot(0, ZERO, 0.24, [-45, 0, 0], 0.32, e("easeOutCubic", [8, 0, 0]), 0.45, ZERO),
+            "left_hand": rot(0, ZERO, 0.24, [-35, 0, 0], 0.32, [25, 0, 0], 0.45, ZERO),
+            "body": rot(0, ZERO, 0.12, e("easeInOutSine", [-8, 16, 0]), 0.2, e("easeOutBack", [12, -12, 0]), 0.32, [10, 10, 0], 0.45, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.12, [-16, 0, 0], 0.22, [10, 0, 0], 0.45, ZERO),
+            "jaw": rot(0, ZERO, 0.1, [20, 0, 0], 0.3, [6, 0, 0], 0.45, ZERO),
+            "root": pos(0, ZERO, 0.12, [0, 0.5, 0.8], 0.2, e("easeOutCubic", [0, -0.5, -1.5]), 0.45, ZERO),
+        }), loop=False),
+        # A hit knocks it back: the body and head jerk, the arms come up, the jaw snaps; the rags fly.
+        "misc.hurt": anim(0.4, merge(flinch(0.4, amount=1.1), rags_whip(0.04, 18, 0.3), {
+            "jaw": rot(0, ZERO, 0.06, [22, 0, 0], 0.4, ZERO),
+        }), loop=False),
+        # It staggers back, its knees buckle, and it goes down on its face with the arms thrown out; the rags settle.
+        "misc.death": anim(1.8, merge(rags_whip(0.95, 25, 0.6), {
+            "root": {"position": keys(0, ZERO, 0.25, e("easeOutCubic", [0, 0, 1.5]), 0.55, e("easeInOutSine", [0, -4.5, 1]),
+                                      0.95, e("easeOutBounce", [0, -1, 0]), 1.8, [0, -1, 0]),
+                     "rotation": keys(0, ZERO, 0.5, ZERO, 0.95, e("easeInQuad", [82, 0, 6]), 1.1, e("easeOutCubic", [84, 0, 6]), 1.8, [84, 0, 6])},
+            "body": rot(0, ZERO, 0.25, e("easeOutCubic", [-16, 0, 0]), 0.55, e("easeInOutSine", [18, 0, 0]), 0.95, [10, 0, 0], 1.1, fall["body"], 1.8, fall["body"]),
+            "head": rot(0, ZERO, 0.22, e("easeOutCubic", [-22, 0, 0]), 0.55, [-8, 0, 0], 0.95, [-4, 0, 0], 1.15, e("easeOutCubic", fall["head"]), 1.8, fall["head"]),
+            "jaw": rot(0, ZERO, 0.22, [24, 0, 0], 0.6, [10, 0, 0], 1.1, fall["jaw"], 1.8, fall["jaw"]),
+            "right_arm": rot(0, arms_rest[0], 0.25, e("easeOutCubic", [-45, 0, 25]), 0.55, [-20, 0, 15], 0.95, [-40, 0, 20], 1.1, e("easeOutCubic", fall["right_arm"]), 1.8, fall["right_arm"]),
+            "left_arm": rot(0, arms_rest[1], 0.25, e("easeOutCubic", [-40, 0, -25]), 0.55, [-15, 0, -15], 0.95, [-35, 0, -20], 1.1, e("easeOutCubic", fall["left_arm"]), 1.8, fall["left_arm"]),
+            "right_forearm": rot(0, ZERO, 0.25, [-30, 0, 0], 0.95, [-10, 0, 0], 1.1, fall["right_forearm"], 1.8, fall["right_forearm"]),
+            "left_forearm": rot(0, ZERO, 0.25, [-30, 0, 0], 0.95, [-10, 0, 0], 1.1, fall["left_forearm"], 1.8, fall["left_forearm"]),
+            "right_hand": rot(0, ZERO, 0.25, [-30, 0, 0], 1.1, fall["right_hand"], 1.8, fall["right_hand"]),
+            "left_hand": rot(0, ZERO, 0.25, [-30, 0, 0], 1.1, fall["left_hand"], 1.8, fall["left_hand"]),
+            "right_leg": rot(0, ZERO, 0.3, ZERO, 0.55, e("easeInOutSine", [35, 0, 0]), 1.0, fall["right_leg"], 1.8, fall["right_leg"]),
+            "left_leg": rot(0, ZERO, 0.3, ZERO, 0.55, e("easeInOutSine", [28, 0, 0]), 1.0, fall["left_leg"], 1.8, fall["left_leg"]),
+            "right_shin": rot(0, ZERO, 0.3, ZERO, 0.55, e("easeInOutSine", [-60, 0, 0]), 1.0, fall["right_shin"], 1.8, fall["right_shin"]),
+            "left_shin": rot(0, ZERO, 0.3, ZERO, 0.55, e("easeInOutSine", [-50, 0, 0]), 1.0, fall["left_shin"], 1.8, fall["left_shin"]),
+            "right_foot": rot(0, ZERO, 0.55, [20, 0, 0], 1.8, fall["right_foot"]),
+            "left_foot": rot(0, ZERO, 0.55, [25, 0, 0], 1.8, fall["left_foot"]),
+        }), loop=False),
     }
     write_model("ash_ghoul", bones, animations, [2, 2.5])
 

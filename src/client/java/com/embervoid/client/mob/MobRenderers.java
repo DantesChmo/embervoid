@@ -31,7 +31,12 @@ public final class MobRenderers {
 	public static void register() {
 		EntityRendererRegistry.register(MobEntities.ASH_GHOUL, context -> {
 			GeoEntityRenderer<AshGhoulEntity> renderer =
-					new GeoEntityRenderer<>(context, new DefaultedEntityGeoModel<>(Embervoid.id("ash_ghoul"), true));
+					new GeoEntityRenderer<>(context, new DefaultedEntityGeoModel<>(Embervoid.id("ash_ghoul"), true)) {
+						@Override
+						protected float getDeathMaxRotation(AshGhoulEntity ghoul) {
+							return 0; // its own death animation (PLAN 19.3)
+						}
+					};
 			renderer.addRenderLayer(new AutoGlowingGeoLayer<>(renderer));
 			return renderer;
 		});

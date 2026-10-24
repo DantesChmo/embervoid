@@ -52,7 +52,8 @@
 			"com.embervoid.gametest.WardensScourgeTests",
 			"com.embervoid.gametest.SetPieceTests",
 			"com.embervoid.gametest.ArenaWallTests",
-			"com.embervoid.gametest.BossAnimationTests"
+			"com.embervoid.gametest.BossAnimationTests",
+			"com.embervoid.gametest.OverworldMobAnimationTests"
 		]
 	},
 	"mixins": [
