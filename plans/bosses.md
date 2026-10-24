@@ -45,4 +45,4 @@ Nobody answers questions tonight: decisions are recorded here as they are made.
 
 | Boss | Cubes | Bones | Seen offline | Not seen |
 |---|---|---|---|---|
-| (filled in as each is done) | | | | |
+| Ash Colossus | 108 | 26 | front/side/back/dusk sheets, key poses and trail sheet: chamfered mass, fists with fingers, chains swinging, kneel-then-topple death, fist/boulder/smash windups readable, stagger lunge | the core's shimmer layer, particles, the plates shed in game, the hurt controller under a move |

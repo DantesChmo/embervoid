@@ -11,12 +11,12 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from art_kit import ZERO, Bone, Box, Material, anim, ember_cracks, hexc, keys, mirror_box, pos, ramp, rot, scatter, \
-    shade, t, write_model  # noqa: E402
+from art_kit import (ZERO, Bone, Box, Material, anim, chain_bones, chain_names, chamfered, crack, e,  # noqa: E402
+                     ember_cracks, fingers, fold_lines, grain, hexc, keys, lag_sway, merge, mirror_box, octagon, plate, pos,
+                     ramp, rivet_ring, rot, scatter, shade, sutures, sway, t, whip, write_model)
 from reach_mob_art import (ASH, BARK, BONE, BRONZE, CHAR, COLD, CRIMSON, EMBER, EMBER_DARK, EMBER_DEEP,  # noqa: E402
                            EMBER_HOT, GOLD, IRON, LEATHER, MOSS, ROPE, RUST, SHROUD, VOID, WOOD, AMBER,
-                           BLACK_STEEL, band, clear_all, crack, holes, lower, open_front, ragged_edge, rivets, tatter,
-                           trim)
+                           BLACK_STEEL, band, clear_all, holes, lower, open_front, ragged_edge, rivets, tatter, trim)
 
 
 def bone(bones, name):
@@ -198,19 +198,24 @@ def crypt_keeper():
     write_model("crypt_keeper", bones, animations, [3, 4.5], tex_w=128)
 
 
-# --- Ash Colossus: 4.5 blocks of fused ash stone ---------------------------------------------------------------------
+# --- Ash Colossus: 4.5 blocks of fused ash stone (PLAN 19.4) -------------------------------------------------------
 # Hunched, with huge arms and fists; ash drifts on its shoulders and head; magma seams; old granary bricks fused into
 # its body; an ember core in the back under stone plates strapped with burnt chains (plates bone; shed in P2 to show
-# the core bone).
+# the core bone). Every big form is chamfered (three boxes), the fists have fingers, the forearms are their own bones,
+# chains hang from the shoulder plates, the hips and the back and swing behind the motion.
 
-FUSED = ramp("1f1c1c", "2c2828", "3a3535", "484343", "585252", "6b6464")
+FUSED = ramp("1f1c1c", "2c2828", "3a3535", "484343", "585252", "6b6464", "7d7676")
 ASH_DRIFT = ramp("5e5955", "77716b", "908982", "aaa29a", "c1b9b0")
+CORE_RAMP = ramp("8a2a10", "d8521c", "ff8a2a", "ffb347", "ffd27a", "fff0c0")
 
 
 def ash_colossus():
     legs, body_h, head = 22, 36, 12
     top = legs + body_h
-    stone = Material(FUSED, base=2.7, noise=0.8, cell=3.5, speck=0.04, edge=0.8, grad=0.8, top=1.2)
+    stone = Material(FUSED, base=3.0, noise=0.7, cell=3.5, speck=0.04, edge=0.5, grad=0.8, top=1.0, bevel=0.8)
+    dark_stone = stone.but(base=2.2)
+    light_stone = stone.but(base=3.6)
+    chain_mat = Material(IRON, base=2.2, noise=0.5, speck=0.1, bevel=0.6)
 
     def drift(face, rng):
         """Ash settled on top faces and on the upper rows of side faces."""
@@ -226,10 +231,15 @@ def ash_colossus():
 
     def seams(face, rng, n=None):
         if face.side():
-            ember_cracks(face, rng, n or max(1, face.w * face.h // 200), EMBER, EMBER_DEEP, 0.9, (3, 7))
+            ember_cracks(face, rng, n or max(1, face.w * face.h // 160), EMBER, EMBER_DEEP, 0.9, (3, 7))
+
+    def cracks(face, rng):
+        if face.side():
+            for _ in range(max(1, face.w * face.h // 120)):
+                crack(face, rng, FUSED[0], length=rng.randint(3, 7))
 
     def masonry(face, rng):
-        """A patch of fused granary bricks: two courses in a frame of mortar, joints staggered."""
+        """A patch of fused granary bricks: two courses in a frame of mortar, joints staggered, one brick chipped."""
         if face.side() and face.w >= 12 and face.h >= 10:
             x0, y0 = rng.randrange(face.w - 10), rng.randrange(face.h - 7)
             for y in (y0, y0 + 3, y0 + 6):
@@ -245,11 +255,14 @@ def ash_colossus():
             for y in range(y0 + 1, y0 + 6):
                 for x in range(x0 + 1, x0 + 9):
                     if face.get(x, y)[:3] != FUSED[0][:3]:
-                        face.set(x, y, FUSED[3] if (x + y) % 3 else FUSED[2])
+                        face.set(x, y, FUSED[4] if (x + y) % 3 else FUSED[3])
+            face.set(x0 + 1, y0 + 1, FUSED[5])      # a lit chip
+            face.set(x0 + 8, y0 + 5, FUSED[1])      # a broken corner
 
     def body_deco(face, rng):
         drift(face, rng)
         masonry(face, rng)
+        cracks(face, rng)
         seams(face, rng)
 
     def back(face, rng):
@@ -264,117 +277,319 @@ def ash_colossus():
                         face.lit(x, y, EMBER_DEEP, 0.8)
 
     def head_front(face, rng):
-        face.hline(1, 4, face.w - 2, FUSED[0])  # brow shadow
-        for ex in (2, face.w - 5):
-            face.rect(ex, 5, 3, 2, VOID)
-            face.lit(ex + 1, 5, EMBER_HOT, 1.0)
-            face.lit(ex + 1, 6, EMBER, 0.8)
-        face.hline(3, 9, face.w - 6, VOID)
-        for x in range(3, face.w - 3, 2):
-            face.lit(x, 9, EMBER_DEEP, 0.7)
+        cracks(face, rng)
+        face.hline(1, 3, face.w - 2, FUSED[0])  # brow shadow
+        for ex in (1, face.w - 5):
+            face.rect(ex, 4, 4, 3, VOID)
+            face.lit(ex + 1, 4, EMBER_HOT, 1.0)
+            face.lit(ex + 2, 4, EMBER_HOT, 1.0)
+            face.lit(ex + 1, 5, EMBER, 0.9)
+            face.lit(ex + 2, 5, EMBER, 0.9)
+            face.lit(ex + 1, 6, EMBER_DEEP, 0.6)
+        face.vline(face.cx - 1, 6, 3, FUSED[1])   # a split down the nose line
+        face.hline(2, 10, face.w - 4, VOID)
+        for x in range(2, face.w - 2, 2):
+            face.lit(x, 10, EMBER_DEEP, 0.7)
 
-    def fist(face, rng):
-        drift(face, rng) if face.name == "top" else None
-        if face.name in ("front", "bottom"):
-            for x in range(0, face.w, 4):  # knuckles
-                face.vline(x, 0, face.h, FUSED[0])
+    def jaw_deco(face, rng):
+        if face.name == "front":
+            for x in range(1, face.w - 1, 2):   # teeth of stone
+                face.set(x, 0, ASH_DRIFT[2])
+            face.hline(0, face.h - 1, face.w, FUSED[0])
+        if face.name == "top":
+            for x in range(face.w):
+                face.lit(x, 0, EMBER_DEEP, 0.6)
+
+    def knuckles(face, rng):
+        if face.name in ("front", "top"):
+            for x in range(1, face.w, 3):
+                face.vline(x, 0, face.h, FUSED[1])
+        cracks(face, rng)
         seams(face, rng, 1)
 
-    bones = [
-        Bone("root", [0, 0, 0]),
-        Bone("right_leg", [-7, legs, 0], "root", None, [
-            Box([-13, 2, -6], [12, legs - 2, 12], stone, {"all": body_deco}),
-            Box([-14, 0, -7.5], [14, 3, 14], stone.but(base=2.0), {"all": seams}),
-            Box([-12, 10, -7], [10, 6, 2], stone.but(base=3.2), {"all": drift}),
-        ]),
-        Bone("left_leg", [7, legs, 0], "root", None, []),
-        Bone("body", [0, legs, 0], "root", [15, 0, 0], [
-            Box([-17, legs, -11], [34, body_h, 20], stone, {"all": back}),
-            Box([-13, legs + 18, -13], [26, 16, 3], stone.but(base=3.2), {"all": body_deco}),
-            Box([-11, legs - 2, -9], [22, 6, 17], stone.but(base=2.2), {"all": seams}),
-        ]),
-        Bone("core", [0, legs + 18, 11], "body", None, [
-            Box([-6, legs + 12, 8], [12, 12, 4], Material(ramp("8a2a10", "d8521c", "ff8a2a", "ffb347", "ffd27a",
-                                                               "fff0c0"), base=3.0, noise=0.9, cell=2.0, glow=1.0)),
-            Box([-3, legs + 15, 11], [6, 6, 2], Material(ramp("ffb347", "ffd27a", "fff0c0"), base=1.5, noise=0.6,
-                                                         glow=1.0)),
-        ]),
-    ]
-    bone(bones, "left_leg").boxes = [mirror_box(b) for b in bone(bones, "right_leg").boxes]
-
-    def plate(face, rng):
+    def plate_deco(face, rng):
         drift(face, rng)
-        if face.name in ("back", "front"):
+        cracks(face, rng)
+        if face.name in ("back", "front") and face.h > 8:
             for y in (3, face.h - 4):  # burnt chains strapping the plates on
                 for x in range(face.w):
                     face.set(x, y, IRON[1] if x % 2 else IRON[3])
+                    if x % 4 == 1:
+                        face.set(x, y - 1, IRON[2])
         if face.side():
             ember_cracks(face, rng, 1, EMBER_DEEP, EMBER_DARK, 0.7, (2, 4))
 
-    bones.append(Bone("plates", [0, legs + 18, 12], "body", None, [
-        Box([-12, legs + 8, 11], [24, 22, 4], stone.but(base=2.4), {"all": plate}),
-        Box([-20, top - 6, -9], [8, 8, 16], stone.but(base=3.0), {"all": plate}),
-        Box([12, top - 6, -9], [8, 8, 16], stone.but(base=3.0), {"all": plate}),
+    def links(face, rng):
+        if face.side():
+            for y in range(face.h):
+                face.set(0, y, IRON[4] if y % 2 else IRON[1])
+                face.set(face.w - 1, y, IRON[0] if y % 2 else IRON[3])
+
+    def strap(face, rng):
+        if face.side():
+            fold_lines(face, rng, 2, -14)
+            ragged_edge(face, rng, "bottom", 2, 0.5)
+
+    # Animation signs (checked in the preview): -X raises an arm forward, swings a leg forward, tilts the head and
+    # body back and opens the jaw; +X bows the body forward and folds a leg back.
+    bones = [Bone("root", [0, 0, 0])]
+    # Legs: a chamfered shin, a knee boulder, a slab of a foot with toe stones.
+    shin = chamfered([-13, 3, -6], [12, legs - 3, 12], stone, {"all": body_deco}, c=1.5)
+    foot = chamfered([-14, 0, -8], [14, 4, 15], dark_stone, {"all": seams}, c=1, axes="xz")
+    knee = chamfered([-12.5, 12, -8], [11, 7, 3], light_stone, {"all": drift}, c=1)
+    toes = [Box([-13.5 + i * 4.5, 0, -9.5], [3.5, 3, 2.5], light_stone, {"all": cracks}) for i in range(3)]
+    bones.append(Bone("right_leg", [-7, legs, 0], "root", None, shin + foot + knee + toes))
+    bones.append(Bone("left_leg", [7, legs, 0], "root", None, [mirror_box(b) for b in shin + foot + knee + toes]))
+    # Body: the chamfered mass with the core cavity, a belly band of fused bricks, hip stones.
+    torso = chamfered([-17, legs, -11], [34, body_h, 20], stone, {"all": back}, c=2)
+    belly = chamfered([-12, legs - 2, -10], [24, 7, 19], dark_stone, {"all": lambda f, r: (masonry(f, r), seams(f, r))}, c=1, axes="xz")
+    hips = [Box([-19, legs - 1, -7], [4, 6, 13], light_stone, {"all": cracks}), Box([15, legs - 1, -7], [4, 6, 13], light_stone, {"all": cracks})]
+    bones.append(Bone("body", [0, legs, 0], "root", [15, 0, 0], torso + belly + hips))
+    # The chest: a slab of granary wall fused across the front, breathing on its own bone.
+    chest = chamfered([-13, legs + 18, -14], [26, 16, 4], light_stone, {"all": body_deco}, c=1)
+    chest += [Box([-9, legs + 12, -13.5], [18, 5, 2], light_stone, {"all": lambda f, r: (masonry(f, r), cracks(f, r))})]
+    bones.append(Bone("chest", [0, legs + 18, -11], "body", None, chest))
+    # The core and its glowing rim.
+    bones.append(Bone("core", [0, legs + 18, 11], "body", None, [
+        Box([-6, legs + 12, 8], [12, 12, 4], Material(CORE_RAMP, base=3.0, noise=0.9, cell=2.0, glow=1.0)),
+        Box([-3, legs + 15, 11], [6, 6, 2], Material(ramp("ffb347", "ffd27a", "fff0c0"), base=1.5, noise=0.6, glow=1.0)),
+        Box([-7, legs + 11, 9], [14, 14, 1], Material(CORE_RAMP, base=1.2, noise=0.8, glow=0.6), rotation=[0, 0, 45],
+            pivot=[0, legs + 18, 9.5]),
     ]))
-    bones.append(Bone("head", [0, top, -6], "body", None, [
-        Box([-6, top - 2, -14], [12, head, 12], stone.but(base=3.0), {"front": head_front, "top": drift,
-                                                                      "left": drift, "right": drift}),
-        Box([-7, top + 6, -15], [14, 3, 5], stone.but(base=3.4), {"all": drift}),
-        Box([-5, top - 3, -15], [10, 3, 7], stone.but(base=2.2), {"all": seams}),
+    # The stone plates over the core, strapped with chains; two shoulder plates. Shed in P2.
+    back_plate = chamfered([-12, legs + 8, 11], [24, 22, 5], stone.but(base=2.6), {"all": plate_deco}, c=1.5)
+    shoulder_plates = chamfered([-21, top - 7, -9], [9, 9, 17], light_stone, {"all": plate_deco}, c=1.5)
+    plates_boxes = back_plate + shoulder_plates + [mirror_box(b) for b in shoulder_plates]
+    plates_boxes += [Box([-14, legs + 6, 13.5], [28, 2, 2], chain_mat, {"all": links}),
+                     Box([-14, legs + 26, 13.5], [28, 2, 2], chain_mat, {"all": links})]
+    bones.append(Bone("plates", [0, legs + 18, 12], "body", None, plates_boxes))
+    # A chain hanging off the back plate, three links long.
+    bones += chain_bones("back_chain", "plates", [6, legs + 7, 15], 3, 5, chain_mat, {"all": links}, thickness=1.5)
+    # Head: a chamfered skull sunk between the shoulders, a brow ridge, a jaw that opens, ash on top.
+    skull = chamfered([-6, top - 2, -14], [12, head, 12], light_stone, {"front": head_front, "top": drift,
+                                                                     "left": cracks, "right": cracks, "back": cracks}, c=1.5)
+    brow = Box([-7, top + 6, -15.5], [14, 3, 6], light_stone.but(base=3.8), {"all": drift})
+    horns = [Box([-8, top + 7, -11], [3, 5, 4], dark_stone, {"all": cracks}, rotation=[0, 0, 25], pivot=[-6.5, top + 7, -9]),
+             Box([5, top + 7, -11], [3, 5, 4], dark_stone, {"all": cracks}, rotation=[0, 0, -25], pivot=[6.5, top + 7, -9])]
+    bones.append(Bone("head", [0, top, -6], "body", None, skull + [brow] + horns))
+    bones.append(Bone("jaw", [0, top - 1, -8], "head", None, [
+        Box([-5, top - 4, -15], [10, 3, 8], dark_stone, {"all": jaw_deco}),
     ]))
-    arm = Box([-28, top - 34, -6], [12, 30, 12], stone, {"all": body_deco})
-    shoulder = Box([-30, top - 8, -8], [15, 9, 16], stone.but(base=3.2), {"all": body_deco})
-    hand = Box([-29, top - 44, -7], [14, 10, 14], stone.but(base=2.4), {"all": fist})
-    bones.append(Bone("right_arm", [-20, top - 4, 0], "body", None, [arm, shoulder, hand]))
-    bones.append(Bone("left_arm", [20, top - 4, 0], "body", None, [mirror_box(b) for b in (arm, shoulder, hand)]))
+    # Arms: a shoulder boulder and upper arm, a forearm with iron straps, a fist of five stones.
+    shoulder = chamfered([-30, top - 8, -8], [15, 9, 16], light_stone, {"all": body_deco}, c=2)
+    upper = chamfered([-27, top - 24, -6], [11, 18, 12], stone, {"all": body_deco}, c=1.5)
+    elbow = Box([-28.5, top - 27, -7], [13, 5, 14], dark_stone, {"all": seams}, inflate=0.3)
+    bones.append(Bone("right_arm", [-20, top - 4, 0], "body", None, shoulder + upper + [elbow]))
+    fore = chamfered([-27, top - 42, -6], [11, 17, 12], stone, {"all": body_deco}, c=1.5)
+    bands = [Box([-27.5, top - 33 + k * 5, -6.5], [12, 2, 13], chain_mat, {"all": links}) for k in range(2)]
+    bones.append(Bone("right_forearm", [-21.5, top - 25, 0], "right_arm", None, fore + bands))
+    palm = chamfered([-29, top - 50, -7], [14, 9, 14], stone.but(base=2.6), {"all": knuckles}, c=1.5)
+    digits = fingers(-28.5, top - 50, -9.5, 4, [3, 7, 3.5], light_stone, spread=0.4, curl=75, decals={"all": cracks})
+    thumb = Box([-16, top - 50, -5], [3, 6, 3.5], light_stone, {"all": cracks}, rotation=[60, 0, -30], pivot=[-14.5, top - 50, -3])
+    bones.append(Bone("right_hand", [-22, top - 42, 0], "right_forearm", None, palm + digits + [thumb]))
+    for name in ("right_arm", "right_forearm", "right_hand"):
+        src = bone(bones, name)
+        bones.append(Bone(name.replace("right", "left"), [-src.pivot[0], src.pivot[1], src.pivot[2]],
+                          src.parent.replace("right", "left"), None, [mirror_box(b) for b in src.boxes]))
+    # Straps of burnt leather and chain hanging from the shoulders and the hips (secondary motion).
+    strap_mat = Material(LEATHER, base=2.0, noise=0.5, grain="v", bevel=0.4)
+    for side, sx in (("right", -1), ("left", 1)):
+        bones += chain_bones(side + "_strap", side + "_arm", [sx * 29, top - 8, 0], 2, 6, strap_mat, {"all": strap}, thickness=3)
+        bones += chain_bones(side + "_hip_chain", "body", [sx * 17.5, legs - 1, 4], 2, 5, chain_mat, {"all": links}, thickness=1.5)
     fist_t, drag, leap, boulder, smash, storm = t(18), t(16), t(22), t(30), t(20), t(30)
+    hanging = (chain_names("back_chain", 3), chain_names("right_strap", 2), chain_names("left_strap", 2),
+               chain_names("right_hip_chain", 2), chain_names("left_hip_chain", 2))
+
+    def hang_sway(length, amp, phase_step=0.17):
+        out = {}
+        for i, names in enumerate(hanging):
+            out = merge(out, lag_sway(names, length, amp, axis=0 if i != 1 and i != 2 else 2, phase=i * phase_step))
+        return out
+
+    def hang_whip(t0, amp, settle=0.6):
+        out = {}
+        for i, names in enumerate(hanging):
+            out = merge(out, whip(names, t0 + 0.03 * i, amp, axis=0 if i != 1 and i != 2 else 2, settle=settle))
+        return out
+
+    arms_rest = ZERO
     animations = {
-        "misc.idle": anim(4.0, {
-            "body": rot(0, [0, 0, 0], 2.0, [3, 0, 0], 4.0, [0, 0, 0]),
-            "right_arm": rot(0, ZERO, 2.0, [-4, 0, 3], 4.0, ZERO),
-            "left_arm": rot(0, ZERO, 2.0, [-4, 0, -3], 4.0, ZERO),
-            "head": rot(0, ZERO, 2.0, [4, 5, 0], 4.0, ZERO),
-        }),
-        "move.walk": anim(1.8, {
-            "right_leg": rot(0, [18, 0, 0], 0.9, [-18, 0, 0], 1.8, [18, 0, 0]),
-            "left_leg": rot(0, [-18, 0, 0], 0.9, [18, 0, 0], 1.8, [-18, 0, 0]),
-            "right_arm": rot(0, [-14, 0, 0], 0.9, [14, 0, 0], 1.8, [-14, 0, 0]),
-            "left_arm": rot(0, [14, 0, 0], 0.9, [-14, 0, 0], 1.8, [14, 0, 0]),
-            "root": pos(0, ZERO, 0.45, [0, -1, 0], 0.9, ZERO, 1.35, [0, -1, 0], 1.8, ZERO),
-            "body": rot(0, [0, 0, 3], 0.9, [0, 0, -3], 1.8, [0, 0, 3]),
-        }),
-        "attack.fist": anim(fist_t + 0.5, {
-            "right_arm": rot(0, ZERO, fist_t, [-150, 0, 20], fist_t + 0.1, [-60, 0, 0], fist_t + 0.5, ZERO),
-            "body": rot(0, [0, 0, 0], fist_t, [-15, 15, 0], fist_t + 0.1, [15, -10, 0], fist_t + 0.5, [0, 0, 0]),
-        }, loop=False),
-        "attack.drag": anim(drag + 0.5, {
-            "left_arm": rot(0, ZERO, drag, [-60, -60, -40], drag + 0.25, [-60, 50, -10], drag + 0.5, ZERO),
-            "body": rot(0, [0, 0, 0], drag, [10, -25, 0], drag + 0.25, [10, 25, 0], drag + 0.5, [0, 0, 0]),
-        }, loop=False),
-        "attack.leap": anim(leap + 0.9, {
-            "root": pos(0, ZERO, leap, [0, -6, 0], leap + 0.1, [0, 2, 0], leap + 0.9, ZERO),
-            "right_arm": rot(0, ZERO, leap, [40, 0, 10], leap + 0.3, [-170, 0, 10], leap + 0.8, [-40, 0, 0], leap + 0.9, ZERO),
-            "left_arm": rot(0, ZERO, leap, [40, 0, -10], leap + 0.3, [-170, 0, -10], leap + 0.8, [-40, 0, 0], leap + 0.9, ZERO),
-        }, loop=False),
-        "attack.boulder": anim(boulder + 0.4, {
-            "right_arm": rot(0, ZERO, boulder * 0.4, [30, 0, 0], boulder, [-170, 0, 15], boulder + 0.15, [-40, 0, 0],
-                             boulder + 0.4, ZERO),
-            "body": rot(0, [0, 0, 0], boulder * 0.4, [25, 0, 0], boulder, [-20, 0, 0], boulder + 0.4, [0, 0, 0]),
-        }, loop=False),
-        "attack.smash": anim(smash + 0.5, {
-            "right_arm": rot(0, ZERO, smash, [-170, 0, 10], smash + 0.1, [-30, 0, 0], smash + 0.5, ZERO),
-            "left_arm": rot(0, ZERO, smash, [-170, 0, -10], smash + 0.1, [-30, 0, 0], smash + 0.5, ZERO),
-        }, loop=False),
-        "misc.storm": anim(storm + 0.5, {
-            "body": rot(0, [0, 0, 0], storm, [-30, 0, 0], storm + 0.5, [0, 0, 0]),
-            "head": rot(0, ZERO, storm, [-35, 0, 0], storm + 0.5, ZERO),
-            "right_arm": rot(0, ZERO, storm, [-20, 0, 60], storm + 0.5, ZERO),
-            "left_arm": rot(0, ZERO, storm, [-20, 0, -60], storm + 0.5, ZERO),
-        }, loop=False),
-        "misc.shed": anim(1.5, {
-            "body": rot(0, [0, 0, 0], 0.3, [-10, 0, 8], 0.6, [-10, 0, -8], 0.9, [-10, 0, 8], 1.5, [0, 0, 0]),
-            "plates": pos(0, ZERO, 0.9, [0, -10, 8]),
-        }, loop=False),
+        "misc.idle": anim(4.0, merge(hang_sway(4.0, 4), {
+            "body": rot(0, ZERO, 2.0, e("easeInOutSine", [2.5, 0, 0]), 4.0, e("easeInOutSine", ZERO)),
+            "chest": pos(0, ZERO, 2.0, e("easeInOutSine", [0, 0.6, -1]), 4.0, e("easeInOutSine", ZERO)),
+            "right_arm": rot(0, ZERO, 2.0, e("easeInOutSine", [-4, 0, 3]), 4.0, e("easeInOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 2.0, e("easeInOutSine", [-4, 0, -3]), 4.0, e("easeInOutSine", ZERO)),
+            "right_forearm": rot(0, ZERO, 2.0, e("easeInOutSine", [-6, 0, 0]), 4.0, e("easeInOutSine", ZERO)),
+            "left_forearm": rot(0, ZERO, 2.0, e("easeInOutSine", [-6, 0, 0]), 4.0, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, 1.3, e("easeInOutSine", [4, 6, 0]), 2.9, e("easeInOutSine", [2, -5, 0]), 4.0, e("easeInOutSine", ZERO)),
+            "jaw": rot(0, ZERO, 2.0, e("easeInOutSine", [-8, 0, 0]), 4.0, e("easeInOutSine", ZERO)),
+        })),
+        "move.walk": anim(1.8, merge(hang_sway(1.8, 9), {
+            "right_leg": rot(0, [18, 0, 0], 0.9, e("easeInOutSine", [-18, 0, 0]), 1.8, e("easeInOutSine", [18, 0, 0])),
+            "left_leg": rot(0, [-18, 0, 0], 0.9, e("easeInOutSine", [18, 0, 0]), 1.8, e("easeInOutSine", [-18, 0, 0])),
+            "right_arm": rot(0, [-14, 0, 2], 0.9, e("easeInOutSine", [14, 0, 2]), 1.8, e("easeInOutSine", [-14, 0, 2])),
+            "left_arm": rot(0, [14, 0, -2], 0.9, e("easeInOutSine", [-14, 0, -2]), 1.8, e("easeInOutSine", [14, 0, -2])),
+            "right_forearm": rot(0, [-10, 0, 0], 0.9, [-20, 0, 0], 1.8, [-10, 0, 0]),
+            "left_forearm": rot(0, [-20, 0, 0], 0.9, [-10, 0, 0], 1.8, [-20, 0, 0]),
+            # Weight: a drop on each footfall, the hips roll and the torso twists against the stride; the head stays level.
+            "root": pos(0, ZERO, 0.2, e("easeOutQuad", [0, -1.5, 0]), 0.5, e("easeInOutSine", [0, 0.3, 0]), 1.1,
+                        e("easeOutQuad", [0, -1.5, 0]), 1.4, e("easeInOutSine", [0, 0.3, 0]), 1.8, ZERO),
+            "body": rot(0, [0, -5, 3], 0.9, e("easeInOutSine", [0, 5, -3]), 1.8, e("easeInOutSine", [0, -5, 3])),
+            "head": rot(0, [0, 5, -3], 0.9, e("easeInOutSine", [0, -5, 3]), 1.8, e("easeInOutSine", [0, 5, -3])),
+            "chest": rot(0, [0, -2, 0], 0.9, [0, 2, 0], 1.8, [0, -2, 0]),
+        })),
+        # Fist: the right arm draws back and up while the body coils to the right, hangs an instant at the top,
+        # then the fist comes down and across; the chains fly after it.
+        "attack.fist": anim(fist_t + 0.55, merge(hang_whip(fist_t + 0.05, 28), {
+            "right_arm": rot(0, arms_rest, fist_t * 0.55, e("easeInOutSine", [-70, 0, 35]), fist_t, e("easeInSine", [-160, 0, 20]),
+                             fist_t + 0.1, e("easeOutBack", [-50, -15, 0]), fist_t + 0.3, [-45, -15, 0], fist_t + 0.55, e("easeInOutSine", arms_rest)),
+            "right_forearm": rot(0, ZERO, fist_t * 0.55, e("easeInOutSine", [-70, 0, 0]), fist_t, [-40, 0, 0], fist_t + 0.1,
+                                 e("easeOutCubic", [-5, 0, 0]), fist_t + 0.55, e("easeInOutSine", ZERO)),
+            "right_hand": rot(0, ZERO, fist_t, [-20, 0, 0], fist_t + 0.1, e("easeOutBack", [20, 0, 0]), fist_t + 0.55, ZERO),
+            "left_arm": rot(0, ZERO, fist_t, e("easeInOutSine", [20, 0, -15]), fist_t + 0.1, [-10, 0, -10], fist_t + 0.55, ZERO),
+            "body": rot(0, ZERO, fist_t * 0.55, e("easeInOutSine", [-10, 25, -4]), fist_t, [-18, 30, -4], fist_t + 0.1,
+                        e("easeOutBack", [18, -15, 3]), fist_t + 0.55, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, fist_t, e("easeInOutSine", [-10, -25, 0]), fist_t + 0.1, [8, 10, 0], fist_t + 0.55, ZERO),
+            "jaw": rot(0, ZERO, fist_t, [-25, 0, 0], fist_t + 0.15, [-5, 0, 0], fist_t + 0.55, ZERO),
+            "root": pos(0, ZERO, fist_t, [0, 1, 1], fist_t + 0.1, e("easeOutCubic", [0, -2, -3]), fist_t + 0.55, e("easeInOutSine", ZERO)),
+        }), loop=False),
+        # Arm drag: the left arm swings far out to its side, the body turning away, then it rakes low across the front.
+        "attack.drag": anim(drag + 0.6, merge(hang_whip(drag + 0.1, 24, settle=0.5), {
+            "left_arm": rot(0, ZERO, drag * 0.6, e("easeInOutSine", [-50, -70, -50]), drag, [-60, -80, -55], drag + 0.22,
+                            e("easeOutCubic", [-55, 60, -15]), drag + 0.6, e("easeInOutSine", ZERO)),
+            "left_forearm": rot(0, ZERO, drag, [-30, 0, 0], drag + 0.22, e("easeOutCubic", [-70, 0, 0]), drag + 0.6, ZERO),
+            "left_hand": rot(0, ZERO, drag, [-30, 0, 0], drag + 0.22, [-80, 0, 0], drag + 0.6, ZERO),
+            "right_arm": rot(0, ZERO, drag, [10, 0, 15], drag + 0.22, [-20, 0, 10], drag + 0.6, ZERO),
+            "body": rot(0, ZERO, drag * 0.6, e("easeInOutSine", [8, -30, 0]), drag, [12, -35, 0], drag + 0.22,
+                        e("easeOutBack", [14, 30, 0]), drag + 0.6, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, drag, [0, 30, 0], drag + 0.22, [5, -25, 0], drag + 0.6, ZERO),
+            "root": pos(0, ZERO, drag, [0, -2, 0], drag + 0.22, [0, -3, -2], drag + 0.6, ZERO),
+        }), loop=False),
+        # Leap: a deep crouch with the arms drawn back, the launch (arms thrown up), the fall with both fists
+        # raised, the landing crouch (LEAP_FLIGHT_TICKS 14 after the windup: the server lands it), the rise.
+        "attack.leap": anim(leap + 1.3, merge(hang_whip(leap + 0.75, 35, settle=0.5), {
+            "root": pos(0, ZERO, leap * 0.7, e("easeInOutSine", [0, -7, 0]), leap, [0, -8, 0], leap + 0.12,
+                        e("easeOutCubic", [0, 4, 0]), leap + 0.7, [0, 3, 0], leap + 0.8, e("easeOutCubic", [0, -5, 0]),
+                        leap + 1.3, e("easeInOutSine", ZERO)),
+            "body": rot(0, ZERO, leap * 0.7, e("easeInOutSine", [30, 0, 0]), leap, [35, 0, 0], leap + 0.12, e("easeOutCubic", [-20, 0, 0]),
+                        leap + 0.7, [-10, 0, 0], leap + 0.8, e("easeOutCubic", [30, 0, 0]), leap + 1.3, e("easeInOutSine", ZERO)),
+            "right_leg": rot(0, ZERO, leap * 0.7, [-45, 0, 0], leap, [-50, 0, 0], leap + 0.12, [20, 0, 0], leap + 0.7, [15, 0, 0],
+                             leap + 0.8, [-40, 0, 0], leap + 1.3, ZERO),
+            "left_leg": rot(0, ZERO, leap * 0.7, [-45, 0, 0], leap, [-50, 0, 0], leap + 0.12, [20, 0, 0], leap + 0.7, [15, 0, 0],
+                            leap + 0.8, [-40, 0, 0], leap + 1.3, ZERO),
+            "right_arm": rot(0, ZERO, leap * 0.7, e("easeInOutSine", [45, 0, 15]), leap, [50, 0, 15], leap + 0.3,
+                             e("easeOutCubic", [-175, 0, 15]), leap + 0.7, [-170, 0, 10], leap + 0.82, e("easeOutBack", [-45, 0, 5]),
+                             leap + 1.3, e("easeInOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, leap * 0.7, e("easeInOutSine", [45, 0, -15]), leap, [50, 0, -15], leap + 0.3,
+                            e("easeOutCubic", [-175, 0, -15]), leap + 0.7, [-170, 0, -10], leap + 0.82, e("easeOutBack", [-45, 0, -5]),
+                            leap + 1.3, e("easeInOutSine", ZERO)),
+            "right_forearm": rot(0, ZERO, leap, [-30, 0, 0], leap + 0.3, [-20, 0, 0], leap + 0.82, [-10, 0, 0], leap + 1.3, ZERO),
+            "left_forearm": rot(0, ZERO, leap, [-30, 0, 0], leap + 0.3, [-20, 0, 0], leap + 0.82, [-10, 0, 0], leap + 1.3, ZERO),
+            "head": rot(0, ZERO, leap, [-25, 0, 0], leap + 0.3, [-10, 0, 0], leap + 0.82, [20, 0, 0], leap + 1.3, ZERO),
+            "jaw": rot(0, ZERO, leap + 0.12, [-30, 0, 0], leap + 0.7, [-25, 0, 0], leap + 0.9, ZERO),
+        }), loop=False),
+        # Boulder: it bends and rips stone from the ground with its right hand (the hand opens), heaves it
+        # overhead, holds it there straining, and hurls it.
+        "attack.boulder": anim(boulder + 0.5, merge(hang_whip(boulder + 0.05, 30), {
+            "right_arm": rot(0, ZERO, boulder * 0.3, e("easeInOutSine", [-35, 0, 10]), boulder * 0.45, [-40, 0, 10], boulder * 0.8,
+                             e("easeInOutSine", [-165, 0, 15]), boulder, [-175, 0, 15], boulder + 0.12, e("easeOutBack", [-50, 0, 0]),
+                             boulder + 0.5, e("easeInOutSine", ZERO)),
+            "right_forearm": rot(0, ZERO, boulder * 0.3, [-40, 0, 0], boulder * 0.45, [-60, 0, 0], boulder * 0.8, [-30, 0, 0],
+                                 boulder + 0.12, e("easeOutCubic", [-5, 0, 0]), boulder + 0.5, ZERO),
+            "right_hand": rot(0, ZERO, boulder * 0.3, [-40, 0, 0], boulder * 0.45, [-10, 0, 0], boulder + 0.12, [30, 0, 0], boulder + 0.5, ZERO),
+            "left_arm": rot(0, ZERO, boulder * 0.3, e("easeInOutSine", [-30, 0, -10]), boulder * 0.8, e("easeInOutSine", [-120, 0, -20]),
+                            boulder, [-130, 0, -20], boulder + 0.12, [-40, 0, -10], boulder + 0.5, ZERO),
+            "body": rot(0, ZERO, boulder * 0.3, e("easeInOutSine", [30, 0, 0]), boulder * 0.45, [32, 10, 0], boulder * 0.8,
+                        e("easeInOutSine", [-22, 15, 0]), boulder, [-25, 18, 0], boulder + 0.12, e("easeOutBack", [20, -10, 0]),
+                        boulder + 0.5, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, boulder * 0.3, [15, 0, 0], boulder * 0.8, [-20, 0, 0], boulder + 0.12, [10, 0, 0], boulder + 0.5, ZERO),
+            "jaw": rot(0, ZERO, boulder * 0.8, [-20, 0, 0], boulder + 0.12, [-5, 0, 0], boulder + 0.5, ZERO),
+            "root": pos(0, ZERO, boulder * 0.45, [0, -4, 0], boulder * 0.8, [0, 1, 0], boulder + 0.12, [0, -1, -2], boulder + 0.5, ZERO),
+        }), loop=False),
+        # Smash: both fists go up over the head, hang, and come down together; the whole body drops into it.
+        "attack.smash": anim(smash + 0.6, merge(hang_whip(smash + 0.05, 32), {
+            "right_arm": rot(0, ZERO, smash * 0.6, e("easeInOutSine", [-150, 0, 20]), smash, [-170, 0, 12], smash + 0.1,
+                             e("easeOutBack", [-35, 0, 5]), smash + 0.3, [-30, 0, 5], smash + 0.6, e("easeInOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, smash * 0.6, e("easeInOutSine", [-150, 0, -20]), smash, [-170, 0, -12], smash + 0.1,
+                            e("easeOutBack", [-35, 0, -5]), smash + 0.3, [-30, 0, -5], smash + 0.6, e("easeInOutSine", ZERO)),
+            "right_forearm": rot(0, ZERO, smash, [-35, 0, 0], smash + 0.1, e("easeOutCubic", ZERO)),
+            "left_forearm": rot(0, ZERO, smash, [-35, 0, 0], smash + 0.1, e("easeOutCubic", ZERO)),
+            "body": rot(0, ZERO, smash * 0.6, e("easeInOutSine", [-15, 0, 0]), smash, [-20, 0, 0], smash + 0.1, e("easeOutBack", [30, 0, 0]),
+                        smash + 0.3, [28, 0, 0], smash + 0.6, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, smash, [-20, 0, 0], smash + 0.1, [15, 0, 0], smash + 0.6, ZERO),
+            "jaw": rot(0, ZERO, smash, [-30, 0, 0], smash + 0.2, ZERO),
+            "root": pos(0, ZERO, smash, [0, 2, 0], smash + 0.1, e("easeOutCubic", [0, -4, -2]), smash + 0.3, [0, -4, -2], smash + 0.6, ZERO),
+        }), loop=False),
+        # Storm: it rears back, arms wide, jaw open, and roars; the chains stream out as it shakes.
+        "misc.storm": anim(storm + 0.6, merge(hang_whip(storm * 0.5, 30, settle=1.0), {
+            "body": rot(0, ZERO, storm * 0.5, e("easeInOutSine", [-30, 0, 0]), storm * 0.7, [-32, 0, 3], storm * 0.85, [-30, 0, -3],
+                        storm, [-32, 0, 0], storm + 0.6, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, storm * 0.5, e("easeInOutSine", [-35, 0, 0]), storm, [-40, 0, 0], storm + 0.6, ZERO),
+            "jaw": rot(0, ZERO, storm * 0.5, e("easeOutBack", [-45, 0, 0]), storm, [-45, 0, 0], storm + 0.6, ZERO),
+            "right_arm": rot(0, ZERO, storm * 0.5, e("easeInOutSine", [-30, 0, 70]), storm, [-20, 0, 75], storm + 0.6, ZERO),
+            "left_arm": rot(0, ZERO, storm * 0.5, e("easeInOutSine", [-30, 0, -70]), storm, [-20, 0, -75], storm + 0.6, ZERO),
+            "right_forearm": rot(0, ZERO, storm * 0.5, [-40, 0, 0], storm + 0.6, ZERO),
+            "left_forearm": rot(0, ZERO, storm * 0.5, [-40, 0, 0], storm + 0.6, ZERO),
+            "right_hand": rot(0, ZERO, storm * 0.5, [-30, 0, 0], storm + 0.6, ZERO),
+            "left_hand": rot(0, ZERO, storm * 0.5, [-30, 0, 0], storm + 0.6, ZERO),
+            "chest": pos(0, ZERO, storm * 0.5, [0, 1, -2], storm + 0.6, ZERO),
+        }), loop=False),
+        # Shed (P2): it heaves, the plates crack loose, and it shrugs them off its back; the core blazes.
+        "misc.shed": anim(1.5, merge(hang_whip(0.9, 35, settle=0.6), {
+            "body": rot(0, ZERO, 0.3, e("easeInOutSine", [-12, 0, 8]), 0.6, [-12, 0, -8], 0.9, e("easeOutBack", [20, 0, 0]),
+                        1.5, e("easeInOutSine", ZERO)),
+            "right_arm": rot(0, ZERO, 0.3, [-40, 0, 40], 0.9, e("easeOutBack", [20, 0, 10]), 1.5, ZERO),
+            "left_arm": rot(0, ZERO, 0.3, [-40, 0, -40], 0.9, e("easeOutBack", [20, 0, -10]), 1.5, ZERO),
+            "head": rot(0, ZERO, 0.3, [-25, 0, 0], 0.9, [15, 0, 0], 1.5, ZERO),
+            "jaw": rot(0, ZERO, 0.3, [-40, 0, 0], 1.0, [-40, 0, 0], 1.5, ZERO),
+            "plates": {"position": keys(0, ZERO, 0.6, [0, 0.5, 0.5], 0.9, e("easeInQuad", [0, -14, 12]), 1.5, [0, -40, 20]),
+                       "rotation": keys(0, ZERO, 0.9, [-30, 0, 0], 1.5, [-80, 0, 15])},
+            "core": {"scale": keys(0, [1, 1, 1], 0.9, [1, 1, 1], 1.1, e("easeOutBack", [1.3, 1.3, 1.3]), 1.5, [1, 1, 1])},
+        }), loop=False),
+        # Hurt: a short recoil of the body and head; the chains jump.
+        "misc.hurt": anim(0.4, merge(hang_whip(0.02, 14, settle=0.36), {
+            "body": rot(0, ZERO, 0.08, e("easeOutCubic", [-7, 5, 0]), 0.4, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.08, e("easeOutCubic", [-14, -8, 0]), 0.4, e("easeInOutSine", ZERO)),
+            "chest": pos(0, ZERO, 0.08, [0, 0, 1], 0.4, ZERO),
+            "root": pos(0, ZERO, 0.08, [0, 0, 1.2], 0.4, ZERO),
+        }), loop=False),
+        # Stagger (P2, a hit into the bare core): it staggers forward a step, arms out, and catches itself.
+        "misc.stagger": anim(0.9, merge(hang_whip(0.05, 30, settle=0.8), {
+            "root": pos(0, ZERO, 0.15, e("easeOutCubic", [0, -2, -4]), 0.5, [0, -3, -5], 0.9, e("easeInOutSine", ZERO)),
+            "body": rot(0, ZERO, 0.15, e("easeOutBack", [28, 0, 6]), 0.5, [24, 0, -4], 0.9, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.15, [-25, 0, 0], 0.5, [-15, 10, 0], 0.9, ZERO),
+            "jaw": rot(0, ZERO, 0.15, [-35, 0, 0], 0.9, ZERO),
+            "right_arm": rot(0, ZERO, 0.15, e("easeOutBack", [-60, 0, 40]), 0.9, e("easeInOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 0.15, e("easeOutBack", [-60, 0, -40]), 0.9, e("easeInOutSine", ZERO)),
+            "right_leg": rot(0, ZERO, 0.15, [-30, 0, 0], 0.5, [-25, 0, 0], 0.9, ZERO),
+            "core": {"scale": keys(0, [1, 1, 1], 0.1, [1.25, 1.25, 1.25], 0.5, [1, 1, 1])},
+        }), loop=False),
+        # Death (3 s): it sags, the legs give and fold back under it as it drops onto its knees, it looks up and
+        # tries to push itself up, then the whole mass topples forward onto its fists and face; the head sinks last,
+        # the chains settle, the core gutters.
+        "misc.death": anim(3.0, merge(hang_whip(1.95, 40, settle=1.0), {
+            "root": pos(0, ZERO, 0.5, e("easeInOutSine", [0, -3, 0]), 1.0, e("easeInQuad", [0, -16, 0]), 1.4, e("easeInOutSine", [0, -14, 0]),
+                        1.9, e("easeInCubic", [0, -17, -3]), 2.1, e("easeOutBounce", [0, -17, -4]), 3.0, [0, -17, -4]),
+            "right_leg": rot(0, ZERO, 0.5, [10, 0, 0], 1.0, e("easeInQuad", [88, 0, 0]), 3.0, [88, 0, 0]),
+            "left_leg": rot(0, ZERO, 0.5, [-15, 0, 0], 1.0, e("easeInQuad", [85, 0, 0]), 3.0, [85, 0, 0]),
+            "body": rot(0, ZERO, 0.5, e("easeInOutSine", [12, 0, 5]), 1.0, [22, 0, 5], 1.4, e("easeInOutSine", [8, 0, -4]), 1.9,
+                        e("easeInCubic", [70, 0, 0]), 2.1, e("easeOutBounce", [76, 0, 0]), 3.0, [76, 0, 0]),
+            "chest": pos(0, ZERO, 0.6, [0, 0.4, -0.6], 1.2, ZERO, 1.7, [0, 0.4, -0.6], 2.2, ZERO),
+            "head": rot(0, ZERO, 0.5, [8, 0, 0], 1.0, [10, 0, 10], 1.4, e("easeInOutSine", [-25, 0, 0]), 1.9, [-35, 0, 0],
+                        2.1, e("easeOutCubic", [-15, 0, 0]), 2.6, e("easeInQuad", [20, 15, 0]), 3.0, [25, 15, 0]),
+            "jaw": rot(0, ZERO, 0.5, [-15, 0, 0], 1.4, [-35, 0, 0], 2.1, [-40, 0, 0], 2.8, [-10, 0, 0], 3.0, [-5, 0, 0]),
+            # The fists hang at knee height: as it kneels they come forward and plant on the ground; once the body
+            # has pitched over they are nearly along it (the arms hang from the pitched body), knuckles down.
+            "right_arm": rot(0, ZERO, 0.5, e("easeInOutSine", [-30, 0, 12]), 1.0, e("easeOutCubic", [-52, 0, 14]), 1.4, [-58, 0, 16],
+                             1.9, e("easeInCubic", [-14, 0, 10]), 2.1, e("easeOutBounce", [-8, 0, 8]), 3.0, [-8, 0, 8]),
+            "left_arm": rot(0, ZERO, 0.5, e("easeInOutSine", [-25, 0, -12]), 1.0, e("easeOutCubic", [-50, 0, -14]), 1.4, [-55, 0, -16],
+                            1.9, e("easeInCubic", [-12, 0, -10]), 2.1, e("easeOutBounce", [-6, 0, -8]), 3.0, [-6, 0, -8]),
+            "right_forearm": rot(0, ZERO, 0.5, [-20, 0, 0], 1.4, [-10, 0, 0], 2.1, [-5, 0, 0], 3.0, [-5, 0, 0]),
+            "left_forearm": rot(0, ZERO, 0.5, [-20, 0, 0], 1.4, [-10, 0, 0], 2.1, [-5, 0, 0], 3.0, [-5, 0, 0]),
+            "right_hand": rot(0, ZERO, 1.0, [40, 0, 0], 1.9, [40, 0, 0], 2.1, [70, 0, 0], 3.0, [70, 0, 0]),
+            "left_hand": rot(0, ZERO, 1.0, [40, 0, 0], 1.9, [40, 0, 0], 2.1, [70, 0, 0], 3.0, [70, 0, 0]),
+            "core": {"scale": keys(0, [1, 1, 1], 2.1, [1, 1, 1], 2.4, [1.2, 1.2, 1.2], 2.7, [0.6, 0.6, 0.6], 3.0, [0.9, 0.9, 0.9])},
+        }), loop=False),
     }
     write_model("ash_colossus", bones, animations, [5, 5.5], tex_w=256)
 
