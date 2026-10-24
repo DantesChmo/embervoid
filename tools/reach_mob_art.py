@@ -2210,31 +2210,38 @@ def grave_warden():
 
 
 # --- Citadel: Cinder Hound ------------------------------------------------------------------------------------------
-# A lean hound of the burning streets: charred hide split by glowing seams along the ribs, a mane of ash spikes, a
-# mouth that glows inside, an ember-tipped tail. Bite after a 6-tick lunge; howls to pull the pack.
+# A lean hound of the burning streets: a chamfered chest and haunches under charred hide split by glowing rib
+# seams, a mane of ember spikes in three segments down the neck and back that sways, a skull with ember eyes, torn
+# ears, a snout and a jaw of teeth that snaps, legs in two segments with paws and claws, an ember-tipped tail in two
+# segments. Bite after a 6-tick lunge; howls to pull the pack.
 
 def cinder_hound():
-    hide = Material(CHAR, base=2.2, noise=0.7, speck=0.05, top=1.0, grad=0.8)
+    hide = Material(mk.CHAR, base=2.6, noise=0.5, speck=0.05, top=1.0, grad=0.8, bevel=0.4)
 
     def ribs_glow(face, rng):
         if face.name in ("left", "right"):
             for x in range(1, face.w - 1, 2):
-                face.vline(x, 1, face.h - 3, CHAR[0])
+                face.vline(x, 1, face.h - 2, mk.CHAR[0])
                 if rng.random() < 0.6:
-                    face.lit(x, rng.randint(2, max(2, face.h - 3)), EMBER, 0.9)
+                    face.lit(x, rng.randint(1, max(1, face.h - 3)), EMBER, 0.9)
+            mk.edge_shadow(face, rng, -10)
         if face.name == "top":
             char_cracks(face, rng, 1)
+
+    def hide_deco(face, rng):
+        if face.side():
+            if rng.random() < 0.5:
+                char_cracks(face, rng, 1, (1, 3))
+            mk.edge_shadow(face, rng, -10)
 
     def head_side(face, rng):
         if face.name in ("left", "right"):
             ex = 1 if face.name == "right" else face.w - 2
-            face.set(ex, 1, VOID)
+            face.rect(ex, 1, 1, 1, VOID)
             face.lit(ex, 1, EMBER_HOT, 1.0)
+            face.tint(ex, 0, -30)
         if face.name == "front":
-            face.lit(1, 1, EMBER_HOT, 1.0)
-            face.lit(face.w - 2, 1, EMBER_HOT, 1.0)
-            face.set(1, 2, VOID)
-            face.set(face.w - 2, 2, VOID)
+            face.hline(0, 0, face.w, mk.CHAR[1])  # the brow
 
     def jaw(face, rng):
         if face.name == "top":
@@ -2243,73 +2250,153 @@ def cinder_hound():
                 face.lit(face.w // 2, y, EMBER, 0.8)
         if face.side():
             for x in range(0, face.w, 2):
-                face.set(x, 0, BONE[4])
+                face.set(x, 0, mk.BONE[5])
 
     def snout(face, rng):
         if face.name == "bottom":
             for x in range(0, face.w, 2):
-                face.set(x, face.h - 1, BONE[4])
+                face.set(x, face.h - 1, mk.BONE[5])
         if face.name == "front":
-            face.set(face.cx, 0, VOID)
+            face.rect(face.cx - 1, 0, 2, 1, VOID)
 
-    spike = Material(ASH, base=1.6, noise=0.6, top=1.2)
+    spike = Material(mk.ASH, base=1.6, noise=0.5, top=1.2, bevel=0.4)
+    ember_tip = Material(mk.EMBER_RAMP, base=3.0, noise=0.6, glow=0.9)
     bones = [
         Bone("root", [0, 0, 0]),
-        Bone("body", [0, 10, 0], "root", None, [
-            Box([-3, 6.5, -6.5], [6, 7, 6], hide, {"all": ribs_glow}),
-            Box([-2.5, 7.5, -0.5], [5, 5, 7], hide.but(base=2.0), {"all": ribs_glow}),
-        ] + [Box([-1, 12.5, z], [2, 2, 2], spike, rotation=[-40, 0, 0], pivot=[0, 13, z + 1])
-             for z in (-6, -3.5, -1, 1.5)]),
-        Bone("head", [0, 11, -6], "body", None, [
-            Box([-2.5, 8.5, -11], [5, 5, 5], hide.but(base=2.6), {"all": head_side}),
-            Box([-1.5, 9, -15], [3, 3, 4], hide.but(base=2.4), {"all": snout}),
-            Box([-1.5, 8, -14.5], [3, 1, 4], hide.but(base=1.6), {"all": jaw}),
-            Box([-2.5, 13, -8.5], [1, 3, 1], spike, rotation=[-25, 0, 10], pivot=[-2, 13, -8]),
-            Box([1.5, 13, -8.5], [1, 3, 1], spike, rotation=[-25, 0, -10], pivot=[2, 13, -8]),
-        ]),
-        Bone("tail", [0, 12, 7], "body", [-30, 0, 0], [
-            Box([-1, 11, 6.5], [2, 2, 6], hide, {"sides": lambda f, r: char_cracks(f, r, 1)}),
-            Box([-1, 11, 12.5], [2, 2, 2], Material(ramp("a0401a", "e06a22", "ff9a3a", "ffd27a"), base=2.0,
-                                                    noise=0.6, glow=0.9)),
+        Bone("body", [0, 10, 0], "root", None,
+             mk.chamfer_decals(chamfered([-3, 6.5, -6.5], [6, 7, 6], hide, c=0.8, axes="xy"), {"all": ribs_glow})
+             + mk.chamfer_decals(chamfered([-2.5, 7.5, -0.5], [5, 5, 7], hide.but(base=2.2), c=0.7, axes="xy"), {"all": ribs_glow})
+             + [Box([-3.3, 8, -5.5], [6.6, 4, 4], hide.but(base=2.0), {"all": ribs_glow}, inflate=0.2),  # the rib plates over the chest
+                Box([-2.2, 6.4, -4], [4.4, 1, 8], hide.but(base=1.6), inflate=0.1)]),  # the belly seam
+        Bone("head", [0, 11, -6], "body", None,
+             mk.chamfer_decals(chamfered([-2.5, 8.5, -11], [5, 5, 5], hide.but(base=3.0), c=0.7), {"all": head_side})
+             + [Box([-1.5, 9, -15], [3, 3, 4], hide.but(base=2.8), {"all": snout}),
+                Box([-2.6, 12.5, -8.5], [1.2, 3, 1.2], spike, {"sides": lambda f, r: ragged_edge(f, r, "top", 1, 0.5)},
+                    rotation=[-25, 0, 12], pivot=[-2, 12.5, -8]),
+                Box([1.4, 12.5, -8.5], [1.2, 3, 1.2], spike, {"sides": lambda f, r: ragged_edge(f, r, "top", 1, 0.5)},
+                    rotation=[-25, 0, -12], pivot=[2, 12.5, -8]),
+                Box([-1.8, 11.5, -13], [1, 1, 1], Material(mk.BONE, base=4.0, noise=0.3)),  # a tooth left in the upper jaw
+                Box([0.8, 11.5, -13], [1, 1, 1], Material(mk.BONE, base=4.0, noise=0.3))]),
+        Bone("jaw", [0, 9, -10], "head", [8, 0, 0], [
+            Box([-1.5, 8, -14.5], [3, 1, 4.5], hide.but(base=1.8), {"all": jaw}),
+            Box([-1.6, 8.8, -14], [0.8, 1, 0.8], Material(mk.BONE, base=4.0, noise=0.3)),
+            Box([0.8, 8.8, -14], [0.8, 1, 0.8], Material(mk.BONE, base=4.0, noise=0.3)),
         ]),
     ]
-    leg = Material(CHAR, base=1.8, noise=0.6, grad=1.2)
-    paw = Material(CHAR, base=1.0, noise=0.4)
-    for name, x, z in (("front_right_leg", -2, -4), ("front_left_leg", 2, -4), ("back_right_leg", -2, 5),
-                       ("back_left_leg", 2, 5)):
+    # The mane: three segments of ember spikes from the back of the skull down the spine, each a pair of spikes.
+    bones += mk.tail_chain("mane", "head", [0, 13, -7.5], 3, 2.6, spike, thickness=1.0,
+                           box=lambda i, o, s: [Box([-1.2, o[1] - 0.5, o[2]], [2.4, 1.4, s[2]], hide.but(base=2.0), {"all": hide_deco}),
+                                                Box([-0.9, o[1] + 0.5, o[2] + 0.3], [1.8, 2.6 - i * 0.4, 1.6], spike, rotation=[-35, 0, 0],
+                                                    pivot=[0, o[1] + 0.5, o[2] + 1]),
+                                                Box([-0.5, o[1] + 2.8 - i * 0.4, o[2] + 0.6], [1, 0.8, 1], ember_tip, rotation=[-35, 0, 0],
+                                                    pivot=[0, o[1] + 0.5, o[2] + 1])])
+    bones += mk.tail_chain("tail", "body", [0, 12, 6.5], 2, 4, hide, thickness=2.0, rotation=[-30, 0, 0], taper=0.8,
+                           box=lambda i, o, s: [Box(o, s, hide, {"sides": lambda f, r: char_cracks(f, r, 1)})] + (
+                               [Box([o[0] + 0.2, o[1] + 0.2, o[2] + s[2] - 0.5], [1.4, 1.4, 2.2], ember_tip)] if i == 1 else []))
+    leg_mat = Material(mk.CHAR, base=2.0, noise=0.5, grad=1.2, bevel=0.3)
+    paw = Material(mk.CHAR, base=1.2, noise=0.4, bevel=0.3)
+    claw = Material(mk.BONE, base=2.0, noise=0.3)
+    for name, x, z in (("front_right", -2, -4), ("front_left", 2, -4), ("back_right", -2, 5), ("back_left", 2, 5)):
         ox = -3 if x < 0 else 1
         oz = -5 if z < 0 else 4
-        bones.append(Bone(name, [x, 7, z], "root", None, [
-            Box([ox, 1, oz], [2, 6, 2], leg, {"sides": lambda f, r: r.random() < 0.3 and ember_cracks(
-                f, r, 1, EMBER_DEEP, EMBER_DARK, 0.7, (1, 2))}),
-            Box([ox, 0, oz - 0.5], [2, 1, 2], paw, {"front": lambda f, r: f.set(0, 0, BONE[3])}),
-        ]))
+        upper = [Box([ox - 0.2, 4, oz - 0.3], [2.4, 4, 2.6], leg_mat.but(base=2.3), {"sides": hide_deco}, inflate=0.1)]
+        lower = [Box([ox, 1, oz], [2, 3.5, 2], leg_mat, {"sides": lambda f, r: r.random() < 0.3 and ember_cracks(f, r, 1, EMBER_DEEP, EMBER_DARK, 0.7, (1, 2))}),
+                 Box([ox - 0.2, 0, oz - 0.8], [2.4, 1, 2.6], paw),
+                 Box([ox + 0.1, 0, oz - 1.4], [0.6, 0.7, 0.8], claw), Box([ox + 1.3, 0, oz - 1.4], [0.6, 0.7, 0.8], claw)]
+        bones.append(Bone(name + "_leg", [x, 8, z], "body" if z < 0 else "body", None, upper))
+        bones.append(Bone(name + "_shin", [x, 4.2, z], name + "_leg", None, lower))
+    mane = chain_names("mane", 3)
+    tail = chain_names("tail", 2)
+    chains = mane + tail
 
-    def gait(length, angle):
-        h = length / 2
+    def gait(length, angle, bound=0.8):
+        h, q = length / 2, length / 4
         a, b = [angle, 0, 0], [-angle, 0, 0]
-        return {
-            "front_right_leg": rot(0, a, h, b, length, a), "back_left_leg": rot(0, a, h, b, length, a),
-            "front_left_leg": rot(0, b, h, a, length, b), "back_right_leg": rot(0, b, h, a, length, b),
-            "tail": rot(0, [-30, 10, 0], h, [-30, -10, 0], length, [-30, 10, 0]),
-            "body": pos(0, ZERO, length / 4, [0, 0.6, 0], h, ZERO, h + length / 4, [0, 0.6, 0], length, ZERO),
-            "head": rot(0, [4, 0, 0], h, [-4, 0, 0], length, [4, 0, 0]),
-        }
+        out = {}
+        for pair, (first, second) in {("front_right", "back_left"): (a, b), ("front_left", "back_right"): (b, a)}.items():
+            for leg in pair:
+                out[leg + "_leg"] = rot(0, first, h, e("easeInOutSine", second), length, e("easeInOutSine", first))
+                out[leg + "_shin"] = rot(0, [angle * 0.3, 0, 0] if first is a else ZERO, q, e("easeInOutSine", [angle * 0.8, 0, 0] if first is a else [angle * 0.2, 0, 0]),
+                                         h, e("easeInOutSine", ZERO if first is a else [angle * 0.3, 0, 0]), h + q,
+                                         e("easeInOutSine", [angle * 0.2, 0, 0] if first is a else [angle * 0.8, 0, 0]), length,
+                                         e("easeInOutSine", [angle * 0.3, 0, 0] if first is a else ZERO))
+        out.update({
+            "body": {"position": keys(0, ZERO, q, e("easeOutSine", [0, bound, 0]), h, e("easeInSine", ZERO), h + q, e("easeOutSine", [0, bound, 0]),
+                                      length, e("easeInSine", ZERO)),
+                     "rotation": keys(0, [3, 0, 0], q, e("easeInOutSine", [-3, 0, 0]), h, e("easeInOutSine", [3, 0, 0]), h + q,
+                                      e("easeInOutSine", [-3, 0, 0]), length, e("easeInOutSine", [3, 0, 0]))},
+            "head": rot(0, [-3, 0, 0], q, e("easeInOutSine", [4, 0, 0]), h, e("easeInOutSine", [-3, 0, 0]), h + q, e("easeInOutSine", [4, 0, 0]),
+                        length, e("easeInOutSine", [-3, 0, 0])),
+            "jaw": rot(0, [6, 0, 0], h, e("easeInOutSine", [12, 0, 0]), length, e("easeInOutSine", [6, 0, 0])),
+        })
+        return merge(out, lag_sway(mane, length, 10, 0, phase=0.25), lag_sway(tail, length, 12, 1, phase=0.0, base=[0, 0, 0]))
 
     animations = {
-        "misc.idle": anim(2.0, {"tail": rot(0, [-30, 8, 0], 1, [-30, -8, 0], 2, [-30, 8, 0]),
-                                "head": rot(0, ZERO, 1, [5, 0, 0], 2, ZERO),
-                                "body": pos(0, ZERO, 1, [0, 0.3, 0], 2, ZERO)}),
-        "move.walk": anim(0.5, gait(0.5, 40)),
-        "attack.bite": anim(0.5, {
-            "head": rot(0, ZERO, 0.3, [-25, 0, 0], 0.35, [20, 0, 0], 0.5, ZERO),
-            "body": rot(0, ZERO, 0.3, [5, 0, 0], 0.35, [-5, 0, 0], 0.5, ZERO),
-        }, loop=False),
-        "misc.howl": anim(1.0, {"head": rot(0, ZERO, 0.2, [-55, 0, 0], 0.8, [-55, 0, 0], 1.0, ZERO),
-                                "tail": rot(0, [-30, 0, 0], 0.2, [-60, 0, 0], 0.8, [-60, 0, 0], 1.0, [-30, 0, 0])},
-                            loop=False),
+        # Panting: the chest heaves, the jaw works, the mane embers flicker in a slow wave, the tail wags.
+        "misc.idle": anim(2.0, merge({
+            "body": {"rotation": keys(0, ZERO, 1.0, e("easeInOutSine", [1.5, 0, 0]), 2.0, e("easeInOutSine", ZERO)),
+                     "position": keys(0, ZERO, 1.0, e("easeInOutSine", [0, 0.4, 0]), 2.0, e("easeInOutSine", ZERO))},
+            "head": rot(0, ZERO, 0.7, e("easeInOutSine", [5, 8, 0]), 1.4, e("easeInOutSine", [2, -6, 0]), 2.0, e("easeInOutSine", ZERO)),
+            "jaw": rot(0, [10, 0, 0], 0.5, e("easeInOutSine", [18, 0, 0]), 1.0, e("easeInOutSine", [10, 0, 0]), 1.5, e("easeInOutSine", [18, 0, 0]),
+                       2.0, e("easeInOutSine", [10, 0, 0])),
+        }, lag_sway(mane, 2.0, 6, 0, phase=0.3), lag_sway(tail, 2.0, 14, 1, phase=0.0))),
+        "move.walk": anim(0.5, gait(0.5, 38)),
+        # The bite: through the 6-tick lunge the head draws back and the body coils onto the haunches, then the
+        # jaws snap forward at 0.35 s with the whole body behind them and the mane whipping.
+        "attack.bite": anim(0.5, merge({
+            "head": rot(0, ZERO, 0.25, e("easeInOutSine", [-28, 0, 0]), 0.3, [-30, 0, 0], 0.35, e("easeOutBack", [22, 0, 0]), 0.5, e("easeOutSine", ZERO)),
+            "jaw": rot(0, [10, 0, 0], 0.25, e("easeInOutSine", [40, 0, 0]), 0.3, [45, 0, 0], 0.35, e("easeOutBack", [2, 0, 0]), 0.5, e("easeOutSine", [10, 0, 0])),
+            "body": {"rotation": keys(0, ZERO, 0.25, e("easeInOutSine", [8, 0, 0]), 0.35, e("easeOutBack", [-8, 0, 0]), 0.5, e("easeOutSine", ZERO)),
+                     "position": keys(0, ZERO, 0.25, e("easeInOutSine", [0, -0.8, 1.5]), 0.35, e("easeOutCubic", [0, 0.5, -2.5]), 0.5, e("easeOutSine", ZERO))},
+            "front_right_leg": rot(0, ZERO, 0.25, e("easeInOutSine", [20, 0, 0]), 0.35, e("easeOutCubic", [-30, 0, 0]), 0.5, e("easeOutSine", ZERO)),
+            "front_left_leg": rot(0, ZERO, 0.25, e("easeInOutSine", [20, 0, 0]), 0.35, e("easeOutCubic", [-30, 0, 0]), 0.5, e("easeOutSine", ZERO)),
+            "back_right_leg": rot(0, ZERO, 0.25, e("easeInOutSine", [-25, 0, 0]), 0.35, e("easeOutCubic", [20, 0, 0]), 0.5, e("easeOutSine", ZERO)),
+            "back_left_leg": rot(0, ZERO, 0.25, e("easeInOutSine", [-25, 0, 0]), 0.35, e("easeOutCubic", [20, 0, 0]), 0.5, e("easeOutSine", ZERO)),
+        }, hold(chains, 0.28, ZERO), whip(mane, 0.33, 30, 0, settle=0.16), whip(tail, 0.33, -30, 0, settle=0.16)), loop=False),
+        # The howl: the muzzle goes up, the mane bristles and the tail drops; the chest heaves through it.
+        "misc.howl": anim(1.0, merge({
+            "head": rot(0, ZERO, 0.2, e("easeOutBack", [-55, 0, 0]), 0.8, [-55, 0, 0], 1.0, e("easeOutSine", ZERO)),
+            "jaw": rot(0, [10, 0, 0], 0.2, e("easeOutCubic", [35, 0, 0]), 0.8, [35, 0, 0], 1.0, e("easeOutSine", [10, 0, 0])),
+            "body": {"rotation": keys(0, ZERO, 0.2, e("easeOutSine", [-8, 0, 0]), 0.5, e("easeInOutSine", [-10, 0, 0]), 0.8, [-8, 0, 0], 1.0, e("easeOutSine", ZERO)),
+                     "position": keys(0, ZERO, 0.5, e("easeInOutSine", [0, 0.6, 0]), 1.0, e("easeInOutSine", ZERO))},
+            "front_right_leg": rot(0, ZERO, 0.2, e("easeOutSine", [8, 0, 0]), 1.0, e("easeOutSine", ZERO)),
+            "front_left_leg": rot(0, ZERO, 0.2, e("easeOutSine", [8, 0, 0]), 1.0, e("easeOutSine", ZERO)),
+        }, lag_sway(mane, 1.0, 12, 0, phase=0.0, base=[-15, 0, 0]), whip(tail, 0.1, -40, 0, settle=0.8)), loop=False),
+        "misc.hurt": anim(0.4, merge({
+            "body": rot(0, ZERO, 0.08, e("easeOutCubic", [-6, 12, 8]), 0.4, e("easeOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.08, e("easeOutCubic", [-20, -15, 0]), 0.4, e("easeOutSine", ZERO)),
+            "jaw": rot(0, [10, 0, 0], 0.08, e("easeOutCubic", [30, 0, 0]), 0.4, e("easeOutSine", [10, 0, 0])),
+            "root": pos(0, ZERO, 0.08, e("easeOutCubic", [0.5, 0, 1]), 0.4, e("easeOutSine", ZERO)),
+        }, whip(mane, 0.04, 25, 0, settle=0.34), whip(tail, 0.04, 30, 0, settle=0.34)), loop=False),
+        "misc.stagger": anim(0.8, merge({
+            "body": rot(0, ZERO, 0.12, e("easeOutCubic", [-10, 30, 25]), 0.45, e("easeInOutSine", [5, -12, -8]), 0.8, e("easeOutBack", ZERO)),
+            "head": rot(0, ZERO, 0.1, e("easeOutCubic", [-30, -25, 10]), 0.8, e("easeOutBack", ZERO)),
+            "jaw": rot(0, [10, 0, 0], 0.1, e("easeOutCubic", [35, 0, 0]), 0.8, e("easeOutSine", [10, 0, 0])),
+            "root": pos(0, ZERO, 0.12, e("easeOutCubic", [1.5, -1, 2]), 0.8, e("easeOutSine", ZERO)),
+            "front_right_leg": rot(0, ZERO, 0.12, e("easeOutCubic", [-25, 0, 15]), 0.8, e("easeOutSine", ZERO)),
+            "front_left_leg": rot(0, ZERO, 0.12, e("easeOutCubic", [20, 0, 15]), 0.8, e("easeOutSine", ZERO)),
+            "back_right_leg": rot(0, ZERO, 0.12, e("easeOutCubic", [15, 0, 10]), 0.8, e("easeOutSine", ZERO)),
+            "back_left_leg": rot(0, ZERO, 0.12, e("easeOutCubic", [-20, 0, 10]), 0.8, e("easeOutSine", ZERO)),
+        }, whip(mane, 0.05, 35, 0, settle=0.7), whip(tail, 0.05, 45, 0, settle=0.7)), loop=False),
+        # The legs fold and it drops onto its left side, the head lolling, the tail and the mane settling, the
+        # embers in the ribs going out (particles) while it lies there.
+        "misc.death": anim(1.6, merge({
+            "root": pos(0, ZERO, 0.3, e("easeInSine", [0, -2, 0]), 0.75, e("easeInQuad", [0, -5.5, 0]), 0.9, e("easeOutSine", [0, -6, 0]), 1.6, [0, -6, 0]),
+            "body": rot(0, ZERO, 0.3, e("easeOutSine", [5, 0, 10]), 0.75, e("easeInQuad", [8, 0, -80]), 0.9, e("easeOutSine", [8, 0, -72]), 1.1,
+                        e("easeOutSine", [8, 0, -80]), 1.6, [8, 0, -80]),
+            "head": rot(0, ZERO, 0.3, e("easeOutSine", [15, 0, 0]), 0.75, e("easeInQuad", [25, -20, 10]), 1.0, e("easeOutBounce", [30, -25, 15]), 1.6, [30, -25, 15]),
+            "jaw": rot(0, [10, 0, 0], 0.3, e("easeOutSine", [30, 0, 0]), 0.9, e("easeInQuad", [20, 0, 0]), 1.6, [20, 0, 0]),
+            "front_right_leg": rot(0, ZERO, 0.3, e("easeOutSine", [40, 0, 0]), 0.75, e("easeInQuad", [-30, 0, -20]), 1.6, [-30, 0, -20]),
+            "front_left_leg": rot(0, ZERO, 0.3, e("easeOutSine", [45, 0, 0]), 0.75, e("easeInQuad", [-50, 0, 20]), 1.6, [-50, 0, 20]),
+            "back_right_leg": rot(0, ZERO, 0.3, e("easeOutSine", [-40, 0, 0]), 0.75, e("easeInQuad", [30, 0, -20]), 1.6, [30, 0, -20]),
+            "back_left_leg": rot(0, ZERO, 0.3, e("easeOutSine", [-45, 0, 0]), 0.75, e("easeInQuad", [60, 0, 20]), 1.6, [60, 0, 20]),
+            "front_right_shin": rot(0, ZERO, 0.3, e("easeOutSine", [-30, 0, 0]), 0.75, e("easeInQuad", [40, 0, 0]), 1.6, [40, 0, 0]),
+            "front_left_shin": rot(0, ZERO, 0.3, e("easeOutSine", [-30, 0, 0]), 0.75, e("easeInQuad", [55, 0, 0]), 1.6, [55, 0, 0]),
+            "back_right_shin": rot(0, ZERO, 0.3, e("easeOutSine", [50, 0, 0]), 0.75, e("easeInQuad", [60, 0, 0]), 1.6, [60, 0, 0]),
+            "back_left_shin": rot(0, ZERO, 0.3, e("easeOutSine", [50, 0, 0]), 0.75, e("easeInQuad", [70, 0, 0]), 1.6, [70, 0, 0]),
+        }, mk.settle(mane, 0.8, 30, 0, length=0.75), mk.settle(tail, 0.8, 40, 1, length=0.75)), loop=False),
     }
-    write_model("cinder_hound", bones, animations, [1.5, 1.2])
+    write_model("cinder_hound", bones, animations, [1.5, 1.2], tex_w=128)
 
 
 # --- Citadel: Sparking Marksman ------------------------------------------------------------------------------------
