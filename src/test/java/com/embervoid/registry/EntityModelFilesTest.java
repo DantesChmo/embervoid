@@ -5,6 +5,8 @@ import com.embervoid.reach.boss.CryptKeeperEntity;
 import com.embervoid.reach.boss.GrievingTreeEntity;
 import com.embervoid.reach.boss.ReachBoss;
 import com.embervoid.reach.boss.SmolderingLordEntity;
+import com.embervoid.reach.mob.CinderHuskEntity;
+import com.embervoid.reach.mob.ReachMob;
 import com.embervoid.sanctum.boss.CryingSoulEntity;
 import com.embervoid.sanctum.boss.FallenSisterEntity;
 import com.embervoid.vampire.VampireBossEntity;
@@ -170,6 +172,60 @@ class EntityModelFilesTest {
 			}
 			Set<String> bones = bones(name);
 			for (String bone : BONES.getOrDefault(name, List.of())) {
+				if (!bones.contains(bone)) {
+					problems.add(name + ": bone " + bone + " is used by its renderer but missing");
+				}
+			}
+		}
+		assertTrue(problems.isEmpty(), String.join("\n", problems));
+	}
+
+	// --- Realm 1 mobs (PLAN 19.3, track mobs): what ReachMob and its subclasses play, toggle and wait for ------------
+
+	/** Animations each Realm 1 mob class plays: its moves and states, and ReachMob's hurt, stagger and death. */
+	private static final Map<String, List<String>> REACH_MOB_ANIMATIONS = Map.ofEntries(
+			Map.entry("cinder_husk", List.of("misc.idle", "move.walk", "attack.swing", ReachMob.HURT, ReachMob.STAGGER, ReachMob.DEATH)));
+
+	/** Bones the Realm 1 renderers turn (head) or toggle ({@code ReachMob#toggledBones}). */
+	private static final Map<String, List<String>> REACH_MOB_BONES = Map.ofEntries(
+			Map.entry("cinder_husk", List.of("head")));
+
+	/** Shortest length (s) of a Realm 1 mob's telegraphed animation: its move's windup in ticks / 20. */
+	private static final Map<String, Double> REACH_MOB_MIN_LENGTH = Map.ofEntries(
+			Map.entry("cinder_husk/attack.swing", CinderHuskEntity.SWING_WINDUP / 20.0));
+
+	/** Ticks each Realm 1 mob's body stays for its fall ({@code ReachMob#deathTicks}): the fall must fill them. */
+	private static final Map<String, Integer> REACH_MOB_DEATH_TICKS = Map.ofEntries(
+			Map.entry("cinder_husk", CinderHuskEntity.DEATH_TICKS));
+
+	@Test
+	void reachMobsKeepWhatTheirCodeUses() throws IOException {
+		List<String> problems = new ArrayList<>();
+		for (Map.Entry<String, List<String>> entry : REACH_MOB_ANIMATIONS.entrySet()) {
+			String name = entry.getKey();
+			JsonObject animations = animations(name);
+			for (String animation : entry.getValue()) {
+				if (!animations.has(animation)) {
+					problems.add(name + ": animation " + animation + " is played by its class but missing");
+					continue;
+				}
+				double length = animations.getAsJsonObject(animation).get("animation_length").getAsDouble();
+				Double min = REACH_MOB_MIN_LENGTH.get(name + "/" + animation);
+				if (min != null && length + 1e-6 < min) {
+					problems.add(name + ": " + animation + " lasts " + length + " s, shorter than its " + min + " s windup");
+				}
+				if (animation.equals(ReachMob.DEATH)) {
+					int ticks = REACH_MOB_DEATH_TICKS.get(name);
+					if (length * 20 + 1e-6 < ticks || length * 20 > ticks + 10) {
+						problems.add(name + ": " + animation + " lasts " + length + " s, the body stays " + ticks + " ticks");
+					}
+					if (length < 1.5 || length > 2.5) {
+						problems.add(name + ": " + animation + " lasts " + length + " s, outside the 1.5–2.5 s of a fall");
+					}
+				}
+			}
+			Set<String> bones = bones(name);
+			for (String bone : REACH_MOB_BONES.getOrDefault(name, List.of())) {
 				if (!bones.contains(bone)) {
 					problems.add(name + ": bone " + bone + " is used by its renderer but missing");
 				}

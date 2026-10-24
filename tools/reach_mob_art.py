@@ -15,8 +15,10 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from art_kit import (ZERO, Bone, Box, Material, anim, clamp, crack, ember_cracks, hexc, keys, merge,  # noqa: E402
-                     mirror_box, pos, ramp, rot, scatter, shade, stitch, sway, tatter, write_model)
+from art_kit import (ZERO, Bone, Box, Material, anim, chain_bones, chain_names, clamp, crack, e, ember_cracks,  # noqa: E402
+                     fingers, hexc, hold, keys, lag_sway, merge, mirror_box, pos, ramp, rot, scatter, shade, stitch,
+                     sway, tatter, whip, write_model)
+import mob_kit as mk  # noqa: E402
 
 # --- Palettes (dark to light) -------------------------------------------------------------------------------------
 
@@ -166,120 +168,252 @@ def char_cracks(face, rng, n=3, length=(2, 3)):
 
 
 # --- Fields: Cinder Husk ---------------------------------------------------------------------------------------------
-# A burnt peasant with a pitchfork: charred flesh splitting with embers, a torn smock and rope belt, the remains of a
-# straw hat. Swing: 10-tick raised-arm windup (0.5 s).
+# A burnt peasant with a scythe: charred flesh split by ember seams, a torn linen smock over a rope belt with tatters
+# at the hem, the remains of a straw hat with a tuft hanging off the brim, bare feet, a jaw that hangs open. Swing:
+# 10-tick raised-arm windup (0.5 s), the scythe brought down and across.
 
 def cinder_husk():
-    flesh = Material(CHAR, base=2.4, noise=0.7, speck=0.04, grad=1.0, top=1.2)
+    flesh = Material(mk.CHAR, base=3.0, noise=0.5, speck=0.03, grad=1.0, top=1.0, bevel=0.5)
 
     def flesh_cracks(face, rng):
-        if face.side() and rng.random() < 0.8:
-            char_cracks(face, rng, 1)
+        if face.side():
+            if rng.random() < 0.85:
+                char_cracks(face, rng, 1, (2, 4))
+            mk.edge_shadow(face, rng, -10)
 
     def head_front(face, rng):
-        # Sunken sockets with ember eyes, a ragged mouth glowing inside, a crack down one cheek.
-        eyes(face, 4, EMBER_HOT, x_left=1, w=2, socket=True, pupil=1)
-        face.set(2, 4, EMBER)
-        face.hline(2, 6, 4, VOID)
-        face.lit(3, 6, EMBER_DEEP, 0.7)
-        face.lit(4, 6, EMBER, 0.8)
-        face.set(2, 7, CHAR[0])
-        face.set(5, 7, CHAR[0])
-        face.lit(6, 5, EMBER, 0.8)
-        face.lit(6, 6, EMBER_DEEP, 0.6)
-        face.set(3, 5, CHAR[1])  # nose hole
-        face.set(4, 5, CHAR[1])
+        # Sunken sockets with ember eyes under a heavy brow, a nose hole, a cheek split by a glowing crack.
+        cx = face.cx
+        face.hline(cx - 3, 1, 6, mk.CHAR[1])
+        for ex in (cx - 3, cx + 1):
+            face.rect(ex, 2, 2, 2, VOID)
+            face.lit(ex + (1 if ex < cx else 0), 2, EMBER_HOT, 1.0)
+            face.lit(ex + (0 if ex < cx else 1), 3, EMBER_DEEP, 0.5)
+        face.set(cx - 1, 4, mk.CHAR[1])
+        face.set(cx, 4, mk.CHAR[0])
+        face.lit(cx + 2, 4, EMBER, 0.8)
+        face.lit(cx + 2, 5, EMBER_DEEP, 0.6)
+        face.set(cx - 3, 5, mk.CHAR[0])
+
+    def jaw_front(face, rng):
+        face.hline(0, 0, face.w, mk.CHAR[0])
+        for x in range(0, face.w, 2):
+            face.set(x, 0, mk.BONE[4])
+        face.hline(0, 1, face.w, mk.CHAR[1])
+
+    def jaw_top(face, rng):
+        face.rect(0, 0, face.w, face.h, VOID)
+        for y in range(1, face.h - 1):
+            for x in range(1, face.w - 1):
+                face.lit(x, y, EMBER if (x + y) % 2 else EMBER_DEEP, 0.6)
 
     def torso_front(face, rng):
-        # A gash over the ribs where the fire still lives.
-        for i, y in enumerate((4, 6, 8)):
-            face.hline(2, y, 4, CHAR[4])
-            face.set(2, y + 1, CHAR[0])
-            face.set(5, y + 1, CHAR[0])
-            face.lit(3 + (i % 2), y + 1, EMBER if i != 1 else EMBER_HOT, 0.9)
-            face.set(4 - (i % 2), y + 1, EMBER_DARK)
+        # The ribcage shows through the open smock: rib ridges with the fire living between them.
+        cx = face.cx
+        for i, y in enumerate((3, 5, 7, 9)):
+            face.hline(cx - 2, y, 4, mk.CHAR[5])
+            face.hline(cx - 2, y + 1, 4, mk.CHAR[0])
+            face.lit(cx - 1 + (i % 2), y + 1, EMBER if i != 1 else EMBER_HOT, 0.95)
+            face.lit(cx + (i % 2), y + 1, EMBER_DARK, 0.4)
+        face.vline(cx - 1, 2, 9, mk.CHAR[1])
+        mk.edge_shadow(face, rng, -10)
 
-    bones, top = humanoid(legs=12, body=(8, 12, 4), head=(8, 8, 8), arm=(3, 12, 3), hunch=8,
-                          mats={"body": flesh, "head": flesh.but(base=2.6), "arm": flesh, "leg": flesh},
-                          decals={"body": {"front": torso_front, "sides": flesh_cracks},
-                                  "head": {"front": head_front, "back": flesh_cracks, "left": flesh_cracks, "right": flesh_cracks},
-                                  "arm": {"sides": flesh_cracks},
-                                  "leg": {"left": flesh_cracks, "right": flesh_cracks}})
-    linen = Material(LINEN, base=2.2, noise=0.6, grain="v", grad=1.0)
-
-    def smock_side(face, rng):
-        tatter(face, rng, 3, 0.55)
-        holes(face, rng, 2 if face.w > 4 else 1)
-        if face.name == "front":
-            face.vline(face.cx - 1, 0, 3, LINEN[0])  # torn collar
-
-    def smock_front(face, rng):
-        smock_side(face, rng)
-        # Open front: the gash shows through.
-        for y in range(2, 9):
-            for x in range(2, 6):
-                face.clear(x, y)
-
-    body = bone(bones, "body")
-    body.add(
-        Box([-4, 15, -2], [8, 9, 4], linen, {"front": smock_front, "back": smock_side, "left": smock_side,
-                                            "right": smock_side, "top": lambda f, r: holes(f, r, 1)}, inflate=0.35),
-        Box([-4, 14, -2], [8, 1, 4], Material(ROPE, base=2.2, noise=0.5, grain="h"),
-            {"front": lambda f, r: (f.set(2, 0, ROPE[0]), f.set(3, 0, ROPE[4]))}, inflate=0.55),
-    )
-    # The straw hat: a crown over the skull and a broad brim, burnt through in places.
-    straw = Material(STRAW, base=2.0, noise=0.8, grain="h", grad=0.6, top=0.5)
+    bones, top = mk.dense_humanoid(legs=12, body=(8, 12, 4), head=(8, 8, 8), arm=(3, 10, 3), leg=(4, 4), hunch=8,
+                                   mats={"body": flesh, "head": flesh.but(base=3.3), "arm": flesh, "leg": flesh,
+                                         "hand": flesh.but(base=2.4), "foot": flesh.but(base=2.2)},
+                                   decals={"body": {"front": torso_front, "sides": flesh_cracks, "back": flesh_cracks},
+                                           "head": {"front": head_front, "back": flesh_cracks, "left": flesh_cracks,
+                                                    "right": flesh_cracks},
+                                           "arm": {"sides": flesh_cracks}, "fore": {"sides": flesh_cracks},
+                                           "leg": {"sides": flesh_cracks}, "shin": {"sides": flesh_cracks}})
+    head = mk.bone(bones, "head")
+    bones.append(Bone("jaw", [0, top + 1, -1], "head", [8, 0, 0], [
+        Box([-3, top - 1, -4.3], [6, 2, 4], flesh.but(base=2.2), {"front": jaw_front, "top": jaw_top,
+                                                                 "sides": lambda f, r: mk.edge_shadow(f, r, -10)})]))
+    # The straw hat: an eight-sided crown, a leather band, a wide brim burnt through, a tuft of straw hanging off it.
+    straw = Material(mk.STRAW, base=3.2, noise=0.6, grain="h", grad=0.6, top=0.6, bevel=0.4)
 
     def brim(face, rng):
-        holes(face, rng, 5 if face.name in ("top", "bottom") else 0)
         if face.name in ("top", "bottom"):
-            for x in range(face.w):  # ragged rim
-                for y in (0, face.h - 1):
-                    if rng.random() < 0.3:
-                        face.clear(x, y)
-            for y in range(face.h):
-                for x in (0, face.w - 1):
-                    if rng.random() < 0.3:
-                        face.clear(x, y)
+            holes(face, rng, 6)
+            ragged_edge(face, rng, "top", 2, 0.4)
+            ragged_edge(face, rng, "bottom", 2, 0.4)
+            ragged_edge(face, rng, "left", 1, 0.4)
+            ragged_edge(face, rng, "right", 1, 0.4)
+            for y in range(1, face.h - 1, 2):  # woven rings
+                face.hline(1, y, face.w - 2, mk.STRAW[1] if y % 4 == 1 else mk.STRAW[4])
+                for x in range(y % 4, face.w, 4):
+                    face.set(x, y, mk.STRAW[5])
 
     def crown(face, rng):
         if face.side():
-            face.hline(0, face.h - 1, face.w, STRAW[0])  # hat band
-            face.hline(0, face.h - 2, face.w, LEATHER[2])
+            for y in range(0, face.h, 2):
+                for x in range((y // 2) % 2, face.w, 2):
+                    face.set(x, y, mk.STRAW[4])
+            holes(face, rng, 1)
         if face.name == "top":
             holes(face, rng, 2)
+            for y in range(face.h):
+                face.set(face.cx, y, mk.STRAW[1])
 
-    bone(bones, "head").add(
-        Box([-4, top + 5, -4], [8, 4, 8], straw, {"all": crown}, inflate=0.4),
-        Box([-6, top + 5, -6], [12, 1, 12], straw, {"all": brim}),
+    head.add(*mk.octagon([-4, top + 6, -4], [8, 4, 8], straw, {"all": crown}, shrink=0.8),
+             Box([-4, top + 6.3, -4], [8, 1.2, 8], Material(mk.LEATHER, base=2.0, noise=0.4, bevel=0.5),
+                 {"front": lambda f, r: (f.set(f.cx, 0, mk.BRASS[4]))}, inflate=0.6),
+             Box([-6.5, top + 5.5, -6.5], [13, 1, 13], straw.but(base=2.6), {"all": brim}),
+             Box([2, top + 3, -6.5], [4, 2.5, 1], straw.but(base=2.0), {"sides": lambda f, r: tatter(f, r, 1, 0.5)},
+                 rotation=[-35, 0, 0], pivot=[4, top + 5.5, -6]))
+    tuft = Material(mk.STRAW, base=3.4, noise=0.5, grain="v")
+    bones += chain_bones("straw", "head", [-5.5, top + 5.5, 4.5], 2, 3, tuft,
+                         {"sides": lambda f, r: ragged_edge(f, r, "bottom", 2, 0.6)}, thickness=1.5,
+                         box=lambda i, o, s: [Box([o[0] - 0.5, o[1], o[2]], [2.5, s[1], 1.5], tuft,
+                                                  {"sides": lambda f, r: ragged_edge(f, r, "bottom", 1, 0.5)})])
+    # The smock: layered linen with fold lines, a burnt-open front, a yoke at the shoulders, a rope belt with a knot
+    # and two loose ends, tatters at the hem that swing.
+    linen = Material(mk.LINEN, base=2.6, noise=0.5, grain="v", grad=1.0, bevel=0.3)
+
+    def smock_side(face, rng):
+        mk.fold_lines(face, rng, 3, -16)
+        tatter(face, rng, 2, 0.5)
+        holes(face, rng, 2 if face.w > 4 else 1)
+        mk.edge_shadow(face, rng, -8)
+
+    def smock_front(face, rng):
+        smock_side(face, rng)
+        for y in range(1, face.h):  # burnt open: the ribs show
+            for x in range(face.cx - 2, face.cx + 2):
+                face.clear(x, y)
+        face.set(face.cx - 3, 1, mk.CHAR[1])
+        face.set(face.cx + 2, 1, mk.CHAR[1])
+
+    body = mk.bone(bones, "body")
+    rope = Material(mk.ROPE, base=2.6, noise=0.5, grain="h", bevel=0.4)
+    body.add(
+        Box([-4, 15, -2], [8, 8.5, 4], linen, {"front": smock_front, "back": smock_side, "left": smock_side,
+                                               "right": smock_side, "top": lambda f, r: holes(f, r, 1)}, inflate=0.45),
+        Box([-4.5, 22, -2.5], [9, 2, 5], linen.but(base=3.2), {"sides": lambda f, r: (stitch(f, 1, mk.LINEN[0], 2),
+                                                                                       mk.edge_shadow(f, r, -8))},
+            inflate=0.55),
+        Box([-4, 14.5, -2], [8, 1.5, 4], rope, {"sides": lambda f, r: stitch(f, 0, mk.ROPE[1], 2, 1)}, inflate=0.7),
+        Box([1, 13.5, -3.2], [2, 2, 1.2], rope.but(base=3.4), inflate=0.2),
+        Box([1.2, 10.5, -3.2], [0.8, 3.2, 0.8], rope, rotation=[0, 0, -12], pivot=[1.6, 13.5, -2.8]),
+        Box([2.2, 11, -3.2], [0.8, 2.8, 0.8], rope, rotation=[0, 0, 14], pivot=[2.6, 13.5, -2.8]),
     )
-    sleeve = Material(LINEN, base=2.0, noise=0.6, grain="v")
-    r_sleeve = Box([-7, top - 5, -1.5], [3, 5, 3], sleeve, {"sides": lambda f, r: tatter(f, r, 2, 0.6)},
-                   inflate=0.3)
-    bone(bones, "right_arm").add(r_sleeve)
-    bone(bones, "left_arm").add(mirror_box(r_sleeve))
-    trouser = Material(LINEN, base=1.4, noise=0.6, grain="v")
-    r_trouser = Box([-4, 5, -2], [4, 7, 4], trouser, {"sides": lambda f, r: (tatter(f, r, 3, 0.6),
-                                                                            holes(f, r, 1))}, inflate=0.25)
-    bone(bones, "right_leg").add(r_trouser)
-    bone(bones, "left_leg").add(mirror_box(r_trouser))
-    # The pitchfork: an ash-wood shaft, an iron crossbar and three bent tines.
-    wood = Material(WOOD, base=2.2, noise=0.5, grain="h")
-    iron = Material(IRON, base=2.2, noise=0.6, speck=0.1, decal=lambda f, r: scatter(f, r, 1, RUST[2]))
-    bones.append(Bone("tool", [-5.5, 12, 0], "right_arm", None, [
-        Box([-6, 11, -11], [1, 1, 17], wood, {"sides": lambda f, r: f.set(f.w - 3 if f.w > 6 else 0, 0, WOOD[0])}),
-        Box([-7.5, 11, -12], [4, 1, 1], iron),
-        Box([-7.5, 11, -16], [1, 1, 4], iron),
-        Box([-6, 11, -16.5], [1, 1, 4.5], iron),
-        Box([-4.5, 11, -15], [1, 1, 3], iron, rotation=[0, -12, 0], pivot=[-4, 11.5, -12]),
-    ]))
-    animations = {
-        "misc.idle": idle(3.0, 4, 2, tool=rot(0, ZERO, 1.5, [0, 0, -3], 3.0, ZERO)),
-        "move.walk": walk(1.1, 25, 15, 0.4, head=rot(0, [4, 0, 0], 0.55, [-2, 0, 0], 1.1, [4, 0, 0])),
-        "attack.swing": overhead(0.5, 0.9, ("right_arm", "left_arm")),
-    }
-    write_model("cinder_husk", bones, animations, [2, 2.5])
+    hem = linen.but(base=2.2)
+    for side, x in (("r", -2.5), ("l", 2.5)):
+        bones += chain_bones("tatter_" + side, "body", [x, 15, -2.4], 2, 2.5, hem, thickness=0.3,
+                             box=lambda i, o, s, x=x: [Box([x - 1.5, o[1], -2.6], [3, s[1], 0.4], hem,
+                                                           {"sides": lambda f, r: ragged_edge(f, r, "bottom", 1, 0.6)})])
+    bones += chain_bones("tatter_b", "body", [0, 15, 2.4], 2, 2.5, hem, thickness=0.3,
+                         box=lambda i, o, s: [Box([-2, o[1], 2.2], [4, s[1], 0.4], hem,
+                                                  {"sides": lambda f, r: ragged_edge(f, r, "bottom", 1, 0.6)})])
+    # Sleeves over the upper arms; fingers on the hands.
+    sleeve = Material(mk.LINEN, base=2.4, noise=0.5, grain="v", bevel=0.3)
+    r_sleeve = Box([-7, 17, -1.5], [3, 5, 3], sleeve, {"sides": lambda f, r: (tatter(f, r, 2, 0.6),
+                                                                              mk.fold_lines(f, r, 2, -14))}, inflate=0.4)
+    mk.bone(bones, "right_arm").add(r_sleeve)
+    mk.bone(bones, "left_arm").add(mirror_box(r_sleeve))
+    r_fingers = fingers(-7, 12, -1.3, 3, (0.8, 2, 0.8), flesh.but(base=2.0), spread=0.3, curl=25, thumb=(2.6, 0.8))
+    mk.bone(bones, "right_fore").add(*r_fingers)
+    mk.bone(bones, "left_fore").add(*[mirror_box(b) for b in r_fingers])
+    trouser = Material(mk.LINEN, base=1.8, noise=0.5, grain="v", bevel=0.3)
+    r_trouser = Box([-4, 5, -2], [4, 7, 4], trouser, {"sides": lambda f, r: (tatter(f, r, 3, 0.6), holes(f, r, 1),
+                                                                             mk.fold_lines(f, r, 3, -14))}, inflate=0.3)
+    mk.bone(bones, "right_leg").add(r_trouser)
+    mk.bone(bones, "left_leg").add(mirror_box(r_trouser))
+    # The scythe: an ash snath with two pegs, an iron collar, a long rusted blade with a bright edge, curving down.
+    wood = Material(mk.WOOD, base=2.6, noise=0.5, grain="h", bevel=0.4)
+    iron = Material(mk.IRON, base=2.4, noise=0.5, speck=0.08, bevel=0.6, decal=lambda f, r: scatter(f, r, 1, mk.RUST[2]))
 
+    def blade_top(face, rng):
+        for x in range(face.w):
+            if rng.random() < 0.3:
+                face.set(x, 0, mk.RUST[3])
+        face.hline(0, face.h - 1, face.w, mk.IRON[6])
+
+    def blade_side(face, rng):
+        if face.side() and face.w > 4:
+            face.hline(0, 0, face.w, mk.IRON[6])
+            for _ in range(2):
+                face.set(rng.randrange(face.w), face.h - 1, mk.RUST[2])
+
+    # Held low in the right hand, the blade out to the side at shoulder height so the face stays clear.
+    bones.append(Bone("tool", [-5.5, 13, 0], "right_fore", [8, 25, 0], [
+        Box([-6, 0, -0.5], [1, 22, 1], wood, {"sides": lambda f, r: mk.grain(f, r, mk.WOOD[1], mk.WOOD[5], 1, (2, 5))}),
+        Box([-8, 8, -0.5], [2, 1, 1], wood.but(base=3.2)),
+        Box([-8, 16, -0.5], [2, 1, 1], wood.but(base=3.2)),
+        Box([-6.5, 22, -1], [2, 1.5, 2], iron, {"sides": lambda f, r: mk.specular(f, r, mk.IRON[6], 0, 0)}),
+        Box([-5.9, 22.5, -8], [0.6, 2, 8], iron.but(base=2.0), {"all": blade_side, "top": blade_top}),
+        Box([-5.9, 22.5, -12.5], [0.6, 1.5, 5], iron.but(base=2.0), {"all": blade_side, "top": blade_top},
+            rotation=[-18, 0, 0], pivot=[-5.6, 23.5, -8]),
+        Box([-6.1, 23.8, -7.5], [1, 0.7, 6], iron.but(base=3.4)),
+    ]))
+    chains = chain_names("straw", 2) + chain_names("tatter_r", 2) + chain_names("tatter_l", 2) + chain_names("tatter_b", 2)
+    tatters = chain_names("tatter_r", 2) + chain_names("tatter_l", 2) + chain_names("tatter_b", 2)
+    swing_whip = merge(whip(chain_names("tatter_r", 2) + chain_names("tatter_l", 2), 0.55, 30, 0, settle=0.38),
+                       whip(chain_names("straw", 2), 0.55, 25, 2, settle=0.38),
+                       whip(chain_names("tatter_b", 2), 0.55, -25, 0, settle=0.38))
+    animations = {
+        "misc.idle": mk.breathe(3.0, 2, 1.5, 4, merge(
+            lag_sway(chain_names("straw", 2), 3.0, 5, 2, phase=0.1),
+            lag_sway(chain_names("tatter_r", 2), 3.0, 5, 0, phase=0.0),
+            lag_sway(chain_names("tatter_l", 2), 3.0, 5, 0, phase=0.35),
+            lag_sway(chain_names("tatter_b", 2), 3.0, 4, 0, phase=0.6),
+            {"jaw": rot(0, ZERO, 1.5, e("easeInOutSine", [5, 0, 0]), 3.0, e("easeInOutSine", ZERO)),
+             "tool": rot(0, ZERO, 1.5, e("easeInOutSine", [-3, 0, -3]), 3.0, e("easeInOutSine", ZERO)),
+             "right_fore": rot(0, [-6, 0, 0], 1.5, e("easeInOutSine", [-9, 0, 0]), 3.0, e("easeInOutSine", [-6, 0, 0])),
+             "left_fore": rot(0, [-6, 0, 0], 1.5, e("easeInOutSine", [-4, 0, 0]), 3.0, e("easeInOutSine", [-6, 0, 0]))})),
+        "move.walk": mk.weighted_walk(1.1, 28, 14, 0.5, 4, 5, extra=mk.limb_walk(1.1, 8, 12, merge(
+            lag_sway(chain_names("straw", 2), 1.1, 10, 0, phase=0.2),
+            lag_sway(chain_names("tatter_r", 2), 1.1, 12, 0, phase=0.0),
+            lag_sway(chain_names("tatter_l", 2), 1.1, 12, 0, phase=0.5),
+            lag_sway(chain_names("tatter_b", 2), 1.1, 10, 0, phase=0.25),
+            {"jaw": rot(0, [3, 0, 0], 0.55, e("easeInOutSine", [8, 0, 0]), 1.1, e("easeInOutSine", [3, 0, 0])),
+             "tool": rot(0, [0, 0, -2], 0.55, e("easeInOutSine", [0, 0, 2]), 1.1, e("easeInOutSine", [0, 0, -2]))}))),
+        # Both arms haul the scythe up over the right shoulder (anticipation), held at the windup's end, then it
+        # comes down and across with the whole body; the tatters whip after it.
+        "attack.swing": anim(0.95, merge({
+            "right_arm": rot(0, ZERO, 0.4, e("easeInOutSine", [-150, 0, 18]), 0.5, [-160, 0, 12], 0.58,
+                             e("easeOutBack", [-25, 0, -8]), 0.95, e("easeOutSine", ZERO)),
+            "right_fore": rot(0, ZERO, 0.4, e("easeInOutSine", [-35, 0, 0]), 0.5, [-40, 0, 0], 0.58,
+                              e("easeOutCubic", [10, 0, 0]), 0.95, e("easeOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 0.4, e("easeInOutSine", [-120, 0, -30]), 0.5, [-130, 0, -25], 0.58,
+                            e("easeOutBack", [-15, 0, 25]), 0.95, e("easeOutSine", ZERO)),
+            "left_fore": rot(0, ZERO, 0.4, e("easeInOutSine", [-50, 0, 0]), 0.5, [-55, 0, 0], 0.58,
+                             e("easeOutCubic", [-10, 0, 0]), 0.95, e("easeOutSine", ZERO)),
+            "body": rot(0, ZERO, 0.4, e("easeInOutSine", [-14, 18, 0]), 0.5, [-16, 22, 0], 0.58,
+                        e("easeOutBack", [24, -22, 0]), 0.95, e("easeOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.4, e("easeInOutSine", [-12, -10, 0]), 0.5, [-14, -12, 0], 0.58,
+                        e("easeOutCubic", [14, 8, 0]), 0.95, e("easeOutSine", ZERO)),
+            "jaw": rot(0, ZERO, 0.45, e("easeInOutSine", [12, 0, 0]), 0.58, e("easeOutCubic", [28, 0, 0]), 0.95,
+                       e("easeOutSine", ZERO)),
+            "tool": rot(0, ZERO, 0.4, e("easeInOutSine", [20, 0, 0]), 0.5, [22, 0, 0], 0.58, e("easeOutBack", [-15, 0, 0]),
+                        0.95, e("easeOutSine", ZERO)),
+            "root": pos(0, ZERO, 0.4, e("easeInOutSine", [0, 0, 1]), 0.58, e("easeOutCubic", [0, -1.2, -2]), 0.95,
+                        e("easeOutSine", ZERO)),
+            "right_leg": rot(0, ZERO, 0.4, e("easeInOutSine", [8, 0, 0]), 0.58, e("easeOutCubic", [-18, 0, 0]), 0.95,
+                             e("easeOutSine", ZERO)),
+            "left_leg": rot(0, ZERO, 0.4, e("easeInOutSine", [-8, 0, 0]), 0.58, e("easeOutCubic", [20, 0, 0]), 0.95,
+                            e("easeOutSine", ZERO)),
+        }, hold(chains, 0.45, ZERO), swing_whip), loop=False),
+        "misc.hurt": mk.hurt_flinch(0.45, chains=chains, extra={
+            "jaw": rot(0, ZERO, 0.08, e("easeOutCubic", [20, 0, 0]), 0.45, e("easeOutSine", ZERO)),
+            "right_fore": rot(0, ZERO, 0.1, e("easeOutCubic", [-30, 0, 0]), 0.45, e("easeOutSine", ZERO))}),
+        "misc.stagger": mk.stagger(0.9, chains=chains, extra={
+            "jaw": rot(0, ZERO, 0.1, e("easeOutCubic", [25, 0, 0]), 0.9, e("easeOutSine", ZERO)),
+            "right_fore": rot(0, ZERO, 0.12, e("easeOutCubic", [-40, 0, 0]), 0.9, e("easeOutSine", ZERO)),
+            "left_fore": rot(0, ZERO, 0.12, e("easeOutCubic", [-50, 0, 0]), 0.9, e("easeOutSine", ZERO)),
+            "tool": rot(0, ZERO, 0.12, e("easeOutCubic", [0, 0, 25]), 0.9, e("easeOutSine", ZERO))}),
+        # Falls forward on its face; the scythe clatters out of the hand's line, the tatters and the straw settle.
+        "misc.death": mk.death_fall(2.0, legs=12, forward=True, chains=tatters, chain_amp=35, extra=merge(
+            mk.settle(chain_names("straw", 2), 0.9, 40, 2, length=1.0),
+            {"jaw": rot(0, ZERO, 0.9, e("easeInQuad", [30, 0, 0]), 1.2, e("easeOutBounce", [35, 0, 0]), 2.0, [35, 0, 0]),
+             "tool": rot(0, ZERO, 0.9, e("easeInQuad", [0, 0, 60]), 1.15, e("easeOutBounce", [10, 0, 75]), 2.0, [10, 0, 75]),
+             "right_fore": rot(0, ZERO, 0.9, e("easeInQuad", [-20, 0, 0]), 2.0, [-20, 0, 0]),
+             "left_fore": rot(0, ZERO, 0.9, e("easeInQuad", [-60, 0, 0]), 2.0, [-60, 0, 0]),
+             "right_shin": rot(0, ZERO, 0.35, e("easeOutSine", [50, 0, 0]), 0.9, e("easeInQuad", [20, 0, 0]), 2.0, [20, 0, 0]),
+             "left_shin": rot(0, ZERO, 0.35, e("easeOutSine", [30, 0, 0]), 0.9, e("easeInQuad", [40, 0, 0]), 2.0, [40, 0, 0])})),
+    }
+    write_model("cinder_husk", bones, animations, [2, 2.5], tex_w=128)
 
 
 # --- More decals ----------------------------------------------------------------------------------------------------
