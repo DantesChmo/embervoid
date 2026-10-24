@@ -1,5 +1,6 @@
 package com.embervoid.reach.mob;
 
+import com.embervoid.fx.particle.EmberParticles;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityGroup;
 import net.minecraft.entity.EntityPose;
@@ -38,7 +39,10 @@ public class RestlessBonesEntity extends ReachMob {
 	public static final float PILE_HEALTH = 2;
 	public static final int REFORM_TICKS = 100;
 	public static final int LIGHT_TO_STAY_DEAD = 8;
-	static final Move MELEE = new Move("attack.swing", 10, 30, ReachMobSounds.RESTLESS_BONES_WINDUP, 1.0f);
+	public static final int SWING_WINDUP = 10;
+	/** Ticks the body stays for {@code misc.death}: the heap sinks into dust, 1.6 s. */
+	public static final int DEATH_TICKS = 32;
+	static final Move MELEE = new Move("attack.swing", SWING_WINDUP, 30, ReachMobSounds.RESTLESS_BONES_WINDUP, 1.0f);
 	private static final byte STATE_PILE = 1;
 	private static final RawAnimation PILE = RawAnimation.begin().thenLoop("misc.pile");
 	private static final EntityDimensions PILE_SIZE = EntityDimensions.changing(0.8f, 0.5f);
@@ -119,6 +123,29 @@ public class RestlessBonesEntity extends ReachMob {
 		if (getWorld() instanceof ServerWorld world) {
 			world.spawnParticles(new ItemStackParticleEffect(ParticleTypes.ITEM, new ItemStack(Items.BONE)),
 					getX(), getY() + 0.3, getZ(), count, 0.3, 0.2, 0.3, 0.05);
+			// Bone dust: ash flakes thrown out of the heap.
+			EmberParticles.ringOut(world, EmberParticles.ASH_FLAKE, getPos(), count / 2, 0.1, 0.1);
+		}
+	}
+
+	/** Standing it flinches; as a pile a hit only jolts the heap (the stagger keys the pile pose, so it never stands up). */
+	@Override
+	protected String hurtAnimation(DamageSource source, float amount) {
+		return isPile() ? STAGGER : HURT;
+	}
+
+	@Override
+	public int deathTicks() {
+		return DEATH_TICKS;
+	}
+
+	/** The heap crumbles: bone dust drifts off it while it sinks. */
+	@Override
+	protected void tickDeath(ServerWorld world, int deathTime) {
+		if (deathTime == 2) {
+			EmberParticles.ringOut(world, EmberParticles.ASH_FLAKE, getPos(), 16, 0.12, 0.15);
+		} else if (deathTime % 4 == 0) {
+			EmberParticles.spawn(world, EmberParticles.ASH_FLAKE, getPos().add(0, 0.25, 0), 2, 0.4, 0.02);
 		}
 	}
 

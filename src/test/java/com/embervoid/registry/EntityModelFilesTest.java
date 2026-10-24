@@ -11,6 +11,19 @@ import com.embervoid.reach.boss.CryptKeeperEntity;
 import com.embervoid.reach.boss.GrievingTreeEntity;
 import com.embervoid.reach.boss.ReachBoss;
 import com.embervoid.reach.boss.SmolderingLordEntity;
+import com.embervoid.reach.mob.AshStalkerEntity;
+import com.embervoid.reach.mob.AshenCarrionEntity;
+import com.embervoid.reach.mob.BarkHollowEntity;
+import com.embervoid.reach.mob.CinderHoundEntity;
+import com.embervoid.reach.mob.CinderHuskEntity;
+import com.embervoid.reach.mob.CryptMothEntity;
+import com.embervoid.reach.mob.GraveWardenEntity;
+import com.embervoid.reach.mob.HollowSentinelEntity;
+import com.embervoid.reach.mob.LanternHagEntity;
+import com.embervoid.reach.mob.ReachMob;
+import com.embervoid.reach.mob.RestlessBonesEntity;
+import com.embervoid.reach.mob.SparkingMarksmanEntity;
+import com.embervoid.reach.mob.WitheredThrallEntity;
 import com.embervoid.sanctum.boss.CryingSoulEntity;
 import com.embervoid.sanctum.boss.FallenSisterEntity;
 import com.embervoid.vampire.VampireBossEntity;
@@ -186,6 +199,119 @@ class EntityModelFilesTest {
 			}
 			Set<String> bones = bones(name);
 			for (String bone : BONES.getOrDefault(name, List.of())) {
+				if (!bones.contains(bone)) {
+					problems.add(name + ": bone " + bone + " is used by its renderer but missing");
+				}
+			}
+		}
+		assertTrue(problems.isEmpty(), String.join("\n", problems));
+	}
+
+	// --- Realm 1 mobs (PLAN 19.3, track mobs): what ReachMob and its subclasses play, toggle and wait for ------------
+
+	/** Animations each Realm 1 mob class plays: its moves and states, and ReachMob's hurt, stagger and death. */
+	private static final Map<String, List<String>> REACH_MOB_ANIMATIONS = Map.ofEntries(
+			Map.entry("cinder_husk", List.of("misc.idle", "move.walk", "attack.swing", ReachMob.HURT, ReachMob.STAGGER, ReachMob.DEATH)),
+			Map.entry("ash_stalker", List.of("misc.idle", "move.walk", "attack.swing", "misc.buried", "misc.emerge", "attack.leap",
+					ReachMob.HURT, ReachMob.STAGGER, ReachMob.DEATH)),
+			Map.entry("ashen_carrion", List.of("misc.idle", "move.fly", "attack.shriek", "attack.dive", "attack.peck", ReachMob.HURT,
+					ReachMob.STAGGER, ReachMob.DEATH)),
+			Map.entry("withered_thrall", List.of("misc.idle", "move.walk", "attack.swing", "misc.hang", "attack.drop", ReachMob.HURT,
+					ReachMob.STAGGER, ReachMob.DEATH)),
+			Map.entry("lantern_hag", List.of("misc.idle", "move.walk", "attack.throw", ReachMob.HURT, ReachMob.STAGGER, ReachMob.DEATH)),
+			Map.entry("bark_hollow", List.of("misc.idle", "move.walk", "attack.sweep", "misc.dormant", "misc.awaken", ReachMob.HURT,
+					ReachMob.STAGGER, ReachMob.DEATH)),
+			Map.entry("restless_bones", List.of("misc.idle", "move.walk", "attack.swing", "misc.collapse", "misc.pile", "misc.reform",
+					ReachMob.HURT, ReachMob.STAGGER, ReachMob.DEATH)),
+			Map.entry("crypt_moth", List.of("misc.idle", "move.fly", "attack.bite", "attack.burst", ReachMob.HURT, ReachMob.STAGGER,
+					ReachMob.DEATH)),
+			Map.entry("hollow_sentinel", List.of("misc.idle", "move.walk", "attack.thrust", "attack.bash", "misc.guard", "misc.open",
+					ReachMob.HURT, ReachMob.STAGGER, ReachMob.DEATH)),
+			Map.entry("grave_warden", List.of("misc.idle", "move.walk", "attack.swing", "attack.bell", ReachMob.HURT, ReachMob.STAGGER,
+					ReachMob.DEATH)),
+			Map.entry("cinder_hound", List.of("misc.idle", "move.walk", "attack.bite", "misc.howl", ReachMob.HURT, ReachMob.STAGGER,
+					ReachMob.DEATH)),
+			Map.entry("sparking_marksman", List.of("misc.idle", "move.walk", "attack.aim", "attack.shoot", ReachMob.HURT, ReachMob.STAGGER,
+					ReachMob.DEATH)));
+
+	/** Bones the Realm 1 renderers turn (head) or toggle ({@code ReachMob#toggledBones}). */
+	private static final Map<String, List<String>> REACH_MOB_BONES = Map.ofEntries(
+			Map.entry("cinder_husk", List.of("head")),
+			Map.entry("ash_stalker", List.of("head")),
+			Map.entry("ashen_carrion", List.of("head")),
+			Map.entry("withered_thrall", List.of("head")),
+			Map.entry("lantern_hag", List.of("head", "lantern")),
+			Map.entry("bark_hollow", List.of("eyes")),
+			Map.entry("restless_bones", List.of("head")),
+			Map.entry("crypt_moth", List.of("head", "glow_left", "glow_right")),
+			Map.entry("hollow_sentinel", List.of("head", "shield", "spear")),
+			Map.entry("grave_warden", List.of("head", "bell")),
+			Map.entry("cinder_hound", List.of("head")),
+			Map.entry("sparking_marksman", List.of("head", "spark")));
+
+	/** Shortest length (s) of a Realm 1 mob's telegraphed animation: its move's windup in ticks / 20. */
+	private static final Map<String, Double> REACH_MOB_MIN_LENGTH = Map.ofEntries(
+			Map.entry("cinder_husk/attack.swing", CinderHuskEntity.SWING_WINDUP / 20.0),
+			Map.entry("ash_stalker/attack.swing", AshStalkerEntity.SWING_WINDUP / 20.0),
+			Map.entry("ash_stalker/misc.emerge", AshStalkerEntity.BOIL_TICKS / 20.0),
+			Map.entry("ashen_carrion/attack.shriek", AshenCarrionEntity.SHRIEK_TICKS / 20.0),
+			Map.entry("withered_thrall/attack.swing", WitheredThrallEntity.SWING_WINDUP / 20.0),
+			Map.entry("withered_thrall/misc.hang", WitheredThrallEntity.RATTLE_TICKS / 20.0),
+			Map.entry("lantern_hag/attack.throw", LanternHagEntity.THROW_WINDUP / 20.0),
+			Map.entry("bark_hollow/attack.sweep", BarkHollowEntity.SWEEP_WINDUP / 20.0),
+			Map.entry("bark_hollow/misc.awaken", BarkHollowEntity.AWAKEN_TICKS / 20.0),
+			Map.entry("restless_bones/attack.swing", RestlessBonesEntity.SWING_WINDUP / 20.0),
+			Map.entry("crypt_moth/attack.burst", CryptMothEntity.BURST_WINDUP / 20.0),
+			Map.entry("hollow_sentinel/attack.thrust", HollowSentinelEntity.THRUST_WINDUP / 20.0),
+			Map.entry("hollow_sentinel/attack.bash", HollowSentinelEntity.BASH_WINDUP / 20.0),
+			Map.entry("grave_warden/attack.swing", GraveWardenEntity.SWING_WINDUP / 20.0),
+			Map.entry("grave_warden/attack.bell", GraveWardenEntity.BELL_WINDUP / 20.0),
+			Map.entry("cinder_hound/attack.bite", CinderHoundEntity.BITE_WINDUP / 20.0),
+			Map.entry("sparking_marksman/attack.aim", SparkingMarksmanEntity.AIM_TICKS / 20.0));
+
+	/** Ticks each Realm 1 mob's body stays for its fall ({@code ReachMob#deathTicks}): the fall must fill them. */
+	private static final Map<String, Integer> REACH_MOB_DEATH_TICKS = Map.ofEntries(
+			Map.entry("cinder_husk", CinderHuskEntity.DEATH_TICKS),
+			Map.entry("ash_stalker", AshStalkerEntity.DEATH_TICKS),
+			Map.entry("ashen_carrion", AshenCarrionEntity.DEATH_TICKS),
+			Map.entry("withered_thrall", WitheredThrallEntity.DEATH_TICKS),
+			Map.entry("lantern_hag", LanternHagEntity.DEATH_TICKS),
+			Map.entry("bark_hollow", BarkHollowEntity.DEATH_TICKS),
+			Map.entry("restless_bones", RestlessBonesEntity.DEATH_TICKS),
+			Map.entry("crypt_moth", CryptMothEntity.DEATH_TICKS),
+			Map.entry("hollow_sentinel", HollowSentinelEntity.DEATH_TICKS),
+			Map.entry("grave_warden", GraveWardenEntity.DEATH_TICKS),
+			Map.entry("cinder_hound", CinderHoundEntity.DEATH_TICKS),
+			Map.entry("sparking_marksman", SparkingMarksmanEntity.DEATH_TICKS));
+
+	@Test
+	void reachMobsKeepWhatTheirCodeUses() throws IOException {
+		List<String> problems = new ArrayList<>();
+		for (Map.Entry<String, List<String>> entry : REACH_MOB_ANIMATIONS.entrySet()) {
+			String name = entry.getKey();
+			JsonObject animations = animations(name);
+			for (String animation : entry.getValue()) {
+				if (!animations.has(animation)) {
+					problems.add(name + ": animation " + animation + " is played by its class but missing");
+					continue;
+				}
+				double length = animations.getAsJsonObject(animation).get("animation_length").getAsDouble();
+				Double min = REACH_MOB_MIN_LENGTH.get(name + "/" + animation);
+				if (min != null && length + 1e-6 < min) {
+					problems.add(name + ": " + animation + " lasts " + length + " s, shorter than its " + min + " s windup");
+				}
+				if (animation.equals(ReachMob.DEATH)) {
+					int ticks = REACH_MOB_DEATH_TICKS.get(name);
+					if (length * 20 + 1e-6 < ticks || length * 20 > ticks + 10) {
+						problems.add(name + ": " + animation + " lasts " + length + " s, the body stays " + ticks + " ticks");
+					}
+					if (length < 1.5 || length > 2.5) {
+						problems.add(name + ": " + animation + " lasts " + length + " s, outside the 1.5–2.5 s of a fall");
+					}
+				}
+			}
+			Set<String> bones = bones(name);
+			for (String bone : REACH_MOB_BONES.getOrDefault(name, List.of())) {
 				if (!bones.contains(bone)) {
 					problems.add(name + ": bone " + bone + " is used by its renderer but missing");
 				}

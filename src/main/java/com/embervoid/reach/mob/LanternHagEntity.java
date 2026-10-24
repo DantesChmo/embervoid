@@ -1,5 +1,6 @@
 package com.embervoid.reach.mob;
 
+import com.embervoid.fx.particle.EmberParticles;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.NoPenaltyTargeting;
@@ -8,7 +9,6 @@ import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.HostileEntity;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.Vec3d;
@@ -30,6 +30,8 @@ public class LanternHagEntity extends ReachMob {
 	public static final double MAX_RANGE = 12;
 	/** Closer than this she only backs off: a flask at her feet would burn her too. */
 	public static final double MIN_THROW_RANGE = 4;
+	/** Ticks the body stays for {@code misc.death}: she goes down on her back, the lantern rolling over, 2 s. */
+	public static final int DEATH_TICKS = 40;
 	static final Move THROW = new Move("attack.throw", THROW_WINDUP, 50, ReachMobSounds.LANTERN_HAG_RAISE_LANTERN, 1.0f);
 
 	public LanternHagEntity(EntityType<? extends LanternHagEntity> type, World world) {
@@ -64,9 +66,30 @@ public class LanternHagEntity extends ReachMob {
 	@Override
 	protected void tickWindup(Move running, int ticksLeft) {
 		if (running == THROW && getWorld() instanceof ServerWorld world) {
-			// The raised lantern flares.
+			// The raised lantern flares: embers and an amber mote off it.
 			Vec3d hand = getPos().add(Vec3d.fromPolar(0, bodyYaw + 90).multiply(0.4)).add(0, getHeight() + 0.3, 0);
-			world.spawnParticles(ParticleTypes.FLAME, hand.x, hand.y, hand.z, 2, 0.08, 0.08, 0.08, 0.01);
+			EmberParticles.spawn(world, EmberParticles.EMBER, hand, 2, 0.08, 0.02);
+			if (ticksLeft % 3 == 0) {
+				EmberParticles.spawn(world, EmberParticles.AMBER_MOTE, hand, 1, 0.1, 0.01);
+			}
+		}
+	}
+
+	@Override
+	public int deathTicks() {
+		return DEATH_TICKS;
+	}
+
+	/** As she falls the lantern hits the ground and bursts, the flasks on the bandolier cracking after it. */
+	@Override
+	protected void tickDeath(ServerWorld world, int deathTime) {
+		if (deathTime == 18) {
+			Vec3d lantern = getPos().add(Vec3d.fromPolar(0, bodyYaw + 90).multiply(0.6)).add(0, 0.3, 0);
+			EmberParticles.burst(world, lantern, 1.2f, 0xFFB347);
+			EmberParticles.ringOut(world, EmberParticles.EMBER, lantern, 14, 0.15, 0.2);
+			EmberParticles.scorch(world, lantern, 1.0f);
+		} else if (deathTime > 18 && deathTime % 5 == 0) {
+			EmberParticles.spawn(world, EmberParticles.EMBER, getPos().add(0, 0.3, 0), 2, 0.5, 0.03);
 		}
 	}
 
