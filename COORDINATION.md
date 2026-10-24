@@ -22,9 +22,21 @@ memory above that), the coordinator in the main checkout on `main`.
 | V-C | `setpieces` | new `block/setpiece` + `client/setpiece`, `tools/setpiece_art.py`, `geo/block/**`, `animations/block/**`, `textures/block/setpiece/**`, `ArenaTemplates`, an arena-events hook in `boss/BossFight` (one small commit), set-piece *placement* lines in V-A's template files (last step, after `git merge main`) | 20.1 framework, 20.2 moving set pieces, boss arenas that react to the fight |
 | — | coordinator (this checkout) | `reach/gear/*`, `sanctum/gear/*`, `client/reach/gear/*`, `client/sanctum/gear/*`, `fx/**`, `client/fx/**`, new particles (`fx/particle`, `textures/particle/**`, `particles/**`), `client/realm/FogCurtain`, the fog wall's look (`BossFight`'s wall drawing moves to the client), weapon in-hand models (PLAN 17.2), docs | Weapon signatures and behaviour, own particles, fog walls, merges, the final regression |
 
-Wave 2, when a track finishes (the coordinator starts them): `art-items` (every item, armor and GUI texture to the art
-direction, `tools/reach_item_art.py` and friends) and `mobs` (the 24 non-boss mobs to 30–80 cubes with PLAN 19.3's
-hurt / death / stagger animations, `tools/reach_mob_art.py`, `tools/overworld_mob_art.py`).
+Wave 2, when a track finishes: `mobs` (the 14 Realm 1 and Citadel mobs to 30–80 cubes with PLAN 19.3's hurt /
+death / stagger animations, `tools/reach_mob_art.py`, a new `tools/mob_kit.py`; running as the coordinator's
+background agent in its own worktree, branch `claude/mobs`, since the app lets a session start only from the user's
+own message), then the eight overworld and moon-night mobs (`tools/overworld_mob_art.py`) and `art-items` (every item,
+armor and GUI texture, `tools/reach_item_art.py` and friends).
+
+### Merged so far (the night of 2026-10-24)
+
+| What | Commits on `main` |
+|---|---|
+| Coordinator: own particles, every weapon's signature, fog walls as volumes, in-hand weapon models, `ArenaWallTests` | `0eb5222`, `983b2a3`, `673d76d`, `b23d58c`, `d8bfb86` |
+| V-C `setpieces`: 20.1 framework, 20.2 fourteen moving set pieces, arenas that move, placement into the templates | merge `efd9d3c` |
+
+Not yet merged: V-A `art-blocks` (branch `claude/art-blocks-efae30`), V-B `bosses` (`claude/bosses-a652a2`),
+`mobs` (`claude/mobs`). Nothing of the overhaul has been seen in game; the full regression runs once at the end.
 
 ### Rules for the overhaul tracks
 
