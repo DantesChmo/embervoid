@@ -25,7 +25,7 @@ import java.util.UUID;
 public final class SteleState extends PersistentState {
 	private static final String ID = "embervoid_stele";
 
-	/** The lit stele: the world it stands in and its frame (position and axis). */
+	/** The lit stele: the world it stands in and its frame (position, axis and shape). */
 	public record Lit(RegistryKey<World> dimension, SteleFrame frame) {
 		/** Whether {@code pos} in {@code world} is one of its stones or its crack. */
 		public boolean contains(RegistryKey<World> world, BlockPos pos) {
@@ -68,9 +68,11 @@ public final class SteleState extends PersistentState {
 			NbtCompound lit = nbt.getCompound("Lit");
 			Identifier dimension = Identifier.tryParse(lit.getString("Dimension"));
 			Direction.Axis axis = Direction.Axis.fromName(lit.getString("Axis"));
+			// No shape: saved before 0.5.3, when every stele was a slab.
+			SteleFrame.Shape shape = lit.getString("Shape").equals("circle") ? SteleFrame.Shape.CIRCLE : SteleFrame.Shape.SLAB;
 			if (dimension != null && axis != null && axis.isHorizontal()) {
 				state.lit = new Lit(RegistryKey.of(RegistryKeys.WORLD, dimension),
-						new SteleFrame(NbtHelper.toBlockPos(lit.getCompound("Origin")), axis));
+						new SteleFrame(NbtHelper.toBlockPos(lit.getCompound("Origin")), axis, shape));
 			}
 		}
 		for (NbtElement user : nbt.getList("Users", NbtElement.INT_ARRAY_TYPE)) {
@@ -86,6 +88,7 @@ public final class SteleState extends PersistentState {
 			saved.putString("Dimension", lit.dimension().getValue().toString());
 			saved.put("Origin", NbtHelper.fromBlockPos(lit.frame().origin()));
 			saved.putString("Axis", lit.frame().axis().asString());
+			saved.putString("Shape", lit.frame().shape() == SteleFrame.Shape.CIRCLE ? "circle" : "slab");
 			nbt.put("Lit", saved);
 		}
 		NbtList users = new NbtList();

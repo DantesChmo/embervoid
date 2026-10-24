@@ -795,6 +795,10 @@ DEAD_OAK = ramp("1b1713", "27211b", "352d25", "443a30", "54493d", "665a4c", "7a6
 WITHERED = ramp("1c1c15", "27271c", "333223", "403d2a", "4f4a32", "5f583b")
 
 
+# GrievingTreeEntity.STUN_TICKS / 20: the stunned animation lasts the whole stun.
+STUN = 10.0
+
+
 def grieving_tree():
     trunk_h = 104
     bark = Material(DEAD_OAK, base=2.8, noise=0.6, grain="v", grad=0.5, top=0.4, speck=0.03, bevel=0.5)
@@ -1036,16 +1040,17 @@ def grieving_tree():
             "crown": rot(0, ZERO, 0.15, e("easeOutBack", [0, 0, 7]), 0.4, [0, 0, -7], 0.65, [0, 0, 5], 1.0, e("easeInOutSine", ZERO)),
             "trunk": rot(0, ZERO, 0.15, [0, 0, 2], 0.4, [0, 0, -2], 1.0, ZERO),
         }), loop=False),
-        # Stunned (GrievingTreeEntity.STUN_TICKS, 2.2 s): a lantern broke; it lurches, the limbs droop, the jaw
-        # falls open in a moan and the curtains hang still, then it rights itself.
-        "misc.stunned": anim(2.2, merge({
-            "trunk": rot(0, ZERO, 0.25, e("easeOutBack", [12, 0, 4]), 1.0, [11, 0, -3], 1.8, [12, 0, 2], 2.2, e("easeInOutSine", ZERO)),
-            "crown": rot(0, ZERO, 0.25, e("easeOutBack", [8, 0, 0]), 1.8, [8, 0, 0], 2.2, e("easeInOutSine", ZERO)),
-            "jaw": rot(0, ZERO, 0.25, e("easeOutBack", [-35, 0, 0]), 1.8, [-35, 0, 0], 2.2, ZERO),
-            "root": pos(0, ZERO, 0.25, [0, -2, 0], 1.8, [0, -2, 0], 2.2, ZERO),
-        }, {name: {"rotation": keys(0, ZERO, 0.3, e("easeOutBack", lift(name, -22)), 1.8, lift(name, -22), 2.2, e("easeInOutSine", ZERO))}
+        # Stunned (GrievingTreeEntity.STUN_TICKS, 10 s): a lantern broke; it lurches, the limbs droop, the jaw falls
+        # open in a moan and the curtains hang still for the whole window, then it rights itself.
+        "misc.stunned": anim(STUN, merge({
+            "trunk": rot(0, ZERO, 0.25, e("easeOutBack", [12, 0, 4]), 1.0, [11, 0, -3], STUN - 0.4, [12, 0, 2], STUN,
+                         e("easeInOutSine", ZERO)),
+            "crown": rot(0, ZERO, 0.25, e("easeOutBack", [8, 0, 0]), STUN - 0.4, [8, 0, 0], STUN, e("easeInOutSine", ZERO)),
+            "jaw": rot(0, ZERO, 0.25, e("easeOutBack", [-35, 0, 0]), STUN - 0.4, [-35, 0, 0], STUN, ZERO),
+            "root": pos(0, ZERO, 0.25, [0, -2, 0], STUN - 0.4, [0, -2, 0], STUN, ZERO),
+        }, {name: {"rotation": keys(0, ZERO, 0.3, e("easeOutBack", lift(name, -22)), STUN - 0.4, lift(name, -22), STUN, e("easeInOutSine", ZERO))}
             for name, _ in branches},
-           {name + "_2": {"rotation": keys(0, ZERO, 0.4, e("easeOutBack", lift(name, -18)), 1.8, lift(name, -18), 2.2, ZERO)}
+           {name + "_2": {"rotation": keys(0, ZERO, 0.4, e("easeOutBack", lift(name, -18)), STUN - 0.4, lift(name, -18), STUN, ZERO)}
             for name, _ in branches}), loop=False),
         # Uproot (P2): it strains against the ground, the roots tear free, and it lurches up onto the root legs.
         "misc.uproot": anim(2.0, merge(limbs_whip(1.2, 20, 0.7), curtains_sway(2.0, 6), {

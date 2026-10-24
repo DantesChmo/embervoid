@@ -56,8 +56,9 @@ class RealmOneTargetsTest {
 	}
 
 	/**
-	 * The Grieving Tree's openings are its stuns, one per broken lantern: the lanterns hanging when a phase starts and
-	 * those growing back in it must cover the stuns the model counts on, or the player waits under bare branches.
+	 * The Grieving Tree's openings are its stuns, one per set of lanterns broken: the sets hanging in a phase (one when
+	 * it starts, and another each time a stun and the pause after it are over) must cover the stuns the model counts
+	 * on, or the player waits under bare branches.
 	 */
 	@Test
 	void treeLanternsCoverItsStuns() {
@@ -71,11 +72,11 @@ class RealmOneTargetsTest {
 				PhaseLength phase = phases.get(i);
 				double stuns = phase.loops() * phase.phase().beats().stream().filter(b -> b.name().startsWith("stun"))
 						.mapToDouble(Beat::weight).sum();
-				double lanterns = (i == 0 ? GrievingTreeEntity.LANTERNS : GrievingTreeEntity.P2_LANTERNS)
-						+ phase.ticks() / GrievingTreeEntity.REHANG_INTERVAL;
+				double lanterns = 1 + Math.floor(phase.ticks()
+						/ (double) (GrievingTreeEntity.STUN_TICKS + GrievingTreeEntity.REHANG_DELAY));
 				if (stuns > lanterns) {
 					misses.add(stage.name() + ", " + FightTargets.who(stage.player()) + ", " + phase.phase().name() + ": "
-							+ FightTargets.f(stuns) + " stuns, " + FightTargets.f(lanterns) + " lanterns");
+							+ FightTargets.f(stuns) + " stuns, " + FightTargets.f(lanterns) + " sets of lanterns");
 				}
 			}
 		}

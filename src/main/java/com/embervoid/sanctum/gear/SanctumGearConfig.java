@@ -24,7 +24,7 @@ import com.embervoid.config.EmbervoidConfig;
 public record SanctumGearConfig(float cleaveRange, float cleaveArc, float cleaveMultiplier, float cleaveStamina,
 		int cleaveCooldown, float slamRadius, float slamMultiplier, float slamKnockback, int slamSlownessTicks,
 		int slamSlownessAmplifier, float slamStamina, int slamCooldown) {
-	private static final SanctumGearConfig DEFAULTS = new SanctumGearConfig(3, 90, 1.25f, 25, 60, 3, 0.75f, 0.8f, 40, 1, 30, 100);
+	private static final SanctumGearConfig DEFAULTS = new SanctumGearConfig(3, 90, 1.25f, 35, 8, 3, 0.75f, 0.8f, 40, 1, 45, 10);
 
 	public static final ConfigSection<SanctumGearConfig> SECTION = EmbervoidConfig.register(ConfigSection.of(
 			"sanctumGear", DEFAULTS,

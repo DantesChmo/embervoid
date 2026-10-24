@@ -82,6 +82,11 @@ public final class SteleDataGen {
 									.put(VariantSettings.MODEL, CRACK_NS.upload(crack, mist, gen.modelCollector)))
 							.register(Direction.Axis.Z, BlockStateVariant.create()
 									.put(VariantSettings.MODEL, CRACK_EW.upload(crack, mist, gen.modelCollector)))));
+
+			// The ritual circle's rift: the crack's mist on two crossed sheets, seen from every side.
+			Block rift = SteleBlocks.STELE_RIFT;
+			gen.blockStateCollector.accept(BlockStateModelGenerator.createSingletonBlockState(rift,
+					Models.CROSS.upload(rift, TextureMap.cross(TextureMap.getId(crack)), gen.modelCollector)));
 		}
 
 		@Override

@@ -35,6 +35,11 @@ public record SwingArc(float from, float to, float roll, float radius, float hei
 		return new SwingArc(110, -40, 90, radius, height, ticks, color);
 	}
 
+	/** The same arc swung by the other arm: left and right swapped. */
+	public SwingArc mirrored() {
+		return new SwingArc(-from, -to, -roll, radius, height, ticks, color);
+	}
+
 	/** Blade angle at a share {@code t} (0–1) of the arc. */
 	public float angle(float t) {
 		return from + (to - from) * MathHelper.clamp(t, 0, 1);

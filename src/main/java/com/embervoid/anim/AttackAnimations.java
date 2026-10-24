@@ -24,7 +24,7 @@ import java.util.WeakHashMap;
  * Player attack animations (PLAN 17.1): the server decides when a player swings or uses a special with one of our
  * weapons and tells every client that tracks the player (and the player, for the third-person view), which plays the
  * weapon kind's {@link WeaponKind} clip through playerAnimator. Items not registered here, vanilla weapons among them,
- * keep the vanilla swing. First person stays vanilla.
+ * keep the vanilla swing. First person plays the clip too, except the crossbow's (AttackAnimationsClient).
  *
  * <p>Like vanilla's hand swing, a new swing does not cut into the first half of the one playing (holding the button
  * on a block sends a swing every tick); a special always plays, and the swing packet the client sends after it falls
@@ -61,22 +61,29 @@ public final class AttackAnimations {
 		return new HashMap<>(KINDS);
 	}
 
-	/** A swing packet: plays the next swing of the main-hand weapon, stretched to the player's attack cooldown. */
-	public static void onSwing(ServerPlayerEntity player, Hand hand) {
+	/**
+	 * A swing packet: plays the next swing of the main-hand weapon, stretched to the player's attack cooldown. Returns
+	 * the clip it started, or null for none (not our weapon, or the swing playing is in its first half); the swing's
+	 * trail follows that clip ({@code WeaponFx.onSwing}).
+	 */
+	@Nullable
+	public static WeaponKind.Clip onSwing(ServerPlayerEntity player, Hand hand) {
 		WeaponKind kind = kindOf(player.getMainHandStack());
 		if (hand != Hand.MAIN_HAND || kind == null || kind.swings().isEmpty() || player.isSpectator()) {
-			return;
+			return null;
 		}
 		long now = player.getWorld().getTime();
 		Playing last = PLAYING.get(player);
 		if (last != null && now - last.start() < last.ticks() / 2) {
-			return;
+			return null;
 		}
 		int swing = last == null || now - last.start() > last.ticks() + ALTERNATION_RESET_TICKS ? 0
 				: (last.swing() + 1) % kind.swings().size();
 		int ticks = WeaponKind.cooldownTicks(player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED));
-		play(player, kind.swings().get(swing), ticks, player.getMainArm() == Arm.LEFT);
+		WeaponKind.Clip clip = kind.swings().get(swing);
+		play(player, clip, ticks, player.getMainArm() == Arm.LEFT);
 		PLAYING.put(player, new Playing(now, ticks, swing));
+		return clip;
 	}
 
 	/** A special attack that went through (stamina spent) with {@code stack}, in either hand. */
@@ -130,7 +137,7 @@ public final class AttackAnimations {
 	}
 
 	/** The arm that holds {@code stack}: the main arm for the main hand, the other one for the offhand. */
-	private static Arm armHolding(PlayerEntity player, ItemStack stack) {
+	public static Arm armHolding(PlayerEntity player, ItemStack stack) {
 		return player.getOffHandStack() == stack && player.getMainHandStack() != stack
 				? player.getMainArm().getOpposite() : player.getMainArm();
 	}

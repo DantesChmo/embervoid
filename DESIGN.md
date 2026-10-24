@@ -79,10 +79,10 @@ The overworld structure becomes a dungeon, the Maiden and the obelisks move to a
 
 | Topic | Design | Status |
 |---|---|---|
-| Shape | A wide flat slab the size of a nether portal, **5 wide and 6 tall**, split top to bottom: two columns of Cleft Stone on each side, the middle column is the crack (the passage). Wide and flat so it reads as a stele, not a pillar. Detected like a nether portal frame, on either axis | Decided |
-| Blocks | **Cleft Stone** (24 per stele): crafted, 8 stone bricks around 1 coal or charcoal → 8. Cheap on purpose: the soul is the gate, not the stone. A cold stele already stands in every dungeon arena (protected, not minable) | Decided |
-| Kindling | Right-click a valid frame with the **Crying Soul**: the soul is used up, the stone turns kindled (glowing cracks), mist and particles fill the crack, a sound plays. No crafting and no moon-night ingredients | Decided |
-| Use | Right-click on a lit stele (or walk into the crack) → the hub | Decided |
+| Shape | A **ritual circle** (0.5.3; the user found the slab "just two pillars"): a centre stone and four pillars 3 tall, two blocks out from it to the north, east, south and west (5×5). Lit, a column of mist (the **rift**) rises 3 blocks over the centre stone: the passage. The 0.5.0 slab (5 wide, 6 tall, a crack in the middle column) still kindles and works where it was built | Decided |
+| Blocks | **Cleft Stone** (13 per circle): crafted, 8 stone bricks around 1 coal or charcoal → 8. Cheap on purpose: the soul is the gate, not the stone. A cold circle already stands on the dais of every dungeon arena (protected, not minable); dungeons from 0.5.0–0.5.2 keep their slab | Decided |
+| Kindling | Right-click any stone of a valid circle with the **Crying Soul**: the soul is used up, the stone turns kindled (glowing cracks), the pillars flare and the rift rises, a sound plays. No crafting and no moon-night ingredients. The soul's tooltip describes the circle | Decided |
+| Use | Right-click on a lit stele (or walk into the rift) → the hub; coming back, the player stands beside the rift | Decided |
 | **One per world** | The world has at most one lit stele (besides the hub's own). Kindling another puts the old one out. On a server one player's new stele puts it out for everyone; accepted (the user, 2026-10-23) | Decided |
 | Breaking | Breaking any stone of a lit stele puts it out; the hub exit then falls back as above | Decided |
 | Where | Overworld, Nether and End alike; not in realms or the hub | Decided |
@@ -397,16 +397,17 @@ Line-up: giants with spectacle, and arenas that take part in the fight.
 | Zone | Boss | Level | Base HP → at level | Arena | What it teaches |
 |---|---|---|---|---|---|
 | Fields | **Ash Colossus** (4.5 blocks, ember core in the back) | 18 | 105 → ~212 | market square sunk into a crater, burnt-granary pillars, r ~40 | use cover, strike the back |
-| Woods | **Grieving Tree** (the king's oak, ~10 blocks, hanged lanterns) | 21 | 165 → ~363 | Royal Grove: walled garden behind the hunting lodge, arena fog, r ~48 | shoot the lanterns, keep orientation in fog |
+| Woods | **Grieving Tree** (the king's oak, ~10 blocks, hanged lanterns) | 21 | 190 → ~418 | Royal Grove: walled garden behind the hunting lodge, arena fog, r ~48 | shoot the lanterns, keep orientation in fog |
 | Necropolis | **Crypt Keeper** (4 blocks, halberd + lantern) | 24 | 102 → ~243 | sinkhole open to the sky, switchback stair down into a flooded ossuary, r ~32 | light: braziers against darkness and moths |
 | Citadel | **Smoldering Lord** (3.5 blocks, greatsword) | 30 | 100 → ~274 | courtyard below the keep wall | the exam: replays the three arena hazards |
 
 - **Ash Colossus.** P1: fist cone, leap ring, thrown boulder, arm drag; every ~20 s an ash storm (2 HP/s magic +
   Blindness unless behind a pillar; he smashes pillars, so the arena needs ≥ 8). P2 at 50 %: sheds stone, core
   exposed, faster, falling cinders. Front takes −50 %, the core ×2.
-- **Grieving Tree.** P1: rooted, its bark turns every hit unless stunned (0.5.0; it took −70 % before); 4–5 lanterns
-  (any projectile, or melee on the branch lowered after a sweep) → 2.2 s stun, trunk ×1.5, fog lifts for 6 s; root
-  lines, branch cone, Withered Thralls drop. P2 at 50 %: uproots and walks slowly, lanterns on its own branches,
+- **Grieving Tree.** P1: rooted, its bark turns every hit unless stunned (0.5.0; it took −70 % before); a set of 7
+  lanterns (6 in P2; any projectile, or melee on the branch lowered after a sweep): breaking the last of the set → 10 s
+  stun, trunk ×1.75, fog lifts as long; then the whole set hangs again at once (0.5.3; before, every lantern bought a
+  2.2 s stun and they grew back one by one); root lines, branch cone, Withered Thralls drop. P2 at 50 %: uproots and walks slowly, lanterns on its own branches,
   thicker fog, root cage.
 - **Crypt Keeper.** P1: halberd 3-hit (the third is an unblockable overhead that breaks the shield), sweep ring,
   lantern throw → fire pool. P2 at 60 %: the lantern shatters → Darkness, water rises 1 block, 4 braziers; in the
@@ -478,10 +479,10 @@ The Minecraft way: an ore in each open zone → material → consumables and arm
 
 | Weapon | Soul / zone | Numbers | Passive | Special (right-click, §8.1) | Scaling |
 |---|---|---|---|---|---|
-| **Ashen Scythe** | Ash Colossus / Fields | 10 dmg, speed 1.1 | sweep r 2.5 at 75 % damage; a fully charged hit sends an ash wave 6 blocks forward, 3 wide, 3 ember dmg | Harvest: 360° spin r 3.5, 25 stamina, 4 s | STR 0.6 / DEX 0.4 |
+| **Ashen Scythe** | Ash Colossus / Fields | 10 dmg, speed 1.1 | sweep r 2.5 at 75 % damage; a fully charged hit sends an ash wave 6 blocks forward, 3 wide, 3 ember dmg | Harvest: 360° spin r 3.5, 40 stamina, 0.5 s | STR 0.6 / DEX 0.4 |
 | **Huntsman's Crossbow** | Grieving Tree / Woods | charge 2.0 s, bolt ≈ 1.5× vanilla crossbow | strong knockback (≈ Punch III), pierces 1 | none (right-click loads) | DEX 0.5 / STR 0.5 |
-| **Warden's Scourge** (whip) | Crypt Keeper / Necropolis | 9 dmg, speed 0.9, reach 6, single target | Bleeding +1 per hit | Lash: pulls the target 4 blocks toward you, 20 stamina, 5 s | DEX 1 |
-| **Royal Ash Rapier** | Smoldering Lord / Citadel | 6 dmg, speed 2.0, reach 2.5 | Bleeding +1 per hit, sets on fire 3 s | Lunge: 4-block dash + thrust, double bleed, 20 stamina, 3 s | DEX 0.7, ember part KIN |
+| **Warden's Scourge** (whip) | Crypt Keeper / Necropolis | 9 dmg, speed 0.9, reach 6, single target | Bleeding +1 per hit | Lash: pulls the target 4 blocks toward you, 30 stamina, 0.4 s | DEX 1 |
+| **Royal Ash Rapier** | Smoldering Lord / Citadel | 6 dmg, speed 2.0, reach 2.5 | Bleeding +1 per hit, sets on fire 3 s | Lunge: 4-block dash + thrust, double bleed, 30 stamina, 0.3 s | DEX 0.7, ember part KIN |
 
 - Reach (whip 6, rapier 2.5) needs a server raycast on attack: 1.20.1 has no reach attribute.
 - Scythe, Scourge and Rapier take Sharpness, Smite, Bane of Arthropods, Fire Aspect, Looting and Knockback (table and
@@ -847,9 +848,9 @@ Each question names the milestone that cannot start without an answer.
     *Needed by:* milestone 3 (PLAN 3.2), and milestone 5 for the weapons.
     **Decided:** FOR → luck + a small bonus chance on mob drops in 0.2.0. **Proposed — built as recommended:**
     KIN → flask healing, RES → armor toughness + fire damage reduction; the Sanctum weapons (0.4.1): the **Sanctum
-    Longsword** (DEX, 6.5 damage, speed 1.6; Wide Cleave: a 90° arc of 3 blocks at 1.25× its hit, 25 stamina, 3 s) and
+    Longsword** (DEX, 6.5 damage, speed 1.6; Wide Cleave: a 90° arc of 3 blocks at 1.25× its hit, 35 stamina, 0.4 s) and
     the **Ashbearer's Mace** (STR, 8 damage, speed 0.9, breaks a Hollow's guard like an axe; Ground Slam: a ring of 3
-    blocks at 0.75× its hit with knockback and 2 s Slowness II, 30 stamina, 5 s), 6 % each per outer-hall chest (one of
+    blocks at 0.75× its hit with knockback and 2 s Slowness II, 45 stamina, 0.5 s), 6 % each per outer-hall chest (one of
     them in about 40 % of Sanctums). Between the iron and the diamond tier and below the realm weapons: neither beats
     a realm weapon both per hit and per second (`docs/balance-overworld.md`).
 11. **Rematch item for Realm 1 bosses** (§4.5): where does *Ash of Rematch* come from and what does it cost (a

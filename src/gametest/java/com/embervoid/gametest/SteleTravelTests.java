@@ -35,6 +35,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
@@ -56,6 +57,55 @@ import java.util.Objects;
 public final class SteleTravelTests implements FabricGameTest {
 	private static final double NEAR = 0.5;
 	private static final int TICKS = 200;
+
+	/**
+	 * The ritual circle (0.5.3), centre stone at relative (3, 1, 3): a soul on a pillar kindles it and fills the rift;
+	 * walking into the rift → the hub's landing; after the grace the hub's crack → beside the rift, on the ground just
+	 * north of it (the first side with room), facing north.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "stele_circle", tickLimit = TICKS)
+	public void roundTripThroughACircle(TestContext context) {
+		ServerWorld world = context.getWorld();
+		hub(context);
+		floor(context);
+		SteleFrame circle = SteleFrame.circle(context.getAbsolutePos(new BlockPos(3, 1, 3)));
+		for (BlockPos stone : circle.stones()) {
+			world.setBlockState(stone, SteleBlocks.CLEFT_STONE.getDefaultState(), Block.NOTIFY_ALL);
+		}
+		ServerPlayerEntity player = TestPlayers.create(context, 6, 6);
+		step(context, () -> {
+			player.setStackInHand(Hand.MAIN_HAND, new ItemStack(SteleItems.CRYING_SOUL));
+			ActionResult result = use(player, circle.stones().get(circle.stones().size() - 1));
+			context.assertTrue(result.isAccepted(), "the soul was not used on the circle: " + result);
+			for (BlockPos stone : circle.stones()) {
+				BlockState state = world.getBlockState(stone);
+				context.assertTrue(state.isOf(SteleBlocks.CLEFT_STONE) && state.get(CleftStoneBlock.KINDLED),
+						"stone not kindled at " + stone.toShortString() + ": " + state);
+			}
+			for (BlockPos rift : circle.crack()) {
+				context.assertTrue(world.getBlockState(rift).isOf(SteleBlocks.STELE_RIFT), "no rift at " + rift.toShortString());
+			}
+			context.assertTrue(isLit(SteleTravel.lit(world.getServer()), world, circle), "not the world's stele: "
+					+ SteleTravel.lit(world.getServer()));
+			walkIn(player, circle);
+			assertAtLanding(context, current(player), "after walking into the rift");
+		}, player);
+		context.waitAndRun(SteleTravel.ARRIVAL_GRACE + 2, () -> step(context, () -> {
+			walkIn(current(player), HubStele.FRAME);
+			ServerPlayerEntity out = current(player);
+			Vec3d beside = Vec3d.ofBottomCenter(circle.origin().north());
+			context.assertTrue(out.getServerWorld() == world && out.getPos().distanceTo(beside) < NEAR,
+					"came out at " + out.getPos() + ", not beside the rift at " + beside);
+			context.assertTrue(Math.abs(MathHelper.wrapDegrees(out.getYaw() - Direction.NORTH.asRotation())) < 1, "facing " + out.getYaw());
+			// Breaking a pillar stone puts the circle out and leaves no lit stele.
+			world.breakBlock(circle.stones().get(2), false);
+			context.assertTrue(SteleTravel.lit(world.getServer()) == null, "still a lit stele after a pillar stone broke");
+			for (BlockPos rift : circle.crack()) {
+				context.assertTrue(world.getBlockState(rift).isAir(), "the rift stayed at " + rift.toShortString());
+			}
+			TestPlayers.complete(context, out);
+		}, player));
+	}
 
 	/**
 	 * Kindle A, walk into its crack → the hub's landing (the way in sounds, the spot is remembered); the hub's crack
@@ -318,7 +368,7 @@ public final class SteleTravelTests implements FabricGameTest {
 	/** Uses the soul in the player's hand on a stone of {@code frame}; it must be lit and the world's stele after. */
 	private static void kindle(TestContext context, ServerPlayerEntity player, SteleFrame frame) {
 		ServerWorld world = player.getServerWorld();
-		ActionResult result = use(player, frame.at(1, 0));
+		ActionResult result = use(player, frame.stones().get(1));
 		context.assertTrue(result.isAccepted(), "the soul was not used on " + frame + ": " + result);
 		context.assertTrue(CleftStele.isLit(world, frame), "the stele did not light: " + frame);
 		context.assertTrue(isLit(SteleTravel.lit(world.getServer()), world, frame), "not the world's stele: "
@@ -370,7 +420,7 @@ public final class SteleTravelTests implements FabricGameTest {
 	}
 
 	private static Vec3d middle(SteleFrame frame) {
-		return Vec3d.ofCenter(frame.at(SteleFrame.CRACK, SteleFrame.HEIGHT / 2));
+		return frame.middle();
 	}
 
 	/** Stone under the whole test area. */
@@ -397,7 +447,7 @@ public final class SteleTravelTests implements FabricGameTest {
 	/** The player stepping into the crack of {@code frame} (its block feels them, as every tick they stand in it). */
 	private static void walkIn(ServerPlayerEntity player, SteleFrame frame) {
 		ServerWorld world = player.getServerWorld();
-		BlockPos crack = frame.at(SteleFrame.CRACK, 0);
+		BlockPos crack = frame.crack().get(0);
 		world.getBlockState(crack).onEntityCollision(world, crack, player);
 	}
 

@@ -168,7 +168,7 @@ public final class BalanceData {
 					melee("arm drag", 6, 0),
 					new Hit("falling cinder (P2)", 5, HitKind.FIRE, 0),
 					hazard("ash storm, per s (magic)", AshColossusEntity.STORM_DAMAGE, HitKind.FLAT)));
-	public static final Boss GRIEVING_TREE = new Boss("grieving_tree", "Grieving Tree", Zone.WOODS, 21, 165, 6, 8, 170,
+	public static final Boss GRIEVING_TREE = new Boss("grieving_tree", "Grieving Tree", Zone.WOODS, 21, 190, 6, 8, 170,
 			GrievingTreeEntity.TRUNK_DAMAGE, GrievingTreeEntity.STUNNED_DAMAGE, "stunned (lanterns shot)", 0.5, 6,
 			GrievingTreeEntity.TRUNK_DAMAGE, GrievingTreeEntity.STUNNED_DAMAGE, "withered_thrall", List.of(
 					melee("branch sweep", 8, 60),
@@ -374,9 +374,9 @@ public final class BalanceData {
 
 	/**
 	 * Grieving Tree. Rooted (P1) it never walks; the branch it lowers after each sweep holds a lantern a melee hit can
-	 * break, so each sweep buys a stun ({@value GrievingTreeEntity#STUN_TICKS} ticks at ×{@value
-	 * GrievingTreeEntity#STUNNED_DAMAGE}). Otherwise the bark turns every hit (×{@value GrievingTreeEntity#TRUNK_DAMAGE},
-	 * PLAN 18.4), so the stuns are its only openings.
+	 * break, so each sweep breaks a lantern, and the last lantern of the set buys a stun ({@value
+	 * GrievingTreeEntity#STUN_TICKS} ticks at ×{@value GrievingTreeEntity#STUNNED_DAMAGE}). Otherwise the bark turns every
+	 * hit (×{@value GrievingTreeEntity#TRUNK_DAMAGE}, PLAN 18.4), so the stuns are its only openings.
 	 */
 	public static final Cadence GRIEVING_TREE_CADENCE = new Cadence(GRIEVING_TREE, true, List.of(
 			new Timing("branch sweep", GrievingTreeEntity.SWEEP_WINDUP, Size.BIGGEST, Tell.SHAPE),
@@ -385,14 +385,16 @@ public final class BalanceData {
 			new Phase("P1 (rooted)", 1, GRIEVING_TREE.armor(), GRIEVING_TREE.sideFactor(), 0, List.of(
 					melee("branch sweep", GrievingTreeEntity.SWEEP_WINDUP, GrievingTreeEntity.SWEEP_COOLDOWN, 2 / 3.0, Aim.TARGET),
 					melee("root lines", GrievingTreeEntity.ROOT_WINDUP, GrievingTreeEntity.ROOT_COOLDOWN, 1 / 3.0, Aim.ALL),
-					opening("stun (lowered lantern broken)", GrievingTreeEntity.STUN_TICKS, 2 / 3.0, GRIEVING_TREE.bestFactor())), List.of(
+					opening("stun (the set's last lantern broken)", GrievingTreeEntity.STUN_TICKS, 2 / 3.0 / GrievingTreeEntity.LANTERNS,
+							GRIEVING_TREE.bestFactor())), List.of(
 					Downtime.adds("Withered Thralls dropping (2)", "withered_thrall", 2, GrievingTreeEntity.THRALL_INTERVAL))),
 			new Phase("P2 (walking)", GRIEVING_TREE.phase2At(), GRIEVING_TREE.phase2Armor(), GRIEVING_TREE.phase2Side(),
 					GrievingTreeEntity.UPROOT_PAUSE, List.of(
 					melee("branch sweep", GrievingTreeEntity.SWEEP_WINDUP, GrievingTreeEntity.SWEEP_COOLDOWN, 2 / 3.0, Aim.TARGET),
 					melee("root cage", GrievingTreeEntity.CAGE_WINDUP, GrievingTreeEntity.CAGE_COOLDOWN, 1 / 9.0, Aim.TARGET),
 					melee("root lines", GrievingTreeEntity.ROOT_WINDUP, GrievingTreeEntity.ROOT_COOLDOWN, 2 / 9.0, Aim.ALL),
-					opening("stun (lowered lantern broken)", GrievingTreeEntity.STUN_TICKS, 2 / 3.0, GRIEVING_TREE.phase2Best())), List.of(
+					opening("stun (the set's last lantern broken)", GrievingTreeEntity.STUN_TICKS, 2 / 3.0 / GrievingTreeEntity.P2_LANTERNS,
+							GRIEVING_TREE.phase2Best())), List.of(
 					Downtime.adds("Withered Thralls dropping (2)", "withered_thrall", 2, GrievingTreeEntity.THRALL_INTERVAL)))));
 
 	/**

@@ -24,7 +24,6 @@ abstract class GearServerPlayNetworkHandlerMixin {
 	@Inject(method = "onHandSwing", at = @At("TAIL"))
 	private void embervoid$longReachSwing(HandSwingC2SPacket packet, CallbackInfo ci) {
 		GearReach.onSwing(player, packet.getHand());
-		AttackAnimations.onSwing(player, packet.getHand());
-		WeaponFx.onSwing(player, packet.getHand());
+		WeaponFx.onSwing(player, AttackAnimations.onSwing(player, packet.getHand()));
 	}
 }

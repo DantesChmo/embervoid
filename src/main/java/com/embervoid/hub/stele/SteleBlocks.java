@@ -31,6 +31,19 @@ public final class SteleBlocks {
 					.nonOpaque()
 					.allowsSpawning((state, world, pos, type) -> false)));
 
+	/** The ritual circle's passage (0.5.3): like the crack, a column of mist over the centre stone. */
+	public static final Block STELE_RIFT = ModBlocks.registerWithoutItem("stele_rift", new SteleRiftBlock(
+			AbstractBlock.Settings.create()
+					.mapColor(MapColor.ORANGE)
+					.noCollision()
+					.strength(-1.0f, 3_600_000.0f)
+					.dropsNothing()
+					.luminance(state -> 11)
+					.sounds(BlockSoundGroup.GLASS)
+					.pistonBehavior(PistonBehavior.BLOCK)
+					.nonOpaque()
+					.allowsSpawning((state, world, pos, type) -> false)));
+
 	static void register() {
 		Embervoid.LOGGER.debug("Registering stele blocks");
 	}

@@ -43,23 +43,25 @@ import java.util.List;
  *   <li><b>P1.</b> Rooted in the middle of the grove. Its bark turns every blade and arrow unless it is stunned
  *   (PLAN 18.4: a trunk that took a little was most of the fight's openings). {@value #LANTERNS} lanterns hang in its
  *   branches ({@link TreeLanternEntity}): a projectile breaks one, and so does a melee hit on the branch it lowers
- *   after a branch sweep. A broken lantern stuns it for 2.2 s (trunk ×{@value #STUNNED_DAMAGE}, no moves) and lifts
- *   the fog for 6 s. Moves: root lines bursting from the ground at
+ *   after a branch sweep. Breaking the last of them stuns it for 10 s (trunk ×{@value #STUNNED_DAMAGE}, no moves) and
+ *   lifts the fog as long; once the stun is over, the whole set hangs again at once (0.5.3: before, every lantern
+ *   bought its own 2.2 s stun and they grew back one by one). Moves: root lines bursting from the ground at
  *   the fighters, a branch sweep in front, Withered Thralls dropping from the branches.</li>
  *   <li><b>P2 at 50 %.</b> It uproots and walks slowly; new lanterns hang on its own branches and move with it; the
  *   fog thickens; root cages close around a fighter.</li>
  * </ul>
  *
- * Base damage (Lv 21 on Normal ×2.5): root line 7, branch sweep 8, root cage 4. Base HP 165 (~363 at Lv 21).
+ * Base damage (Lv 21 on Normal ×2.5): root line 7, branch sweep 8, root cage 4. Base HP 190 (~418 at Lv 21).
  */
 public class GrievingTreeEntity extends ReachBoss {
 	/** Damage the trunk takes outside a stun: none, the bark turns it (PLAN 18.4). */
 	public static final float TRUNK_DAMAGE = 0;
-	public static final float STUNNED_DAMAGE = 1.5f;
-	public static final int LANTERNS = 5;
-	public static final int P2_LANTERNS = 4;
-	public static final int STUN_TICKS = 44;
-	public static final int FOG_LIFT_TICKS = 120;
+	public static final float STUNNED_DAMAGE = 1.75f;
+	public static final int LANTERNS = 7;
+	public static final int P2_LANTERNS = 6;
+	/** The stun the last broken lantern buys: the window to hit the trunk (0.5.3: 2.2 s was too short to use). */
+	public static final int STUN_TICKS = 200;
+	public static final int FOG_LIFT_TICKS = STUN_TICKS;
 	/** Arena fog: grey-green, thicker once it walks. */
 	public static final float FOG_DENSITY = 0.55f;
 	public static final float THICK_FOG_DENSITY = 0.75f;
@@ -77,12 +79,10 @@ public class GrievingTreeEntity extends ReachBoss {
 	public static final int ROOTED_MIN_COOLDOWN = 20;
 	/** The pause after uprooting (P2 starts). */
 	public static final int UPROOT_PAUSE = 40;
-	/**
-	 * Ticks between two drops of Withered Thralls, and between two lanterns growing back while fewer than two hang
-	 * (PLAN 18.4: about one per stun the fight needs; at 600 the short stuns ran the branches bare).
-	 */
+	/** Ticks between two drops of Withered Thralls. */
 	public static final int THRALL_INTERVAL = 500;
-	public static final int REHANG_INTERVAL = 160;
+	/** Ticks after the stun until the whole set of lanterns hangs again at once. */
+	public static final int REHANG_DELAY = 40;
 
 	public static final String ROOT_LINES = "attack.roots";
 	public static final String BRANCH_SWEEP = "attack.branch";
@@ -102,7 +102,7 @@ public class GrievingTreeEntity extends ReachBoss {
 	private int stunTicks;
 	private int fogLiftTicks;
 	private int thrallTimer = THRALL_INTERVAL / 2;
-	private int rehangTimer = REHANG_INTERVAL;
+	private int rehangTimer = REHANG_DELAY;
 	private int lanternsBroken;
 
 	public GrievingTreeEntity(EntityType<? extends GrievingTreeEntity> type, World world) {
@@ -112,7 +112,7 @@ public class GrievingTreeEntity extends ReachBoss {
 
 	public static DefaultAttributeContainer.Builder createAttributes() {
 		return HostileEntity.createHostileAttributes()
-				.add(EntityAttributes.GENERIC_MAX_HEALTH, 165)
+				.add(EntityAttributes.GENERIC_MAX_HEALTH, 190)
 				.add(EntityAttributes.GENERIC_ATTACK_DAMAGE, SWEEP_DAMAGE)
 				.add(EntityAttributes.GENERIC_ARMOR, 6)
 				.add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0)
@@ -253,10 +253,17 @@ public class GrievingTreeEntity extends ReachBoss {
 		return lanternsBroken;
 	}
 
-	/** A lantern broke: stunned 2.2 s, the fog lifts 6 s. */
+	/** A lantern broke: the tree flinches; the last one of the set stuns it and lifts the fog for 10 s. */
 	void onLanternBroken(TreeLanternEntity lantern) {
 		lanterns.remove(lantern);
 		lanternsBroken++;
+		if (!lanterns().isEmpty()) {
+			getWorld().playSound(null, getX(), getY(), getZ(), ReachBossSounds.GRIEVING_TREE_STUN, SoundCategory.HOSTILE, 1.0f, 1.4f);
+			if (getWorld() instanceof ServerWorld world) {
+				world.spawnParticles(EmberParticles.AMBER_MOTE, lantern.getX(), lantern.getY(), lantern.getZ(), 6, 0.3, 0.2, 0.3, 0);
+			}
+			return;
+		}
 		BossFight fight = fight();
 		Telegraph.cancel(this);
 		stunTicks = STUN_TICKS;
@@ -297,10 +304,16 @@ public class GrievingTreeEntity extends ReachBoss {
 			thrallTimer = THRALL_INTERVAL;
 			dropThralls();
 		}
-		// Lanterns grow back on the branches when few are left, so a stun is always within reach.
-		if (lanterns().size() < 2 && --rehangTimer <= 0) {
-			rehangTimer = REHANG_INTERVAL;
-			hangLantern(random.nextDouble() * Math.PI * 2, isRooted() ? 7 : 5.5, isRooted() ? 5.5 : 3.5);
+		// All lanterns broken: once the stun is over, the whole set grows back on the branches together.
+		if (!lanterns().isEmpty() || isStunned()) {
+			rehangTimer = REHANG_DELAY;
+		} else if (--rehangTimer <= 0) {
+			rehangTimer = REHANG_DELAY;
+			if (isRooted()) {
+				hangLanterns(LANTERNS, 7, 5.5);
+			} else {
+				hangLanterns(P2_LANTERNS, 5.5, 3.5);
+			}
 		}
 		if (isRooted()) {
 			// Rooted: it never moves from its spot.

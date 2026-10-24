@@ -136,4 +136,62 @@ class SteleFrameTest {
 		// The top stone is only in the frame one block up.
 		assertEquals(ORIGIN.up(), find(frame.at(4, SteleFrame.HEIGHT)).orElseThrow().origin());
 	}
+
+	/** Lays the 13 stones of a ritual circle around {@code centre}; the rift is left as it is. */
+	private SteleFrame buildCircle(BlockPos centre) {
+		SteleFrame circle = SteleFrame.circle(centre);
+		circle.stones().forEach(pos -> cells.put(pos, SteleFrame.Cell.STONE));
+		return circle;
+	}
+
+	@Test
+	void circleIs13StonesAroundARiftOf3() {
+		SteleFrame circle = SteleFrame.circle(ORIGIN);
+		assertEquals(13, circle.stones().size());
+		assertEquals(ORIGIN, circle.stones().get(0));
+		assertTrue(circle.stones().contains(ORIGIN.north(2).up(2)));
+		assertTrue(circle.stones().contains(ORIGIN.east(2)));
+		assertEquals(java.util.List.of(ORIGIN.up(), ORIGIN.up(2), ORIGIN.up(3)), circle.crack());
+		assertEquals(4, circle.ways().size());
+	}
+
+	@Test
+	void circleIsFoundFromEveryStone() {
+		SteleFrame circle = buildCircle(ORIGIN);
+		for (BlockPos stone : circle.stones()) {
+			assertEquals(Optional.of(circle), find(stone), "from " + stone);
+		}
+	}
+
+	@Test
+	void aMissingPillarStoneOrABlockedRiftBreaksTheCircle() {
+		SteleFrame circle = buildCircle(ORIGIN);
+		for (BlockPos stone : circle.stones()) {
+			cells.remove(stone);
+			BlockPos clicked = stone.equals(ORIGIN) ? ORIGIN.west(2) : ORIGIN;
+			assertFalse(find(clicked).isPresent(), "without " + stone);
+			cells.put(stone, SteleFrame.Cell.STONE);
+		}
+		for (BlockPos rift : circle.crack()) {
+			cells.put(rift, SteleFrame.Cell.OTHER);
+			assertFalse(find(ORIGIN).isPresent(), "blocked at " + rift);
+			cells.remove(rift);
+		}
+	}
+
+	@Test
+	void pillarsTooFarOrTooShortAreNoCircle() {
+		cells.put(ORIGIN, SteleFrame.Cell.STONE);
+		for (Direction side : new Direction[]{Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST}) {
+			for (int y = 0; y < SteleFrame.PILLAR_HEIGHT; y++) {
+				cells.put(ORIGIN.offset(side, 3).up(y), SteleFrame.Cell.STONE);
+			}
+		}
+		assertFalse(find(ORIGIN).isPresent());
+		cells.clear();
+		SteleFrame circle = buildCircle(ORIGIN);
+		cells.remove(ORIGIN.south(2).up(SteleFrame.PILLAR_HEIGHT - 1));
+		assertFalse(find(ORIGIN).isPresent());
+		assertEquals(SteleFrame.Shape.CIRCLE, circle.shape());
+	}
 }

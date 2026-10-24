@@ -16,6 +16,7 @@ Textures: one 64x64 sheet per weapon under textures/item/<weapon>_in_hand.png; e
 per material (grain along the haft, a lit edge on steel, bevelled bronze, wrapped leather) with the palette's hue
 shift. The lash of the Warden's Scourge leaves its handle at the tip ring, the model point client code reads as ROOT (8.8, 8.8, 8).
 """
+import math
 import os
 import sys
 
@@ -26,10 +27,11 @@ ITEM_TEX = os.path.join(ROOT, "textures", "item")
 ITEM_MODELS = os.path.join(ROOT, "models", "item")
 SHEET = 64
 GRIP = (3.0, 3.0, 8.0)
-# Vanilla refuses an element whose from/to leaves -16..32. A weapon longer than that is built at SHRINK about the
-# block's centre and its display scales are divided by SHRINK, which draws it exactly as large as authored.
+# Vanilla refuses an element whose from/to leaves -16..32. A weapon longer than that is built at the first of SHRINKS it
+# fits at, about the block's centre, and its display scales are divided by the same, which draws it exactly as large
+# as authored.
 BOUNDS = (-16, 32)
-SHRINK = 0.65
+SHRINKS = (0.65, 0.6, 0.55, 0.5)
 CENTRE = 8.0
 # minecraft:item/handheld's display (with what it inherits from item/generated).
 HANDHELD_DISPLAY = {
@@ -162,8 +164,20 @@ def build(name, boxes, root=None):
         angle = -45 + box.turn
         if angle not in (-45, -22.5, 0, 22.5, 45):
             raise ValueError("element angle %s not allowed" % angle)
-        element = {"from": list(box.f), "to": list(box.t), "faces": faces,
-                   "rotation": {"origin": list(box.pivot or GRIP), "axis": "z", "angle": angle}}
+        # An element turns once, about one origin. A box with its own pivot is meant to turn by its extra turn about
+        # that pivot and then with the weapon by -45 about the grip; that is the same as turning by the sum about the
+        # pivot carried onto the diagonal, with the box moved along with its pivot.
+        f, t, origin = list(box.f), list(box.t), list(GRIP)
+        if box.pivot:
+            rad = math.radians(-45)
+            dx, dy = box.pivot[0] - GRIP[0], box.pivot[1] - GRIP[1]
+            origin = [GRIP[0] + dx * math.cos(rad) - dy * math.sin(rad), GRIP[1] + dx * math.sin(rad) + dy * math.cos(rad),
+                      box.pivot[2]]
+            shift = [origin[i] - box.pivot[i] for i in range(3)]
+            f = [round(f[i] + shift[i], 4) for i in range(3)]
+            t = [round(t[i] + shift[i], 4) for i in range(3)]
+            origin = [round(c, 4) for c in origin]
+        element = {"from": f, "to": t, "faces": faces, "rotation": {"origin": origin, "axis": "z", "angle": angle}}
         if box.name:
             element["name"] = box.name
         elements.append(element)
@@ -175,14 +189,17 @@ def build(name, boxes, root=None):
         "elements": elements,
     }
     scale = 1.0
-    if any(not BOUNDS[0] <= c <= BOUNDS[1] for e in elements for c in e["from"] + e["to"]):
-        scale = SHRINK
-        shrink = lambda p: [round(CENTRE + (c - CENTRE) * SHRINK, 4) for c in p]
-        for e in elements:
-            e["from"], e["to"] = shrink(e["from"]), shrink(e["to"])
-            e["rotation"]["origin"] = shrink(e["rotation"]["origin"])
-        if any(not BOUNDS[0] <= c <= BOUNDS[1] for e in elements for c in e["from"] + e["to"]):
-            raise ValueError("%s does not fit the model bounds even at %s" % (name, SHRINK))
+    fits = lambda els: all(BOUNDS[0] <= c <= BOUNDS[1] for e in els for c in e["from"] + e["to"])
+    if not fits(elements):
+        for scale in SHRINKS:
+            shrink = lambda p: [round(CENTRE + (c - CENTRE) * scale, 4) for c in p]
+            shrunk = [dict(e, **{"from": shrink(e["from"]), "to": shrink(e["to"]),
+                                 "rotation": dict(e["rotation"], origin=shrink(e["rotation"]["origin"]))}) for e in elements]
+            if fits(shrunk):
+                elements[:] = shrunk
+                break
+        else:
+            raise ValueError("%s does not fit the model bounds even at %s" % (name, SHRINKS[-1]))
     model["display"] = {k: {"rotation": v["rotation"], "translation": v["translation"],
                             "scale": [round(v["scale"] / scale, 4)] * 3} for k, v in HANDHELD_DISPLAY.items()}
     write_json(os.path.join(ITEM_MODELS, "%s_in_hand.json" % name), model)

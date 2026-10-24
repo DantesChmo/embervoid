@@ -15,8 +15,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.Hand;
+import net.minecraft.util.Arm;
 import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -41,11 +42,6 @@ public final class WeaponFx {
 	private static final int SOULS_BASE = 3;
 	private static final float SOULS_PER_HEALTH = 12;
 	private static final int SOULS_MAX = 12;
-	/** A swing closer than this to the last one draws no trail (the button held on a block sends one every tick). */
-	private static final int SWING_GAP = 3;
-
-	private static final Map<PlayerEntity, Long> LAST_SWING = new WeakHashMap<>();
-	private static final Map<PlayerEntity, Boolean> FROM_LEFT = new WeakHashMap<>();
 	private static final List<Timed> TIMED = new ArrayList<>();
 	private static final List<PersistentProjectileEntity> BOLTS = new ArrayList<>();
 
@@ -58,54 +54,48 @@ public final class WeaponFx {
 		TIMED.add(new Timed(world, ticks, step, new int[]{0}));
 	}
 
-	/** A hand swing packet: the main-hand weapon's trail, alternating sides as the animation does. */
-	public static void onSwing(ServerPlayerEntity player, Hand hand) {
-		if (hand != Hand.MAIN_HAND || player.isSpectator()) {
-			return;
-		}
-		WeaponKind kind = AttackAnimations.kindOf(player.getMainHandStack());
-		if (kind == null) {
-			return;
-		}
-		long now = player.getWorld().getTime();
-		Long last = LAST_SWING.get(player);
-		if (last != null && now - last < SWING_GAP) {
-			return;
-		}
-		LAST_SWING.put(player, now);
-		boolean fromLeft = !FROM_LEFT.getOrDefault(player, false);
-		FROM_LEFT.put(player, fromLeft);
-		SwingArc arc = swingArc(kind, fromLeft);
+	/**
+	 * A swing that started {@code clip} ({@link AttackAnimations#onSwing}, null for none): its trail, along the path the
+	 * clip swings the weapon, mirrored for a left-handed player as the clip is.
+	 */
+	public static void onSwing(ServerPlayerEntity player, @Nullable WeaponKind.Clip clip) {
+		SwingArc arc = clip == null ? null : swingArc(clip);
 		if (arc != null) {
-			CombatFx.trail(player, arc);
+			CombatFx.trail(player, player.getMainArm() == Arm.LEFT ? arc.mirrored() : arc);
 		}
 	}
 
-	/** The trail of one swing of {@code kind}; null for the whip (its lash is drawn as a rope) and the crossbow. */
-	static SwingArc swingArc(WeaponKind kind, boolean fromLeft) {
-		return switch (kind) {
-			case SCYTHE -> SwingArc.sweep(3.4f, 1.25f, fromLeft, 7, ASH);
-			case RAPIER -> new SwingArc(-4, 4, 0, 3.4f, 1.35f, 4, AMBER);
-			case SWORD -> SwingArc.sweep(2.7f, 1.3f, fromLeft, 6, COLD);
-			case MACE -> SwingArc.overhead(2.5f, 1.5f, 8, EMBER);
-			case WHIP, CROSSBOW -> null;
+	/**
+	 * The trail of a swing clip (tools/player_anim_art.py; angles 0 ahead, 90 to the right): the Scythe's sweep right
+	 * to left and low, the Longsword's forehand from high right to low left and its backhand back up, the Rapier's
+	 * thrust, the Mace's overhead; null for the whip (its lash is drawn as a rope).
+	 */
+	@Nullable
+	static SwingArc swingArc(WeaponKind.Clip clip) {
+		return switch (clip.name()) {
+			case "scythe_sweep" -> new SwingArc(85, -85, -12, 3.4f, 1.15f, 7, ASH);
+			case "sword_swing_1" -> new SwingArc(75, -75, 40, 2.7f, 1.35f, 6, COLD);
+			case "sword_swing_2" -> new SwingArc(-75, 75, 40, 2.7f, 1.3f, 6, COLD);
+			case "rapier_thrust" -> new SwingArc(-4, 4, 0, 3.4f, 1.35f, 4, AMBER);
+			case "mace_overhead" -> SwingArc.overhead(2.5f, 1.5f, 8, EMBER);
+			default -> null;
 		};
 	}
 
-	/** A special attack that went through: its own trail. */
+	/** A special attack that went through: its own trail, the way its clip turns (the Harvest and Wide Cleave go right to left). */
 	public static void onSpecial(ServerPlayerEntity player, ItemStack stack) {
 		WeaponKind kind = AttackAnimations.kindOf(stack);
 		if (kind == null) {
 			return;
 		}
 		SwingArc arc = switch (kind) {
-			case SCYTHE -> new SwingArc(-180, 180, 8, 3.6f, 1.2f, 9, ASH);
-			case SWORD -> new SwingArc(-100, 100, 10, 3.2f, 1.3f, 7, COLD);
+			case SCYTHE -> new SwingArc(180, -180, -8, 3.6f, 1.2f, 9, ASH);
+			case SWORD -> new SwingArc(100, -100, -10, 3.2f, 1.3f, 7, COLD);
 			case MACE -> SwingArc.overhead(2.6f, 1.6f, 9, EMBER);
 			default -> null;
 		};
 		if (arc != null) {
-			CombatFx.trail(player, arc);
+			CombatFx.trail(player, AttackAnimations.armHolding(player, stack) == Arm.LEFT ? arc.mirrored() : arc);
 		}
 	}
 

@@ -175,7 +175,7 @@ public record GearConfig(Bleeding bleeding, Smoldering smoldering, Sets sets, Un
 			float waveWidth, float waveDamage, float harvestRadius, float harvestStamina, int harvestCooldown, float lashPull,
 			float lashStamina, int lashCooldown, float lungeDash, float lungeStamina, int lungeCooldown, float rampPerHit,
 			float rampMax, int rampWindowTicks, float whipTipBand, float whipTipMultiplier, int whipTipStunTicks) {
-		static final Weapons DEFAULTS = new Weapons(0.02f, 2.5f, 0.75f, 3, 6, 3, 3, 3.5f, 25, 80, 4, 20, 100, 4, 20, 60,
+		static final Weapons DEFAULTS = new Weapons(0.02f, 2.5f, 0.75f, 3, 6, 3, 3, 3.5f, 40, 10, 4, 30, 8, 4, 30, 6,
 				0.1f, 0.3f, 30, 1.5f, 1.6f, 10);
 
 		static Weapons read(SectionReader in) {

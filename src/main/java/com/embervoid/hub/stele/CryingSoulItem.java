@@ -53,5 +53,6 @@ public class CryingSoulItem extends Item {
 	public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
 		tooltip.add(Text.translatable("item.embervoid.crying_soul.lore").formatted(Formatting.DARK_GRAY, Formatting.ITALIC));
 		tooltip.add(Text.translatable("item.embervoid.crying_soul.tooltip").formatted(Formatting.GRAY));
+		tooltip.add(Text.translatable("item.embervoid.crying_soul.shape").formatted(Formatting.DARK_GRAY));
 	}
 }

@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.5.3 — 2026-10-24
+
+- **Fixed:** the Ashen Scythe's blade floated apart from its snath in the hand, and the Royal Ash Rapier's guard sweeps
+  stood off the hilt: parts with their own turn were not carried onto the weapon's diagonal. They sit in place now.
+- **Fixed:** the unique weapons swung like any vanilla sword in first person; their own attack animations (the Scythe's
+  two-handed sweep, the Longsword's forehand and backhand, the Rapier's thrust, the Mace's overhead blow, the Scourge's
+  crack and every special) now play in first person too. The Huntsman's Crossbow keeps the vanilla first person.
+- **Fixed:** the swing trails did not match the swings: the Scythe's crossed from side to side over a one-way sweep,
+  the Longsword's ran flat under its diagonal cuts, and the Harvest and Wide Cleave turned the wrong way. Each trail
+  now follows the clip being played, mirrored for a left-handed player.
+- **Changed:** the Grieving Tree's lanterns guard it as a set: breaking one makes it flinch, breaking the last of the 7
+  (6 once it walks) stuns it for 10 s with the fog lifted, and then the whole set hangs again at once. Before, every
+  lantern bought a 2.2 s stun and they grew back one by one. Its health goes from 165 to 190 and a stunned trunk takes
+  ×1.75, so the fight stays about two minutes.
+- **Changed:** the weapon specials can be used almost back to back and cost more stamina instead: Harvest 40 stamina /
+  0.5 s, Lash 30 / 0.4 s, Lunge 30 / 0.3 s, Wide Cleave 35 / 0.4 s, Ground Slam 45 / 0.5 s (were 20–30 stamina with
+  3–5 s cooldowns). An existing config keeps its old values; delete those keys to take the new ones.
+- **Changed:** the Cleft Stele is built as a ritual circle: a centre stone and four pillars of 3 Cleft Stone, two
+  blocks out from it on each side (13 stones). The Crying Soul on any of its stones kindles it, the pillars flare and a
+  column of mist rises over the centre; walk into it to reach the hub, and you come back beside it. New dungeons keep
+  a cold circle on the arena's dais. Slabs built or lit before still work.
+
 ## 0.5.2 — 2026-10-24
 
 - **Fixed:** the game crashed as soon as a player reached an obelisk realm: the windmill and 11 other set pieces had an

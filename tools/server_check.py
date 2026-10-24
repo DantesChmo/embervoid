@@ -21,9 +21,9 @@ What it does:
    (PLAN L6): a stat set over RCON reaches its attributes and its client,
    a point bought at a summoned Ashen Maiden through her screen's real packets costs exactly the shown XP, and a death
    leaves an Ash Remnant that gives the items and XP back when the bot right-clicks it; the bot travels to the hub
-   (Realm 1 unlocks), into Realm 1, back to the hub and out to where it left (PLAN 15.2), then builds a Cleft Stele
-   beside itself, kindles it by the debug command, walks into its crack to the hub and through the hub's crack back
-   out in front of it, and breaking a stone leaves no lit stele (PLAN 15.4); waits for generation, saves,
+   (Realm 1 unlocks), into Realm 1, back to the hub and out to where it left (PLAN 15.2), then builds a Cleft Stele circle
+   beside itself, kindles it by the debug command, walks into its rift to the hub and through the hub's crack back
+   out beside it, and breaking a stone leaves no lit stele (PLAN 15.4); waits for generation, saves,
    stops the server. Commands with an expected answer fail the check when
    the answer does not match.
 3. Scans the whole output (build + server log) for crashes, mixin failures, ERROR lines and datapack load errors.
@@ -637,9 +637,9 @@ def exercise_player(rcon, run, expect, expect_eventually):
 
 
 def stele_round_trip(run, expect, name):
-    """PLAN 15.4: a stele along Z three blocks east of the bot, on a cleared stone pad; kindled by the debug command (the
-    bot cannot use items). Walking in is the bot standing in the crack: its position reports move it on the server,
-    which is what makes the crack feel it."""
+    """PLAN 15.4 with 0.5.3's ritual circle: a centre stone three blocks east of the bot and four pillars of three two
+    blocks out from it, on a cleared stone pad; kindled by the debug command (the bot cannot use items). Walking in is
+    the bot standing in the rift: its position reports move it on the server, which is what makes the rift feel it."""
     pos = parse_numbers(r"\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]", run("Stele: bot position", f"data get entity {name} Pos"))
     if not pos:
         FAILED_EXPECTATIONS.append("Stele: no bot position")
@@ -647,21 +647,22 @@ def stele_round_trip(run, expect, name):
     x, y, z = int(math.floor(pos[0])) + 3, int(math.floor(pos[1])), int(math.floor(pos[2]))
     run("Stele: room", f"fill {x - 3} {y} {z - 3} {x + 3} {y + 6} {z + 3} minecraft:air")
     run("Stele: pad", f"fill {x - 3} {y - 1} {z - 3} {x + 3} {y - 1} {z + 3} minecraft:stone")
-    run("Stele: stones", f"fill {x} {y} {z - 2} {x} {y + 5} {z + 2} embervoid:cleft_stone")
-    run("Stele: crack", f"fill {x} {y} {z} {x} {y + 5} {z} minecraft:air")
-    expect("Stele: kindle", f"embervoid stele kindle {x} {y} {z - 2}", r"^Kindled")
-    expect("Stele: lit", "embervoid stele", rf"Lit stele: minecraft:overworld {x}, {y}, {z} along z")
-    run("Stele: walk in", f"tp {name} {x + 0.5} {y} {z + 0.5}")
+    run("Stele: centre", f"setblock {x} {y} {z} embervoid:cleft_stone")
+    for dx, dz in ((2, 0), (-2, 0), (0, 2), (0, -2)):
+        run("Stele: pillar", f"fill {x + dx} {y} {z + dz} {x + dx} {y + 2} {z + dz} embervoid:cleft_stone")
+    expect("Stele: kindle", f"embervoid stele kindle {x} {y + 1} {z - 2}", r"^Kindled")
+    expect("Stele: lit", "embervoid stele", rf"Lit stele: minecraft:overworld {x}, {y + 1}, {z} circle")
+    run("Stele: walk in", f"tp {name} {x + 0.5} {y + 1} {z + 0.5}")
     time.sleep(3)  # a position report or two
     expect("Stele: in the hub", f"data get entity {name} Dimension", r'"embervoid:hub"')
     run("Stele: the hub's crack", f"execute in embervoid:hub run tp {name} 0.5 65 -15.5")
     time.sleep(3)
     expect("Stele: back out", f"data get entity {name} Dimension", r'"minecraft:overworld"')
-    expect("Stele: in front of it", f"execute positioned {x + 0.5} {y} {z + 0.5} if entity @a[name={name},distance=..2]",
+    expect("Stele: beside the rift", f"execute positioned {x + 0.5} {y + 1} {z + 0.5} if entity @a[name={name},distance=..2]",
            r"Test passed")
-    run("Stele: break a stone", f"setblock {x} {y + 2} {z - 2} minecraft:air")
+    run("Stele: break a stone", f"setblock {x} {y + 1} {z - 2} minecraft:air")
     expect("Stele: put out", "embervoid stele", r"No lit stele")
-    run("Stele: clean up", f"fill {x} {y} {z - 2} {x} {y + 5} {z + 2} minecraft:air")
+    run("Stele: clean up", f"fill {x - 2} {y} {z - 2} {x + 2} {y + 3} {z + 2} minecraft:air")
 
 
 def perf_areas(rcon, log):

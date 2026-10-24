@@ -19,7 +19,8 @@ final class SteleCommands {
 							SteleState.Lit lit = SteleTravel.lit(context.getSource().getServer());
 							context.getSource().sendFeedback(() -> Text.literal(lit == null ? "No lit stele"
 									: "Lit stele: " + lit.dimension().getValue() + " "
-									+ lit.frame().at(SteleFrame.CRACK, 0).toShortString() + " along " + lit.frame().axis()), false);
+									+ lit.frame().crack().get(0).toShortString()
+									+ (lit.frame().shape() == SteleFrame.Shape.CIRCLE ? " circle" : " along " + lit.frame().axis())), false);
 							return lit == null ? 0 : 1;
 						})
 						// /embervoid stele kindle <pos>: kindles the cold stele there as a Crying Soul would, with no player.

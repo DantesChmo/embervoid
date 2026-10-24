@@ -25,8 +25,8 @@ Install on both the client and the server.
 - **The Ruined Sanctum:** an overworld dungeon about every 300–400 blocks in three variants (a Sanctum Map in some
   vanilla chests leads to the nearest), with a guarded descent, loot halls with Flask Shards and two Sanctum weapons
   with special attacks, and the **Fallen Sister** behind a fog wall. She drops the **Crying Soul**.
-- **The Cleft Stele and the hub:** the Crying Soul kindles a Cleft Stele (the cold one in the dungeon or one you build
-  from Cleft Stone; one burns per world), which leads to the **Ember Sanctum**, a hub in its own dimension with the
+- **The Cleft Stele and the hub:** the Crying Soul kindles a Cleft Stele (the cold one in the dungeon or a ritual
+  circle you build from Cleft Stone: a centre stone and four pillars of 3, two blocks out; one burns per world), which leads to the **Ember Sanctum**, a hub in its own dimension with the
   Ashen Maiden, an Ember Shrine and the ring of Void Obelisks. Realms always lead back to the hub, the hub back to
   the lit stele.
 - **Moon nights:** every third lunar cycle a full moon (stronger hostiles, Curse of the Night waves of Ashen Zombies
@@ -90,10 +90,10 @@ The mod reads `config/embervoid.json` (created with defaults on first launch). M
 | `sanctum.mapChanceCartographer` / `mapChanceTemple` / `mapChanceRuinedPortal` / `mapChanceShipwreck` | 0.25 / 0.1 / 0.08 / 0.25 | 0–1 | Chance of a Sanctum Map in those vanilla chests |
 | `sanctum.mapSearchRadius` | 64 | 8–200 | How far (in chunks) a Sanctum Map looks for a Sanctum |
 | `sanctumGear.cleaveRange` / `cleaveArc` / `cleaveMultiplier` | 3 / 90 / 1.25 | 1–8 / 10–360 / 0–10 | Sanctum Longsword's Wide Cleave: reach (blocks), arc in front (degrees), share of the weapon's hit each target takes |
-| `sanctumGear.cleaveStamina` / `cleaveCooldown` | 25 / 60 | 0–1000 / 0–1200 | Wide Cleave's stamina cost and cooldown (ticks) |
+| `sanctumGear.cleaveStamina` / `cleaveCooldown` | 35 / 8 | 0–1000 / 0–1200 | Wide Cleave's stamina cost and cooldown (ticks) |
 | `sanctumGear.slamRadius` / `slamMultiplier` / `slamKnockback` | 3 / 0.75 / 0.8 | 1–8 / 0–10 / 0–4 | Ashbearer's Mace's Ground Slam: ring radius, share of the weapon's hit, knockback strength |
 | `sanctumGear.slamSlownessTicks` / `slamSlownessAmplifier` | 40 / 1 | 0–1200 / 0–9 | Ground Slam's Slowness: duration (ticks) and amplifier (1 = Slowness II) |
-| `sanctumGear.slamStamina` / `slamCooldown` | 30 / 100 | 0–1000 / 0–1200 | Ground Slam's stamina cost and cooldown (ticks) |
+| `sanctumGear.slamStamina` / `slamCooldown` | 45 / 10 | 0–1000 / 0–1200 | Ground Slam's stamina cost and cooldown (ticks) |
 | `boss.healthPerExtraFighter` | 0.5 | 0–10 | Boss health bonus per fighter beyond the first: HP × (1 + this·(n − 1)) |
 | `boss.addsPerExtraFighter` | 1 | 0–10 | Extra adds per fighter beyond the first |
 | `boss.addLevelOffset` | 3 | −50–50 | Level of a boss's adds relative to the boss |

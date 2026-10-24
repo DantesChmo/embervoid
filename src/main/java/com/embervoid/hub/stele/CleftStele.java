@@ -28,7 +28,8 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * The Cleft Stele (PLAN 15.3, DESIGN §2): a slab of Cleft Stone ({@link SteleFrame}) that a Crying Soul kindles. This
+ * The Cleft Stele (PLAN 15.3, DESIGN §2): a ritual circle of Cleft Stone, or the slab built before 0.5.3
+ * ({@link SteleFrame}), that a Crying Soul kindles. This
  * class kindles it and puts it out; which stele is the world's lit one and where the crack leads is {@link SteleTravel}
  * (PLAN 15.4), which hooks {@link #KINDLED}, {@link #PUT_OUT} and {@link #onEnter}. The hub's own stele: {@link HubStele}.
  */
@@ -89,7 +90,7 @@ public final class CleftStele {
 		if (state.isOf(SteleBlocks.CLEFT_STONE)) {
 			return SteleFrame.Cell.STONE;
 		}
-		if (state.isOf(SteleBlocks.STELE_CRACK) || state.isAir() || state.isReplaceable() && state.getFluidState().isEmpty()) {
+		if (isPassage(state) || state.isAir() || state.isReplaceable() && state.getFluidState().isEmpty()) {
 			return SteleFrame.Cell.OPEN;
 		}
 		return SteleFrame.Cell.OTHER;
@@ -103,27 +104,45 @@ public final class CleftStele {
 		return SteleFrame.find(at -> cell(world.getBlockState(at)), pos).filter(frame -> !isLit(world, frame));
 	}
 
-	/** Whether the crack of {@code frame} is filled. */
+	/** Whether the passage of {@code frame} (its crack or rift) is filled. */
 	public static boolean isLit(BlockView world, SteleFrame frame) {
-		return frame.crack().stream().allMatch(pos -> world.getBlockState(pos).isOf(SteleBlocks.STELE_CRACK));
+		Block passage = passage(frame).getBlock();
+		return frame.crack().stream().allMatch(pos -> world.getBlockState(pos).isOf(passage));
 	}
 
-	/** Turns the stones kindled and fills the crack. The frame must be valid ({@link #coldFrame}). */
+	/** The block a lit {@code frame}'s passage is made of: a slab's crack along its axis, a circle's rift. */
+	public static BlockState passage(SteleFrame frame) {
+		return frame.shape() == SteleFrame.Shape.CIRCLE ? SteleBlocks.STELE_RIFT.getDefaultState()
+				: SteleBlocks.STELE_CRACK.getDefaultState().with(SteleCrackBlock.AXIS, frame.axis());
+	}
+
+	/** Whether {@code state} is a lit passage: a crack or a rift. */
+	public static boolean isPassage(BlockState state) {
+		return state.isOf(SteleBlocks.STELE_CRACK) || state.isOf(SteleBlocks.STELE_RIFT);
+	}
+
+	/** Turns the stones kindled and fills the passage. The frame must be valid ({@link #coldFrame}). */
 	public static void kindle(ServerWorld world, SteleFrame frame, @Nullable ServerPlayerEntity player) {
 		for (BlockPos stone : frame.stones()) {
 			world.setBlockState(stone, world.getBlockState(stone).with(CleftStoneBlock.KINDLED, true));
 		}
-		BlockState crack = SteleBlocks.STELE_CRACK.getDefaultState().with(SteleCrackBlock.AXIS, frame.axis());
+		BlockState passage = passage(frame);
 		for (BlockPos pos : frame.crack()) {
-			world.setBlockState(pos, crack);
+			world.setBlockState(pos, passage);
 		}
-		Vec3d middle = Vec3d.ofCenter(frame.at(SteleFrame.CRACK, SteleFrame.HEIGHT / 2)).subtract(0, 0.5, 0);
+		Vec3d middle = frame.middle().subtract(0, 0.5, 0);
 		world.playSound(null, middle.x, middle.y, middle.z, SteleSounds.KINDLE, SoundCategory.BLOCKS, 1.5f, 0.8f);
-		boolean alongX = frame.axis() == Direction.Axis.X;
-		world.spawnParticles(ParticleTypes.FLAME, middle.x, middle.y, middle.z, 40, alongX ? 0.15 : 0.05, 1.4,
-				alongX ? 0.05 : 0.15, 0.02);
-		world.spawnParticles(ParticleTypes.CLOUD, middle.x, middle.y, middle.z, 20, alongX ? 0.2 : 0.3, 1.4,
-				alongX ? 0.3 : 0.2, 0.01);
+		double spreadX = frame.shape() == SteleFrame.Shape.CIRCLE ? 0.25 : frame.axis() == Direction.Axis.X ? 0.15 : 0.05;
+		double spreadZ = frame.shape() == SteleFrame.Shape.CIRCLE ? 0.25 : frame.axis() == Direction.Axis.X ? 0.05 : 0.15;
+		double height = frame.crack().size() / 4.0;
+		world.spawnParticles(ParticleTypes.FLAME, middle.x, middle.y, middle.z, 40, spreadX, height, spreadZ, 0.02);
+		world.spawnParticles(ParticleTypes.CLOUD, middle.x, middle.y, middle.z, 20, spreadX + 0.1, height, spreadZ + 0.1, 0.01);
+		if (frame.shape() == SteleFrame.Shape.CIRCLE) {
+			// Each pillar flares as the circle catches.
+			for (BlockPos stone : frame.stones()) {
+				world.spawnParticles(ParticleTypes.SMALL_FLAME, stone.getX() + 0.5, stone.getY() + 0.5, stone.getZ() + 0.5, 3, 0.3, 0.3, 0.3, 0.01);
+			}
+		}
 		KINDLED.invoker().onKindled(world, frame, player);
 	}
 
@@ -135,7 +154,7 @@ public final class CleftStele {
 	public static void extinguish(ServerWorld world, SteleFrame frame, Collection<BlockPos> spare) {
 		boolean changed = false;
 		for (BlockPos pos : frame.crack()) {
-			if (!spare.contains(pos) && world.getBlockState(pos).isOf(SteleBlocks.STELE_CRACK)) {
+			if (!spare.contains(pos) && isPassage(world.getBlockState(pos))) {
 				world.setBlockState(pos, Blocks.AIR.getDefaultState(), Block.NOTIFY_ALL);
 				changed = true;
 			}
@@ -148,13 +167,14 @@ public final class CleftStele {
 			}
 		}
 		if (changed) {
-			Vec3d middle = Vec3d.ofCenter(frame.at(SteleFrame.CRACK, SteleFrame.HEIGHT / 2));
+			Vec3d middle = frame.middle();
 			world.playSound(null, middle.x, middle.y, middle.z, SteleSounds.PUT_OUT, SoundCategory.BLOCKS, 1.0f, 0.9f);
 		}
 	}
 
 	/**
-	 * A kindled stone at {@code lostStone} is gone: the kindled stones and crack blocks joined to it go cold and empty.
+	 * A kindled stone at {@code lostStone} is gone: the kindled stones and passage blocks joined to it go cold and
+	 * empty, and so does a lit circle the stone stood in (its pillars stand apart, joined only through the circle).
 	 */
 	static void putOut(ServerWorld world, BlockPos lostStone) {
 		List<BlockPos> found = new ArrayList<>();
@@ -162,6 +182,16 @@ public final class CleftStele {
 		ArrayDeque<BlockPos> open = new ArrayDeque<>();
 		seen.add(lostStone);
 		open.add(lostStone);
+		for (SteleFrame circle : SteleFrame.circlesWith(lostStone)) {
+			if (world.getBlockState(circle.crack().get(0)).isOf(SteleBlocks.STELE_RIFT)) {
+				for (BlockPos pos : concat(circle.stones(), circle.crack())) {
+					if (seen.add(pos) && isLitPart(world.getBlockState(pos))) {
+						found.add(pos);
+						open.add(pos);
+					}
+				}
+			}
+		}
 		while (!open.isEmpty() && found.size() < PUT_OUT_LIMIT) {
 			BlockPos pos = open.poll();
 			for (Direction side : Direction.values()) {
@@ -175,9 +205,9 @@ public final class CleftStele {
 		if (found.isEmpty()) {
 			return;
 		}
-		// The crack first: nothing should stand in a crack whose stones are already cold.
+		// The passage first: nothing should stand in a crack whose stones are already cold.
 		for (BlockPos pos : found) {
-			if (world.getBlockState(pos).isOf(SteleBlocks.STELE_CRACK)) {
+			if (isPassage(world.getBlockState(pos))) {
 				world.setBlockState(pos, Blocks.AIR.getDefaultState(), Block.NOTIFY_ALL);
 			}
 		}
@@ -191,8 +221,14 @@ public final class CleftStele {
 		PUT_OUT.invoker().onPutOut(world, lostStone);
 	}
 
+	private static List<BlockPos> concat(List<BlockPos> a, List<BlockPos> b) {
+		List<BlockPos> all = new ArrayList<>(a);
+		all.addAll(b);
+		return all;
+	}
+
 	private static boolean isLitPart(BlockState state) {
-		return state.isOf(SteleBlocks.STELE_CRACK)
+		return isPassage(state)
 				|| state.isOf(SteleBlocks.CLEFT_STONE) && state.get(CleftStoneBlock.KINDLED);
 	}
 

@@ -170,7 +170,7 @@ public final class SanctumTests implements FabricGameTest {
 		context.assertTrue(flagstone == 0, "Sanctum Flagstone (it attunes) in a new dungeon; " + counts);
 		context.assertTrue(shrines == 1, "expected one Ember Shrine, at the boss door; " + counts);
 		context.assertTrue(fog == 9, "expected a 3x3 fog wall in the arena doorway; " + counts);
-		context.assertTrue(cleft == 24 && coldStele, "expected a whole cold Cleft Stele; " + counts);
+		context.assertTrue(cleft == 13 && coldStele, "expected a whole cold Cleft Stele circle; " + counts);
 		context.assertTrue(markers == 0, "a marker entity in the dungeon; " + counts);
 		context.assertTrue(hollows >= 1, "no Hollow guard (the gate hall always has one); " + counts);
 		context.assertTrue(chests[0] >= 1, "no loot chests; " + counts);

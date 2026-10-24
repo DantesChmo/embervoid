@@ -127,7 +127,7 @@ public final class WardensScourgeTests implements FabricGameTest {
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE)
 	public void lashStillPulls(TestContext context) {
-		context.assertTrue(GearAbilities.LASH.staminaCost() == 20 && GearAbilities.LASH.cooldownTicks() == 100,
+		context.assertTrue(GearAbilities.LASH.staminaCost() == 30 && GearAbilities.LASH.cooldownTicks() == 8,
 				"Lash costs " + GearAbilities.LASH.staminaCost() + " stamina, cools down " + GearAbilities.LASH.cooldownTicks());
 		context.assertTrue(GearConfig.get().weapons().lashPull() == 4, "Lash pulls " + GearConfig.get().weapons().lashPull());
 		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);

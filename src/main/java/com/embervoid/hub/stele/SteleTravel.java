@@ -92,7 +92,7 @@ public final class SteleTravel {
 		if (lit == null || !lit.contains(world.getRegistryKey(), pos) || Hub.world(player.getServer()) == null) {
 			return false;
 		}
-		Vec3d from = middle(lit.frame());
+		Vec3d from = lit.frame().middle();
 		SteleState.get(player.getServer()).used(player.getUuid());
 		HubTravel.noteDeparture(player);
 		Hub.sendToLanding(player);
@@ -117,7 +117,7 @@ public final class SteleTravel {
 		} else {
 			HubTravel.sendOut(player);
 		}
-		travelled(player, hub, middle(HubStele.FRAME), SteleSounds.LEAVE);
+		travelled(player, hub, HubStele.FRAME.middle(), SteleSounds.LEAVE);
 	}
 
 	/**
@@ -196,17 +196,15 @@ public final class SteleTravel {
 	public record Spot(Vec3d pos, float yaw) {}
 
 	/**
-	 * Where a player stands coming out of {@code frame}: on the ground just in front of its crack, on whichever side
-	 * has room, facing away; one block further out if neither has; failing that, in the crack itself (the grace keeps
-	 * it from taking them straight back).
+	 * Where a player stands coming out of {@code frame}: on the ground just beside its passage (in front of a slab's
+	 * crack, beside a circle's rift), on whichever side has room, facing away; one block further out if none has;
+	 * failing that, in the passage itself (the grace keeps it from taking them straight back).
 	 */
 	public static Spot front(ServerWorld world, SteleFrame frame) {
-		Direction.Axis across = frame.axis() == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X;
-		BlockPos crack = frame.at(SteleFrame.CRACK, 0);
+		BlockPos crack = frame.crack().get(0);
 		for (int distance = 1; distance <= 2; distance++) {
 			for (int up : new int[]{0, 1, -1}) {
-				for (Direction.AxisDirection sign : Direction.AxisDirection.values()) {
-					Direction out = Direction.from(across, sign);
+				for (Direction out : frame.ways()) {
 					BlockPos pos = crack.offset(out, distance).up(up);
 					if (canStand(world, pos)) {
 						return new Spot(Vec3d.ofBottomCenter(pos), out.asRotation());
@@ -214,7 +212,7 @@ public final class SteleTravel {
 				}
 			}
 		}
-		return new Spot(Vec3d.ofBottomCenter(crack), Direction.from(across, Direction.AxisDirection.POSITIVE).asRotation());
+		return new Spot(Vec3d.ofBottomCenter(crack), frame.ways().get(0).asRotation());
 	}
 
 	private static boolean canStand(ServerWorld world, BlockPos pos) {
@@ -223,10 +221,6 @@ public final class SteleTravel {
 				&& world.getBlockState(pos).getCollisionShape(world, pos).isEmpty()
 				&& world.getBlockState(pos.up()).getCollisionShape(world, pos.up()).isEmpty()
 				&& world.getFluidState(pos).isEmpty() && world.getFluidState(pos.up()).isEmpty();
-	}
-
-	private static Vec3d middle(SteleFrame frame) {
-		return Vec3d.ofCenter(frame.at(SteleFrame.CRACK, SteleFrame.HEIGHT / 2));
 	}
 
 	private SteleTravel() {}

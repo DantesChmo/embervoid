@@ -31,11 +31,12 @@ public final class GrievingTreeTests implements FabricGameTest {
 	}
 
 	/**
-	 * Fog comes down when it wakes; its bark turns every hit; a shot lantern stuns it (trunk ×1.5) and lifts
-	 * the fog, which comes back when the lift ends.
+	 * Fog comes down when it wakes; its bark turns every hit; a shot lantern only makes it flinch, the last one of the
+	 * set stuns it (trunk ×{@value GrievingTreeEntity#STUNNED_DAMAGE}) and lifts the fog for 10 s; when the fog comes
+	 * back the stun is over, and the whole set hangs again at once.
 	 */
-	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "tree_lantern_shot", tickLimit = PlacedFight.LOAD_LIMIT + 500)
-	public void shotLanternStunsAndLiftsTheFog(TestContext context) {
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "tree_lantern_shot", tickLimit = PlacedFight.LOAD_LIMIT + 600)
+	public void shotLanternsStunAndLiftTheFog(TestContext context) {
 		start(context, 0, new int[][]{{0, 0, 12}}, f -> {
 			GrievingTreeEntity tree = f.boss;
 			ServerPlayerEntity player = f.player(0);
@@ -47,11 +48,15 @@ public final class GrievingTreeTests implements FabricGameTest {
 			context.assertTrue(Math.abs(before - tree.getHealth() - 10 * GrievingTreeEntity.TRUNK_DAMAGE) < 0.01,
 					"trunk lost " + (before - tree.getHealth()));
 
-			TreeLanternEntity lantern = tree.lanterns().get(0);
 			ArrowEntity arrow = new ArrowEntity(f.world(), player);
-			context.assertTrue(lantern.damage(f.world().getDamageSources().arrow(arrow, player), 2), "the arrow did not break the lantern");
-			context.assertTrue(tree.isStunned(), "not stunned");
-			context.assertTrue(tree.lanterns().size() == GrievingTreeEntity.LANTERNS - 1, "lanterns " + tree.lanterns().size());
+			for (int i = 0; i < GrievingTreeEntity.LANTERNS; i++) {
+				TreeLanternEntity lantern = tree.lanterns().get(0);
+				context.assertTrue(lantern.damage(f.world().getDamageSources().arrow(arrow, player), 2), "the arrow did not break the lantern");
+				if (i < GrievingTreeEntity.LANTERNS - 1) {
+					context.assertTrue(!tree.isStunned(), "stunned with " + tree.lanterns().size() + " lanterns left");
+				}
+			}
+			context.assertTrue(tree.isStunned(), "not stunned with the set broken");
 			context.assertTrue(fog.get(fog.size() - 1)[0] < 0, "the fog did not lift");
 			f.arena.after(25, () -> {
 				float stunned = tree.getHealth();
@@ -59,9 +64,17 @@ public final class GrievingTreeTests implements FabricGameTest {
 				context.assertTrue(Math.abs(stunned - tree.getHealth() - 10 * GrievingTreeEntity.STUNNED_DAMAGE) < 0.01,
 						"stunned trunk lost " + (stunned - tree.getHealth()));
 			});
+			f.arena.after(GrievingTreeEntity.STUN_TICKS - 20, () -> {
+				context.assertTrue(tree.isStunned(), "the stun ended before " + (GrievingTreeEntity.STUN_TICKS - 20) + " ticks");
+				context.assertTrue(tree.lanterns().isEmpty(), "lanterns grew back during the stun");
+			});
 			f.arena.await(() -> fog.get(fog.size() - 1)[0] > 0, GrievingTreeEntity.FOG_LIFT_TICKS + 20, "the fog to come back", () -> {
 				context.assertTrue(!tree.isStunned(), "still stunned after the fog came back");
-				f.arena.finish();
+				f.arena.await(() -> !tree.lanterns().isEmpty(), GrievingTreeEntity.REHANG_DELAY + 20, "the lanterns to grow back", () -> {
+					context.assertTrue(tree.lanterns().size() == GrievingTreeEntity.LANTERNS,
+							"grew back " + tree.lanterns().size() + " lanterns, not the whole set");
+					f.arena.finish();
+				});
 			});
 		});
 	}
@@ -83,8 +96,9 @@ public final class GrievingTreeTests implements FabricGameTest {
 				TreeLanternEntity low = tree.lanterns().stream().filter(TreeLanternEntity::isLowered).findFirst().orElse(null);
 				context.assertTrue(low != null, "no lantern lowered after the sweep");
 				context.assertTrue(low.getY() - tree.getY() < 2, "the lowered lantern hangs " + (low.getY() - tree.getY()) + " up");
+				int hanging = tree.lanterns().size();
 				context.assertTrue(low.damage(player.getDamageSources().playerAttack(player), 6), "the lowered lantern did not break");
-				context.assertTrue(tree.isStunned(), "not stunned");
+				context.assertTrue(tree.lanterns().size() == hanging - 1, "lanterns " + tree.lanterns().size() + " after the break");
 				f.arena.finish();
 			});
 		});

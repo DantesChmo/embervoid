@@ -40,6 +40,7 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
 
@@ -390,7 +391,7 @@ final class SanctumTemplates {
 	 * The boss wing, 21x11x30 (PLAN 16.1, DESIGN §2): a 9x7x10 shrine room at the gate hall's door with an Ember
 	 * Shrine (rest and flasks; overworld shrines set no respawn point), a fog wall in its far doorway, then the boss
 	 * arena where the core was: the core's 21x21 hall, ruined and dim, with unlit braziers along the sides and a cold
-	 * Cleft Stele on a dais at the far end ({@link SanctumArena} keeps it from being mined). The Fallen Sister is
+	 * Cleft Stele circle on a dais at the far end ({@link SanctumArena} keeps it from being mined). The Fallen Sister is
 	 * summoned at the arena's centre ({@link SanctumBossArena}, PLAN 16.3). Low candles and one high lantern keep every floor block at block
 	 * light 1 or more, so nothing spawns in the arena.
 	 */
@@ -459,16 +460,18 @@ final class SanctumTemplates {
 			t.set(19, 8, z, SetPieces.CENSER.getDefaultState().with(SetPieceBlock.FACING, Direction.WEST));
 		}
 
-		// The dais with the cold Cleft Stele: four columns of Cleft Stone, the crack open (SteleFrame, along X).
-		t.blendedFloor(6, 26, 14, 28, 1, random, POLISHED, 4, TILES, 3, RUNE, 1);
-		t.fill(6, 1, 25, 14, 1, 25, POLISHED_ASH_STONE_STAIRS.getDefaultState().with(StairsBlock.FACING, Direction.SOUTH));
+		// The dais with the cold Cleft Stele: a ritual circle (SteleFrame.circle), the centre stone and its four
+		// pillars standing on the dais, chiseled stone under the pillars and a rune under the centre.
+		t.blendedFloor(6, 23, 14, 28, 1, random, POLISHED, 4, TILES, 3, RUNE, 1);
+		t.fill(6, 1, 22, 14, 1, 22, POLISHED_ASH_STONE_STAIRS.getDefaultState().with(StairsBlock.FACING, Direction.SOUTH));
 		BlockState cleft = SteleBlocks.CLEFT_STONE.getDefaultState();
-		int steleZ = 27;
-		for (int x : new int[]{8, 9, 11, 12}) {
-			t.fill(x, 2, steleZ, x, 1 + SteleFrame.HEIGHT, steleZ, cleft);
+		SteleFrame circle = SteleFrame.circle(new BlockPos(10, 2, 25));
+		for (BlockPos stone : circle.stones()) {
+			t.set(stone.getX(), stone.getY(), stone.getZ(), cleft);
+			if (stone.getY() == 2) {
+				t.set(stone.getX(), 1, stone.getZ(), stone.equals(circle.origin()) ? RUNE : CHISELED);
+			}
 		}
-		t.fill(10, 2, steleZ, 10, 1 + SteleFrame.HEIGHT, steleZ, AIR);
-		t.fill(7, 1, steleZ, 13, 1, steleZ, CHISELED);
 
 		// Light: tallow candles low down and one ember lantern high over the centre.
 		BlockState candles = Props.TALLOW_CANDLES.getDefaultState().with(CandleBlock.CANDLES, 3).with(CandleBlock.LIT, true);
