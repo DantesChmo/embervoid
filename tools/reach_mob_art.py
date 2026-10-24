@@ -1397,105 +1397,204 @@ def bark_hollow():
 
 
 # --- Necropolis: Restless Bones --------------------------------------------------------------------------------------
-# A kingdom's dead, burned without rites: yellowed bones, an open ribcage, a scrap of burial shroud on one shoulder,
-# a rusted sword. Collapses into a bone pile at 0 HP and re-forms; swing windup 10 ticks.
+# A kingdom's dead, burned without rites: a chamfered skull with sutures and a jaw that chatters, cold lights in the
+# sockets, a spine of vertebrae, a ribcage of real ribs around a dark hollow, shoulder blades and a pelvis, arm and
+# leg bones in two segments with finger bones, a scrap of burial shroud hanging off one shoulder, a rope belt with a
+# dangling grave key, a rusted notched sword. Collapses into a bone pile at 0 HP and re-forms; swing windup 10 ticks.
 
 def restless_bones():
-    bonem = Material(BONE, base=3.0, noise=0.6, speck=0.04, grad=0.8, top=0.6)
-    dark = Material(BONE, base=1.6, noise=0.5)
+    bonem = Material(mk.BONE, base=3.4, noise=0.5, speck=0.04, grad=0.8, top=0.6, bevel=0.5)
+    dark = Material(mk.BONE, base=1.8, noise=0.5, bevel=0.3)
 
     def skull_front(face, rng):
-        for ex in (1, 5):
-            face.rect(ex, 2, 2, 2, VOID)
-        face.lit(2, 3, COLD, 0.9)
-        face.lit(5, 3, COLD, 0.9)
-        face.set(3, 4, BONE[1])
-        face.set(4, 4, BONE[1])
-        face.hline(1, 5, 6, BONE[2])
-        crack(face, rng, BONE[1], None, 3, 6, 0)
+        cx = face.cx
+        for ex in (cx - 3, cx + 1):
+            face.rect(ex, 1, 2, 2, VOID)
+            face.lit(ex + (1 if ex < cx else 0), 2, COLD, 0.95)
+        face.set(cx - 1, 3, mk.BONE[1])
+        face.set(cx, 3, mk.BONE[1])
+        face.hline(cx - 3, 4, 6, mk.BONE[2])
+        mk.sutures(face, rng, mk.BONE[1], 1)
+        face.set(cx + 2, 0, mk.BONE[1])
 
-    def jaw_front(face, rng):
+    def skull_side(face, rng):
+        mk.sutures(face, rng, mk.BONE[1], 2)
+        if rng.random() < 0.5:
+            crack(face, rng, mk.BONE[1], None, 3)
+        mk.edge_shadow(face, rng, -10)
+
+    def teeth_row(face, rng):
         for x in range(face.w):
-            face.set(x, 0, BONE[5] if x % 2 else BONE[1])
-
-    def cage(face, rng):
-        # Ribs: every other row open (cutout), the sternum and the spine left standing.
-        if face.name in ("front", "back"):
-            for y in range(1, face.h, 2):
-                for x in range(1, face.w - 1):
-                    if x != face.cx and x != face.cx - 1:
-                        face.clear(x, y)
-        elif face.side():
-            for y in range(1, face.h, 2):
-                for x in range(face.w):
-                    face.clear(x, y)
-        else:
-            clear_all(face)
+            face.set(x, 0, mk.BONE[6] if x % 2 else mk.BONE[1])
 
     def limb(face, rng):
         if face.side():
+            face.hline(0, face.h // 2, face.w, mk.BONE[2])
             face.tint(0, face.h // 2, -30)
             face.tint(face.w - 1, face.h // 2, -30)
-            face.hline(0, face.h // 2, face.w, BONE[2])
+            if face.h > 4:
+                face.hline(0, 0, face.w, mk.BONE[5])
+                face.hline(0, face.h - 1, face.w, mk.BONE[5])
 
-    bones = [
-        Bone("root", [0, 0, 0]),
-        Bone("body", [0, 12, 0], "root", None, [
-            Box([-1, 12, -1], [2, 12, 2], dark),
-            Box([-3, 12, -1.5], [6, 2, 3], bonem),
-            Box([-4, 16, -2], [8, 7, 4], bonem, {"all": cage}),
-            Box([-4.5, 23, -1], [9, 1, 2], bonem),
-        ]),
-        Bone("head", [0, 24, 0], "body", None, [
-            Box([-4, 25, -4], [8, 7, 8], bonem, {"front": skull_front,
-                                                 "sides": lambda f, r: crack(f, r, BONE[1], None, 3)}),
-            Box([-3, 23.5, -4.2], [6, 2, 5], bonem.but(base=2.6), {"front": jaw_front}),
-        ]),
+    bones = [Bone("root", [0, 0, 0])]
+    # The spine: vertebrae up the middle, the pelvis at its foot, the ribs around a dark hollow, the shoulder blades.
+    spine = [Box([-1, 12 + i * 2.4, -0.8], [2, 2, 1.8], bonem.but(base=3.0), {"sides": lambda f, r: f.hline(0, f.h - 1, f.w, mk.BONE[1])},
+                 inflate=-0.05) for i in range(5)]
+    ribs = []
+    for i, y in enumerate((16, 18.2, 20.4, 22.4)):
+        w = 7 - abs(i - 1.5) * 0.8
+        ribs.append(Box([-w / 2, y, -2.2], [w, 1, 0.8], bonem, {"sides": limb}, rotation=[0, 0, -6], pivot=[0, y, -2]))
+        ribs.append(Box([-w / 2, y + 0.4, 1.3], [w, 1, 0.8], bonem.but(base=2.8), rotation=[0, 0, 6], pivot=[0, y, 1.5]))
+        ribs.append(Box([-w / 2 - 0.4, y, -2], [0.8, 1, 4], bonem.but(base=2.6)))
+        ribs.append(Box([w / 2 - 0.4, y, -2], [0.8, 1, 4], bonem.but(base=2.6)))
+    torso = spine + ribs + [
+        Box([-1.5, 16, -2.3], [3, 7, 0.9], bonem.but(base=3.6), {"sides": lambda f, r: stitch(f, 2, mk.BONE[1], 2)}),  # sternum
+        Box([-3.5, 12, -1.5], [7, 2.2, 3], bonem.but(base=2.6), {"all": lambda f, r: mk.edge_shadow(f, r, -10)}),  # pelvis
+        Box([-4.5, 23, -1.2], [9, 1.2, 2.4], bonem),  # collar bones
+        Box([-3.5, 19.5, 1.8], [2.5, 4, 0.8], bonem.but(base=2.8), rotation=[0, 0, -12], pivot=[-2, 23, 2]),  # shoulder blades
+        Box([1, 19.5, 1.8], [2.5, 4, 0.8], bonem.but(base=2.8), rotation=[0, 0, 12], pivot=[2, 23, 2]),
+        Box([-3.6, 14, -1.6], [7.2, 1, 3.2], Material(mk.ROPE, base=2.4, noise=0.5, grain="h"), inflate=0.3),  # the rope belt
     ]
-    arm = Box([-6.5, 12, -1], [2, 12, 2], bonem, {"all": limb})
-    shroud = Box([-6.5, 16, -2.5], [5, 8, 5], Material(SHROUD, base=2.6, noise=0.6, grain="v"),
-                 {"sides": lambda f, r: (tatter(f, r, 3, 0.6), holes(f, r, 1)), "bottom": clear_all},
-                 inflate=0.2)
-    bones.append(Bone("right_arm", [-5, 22, 0], "body", None, [arm, shroud]))
-    bones.append(Bone("left_arm", [5, 22, 0], "body", None, [mirror_box(arm)]))
-    leg = Box([-2.5, 0, -1], [2, 12, 2], bonem, {"all": limb})
-    bones.append(Bone("right_leg", [-1, 12, 0], "root", None, [leg]))
-    bones.append(Bone("left_leg", [1, 12, 0], "root", None, [mirror_box(leg)]))
-    rust = Material(RUST, base=2.2, noise=0.8, speck=0.2)
+    bones.append(Bone("body", [0, 12, 0], "root", None, torso))
+    skull = mk.chamfer_decals(chamfered([-3.5, 25, -3.5], [7, 6.5, 7], bonem, c=0.8),
+                              {"front": skull_front, "left": skull_side, "right": skull_side, "back": skull_side,
+                               "top": lambda f, r: mk.sutures(f, r, mk.BONE[1], 2)})
+    bones.append(Bone("head", [0, 24, 0], "body", None, skull + [
+        Box([-2.5, 24.2, -3.8], [5, 1.4, 4.5], bonem.but(base=3.0), {"front": teeth_row}),  # upper teeth
+        Box([-1.2, 26, -4.1], [2.4, 1.6, 1], bonem.but(base=2.6))]))  # the nose ridge
+    bones.append(Bone("jaw", [0, 24.6, -0.5], "head", [6, 0, 0], [
+        Box([-2.5, 23, -3.6], [5, 1.6, 4], bonem.but(base=2.6), {"front": teeth_row, "sides": lambda f, r: f.hline(0, 0, f.w, mk.BONE[1])})]))
+    # The grave key on its cord off the belt, swinging.
+    key = Material(mk.GRAVE_IRON, base=3.5, noise=0.4, bevel=0.5)
+    bones += chain_bones("key", "body", [-3.2, 14, -1.6], 2, 2, Material(mk.ROPE, base=2.4, noise=0.4), thickness=0.5,
+                         box=lambda i, o, s: [Box(o, s, Material(mk.ROPE, base=2.4, noise=0.4))] if i == 0 else [
+                             Box([o[0], o[1] + 0.6, o[2]], [0.5, 1.4, 0.5], Material(mk.ROPE, base=2.4, noise=0.4)),
+                             Box([o[0] - 0.5, o[1] - 0.6, o[2] - 0.2], [1.5, 1.4, 0.8], key),
+                             Box([o[0] + 0.2, o[1] - 2.2, o[2] - 0.2], [0.6, 1.8, 0.8], key),
+                             Box([o[0] + 0.8, o[1] - 2.2, o[2] - 0.2], [0.8, 0.6, 0.8], key)])
+    upper = Box([-6.5, 17, -1], [2, 6, 2], bonem, {"all": limb})
+    bones.append(Bone("right_arm", [-5.5, 22.5, 0], "body", None, [upper, Box([-6.8, 22, -1.3], [2.6, 1.8, 2.6], bonem.but(base=2.8), inflate=0.1)]))
+    bones.append(Bone("left_arm", [5.5, 22.5, 0], "body", None, [mirror_box(upper), Box([4.2, 22, -1.3], [2.6, 1.8, 2.6], bonem.but(base=2.8), inflate=0.1)]))
+    fore = [Box([-6.4, 12, -0.9], [1.8, 5.5, 1.8], bonem.but(base=3.0), {"all": limb}),
+            Box([-6.7, 16.5, -1.2], [2.4, 1.4, 2.4], bonem.but(base=2.6), inflate=0.1),
+            Box([-6.6, 10.2, -1.1], [2.2, 2, 2], bonem.but(base=2.4), inflate=0.1)]
+    fore += fingers(-6.6, 10.2, -1.0, 3, (0.6, 2, 0.6), bonem.but(base=2.2), spread=0.2, curl=30, thumb=(2.2, 0.6))
+    bones.append(Bone("right_fore", [-5.5, 17, 0], "right_arm", None, fore))
+    bones.append(Bone("left_fore", [5.5, 17, 0], "left_arm", None, [mirror_box(b) for b in fore]))
+    shroud = Material(mk.SHROUD, base=2.8, noise=0.5, grain="v", bevel=0.3)
+    mk.bone(bones, "right_arm").add(Box([-7.5, 18, -2.6], [5, 5, 5.2], shroud, {"sides": lambda f, r: (holes(f, r, 1), mk.fold_lines(f, r, 2, -14)),
+                                                                                "bottom": clear_all, "top": lambda f, r: holes(f, r, 1)}, inflate=0.2))
+    bones += chain_bones("shroud", "right_arm", [-5.5, 18, 0], 2, 3, shroud, thickness=0.3,
+                         box=lambda i, o, s: [Box([-7.8, o[1], -2.8], [5, s[1], 0.4], shroud.but(base=2.4),
+                                                  {"sides": lambda f, r: (ragged_edge(f, r, "bottom", 2, 0.6), holes(f, r, 1))}),
+                                              Box([-8.2, o[1], -2.6], [0.4, s[1], 5], shroud.but(base=2.4),
+                                                  {"sides": lambda f, r: ragged_edge(f, r, "bottom", 2, 0.6)})])
+    thigh = [Box([-2.6, 6, -1], [2.2, 6, 2.2], bonem, {"all": limb}), Box([-2.9, 11, -1.3], [2.8, 1.6, 2.8], bonem.but(base=2.8), inflate=0.1)]
+    bones.append(Bone("right_leg", [-1.5, 12, 0], "root", None, thigh))
+    bones.append(Bone("left_leg", [1.5, 12, 0], "root", None, [mirror_box(b) for b in thigh]))
+    shin = [Box([-2.5, 1, -0.9], [2, 5.5, 2], bonem.but(base=3.0), {"all": limb}),
+            Box([-2.8, 5.6, -1.2], [2.6, 1.4, 2.6], bonem.but(base=2.6), inflate=0.1),
+            Box([-2.8, 0, -2.4], [2.6, 1, 3.6], bonem.but(base=2.4), {"front": lambda f, r: stitch(f, 0, mk.BONE[1], 1)})]
+    bones.append(Bone("right_shin", [-1.5, 6, 0], "right_leg", None, shin))
+    bones.append(Bone("left_shin", [1.5, 6, 0], "left_leg", None, [mirror_box(b) for b in shin]))
+    rust = Material(mk.RUST, base=2.6, noise=0.7, speck=0.15, bevel=0.4)
 
     def blade(face, rng):
         for x in range(face.w):
             if rng.random() < 0.35:
-                face.set(x, 0, IRON[3])
+                face.set(x, 0, mk.IRON[4])
         if face.side() and face.w > 3:
             face.clear(face.w - 1 - rng.randrange(3), 0)  # a notch
+            face.clear(rng.randrange(face.w // 2), face.h - 1)
 
-    bones.append(Bone("sword", [-5, 12, 0], "right_arm", None, [
-        Box([-5.5, 11, -12], [1, 1, 11], rust, {"all": blade}),
-        Box([-6.5, 11, -2], [3, 1, 1], Material(IRON, base=1.6, noise=0.5)),
-        Box([-5.5, 11, -1], [1, 1, 2], Material(LEATHER, base=1.5, noise=0.4)),
+    bones.append(Bone("sword", [-5.5, 11, 0], "right_fore", [0, 0, 0], [
+        Box([-6, 10.5, -13], [1, 1.2, 11], rust, {"all": blade}),
+        Box([-6, 10.9, -14.5], [1, 0.6, 1.8], rust.but(base=3.2)),
+        Box([-7.3, 10.5, -2.2], [3.6, 1.2, 1], Material(mk.GRAVE_IRON, base=3.0, noise=0.5, bevel=0.5)),
+        Box([-6, 10.6, -1.2], [1, 1, 2.6], Material(mk.LEATHER, base=1.8, noise=0.4)),
+        Box([-6.2, 10.4, 1.4], [1.4, 1.4, 1.2], Material(mk.GRAVE_IRON, base=2.4, noise=0.4)),
     ]))
+    shroud_names = chain_names("shroud", 2)
+    key_names = chain_names("key", 2)
+    chains = shroud_names + key_names
     pile = {
-        "root": pos(0, [0, -11, 0]),
-        "body": rot(0, [85, 0, 10]),
-        "head": rot(0, [-60, 30, 0]),
-        "right_arm": rot(0, [-20, 0, 80]), "left_arm": rot(0, [10, 0, -85]),
-        "right_leg": rot(0, [80, 30, 0]), "left_leg": rot(0, [80, -40, 0]),
+        "root": {"position": [0, -11, 0]},
+        "body": {"rotation": [85, 0, 10]},
+        "head": {"rotation": [-60, 30, 0]},
+        "jaw": {"rotation": [30, 0, 0]},
+        "right_arm": {"rotation": [-20, 0, 80]}, "left_arm": {"rotation": [10, 0, -85]},
+        "right_fore": {"rotation": [-60, 0, 0]}, "left_fore": {"rotation": [-40, 0, 0]},
+        "right_leg": {"rotation": [80, 30, 0]}, "left_leg": {"rotation": [80, -40, 0]},
+        "right_shin": {"rotation": [-70, 0, 0]}, "left_shin": {"rotation": [-50, 0, 0]},
+        "sword": {"rotation": [0, 0, 60]},
+        "shroud_1": {"rotation": [0, 0, -40]}, "shroud_2": {"rotation": [0, 0, -30]},
+        "key_1": {"rotation": [0, 0, 70]}, "key_2": {"rotation": [0, 0, 20]},
     }
 
-    def at(time, frames):
-        return {b: {k: {str(float(time)): list(v.values())[0]} for k, v in ch.items()} for b, ch in frames.items()}
+    def at(time, frames, easing=None):
+        return {b: {ch: {str(float(time)): ({"vector": v, "easing": easing} if easing else v)} for ch, v in chs.items()}
+                for b, chs in frames.items()}
 
-    standing = {b: {k: {"0.0": ZERO} for k in ch} for b, ch in pile.items()}
+    standing = {b: {ch: ZERO for ch in chs} for b, chs in pile.items()}
+
+    def shaken(frames, dx, dz):
+        return {b: {ch: [v[0] + dx, v[1], v[2] + dz] if ch == "rotation" else v for ch, v in chs.items()} for b, chs in frames.items()}
+
     animations = {
-        "misc.idle": idle(3.0, 3, 0, head=rot(0, ZERO, 1.5, [3, 6, 0], 3.0, ZERO)),
-        "move.walk": walk(1.0, 30, 25, 0.4, head=rot(0, [0, 4, 0], 0.5, [0, -4, 0], 1.0, [0, 4, 0])),
-        "attack.swing": overhead(0.5, 0.9),
-        "misc.collapse": anim(0.5, merge(standing, at(0.5, pile)), loop=False),
-        "misc.pile": anim(1.0, merge(pile, at(1.0, pile))),
-        "misc.reform": anim(1.0, merge(pile, at(1.0, standing)), loop=False),
+        # A rattle: small jerks of the skull and the jaw, the ribs' breath, the shroud and the key swinging.
+        "misc.idle": anim(3.0, merge({
+            "head": rot(0, ZERO, 0.9, e("easeOutCubic", [3, 8, 2]), 1.0, [3, 8, 2], 1.9, e("easeOutCubic", [-2, -6, -3]), 3.0, e("easeOutSine", ZERO)),
+            "jaw": rot(0, ZERO, 0.4, e("easeOutCubic", [12, 0, 0]), 0.55, e("easeOutCubic", [2, 0, 0]), 0.7, e("easeOutCubic", [10, 0, 0]),
+                       1.0, e("easeOutSine", ZERO), 2.2, ZERO, 2.35, e("easeOutCubic", [8, 0, 0]), 2.5, e("easeOutSine", ZERO)),
+            "body": {"rotation": keys(0, ZERO, 1.5, e("easeInOutSine", [2, 0, 0]), 3.0, e("easeInOutSine", ZERO)),
+                     "position": keys(0, ZERO, 1.5, e("easeInOutSine", [0, 0.4, 0]), 3.0, e("easeInOutSine", ZERO))},
+            "right_arm": rot(0, ZERO, 1.5, e("easeInOutSine", [-3, 0, 3]), 3.0, e("easeInOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 1.5, e("easeInOutSine", [-3, 0, -3]), 3.0, e("easeInOutSine", ZERO)),
+            "right_fore": rot(0, [-10, 0, 0], 1.5, e("easeInOutSine", [-16, 0, 0]), 3.0, e("easeInOutSine", [-10, 0, 0])),
+            "left_fore": rot(0, [-10, 0, 0], 1.5, e("easeInOutSine", [-5, 0, 0]), 3.0, e("easeInOutSine", [-10, 0, 0])),
+        }, lag_sway(shroud_names, 3.0, 5, 0, phase=0.2), lag_sway(key_names, 3.0, 6, 2, phase=0.6))),
+        # A jerky walk: the knees snap, the skull bobs, the key and the shroud flick behind.
+        "move.walk": mk.weighted_walk(1.0, 30, 22, 0.5, 5, 6, head_level=False, extra=mk.limb_walk(1.0, 10, 16, merge(
+            lag_sway(shroud_names, 1.0, 12, 0, phase=0.1), lag_sway(key_names, 1.0, 16, 0, phase=0.3),
+            {"head": rot(0, [2, 5, 0], 0.5, e("easeOutCubic", [-3, -5, 0]), 1.0, e("easeOutCubic", [2, 5, 0])),
+             "jaw": rot(0, [4, 0, 0], 0.25, e("easeOutCubic", [10, 0, 0]), 0.5, e("easeOutSine", [4, 0, 0]), 0.75, e("easeOutCubic", [10, 0, 0]),
+                        1.0, e("easeOutSine", [4, 0, 0]))}))),
+        # The sword goes up over the head through the 10-tick windup (the skull tipping back), then hacks down.
+        "attack.swing": anim(0.9, merge({
+            "right_arm": rot(0, ZERO, 0.4, e("easeInOutSine", [-150, 0, 20]), 0.5, [-160, 0, 15], 0.58, e("easeOutBack", [-30, 0, -5]),
+                             0.9, e("easeOutSine", ZERO)),
+            "right_fore": rot(0, [-10, 0, 0], 0.4, e("easeInOutSine", [-45, 0, 0]), 0.5, [-50, 0, 0], 0.58, e("easeOutCubic", [-5, 0, 0]),
+                              0.9, e("easeOutSine", [-10, 0, 0])),
+            "left_arm": rot(0, ZERO, 0.4, e("easeInOutSine", [-30, 0, -25]), 0.58, e("easeOutCubic", [20, 0, 10]), 0.9, e("easeOutSine", ZERO)),
+            "body": rot(0, ZERO, 0.4, e("easeInOutSine", [-12, 12, 0]), 0.5, [-14, 15, 0], 0.58, e("easeOutBack", [22, -14, 0]), 0.9, e("easeOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.4, e("easeInOutSine", [-20, -8, 0]), 0.58, e("easeOutCubic", [12, 6, 0]), 0.9, e("easeOutSine", ZERO)),
+            "jaw": rot(0, ZERO, 0.45, e("easeInOutSine", [20, 0, 0]), 0.58, e("easeOutCubic", [30, 0, 0]), 0.9, e("easeOutSine", ZERO)),
+            "root": pos(0, ZERO, 0.4, e("easeInOutSine", [0, 0, 1]), 0.58, e("easeOutCubic", [0, -1, -1.5]), 0.9, e("easeOutSine", ZERO)),
+        }, hold(chains, 0.45, ZERO), whip(shroud_names, 0.55, 30, 0, settle=0.33), whip(key_names, 0.55, 40, 0, settle=0.33)), loop=False),
+        # The collapse: every joint lets go at once, the bones dropping into a heap (the pile pose).
+        "misc.collapse": anim(0.5, merge(at(0, standing), at(0.1, shaken(standing, -6, 4), "easeOutCubic"),
+                                         at(0.4, pile, "easeInQuad"), at(0.5, pile, "easeOutBounce")), loop=False),
+        # The pile: it lies there, a bone shifting now and then.
+        "misc.pile": anim(2.0, merge(at(0, pile), at(0.8, pile), at(0.95, shaken(pile, 2, -2), "easeOutCubic"),
+                                     at(1.1, pile, "easeOutSine"), at(2.0, pile))),
+        # The re-forming: the bones drag together and the skeleton snaps upright with an overshoot.
+        "misc.reform": anim(1.0, merge(at(0, pile), at(0.35, shaken(pile, -8, 0), "easeInOutSine"),
+                                       at(0.8, standing, "easeOutBack"), at(1.0, standing, "easeOutSine")), loop=False),
+        "misc.hurt": mk.hurt_flinch(0.4, lean=-8, twist=10, head=-20, chains=chains, extra={
+            "jaw": rot(0, ZERO, 0.08, e("easeOutCubic", [25, 0, 0]), 0.4, e("easeOutSine", ZERO))}),
+        # The pile kicked: the heap jolts and a bone or two bounces, then it settles back into the pile pose.
+        "misc.stagger": anim(0.8, merge(at(0, pile), at(0.1, shaken(pile, 12, 10), "easeOutCubic"),
+                                        {"root": pos(0, [0, -11, 0], 0.1, e("easeOutCubic", [0, -9.5, 0.5]), 0.3, e("easeInQuad", [0, -11, 0.5]),
+                                                     0.8, e("easeOutSine", [0, -11, 0]))},
+                                        at(0.35, shaken(pile, -4, -3), "easeInOutSine"), at(0.8, pile, "easeOutSine")), loop=False),
+        # Dust: from the pile it sinks and spreads a little flatter and lies still.
+        "misc.death": anim(1.6, merge(at(0, pile), at(0.3, shaken(pile, 4, 4), "easeOutCubic"),
+                                      {"root": pos(0, [0, -11, 0], 0.3, e("easeOutCubic", [0, -11.5, 0]), 1.6, e("easeOutSine", [0, -12, 0])),
+                                       "body": rot(0, [85, 0, 10], 0.3, e("easeOutCubic", [89, 0, 14]), 1.6, e("easeOutSine", [90, 0, 16])),
+                                       "head": rot(0, [-60, 30, 0], 0.3, e("easeOutCubic", [-75, 40, 10]), 1.6, e("easeOutSine", [-80, 45, 12]))},
+                                      at(1.6, {b: v for b, v in pile.items() if b not in ("root", "body", "head")}, "easeOutSine")), loop=False),
     }
-    write_model("restless_bones", bones, animations, [2, 2.5])
+    write_model("restless_bones", bones, animations, [2, 2.5], tex_w=128)
 
 
 # --- Necropolis: Crypt Moth ------------------------------------------------------------------------------------------
