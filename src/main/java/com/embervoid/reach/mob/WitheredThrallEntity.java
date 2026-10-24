@@ -1,5 +1,6 @@
 package com.embervoid.reach.mob;
 
+import com.embervoid.fx.particle.EmberParticles;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.TrapdoorBlock;
 import net.minecraft.entity.Entity;
@@ -12,6 +13,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
@@ -36,7 +38,10 @@ public class WitheredThrallEntity extends ReachMob {
 	/** A player this close horizontally, anywhere below within {@link #DROP_HEIGHT}, is "under" the cage. */
 	public static final double UNDER_RADIUS = 1.5;
 	public static final double DROP_HEIGHT = 16;
-	static final Move MELEE = new Move("attack.swing", 10, 30, ReachMobSounds.WITHERED_THRALL_WINDUP, 1.0f);
+	public static final int SWING_WINDUP = 10;
+	/** Ticks the body stays for {@code misc.death}: it falls on its back, the hands at the throat, 2 s. */
+	public static final int DEATH_TICKS = 40;
+	static final Move MELEE = new Move("attack.swing", SWING_WINDUP, 30, ReachMobSounds.WITHERED_THRALL_WINDUP, 1.0f);
 	private static final byte STATE_HANGING = 1;
 	private static final byte STATE_RATTLING = 2;
 	private static final byte STATE_FALLING = 3;
@@ -102,7 +107,7 @@ public class WitheredThrallEntity extends ReachMob {
 				playSound(ReachMobSounds.WITHERED_THRALL_RATTLE, 1.0f, 0.9f + random.nextFloat() * 0.3f);
 			}
 			if (--rattleTicks <= 0) {
-				drop();
+				drop(false);
 			}
 		} else if (state == STATE_FALLING && isOnGround()) {
 			setState(STATE_NONE);
@@ -122,7 +127,8 @@ public class WitheredThrallEntity extends ReachMob {
 		return players.isEmpty() ? null : players.get(0);
 	}
 
-	private void drop() {
+	/** Lets go of the cage; {@code knocked}: a hit knocked it off, and the stagger it already shows is its tumble. */
+	private void drop(boolean knocked) {
 		setState(STATE_FALLING);
 		setNoGravity(false);
 		BlockPos below = getBlockPos().down();
@@ -131,7 +137,9 @@ public class WitheredThrallEntity extends ReachMob {
 			getWorld().setBlockState(below, floor.with(TrapdoorBlock.OPEN, true));
 			playSound(SoundEvents.BLOCK_IRON_TRAPDOOR_OPEN, 1.0f, 0.8f);
 		}
-		triggerAnim(ACTION, "attack.drop");
+		if (!knocked) {
+			triggerAnim(ACTION, "attack.drop");
+		}
 		playSound(ReachMobSounds.WITHERED_THRALL_DROP, 1.0f, 1.0f);
 	}
 
@@ -143,9 +151,37 @@ public class WitheredThrallEntity extends ReachMob {
 			if (source.getAttacker() instanceof LivingEntity attacker) {
 				setTarget(attacker);
 			}
-			drop();
+			drop(true);
 		}
 		return hurt;
+	}
+
+	/** Hit while it hangs, it is knocked off its cage: the stagger (a spin on the rope and a kick) instead of a flinch. */
+	@Override
+	protected String hurtAnimation(DamageSource source, float amount) {
+		return isHanging() ? STAGGER : super.hurtAnimation(source, amount);
+	}
+
+	@Override
+	public int deathTicks() {
+		return DEATH_TICKS;
+	}
+
+	/** Killed in its cage, the body drops out of it. */
+	@Override
+	public void onDeath(DamageSource source) {
+		super.onDeath(source);
+		if (!getWorld().isClient && isHanging()) {
+			setState(STATE_NONE);
+			setNoGravity(false);
+		}
+	}
+
+	@Override
+	protected void tickDeath(ServerWorld world, int deathTime) {
+		if (deathTime == 18) {
+			EmberParticles.spawn(world, EmberParticles.ASH_FLAKE, getPos().add(0, 0.2, 0), 8, 0.6, 0.03);
+		}
 	}
 
 	@Override

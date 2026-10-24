@@ -866,88 +866,185 @@ def ashen_carrion():
 
 
 # --- Woods: Withered Thrall ------------------------------------------------------------------------------------------
-# A hanged poacher: grey-green dead skin, a hunting hood, a leather jerkin with a quiver, the noose and the cut rope.
-# Hangs in a cage and drops on a player below (chain rattle 10 ticks before); swing windup 10 ticks.
+# A hanged poacher: grey-green dead skin, bulging pale eyes and a gaping mouth under a hunting hood, a leather jerkin
+# over a quilted shirt with a quiver, a belt with a pouch and a skinning knife, bracers and boots, the noose still
+# round the broken neck with the cut rope standing up off it, hair and hem tatters that swing. Hangs in a cage and
+# drops on a player below (chain rattle 10 ticks before); swing windup 10 ticks.
 
 def withered_thrall():
-    skin = Material(SKIN_DEAD, base=2.4, noise=0.6, speck=0.03)
-    jerkin = Material(LEATHER, base=2.4, noise=0.6, grain="v", edge=0.6)
-    cloth = Material(CLOTH_GREEN, base=2.2, noise=0.6, grain="v")
+    skin = Material(mk.SKIN_DEAD, base=2.6, noise=0.5, speck=0.03, bevel=0.4)
+    jerkin = Material(mk.LEATHER, base=2.8, noise=0.5, grain="v", edge=0.4, bevel=0.5)
+    cloth = Material(mk.CLOTH_GREEN, base=2.6, noise=0.5, grain="v", bevel=0.3)
 
     def face_front(face, rng):
-        # Bulging pale eyes, an open mouth, a bruise from the rope.
-        for ex in (1, 4):
-            face.set(ex, 3, VOID)
-            face.lit(ex + 1, 3, hexc("e8e0a0"), 0.75)
-        face.rect(2, 5, 3, 1, VOID)
-        face.set(3, 6, SKIN_DEAD[0])
-        face.set(0, 6, hexc("4a3a46"))
-        face.set(6, 6, hexc("4a3a46"))
+        cx = face.cx
+        for ex in (cx - 3, cx + 1):
+            face.rect(ex, 2, 2, 2, VOID)
+            face.lit(ex + (1 if ex < cx else 0), 2, hexc("e8e0a0"), 0.7)
+            face.set(ex + (0 if ex < cx else 1), 3, hexc("c8c090"))
+        face.rect(cx - 2, 5, 3, 1, VOID)
+        face.set(cx - 1, 6, mk.SKIN_DEAD[0])
+        face.hline(0, face.h - 1, face.w, hexc("4a3a46"))  # the rope's bruise
+        face.set(cx - 3, 1, mk.SKIN_DEAD[1])
+        face.set(cx + 2, 1, mk.SKIN_DEAD[1])
 
     def jerkin_deco(face, rng):
         if face.name == "front":
-            face.vline(face.cx, 0, face.h, LEATHER[0])
+            face.vline(face.cx, 0, face.h, mk.LEATHER[0])
             for y in range(1, face.h - 1, 3):
-                face.set(face.cx - 1, y, ROPE[3])
-            face.hline(0, face.h - 3, face.w, LEATHER[1])
-            face.set(face.cx + 1, face.h - 3, BRONZE[4])
+                face.set(face.cx - 1, y, mk.ROPE[3])
+                face.set(face.cx + 1, y, mk.ROPE[3])
         if face.side():
-            band(face, face.h - 3, LEATHER[1])
-            tatter(face, rng, 1, 0.3)
+            mk.fold_lines(face, rng, 3, -12)
+            mk.edge_shadow(face, rng, -10)
 
     def sleeve(face, rng):
-        lower(face, 3, SKIN_DEAD, rng)
-        band(face, face.h - 4, ROPE[2])
+        mk.fold_lines(face, rng, 2, -12)
+        mk.edge_shadow(face, rng, -8)
 
     def boots(face, rng):
-        lower(face, 4, LEATHER, rng, 1.6)
-        band(face, face.h - 5, LEATHER[0])
+        if face.side():
+            band(face, 0, mk.LEATHER[0])
+            mk.edge_shadow(face, rng, -8)
 
-    bones, top = humanoid(legs=13, body=(7, 12, 3), head=(7, 7, 7), arm=(3, 13, 3), leg=(3, 3),
-                          mats={"body": jerkin, "head": skin, "arm": cloth, "leg": cloth.but(base=1.6)},
-                          decals={"body": {"all": jerkin_deco}, "head": {"front": face_front},
-                                  "arm": {"all": sleeve}, "leg": {"all": boots}})
-    bone(bones, "head").rotation = [0, 0, 18]  # the broken neck
-    hood = Material(CLOTH_GREEN, base=2.0, noise=0.6, grain="v", top=0.5)
-    bone(bones, "head").add(Box([-3.5, top + 1, -3.5], [7, 7, 7], hood,
-                                {"front": lambda f, r: open_front(f, 1, 1),
-                                 "bottom": clear_all,
-                                 "sides": lambda f, r: ragged_edge(f, r, "bottom", 1, 0.4)}, inflate=0.45))
-    rope = Material(ROPE, base=2.2, noise=0.6, grain="v")
-    bones.append(Bone("noose", [0, top, 0], "head", None, [
-        Box([-3.5, top - 0.5, -2], [7, 1, 4], rope, {"front": lambda f, r: f.set(f.cx, 0, ROPE[0])}, inflate=0.3),
-        Box([-0.5, top + 7, -0.5], [1, 10, 1], rope,
-            {"sides": lambda f, r: (f.set(0, f.h - 1, ROPE[4]), f.set(0, 0, ROPE[0]))}),
-        Box([-1, top + 6.5, -1], [2, 1, 2], rope, inflate=0.2),
-    ]))
-    quiver = Material(LEATHER, base=1.8, noise=0.5, grain="v")
-    bone(bones, "body").add(
-        Box([-3, 15, 1.5], [3, 7, 2], quiver, {"top": lambda f, r: f.rect(0, 0, f.w, f.h, LEATHER[0])},
+    bones, top = mk.dense_humanoid(legs=13, body=(7, 12, 3), head=(7, 7, 7), arm=(3, 13, 3), leg=(3, 3),
+                                   mats={"body": jerkin, "head": skin, "arm": cloth, "leg": cloth.but(base=1.8),
+                                         "hand": skin.but(base=2.0), "shin": Material(mk.LEATHER, base=2.0, noise=0.4, bevel=0.4),
+                                         "foot": Material(mk.LEATHER, base=1.4, noise=0.4)},
+                                   decals={"body": {"all": jerkin_deco}, "head": {"front": face_front},
+                                           "arm": {"all": sleeve}, "fore": {"all": sleeve}, "leg": {"all": sleeve},
+                                           "shin": {"all": boots}})
+    head = mk.bone(bones, "head")
+    head.rotation = [0, 0, 18]  # the broken neck
+    hood = Material(mk.CLOTH_GREEN, base=2.3, noise=0.5, grain="v", top=0.5, bevel=0.3)
+    head.add(Box([-3.5, top + 1, -3.5], [7, 7, 7], hood,
+                 {"front": lambda f, r: open_front(f, 1, 1), "bottom": clear_all,
+                  "sides": lambda f, r: (ragged_edge(f, r, "bottom", 1, 0.4), mk.fold_lines(f, r, 3, -12))}, inflate=0.5),
+             Box([-1, top + 7.5, 0.5], [2, 2, 3], hood.but(base=1.8), rotation=[-35, 0, 0], pivot=[0, top + 7.5, 0.5]),  # hood point
+             Box([-3.5, top - 1.5, -3.3], [7, 1.5, 6.6], skin.but(base=2.0)))  # the swollen neck
+    hair = Material(mk.HAIR, base=1.6, noise=0.6, grain="v")
+    bones += chain_bones("hair", "head", [3.6, top + 2, -1], 2, 3, hair, thickness=0.3,
+                         box=lambda i, o, s: [Box([3.4, o[1], -2.5], [0.6, s[1], 3], hair,
+                                                  {"sides": lambda f, r: ragged_edge(f, r, "bottom", 2, 0.6)})])
+    rope = Material(mk.ROPE, base=2.6, noise=0.5, grain="v", bevel=0.4)
+    head.add(Box([-3.8, top - 0.6, -2.3], [7.6, 1.2, 4.6], rope, {"front": lambda f, r: f.set(f.cx, 0, mk.ROPE[0])}, inflate=0.3),
+             Box([-1.2, top + 7.2, -1.2], [2.4, 1.2, 2.4], rope.but(base=3.2), inflate=0.1))  # the knot above the hood
+    # The cut rope stands up off the knot in two segments (it sways the other way when it moves).
+    for i in range(2):
+        bones.append(Bone("rope_%d" % (i + 1), [0, top + 8.4 + i * 4, 0], "head" if i == 0 else "rope_1", None, [
+            Box([-0.6, top + 8.4 + i * 4, -0.6], [1.2, 4, 1.2], rope,
+                {"sides": lambda f, r, i=i: (f.set(0, f.h - 1 if i else 0, mk.ROPE[0]),
+                                             ragged_edge(f, r, "top", 2, 0.7) if i else None)})]))
+    body = mk.bone(bones, "body")
+    quiver = Material(mk.LEATHER, base=2.2, noise=0.5, grain="v", bevel=0.4)
+    body.add(
+        Box([-4, 22, -2], [8, 2.5, 4], jerkin.but(base=3.4), {"sides": lambda f, r: (stitch(f, 1, mk.LEATHER[0], 2),
+                                                                                     mk.edge_shadow(f, r, -8))}, inflate=0.5),  # yoke
+        Box([-3.5, 14, -1.5], [7, 1.5, 3], Material(mk.LEATHER, base=1.6, noise=0.4, bevel=0.5),
+            {"front": lambda f, r: (f.set(f.cx, 0, mk.BRASS[5]), f.set(f.cx - 1, 0, mk.BRASS[3]))}, inflate=0.7),  # belt
+        Box([2, 12, -2.6], [2.5, 3, 1.4], quiver.but(base=2.6), inflate=0.1),  # pouch
+        Box([-3.8, 10.5, -1.8], [0.8, 4, 0.5], Material(mk.IRON, base=4.0, noise=0.4), rotation=[0, 0, 8], pivot=[-3.4, 14, -1.6]),  # knife
+        Box([-4, 14.2, -1.9], [1.2, 1.4, 0.8], Material(mk.WOOD, base=1.6, noise=0.4), rotation=[0, 0, 8], pivot=[-3.4, 14, -1.6]),
+        Box([-3, 15, 1.4], [3, 7, 2], quiver, {"top": lambda f, r: f.rect(0, 0, f.w, f.h, mk.LEATHER[0]),
+                                               "sides": lambda f, r: band(f, 2, mk.ROPE[2])},
             rotation=[0, 0, -20], pivot=[-1.5, 18, 2.5]),
-        Box([-2.5, 21, 2], [1, 3, 1], Material(WOOD, base=3.0, noise=0.3),
-            {"top": lambda f, r: f.set(0, 0, hexc("8a8a8a"))}, rotation=[0, 0, -20], pivot=[-1.5, 18, 2.5]),
-        Box([-1.5, 21, 2], [1, 2, 1], Material(STRAW, base=3.5, noise=0.3), rotation=[0, 0, -20],
-            pivot=[-1.5, 18, 2.5]),
+        Box([-2.5, 21.5, 2], [1, 3, 1], Material(mk.WOOD, base=3.4, noise=0.3),
+            {"top": lambda f, r: f.set(0, 0, mk.IRON[5])}, rotation=[0, 0, -20], pivot=[-1.5, 18, 2.5]),
+        Box([-1.3, 21.5, 2], [1, 2.5, 1], Material(mk.STRAW, base=4.0, noise=0.3), rotation=[0, 0, -20], pivot=[-1.5, 18, 2.5]),
     )
+    hem = jerkin.but(base=2.0)
+    bones += chain_bones("hem", "body", [0, 13, -1.6], 2, 2.2, hem, thickness=0.3,
+                         box=lambda i, o, s: [Box([-3, o[1], -1.9], [6, s[1], 0.5], hem,
+                                                  {"sides": lambda f, r: ragged_edge(f, r, "bottom", 1, 0.6)})])
+    bracer = Box([-7, 13.5, -1.5], [3, 3, 3], jerkin.but(base=2.4), {"sides": lambda f, r: stitch(f, 1, mk.LEATHER[0], 2)}, inflate=0.35)
+    r_fingers = fingers(-7, 12, -1.3, 3, (0.8, 2.2, 0.8), skin.but(base=2.0), spread=0.3, curl=35, thumb=(2.6, 0.8))
+    mk.bone(bones, "right_fore").add(bracer, *r_fingers)
+    mk.bone(bones, "left_fore").add(mirror_box(bracer), *[mirror_box(b) for b in r_fingers])
+    hair_names = chain_names("hair", 2)
+    rope_names = chain_names("rope", 2)
+    hem_names = chain_names("hem", 2)
+    chains = hair_names + rope_names + hem_names
     limp = [10, 0, 0]
     animations = {
-        "misc.idle": idle(3.0, 3, 2, noose=rot(0, ZERO, 1.5, [0, 0, -4], 3.0, ZERO)),
-        "move.walk": walk(1.2, 25, 10, 0.3, body=rot(0, [0, 0, 4], 0.6, [0, 0, -4], 1.2, [0, 0, 4])),
-        "misc.hang": anim(4.0, {
-            "root": rot(0, [0, 0, 3], 2, [0, 0, -3], 4, [0, 0, 3]),
-            "right_leg": rot(0, limp, 4, limp), "left_leg": rot(0, [5, 0, 0], 4, [5, 0, 0]),
-            "right_arm": rot(0, [0, 0, 5], 4, [0, 0, 5]), "left_arm": rot(0, [0, 0, -5], 4, [0, 0, -5]),
-            "head": rot(0, [15, 0, 0], 2, [18, 0, 0], 4, [15, 0, 0]),
-        }),
-        "attack.drop": anim(0.5, {
-            "right_arm": rot(0, ZERO, 0.2, [-160, 0, 30], 0.5, [-90, 0, 0]),
-            "left_arm": rot(0, ZERO, 0.2, [-160, 0, -30], 0.5, [-90, 0, 0]),
-            "right_leg": rot(0, ZERO, 0.3, [-30, 0, 0], 0.5, ZERO),
-            "left_leg": rot(0, ZERO, 0.3, [-30, 0, 0], 0.5, ZERO),
-        }, loop=False),
-        "attack.swing": overhead(0.5, 0.8, ("right_arm", "left_arm")),
+        "misc.idle": mk.breathe(3.0, 1.5, 1.5, 4, merge(
+            lag_sway(hair_names, 3.0, 5, 0, phase=0.2), lag_sway(rope_names, 3.0, 6, 2, phase=0.0),
+            lag_sway(hem_names, 3.0, 4, 0, phase=0.5),
+            {"head": rot(0, ZERO, 1.5, e("easeInOutSine", [6, -8, -4]), 3.0, e("easeInOutSine", ZERO)),
+             "right_fore": rot(0, [-8, 0, 0], 1.5, e("easeInOutSine", [-14, 0, 0]), 3.0, e("easeInOutSine", [-8, 0, 0])),
+             "left_fore": rot(0, [-8, 0, 0], 1.5, e("easeInOutSine", [-4, 0, 0]), 3.0, e("easeInOutSine", [-8, 0, 0]))})),
+        # A shamble: a lurch to one side each step, the head lolling, the rope and hair swinging behind.
+        "move.walk": mk.weighted_walk(1.2, 26, 12, 0.35, 5, 8, head_level=False, extra=mk.limb_walk(1.2, 10, 14, merge(
+            lag_sway(hair_names, 1.2, 10, 0, phase=0.1), lag_sway(rope_names, 1.2, 14, 0, phase=0.3),
+            lag_sway(hem_names, 1.2, 10, 0, phase=0.0),
+            {"head": rot(0, [4, 0, -6], 0.6, e("easeInOutSine", [-2, 6, 8]), 1.2, e("easeInOutSine", [4, 0, -6]))}))),
+        # Hanging limp from the cage, turning a little on the rope; every part dangles and swings out of phase.
+        "misc.hang": anim(4.0, merge({
+            "root": rot(0, [0, 0, 3], 2, e("easeInOutSine", [0, 0, -3]), 4, e("easeInOutSine", [0, 0, 3])),
+            "right_leg": rot(0, limp, 2, e("easeInOutSine", [14, 0, 2]), 4, e("easeInOutSine", limp)),
+            "left_leg": rot(0, [5, 0, 0], 2, e("easeInOutSine", [8, 0, -2]), 4, e("easeInOutSine", [5, 0, 0])),
+            "right_shin": rot(0, [6, 0, 0], 2, e("easeInOutSine", [12, 0, 0]), 4, e("easeInOutSine", [6, 0, 0])),
+            "left_shin": rot(0, [10, 0, 0], 2, e("easeInOutSine", [4, 0, 0]), 4, e("easeInOutSine", [10, 0, 0])),
+            "right_arm": rot(0, [0, 0, 6], 2, e("easeInOutSine", [-4, 0, 9]), 4, e("easeInOutSine", [0, 0, 6])),
+            "left_arm": rot(0, [0, 0, -6], 2, e("easeInOutSine", [4, 0, -9]), 4, e("easeInOutSine", [0, 0, -6])),
+            "right_fore": rot(0, [-4, 0, 0], 2, e("easeInOutSine", [-2, 0, 0]), 4, e("easeInOutSine", [-4, 0, 0])),
+            "left_fore": rot(0, [-4, 0, 0], 2, e("easeInOutSine", [-7, 0, 0]), 4, e("easeInOutSine", [-4, 0, 0])),
+            "head": rot(0, [15, 0, 0], 2, e("easeInOutSine", [18, 10, -5]), 4, e("easeInOutSine", [15, 0, 0])),
+            "body": rot(0, [4, 0, 0], 2, e("easeInOutSine", [2, 0, 3]), 4, e("easeInOutSine", [4, 0, 0])),
+        }, lag_sway(hair_names, 4.0, 6, 0, phase=0.3), lag_sway(rope_names, 4.0, -4, 2, phase=0.0),
+            lag_sway(hem_names, 4.0, 5, 2, phase=0.6))),
+        # The drop: the arms thrown up and the legs tucked, then they come down to land.
+        "attack.drop": anim(0.5, merge({
+            "right_arm": rot(0, ZERO, 0.15, e("easeOutBack", [-165, 0, 35]), 0.5, e("easeOutSine", [-90, 0, 0])),
+            "left_arm": rot(0, ZERO, 0.15, e("easeOutBack", [-165, 0, -35]), 0.5, e("easeOutSine", [-90, 0, 0])),
+            "right_leg": rot(0, ZERO, 0.25, e("easeOutSine", [-40, 0, 0]), 0.5, e("easeOutSine", [10, 0, 0])),
+            "left_leg": rot(0, ZERO, 0.25, e("easeOutSine", [-40, 0, 0]), 0.5, e("easeOutSine", [10, 0, 0])),
+            "right_shin": rot(0, ZERO, 0.25, e("easeOutSine", [45, 0, 0]), 0.5, e("easeOutSine", ZERO)),
+            "left_shin": rot(0, ZERO, 0.25, e("easeOutSine", [45, 0, 0]), 0.5, e("easeOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.2, e("easeOutSine", [-25, 0, 0]), 0.5, e("easeOutSine", ZERO)),
+        }, whip(hair_names, 0.05, -35, 0, settle=0.42), whip(rope_names, 0.05, 50, 0, settle=0.42),
+            whip(hem_names, 0.05, -40, 0, settle=0.42)), loop=False),
+        # Both claws raised over the head (anticipation) through the 10-tick windup, then raked down together.
+        "attack.swing": anim(0.8, merge({
+            "right_arm": rot(0, ZERO, 0.4, e("easeInOutSine", [-155, 0, 20]), 0.5, [-165, 0, 15], 0.58,
+                             e("easeOutBack", [-30, 0, -10]), 0.8, e("easeOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 0.4, e("easeInOutSine", [-155, 0, -20]), 0.5, [-165, 0, -15], 0.58,
+                            e("easeOutBack", [-30, 0, 10]), 0.8, e("easeOutSine", ZERO)),
+            "right_fore": rot(0, ZERO, 0.4, e("easeInOutSine", [-40, 0, 0]), 0.5, [-45, 0, 0], 0.58, e("easeOutCubic", [5, 0, 0]),
+                              0.8, e("easeOutSine", ZERO)),
+            "left_fore": rot(0, ZERO, 0.4, e("easeInOutSine", [-40, 0, 0]), 0.5, [-45, 0, 0], 0.58, e("easeOutCubic", [5, 0, 0]),
+                             0.8, e("easeOutSine", ZERO)),
+            "body": rot(0, ZERO, 0.4, e("easeInOutSine", [-14, 0, 0]), 0.5, [-16, 0, 0], 0.58, e("easeOutBack", [22, 0, 0]), 0.8,
+                        e("easeOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.4, e("easeInOutSine", [-15, 0, 0]), 0.58, e("easeOutCubic", [15, 0, 0]), 0.8, e("easeOutSine", ZERO)),
+            "root": pos(0, ZERO, 0.4, e("easeInOutSine", [0, 0, 1]), 0.58, e("easeOutCubic", [0, -1, -2]), 0.8, e("easeOutSine", ZERO)),
+        }, hold(chains, 0.45, ZERO), whip(hair_names, 0.55, 30, 0, settle=0.24), whip(rope_names, 0.55, -35, 0, settle=0.24),
+            whip(hem_names, 0.55, 30, 0, settle=0.24)), loop=False),
+        "misc.hurt": mk.hurt_flinch(0.45, chains=chains, extra={
+            "right_fore": rot(0, ZERO, 0.1, e("easeOutCubic", [-30, 0, 0]), 0.45, e("easeOutSine", ZERO))}),
+        # Knocked off its cage: it spins on the rope and kicks, then hangs still again (or falls, if the drop came).
+        "misc.stagger": anim(0.9, merge({
+            "body": rot(0, ZERO, 0.12, e("easeOutCubic", [-20, 30, 20]), 0.5, e("easeInOutSine", [-10, -15, -10]), 0.9,
+                        e("easeOutBack", ZERO)),
+            "head": rot(0, ZERO, 0.1, e("easeOutCubic", [-30, 20, 0]), 0.9, e("easeOutBack", ZERO)),
+            "right_arm": rot(0, ZERO, 0.12, e("easeOutCubic", [-80, 0, 50]), 0.9, e("easeOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 0.12, e("easeOutCubic", [-40, 0, -60]), 0.9, e("easeOutSine", ZERO)),
+            "right_leg": rot(0, ZERO, 0.12, e("easeOutCubic", [-50, 0, 10]), 0.5, e("easeInOutSine", [20, 0, 0]), 0.9, e("easeOutSine", ZERO)),
+            "left_leg": rot(0, ZERO, 0.15, e("easeOutCubic", [35, 0, -10]), 0.5, e("easeInOutSine", [-20, 0, 0]), 0.9, e("easeOutSine", ZERO)),
+            "right_shin": rot(0, ZERO, 0.15, e("easeOutCubic", [50, 0, 0]), 0.9, e("easeOutSine", ZERO)),
+            "root": pos(0, ZERO, 0.12, e("easeOutCubic", [1, -1.5, 1.5]), 0.9, e("easeOutSine", ZERO)),
+        }, whip(hair_names, 0.05, 40, 0, settle=0.8), whip(rope_names, 0.05, -50, 0, settle=0.8), whip(hem_names, 0.05, 40, 0, settle=0.8)),
+            loop=False),
+        # Falls on its back, the hands going to the throat, the rope flopping across the ground.
+        "misc.death": mk.death_fall(2.0, legs=13, forward=False, chains=hem_names, chain_amp=30, arms_out=False, extra=merge(
+            mk.settle(hair_names, 0.9, 40, 0, length=1.0), mk.settle(rope_names, 0.9, 60, 0, length=1.0),
+            {"right_arm": rot(0, ZERO, 0.35, e("easeOutSine", [-110, 0, 20]), 0.9, e("easeInQuad", [-120, 0, 30]), 2.0, [-120, 0, 30]),
+             "left_arm": rot(0, ZERO, 0.35, e("easeOutSine", [-110, 0, -20]), 0.9, e("easeInQuad", [-100, 0, -40]), 2.0, [-100, 0, -40]),
+             "right_fore": rot(0, ZERO, 0.35, e("easeOutSine", [-70, 0, 0]), 2.0, [-70, 0, 0]),
+             "left_fore": rot(0, ZERO, 0.35, e("easeOutSine", [-80, 0, 0]), 2.0, [-80, 0, 0]),
+             "right_shin": rot(0, ZERO, 0.35, e("easeOutSine", [40, 0, 0]), 0.9, e("easeInQuad", [30, 0, 0]), 2.0, [30, 0, 0]),
+             "left_shin": rot(0, ZERO, 0.35, e("easeOutSine", [25, 0, 0]), 0.9, e("easeInQuad", [50, 0, 0]), 2.0, [50, 0, 0])})),
     }
-    write_model("withered_thrall", bones, animations, [2, 3])
+    write_model("withered_thrall", bones, animations, [2, 3], tex_w=128)
 
 
 # --- Woods: Lantern Hag ----------------------------------------------------------------------------------------------
