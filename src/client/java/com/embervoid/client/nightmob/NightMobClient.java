@@ -49,6 +49,11 @@ public final class NightMobClient {
 			protected int getBlockLight(GhostEntity ghost, BlockPos pos) {
 				return Math.max(8, super.getBlockLight(ghost, pos));
 			}
+
+			@Override
+			protected float getDeathMaxRotation(GhostEntity ghost) {
+				return 0; // its own dissolve (PLAN 19.3)
+			}
 		};
 		renderer.addRenderLayer(new AutoGlowingGeoLayer<>(renderer));
 		return renderer;
