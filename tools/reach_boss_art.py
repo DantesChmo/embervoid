@@ -23,20 +23,31 @@ def bone(bones, name):
     return next(b for b in bones if b.name == name)
 
 
-# --- Crypt Keeper: 4 blocks, the hooded gaoler of the ossuary --------------------------------------------------------
-# A gaunt giant in a heavy grave-blue robe wrapped in chains, a faceless hood with cold eyes, a mantle of bones, keys
-# and skull trophies at the belt, a long halberd and a cold-flame lantern (the lantern bone; it shatters in P2).
+# --- Crypt Keeper: 4 blocks, the hooded gaoler of the ossuary (PLAN 19.4) -----------------------------------------
+# A gaunt giant in a heavy grave-blue robe wrapped in chains, a faceless hood with a void inside and two cold lights
+# (cubes of cold flame), a mantle of bones, keys on a ring and skull trophies at the belt as geometry, bone hands with
+# fingers, a long halberd with a crescent blade and a tassel, and a cold-flame lantern on a chain (the lantern bone
+# with its chain and cage; it shatters in P2). The hood's tail, the hems, the keys, the belt chains, the tassel and
+# the lantern chain swing behind the motion. The rest pose stays within 17 px of depth (the recorded hitbox check).
 
-GRAVE_ROBE = ramp("15181f", "1d212b", "262c38", "313846", "3e4656", "4d5668")
+GRAVE_ROBE = ramp("15181f", "1d212b", "262c38", "313846", "3e4656", "4d5668", "5e687c")
 COLD_FLAME = ramp("2f6f9a", "4fa3d1", "7fd0f5", "b8ecff", "e8fbff")
 
 
 def crypt_keeper():
     legs, body_h, head = 26, 24, 13
     top = legs + body_h
-    robe = Material(GRAVE_ROBE, base=2.4, noise=0.6, grain="v", edge=0.5, grad=0.8)
+    robe = Material(GRAVE_ROBE, base=2.6, noise=0.5, grain="v", edge=0.4, grad=0.9, bevel=0.5)
+    bone_mat = Material(BONE, base=2.8, noise=0.5, bevel=0.6, grain="h")
+    iron = Material(IRON, base=2.6, noise=0.5, speck=0.08, top=0.6, bevel=0.6)
+    bronze = Material(BRONZE, base=3.0, noise=0.4, bevel=0.6)
 
-    def chains(face, rng):
+    def folds(face, rng):
+        if face.side():
+            fold_lines(face, rng, 3, -16)
+
+    def chest_chains(face, rng):
+        folds(face, rng)
         if face.name in ("front", "back"):
             for i in range(face.h):  # a chain across the chest, corner to corner
                 x = int(i * face.w / face.h)
@@ -44,27 +55,35 @@ def crypt_keeper():
                     face.set(x, i, IRON[4])
                     if face.inside(x + 1, i):
                         face.set(x + 1, i, IRON[2])
-        if face.side():
-            band(face, face.h - 4, LEATHER[1])
-            band(face, face.h - 3, LEATHER[0])
+            holes(face, rng, 1)
 
-    def belt(face, rng):
-        if face.name == "front":
-            for x in range(2, face.w - 2, 4):  # keys on a ring
-                face.vline(x, 1, 3, BRONZE[4])
-                face.set(x + 1, 3, BRONZE[3])
+    def belt_deco(face, rng):
         if face.side():
+            trim(face, LEATHER[0], ("top", "bottom"))
+            for x in range(1, face.w, 3):
+                face.set(x, face.h // 2, BRONZE[3])
+
+    def hem(face, rng):
+        if face.side():
+            folds(face, rng)
             tatter(face, rng, 3, 0.5)
+            holes(face, rng, 1)
+
+    def hood_outer(face, rng):
+        if face.name == "front":
+            open_front(face, 2, 2)
+        elif face.name == "bottom":
+            clear_all(face)
+        else:
+            folds(face, rng)
+            if face.name in ("left", "right"):
+                ragged_edge(face, rng, "bottom", 1, 0.4)
 
     def hood_inner(face, rng):
         face.rect(0, 0, face.w, face.h, VOID)
         if face.name == "front":
-            for ex in (3, face.w - 5):
-                face.lit(ex, 5, COLD, 1.0)
-                face.lit(ex + 1, 5, COLD, 1.0)
-                face.lit(ex, 6, hexc("4f7ea8"), 0.6)
-            for x in range(3, face.w - 3, 2):  # a jaw of teeth deep in the dark
-                face.set(x, 9, BONE[1])
+            for x in range(2, face.w - 2, 2):  # a jaw of teeth deep in the dark
+                face.set(x, face.h - 3, BONE[1])
 
     def bone_mantle(face, rng):
         if face.side() or face.name == "top":
@@ -72,128 +91,297 @@ def crypt_keeper():
                 face.vline(x, 0, face.h, BONE[3] if (x // 2) % 2 else BONE[2])
             for x in range(1, face.w, 4):
                 face.set(x, face.h - 1, VOID)
+            sutures(face, rng, BONE[0], 1)
 
     def skull(face, rng):
+        sutures(face, rng, BONE[0], 1)
         if face.name == "front":
-            face.set(1, 1, VOID)
-            face.set(face.w - 2, 1, VOID)
+            face.rect(1, 1, 1, 1, VOID)
+            face.rect(face.w - 2, 1, 1, 1, VOID)
             face.hline(1, face.h - 1, face.w - 2, BONE[1])
+            for x in range(1, face.w - 1, 2):
+                face.set(x, face.h - 1, BONE[4])
 
-    bones = [
-        Bone("root", [0, 0, 0]),
-        Bone("right_leg", [-3.5, legs, 0], "root", None, [
-            Box([-7, 0, -3.5], [7, legs, 7], robe.but(base=1.8), {"sides": lambda f, r: lower(f, 4, LEATHER, r, 1.4)})]),
-        Bone("left_leg", [3.5, legs, 0], "root", None, []),
-        Bone("body", [0, legs, 0], "root", None, [
-            Box([-8, legs, -5], [16, body_h, 10], robe, {"all": chains}),
-            Box([-9, 8, -6], [18, 18, 12], robe.but(base=2.0), {"all": belt}),
-            Box([-9, top - 4, -6], [18, 4, 12], Material(BONE, base=2.6, noise=0.5), {"all": bone_mantle}),
-            Box([-7, legs - 3, -6.8], [4, 4, 4], Material(BONE, base=3.0, noise=0.5), {"all": skull}),
-            Box([3, legs - 4, -6.6], [4, 4, 4], Material(BONE, base=2.6, noise=0.5), {"all": skull}),
-        ]),
-        Bone("head", [0, top, 0], "body", None, [
-            Box([-5.5, top, -5.5], [11, 11, 11], robe, {"all": hood_inner}),
-            Box([-6.5, top, -6.5], [13, 13, 13], robe.but(base=2.8, top=0.6),
-                {"front": lambda f, r: open_front(f, 2, 2), "bottom": clear_all,
-                 "left": lambda f, r: ragged_edge(f, r, "bottom", 1, 0.4),
-                 "right": lambda f, r: ragged_edge(f, r, "bottom", 1, 0.4)}),
-            Box([-2.5, top + 9, 3], [5, 5, 6], robe.but(base=2.2), rotation=[-30, 0, 0], pivot=[0, top + 11, 4]),
-        ]),
-    ]
-    bone(bones, "left_leg").add(mirror_box(bone(bones, "right_leg").boxes[0]))
-    arm = Box([-14, top - 26, -3], [6, 26, 6], robe.but(base=2.2),
-              {"sides": lambda f, r: (lower(f, 4, BONE, r, 1.6), band(f, f.h - 5, IRON[3]))})
-    pauldron = Box([-14.5, top - 7, -3.5], [7, 6, 7], Material(BONE, base=3.0, noise=0.5, top=0.6),
-                   {"all": lambda f, r: (bone_mantle(f, r), f.side() and f.name == "right" and skull(f, r))})
-    bones.append(Bone("right_arm", [-11, top - 2, 0], "body", None, [arm, pauldron]))
-    bones.append(Bone("left_arm", [11, top - 2, 0], "body", None, [mirror_box(arm), mirror_box(pauldron)]))
-    wood = Material(WOOD, base=1.4, noise=0.5, grain="v")
-    iron = Material(IRON, base=2.8, noise=0.6, speck=0.08, top=0.6)
+    def bone_deco(face, rng):
+        if face.side():
+            sutures(face, rng, BONE[0], 1)
+            grain(face, rng, BONE[1], BONE[5], 3, (2, 5))
 
-    def blade(face, rng):
+    def links(face, rng):
+        if face.side():
+            for y in range(face.h):
+                face.set(0, y, IRON[4] if y % 2 else IRON[1])
+                if face.w > 1:
+                    face.set(face.w - 1, y, IRON[0] if y % 2 else IRON[3])
+
+    def key(face, rng):
         if face.name in ("front", "back"):
-            # A crescent: the corners on the shaft side cut away, a bright edge on the outer side.
-            w, h = face.w, face.h
-            outer = 0 if face.name == "front" else w - 1   # the blade's outer edge is at -x of the shaft
-            inner = w - 1 - outer
-            for y in range(h):
-                if y < 2 or y > h - 3:
-                    face.clear(inner, y)
-                    if y == 0 or y == h - 1:
-                        face.clear(inner - (1 if inner else -1), y)
-                face.set(outer, y, IRON[5])
-            scatter(face, rng, 3, RUST[2])
-
-    bones.append(Bone("halberd", [-11, top - 24, 0], "right_arm", None, [
-        Box([-12, 2, -1], [2, 62, 2], wood, {"sides": lambda f, r: [f.hline(0, y, f.w, IRON[2]) for y in (6, 20, 40)]}),
-        Box([-12.5, 46, -1.5], [3, 2, 3], Material(BRONZE, base=3.0, noise=0.4)),
-        Box([-19, 48, -0.5], [7, 12, 1], iron, {"all": blade}),
-        Box([-10, 54, -0.5], [3, 4, 1], iron.but(base=2.2)),
-        Box([-11.5, 64, -0.5], [1, 5, 1], iron.but(base=3.4)),
-    ]))
-    flame = Material(COLD_FLAME, base=2.5, noise=0.8, glow=0.9)
+            face.set(face.cx, face.h - 1, BRONZE[0])
+            face.set(0, face.h - 2, BRONZE[5])
 
     def cage(face, rng):
         if face.side():
             face.vline(0, 0, face.h, IRON[1])
             face.vline(face.w - 1, 0, face.h, IRON[1])
             face.hline(0, face.h // 2, face.w, IRON[2])
-            face.lit(face.cx, face.h // 2 - 1, hexc("e8fbff"), 1.0)
 
-    bones.append(Bone("lantern", [11, top - 26, 0], "left_arm", None, [
-        Box([10.5, top - 32, -0.5], [1, 6, 1], iron.but(base=1.8)),
-        Box([7.5, top - 33, -3.5], [7, 1, 7], iron.but(base=2.2)),
-        Box([8, top - 40, -3], [6, 7, 6], flame, {"all": cage}),
-        Box([7.5, top - 41, -3.5], [7, 1, 7], iron.but(base=1.8)),
+    def blade(face, rng):
+        if face.name in ("front", "back"):
+            w, h = face.w, face.h
+            outer = 0 if face.name == "front" else w - 1   # the blade's outer edge is at -x of the shaft
+            for y in range(h):
+                face.set(outer, y, IRON[6])
+            scatter(face, rng, 2, RUST[2])
+            for y in range(1, h, 4):
+                face.set(outer + (1 if outer == 0 else -1), y, IRON[5])
+
+    def tassel(face, rng):
+        if face.name in ("front", "back"):
+            fold_lines(face, rng, 2, -14)
+            ragged_edge(face, rng, "bottom", 3, 0.7)
+
+    # Animation signs (checked in the preview): -X raises an arm forward, swings a leg forward, tilts the head and
+    # body back; +X bows the body forward and folds a leg back.
+    bones = [Bone("root", [0, 0, 0])]
+    # Legs: the robe falls to the ankles over bone feet with three toes.
+    leg_robe = chamfered([-7, 4, -3.5], [7, legs - 4, 7], robe.but(base=2.0), {"all": folds}, c=1)
+    foot = Box([-6.5, 0, -3.5], [6, 4, 6], bone_mat.but(base=2.4), {"all": bone_deco})
+    toes = [Box([-6.5 + k * 2.2, 0, -5.5], [1.5, 2, 2.5], bone_mat.but(base=3.2)) for k in range(3)]
+    bones.append(Bone("right_leg", [-3.5, legs, 0], "root", None, leg_robe + [foot] + toes))
+    bones.append(Bone("left_leg", [3.5, legs, 0], "root", None, [mirror_box(b) for b in leg_robe + [foot] + toes]))
+    # Body: the chamfered robe with chains across the chest, a leather belt with keys and two skull trophies, the
+    # bone mantle over the shoulders.
+    torso = chamfered([-8, legs, -5], [16, body_h, 10], robe, {"all": chest_chains}, c=1.5)
+    skirt = chamfered([-9, 8, -6], [18, 18, 12], robe.but(base=2.2), {"all": hem}, c=1, axes="xz")
+    belt = Box([-9.3, legs - 2, -6.3], [18.6, 3, 12.6], Material(LEATHER, base=2.0, noise=0.5, bevel=0.5), {"all": belt_deco})
+    mantle = chamfered([-9.5, top - 4, -6.5], [19, 4.5, 13], bone_mat, {"all": bone_mantle}, c=1)
+    skulls = octagon([-7.5, legs - 6, -8], [4, 4, 4], bone_mat.but(base=3.2), {"all": skull}, shrink=0.7)
+    skulls += octagon([3.5, legs - 7, -8], [4, 4, 4], bone_mat.but(base=2.8), {"all": skull}, shrink=0.7)
+    bones.append(Bone("body", [0, legs, 0], "root", None, torso + skirt + [belt] + mantle + skulls))
+    bones.append(Bone("keys", [-1, legs - 1, -6.5], "body", None, [
+        Box([-2.5, legs - 4, -7.5], [3, 3, 1], bronze.but(base=2.4), {"all": lambda f, r: open_front(f, 1, 1) if f.name in ("front", "back") else None}),
+        Box([-2.2, legs - 8, -7.4], [1, 4.5, 0.8], bronze, {"all": key}),
+        Box([-0.8, legs - 9, -7.4], [1, 5.5, 0.8], bronze.but(base=3.6), {"all": key}),
+        Box([0.6, legs - 7.5, -7.4], [1, 4, 0.8], bronze.but(base=2.6), {"all": key}),
     ]))
+    # Hem panels and belt chains that swing.
+    bones.append(Bone("hem_front", [0, 8, -6], "body", [-3, 0, 0], [Box([-8, -1, -6.4], [16, 9.5, 0], robe.but(base=2.0), {"all": hem})]))
+    bones.append(Bone("hem_back", [0, 8, 6], "body", [3, 0, 0], [Box([-8, -1, 6.4], [16, 9.5, 0], robe.but(base=2.2), {"all": hem})]))
+    for side, sx in (("right", -1), ("left", 1)):
+        bones += chain_bones(side + "_chain", "body", [sx * 7.5, legs - 2, 5.8], 2, 6, iron, {"all": links}, thickness=1.2)
+    # Head: the hood (an octagon so it reads round), the void inside with two cold lights, the peak at the back and
+    # the tail of the hood hanging down the back in two pieces.
+    cold = Material(COLD_FLAME, base=2.8, noise=0.6, glow=1.0)
+    hood = octagon([-6.5, top - 0.5, -6], [13, 13.5, 12], robe.but(base=3.0, top=0.6), {"all": hood_outer}, shrink=0.82)
+    inner = Box([-5.5, top, -5.5], [11, 11, 11], robe, {"all": hood_inner})
+    lights = [Box([-4.5, top + 5, -6.2], [3, 2, 1.2], cold), Box([1.5, top + 5, -6.2], [3, 2, 1.2], cold),
+              Box([-3.8, top + 4.4, -6.3], [1.5, 1, 0.8], cold.but(base=1.5)), Box([2.3, top + 4.4, -6.3], [1.5, 1, 0.8], cold.but(base=1.5))]
+    peak = Box([-2.5, top + 9, 3], [5, 5, 5], robe.but(base=2.2), {"all": folds}, rotation=[-35, 0, 0], pivot=[0, top + 11, 4])
+    bones.append(Bone("head", [0, top, 0], "body", None, hood + [inner] + lights + [peak]))
+    bones += chain_bones("hood_tail", "head", [0, top + 1, 6.3], 2, 7, robe.but(base=2.0), {"all": hem}, thickness=1,
+                         box=lambda i, o, sz: [Box([-3 + i, o[1], 6.4 + i * 0.4], [6 - 2 * i, 7.5, 0], robe.but(base=2.0 - i * 0.3), {"all": tassel})])
+    # Arms: a robe sleeve over the upper arm under a pauldron of bones (a skull on the right one), the forearm in a
+    # tighter sleeve with an iron band, a bone hand with four fingers.
+    sleeve = chamfered([-14, top - 14, -3], [6, 12, 6], robe.but(base=2.2), {"all": folds}, c=1)
+    pauldron = chamfered([-15, top - 6, -4], [8, 6, 8], bone_mat.but(base=3.0, top=0.6), {"all": bone_mantle}, c=1)
+    pauldron_skull = octagon([-16.5, top - 9, -2], [3.5, 3.5, 3.5], bone_mat.but(base=3.2), {"all": skull}, shrink=0.7)
+    bones.append(Bone("right_arm", [-11, top - 2, 0], "body", None, sleeve + pauldron + pauldron_skull))
+    fore = chamfered([-13.5, top - 26, -2.5], [5, 13, 5], robe.but(base=2.4), {"all": folds}, c=1)
+    band = Box([-13.8, top - 17, -2.8], [5.6, 2, 5.6], iron, {"all": links})
+    bones.append(Bone("right_forearm", [-11, top - 14, 0], "right_arm", None, fore + [band]))
+    hand = Box([-13, top - 29, -2], [4, 3.5, 4], bone_mat.but(base=3.2), {"all": bone_deco})
+    digits = fingers(-13, top - 29, -2.6, 4, [0.8, 3.5, 1], bone_mat.but(base=3.4), spread=0.25, curl=30)
+    bones.append(Bone("right_hand", [-11, top - 26, 0], "right_forearm", None, [hand] + digits))
+    for name in ("right_arm", "right_forearm", "right_hand"):
+        src = bone(bones, name)
+        bones.append(Bone(name.replace("right", "left"), [-src.pivot[0], src.pivot[1], src.pivot[2]],
+                          src.parent.replace("right", "left"), None, [mirror_box(b) for b in src.boxes]))
+    bone(bones, "left_arm").boxes = bone(bones, "left_arm").boxes[:-2]   # no skull on the left pauldron
+    wood = Material(WOOD, base=1.6, noise=0.5, grain="v", bevel=0.4)
+    # The halberd, in the right hand: a two-piece shaft with bronze collars, a crescent blade of three steps, a back
+    # hook, a top spike, and a tassel of grave cloth under the blade that swings.
+    hy = top - 28
+    bones.append(Bone("halberd", [-11, hy, 0], "right_hand", None, [
+        Box([-12, hy - 20, -1], [2, 28, 2], wood, {"sides": lambda f, r: [f.hline(0, y, f.w, IRON[2]) for y in (6, 20)]}),
+        Box([-12, hy + 8, -1], [2, 24, 2], wood.but(base=2.0), {"sides": lambda f, r: f.hline(0, 10, f.w, IRON[2])}),
+        Box([-12.5, hy + 6, -1.5], [3, 2, 3], bronze),
+        Box([-12.5, hy + 29, -1.5], [3, 2, 3], bronze.but(base=2.4)),
+        Box([-19, hy + 31, -0.5], [7, 6, 1], iron.but(base=3.0), {"all": blade}),
+        Box([-17, hy + 37, -0.5], [5, 3, 1], iron.but(base=3.2), {"all": blade}),
+        Box([-17, hy + 28, -0.5], [5, 3, 1], iron.but(base=2.6), {"all": blade}),
+        Box([-10, hy + 34, -0.5], [3, 3, 1], iron.but(base=2.2)),
+        Box([-11.5, hy + 40, -0.5], [1, 5, 1], iron.but(base=3.4)),
+    ]))
+    bones += chain_bones("halberd_tassel", "halberd", [-12.5, hy + 29, 0], 2, 5, robe.but(base=2.4), None, thickness=1,
+                         box=lambda i, o, sz: [Box([-13.5 + i * 0.5, o[1], -0.1], [2 - i * 0.5, 5.5, 0], robe.but(base=2.4), {"all": tassel})])
+    # The lantern, in the left hand: a hook, two links of chain, the cage of cold flame with four bars and plates.
+    flame = Material(COLD_FLAME, base=2.5, noise=0.8, glow=0.9)
+    ly = top - 29
+    bones.append(Bone("lantern", [11, ly, 0], "left_hand", None, [
+        Box([10.3, ly - 2.5, -0.7], [1.4, 3, 1.4], iron.but(base=1.8)),
+    ]))
+    bones += chain_bones("lantern_chain", "lantern", [11, ly - 2.5, 0], 2, 3.5, iron, {"all": links}, thickness=1.1)
+    cy = ly - 9.5
+    cage_boxes = [Box([7.5, cy, -3.5], [7, 1, 7], iron.but(base=2.2)),
+                  Box([7.5, cy - 8, -3.5], [7, 1, 7], iron.but(base=1.8))]
+    cage_boxes += octagon([8, cy - 7, -3], [6, 7, 6], flame, {"all": cage}, shrink=0.72)
+    cage_boxes += [Box([7.4 + k % 2 * 6.4, cy - 7.5, -3.6 + (k // 2) * 6.4], [0.8, 8, 0.8], iron.but(base=2.4)) for k in range(4)]
+    cage_boxes += [Box([10.3, cy + 1, -0.7], [1.4, 1.4, 1.4], iron.but(base=2.6))]
+    bones.append(Bone("lantern_cage", [11, cy, 0], "lantern_chain_2", None, cage_boxes))
     swing1, swing2, overhead, sweep, throw, thrust = t(14), t(10), t(22), t(24), t(20), t(18)
+    hanging = [chain_names("hood_tail", 2), ["hem_front"], ["hem_back"], chain_names("right_chain", 2), chain_names("left_chain", 2),
+               ["keys"], chain_names("halberd_tassel", 2), chain_names("lantern_chain", 2) + ["lantern_cage"]]
+
+    def hang_sway(length, amp, phase_step=0.13):
+        out = {}
+        for i, names in enumerate(hanging):
+            out = merge(out, lag_sway(names, length, amp * (1.6 if names[0] == "lantern_chain_1" else 1), axis=0, phase=i * phase_step))
+        return out
+
+    def hang_whip(t0, amp, settle=0.6):
+        out = {}
+        for i, names in enumerate(hanging):
+            out = merge(out, whip(names, t0 + 0.03 * i, amp * (1.4 if names[0] == "lantern_chain_1" else 0.8), axis=0, settle=settle))
+        return out
+
     animations = {
-        "misc.idle": anim(3.0, {
-            "body": rot(0, ZERO, 1.5, [2, 0, 0], 3.0, ZERO),
-            "lantern": rot(0, [0, 0, -4], 1.5, [0, 0, 4], 3.0, [0, 0, -4]),
-            "head": rot(0, ZERO, 1.5, [4, -3, 0], 3.0, ZERO),
-        }),
-        "move.walk": anim(1.4, {
-            "right_leg": rot(0, [22, 0, 0], 0.7, [-22, 0, 0], 1.4, [22, 0, 0]),
-            "left_leg": rot(0, [-22, 0, 0], 0.7, [22, 0, 0], 1.4, [-22, 0, 0]),
-            "left_arm": rot(0, [10, 0, 0], 0.7, [-10, 0, 0], 1.4, [10, 0, 0]),
-            "lantern": rot(0, [-8, 0, 0], 0.7, [8, 0, 0], 1.4, [-8, 0, 0]),
-            "root": pos(0, ZERO, 0.35, [0, 0.8, 0], 0.7, ZERO, 1.05, [0, 0.8, 0], 1.4, ZERO),
-        }),
-        "attack.halberd_1": anim(swing1 + 0.35, {
-            "right_arm": rot(0, ZERO, swing1, [-80, -70, 0], swing1 + 0.1, [-80, 60, 0], swing1 + 0.35, ZERO),
-            "body": rot(0, ZERO, swing1, [0, 25, 0], swing1 + 0.1, [0, -30, 0], swing1 + 0.35, ZERO),
-        }, loop=False),
-        "attack.halberd_2": anim(swing2 + 0.3, {
-            "right_arm": rot(0, [-80, 60, 0], swing2, [-85, 70, 0], swing2 + 0.1, [-80, -60, 0], swing2 + 0.3, ZERO),
-            "body": rot(0, [0, -30, 0], swing2, [0, -35, 0], swing2 + 0.1, [0, 30, 0], swing2 + 0.3, ZERO),
-        }, loop=False),
-        "attack.overhead": anim(overhead + 0.5, {
-            "right_arm": rot(0, ZERO, overhead, [-175, 0, 15], overhead + 0.08, [-40, 0, 0], overhead + 0.5, ZERO),
-            "left_arm": rot(0, ZERO, overhead, [-175, 0, -15], overhead + 0.08, [-40, 0, 0], overhead + 0.5, ZERO),
-            "body": rot(0, ZERO, overhead, [-12, 0, 0], overhead + 0.08, [25, 0, 0], overhead + 0.5, ZERO),
-        }, loop=False),
-        "attack.sweep": anim(sweep + 0.4, {
-            "body": rot(0, ZERO, sweep, [0, 70, 0], sweep + 0.25, [0, -290, 0], sweep + 0.4, [0, -360, 0]),
-            "right_arm": rot(0, ZERO, sweep, [-90, 0, 0], sweep + 0.4, ZERO),
-        }, loop=False),
-        "attack.lantern_throw": anim(throw + 0.3, {
-            "left_arm": rot(0, ZERO, throw, [40, 0, -20], throw + 0.1, [-130, 0, -10], throw + 0.3, ZERO),
-        }, loop=False),
-        "attack.thrust": anim(thrust + 0.4, {
-            "right_arm": rot(0, ZERO, thrust, [30, 0, 0], thrust + 0.08, [-95, 0, 0], thrust + 0.4, ZERO),
-            "body": rot(0, ZERO, thrust, [-10, 0, 0], thrust + 0.08, [20, 0, 0], thrust + 0.4, ZERO),
-            "root": pos(0, ZERO, thrust, [0, 0, 2], thrust + 0.1, [0, 0, -6], thrust + 0.4, ZERO),
-        }, loop=False),
-        "misc.lantern_shatter": anim(1.2, {
-            "left_arm": rot(0, ZERO, 0.5, [-170, 0, -10], 0.6, [-150, 0, -25], 0.7, [-170, 0, 5], 1.2, ZERO),
-            "head": rot(0, ZERO, 0.5, [-25, 0, 0], 1.2, ZERO),
-        }, loop=False),
-        "misc.raise_dead": anim(1.5, {
-            "right_arm": rot(0, ZERO, 0.8, [-150, 0, 30], 1.5, ZERO),
-            "left_arm": rot(0, ZERO, 0.8, [-150, 0, -30], 1.5, ZERO),
-            "head": rot(0, ZERO, 0.8, [-30, 0, 0], 1.5, ZERO),
-        }, loop=False),
+        "misc.idle": anim(3.0, merge(hang_sway(3.0, 4), {
+            "body": rot(0, ZERO, 1.5, e("easeInOutSine", [2.5, 0, 0]), 3.0, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, 1.2, e("easeInOutSine", [4, -4, 0]), 2.4, e("easeInOutSine", [2, 4, 0]), 3.0, e("easeInOutSine", ZERO)),
+            "right_arm": rot(0, ZERO, 1.5, e("easeInOutSine", [-3, 0, 2]), 3.0, e("easeInOutSine", ZERO)),
+            "left_arm": rot(0, [-12, 0, -6], 1.5, e("easeInOutSine", [-16, 0, -6]), 3.0, e("easeInOutSine", [-12, 0, -6])),
+            "left_forearm": rot(0, [-25, 0, 0], 1.5, [-28, 0, 0], 3.0, [-25, 0, 0]),
+            "lantern_cage": rot(0, ZERO, 1.5, [0, 15, 0], 3.0, ZERO),
+        })),
+        "move.walk": anim(1.4, merge(hang_sway(1.4, 9), {
+            "right_leg": rot(0, [22, 0, 0], 0.7, e("easeInOutSine", [-22, 0, 0]), 1.4, e("easeInOutSine", [22, 0, 0])),
+            "left_leg": rot(0, [-22, 0, 0], 0.7, e("easeInOutSine", [22, 0, 0]), 1.4, e("easeInOutSine", [-22, 0, 0])),
+            "left_arm": rot(0, [-2, 0, -6], 0.7, e("easeInOutSine", [-22, 0, -6]), 1.4, e("easeInOutSine", [-2, 0, -6])),
+            "left_forearm": rot(0, [-25, 0, 0], 1.4, [-25, 0, 0]),
+            "right_arm": rot(0, [-8, 0, 2], 0.7, [8, 0, 2], 1.4, [-8, 0, 2]),
+            "root": pos(0, ZERO, 0.18, e("easeOutQuad", [0, -0.8, 0]), 0.45, e("easeInOutSine", [0, 0.6, 0]), 0.88,
+                        e("easeOutQuad", [0, -0.8, 0]), 1.15, e("easeInOutSine", [0, 0.6, 0]), 1.4, ZERO),
+            "body": rot(0, [4, -4, 2], 0.7, e("easeInOutSine", [4, 4, -2]), 1.4, e("easeInOutSine", [4, -4, 2])),
+            "head": rot(0, [-2, 4, -2], 0.7, e("easeInOutSine", [-2, -4, 2]), 1.4, e("easeInOutSine", [-2, 4, -2])),
+        })),
+        # Halberd 1: the shaft drawn back across the body, then swung from his right to left.
+        "attack.halberd_1": anim(swing1 + 0.4, merge(hang_whip(swing1 + 0.05, 30, 0.35), {
+            "right_arm": rot(0, ZERO, swing1 * 0.6, e("easeInOutSine", [-70, -60, 0]), swing1, [-85, -75, 0], swing1 + 0.1,
+                             e("easeOutBack", [-80, 60, 0]), swing1 + 0.4, e("easeInOutSine", ZERO)),
+            "right_forearm": rot(0, ZERO, swing1, [-20, 0, 0], swing1 + 0.1, e("easeOutCubic", ZERO)),
+            "body": rot(0, ZERO, swing1 * 0.6, e("easeInOutSine", [-4, 25, 0]), swing1, [-6, 30, 0], swing1 + 0.1, e("easeOutBack", [8, -30, 0]),
+                        swing1 + 0.4, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, swing1, [0, -25, 0], swing1 + 0.1, [0, 15, 0], swing1 + 0.4, ZERO),
+            "left_arm": rot(0, [-12, 0, -6], swing1, [10, 0, -20], swing1 + 0.1, [-25, 0, -10], swing1 + 0.4, [-12, 0, -6]),
+        }), loop=False),
+        "attack.halberd_2": anim(swing2 + 0.35, merge(hang_whip(swing2 + 0.05, 28, 0.3), {
+            "right_arm": rot(0, [-80, 60, 0], swing2, e("easeInOutSine", [-88, 75, 0]), swing2 + 0.1, e("easeOutBack", [-80, -65, 0]),
+                             swing2 + 0.35, e("easeInOutSine", ZERO)),
+            "body": rot(0, [8, -30, 0], swing2, e("easeInOutSine", [6, -38, 0]), swing2 + 0.1, e("easeOutBack", [8, 28, 0]), swing2 + 0.35, e("easeInOutSine", ZERO)),
+            "head": rot(0, [0, 15, 0], swing2, [0, 25, 0], swing2 + 0.1, [0, -15, 0], swing2 + 0.35, ZERO),
+            "left_arm": rot(0, [-25, 0, -10], swing2, [-20, 0, -15], swing2 + 0.1, [-10, 0, -10], swing2 + 0.35, [-12, 0, -6]),
+        }), loop=False),
+        # Overhead: both hands lift the halberd high, a hang, then it comes down the line; he drops with it.
+        "attack.overhead": anim(overhead + 0.55, merge(hang_whip(overhead + 0.05, 40, 0.5), {
+            "right_arm": rot(0, ZERO, overhead * 0.6, e("easeInOutSine", [-165, 0, 12]), overhead, [-178, 0, 12], overhead + 0.08,
+                             e("easeOutBack", [-45, 0, 0]), overhead + 0.3, [-40, 0, 0], overhead + 0.55, e("easeInOutSine", ZERO)),
+            "left_arm": rot(0, [-12, 0, -6], overhead * 0.6, e("easeInOutSine", [-160, -20, -20]), overhead, [-175, -20, -20], overhead + 0.08,
+                            e("easeOutBack", [-45, -10, -10]), overhead + 0.3, [-40, -10, -10], overhead + 0.55, e("easeInOutSine", [-12, 0, -6])),
+            "right_forearm": rot(0, ZERO, overhead, [-20, 0, 0], overhead + 0.08, e("easeOutCubic", ZERO)),
+            "left_forearm": rot(0, [-25, 0, 0], overhead, [-20, 0, 0], overhead + 0.08, ZERO, overhead + 0.55, [-25, 0, 0]),
+            "body": rot(0, ZERO, overhead * 0.6, e("easeInOutSine", [-10, 0, 0]), overhead, [-14, 0, 0], overhead + 0.08, e("easeOutBack", [28, 0, 0]),
+                        overhead + 0.3, [25, 0, 0], overhead + 0.55, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, overhead, [-15, 0, 0], overhead + 0.08, [12, 0, 0], overhead + 0.55, ZERO),
+            "root": pos(0, ZERO, overhead, [0, 1, 0], overhead + 0.08, e("easeOutCubic", [0, -2, -1]), overhead + 0.3, [0, -2, -1], overhead + 0.55, ZERO),
+        }), loop=False),
+        # Sweep: the halberd held out level, he turns a full circle, slow to start, then whipping round; the robe flares.
+        "attack.sweep": anim(sweep + 0.45, merge(hang_whip(sweep + 0.1, 35, 0.4), {
+            "body": rot(0, ZERO, sweep * 0.7, e("easeInOutSine", [0, 60, 0]), sweep, [0, 75, 0], sweep + 0.3, e("easeInCubic", [0, -285, 0]),
+                        sweep + 0.45, e("easeOutSine", [0, -360, 0])),
+            "right_arm": rot(0, ZERO, sweep * 0.7, e("easeInOutSine", [-85, 0, 10]), sweep, [-90, 0, 10], sweep + 0.45, e("easeInOutSine", ZERO)),
+            "right_forearm": rot(0, ZERO, sweep, [-10, 0, 0], sweep + 0.45, ZERO),
+            "left_arm": rot(0, [-12, 0, -6], sweep * 0.7, [-40, 0, -40], sweep + 0.45, [-12, 0, -6]),
+            "head": rot(0, ZERO, sweep * 0.7, [5, 0, 0], sweep + 0.45, ZERO),
+            "root": pos(0, ZERO, sweep, [0, -1.5, 0], sweep + 0.45, ZERO),
+        }), loop=False),
+        # Lantern throw: the left arm draws the lantern back on its chain, a swing up and over, and it flies.
+        "attack.lantern_throw": anim(throw + 0.35, merge(hang_whip(throw + 0.05, 30, 0.3), {
+            "left_arm": rot(0, [-12, 0, -6], throw * 0.6, e("easeInOutSine", [40, 0, -25]), throw, [50, 0, -25], throw + 0.1,
+                            e("easeOutBack", [-140, 0, -10]), throw + 0.35, e("easeInOutSine", [-12, 0, -6])),
+            "left_forearm": rot(0, [-25, 0, 0], throw, [-40, 0, 0], throw + 0.1, e("easeOutCubic", [-10, 0, 0]), throw + 0.35, [-25, 0, 0]),
+            "lantern_chain_1": rot(0, ZERO, throw * 0.6, [-30, 0, 0], throw, [-45, 0, 0], throw + 0.1, e("easeOutCubic", [60, 0, 0]),
+                                   throw + 0.35, ZERO),
+            "lantern_chain_2": rot(0, ZERO, throw, [-20, 0, 0], throw + 0.12, [40, 0, 0], throw + 0.35, ZERO),
+            "body": rot(0, ZERO, throw * 0.6, [-4, -20, 0], throw, [-6, -25, 0], throw + 0.1, e("easeOutBack", [10, 15, 0]), throw + 0.35, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, throw, [-8, 15, 0], throw + 0.1, [5, -5, 0], throw + 0.35, ZERO),
+        }), loop=False),
+        # Thrust: the halberd drawn back along his side, a crouch, then the lunge with the point.
+        "attack.thrust": anim(thrust + 0.45, merge(hang_whip(thrust + 0.08, 40, 0.37), {
+            "right_arm": rot(0, ZERO, thrust * 0.6, e("easeInOutSine", [30, 0, 10]), thrust, [40, 0, 12], thrust + 0.08,
+                             e("easeOutBack", [-100, 0, 0]), thrust + 0.25, [-95, 0, 0], thrust + 0.45, e("easeInOutSine", ZERO)),
+            "right_forearm": rot(0, ZERO, thrust, [-25, 0, 0], thrust + 0.08, e("easeOutCubic", ZERO)),
+            "body": rot(0, ZERO, thrust * 0.6, e("easeInOutSine", [-8, 25, 0]), thrust, [-12, 30, 0], thrust + 0.08,
+                        e("easeOutBack", [22, -15, 0]), thrust + 0.45, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, thrust, [5, -25, 0], thrust + 0.08, [-8, 5, 0], thrust + 0.45, ZERO),
+            "root": pos(0, ZERO, thrust, [0, -2, 2], thrust + 0.1, e("easeOutCubic", [0, 0, -5]), thrust + 0.45, ZERO),
+            "right_leg": rot(0, ZERO, thrust, [15, 0, 0], thrust + 0.08, [-40, 0, 0], thrust + 0.45, ZERO),
+            "left_leg": rot(0, ZERO, thrust, [-10, 0, 0], thrust + 0.08, [35, 0, 0], thrust + 0.45, ZERO),
+            "left_arm": rot(0, [-12, 0, -6], thrust, [-20, 0, -30], thrust + 0.08, [20, 0, -25], thrust + 0.45, [-12, 0, -6]),
+        }), loop=False),
+        # Lantern shatter (P2): he holds the lantern up before his face, it bursts (the code hides the bone at the
+        # phase change), and he reels back from the flash with the hand open.
+        "misc.lantern_shatter": anim(1.2, merge(hang_whip(0.55, 35, 0.6), {
+            "left_arm": rot(0, [-12, 0, -6], 0.45, e("easeInOutSine", [-150, 0, -20]), 0.55, [-155, 0, -25], 0.7, e("easeOutBack", [-110, 0, -50]),
+                            1.2, e("easeInOutSine", [-12, 0, -6])),
+            "left_forearm": rot(0, [-25, 0, 0], 0.45, [-40, 0, 0], 0.7, [-10, 0, 0], 1.2, [-25, 0, 0]),
+            "head": rot(0, ZERO, 0.45, [-20, 0, 0], 0.55, [-25, 0, 0], 0.7, e("easeOutBack", [-35, 20, 0]), 1.2, ZERO),
+            "body": rot(0, ZERO, 0.45, [-5, 0, 0], 0.7, e("easeOutBack", [-18, 0, 0]), 1.2, e("easeInOutSine", ZERO)),
+            "right_arm": rot(0, ZERO, 0.55, [-10, 0, 20], 0.7, [-30, 0, 40], 1.2, ZERO),
+            "root": pos(0, ZERO, 0.7, [0, 0, 2], 1.2, ZERO),
+        }), loop=False),
+        # Raise dead (P3): the halberd planted, both arms rise with the water, the hood thrown back.
+        "misc.raise_dead": anim(1.5, merge(hang_whip(0.8, 25, 0.7), {
+            "right_arm": rot(0, ZERO, 0.8, e("easeInOutSine", [-150, 0, 35]), 1.1, [-150, 0, 35], 1.5, e("easeInOutSine", ZERO)),
+            "left_arm": rot(0, [-12, 0, -6], 0.8, e("easeInOutSine", [-150, 0, -35]), 1.1, [-150, 0, -35], 1.5, e("easeInOutSine", [-12, 0, -6])),
+            "head": rot(0, ZERO, 0.8, e("easeInOutSine", [-30, 0, 0]), 1.1, [-30, 0, 0], 1.5, ZERO),
+            "body": rot(0, ZERO, 0.8, [-10, 0, 0], 1.5, ZERO),
+            "root": pos(0, ZERO, 0.8, [0, 1.5, 0], 1.5, ZERO),
+        }), loop=False),
+        "misc.hurt": anim(0.4, merge(hang_whip(0.02, 16, 0.36), {
+            "body": rot(0, ZERO, 0.08, e("easeOutCubic", [-8, 6, 0]), 0.4, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.08, e("easeOutCubic", [-15, -10, 0]), 0.4, e("easeInOutSine", ZERO)),
+            "root": pos(0, ZERO, 0.08, [0, 0, 1.2], 0.4, ZERO),
+        }), loop=False),
+        # Stagger (P2, a hit while he stands in the light): he cringes from it, an arm over the hood, and reels.
+        "misc.stagger": anim(0.9, merge(hang_whip(0.05, 32, 0.8), {
+            "root": pos(0, ZERO, 0.15, e("easeOutCubic", [0, -1, 3]), 0.5, [0, -2, 4], 0.9, e("easeInOutSine", ZERO)),
+            "body": rot(0, ZERO, 0.15, e("easeOutBack", [-20, 10, 0]), 0.5, [-15, -8, 0], 0.9, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.15, [-25, 15, 0], 0.5, [-15, -15, 0], 0.9, ZERO),
+            "left_arm": rot(0, [-12, 0, -6], 0.15, e("easeOutBack", [-150, 0, -40]), 0.5, [-140, 0, -50], 0.9, e("easeInOutSine", [-12, 0, -6])),
+            "left_forearm": rot(0, [-25, 0, 0], 0.15, [-60, 0, 0], 0.9, [-25, 0, 0]),
+            "right_arm": rot(0, ZERO, 0.15, e("easeOutBack", [-30, 0, 40]), 0.9, e("easeInOutSine", ZERO)),
+            "right_leg": rot(0, ZERO, 0.15, [25, 0, 0], 0.5, [20, 0, 0], 0.9, ZERO),
+        }), loop=False),
+        # Death (3 s): the halberd slips point-down, he sinks to his knees in the robe, bows over the shaft,
+        # straightens once with the hood thrown back, then folds forward to the floor; the lantern comes to rest.
+        "misc.death": anim(3.0, merge(hang_whip(2.0, 40, 1.0), {
+            "root": pos(0, ZERO, 0.4, e("easeOutCubic", [0, -1, 1]), 1.0, e("easeInQuad", [0, -17, 0]), 1.6, [0, -17, 0],
+                        2.0, e("easeInCubic", [0, -19, -3]), 2.2, e("easeOutBounce", [0, -20, -4]), 3.0, [0, -20, -4]),
+            "right_leg": rot(0, ZERO, 0.4, [8, 0, 0], 1.0, e("easeInQuad", [88, 0, 0]), 3.0, [88, 0, 0]),
+            "left_leg": rot(0, ZERO, 0.4, [-10, 0, 0], 1.0, e("easeInQuad", [85, 0, 0]), 3.0, [85, 0, 0]),
+            "body": rot(0, ZERO, 0.4, e("easeInOutSine", [-12, 4, 0]), 1.0, [25, 0, 4], 1.5, e("easeInOutSine", [-5, 0, 0]), 2.0,
+                        e("easeInCubic", [72, 0, 0]), 2.2, e("easeOutBounce", [78, 0, 0]), 3.0, [78, 0, 0]),
+            "head": rot(0, ZERO, 0.4, [-15, 0, 0], 1.0, [20, 0, 0], 1.5, e("easeInOutSine", [-40, 0, 0]), 2.0, [-20, 0, 10], 2.2,
+                        e("easeOutCubic", [0, 0, 8]), 2.7, e("easeInQuad", [15, 12, 8]), 3.0, [18, 12, 8]),
+            "right_arm": rot(0, ZERO, 0.4, e("easeInOutSine", [-45, 0, 10]), 1.0, [-50, 0, 12], 1.5, [-40, 0, 12], 2.0,
+                             e("easeInCubic", [-20, 0, 25]), 2.2, e("easeOutBounce", [-12, 0, 30]), 3.0, [-12, 0, 30]),
+            "right_forearm": rot(0, ZERO, 0.4, [-20, 0, 0], 1.0, [-30, 0, 0], 2.0, [-5, 0, 0], 3.0, [-5, 0, 0]),
+            # The halberd slips point-down, then lies across the floor beside him.
+            "halberd": rot(0, ZERO, 0.4, [25, 0, 0], 1.0, [55, 0, 0], 2.0, e("easeInCubic", [10, 0, 80]), 2.2, e("easeOutBounce", [0, 0, 88]), 3.0, [0, 0, 88]),
+            "left_arm": rot(0, [-12, 0, -6], 0.4, [-35, 0, -20], 1.0, e("easeInOutSine", [-45, 0, -15]), 1.5, [-30, 0, -15], 2.0,
+                            e("easeInCubic", [-18, 0, -30]), 2.2, e("easeOutBounce", [-10, 0, -35]), 3.0, [-10, 0, -35]),
+            "left_forearm": rot(0, [-25, 0, 0], 1.0, [-40, 0, 0], 2.0, [-10, 0, 0], 3.0, [-10, 0, 0]),
+        }), loop=False),
     }
     write_model("crypt_keeper", bones, animations, [3, 4.5], tex_w=128)
 
