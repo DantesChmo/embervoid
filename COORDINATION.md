@@ -45,7 +45,9 @@ session start only from the user's own message. Left for later: `art-items` (eve
 
 **Stopped by the user on the morning of 2026-10-24** before the final regression: the full record of what is on `main`,
 how it was made and what is left is [docs/overhaul-2026-10-24.md](docs/overhaul-2026-10-24.md). The Furnace Golem and
-the Smoldering Knight were finished afterwards and merged (`ff3ee8c`). Nothing of the overhaul has been seen in game; the full regression runs once at the end.
+the Smoldering Knight were finished afterwards and merged (`ff3ee8c`); then the full regression ran: datagen
+unchanged, build green, all 282 GameTests green (seven tests brought up to the overhaul's behaviour), `balanceTargets`
+at the known 17 misses of 18.3, server check PASS. Nothing of the overhaul has been seen in game; the full regression runs once at the end.
 
 ### Rules for the overhaul tracks
 

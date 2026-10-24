@@ -427,13 +427,15 @@ public final class MultiplayerTests implements FabricGameTest {
 			}
 			killNear(waves.get(0), p[0]);
 		});
-		arena.after(30, () -> moonStep(arena, stop, () -> {
+		// The bodies stay for their death animations before they go and the waves count as cleared.
+		int zombiesGone = AshenZombieEntity.DEATH_TICKS + 10;
+		arena.after(zombiesGone, () -> moonStep(arena, stop, () -> {
 			context.assertTrue(!MoonNights.holds(server).contains(NightWaves.holdId(p[0].getUuid())), "cleared wave still holds");
 			context.assertTrue(MoonNights.current(server) == MoonNight.FULL_MOON, "the night ended with a wave still out");
 			context.assertTrue(p[0].getInventory().count(SanctumItems.FLASK_SHARD) == 0, "a shard for the zombie wave");
 			killNear(waves.get(1), p[1]);
 		}));
-		arena.after(60, () -> moonStep(arena, stop, () -> {
+		arena.after(zombiesGone + GhostEntity.DEATH_TICKS + 10, () -> moonStep(arena, stop, () -> {
 			context.assertTrue(MoonNights.current(server) == MoonNight.NONE, "night still on after both waves");
 			context.assertTrue(p[1].getInventory().count(SanctumItems.FLASK_SHARD) == 1,
 					"Ghost wave shards: " + p[1].getInventory().count(SanctumItems.FLASK_SHARD));

@@ -79,8 +79,8 @@ public final class NightMobTests implements FabricGameTest {
 			List<MobEntity> wave = startFullMoon(context, player, 3);
 			context.assertTrue(wave.size() == 3, "expected 3 wave mobs, got " + wave.size());
 			killNearPlayer(wave, player);
-			// A dead mob is removed 20 ticks after its death.
-			context.waitAndRun(30, safe(context, player, () -> {
+			// A dead Zombie's body stays for its death animation, then goes.
+			context.waitAndRun(AshenZombieEntity.DEATH_TICKS + 10, safe(context, player, () -> {
 				context.assertTrue(!MoonNights.holds(server).contains(NightWaves.holdId(player.getUuid())), "hold still open");
 				context.assertTrue(MoonNights.current(server) == MoonNight.NONE, "night still on: " + MoonNights.current(server));
 				context.assertTrue(lastEnd == MoonNights.EndReason.GOAL_MET, "night ended with " + lastEnd);
@@ -103,7 +103,8 @@ public final class NightMobTests implements FabricGameTest {
 			}
 			context.assertTrue(player.getInventory().count(SanctumItems.FLASK_SHARD) == 0, "shard before the wave is beaten");
 			killNearPlayer(wave, player);
-			context.waitAndRun(30, safe(context, player, () -> {
+			// A dead Ghost's body stays for its death animation, then goes.
+			context.waitAndRun(GhostEntity.DEATH_TICKS + 10, safe(context, player, () -> {
 				context.assertTrue(player.getInventory().count(SanctumItems.FLASK_SHARD) == 1,
 						"Flask Shards after the ghost wave: " + player.getInventory().count(SanctumItems.FLASK_SHARD));
 				context.assertTrue(MoonNights.current(context.getWorld().getServer()) == MoonNight.NONE, "night still on");

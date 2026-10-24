@@ -6,11 +6,15 @@ import com.embervoid.entity.mob.MobAnimations;
 import com.embervoid.entity.mob.MobEntities;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.GameTestException;
 import net.minecraft.test.TestContext;
+import net.minecraft.util.math.BlockPos;
 
 import java.lang.reflect.Method;
 
@@ -70,7 +74,10 @@ public final class OverworldMobAnimationTests implements FabricGameTest {
 		BossArena arena = new BossArena(context, null);
 		arena.step(() -> {
 			arena.floor(4, 4, 4);
-			HollowEntity hollow = context.spawnEntity(MobEntities.HOLLOW, 4, 1, 3);
+			// As in HollowTests: goals cleared (left to its AI next to the player it swings on its own through the join
+			// wait), and a sword, since all of its damage comes from the weapon.
+			HollowEntity hollow = context.spawnMob(MobEntities.HOLLOW, new BlockPos(4, 1, 3));
+			hollow.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_SWORD));
 			ServerPlayerEntity player = arena.join(4, 4);
 			arena.after(BossArena.JOIN_INVULNERABLE_TICKS, () -> {
 				hollow.setTarget(player);

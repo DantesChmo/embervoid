@@ -209,9 +209,11 @@ final class BossArena {
 	 * combat effects ({@link CombatFx}, by channel).
 	 */
 	static final class FogRecorder extends ClientConnection {
-		private static final Set<Identifier> FX = Set.of(CombatFx.SHAKE_PACKET, CombatFx.TRAIL_PACKET, CombatFx.FLASH_PACKET, ArenaWalls.PACKET);
+		private static final Set<Identifier> FX = Set.of(CombatFx.SHAKE_PACKET, CombatFx.TRAIL_PACKET, CombatFx.FLASH_PACKET);
 		final List<float[]> fog = new ArrayList<>();
 		final List<CustomPayloadS2CPacket> fx = new ArrayList<>();
+		/** Arena wall packets, kept apart from {@link #fx}: the wall reaches every player within 160 blocks. */
+		final List<CustomPayloadS2CPacket> wallPackets = new ArrayList<>();
 
 		FogRecorder() {
 			super(NetworkSide.SERVERBOUND);
@@ -230,18 +232,18 @@ final class BossArena {
 				fog.add(new float[]{buf.readFloat(), buf.readInt()});
 			} else if (packet instanceof CustomPayloadS2CPacket payload && FX.contains(payload.getChannel())) {
 				fx.add(payload);
+			} else if (packet instanceof CustomPayloadS2CPacket payload && payload.getChannel().equals(ArenaWalls.PACKET)) {
+				wallPackets.add(payload);
 			}
 		}
 
 		/** Arena wall packets so far that removed a wall (true) or placed one (false). */
 		List<Boolean> walls() {
 			List<Boolean> walls = new ArrayList<>();
-			for (CustomPayloadS2CPacket payload : fx) {
-				if (payload.getChannel().equals(ArenaWalls.PACKET)) {
-					PacketByteBuf buf = new PacketByteBuf(payload.getData().copy());
-					buf.readLong();
-					walls.add(buf.readBoolean());
-				}
+			for (CustomPayloadS2CPacket payload : wallPackets) {
+				PacketByteBuf buf = new PacketByteBuf(payload.getData().copy());
+				buf.readLong();
+				walls.add(buf.readBoolean());
 			}
 			return walls;
 		}

@@ -69,7 +69,8 @@ public final class WardensScourgeTests implements FabricGameTest {
 
 	/**
 	 * Only the tip cracks: an iron golem 2 blocks ahead takes the plain hit, one 5 blocks ahead (in the last 1.5 blocks)
-	 * ×1.6 of it with the crack's sound, which a swing that reaches no mob with the tip does not make.
+	 * ×1.6 of it with the crack's full report there; a swing that reaches no mob with the tip only snaps in the air at
+	 * the lash's end.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE)
 	public void onlyTheTipCracks(TestContext context) {
@@ -81,11 +82,13 @@ public final class WardensScourgeTests implements FabricGameTest {
 			ready(player);
 			WardensScourgeItem.crack(player, null);
 			context.assertTrue(hurt(alone), "the golem 2 blocks ahead was not hit");
-			context.assertFalse(SoundLog.heard(world, GearSounds.WHIP_CRACK, player.getPos(), 16), "cracked without the tip");
+			// The lash still snaps in the air where it ends, but not at the golem its body hit.
+			context.assertFalse(SoundLog.heard(world, GearSounds.WHIP_CRACK, alone.getPos(), 1.5), "cracked at the golem without the tip");
 			alone.discard();
 
 			IronGolemEntity near = golem(context, 2, 4);
 			IronGolemEntity tip = golem(context, 2, 7);
+			SoundLog.forget(world, player.getPos(), 16);
 			ready(player);
 			WardensScourgeItem.crack(player, null);
 			float plain = near.getMaxHealth() - near.getHealth();
