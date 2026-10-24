@@ -19,7 +19,6 @@ import net.minecraft.entity.boss.BossBar;
 import net.minecraft.entity.boss.ServerBossBar;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -57,10 +56,6 @@ import java.util.UUID;
  * </ul>
  */
 public class BossFight {
-	/** Fog wall particles are drawn this often, in ticks. */
-	private static final int FOG_INTERVAL = 10;
-	/** Fog wall height above the arena floor. */
-	private static final int FOG_HEIGHT = 4;
 	private static final UUID FIGHTERS_HEALTH_ID = UUID.fromString("6f1b8c52-3a9e-4f0d-b2c1-8e7d5a4c3b21");
 
 	private final ServerWorld world;
@@ -462,7 +457,7 @@ public class BossFight {
 		boss.setTarget(next);
 	}
 
-	/** Pushes fighters back in and everyone else back out; draws the wall near the arena edge. */
+	/** Pushes fighters back in and everyone else back out; the wall's look is the client's ({@link ArenaWalls}). */
 	private void holdFogWall() {
 		double cx = center.getX() + 0.5;
 		double cz = center.getZ() + 0.5;
@@ -483,16 +478,6 @@ public class BossFight {
 			player.velocityModified = true;
 			if (!fighter) {
 				player.sendMessage(Text.translatable("embervoid.boss.fog"), true);
-			}
-		}
-		if (world.getTime() % FOG_INTERVAL == 0) {
-			int points = (int) (r * 4);
-			for (int i = 0; i < points; i++) {
-				double angle = Math.PI * 2 * i / points;
-				for (int y = 1; y <= FOG_HEIGHT; y++) {
-					world.spawnParticles(ParticleTypes.WHITE_ASH, cx + Math.cos(angle) * r, center.getY() + y, cz + Math.sin(angle) * r,
-							2, 0.2, 0.4, 0.2, 0);
-				}
 			}
 		}
 	}
