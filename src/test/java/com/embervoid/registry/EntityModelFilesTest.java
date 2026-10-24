@@ -1,7 +1,13 @@
 package com.embervoid.registry;
 
+import com.embervoid.reach.boss.AshColossusEntity;
+import com.embervoid.reach.boss.CryptKeeperEntity;
+import com.embervoid.reach.boss.GrievingTreeEntity;
+import com.embervoid.reach.boss.ReachBoss;
+import com.embervoid.reach.boss.SmolderingLordEntity;
 import com.embervoid.sanctum.boss.CryingSoulEntity;
 import com.embervoid.sanctum.boss.FallenSisterEntity;
+import com.embervoid.vampire.VampireBossEntity;
 import com.embervoid.vampire.VampireEntity;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -24,50 +30,96 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * The GeckoLib entity models keep what the code relies on when their art is regenerated (tools/overworld_mob_art.py,
  * tools/reach_mob_art.py, tools/reach_boss_art.py, tools/sanctum_boss_art.py): every model has its animation file and
- * texture, every animated bone exists, and the overworld entities (the Fallen Sister and her souls among them) have the
- * animations their classes play, the bones their renderers use and telegraphs at least as long as their windups. A
- * mismatch only shows in game as a frozen or missing part.
+ * texture, every animated bone exists, and the overworld entities and the six bosses have the animations their classes
+ * play (the moves, and since PLAN 19.3 / 19.4 the hurt, stagger, death and phase-change animations), the bones their
+ * renderers use or toggle and telegraphs at least as long as their windups. A mismatch only shows in game as a frozen
+ * or missing part.
  * (Sizes against tools/model_bounds.json: {@code python3 tools/model_preview.py check}.)
  */
 class EntityModelFilesTest {
 	private static final Path ASSETS = Path.of("src", "main", "resources", "assets", "embervoid");
 
-	/** Animations each overworld entity class plays (DefaultAnimations names and its own RawAnimations). */
-	private static final Map<String, List<String>> ANIMATIONS = Map.of(
-			"ash_ghoul", List.of("misc.idle", "move.walk", "attack.swing"),
-			"hollow", List.of("misc.idle", "move.walk", "attack.swing", "attack.block"),
-			"ember_wisp", List.of("misc.idle", "move.fly"),
-			"ashen_maiden", List.of("misc.idle", "misc.interact"),
-			"ashen_zombie", List.of("misc.idle", "move.walk", "attack.swing"),
-			"ghost", List.of("misc.idle", "move.fly", "attack.swing"),
-			"vampire", List.of("misc.idle", "move.walk", "misc.transform"),
-			"vampire_boss", List.of("misc.idle", "move.walk", "attack.swing", "attack.leap", "attack.nova", "misc.mist"),
-			"fallen_sister", List.of("misc.idle", "move.walk", FallenSisterEntity.ARC_1, FallenSisterEntity.ARC_2, FallenSisterEntity.SLAM,
-					FallenSisterEntity.SPIN, FallenSisterEntity.BACKSTEP, FallenSisterEntity.VEIL_BURN, FallenSisterEntity.HURT,
-					FallenSisterEntity.DEATH),
-			"crying_soul", List.of("misc.idle", CryingSoulEntity.DIVE, CryingSoulEntity.DAZED));
+	/** Animations each entity class plays (DefaultAnimations names and its own RawAnimations). */
+	private static final Map<String, List<String>> ANIMATIONS = Map.ofEntries(Map.entry(
+			"ash_ghoul", List.of("misc.idle", "move.walk", "attack.swing")),
+			Map.entry("hollow", List.of("misc.idle", "move.walk", "attack.swing", "attack.block")),
+			Map.entry("ember_wisp", List.of("misc.idle", "move.fly")),
+			Map.entry("ashen_maiden", List.of("misc.idle", "misc.interact")),
+			Map.entry("ashen_zombie", List.of("misc.idle", "move.walk", "attack.swing")),
+			Map.entry("ghost", List.of("misc.idle", "move.fly", "attack.swing")),
+			Map.entry("vampire", List.of("misc.idle", "move.walk", "misc.transform")),
+			Map.entry("vampire_boss", List.of("misc.idle", "move.walk", VampireBossEntity.SWING, VampireBossEntity.LEAP, VampireBossEntity.NOVA,
+					VampireBossEntity.MIST, VampireBossEntity.HURT, VampireBossEntity.STAGGER, VampireBossEntity.DEATH, VampireBossEntity.PHASE)),
+			Map.entry("fallen_sister", List.of("misc.idle", "move.walk", FallenSisterEntity.ARC_1, FallenSisterEntity.ARC_2, FallenSisterEntity.SLAM,
+					FallenSisterEntity.SPIN, FallenSisterEntity.BACKSTEP, FallenSisterEntity.VEIL_BURN, ReachBoss.HURT, ReachBoss.DEATH)),
+			Map.entry("crying_soul", List.of("misc.idle", CryingSoulEntity.DIVE, CryingSoulEntity.DAZED)),
+			Map.entry("ash_colossus", List.of("misc.idle", "move.walk", AshColossusEntity.FIST, AshColossusEntity.DRAG, AshColossusEntity.LEAP,
+					AshColossusEntity.BOULDER, AshColossusEntity.SMASH, AshColossusEntity.STORM, AshColossusEntity.SHED, ReachBoss.HURT,
+					ReachBoss.STAGGER, ReachBoss.DEATH)),
+			Map.entry("grieving_tree", List.of("misc.idle", "move.walk", GrievingTreeEntity.ROOT_LINES, GrievingTreeEntity.BRANCH_SWEEP,
+					GrievingTreeEntity.ROOT_CAGE, GrievingTreeEntity.THRALLS, GrievingTreeEntity.STUNNED, GrievingTreeEntity.UPROOT, ReachBoss.HURT,
+					ReachBoss.DEATH)),
+			Map.entry("crypt_keeper", List.of("misc.idle", "move.walk", CryptKeeperEntity.SWING_1, CryptKeeperEntity.SWING_2, CryptKeeperEntity.OVERHEAD,
+					CryptKeeperEntity.SWEEP, CryptKeeperEntity.LANTERN_THROW, CryptKeeperEntity.THRUST, CryptKeeperEntity.LANTERN_SHATTER,
+					CryptKeeperEntity.RAISE_DEAD, ReachBoss.HURT, ReachBoss.STAGGER, ReachBoss.DEATH)),
+			Map.entry("smoldering_lord", List.of("misc.idle", "move.walk", SmolderingLordEntity.SWING_1, SmolderingLordEntity.SWING_2,
+					SmolderingLordEntity.SLAM, SmolderingLordEntity.LUNGE, SmolderingLordEntity.MORTAR, SmolderingLordEntity.FLAME_LINE,
+					SmolderingLordEntity.DESCEND, SmolderingLordEntity.SHATTER, SmolderingLordEntity.HAZARD, ReachBoss.HURT, ReachBoss.STAGGER,
+					ReachBoss.DEATH)));
 
-	/** Bones the renderers use: the head they turn (models built with turnsHead) and the Hollow's held item. */
-	private static final Map<String, List<String>> BONES = Map.of(
-			"ash_ghoul", List.of("head"),
-			"hollow", List.of("head", "right_item"),
-			"ashen_maiden", List.of("head"),
-			"ashen_zombie", List.of("head"),
-			"vampire", List.of("head"),
-			"vampire_boss", List.of("head"),
-			"fallen_sister", List.of("head", "veil"));
+	/** Bones the renderers use: the head they turn (models built with turnsHead), the Hollow's held item, the bones the bosses toggle. */
+	private static final Map<String, List<String>> BONES = Map.ofEntries(
+			Map.entry("ash_ghoul", List.of("head")),
+			Map.entry("hollow", List.of("head", "right_item")),
+			Map.entry("ashen_maiden", List.of("head")),
+			Map.entry("ashen_zombie", List.of("head")),
+			Map.entry("vampire", List.of("head")),
+			Map.entry("vampire_boss", List.of("head")),
+			Map.entry("fallen_sister", List.of("head", "veil")),
+			Map.entry("ash_colossus", List.of("head", "plates", "core")),
+			Map.entry("grieving_tree", List.of("roots")),
+			Map.entry("crypt_keeper", List.of("head", "lantern")),
+			Map.entry("smoldering_lord", List.of("head", "armor")));
 
-	/** Shortest length (s) of a telegraphed animation: the windup it shows, in ticks / 20. */
-	private static final Map<String, Double> MIN_LENGTH = Map.of(
-			"hollow/attack.swing", 8 / 20.0,                       // HollowEntity.WINDUP_TICKS
-			"vampire/misc.transform", VampireEntity.TURN_TICKS / 20.0,
-			"vampire_boss/attack.leap", 20 / 20.0,                 // VampireBossEntity.LEAP_WINDUP
-			"vampire_boss/attack.nova", 30 / 20.0,                 // NOVA_WINDUP
-			"vampire_boss/misc.mist", 12 / 20.0,                   // MIST_WINDUP
-			"fallen_sister/" + FallenSisterEntity.ARC_1, FallenSisterEntity.ARC_1_WINDUP / 20.0,
-			"fallen_sister/" + FallenSisterEntity.SLAM, FallenSisterEntity.SLAM_WINDUP / 20.0,
-			"fallen_sister/" + FallenSisterEntity.SPIN, FallenSisterEntity.SPIN_WINDUP / 20.0,
-			"crying_soul/" + CryingSoulEntity.DIVE, CryingSoulEntity.DIVE_WINDUP / 20.0);
+	/** Shortest length (s) of a telegraphed animation: the windup it shows, in ticks / 20; death animations at least 2 s. */
+	private static final Map<String, Double> MIN_LENGTH = Map.ofEntries(
+			Map.entry("hollow/attack.swing", 8 / 20.0),                       // HollowEntity.WINDUP_TICKS
+			Map.entry("vampire/misc.transform", VampireEntity.TURN_TICKS / 20.0),
+			Map.entry("vampire_boss/" + VampireBossEntity.LEAP, VampireBossEntity.LEAP_WINDUP / 20.0),
+			Map.entry("vampire_boss/" + VampireBossEntity.NOVA, VampireBossEntity.NOVA_WINDUP / 20.0),
+			Map.entry("vampire_boss/" + VampireBossEntity.MIST, VampireBossEntity.MIST_WINDUP / 20.0),
+			Map.entry("vampire_boss/" + VampireBossEntity.DEATH, 2.0),
+			Map.entry("fallen_sister/" + FallenSisterEntity.ARC_1, FallenSisterEntity.ARC_1_WINDUP / 20.0),
+			Map.entry("fallen_sister/" + FallenSisterEntity.SLAM, FallenSisterEntity.SLAM_WINDUP / 20.0),
+			Map.entry("fallen_sister/" + FallenSisterEntity.SPIN, FallenSisterEntity.SPIN_WINDUP / 20.0),
+			Map.entry("fallen_sister/" + ReachBoss.DEATH, 2.0),
+			Map.entry("crying_soul/" + CryingSoulEntity.DIVE, CryingSoulEntity.DIVE_WINDUP / 20.0),
+			Map.entry("ash_colossus/" + AshColossusEntity.FIST, AshColossusEntity.FIST_WINDUP / 20.0),
+			Map.entry("ash_colossus/" + AshColossusEntity.DRAG, AshColossusEntity.DRAG_WINDUP / 20.0),
+			Map.entry("ash_colossus/" + AshColossusEntity.LEAP, AshColossusEntity.LEAP_WINDUP / 20.0),
+			Map.entry("ash_colossus/" + AshColossusEntity.BOULDER, AshColossusEntity.BOULDER_WINDUP / 20.0),
+			Map.entry("ash_colossus/" + AshColossusEntity.SMASH, AshColossusEntity.SMASH_WINDUP / 20.0),
+			Map.entry("ash_colossus/" + AshColossusEntity.STORM, AshColossusEntity.STORM_WINDUP / 20.0),
+			Map.entry("ash_colossus/" + ReachBoss.DEATH, 2.0),
+			Map.entry("grieving_tree/" + GrievingTreeEntity.ROOT_LINES, GrievingTreeEntity.ROOT_WINDUP / 20.0),
+			Map.entry("grieving_tree/" + GrievingTreeEntity.BRANCH_SWEEP, GrievingTreeEntity.SWEEP_WINDUP / 20.0),
+			Map.entry("grieving_tree/" + GrievingTreeEntity.ROOT_CAGE, GrievingTreeEntity.CAGE_WINDUP / 20.0),
+			Map.entry("grieving_tree/" + GrievingTreeEntity.STUNNED, GrievingTreeEntity.STUN_TICKS / 20.0),
+			Map.entry("grieving_tree/" + ReachBoss.DEATH, 2.0),
+			Map.entry("crypt_keeper/" + CryptKeeperEntity.SWING_1, CryptKeeperEntity.SWING_1_WINDUP / 20.0),
+			Map.entry("crypt_keeper/" + CryptKeeperEntity.SWING_2, CryptKeeperEntity.SWING_2_WINDUP / 20.0),
+			Map.entry("crypt_keeper/" + CryptKeeperEntity.OVERHEAD, CryptKeeperEntity.OVERHEAD_WINDUP / 20.0),
+			Map.entry("crypt_keeper/" + CryptKeeperEntity.SWEEP, CryptKeeperEntity.SWEEP_WINDUP / 20.0),
+			Map.entry("crypt_keeper/" + CryptKeeperEntity.LANTERN_THROW, CryptKeeperEntity.LANTERN_WINDUP / 20.0),
+			Map.entry("crypt_keeper/" + CryptKeeperEntity.THRUST, CryptKeeperEntity.THRUST_WINDUP / 20.0),
+			Map.entry("crypt_keeper/" + ReachBoss.DEATH, 2.0),
+			Map.entry("smoldering_lord/" + SmolderingLordEntity.SWING_1, SmolderingLordEntity.SWING_1_WINDUP / 20.0),
+			Map.entry("smoldering_lord/" + SmolderingLordEntity.SWING_2, SmolderingLordEntity.SWING_2_WINDUP / 20.0),
+			Map.entry("smoldering_lord/" + SmolderingLordEntity.SLAM, SmolderingLordEntity.SLAM_WINDUP / 20.0),
+			Map.entry("smoldering_lord/" + SmolderingLordEntity.LUNGE, SmolderingLordEntity.LUNGE_WINDUP / 20.0),
+			Map.entry("smoldering_lord/" + SmolderingLordEntity.FLAME_LINE, SmolderingLordEntity.FLAME_LINE_WINDUP / 20.0),
+			Map.entry("smoldering_lord/" + SmolderingLordEntity.DESCEND, SmolderingLordEntity.DESCEND_WINDUP / 20.0),
+			Map.entry("smoldering_lord/" + ReachBoss.DEATH, 2.0));
 
 	@Test
 	void everyModelHasItsAnimationsAndTextureAndAnimatesOnlyItsBones() throws IOException {
@@ -100,7 +152,7 @@ class EntityModelFilesTest {
 	}
 
 	@Test
-	void overworldEntitiesKeepWhatTheirCodeUses() throws IOException {
+	void entitiesKeepWhatTheirCodeUses() throws IOException {
 		List<String> problems = new ArrayList<>();
 		for (Map.Entry<String, List<String>> entry : ANIMATIONS.entrySet()) {
 			String name = entry.getKey();

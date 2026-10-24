@@ -3,6 +3,9 @@ package com.embervoid.reach.boss;
 import com.embervoid.boss.BossFight;
 import com.embervoid.boss.Telegraph;
 import com.embervoid.boss.TelegraphShape;
+import com.embervoid.fx.CombatFx;
+import com.embervoid.fx.particle.EmberParticles;
+import com.embervoid.fx.SwingArc;
 import com.embervoid.reach.mob.ReachMobs;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
@@ -123,8 +126,57 @@ public class GrievingTreeEntity extends ReachBoss {
 		dataTracker.startTracking(STUNNED_FLAG, false);
 	}
 
+	/** How long the body stays after death (the topple in {@code misc.death}, 3 s); the trunk is its own stagger ({@link #STUNNED}). */
+	public static final int DEATH_TICKS = 60;
+
 	public boolean isStunned() {
 		return dataTracker.get(STUNNED_FLAG);
+	}
+
+	/** A hit of this share of its health (only possible while stunned) jolts the whole tree (visual only). */
+	public static final float STAGGER_SHARE = 0.1f;
+
+	@Override
+	protected String hurtAnimation(DamageSource source, float amount) {
+		return amount >= getMaxHealth() * STAGGER_SHARE ? STAGGER : HURT;
+	}
+
+	@Override
+	protected List<String> hurtAnimations() {
+		return List.of(HURT, STAGGER);
+	}
+
+	@Override
+	public int deathTicks() {
+		return DEATH_TICKS;
+	}
+
+	/** It groans, sap and leaves fall, then the trunk cracks and the whole oak crashes down (the fall lands at 2.4 s). */
+	@Override
+	protected void tickDeath(ServerWorld world, int deathTime) {
+		if (deathTime % 3 == 0) {
+			world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.OAK_LEAVES.getDefaultState()),
+					getX(), getY() + 8, getZ(), 8, 3.0, 1.0, 3.0, 0.05);
+			world.spawnParticles(EmberParticles.AMBER_MOTE, getX(), getY() + 5.5, getZ(), 2, 0.5, 0.3, 0.5, 0);
+		}
+		if (deathTime == 30) {
+			world.playSound(null, getX(), getY(), getZ(), SoundEvents.BLOCK_WOOD_BREAK, SoundCategory.HOSTILE, 2.0f, 0.4f);
+			world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.STRIPPED_OAK_LOG.getDefaultState()),
+					getX(), getY() + 1, getZ(), 40, 1.5, 0.8, 1.5, 0.1);
+		}
+		if (deathTime == 48) {
+			// The crown hits the ground about seven blocks ahead of the base.
+			Vec3d crash = getPos().add(Vec3d.fromPolar(0, getYaw()).multiply(7));
+			world.playSound(null, crash.x, crash.y, crash.z, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.HOSTILE, 1.5f, 0.4f);
+			CombatFx.impact(world, crash, 1.3f, 6f, 48, 0xC97A2A);
+			world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.OAK_LEAVES.getDefaultState()),
+					crash.x, crash.y + 1, crash.z, 150, 4.0, 1.0, 4.0, 0.15);
+			world.spawnParticles(EmberParticles.ASH_FLAKE, crash.x, crash.y + 0.5, crash.z, 60, 4.0, 0.3, 4.0, 0.05);
+		}
+		if (deathTime == DEATH_TICKS) {
+			EmberParticles.souls(world, new Vec3d(getX(), getY() + 4, getZ()), new Vec3d(getX(), getY() + 4 + 3.0, getZ()), 30);
+			world.spawnParticles(ParticleTypes.LARGE_SMOKE, getX(), getY() + 2, getZ(), 40, 2.0, 2.0, 2.0, 0.02);
+		}
 	}
 
 	public boolean isRooted() {
@@ -162,6 +214,10 @@ public class GrievingTreeEntity extends ReachBoss {
 		world.playSound(null, getX(), getY(), getZ(), SoundEvents.BLOCK_ROOTED_DIRT_BREAK, SoundCategory.HOSTILE, 2.0f, 0.5f);
 		world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.ROOTED_DIRT.getDefaultState()),
 				getX(), getY() + 0.3, getZ(), 120, 2.5, 0.3, 2.5, 0.2);
+		// The roots tear free: the grove shakes and leaves rain out of the canopy.
+		CombatFx.impact(world, getPos(), 1.2f, 4.0f, 48, 0xC97A2A);
+		world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.OAK_LEAVES.getDefaultState()),
+				getX(), getY() + 8, getZ(), 80, 3.5, 1.0, 3.5, 0.1);
 		for (TreeLanternEntity lantern : List.copyOf(lanterns)) {
 			lantern.discard();
 		}
@@ -207,6 +263,13 @@ public class GrievingTreeEntity extends ReachBoss {
 		dataTracker.set(STUNNED_FLAG, true);
 		playAnimation(STUNNED);
 		getWorld().playSound(null, getX(), getY(), getZ(), ReachBossSounds.GRIEVING_TREE_STUN, SoundCategory.HOSTILE, 2.0f, 1.0f);
+		if (getWorld() instanceof ServerWorld world) {
+			// The lurch: a shudder through the arena and a rain of leaves from the shaken canopy.
+			CombatFx.shake(world, getPos(), 0.5f, 16, 32);
+			world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.OAK_LEAVES.getDefaultState()),
+					getX(), getY() + 8, getZ(), 40, 3.0, 1.0, 3.0, 0.08);
+			world.spawnParticles(EmberParticles.AMBER_MOTE, getX(), getY() + 5.3, getZ(), 6, 0.3, 0.2, 0.3, 0);
+		}
 		if (fight != null) {
 			fogLiftTicks = FOG_LIFT_TICKS;
 			fight.clearFog();
@@ -288,6 +351,32 @@ public class GrievingTreeEntity extends ReachBoss {
 
 	// --- Moves ---
 
+	/** The weight of each strike as it lands: the sweep's trail and the ground torn by roots and cages. */
+	@Override
+	protected void afterStrike(String animation) {
+		if (!(getWorld() instanceof ServerWorld world)) {
+			return;
+		}
+		int amber = 0xC97A2A;
+		switch (animation) {
+			case BRANCH_SWEEP -> {
+				CombatFx.trail(this, SwingArc.sweep((float) SWEEP_RANGE, 2.5f, true, 7, amber));
+				Vec3d front = getPos().add(getRotationVector().multiply(1, 0, 1).normalize().multiply(4));
+				CombatFx.impact(world, front, 0.8f, 3.0f, 32, amber);
+				world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.OAK_LEAVES.getDefaultState()),
+						front.x, front.y + 0.5, front.z, 40, 2.5, 0.3, 2.5, 0.1);
+			}
+			case ROOT_LINES -> {
+				CombatFx.shake(world, getPos(), 0.7f, CombatFx.shakeTicks(0.7f), 40);
+				world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.ROOTED_DIRT.getDefaultState()),
+						getX(), getY() + 0.3, getZ(), 60, 3.0, 0.3, 3.0, 0.15);
+			}
+			case ROOT_CAGE -> CombatFx.shake(world, getPos(), 0.4f, CombatFx.shakeTicks(0.4f), 32);
+			default -> {
+			}
+		}
+	}
+
 	/** Root lines burst from its base towards every fighter (or its target alone outside a fight). */
 	public void rootLines() {
 		List<? extends LivingEntity> targets = fight() != null ? fight().fighters() : getTarget() != null ? List.of(getTarget()) : List.of();
@@ -327,6 +416,14 @@ public class GrievingTreeEntity extends ReachBoss {
 		telegraph(TelegraphShape.ring(at, 2.5), CAGE_WINDUP, ROOT_CAGE, ReachBossSounds.GRIEVING_TREE_ROOT_CAGE, ParticleTypes.MYCELIUM, player -> {
 			player.damage(getDamageSources().mobAttack(this), CAGE_DAMAGE);
 			player.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 60, 5), this);
+		});
+		Telegraph.windup(this, CAGE_WINDUP, null, null, ParticleTypes.MYCELIUM, 0, () -> {
+			if (getWorld() instanceof ServerWorld world) {
+				// The roots burst up round the mark.
+				CombatFx.flash(world, at, 2.5f, 0xC97A2A);
+				world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.ROOTED_DIRT.getDefaultState()),
+						at.x, at.y + 0.4, at.z, 50, 2.0, 0.3, 2.0, 0.15);
+			}
 		});
 	}
 

@@ -21,8 +21,9 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from art_kit import (ZERO, Bone, Box, Material, anim, clamp, crack, ember_cracks, hexc, keys, merge,  # noqa: E402
-                     mirror_box, pos, ramp, rot, scatter, shade, sway, tatter, write_model)
+from art_kit import (ZERO, Bone, Box, Material, anim, chain_bones, chain_names, chamfered, clamp, crack, e,  # noqa: E402
+                     ember_cracks, hexc, keys, lag_sway, merge, mirror_box, pos, ramp, rot, scatter, shade, sway, tatter,
+                     whip, write_model)
 from reach_mob_art import (ASH, BONE, BRONZE, CHAR, COLD, COLD_DIM, EMBER, EMBER_DARK, EMBER_DEEP,  # noqa: E402
                            EMBER_HOT, IRON, LEATHER, LINEN, ROPE, RUST, VOID, WOOD, band, bone, clear_all, eyes,
                            holes, lower, mail, open_front, ragged_edge, rivets, trim)
@@ -1066,9 +1067,12 @@ def vampire():
 # --- Vampire boss ---------------------------------------------------------------------------------------------------
 # The noble after the turn: gaunt grey-violet skin over the ribs, a torn doublet, the cloak's high collar in rags,
 # wild swept-back hair, horns curling back, pointed ears, a fanged maw and burning red eyes, long claws, and bat
-# wings (a spar, three fingers, a scalloped membrane of dark crimson veined with black). The telegraphs keep their
-# timings: attack.leap crouches until 1.0 s (LEAP_WINDUP 20), attack.nova spreads until 1.5 s (NOVA_WINDUP 30),
-# misc.mist folds by 0.6 s (MIST_WINDUP 12).
+# wings (a spar, three fingers, a scalloped membrane of dark crimson veined with black). PLAN 19.4: the torso, skull
+# and legs are chamfered, the coat tails, a three-piece cape, the hair and a tatter of the doublet hang on their own
+# bones and swing behind the motion, the forearms and clawed hands are their own bones, the jaw opens. The
+# telegraphs keep their timings: attack.leap crouches until 1.0 s (LEAP_WINDUP 20), attack.nova spreads until 1.5 s
+# (NOVA_WINDUP 30), misc.mist folds by 0.6 s (MIST_WINDUP 12); misc.hurt, misc.stagger, misc.death and misc.phase
+# are new (VampireBossEntity plays them).
 
 def vampire_boss():
     import math
@@ -1149,18 +1153,57 @@ def vampire_boss():
         elif face.name == "bottom":
             clear_all(face)
 
+    def belt(face, rng):
+        if face.side():
+            trim(face, LEATHER[0], ("top", "bottom"))
+            if face.name == "front":
+                face.set(face.cx, face.h // 2, SILVER[4])
+
+    def rag(face, rng):
+        if face.name in ("front", "back"):
+            for x in range(1, face.w - 1, 3):
+                face.vline(x, 0, face.h, NOBLE_BLACK[1])
+            ragged_edge(face, rng, "bottom", 3, 0.7)
+            holes_clear(face, rng, 1)
+
+    def cape_deco(face, rng):
+        if face.name == "front":          # the lining, seen from behind him: crimson with the folds
+            face.rect(0, 0, face.w, face.h, VCRIMSON[2])
+            for x in range(1, face.w - 1, 3):
+                face.vline(x, 0, face.h, VCRIMSON[1])
+        elif face.name == "back":
+            for x in range(1, face.w - 1, 3):
+                face.vline(x, 0, face.h, NOBLE_BLACK[1])
+        if face.name in ("front", "back"):
+            ragged_edge(face, rng, "bottom", 2, 0.5)
+            holes_clear(face, rng, 1)
+
+    cape_mat = Material(NOBLE_BLACK, base=2.4, noise=0.5, grain="v", bevel=0.3)
+    # Animation signs (checked in the preview): -X raises an arm forward and opens the jaw, swings a leg forward,
+    # tilts the head and body back; +X bows the body forward and folds a leg back.
     bones = [
         Bone("root", [0, 0, 0]),
-        Bone("body", [0, 24, 0], "root", [8, 0, 0], [
-            Box([-4, 12, -2], [8, 12, 4], doublet, {"all": torso}),
-            Box([-5, 24, -3], [10, 4, 6], black, {"all": collar}),
-            Box([-5, 24, 2], [10, 6, 1], black, {"all": lambda f, r: (
-                f.rect(0, 0, f.w, f.h, VCRIMSON[2]) if f.name == "front" else None,
-                ragged_edge(f, r, "top", 2, 0.5) if f.side() else None)},
-                rotation=[-20, 0, 0], pivot=[0, 24, 2.5]),
-        ]),
+        Bone("body", [0, 24, 0], "root", [8, 0, 0],
+             chamfered([-4, 12, -2], [8, 12, 4], doublet, {"all": torso}, c=0.5)
+             + [Box([-5, 24, -3], [10, 4, 6], black, {"all": collar}),
+                Box([-5, 24, 2], [10, 6, 1], black, {"all": lambda f, r: (
+                    f.rect(0, 0, f.w, f.h, VCRIMSON[2]) if f.name == "front" else None,
+                    ragged_edge(f, r, "top", 2, 0.5) if f.side() else None)},
+                    rotation=[-20, 0, 0], pivot=[0, 24, 2.5]),
+                Box([-4.3, 12, -2.3], [8.6, 2, 4.6], Material(LEATHER, base=1.8, noise=0.4, bevel=0.4), {"all": belt}),
+                Box([-1, 19, -2.6], [2, 2, 0.8], Material(ramp("7a0a14", "b0141e", "ff2a2a", "ff9a7a"), base=1.8, noise=0.5, glow=1.0)),
+                Box([-4.4, 17, -2.4], [8.8, 1, 0.6], Material(BONE, base=2.0, noise=0.4)),
+                Box([-4.4, 20, -2.4], [8.8, 1, 0.6], Material(BONE, base=2.2, noise=0.4))]),
     ]
-
+    # The coat tails hang from the belt at the back in two pieces each; the cape from the collar in three.
+    for side, sx in (("right", -1), ("left", 1)):
+        bones += chain_bones("coat_" + side, "body", [sx * 2.5, 12, 2.2], 2, 5.5, doublet, None, thickness=1,
+                             box=lambda i, o, sz, sx=sx: [Box([min(sx * 0.5, sx * 4.5) + i * 0.3, o[1], 2.2 + i * 0.2], [4 - i * 0.8, 5.8, 0],
+                                                              doublet.but(base=1.8), {"all": rag})])
+    bones += chain_bones("cape", "body", [0, 27, 3.3], 3, 7, cape_mat, None, thickness=1,
+                         box=lambda i, o, sz: [Box([-5.5 + i * 0.3, o[1], 3.3 + i * 0.25], [11 - i * 0.6, 7.3, 0], cape_mat.but(base=2.4 - i * 0.2),
+                                                   {"all": cape_deco})])
+    bones.append(Bone("tatter_front", [0, 12, -2.3], "body", None, [Box([-3, 8, -2.4], [6, 4.2, 0], doublet.but(base=1.6), {"all": rag})]))
     # Wings: an arm spar from the shoulder to the wrist, four fingers fanning out from the wrist, a membrane plane
     # stretched between them with a scalloped trailing edge.
     spar_y, wrist_x, root_x = 21.5, -12.0, -4.0
@@ -1240,14 +1283,21 @@ def vampire_boss():
     ear = Box([-5, 28, -3], [1, 3, 2], skin, rotation=[0, -20, -15], pivot=[-4, 28, -2])
     horn_base = Box([-4.5, 31, -2], [2, 3, 2], horn, rotation=[-30, 0, -10], pivot=[-3.5, 31, -1])
     horn_tip = Box([-4.2, 33, 0.5], [1, 3, 1], horn.but(base=3.4), rotation=[-65, 0, -10], pivot=[-3.7, 33, 1])
-    bones.append(Bone("head", [0, 25, -1], "root", None, [
-        Box([-4, 25, -5], [8, 8, 8], skin, {"front": head_front,
-                                            "back": lambda f, r: f.rect(0, 0, f.w, f.h - 2, HAIR_BLACK[1])}),
-        Box([-4.3, 29, -5.3], [8.6, 4.5, 8.6], Material(HAIR_BLACK, base=1.6, noise=0.6, top=0.4), {"all": hair}),
-        Box([-3, 28, 3], [6, 4, 2], Material(HAIR_BLACK, base=1.4, noise=0.6),
-            {"sides": lambda f, r: ragged_edge(f, r, "bottom", 2, 0.6)}, rotation=[-35, 0, 0], pivot=[0, 32, 3]),
-        ear, mirror_box(ear), horn_base, mirror_box(horn_base), horn_tip, mirror_box(horn_tip),
+    # The head: a chamfered skull, the brow ridge, the cap of hair, the jaw with its fangs on its own bone, ears,
+    # horns, and the swept-back hair hanging down the neck in two strands.
+    bones.append(Bone("head", [0, 25, -1], "root", None,
+                      chamfered([-4, 25, -5], [8, 8, 8], skin, {"front": head_front,
+                                                                 "back": lambda f, r: f.rect(0, 0, f.w, f.h - 2, HAIR_BLACK[1])}, c=0.6)
+                      + [Box([-4.3, 29, -5.3], [8.6, 4.5, 8.6], Material(HAIR_BLACK, base=1.6, noise=0.6, top=0.4), {"all": hair}),
+                         Box([-4.2, 28.6, -5.5], [8.4, 1.2, 1.2], skin.but(base=1.6)),
+                         ear, mirror_box(ear), horn_base, mirror_box(horn_base), horn_tip, mirror_box(horn_tip)]))
+    bones.append(Bone("jaw", [0, 26.5, -1], "head", None, [
+        Box([-3, 24.8, -5.3], [6, 2, 4.6], skin.but(base=2.0), {"front": lambda f, r: (f.hline(0, 0, f.w, VCRIMSON[1]),
+                                                                                         f.set(1, 0, FANG), f.set(f.w - 2, 0, FANG))}),
     ]))
+    bones += chain_bones("hair", "head", [0, 32, 3.2], 2, 4.5, Material(HAIR_BLACK, base=1.4, noise=0.6), None, thickness=1,
+                         box=lambda i, o, sz: [Box([-3 + i * 0.8, o[1], 3.2 + i * 0.3], [6 - i * 1.6, 4.8, 0], Material(HAIR_BLACK, base=1.4, noise=0.6),
+                                                   {"all": lambda f, r: ragged_edge(f, r, "bottom", 2, 0.6) if f.name in ("front", "back") else None})])
 
     def arm_deco(face, rng):
         if face.side():
@@ -1258,13 +1308,20 @@ def vampire_boss():
             ragged_edge_rows(face, rng, 5)
             face.hline(0, face.h - 1, face.w, BOSS_SKIN[1])
 
-    arm = Box([-7.5, 8, -1.5], [3, 15, 3], skin, {"all": arm_deco})
+    # Arms: the torn sleeve on the upper arm, a bony forearm, a hand with three claws (its own bone).
+    upper = Box([-7.5, 15, -1.5], [3, 8, 3], skin, {"all": arm_deco})
+    sleeve_rag = Box([-7.8, 19, -1.8], [3.6, 4.5, 3.6], doublet.but(base=1.8), {"all": lambda f, r: ragged_edge(f, r, "bottom", 2, 0.6) if f.side() else None})
+    fore = Box([-7.5, 7.5, -1.5], [3, 8, 3], skin.but(base=2.3), {"sides": lambda f, r: f.hline(0, f.h - 1, f.w, BOSS_SKIN[1])})
     hand = Box([-7.5, 6, -1.5], [3, 2, 3], skin.but(base=2.0))
     claws = [Box([-7.5 + 1 * i, 2.5, -1.5 - (i == 1) * 0.5], [1, 3.5, 1], claw_mat, rotation=[-15, 0, 0],
                  pivot=[-7 + i, 6, -1]) for i in range(3)]
     bones += [
-        Bone("right_arm", [-5, 23, 0], "root", [-10, 0, 8], [arm, hand] + claws),
-        Bone("left_arm", [5, 23, 0], "root", [-10, 0, -8], [mirror_box(arm), mirror_box(hand)] + [mirror_box(c) for c in claws]),
+        Bone("right_arm", [-5, 23, 0], "root", [-10, 0, 8], [upper, sleeve_rag]),
+        Bone("right_forearm", [-6, 15.5, 0], "right_arm", None, [fore]),
+        Bone("right_hand", [-6, 8, 0], "right_forearm", None, [hand] + claws),
+        Bone("left_arm", [5, 23, 0], "root", [-10, 0, -8], [mirror_box(upper), mirror_box(sleeve_rag)]),
+        Bone("left_forearm", [6, 15.5, 0], "left_arm", None, [mirror_box(fore)]),
+        Bone("left_hand", [6, 8, 0], "left_forearm", None, [mirror_box(hand)] + [mirror_box(c) for c in claws]),
     ]
 
     def leg_deco(face, rng):
@@ -1272,63 +1329,161 @@ def vampire_boss():
             ragged_edge_rows(face, rng, face.h - 4, lambda x, y: BOSS_SKIN[1 + (x + y) % 2])
             face.hline(0, face.h - 1, face.w, BOSS_SKIN[0])
 
-    leg = Box([-4, 0, -2], [4, 12, 4], black.but(base=1.8), {"all": leg_deco})
+    leg = chamfered([-4, 0, -2], [4, 12, 4], black.but(base=1.8), {"all": leg_deco}, c=0.5)
+    knee = Box([-4.2, 5.5, -2.5], [4.4, 2.2, 1], black.but(base=2.6))
     toes = Box([-4, 0, -3.5], [4, 1, 1.5], claw_mat, {"front": lambda f, r: [f.set(x, 0, BONE[3]) for x in (0, 2)]})
-    bones += [Bone("right_leg", [-2, 12, 0], "root", None, [leg, toes]),
-              Bone("left_leg", [2, 12, 0], "root", None, [mirror_box(leg), mirror_box(toes)])]
+    spur = Box([-2.5, 1, 2], [1, 2, 1.5], claw_mat, rotation=[25, 0, 0], pivot=[-2, 2, 2])
+    bones += [Bone("right_leg", [-2, 12, 0], "root", None, leg + [knee, toes, spur]),
+              Bone("left_leg", [2, 12, 0], "root", None, [mirror_box(b) for b in leg + [knee, toes, spur]])]
+    loose = [chain_names("cape", 3), chain_names("coat_right", 2), chain_names("coat_left", 2), chain_names("hair", 2), ["tatter_front"]]
+
+    def loose_sway(length, amp, phase=0.0):
+        out = {}
+        for i, names in enumerate(loose):
+            out = merge(out, lag_sway(names, length, amp * (1.3 if i == 0 else 1), axis=0, phase=phase + i * 0.15))
+        return out
+
+    def loose_whip(t0, amp, settle=0.5):
+        out = {}
+        for i, names in enumerate(loose):
+            out = merge(out, whip(names, t0 + 0.03 * i, amp * (1.3 if i == 0 else 0.9), axis=0, settle=settle))
+        return out
+
     animations = {
-        "misc.idle": anim(2.0, {
-            "right_wing": rot(0, ZERO, 1, [0, 12, 4], 2, ZERO),
-            "left_wing": rot(0, ZERO, 1, [0, -12, -4], 2, ZERO),
-            "body": rot(0, ZERO, 1, [3, 0, 0], 2, ZERO),
-            "head": rot(0, [4, 0, 0], 1, [0, 0, 3], 2, [4, 0, 0]),
-            "right_arm": rot(0, ZERO, 1, [-5, 0, 3], 2, ZERO),
-            "left_arm": rot(0, ZERO, 1, [-5, 0, -3], 2, ZERO),
-        }),
-        "move.walk": anim(0.8, {
-            "right_leg": rot(0, [30, 0, 0], 0.4, [-30, 0, 0], 0.8, [30, 0, 0]),
-            "left_leg": rot(0, [-30, 0, 0], 0.4, [30, 0, 0], 0.8, [-30, 0, 0]),
-            "right_arm": rot(0, [-25, 0, 0], 0.4, [15, 0, 0], 0.8, [-25, 0, 0]),
-            "left_arm": rot(0, [15, 0, 0], 0.4, [-25, 0, 0], 0.8, [15, 0, 0]),
-            "right_wing": rot(0, [0, 20, 0], 0.4, [0, 35, 0], 0.8, [0, 20, 0]),
-            "left_wing": rot(0, [0, -20, 0], 0.4, [0, -35, 0], 0.8, [0, -20, 0]),
-            "root": pos(0, ZERO, 0.2, [0, 0.5, 0], 0.4, ZERO, 0.6, [0, 0.5, 0], 0.8, ZERO),
-        }),
-        "attack.swing": anim(0.5, {
-            "right_arm": rot(0, ZERO, 0.2, [-130, 20, 0], 0.35, [-30, -20, 0], 0.5, ZERO),
-            "left_arm": rot(0, ZERO, 0.25, [-120, -20, 0], 0.4, [-30, 20, 0], 0.5, ZERO),
-            "body": rot(0, ZERO, 0.2, [-4, 12, 0], 0.4, [8, -12, 0], 0.5, ZERO),
-            "head": rot(0, ZERO, 0.2, [-10, 0, 0], 0.4, [8, 0, 0], 0.5, ZERO),
-        }, loop=False),
-        # 1 s windup (LEAP_WINDUP 20 ticks): crouch, wings up, then the jump.
-        "attack.leap": anim(1.4, {
-            "body": rot(0, ZERO, 0.9, [35, 0, 0], 1.1, [-10, 0, 0], 1.4, ZERO),
-            "root": pos(0, ZERO, 0.9, [0, -3, 0], 1.1, ZERO),
-            "right_wing": rot(0, ZERO, 0.9, [-10, 45, 35], 1.1, [0, -20, -10], 1.4, ZERO),
-            "left_wing": rot(0, ZERO, 0.9, [-10, -45, -35], 1.1, [0, 20, 10], 1.4, ZERO),
-            "right_arm": rot(0, ZERO, 0.9, [40, 0, 30], 1.1, [-150, 0, 0], 1.4, ZERO),
-            "left_arm": rot(0, ZERO, 0.9, [40, 0, -30], 1.1, [-150, 0, 0], 1.4, ZERO),
-            "right_leg": rot(0, ZERO, 0.9, [-30, 0, 0], 1.1, [20, 0, 0], 1.4, ZERO),
-            "left_leg": rot(0, ZERO, 0.9, [-30, 0, 0], 1.1, [20, 0, 0], 1.4, ZERO),
-            "head": rot(0, ZERO, 0.9, [-30, 0, 0], 1.1, [10, 0, 0], 1.4, ZERO),
-        }, loop=False),
-        # 1.5 s windup (NOVA_WINDUP 30 ticks): arms and wings spread wide, then the burst.
-        "attack.nova": anim(1.8, {
-            "right_arm": rot(0, ZERO, 1.4, [0, 0, 100], 1.5, [0, 0, 140], 1.8, ZERO),
-            "left_arm": rot(0, ZERO, 1.4, [0, 0, -100], 1.5, [0, 0, -140], 1.8, ZERO),
+        "misc.idle": anim(2.0, merge(loose_sway(2.0, 4), {
+            "right_wing": rot(0, ZERO, 1, e("easeInOutSine", [0, 12, 4]), 2, e("easeInOutSine", ZERO)),
+            "left_wing": rot(0, ZERO, 1, e("easeInOutSine", [0, -12, -4]), 2, e("easeInOutSine", ZERO)),
+            "body": rot(0, ZERO, 1, e("easeInOutSine", [3, 0, 0]), 2, e("easeInOutSine", ZERO)),
+            "head": rot(0, [4, 0, 0], 1, e("easeInOutSine", [0, 0, 3]), 2, e("easeInOutSine", [4, 0, 0])),
+            "jaw": rot(0, ZERO, 1, [-5, 0, 0], 2, ZERO),
+            "right_arm": rot(0, ZERO, 1, e("easeInOutSine", [-5, 0, 3]), 2, e("easeInOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 1, e("easeInOutSine", [-5, 0, -3]), 2, e("easeInOutSine", ZERO)),
+            "right_hand": rot(0, ZERO, 1, [-10, 0, 0], 2, ZERO),
+            "left_hand": rot(0, ZERO, 1, [-10, 0, 0], 2, ZERO),
+        })),
+        "move.walk": anim(0.8, merge(loose_sway(0.8, 9, 0.1), {
+            "right_leg": rot(0, [30, 0, 0], 0.4, e("easeInOutSine", [-30, 0, 0]), 0.8, e("easeInOutSine", [30, 0, 0])),
+            "left_leg": rot(0, [-30, 0, 0], 0.4, e("easeInOutSine", [30, 0, 0]), 0.8, e("easeInOutSine", [-30, 0, 0])),
+            "right_arm": rot(0, [-25, 0, 0], 0.4, e("easeInOutSine", [15, 0, 0]), 0.8, e("easeInOutSine", [-25, 0, 0])),
+            "left_arm": rot(0, [15, 0, 0], 0.4, e("easeInOutSine", [-25, 0, 0]), 0.8, e("easeInOutSine", [15, 0, 0])),
+            "right_forearm": rot(0, [-20, 0, 0], 0.8, [-20, 0, 0]),
+            "left_forearm": rot(0, [-20, 0, 0], 0.8, [-20, 0, 0]),
+            "right_wing": rot(0, [0, 20, 0], 0.4, e("easeInOutSine", [0, 35, 0]), 0.8, e("easeInOutSine", [0, 20, 0])),
+            "left_wing": rot(0, [0, -20, 0], 0.4, e("easeInOutSine", [0, -35, 0]), 0.8, e("easeInOutSine", [0, -20, 0])),
+            "root": pos(0, ZERO, 0.1, e("easeOutQuad", [0, -0.4, 0]), 0.25, [0, 0.5, 0], 0.5, e("easeOutQuad", [0, -0.4, 0]), 0.65, [0, 0.5, 0], 0.8, ZERO),
+            "body": rot(0, [0, -4, 2], 0.4, e("easeInOutSine", [0, 4, -2]), 0.8, e("easeInOutSine", [0, -4, 2])),
+            "head": rot(0, [4, 4, -2], 0.4, e("easeInOutSine", [4, -4, 2]), 0.8, e("easeInOutSine", [4, 4, -2])),
+        })),
+        # Claws: both arms drawn up and back, then raked down across; the hands open wide into it.
+        "attack.swing": anim(0.5, merge(loose_whip(0.22, 25, 0.28), {
+            "right_arm": rot(0, ZERO, 0.18, e("easeInOutSine", [-135, 20, 0]), 0.3, e("easeOutBack", [-30, -20, 0]), 0.5, e("easeInOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 0.22, e("easeInOutSine", [-125, -20, 0]), 0.34, e("easeOutBack", [-30, 20, 0]), 0.5, e("easeInOutSine", ZERO)),
+            "right_forearm": rot(0, ZERO, 0.18, [-40, 0, 0], 0.3, e("easeOutCubic", [10, 0, 0]), 0.5, ZERO),
+            "left_forearm": rot(0, ZERO, 0.22, [-40, 0, 0], 0.34, e("easeOutCubic", [10, 0, 0]), 0.5, ZERO),
+            "right_hand": rot(0, ZERO, 0.18, [-30, 0, 0], 0.3, [25, 0, 0], 0.5, ZERO),
+            "left_hand": rot(0, ZERO, 0.22, [-30, 0, 0], 0.34, [25, 0, 0], 0.5, ZERO),
+            "body": rot(0, ZERO, 0.18, e("easeInOutSine", [-6, 12, 0]), 0.32, e("easeOutBack", [10, -12, 0]), 0.5, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.18, [-12, 0, 0], 0.32, [10, 0, 0], 0.5, ZERO),
+            "jaw": rot(0, ZERO, 0.18, [-30, 0, 0], 0.4, ZERO),
+        }), loop=False),
+        # 1 s windup (LEAP_WINDUP 20 ticks): a deep crouch with the wings drawn up and the claws back, then the jump
+        # with everything thrown forward; the cape and coat stream behind.
+        "attack.leap": anim(1.4, merge(loose_whip(1.0, 45, 0.4), {
+            "body": rot(0, ZERO, 0.7, e("easeInOutSine", [32, 0, 0]), 1.0, [36, 0, 0], 1.1, e("easeOutCubic", [-12, 0, 0]), 1.4, e("easeInOutSine", ZERO)),
+            "root": pos(0, ZERO, 0.7, e("easeInOutSine", [0, -3, 0]), 1.0, [0, -3.5, 0], 1.1, e("easeOutCubic", [0, 1, 0]), 1.4, ZERO),
+            "right_wing": rot(0, ZERO, 0.7, e("easeInOutSine", [-10, 45, 35]), 1.0, [-12, 48, 38], 1.1, e("easeOutBack", [0, -25, -12]), 1.4, e("easeInOutSine", ZERO)),
+            "left_wing": rot(0, ZERO, 0.7, e("easeInOutSine", [-10, -45, -35]), 1.0, [-12, -48, -38], 1.1, e("easeOutBack", [0, 25, 12]), 1.4, e("easeInOutSine", ZERO)),
+            "right_arm": rot(0, ZERO, 0.7, e("easeInOutSine", [40, 0, 30]), 1.0, [45, 0, 32], 1.1, e("easeOutBack", [-150, 0, 0]), 1.4, e("easeInOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 0.7, e("easeInOutSine", [40, 0, -30]), 1.0, [45, 0, -32], 1.1, e("easeOutBack", [-150, 0, 0]), 1.4, e("easeInOutSine", ZERO)),
+            "right_hand": rot(0, ZERO, 1.0, [-20, 0, 0], 1.1, [20, 0, 0], 1.4, ZERO),
+            "left_hand": rot(0, ZERO, 1.0, [-20, 0, 0], 1.1, [20, 0, 0], 1.4, ZERO),
+            "right_leg": rot(0, ZERO, 0.7, [-32, 0, 0], 1.0, [-35, 0, 0], 1.1, [20, 0, 0], 1.4, ZERO),
+            "left_leg": rot(0, ZERO, 0.7, [-32, 0, 0], 1.0, [-35, 0, 0], 1.1, [20, 0, 0], 1.4, ZERO),
+            "head": rot(0, ZERO, 0.7, [-30, 0, 0], 1.0, [-32, 0, 0], 1.1, [10, 0, 0], 1.4, ZERO),
+            "jaw": rot(0, ZERO, 1.0, [-10, 0, 0], 1.1, [-35, 0, 0], 1.4, ZERO),
+        }), loop=False),
+        # 1.5 s windup (NOVA_WINDUP 30 ticks): arms and wings spread wider and wider, the head thrown back, then the burst.
+        "attack.nova": anim(1.8, merge(loose_whip(1.5, 50, 0.3), {
+            "right_arm": rot(0, ZERO, 1.4, e("easeInOutSine", [0, 0, 100]), 1.5, e("easeOutBack", [0, 0, 140]), 1.8, e("easeInOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 1.4, e("easeInOutSine", [0, 0, -100]), 1.5, e("easeOutBack", [0, 0, -140]), 1.8, e("easeInOutSine", ZERO)),
+            "right_hand": rot(0, ZERO, 1.4, [-20, 0, 0], 1.5, [-40, 0, 0], 1.8, ZERO),
+            "left_hand": rot(0, ZERO, 1.4, [-20, 0, 0], 1.5, [-40, 0, 0], 1.8, ZERO),
             # Wings opened flat to the front (rest is swept back 30 degrees) and raised.
-            "right_wing": rot(0, ZERO, 1.4, [0, -25, 20], 1.5, [0, -30, 28], 1.8, ZERO),
-            "left_wing": rot(0, ZERO, 1.4, [0, 25, -20], 1.5, [0, 30, -28], 1.8, ZERO),
-            "head": rot(0, ZERO, 1.4, [-30, 0, 0], 1.8, ZERO),
-            "body": rot(0, ZERO, 1.4, [-12, 0, 0], 1.5, [-15, 0, 0], 1.8, ZERO),
-        }, loop=False),
-        # 0.6 s windup (MIST_WINDUP 12 ticks): folds into its wings.
+            "right_wing": rot(0, ZERO, 1.4, e("easeInOutSine", [0, -25, 20]), 1.5, e("easeOutBack", [0, -30, 28]), 1.8, e("easeInOutSine", ZERO)),
+            "left_wing": rot(0, ZERO, 1.4, e("easeInOutSine", [0, 25, -20]), 1.5, e("easeOutBack", [0, 30, -28]), 1.8, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, 1.4, e("easeInOutSine", [-30, 0, 0]), 1.5, [-38, 0, 0], 1.8, e("easeInOutSine", ZERO)),
+            "jaw": rot(0, ZERO, 1.0, [-15, 0, 0], 1.5, [-40, 0, 0], 1.8, ZERO),
+            "body": rot(0, ZERO, 1.4, e("easeInOutSine", [-12, 0, 0]), 1.5, [-18, 0, 0], 1.8, e("easeInOutSine", ZERO)),
+            "root": pos(0, ZERO, 1.4, [0, 0.5, 0], 1.5, e("easeOutBack", [0, 2, 0]), 1.8, ZERO),
+        }), loop=False),
+        # 0.6 s windup (MIST_WINDUP 12 ticks): folds into its wings and the cape, and thins to nothing.
         "misc.mist": anim(0.8, {
-            "right_wing": rot(0, ZERO, 0.6, [0, -60, 0], 0.8, ZERO),
-            "left_wing": rot(0, ZERO, 0.6, [0, 60, 0], 0.8, ZERO),
-            "root": {"scale": keys(0, [1, 1, 1], 0.6, [0.8, 1.1, 0.8], 0.8, [1, 1, 1])},
+            "right_wing": rot(0, ZERO, 0.6, e("easeInOutSine", [0, -60, 0]), 0.8, ZERO),
+            "left_wing": rot(0, ZERO, 0.6, e("easeInOutSine", [0, 60, 0]), 0.8, ZERO),
+            "cape_1": rot(0, ZERO, 0.6, [-40, 0, 0], 0.8, ZERO),
+            "cape_2": rot(0, ZERO, 0.6, [-30, 0, 0], 0.8, ZERO),
+            "root": {"scale": keys(0, [1, 1, 1], 0.6, e("easeInQuad", [0.8, 1.1, 0.8]), 0.8, [1, 1, 1])},
             "head": rot(0, ZERO, 0.6, [20, 0, 0], 0.8, ZERO),
+            "right_arm": rot(0, ZERO, 0.6, [-60, 0, -40], 0.8, ZERO),
+            "left_arm": rot(0, ZERO, 0.6, [-60, 0, 40], 0.8, ZERO),
         }, loop=False),
+        # Hurt: a snap of the head and shoulders, the cape and hair jumping.
+        "misc.hurt": anim(0.4, merge(loose_whip(0.02, 16, 0.36), {
+            "body": rot(0, ZERO, 0.08, e("easeOutCubic", [-8, 6, 0]), 0.4, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.08, e("easeOutCubic", [-16, -10, 0]), 0.4, e("easeInOutSine", ZERO)),
+            "jaw": rot(0, ZERO, 0.08, [-20, 0, 0], 0.4, ZERO),
+            "root": pos(0, ZERO, 0.08, [0, 0, 1], 0.4, ZERO),
+            "right_wing": rot(0, ZERO, 0.08, [0, 15, 8], 0.4, ZERO),
+            "left_wing": rot(0, ZERO, 0.08, [0, -15, -8], 0.4, ZERO),
+        }), loop=False),
+        # Stagger (a heavy hit): thrown back a step, wings flung open, a hand to the wound, then it recovers.
+        "misc.stagger": anim(0.9, merge(loose_whip(0.05, 35, 0.8), {
+            "root": pos(0, ZERO, 0.15, e("easeOutCubic", [0, -1, 3]), 0.5, [0, -1.5, 4], 0.9, e("easeInOutSine", ZERO)),
+            "body": rot(0, ZERO, 0.15, e("easeOutBack", [-25, 8, 0]), 0.5, [-18, -6, 0], 0.9, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.15, [-25, 10, 0], 0.5, [-10, -10, 0], 0.9, ZERO),
+            "jaw": rot(0, ZERO, 0.15, [-35, 0, 0], 0.9, ZERO),
+            "right_wing": rot(0, ZERO, 0.15, e("easeOutBack", [-10, -30, 30]), 0.9, e("easeInOutSine", ZERO)),
+            "left_wing": rot(0, ZERO, 0.15, e("easeOutBack", [-10, 30, -30]), 0.9, e("easeInOutSine", ZERO)),
+            "right_arm": rot(0, ZERO, 0.15, e("easeOutBack", [-40, 0, 50]), 0.9, e("easeInOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 0.15, e("easeOutBack", [-70, 30, 0]), 0.5, [-75, 35, 0], 0.9, e("easeInOutSine", ZERO)),
+            "left_forearm": rot(0, ZERO, 0.15, [-60, 0, 0], 0.9, ZERO),
+            "right_leg": rot(0, ZERO, 0.15, [30, 0, 0], 0.5, [25, 0, 0], 0.9, ZERO),
+        }), loop=False),
+        # Phase (a threshold crossed): it arches back with a shriek, the wings and cape flung wide, then snaps forward.
+        "misc.phase": anim(1.2, merge(loose_whip(0.45, 45, 0.7), {
+            "body": rot(0, ZERO, 0.4, e("easeInOutSine", [-28, 0, 0]), 0.55, [-30, 0, 0], 0.75, e("easeOutBack", [14, 0, 0]), 1.2, e("easeInOutSine", ZERO)),
+            "head": rot(0, ZERO, 0.4, [-35, 0, 0], 0.55, [-38, 0, 0], 0.75, e("easeOutBack", [12, 0, 0]), 1.2, ZERO),
+            "jaw": rot(0, ZERO, 0.4, [-40, 0, 0], 0.75, [-30, 0, 0], 1.2, ZERO),
+            "right_wing": rot(0, ZERO, 0.4, e("easeInOutSine", [-15, -35, 40]), 0.75, [-5, -10, 10], 1.2, e("easeInOutSine", ZERO)),
+            "left_wing": rot(0, ZERO, 0.4, e("easeInOutSine", [-15, 35, -40]), 0.75, [-5, 10, -10], 1.2, e("easeInOutSine", ZERO)),
+            "right_arm": rot(0, ZERO, 0.4, e("easeInOutSine", [-40, 0, 70]), 0.75, [-20, 0, 20], 1.2, e("easeInOutSine", ZERO)),
+            "left_arm": rot(0, ZERO, 0.4, e("easeInOutSine", [-40, 0, -70]), 0.75, [-20, 0, -20], 1.2, e("easeInOutSine", ZERO)),
+            "root": pos(0, ZERO, 0.4, [0, 1, 1], 0.75, [0, -0.5, -1], 1.2, ZERO),
+        }), loop=False),
+        # Death (3 s): a hand to the heart, it staggers back, sinks to its knees with the wings spread and the
+        # head thrown back, then folds forward onto its hands; the wings droop and the cape settles.
+        "misc.death": anim(3.0, merge(loose_whip(2.0, 35, 0.9), {
+            "root": pos(0, ZERO, 0.5, e("easeOutCubic", [0, -0.5, 2]), 1.0, e("easeInQuad", [0, -8, 1]), 1.6, [0, -8, 1],
+                        2.0, e("easeInCubic", [0, -9, -1]), 2.2, e("easeOutBounce", [0, -9.5, -1.5]), 3.0, [0, -9.5, -1.5]),
+            "right_leg": rot(0, ZERO, 0.5, [8, 0, 0], 1.0, e("easeInQuad", [85, 0, 0]), 3.0, [85, 0, 0]),
+            "left_leg": rot(0, ZERO, 0.5, [-10, 0, 0], 1.0, e("easeInQuad", [88, 0, 0]), 3.0, [88, 0, 0]),
+            "body": rot(0, ZERO, 0.5, e("easeInOutSine", [-15, 5, 0]), 1.0, [-25, 0, 3], 1.6, e("easeInOutSine", [-30, 0, 3]), 2.0,
+                        e("easeInCubic", [60, 0, 0]), 2.2, e("easeOutBounce", [66, 0, 0]), 3.0, [66, 0, 0]),
+            "head": rot(0, ZERO, 0.5, [-10, 0, 0], 1.0, [-40, 0, 0], 1.6, [-45, 0, 8], 2.0, e("easeInCubic", [10, 0, 10]), 2.2,
+                        e("easeOutCubic", [20, 0, 10]), 2.7, e("easeInQuad", [28, 12, 10]), 3.0, [28, 12, 10]),
+            "jaw": rot(0, ZERO, 0.5, [-20, 0, 0], 1.6, [-45, 0, 0], 2.2, [-35, 0, 0], 3.0, [-30, 0, 0]),
+            "left_arm": rot(0, ZERO, 0.5, e("easeInOutSine", [-80, 35, 0]), 1.6, [-85, 30, 0], 2.0, e("easeInCubic", [-30, 0, -15]),
+                            2.2, e("easeOutBounce", [-25, 0, -18]), 3.0, [-25, 0, -18]),
+            "left_forearm": rot(0, ZERO, 0.5, [-70, 0, 0], 1.6, [-70, 0, 0], 2.0, [-10, 0, 0], 3.0, [-10, 0, 0]),
+            "right_arm": rot(0, ZERO, 0.5, e("easeInOutSine", [-20, 0, 40]), 1.6, [-40, 0, 55], 2.0, e("easeInCubic", [-30, 0, 15]),
+                             2.2, e("easeOutBounce", [-25, 0, 18]), 3.0, [-25, 0, 18]),
+            "right_hand": rot(0, ZERO, 1.6, [-30, 0, 0], 2.2, [40, 0, 0], 3.0, [40, 0, 0]),
+            "left_hand": rot(0, ZERO, 1.6, [-30, 0, 0], 2.2, [40, 0, 0], 3.0, [40, 0, 0]),
+            "right_wing": rot(0, ZERO, 1.0, e("easeInOutSine", [-15, -35, 45]), 1.6, [-15, -40, 50], 2.0, e("easeInCubic", [20, 10, -10]),
+                              2.3, e("easeOutBounce", [25, 15, -20]), 3.0, [25, 15, -20]),
+            "left_wing": rot(0, ZERO, 1.0, e("easeInOutSine", [-15, 35, -45]), 1.6, [-15, 40, -50], 2.0, e("easeInCubic", [20, -10, 10]),
+                             2.3, e("easeOutBounce", [25, -15, 20]), 3.0, [25, -15, 20]),
+        }), loop=False),
     }
     write_model("vampire_boss", bones, animations, [3, 3.5])
 
