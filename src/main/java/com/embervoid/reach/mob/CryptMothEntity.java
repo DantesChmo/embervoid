@@ -1,5 +1,6 @@
 package com.embervoid.reach.mob;
 
+import com.embervoid.fx.particle.EmberParticles;
 import net.minecraft.block.AbstractCandleBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.TorchBlock;
@@ -40,6 +41,8 @@ public class CryptMothEntity extends FlyingReachMob {
 	public static final int BURST_WINDUP = 15;
 	public static final double BURST_RADIUS = 3;
 	public static final int BLINDNESS_TICKS = 60;
+	/** Ticks the body stays for {@code misc.death}: it drops out of the air and turns onto its back, 1.6 s. */
+	public static final int DEATH_TICKS = 32;
 	/** Close enough to a light to snuff it. */
 	private static final double SNUFF_RANGE = 1.8;
 	/** A target this close draws it away from the light. */
@@ -157,6 +160,30 @@ public class CryptMothEntity extends FlyingReachMob {
 		super.cancelMove();
 		if (getState() == STATE_GLOWING && !getWorld().isClient) {
 			setState(STATE_NONE);
+		}
+	}
+
+	@Override
+	public int deathTicks() {
+		return DEATH_TICKS;
+	}
+
+	/** Killed in the air, the body drops. */
+	@Override
+	public void onDeath(DamageSource source) {
+		super.onDeath(source);
+		if (!getWorld().isClient) {
+			setState(STATE_NONE);
+			setNoGravity(false);
+		}
+	}
+
+	/** Pollen dust puffs off the wings as it tumbles down. */
+	@Override
+	protected void tickDeath(ServerWorld world, int deathTime) {
+		if (deathTime % 4 == 0) {
+			world.spawnParticles(POLLEN, getX(), getBodyY(0.5), getZ(), 2, 0.3, 0.2, 0.3, 0.01);
+			EmberParticles.spawn(world, EmberParticles.ASH_FLAKE, getPos().add(0, 0.2, 0), 1, 0.3, 0.02);
 		}
 	}
 

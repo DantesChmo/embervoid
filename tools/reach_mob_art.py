@@ -1598,64 +1598,77 @@ def restless_bones():
 
 
 # --- Necropolis: Crypt Moth ------------------------------------------------------------------------------------------
-# A big dusty moth of the crypts: furry body, feathery antennae, broad wings with eye spots. The glow_* bones (shown
-# by the renderer) light the wing pattern 15 ticks before the pollen burst.
-
-PALE_GLOW = hexc("d8ffb0")
-
+# A big dusty moth of the crypts: a furry eight-sided thorax with a ruff, an abdomen in two ringed segments that
+# trails, big pale eyes and a curled proboscis, feathery antennae in two segments, six legs, broad fore wings with
+# eye spots, veins and a scalloped fringe, hind wings behind. The glow_* bones (shown by the renderer) light the
+# wing pattern 15 ticks before the pollen burst.
 
 def wing_shape(face, rng, kind, outer_left):
-    """Rounds a flat wing's outline: clears the corners away from the body. outer_left: the outer (wingtip) end is
-    at face x = 0."""
+    """Rounds a flat wing's outline: clears the corners away from the body and scallops the trailing edge. outer_left:
+    the outer (wingtip) end is at face x = 0."""
     w, h = face.w, face.h
     for y in range(h):
         for x in range(w):
             ox = x if outer_left else w - 1 - x      # 0 at the tip
             if kind == "fore":
                 cut = (ox < 2 and (y < 1 or y > h - 3)) or (ox < 1 and y > h - 4) or (ox > w - 3 and y > h - 2)
+                cut = cut or (y == h - 1 and ox % 3 == 1)
             else:
-                cut = (ox < 2 and (y < 1 or y > h - 2)) or (ox < 1)
+                cut = (ox < 2 and (y < 1 or y > h - 2)) or (ox < 1) or (y == h - 1 and ox % 2 == 1)
             if cut:
                 face.clear(x, y)
 
 
 def crypt_moth():
-    fur = Material(DUST, base=2.6, noise=0.8, speck=0.08)
+    fur = Material(mk.DUST, base=2.8, noise=0.6, speck=0.08, bevel=0.3)
+
+    def furry(face, rng):
+        if face.side():
+            for x in range(0, face.w, 2):
+                face.set(x, rng.randrange(face.h), mk.DUST[4])
+            ragged_edge(face, rng, "bottom", 1, 0.4)
 
     def head_front(face, rng):
-        face.rect(0, 0, 1, 2, VOID)
-        face.rect(face.w - 1, 0, 1, 2, VOID)
-        face.lit(0, 0, hexc("cfe6a0"), 0.5)
-        face.lit(face.w - 1, 0, hexc("cfe6a0"), 0.5)
+        face.hline(0, face.h - 1, face.w, mk.DUST[1])
 
-    def comb(face, rng):
-        # A feathery antenna: a shaft on one column with barbs every other row.
+    def ringed(face, rng):
+        if face.side():
+            for y in range(0, face.h, 2):
+                face.hline(0, y, face.w, mk.DUST[1])
+
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("body", [0, 5, 0], "root", None,
+             mk.octagon([-1.5, 3, -3], [3, 3, 4], fur, {"sides": furry}, axis="z", shrink=0.8)
+             + [Box([-2.2, 5, -3.5], [4.4, 2, 2.4], fur.but(base=3.8), {"all": furry}, inflate=0.2),  # the ruff
+                Box([-1.8, 2.6, -2], [3.6, 0.8, 2.5], fur.but(base=2.0), inflate=0.1)]),  # the underside fur
+        Bone("head", [0, 5, -3], "body", None, [
+            Box([-1.5, 3.5, -5.5], [3, 3, 3], fur.but(base=2.0), {"front": head_front}),
+            Box([-1.8, 4.2, -5.8], [1.2, 1.6, 1.2], Material(mk.DUST, base=5.0, noise=0.2, glow=0.45), inflate=0.1),  # the eyes
+            Box([0.6, 4.2, -5.8], [1.2, 1.6, 1.2], Material(mk.DUST, base=5.0, noise=0.2, glow=0.45), inflate=0.1),
+            Box([-0.4, 3.4, -6.4], [0.8, 0.8, 1.4], fur.but(base=1.4), rotation=[40, 0, 0], pivot=[0, 3.8, -5.5]),  # proboscis
+        ]),
+    ]
+    bones += mk.tail_chain("abdomen", "body", [0, 4.2, 1], 2, 2.1, fur.but(base=2.3), thickness=2.4, taper=0.8,
+                           box=lambda i, o, s: [Box([o[0], o[1] - 0.2, o[2]], [s[0], s[1] + 0.2, s[2]], fur.but(base=2.3 - i * 0.3),
+                                                    {"all": ringed}, inflate=0.1)])
+    comb = Material(mk.DUST, base=3.6, noise=0.4)
+
+    def comb_face(face, rng):
+        # A feathery antenna: the shaft on one column, barbs every other row.
         for y in range(face.h):
             for x in range(face.w):
                 if x != 0 and y % 2 == 1:
                     face.clear(x, y)
 
-    def abdomen(face, rng):
-        if face.side():
-            for x in range(0, face.w, 2):
-                face.vline(x, 0, face.h, DUST[1])
-
-    bones = [
-        Bone("root", [0, 0, 0]),
-        Bone("body", [0, 5, 0], "root", None, [
-            Box([-1.5, 3, -3], [3, 3, 4], fur),
-            Box([-1, 3, 1], [2, 2, 4], fur.but(base=2.0), {"all": abdomen}),
-            Box([-2, 5, -3.5], [4, 2, 2], fur.but(base=3.6), inflate=0.2),
-        ]),
-        Bone("head", [0, 5, -3], "body", None, [
-            Box([-1.5, 3.5, -5.5], [3, 3, 3], fur.but(base=1.8), {"front": head_front}),
-            Box([-2, 6, -6], [2, 5, 0], Material(DUST, base=3.4, noise=0.5), {"all": comb},
-                rotation=[-40, 0, 20], pivot=[-1, 6, -5.5]),
-            Box([0, 6, -6], [2, 5, 0], Material(DUST, base=3.4, noise=0.5), {"all": comb},
-                rotation=[-40, 0, -20], pivot=[1, 6, -5.5]),
-        ]),
-    ]
-    wing_mat = Material(DUST, base=2.8, noise=0.8, cell=2.0)
+    for side, x, z in (("r", -1, 20), ("l", 1, -20)):
+        bones += chain_bones("antenna_" + side, "head", [x, 6, -5.5], 2, 2.5, comb, thickness=0.2, rotation=[-55, 0, z],
+                             box=lambda i, o, s, x=x: [Box([o[0] - (1.4 if x < 0 else 0.2), o[1], o[2]], [1.8, s[1], 0], comb, {"all": comb_face})])
+    leg = Material(mk.DUST, base=1.6, noise=0.4)
+    for i, z in enumerate((-2.5, -1.2, 0.2)):
+        bones[1].add(Box([-2.6, 2.2, z], [1.4, 0.5, 0.5], leg, rotation=[0, 0, 35 - i * 10], pivot=[-1.4, 2.6, z + 0.25]),
+                     Box([1.2, 2.2, z], [1.4, 0.5, 0.5], leg, rotation=[0, 0, -35 + i * 10], pivot=[1.4, 2.6, z + 0.25]))
+    wing_mat = Material(mk.DUST, base=3.0, noise=0.6, cell=2.0)
 
     def fore_pattern(face, rng, glow_only=False):
         outer_left = face.name == "top"
@@ -1667,13 +1680,17 @@ def crypt_moth():
                 ox = x if outer_left else w - 1 - x
                 ring = abs(ox - 3) + abs(y - 3)
                 if ring == 2:
-                    face.lit(x, y, PALE_GLOW, 0.9) if glow_only else face.set(x, y, DUST[0])
+                    face.lit(x, y, mk.PALE_GLOW, 0.9) if glow_only else face.set(x, y, mk.DUST[0])
                 elif ring == 0:
-                    face.lit(x, y, PALE_GLOW, 1.0) if glow_only else face.set(x, y, DUST[5])
-                elif ox == 6 and not glow_only:
-                    face.set(x, y, DUST[1])
-                elif glow_only and ox in (6, 7) and y % 2 == 0:
-                    face.lit(x, y, PALE_GLOW, 0.6)
+                    face.lit(x, y, mk.PALE_GLOW, 1.0) if glow_only else face.set(x, y, mk.DUST[5])
+                elif ring == 1 and not glow_only:
+                    face.set(x, y, mk.DUST[3])
+                elif ox == 7 and not glow_only:
+                    face.set(x, y, mk.DUST[1])
+                elif glow_only and ox in (7, 8) and y % 2 == 0:
+                    face.lit(x, y, mk.PALE_GLOW, 0.6)
+                elif not glow_only and (y == 1 or y == 4) and ox > 4:
+                    face.set(x, y, mk.DUST[2])  # veins
         wing_shape(face, rng, "fore", outer_left)
 
     def fore(face, rng):
@@ -1694,45 +1711,94 @@ def crypt_moth():
                 for x in range(face.w):
                     ox = x if outer_left else face.w - 1 - x
                     if ox == 2 and y in (1, 2, 3):
-                        face.set(x, y, DUST[0])
+                        face.set(x, y, mk.DUST[0])
+                    elif y == 2 and ox > 3:
+                        face.set(x, y, mk.DUST[2])
             wing_shape(face, rng, "hind", outer_left)
         else:
             clear_all(face)
 
-    fw = Box([-10.5, 6, -4], [9, 0, 7], wing_mat, {"all": fore})
-    fg = Box([-10.5, 6, -4], [9, 0, 7], wing_mat, {"all": fore_glow}, inflate=0.05)
-    hw = Box([-7.5, 5, 1], [6, 0, 5], wing_mat.but(base=2.2), {"all": hind})
+    fw = Box([-11.5, 6, -4], [10, 0, 7], wing_mat, {"all": fore})
+    fg = Box([-11.5, 6, -4], [10, 0, 7], wing_mat, {"all": fore_glow}, inflate=0.05)
+    vein = Material(mk.DUST, base=1.8, noise=0.3)
+    veins = [Box([-10, 6.05, -3.2 + k * 2.2], [8, 0.15, 0.3], vein, rotation=[0, 4 - k * 4, 0], pivot=[-2, 6, -3 + k * 2.2]) for k in range(2)]
+    hw = Box([-8, 5, 1], [6.5, 0, 5], wing_mat.but(base=2.4), {"all": hind})
     bones += [
-        Bone("right_wing", [-1.5, 6, -1], "body", None, [fw]),
+        Bone("right_wing", [-1.5, 6, -1], "body", None, [fw] + veins),
         Bone("glow_right", [-1.5, 6, -1], "right_wing", None, [fg]),
-        Bone("left_wing", [1.5, 6, -1], "body", None, [mirror_box(fw)]),
+        Bone("left_wing", [1.5, 6, -1], "body", None, [mirror_box(fw)] + [mirror_box(v) for v in veins]),
         Bone("glow_left", [1.5, 6, -1], "left_wing", None, [mirror_box(fg)]),
         Bone("right_wing_low", [-1.5, 5, 2], "body", None, [hw]),
         Bone("left_wing_low", [1.5, 5, 2], "body", None, [mirror_box(hw)]),
     ]
+    abdomen = chain_names("abdomen", 2)
+    antennae = chain_names("antenna_r", 2) + chain_names("antenna_l", 2)
 
-    def flap(length, angle):
+    def flap(length, angle, lag=0.12):
         h = length / 2
-        return {
-            "right_wing": rot(0, [0, 0, angle], h, [0, 0, -angle], length, [0, 0, angle]),
-            "left_wing": rot(0, [0, 0, -angle], h, [0, 0, angle], length, [0, 0, -angle]),
-            "right_wing_low": rot(0, [0, 0, angle * 0.6], h, [0, 0, -angle * 0.6], length, [0, 0, angle * 0.6]),
-            "left_wing_low": rot(0, [0, 0, -angle * 0.6], h, [0, 0, angle * 0.6], length, [0, 0, -angle * 0.6]),
-        }
+        d = length * lag
+        return merge({
+            "right_wing": rot(0, [0, 0, angle], h, e("easeInOutSine", [0, 0, -angle]), length, e("easeInOutSine", [0, 0, angle])),
+            "left_wing": rot(0, [0, 0, -angle], h, e("easeInOutSine", [0, 0, angle]), length, e("easeInOutSine", [0, 0, -angle])),
+            "right_wing_low": rot(0, [0, 0, angle * 0.5], d, e("easeInOutSine", [0, 0, angle * 0.6]), h + d, e("easeInOutSine", [0, 0, -angle * 0.6]),
+                                  length, e("easeInOutSine", [0, 0, angle * 0.5])),
+            "left_wing_low": rot(0, [0, 0, -angle * 0.5], d, e("easeInOutSine", [0, 0, -angle * 0.6]), h + d, e("easeInOutSine", [0, 0, angle * 0.6]),
+                                 length, e("easeInOutSine", [0, 0, -angle * 0.5])),
+        }, lag_sway(abdomen, length, 6, 0, phase=0.3), lag_sway(antennae, length, 8, 0, phase=0.5))
 
     animations = {
-        "move.fly": anim(0.3, merge(flap(0.3, 40), {"root": pos(0, ZERO, 0.15, [0, 0.6, 0], 0.3, ZERO)})),
-        "misc.idle": anim(0.6, merge(flap(0.6, 25), {"head": rot(0, ZERO, 0.3, [4, 0, 0], 0.6, ZERO)})),
-        "attack.burst": anim(0.75, {
-            "right_wing": rot(0, ZERO, 0.1, [0, 0, 8], 0.2, [0, 0, -8], 0.3, [0, 0, 8], 0.4, [0, 0, -8], 0.5, [0, 0, 8],
-                              0.6, [0, 0, -8], 0.75, [0, 0, 50]),
-            "left_wing": rot(0, ZERO, 0.1, [0, 0, -8], 0.2, [0, 0, 8], 0.3, [0, 0, -8], 0.4, [0, 0, 8], 0.5, [0, 0, -8],
-                             0.6, [0, 0, 8], 0.75, [0, 0, -50]),
-            "root": pos(0, ZERO, 0.75, [0, 2, 0]),
-        }, loop=False),
-        "attack.bite": anim(0.4, {"head": rot(0, ZERO, 0.15, [-20, 0, 0], 0.25, [30, 0, 0], 0.4, ZERO)}, loop=False),
+        "move.fly": anim(0.3, merge(flap(0.3, 42), {"root": pos(0, ZERO, 0.15, e("easeInOutSine", [0, 0.7, 0]), 0.3, e("easeInOutSine", ZERO)),
+                                                     "body": rot(0, [6, 0, 0], 0.3, [6, 0, 0])})),
+        "misc.idle": anim(0.6, merge(flap(0.6, 25), {"head": rot(0, ZERO, 0.3, e("easeInOutSine", [5, 4, 0]), 0.6, e("easeInOutSine", ZERO)),
+                                                      "root": pos(0, ZERO, 0.3, e("easeInOutSine", [0, 0.4, 0]), 0.6, e("easeInOutSine", ZERO))})),
+        # The burst: the wings shiver fast through the 15-tick tell (lit by the glow bones), then snap wide open as
+        # the pollen goes, the abdomen curling under.
+        "attack.burst": anim(0.75, merge({
+            "right_wing": rot(0, ZERO, 0.1, [0, 0, 10], 0.2, [0, 0, -10], 0.3, [0, 0, 10], 0.4, [0, 0, -10], 0.5, [0, 0, 10], 0.6, [0, 0, -10],
+                              0.75, e("easeOutBack", [0, 0, 55])),
+            "left_wing": rot(0, ZERO, 0.1, [0, 0, -10], 0.2, [0, 0, 10], 0.3, [0, 0, -10], 0.4, [0, 0, 10], 0.5, [0, 0, -10], 0.6, [0, 0, 10],
+                             0.75, e("easeOutBack", [0, 0, -55])),
+            "right_wing_low": rot(0, ZERO, 0.6, ZERO, 0.75, e("easeOutBack", [0, 0, 30])),
+            "left_wing_low": rot(0, ZERO, 0.6, ZERO, 0.75, e("easeOutBack", [0, 0, -30])),
+            "root": pos(0, ZERO, 0.6, e("easeInOutSine", [0, 1, 0]), 0.75, e("easeOutCubic", [0, 2.5, 0])),
+            "body": rot(0, ZERO, 0.6, e("easeInOutSine", [-10, 0, 0]), 0.75, e("easeOutCubic", [-25, 0, 0])),
+            "abdomen_1": rot(0, ZERO, 0.6, e("easeInOutSine", [-15, 0, 0]), 0.75, e("easeOutCubic", [-40, 0, 0])),
+            "abdomen_2": rot(0, ZERO, 0.6, e("easeInOutSine", [-10, 0, 0]), 0.75, e("easeOutCubic", [-30, 0, 0])),
+        }, whip(antennae, 0.6, -30, 0, settle=0.15)), loop=False),
+        "attack.bite": anim(0.4, merge({
+            "head": rot(0, ZERO, 0.12, e("easeInSine", [-25, 0, 0]), 0.22, e("easeOutBack", [35, 0, 0]), 0.4, e("easeOutSine", ZERO)),
+            "body": rot(0, ZERO, 0.12, e("easeInSine", [-8, 0, 0]), 0.22, e("easeOutCubic", [10, 0, 0]), 0.4, e("easeOutSine", ZERO)),
+        }, whip(antennae, 0.18, 30, 0, settle=0.2), whip(abdomen, 0.18, -20, 0, settle=0.2)), loop=False),
+        "misc.hurt": anim(0.4, merge({
+            "body": rot(0, ZERO, 0.08, e("easeOutCubic", [-15, 0, 25]), 0.4, e("easeOutSine", ZERO)),
+            "root": pos(0, ZERO, 0.08, e("easeOutCubic", [1, -1, 1]), 0.4, e("easeOutSine", ZERO)),
+            "right_wing": rot(0, ZERO, 0.08, e("easeOutCubic", [0, 0, 40]), 0.4, e("easeOutSine", ZERO)),
+            "left_wing": rot(0, ZERO, 0.08, e("easeOutCubic", [0, 0, -25]), 0.4, e("easeOutSine", ZERO)),
+        }, whip(antennae, 0.04, 35, 0, settle=0.34), whip(abdomen, 0.04, 25, 0, settle=0.34)), loop=False),
+        "misc.stagger": anim(0.8, merge({
+            "body": rot(0, ZERO, 0.12, e("easeOutCubic", [-30, 40, 60]), 0.45, e("easeInOutSine", [10, -20, -20]), 0.8, e("easeOutBack", ZERO)),
+            "root": pos(0, ZERO, 0.12, e("easeOutCubic", [2, -3, 2]), 0.8, e("easeOutSine", ZERO)),
+            "right_wing": rot(0, ZERO, 0.12, e("easeOutCubic", [0, 0, 60]), 0.45, e("easeInOutSine", [0, 0, -20]), 0.8, e("easeOutSine", ZERO)),
+            "left_wing": rot(0, ZERO, 0.12, e("easeOutCubic", [0, 0, -50]), 0.45, e("easeInOutSine", [0, 0, 15]), 0.8, e("easeOutSine", ZERO)),
+            "right_wing_low": rot(0, ZERO, 0.15, e("easeOutCubic", [0, 0, 40]), 0.8, e("easeOutSine", ZERO)),
+            "left_wing_low": rot(0, ZERO, 0.15, e("easeOutCubic", [0, 0, -40]), 0.8, e("easeOutSine", ZERO)),
+        }, whip(antennae, 0.05, 45, 0, settle=0.7), whip(abdomen, 0.05, 35, 0, settle=0.7)), loop=False),
+        # It drops out of the air (the server gives it gravity): the wings fold up over the back, it turns onto its
+        # back with the legs curled, the antennae settling last.
+        "misc.death": anim(1.6, merge({
+            "body": {"rotation": keys(0, ZERO, 0.25, e("easeInSine", [15, 0, 20]), 0.75, e("easeInQuad", [10, 0, 165]), 0.9, e("easeOutBounce", [5, 0, 178]),
+                                      1.6, [5, 0, 178]),
+                     "position": keys(0, ZERO, 0.75, e("easeInQuad", [0, -2.5, 0]), 0.9, e("easeOutSine", [0, -3, 0]), 1.6, [0, -3, 0])},
+            "right_wing": rot(0, ZERO, 0.25, e("easeOutSine", [0, 0, -40]), 0.75, e("easeInQuad", [0, 0, -75]), 1.0, e("easeOutSine", [0, 0, -60]), 1.6, [0, 0, -60]),
+            "left_wing": rot(0, ZERO, 0.25, e("easeOutSine", [0, 0, 35]), 0.75, e("easeInQuad", [0, 0, 70]), 1.0, e("easeOutSine", [0, 0, 65]), 1.6, [0, 0, 65]),
+            "right_wing_low": rot(0, ZERO, 0.3, e("easeOutSine", [0, 0, -50]), 0.8, e("easeInQuad", [0, 0, -70]), 1.6, [0, 0, -70]),
+            "left_wing_low": rot(0, ZERO, 0.3, e("easeOutSine", [0, 0, 45]), 0.8, e("easeInQuad", [0, 0, 75]), 1.6, [0, 0, 75]),
+            "head": rot(0, ZERO, 0.75, e("easeInQuad", [30, 0, 10]), 1.6, [30, 0, 10]),
+            "abdomen_1": rot(0, ZERO, 0.4, e("easeOutSine", [-20, 0, 0]), 0.9, e("easeInQuad", [-35, 0, 0]), 1.6, [-35, 0, 0]),
+            "abdomen_2": rot(0, ZERO, 0.4, e("easeOutSine", [-15, 0, 0]), 0.9, e("easeInQuad", [-30, 0, 0]), 1.6, [-30, 0, 0]),
+        }, mk.settle(antennae, 0.85, 40, 0, length=0.7)), loop=False),
     }
-    write_model("crypt_moth", bones, animations, [1.5, 1])
+    write_model("crypt_moth", bones, animations, [1.5, 1], tex_w=64)
 
 
 # --- Necropolis: Hollow Sentinel -------------------------------------------------------------------------------------
