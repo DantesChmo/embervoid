@@ -12,13 +12,17 @@ writing content: every new mob, boss, zone, weapon or structure is described aga
 ## 1. The loop as it plays today
 
 1. A harder overworld: every hostile mob has a level, Easy hits like vanilla Normal, three new hostiles.
-2. The player finds an **Ember Sanctum** (by exploring or a Sanctum Map), fights through its outer halls and steps
-   into the core. (0.5.0: the core moves to the hub dimension; Realm 1 unlocks on the first hub visit, PLAN 15.2.)
-3. In the core: the **Ashen Maiden** sells stat points for vanilla XP points; the **Ember Shrine** heals and
-   refills the flask; the lit **Void Obelisk** sends the player to **Ashen Reach** (Realm 1).
-4. In the realm: three zones, one boss arena each. Beating all three opens the **Citadel Gate** into the final
-   zone's sector (the Burning City, the Smoldering Citadel) and the realm boss. Beating it completes the realm and kindles its obelisk in the Sanctum.
-5. Death anywhere leaves an **Ash Remnant** with the player's XP and items; in a realm the player respawns at
+2. The player finds a **Ruined Sanctum** (the overworld dungeon, by exploring or a Sanctum Map), fights through its
+   outer halls and beats the **Fallen Sister** in the boss arena; she drops the **Crying Soul**.
+3. The Crying Soul kindles a **Cleft Stele** (the cold one in the arena, or one the player builds; one lit per
+   world), which leads to the hub, the **Ember Sanctum** in its own dimension. The first visit unlocks Realm 1.
+4. In the hub: the **Ashen Maiden** sells stat points for vanilla XP points; the **Ember Shrine** heals and refills
+   the flask; the lit **Void Obelisk** sends the player to **Ashen Reach** (Realm 1); the hub's own stele leads back
+   to the world's lit stele.
+5. In the realm: three zones, one boss arena each. Beating all three opens the **Citadel Gate** into the final
+   zone's sector (the Burning City, the Smoldering Citadel) and the realm boss. Beating it completes the realm and
+   kindles its obelisk in the hub. Leaving a realm always lands in the hub.
+6. Death anywhere leaves an **Ash Remnant** with the player's XP and items; in a realm the player respawns at
    the last shrine rested at in that dimension.
 
 Realm 1 (**Ashen Reach**, 0.4.0) is complete: three zones with their own mobs, ruins and ores, three zone bosses,
@@ -36,7 +40,7 @@ client. Each system owns its own attachment:
 | Attachment | Owner | Holds |
 |---|---|---|
 | `PlayerData` (`player.PlayerDataManager`) | player | stamina, flask charges and upgrades, first-flask flag, current remnant id, stats |
-| `PlayerProgress` (`progress.ProgressManager`) | progress | attuned, unlocked / completed realms, beaten bosses |
+| `PlayerProgress` (`progress.ProgressManager`) | progress | unlocked / completed realms, beaten bosses |
 | `RealmPlayerData` (`realm.RealmPlayerData`) | realms | Sanctum return point, rested shrine per realm dimension |
 
 New per-player state for content goes into a new attachment in its own package, not into `PlayerData`.
@@ -122,7 +126,7 @@ Difficulty-scaled damage from mobs to players: Easy ×1.0, Normal ×1.25, Hard �
 | Mob | Base Lv | Stats (level 1) | Behaviour | Spawns | Drops |
 |---|---|---|---|---|---|
 | **Ash Ghoul** | 5 | 12 HP, 2.5 dmg, fast (0.33) | Packs of 3–5; one targeting a player pulls in ghouls within 16 blocks; on death an ash cloud (r 2.5) gives Blindness 3 s; burns in daylight | Overworld night surface and dark caves, weight 12 | 0–2 bones, 0–1 charcoal, 5 XP |
-| **Hollow** | 15 | 30 HP, armor 6, slow (0.2), damage from its iron/stone sword only | 8-tick telegraphed swing, one attack per 2 s; raises a guard (front melee −80 %, front arrows deflected); an axe hit breaks the guard and staggers it 3 s; never burns | Overworld surface at night under open sky, rare (weight 5); guards in the Sanctum | 1–4 iron nuggets, 0–2 bones, 10 % iron ingot, 20 XP |
+| **Hollow** | 15 | 25 HP, armor 6, slow (0.2), damage from its iron/stone sword only | 8-tick telegraphed swing, one attack per 2 s; raises a guard (front melee −80 %, front arrows deflected); an axe hit breaks the guard and staggers it 3 s; never burns | Overworld surface at night under open sky, rare (weight 5); guards in the Sanctum | 1–4 iron nuggets, 0–2 bones, 10 % iron ingot, 20 XP |
 | **Ember Wisp** | 8 | 8 HP flyer, 1 dmg + 4 s fire | Dives at players within 16 blocks; lights fires nearby (mobGriefing); flees and drops its target at block light ≥ 7 except from its own fire — torches counter it | Below y=0, block light 0, under cover, weight 15, groups 1–2 | 0–1 glowstone dust, 5 % blaze powder, 6 XP |
 
 **To add a mob:** entity class in `entity/mob` (copy `AshGhoulEntity` for a GeckoLib mob), register type,
@@ -150,7 +154,7 @@ sections `moon`, `nightMobs`, `vampire`.
   target in range. **Curse of the Night**: a death to a hostile mob (or its projectile, or an `ArenaBoss`) adds a
   stack, anywhere; reset when a full moon ends. Waves (`nightmob.NightWaves`): per overworld player
   `min(stacks, 10)` **Ashen Zombies** (spot level + 5, don't burn, 20 XP) or, with no curse, 3 **Ghosts** (no-clip
-  flyers, 2× zombie HP/damage, 15 % of hits miss, 40 XP; clearing them gives a Flask Shard), 16–32 blocks away.
+  flyers, 36 HP and 5.5 damage, 15 % of hits miss, 40 XP; clearing them gives a Flask Shard), 16–32 blocks away.
   Each wave holds the night (`embervoid:wave/<uuid>`); a player away from the overworld gets it on return.
 - **Blood new moon:** red sky, fog and moon (client, overworld only). Overworld hostiles heal 25 % of damage
   dealt to players (`moon.blood.vampirism`, not `ArenaBoss`). 1–3 friendly **Vampires** per cluster of players
@@ -161,38 +165,63 @@ sections `moon`, `nightMobs`, `vampire`.
   2 Flask Shards + Vampire Fang, repeat 50 % a shard. A fighter who dies stays out; their remnant moves to their
   return point when the arena closes. Kill → back after 10 s, dawn.
 
-## 4. Ember Sanctum (hub)
+## 4. Ruined Sanctum (dungeon) and Ember Sanctum (hub)
 
-- Overworld structure, any land biome, `structure_set` spacing 48 / separation 16 (about one per 750 blocks;
-  change it with a datapack). Jigsaw depth 4.
-- **Layout:** surface ruin on a foundation → spiral stairwell in a sealed shaft (rock-cased where caves expose
-  it) → gate hall → 0–several side halls (corridor, chamber, crypt) → core. No world water inside any piece.
-- **Guards:** gate hall always 1 Hollow + 1 skeleton; each side-hall spot has a Hollow at
-  `sanctum.hallGuardChance` 0.6 and chambers an archer at `sanctum.hallArcherChance` 0.3, rolled at worldgen.
-  Typical Sanctum: 2–5 Hollows, 1 skeleton, 3–5 chests.
+### 4.1 Ruined Sanctum (overworld dungeon)
+- Overworld structure `embervoid:ember_sanctum`, any land biome, `structure_set` spacing 22 / separation 8 (about
+  one per 300–400 blocks; change it with a datapack). Three variants (`SanctumVariants`): the courtyard ruin, a
+  collapsed chapel and a sunken cloister, each with its own surface ruin, stairwell and guarded hall; side halls,
+  the boss wing, guards and loot are shared.
+- **Layout:** surface ruin → stairwell in a sealed, rock-cased shaft → gate hall → side halls (corridor, chamber,
+  crypt, storeroom) → an Ember Shrine at the boss door → a fog wall → the boss arena with a cold Cleft Stele at its
+  far end. No world water inside any piece.
+- **Guards:** each hall spot has a Hollow at `sanctum.hallGuardChance` 0.6 and chambers an archer at
+  `sanctum.hallArcherChance` 0.3, rolled at worldgen.
 - **Loot:** `embervoid:chests/sanctum_outer_hall` — vanilla loot, Flask Shards and, at 6 % each per chest (never
   both), a Sanctum weapon: the **Sanctum Longsword** (DEX; Wide Cleave, a 90° arc) or the **Ashbearer's Mace** (STR;
-  breaks a Hollow's guard; Ground Slam, a ring with Slowness). Numbers in config section `sanctumGear`;
-  `docs/balance-overworld.md` places them between iron and diamond and below the realm weapons.
-- **Core:** no hostile spawns (spawn-proof Sanctum Flagstone floor); shrine, obelisks and floor unbreakable.
-  Attunement is gone (PLAN 15.2): Realm 1 unlocks on the first arrival in the hub; old cores keep working.
-- **Ashen Maiden:** invulnerable NPC facing the entrance; right-click opens the level-up screen (closes beyond
-  8 blocks). GeckoLib, script-made model (`tools/overworld_mob_art.py`).
-- **Ember Shrine** (`embervoid:ember_shrine`): rest = full health + flask refill; in a realm it also sets the
-  respawn point. Used by the Sanctum core, realm landings and arenas.
-- **Void Obelisks:** four in the core, for `embervoid:realm_1`…`realm_4`, drawn per player as dark ("The flame
-  has not reached it"), lit (teleports: click = last rested shrine of that realm if any, sneak = landing) or
-  kindled (realm completed). Only Realm 1 exists.
-- **Sanctum Map:** explorer map with a red X, injected into cartographer, temple, ruined portal and shipwreck
-  chests (`sanctum.mapChance*`).
+  breaks a Hollow's guard; Ground Slam, a ring with Slowness). Numbers in config section `sanctumGear`.
+- **Fallen Sister** (`embervoid:fallen_sister`, `sanctum.boss`): Lv 10, base HP 115, the shared zone-boss theme.
+  A player within 8 blocks of an uncleared arena's centre starts the fight; censer arcs, a slam with an ember
+  puddle, a backstep; below half health the veil burns, crying souls dive one at a time and the censer spins.
+  Beaten once per world per dungeon (`ClearedSanctums`), no rematch; every credited player gets a **Crying Soul**,
+  a player's first clear also a Flask Shard and a Sanctum weapon. Debug: `/embervoid sanctum arena <x> <z>`.
+- **Sanctum Map:** explorer map with a red X to the nearest dungeon, injected into cartographer, temple, ruined
+  portal and shipwreck chests (`sanctum.mapChance*`).
+- **Old cores:** Sanctums planned before 0.5.0 keep their core (`sanctum/core`): the Ashen Maiden still levels
+  players there and its obelisks still lead to the realms (PLAN 15.5).
 - Templates are generated from Java by datagen (`sanctum/datagen/SanctumTemplates`), not built in game.
+
+### 4.2 Cleft Stele
+- A 5 wide × 6 tall frame of **Cleft Stone** (8 stone bricks around 1 coal or charcoal → 8) on either axis, the
+  middle column the crack. Right-click a valid frame with the Crying Soul: it is used up and the stele kindles.
+- **One lit per world** (besides the hub's own; `SteleState`): kindling another puts the old one out, breaking a
+  stone of a lit stele puts it out. Overworld, Nether and End; not in realms or the hub.
+- Right-click it or walk into the crack → the hub. Debug: `/embervoid stele [kindle <pos>]`.
+
+### 4.3 Ember Sanctum (hub)
+- Dimension `embervoid:hub`: one shared island in a void under eternal dusk, placed once (`HubTemplates`); no
+  hostile spawns, the whole island protected; a fall into the void kills, respawn is the overworld one.
+- **Ashen Maiden:** invulnerable NPC; right-click opens the level-up screen (closes beyond 8 blocks). GeckoLib,
+  script-made model.
+- **Ember Shrine** (`embervoid:ember_shrine`): rest = full health + flask refill; in a realm it also sets the
+  respawn point (in the hub and the dungeon it does not). Used by the hub, dungeons, realm landings and arenas.
+- **Void Obelisks:** a ring of four, for `embervoid:realm_1`…`realm_4`, drawn per player as dark ("The flame
+  has not reached it"), lit (teleports: click = last rested shrine of that realm if any, sneak = landing) or
+  kindled (realm completed). Only Realm 1 exists; it unlocks on the player's first arrival in the hub (attunement is
+  gone).
+- **Way out** (`HubTravel`): the hub's own stele, always lit, leads to the world's lit stele; with none, to the spot
+  the player last left the overworld from, else their bed or the world spawn. Debug: `/embervoid hub [check |
+  leave]`.
+- **Worlds from 0.4.x:** old attunement flags and return points are dropped on load; the realm is generated again
+  on the first start with 0.5.0 (`realm.RealmLayoutUpgrade`): progress stays, Ash Remnants left there go to the
+  hub's landing, players who logged out inside join at the hub, old realm shrines are forgotten.
 
 ---
 
 ## 5. Realms
 
 ### 5.1 Ashen Reach (Realm 1)
-- Dimension `embervoid:ashen_reach`, entered from the Sanctum obelisk. Bounded: terrain ends in cliffs at
+- Dimension `embervoid:ashen_reach`, entered from its obelisk in the hub. Bounded: terrain ends in cliffs at
   ~1200 blocks; past ~1230 the void pushes survival players back; falling in is a void death.
 - **Landing** at 0,0: Ember Shrine in the centre, Return Obelisk north (to the hub; in 0.4.x back to the Sanctum
   the player came from), Sealed Gate south. Mob level 15. Protected from building.

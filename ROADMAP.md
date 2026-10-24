@@ -27,7 +27,8 @@ player), everything since only by GameTests and the dedicated-server check. What
 "(not verified in game: …)" on its line. 0.4.0 is released locally (tag `v0.4.0`, not pushed). The leftovers of 0.2.0
 and 0.3.0 are done as 0.4.1 (PLAN.md "Leftovers of 0.2.0 and 0.3.0"); publishing waits for the user.
 The user's own playthrough of 0.4.1 (2026-10-23) set the next release, 0.5.0 (PLAN.md "Playtest 0.4.1"); its state
-and how the work is run: COORDINATION.md "Tracks — 0.5.0".
+and how the work is run: COORDINATION.md "Tracks — 0.5.0". 0.5.0 is done on `main` (version, changelog, docs, all
+checks green; not seen in game); its tag and push wait for the user.
 
 ## Decisions
 
@@ -325,12 +326,12 @@ visuals; the quick fixes fit in anywhere. Milestones 15, 17 and 21 start with a 
 
 ## 15. Hub dimension and the Cleft Stele
 
-**Status:** Built except old worlds (PLAN 15.0–15.4 done; 15.5 to do; not seen in game).
+**Status:** Done (PLAN 15.0–15.5; not seen in game; the old-world path not run on a real 0.4.x save).
 
 - [x] Design: hub, stele, dungeon boss (**Fallen Sister**), old worlds — DESIGN §1, §2, §10.13
 - [x] Hub dimension with the Ashen Maiden, the obelisk ring and an Ember Shrine; realms return to it
 - [x] **Cleft Stele**: a 5 × 6 slab frame, kindled by the Crying Soul, one active stele per world, stele ⇄ hub
-- [ ] Worlds from 0.4.x keep working
+- [x] Worlds from 0.4.x keep working (old cores, old player data; GameTests)
 
 ## 16. The overworld dungeon
 
@@ -402,9 +403,9 @@ visuals; the quick fixes fit in anywhere. Milestones 15, 17 and 21 start with a 
 
 ## 0.5.0 release
 
-**Status:** To do.
+**Status:** Done locally (PLAN 21.5; tag, push and the CI jar wait for the user).
 
-- [ ] Release 0.5.0: version, changelog, README, CORE, DESIGN; all checks green (tag and push wait for the user, CI builds the jar)
+- [x] Release 0.5.0: version, changelog, README, CORE, DESIGN; all checks green (tag and push wait for the user, CI builds the jar)
 
 **Done when:** a fresh survival playthrough goes overworld → dungeon → Cleft Stele → hub → Realm 1 → Smoldering Lord
 without creative mode, boss fights take about two minutes, and nothing breaks on client or server.

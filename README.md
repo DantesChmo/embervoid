@@ -22,14 +22,18 @@ Install on both the client and the server.
 - **Souls-style growth:** no classes, seven stats bought one point at a time with vanilla XP from the Ashen Maiden;
   a Healing Flask with charges instead of extra flasks; stamina spent only by weapon special attacks; on death your
   XP and items wait in an Ash Remnant where you fell.
-- **The Ember Sanctum:** a rare overworld dungeon (a Sanctum Map in some vanilla chests leads to one) with a guarded
-  descent, loot halls with Flask Shards and two Sanctum weapons with special attacks, and the core: the Ashen Maiden,
-  an Ember Shrine and the Void Obelisks.
+- **The Ruined Sanctum:** an overworld dungeon about every 300–400 blocks in three variants (a Sanctum Map in some
+  vanilla chests leads to the nearest), with a guarded descent, loot halls with Flask Shards and two Sanctum weapons
+  with special attacks, and the **Fallen Sister** behind a fog wall. She drops the **Crying Soul**.
+- **The Cleft Stele and the hub:** the Crying Soul kindles a Cleft Stele (the cold one in the dungeon or one you build
+  from Cleft Stone; one burns per world), which leads to the **Ember Sanctum**, a hub in its own dimension with the
+  Ashen Maiden, an Ember Shrine and the ring of Void Obelisks. Realms always lead back to the hub, the hub back to
+  the lit stele.
 - **Moon nights:** every third lunar cycle a full moon (stronger hostiles, Curse of the Night waves of Ashen Zombies
   or Ghosts) and a blood new moon (a red sky, vampirism, and a Vampire who becomes a boss).
 - **Ashen Reach**, the first obelisk's realm: three zones in any order (Ashen Fields, Royal Woods, Sunken Necropolis)
-  with their own mobs, ruins, ores and bosses, then the Sealed Gate to the Smoldering Citadel and the Smoldering
-  Lord. Realm gear: the Smoldering Plate, three armour sets, four weapons, and the Reliquary with artifacts and rings.
+  with their own mobs, ruins, ores and bosses, then the Citadel Gate, a fog wall into the realm's fourth sector with
+  the Smoldering Citadel and the Smoldering Lord. Realm gear: the Smoldering Plate, three armour sets, four weapons, and the Reliquary with artifacts and rings.
 - **Multiplayer:** progress, boss kills and loot are per player; boss health and adds grow with the number of
   fighters.
 
@@ -134,6 +138,9 @@ Client preferences live in `config/embervoid-client.json` (same rules; never rea
 | Key | Default | Range | Meaning |
 |-----|---------|-------|---------|
 | `staminaBar.hideWhenFull` | true | true, false | Hide the stamina bar while stamina is full |
+
+The **Boss Music** volume is a slider of its own in Options → Music & Sounds (default 100 %, independent of Music),
+saved with the vanilla options.
 
 ## Debug commands
 - `/embervoid data` (operator) — show your Embervoid player data as stored on the server.

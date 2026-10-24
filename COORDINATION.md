@@ -120,17 +120,17 @@ dungeon Hollow).
 
 ### What is left
 
-Updated 2026-10-24 after the overhaul, the Golem / Knight remodels and 16.4 + 18.3 (done here, one session).
+Updated 2026-10-24 after 15.5 and 21.5 (one session).
 
 | Task | Depends on | Note |
 |---|---|---|
-| 15.5 Worlds from 0.4.x | — | old Sanctum cores keep working, old player data (DESIGN §2 "Worlds from 0.4.x") |
 | 19.5 Photo tour (optional) | — | the user starts it in their own terminal |
-| 21.5 Release 0.5.0 | all | version, changelog, docs; tag and push wait for the user |
+| Tag `v0.5.0` and push | the user | CI builds the release jar |
 
-Done since batch 5: 16.4, 17.2, 18.3 (every 0.5.0 balance target green, in the build), 19.3, 19.4, 20.1–20.4, 21.3
-(the Citadel in its sector, the depths dimension gone), 21.4 (old worlds' realms regenerated on their first start) and
-the visual overhaul. After 21.4: build (with the targets), all 285 GameTests and the server check green.
+Done since batch 5: 15.5 (old cores and old player data, GameTests), 16.4, 17.2, 18.3 (every 0.5.0 balance target
+green, in the build), 19.3, 19.4, 20.1–20.4, 21.3 (the Citadel in its sector, the depths dimension gone), 21.4 (old
+worlds' realms regenerated on their first start), 21.5 (version 0.5.0, changelog, README, CORE) and the visual
+overhaul. After 21.5: datagen unchanged, build (with the targets), all 286 GameTests and the server check green.
 
 Open loose ends: the 21.2 session (`citadel-lock`) could not be deleted yet (a queued message); its branch is merged.
 Nothing of 0.5.0 has been seen or played in game.

@@ -9,12 +9,19 @@ import com.embervoid.realm.RealmPlayerData;
 import com.embervoid.realm.Realms;
 import com.embervoid.realm.api.RealmTeleports;
 import com.embervoid.registry.ModEntities;
+import com.embervoid.sanctum.AshenMaidenEntity;
+import com.embervoid.sanctum.SanctumArena;
+import com.embervoid.sanctum.SanctumBlocks;
+import com.embervoid.sanctum.SanctumEntities;
 import com.embervoid.sanctum.VoidObeliskBlock.Glow;
+import com.embervoid.sanctum.VoidObeliskBlockEntity;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentTarget;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.BedBlock;
+import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.enums.BedPart;
+import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -22,17 +29,23 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.structure.StructurePlacementData;
+import net.minecraft.structure.StructureTemplate;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.GameTestException;
 import net.minecraft.test.TestContext;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.GlobalPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+
+import java.util.List;
 
 /**
  * Realm travel through the hub (PLAN 15.2, DESIGN §2): the obelisks lead into realms, the way out of a realm is the
@@ -186,6 +199,52 @@ public final class HubTravelTests implements FabricGameTest {
 			ServerPlayerEntity inRealm = current(player);
 			useReturnObelisk(inRealm);
 			assertAtLanding(context, current(player), hub, "after the return obelisk with an old return point");
+		}, player);
+		TestPlayers.complete(context, current(player));
+	}
+
+	/**
+	 * An old world's Sanctum core (PLAN 15.5): the 0.4.x core template placed far off in the test world brings its Ashen
+	 * Maiden and four obelisks. The Realm 1 obelisk stays dark for a player without Realm 1 and takes one who has it
+	 * into the realm; the return obelisk leads to the hub, and the hub's way out back to where the player stood.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "hub_travel_old_core", tickLimit = 200)
+	public void oldSanctumCoreStillLeadsToTheRealm(TestContext context) {
+		ServerWorld hub = hub(context);
+		ServerWorld world = context.getWorld();
+		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
+		step(context, () -> {
+			StructureTemplate core = world.getStructureTemplateManager().getTemplate(SanctumArena.OLD_CORE)
+					.orElseThrow(() -> new GameTestException("the old core template does not load"));
+			BlockPos corner = context.getAbsolutePos(new BlockPos(4000, 0, 0));
+			core.place(world, corner, corner, new StructurePlacementData(), world.getRandom(), Block.NOTIFY_LISTENERS);
+			Box bounds = Box.from(BlockBox.create(corner, corner.add(core.getSize()))).expand(1);
+			List<AshenMaidenEntity> maidens = world.getEntitiesByType(SanctumEntities.ASHEN_MAIDEN, bounds, maiden -> true);
+			context.assertTrue(maidens.size() == 1, "the old core placed " + maidens.size() + " Maidens");
+			BlockPos obelisk = null;
+			for (StructureTemplate.StructureBlockInfo info : core.getInfosForBlock(corner, new StructurePlacementData(), SanctumBlocks.VOID_OBELISK)) {
+				if (world.getBlockEntity(info.pos()) instanceof VoidObeliskBlockEntity entity && entity.getRealm().equals(ProgressManager.REALM_1)) {
+					obelisk = info.pos();
+				}
+			}
+			context.assertTrue(obelisk != null, "no Realm 1 obelisk in the old core");
+
+			Vec3d start = player.getPos();
+			use(player, world, obelisk);
+			context.assertTrue(current(player).getServerWorld() == world, "a dark old obelisk let the player through");
+			// Attuned in 0.4.x: Realm 1 is among the unlocked realms.
+			ProgressManager.unlockRealm(player, ProgressManager.REALM_1);
+			use(player, world, obelisk);
+			ServerPlayerEntity inRealm = current(player);
+			context.assertTrue(inRealm.getServerWorld().getRegistryKey() == Realms.ASHEN_REACH.world(), "the old obelisk led to "
+					+ inRealm.getServerWorld().getRegistryKey().getValue());
+			assertExit(context, inRealm, world, start);
+			useReturnObelisk(inRealm);
+			assertAtLanding(context, current(player), hub, "after the return obelisk");
+			HubTravel.leave(current(player));
+			context.assertTrue(current(player).getServerWorld() == world && current(player).getPos().distanceTo(start) < NEAR,
+					"the hub's way out led to " + current(player).getBlockPos().toShortString() + ", not back by the old core");
+			maidens.forEach(Entity::discard);
 		}, player);
 		TestPlayers.complete(context, current(player));
 	}

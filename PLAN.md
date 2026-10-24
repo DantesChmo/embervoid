@@ -612,7 +612,7 @@ B puts A out. Leaving an obelisk lands in the hub; the hub's exit leads to the a
 | 15.2 | **Realm travel through the hub** | M | 15.1 | done (GameTests `HubTravelTests` + `HubTests`, JUnit `PlayerProgressTest`, server check bot travel; not seen in game: arriving in the hub from a realm, the travel sound there) |
 | 15.3 | **Cleft Stele: blocks, frame, activation** | M | 15.0 | done (JUnit `SteleFrameTest` + GameTests `CleftSteleTests`; textures previewed; the glow, mist and particles not seen in game, the sounds not heard) |
 | 15.4 | **Active stele and travel** | M | 15.2, 15.3 | done (GameTests `SteleTravelTests` + `CleftSteleTests` + `HubTests`, server check: bot stele round trip; not seen in game: the hub's lit stele on its pad, coming out in front of a stele, the travel sounds not heard) |
-| 15.5 | **Worlds from 0.4.x** | S–M | 15.2, 16.1 | todo |
+| 15.5 | **Worlds from 0.4.x** | S–M | 15.2, 16.1 | done (GameTests `HubTravelTests`: old player data, an old core placed from its template, a player through an old core; not run on a real 0.4.x save) |
 
 - **15.0 Design.** *Done 2026-10-23:* DESIGN §1, §2 and §10.13. The user picked the **Fallen Sister** as the dungeon
   boss, **one lit stele per world** and an **Ember Shrine at the boss door**; the rest was decided in the pass and is
@@ -696,6 +696,14 @@ B puts A out. Leaving an obelisk lands in the hub; the hub's exit leads to the a
 - **15.5 Worlds from 0.4.x.** Per 15.0: Sanctum cores already generated, players standing in a Sanctum or holding an
   old return point when the world is updated, attunement flags. GameTests on old-format player data and an old
   Sanctum template placed in the test world.
+  *Built:* most of it came with 15.2 and 16.1: `PlayerProgress` and `RealmPlayerData` skip the old `attuned`,
+  `return_point` and `return_yaw` on load (never saved again), the Return Obelisk and leaving a realm lead to the hub,
+  the hub's way out with no lit stele is `HubTravel.lastOverworldExit`, and Sanctums planned before 0.5.0 still place
+  the old core (`SanctumArena.OLD_CORE`). Added here the GameTest `HubTravelTests.oldSanctumCoreStillLeadsToTheRealm`:
+  the 0.4.x core template placed in the test world brings one Maiden and its obelisks; the Realm 1 obelisk stays dark
+  without Realm 1 and takes a player who has it into the realm, the return obelisk leads to the hub and the hub's way
+  out back to where they stood. `HubTravelTests.oldPlayerDataLoads` and `twoPlayersKeepTheirOwnWayOut` cover the old
+  player file and the old core's obelisk beside the hub.
 
 ### Milestone 16 — the overworld dungeon
 
@@ -993,7 +1001,7 @@ and in mechanics. The hard lock (DESIGN §4.1 "Final zone lock") moves to the se
 | 21.2 | **Fog wall: look and lock** | M | 21.1 | done – the look not seen in game (JUnit `FinalZoneRegionTest`, `EdgeLayoutTest`; GameTests `FinalZoneLockTests`: walking, pearl, chorus, elytra, riptide, boat and horse, bridge, tunnel, cleared, creative, two players at one spot, the border wall; 258 GameTests green; server check PASS: gate at 0 76 21, border wall 50 of 50 stretches, 80×80 blocks of border generated in 1.1–1.3 s; not seen in game: the border wall, the gate's fog wall and the client fog curtain) |
 | 21.3 | **Citadel generation in the realm dimension** | L | 21.1 | done – the city not seen in game (GameTests `CitadelWorldTests` on the realm, `RealmSectorTests` final-sector respawn; 282 green; server check PASS: Citadel at 0 ~ 640 with its treasury and 7 / 5 / 4 placed mobs, courtyard at 0 ~ 672, the first Citadel shrine at −4 73 48; `--perf` and preview renders not run) |
 | 21.4 | **Worlds from 0.4.x** (realm dimensions regenerated) | M | 21.1, 21.3 | done (GameTests `RealmLayoutUpgradeTests` on a made-up old save, the remnants' return and a join; 285 green; server check PASS on a fresh world, which gets layout 2; not run on a real 0.4.x save) |
-| 21.5 | **Release 0.5.0** | M | 14.1–21.4 | todo |
+| 21.5 | **Release 0.5.0** | M | 14.1–21.4 | done – version 0.5.0, CHANGELOG, README, CORE; datagen unchanged, build, 286 GameTests, server check green; tag, push and the CI jar wait for the user |
 
 - **21.0 Design.** *Done 2026-10-23:* DESIGN §4.1 (layout, lock), §4.5 (Citadel), §10.15. The user picked the
   **fourth sector**: the final zone is a 60° sector of the realm dimension, the open zones 100° each, the radius grows
@@ -1065,6 +1073,11 @@ and in mechanics. The hard lock (DESIGN §4.1 "Final zone lock") moves to the se
 - **21.5 Release 0.5.0.** Version, CHANGELOG, README (the boss-music slider, playerAnimator as a required mod), CORE,
   DESIGN; all checks green; the photo tour (19.5) offered to the user. Tag and push wait for the user; CI builds the
   jar.
+  *Done 2026-10-24:* `mod_version` 0.5.0; CHANGELOG 0.5.0; README features (Ruined Sanctum, Cleft Stele and hub,
+  the Citadel Gate, the Boss Music slider); CORE §1 and §4 rewritten for the dungeon, the stele and the hub (Hollow
+  and Ghost numbers after 18.3); DESIGN already matched. `RealmLayoutUpgradeTests.keptRemnantsLieOnTheHubLanding`
+  failed once in the shared batch (the server's one pending file, a fixed tick): it has its own batch now and waits
+  until the remnant shows up. Datagen unchanged, build, all 286 GameTests and the server check green.
 
 ## Open follow-ups
 

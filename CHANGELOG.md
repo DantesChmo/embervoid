@@ -1,5 +1,53 @@
 # Changelog
 
+## 0.5.0 — 2026-10-24
+
+What the playthrough of 0.4.1 asked for: a hub you can always reach, a dungeon worth clearing, weapons above netherite,
+boss fights of about two minutes and a world that looks the part. Requires playerAnimator now (see README).
+
+### The way in
+- **Ruined Sanctum:** the overworld Sanctum is a dungeon now, about one per 300–400 blocks, in three variants (the
+  courtyard ruin, a collapsed chapel, a sunken cloister). Its halls, guards and loot stay; an Ember Shrine waits at the
+  boss door, and behind a fog wall, where the core was, the **Fallen Sister**: the Maiden's burnt-out twin with a
+  censer on a chain, crying souls in her second phase. Each dungeon's boss falls once per world; every player in the
+  fight gets a **Crying Soul**. The Sanctum Map leads to the nearest dungeon.
+- **Cleft Stele:** a 5 × 6 slab of Cleft Stone (crafted from stone bricks and coal), kindled with the Crying Soul;
+  a cold one stands in every dungeon arena. One stele burns per world; it leads to the hub.
+- **Ember Sanctum, the hub:** its own dimension, an island under eternal dusk with the Ashen Maiden, an Ember Shrine
+  and the ring of Void Obelisks. Realm 1 unlocks on the first visit; attunement is gone. Leaving a realm always lands
+  in the hub; the hub's stele leads back to the world's lit stele (with none: where you last left the overworld,
+  else your bed).
+
+### Ashen Reach
+- The realm has four sectors now: the Smoldering Citadel stands in the fourth, behind the **Citadel Gate**, a fog
+  wall on the plaza that opens after the three zone bosses (no pearls, chorus, elytra or riptide past it). The
+  separate depths dimension is gone, and with it `realm.depthsOpen`.
+- Roads stand out from the ash: contrasting paving, lights along them at dusk, more milestones.
+
+### Weapons and balance
+- Realm 1 weapons about 30 % above netherite, each with its own identity; the **Warden's Scourge** is a real whip
+  that hits along an arc and cracks at the tip. Player attack animations (playerAnimator) and 3D in-hand models.
+- Everything retuned on fight length: bosses about 1.5–2.5 minutes with dodging (20–35 clean hits), mobs, the
+  overworld, the dungeon and moon nights (the Vampire boss telegraphs its claws). Vanilla mob types get per-type
+  `mobs.levels.healthScale` / `damageScale` factors. Targets in `docs/balance-0.5.0.md`, checked by the build.
+
+### Look and sound
+- A visual overhaul (`docs/art-direction.md`): every block texture redrawn, 25 new building blocks, every structure
+  rebuilt; the mod's own particles; trails and signatures for every weapon; fog walls as glowing volumes.
+- Six boss remodels and 21 mob remodels with hit, stagger and death animations; fourteen moving set pieces
+  (windmill sails, hoists, bells, censers…) and 14 3D props; camera shake and hit flashes.
+- A **Boss Music** slider in Music & Sounds, independent of Music.
+
+### Old worlds
+- Worlds from 0.4.x keep working: Sanctum cores already generated keep their Maiden and obelisks; the realm is
+  generated again on the first start (progress stays, Ash Remnants left there are laid on the hub's landing, players
+  who logged out inside join at the hub, old realm shrines are forgotten); old attunement flags and return points are
+  ignored.
+
+### Known
+- Checked by GameTests and a dedicated server with a bot player only: nothing of 0.5.0 has been seen, heard or played
+  on a client yet. The upgrade was not run on a real 0.4.x save.
+
 ## 0.4.1 — 2026-10-23
 
 The loose ends of the first releases. 0.2.0 "Kindling" and 0.3.0 "Moon Nights" were never published on their own: 0.4.0

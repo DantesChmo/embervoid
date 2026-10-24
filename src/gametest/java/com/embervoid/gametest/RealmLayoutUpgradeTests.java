@@ -84,8 +84,11 @@ public final class RealmLayoutUpgradeTests implements FabricGameTest {
 		context.complete();
 	}
 
-	/** After the start, the kept remnant lies on the hub's landing, the same entity, and the pending file is gone. */
-	@GameTest(templateName = EMPTY_STRUCTURE)
+	/**
+	 * After the start, the kept remnant lies on the hub's landing, the same entity, and the pending file is gone. Its own
+	 * batch: the pending file is the server's one, and the remnant may take a few ticks to show up in the hub.
+	 */
+	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "realm_layout_remnants", tickLimit = 200)
 	public void keptRemnantsLieOnTheHubLanding(TestContext context) {
 		MinecraftServer server = context.getWorld().getServer();
 		UUID remnant = UUID.randomUUID();
@@ -109,13 +112,13 @@ public final class RealmLayoutUpgradeTests implements FabricGameTest {
 		hub.setChunkForced(landing.x, landing.z, true);
 		RealmLayoutUpgrade.finish(server);
 		context.assertTrue(!Files.exists(pending), "the pending file is still there");
-		context.runAtTick(20, () -> {
+		context.addInstantFinalTask(() -> {
 			Entity found = hub.getEntity(remnant);
-			hub.setChunkForced(landing.x, landing.z, false);
 			context.assertTrue(found != null && found.getType() == ModEntities.ASH_REMNANT
-					&& found.getBlockPos().isWithinDistance(HubLayout.LANDING, 4), "remnant on the landing: " + found);
+					&& found.getBlockPos().isWithinDistance(HubLayout.LANDING, 4), "remnant on the landing: " + found
+					+ "; remnants in the hub: " + hub.getEntitiesByType(ModEntities.ASH_REMNANT, r -> true));
+			hub.setChunkForced(landing.x, landing.z, false);
 			found.discard();
-			context.complete();
 		});
 	}
 
