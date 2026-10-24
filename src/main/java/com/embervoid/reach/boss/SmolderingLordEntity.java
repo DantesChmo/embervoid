@@ -135,6 +135,45 @@ public class SmolderingLordEntity extends ReachBoss {
 				.add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, 1.0);
 	}
 
+	/** How long the body lies there after death (the fall in {@code misc.death}, 3 s), and the hit that staggers him. */
+	public static final int DEATH_TICKS = 60;
+	public static final float STAGGER_SHARE = 0.12f;
+
+	/** With the armor gone a heavy hit staggers him (visual only); any other hit is a flinch. */
+	@Override
+	protected String hurtAnimation(DamageSource source, float amount) {
+		return isArmorShattered() && amount >= getMaxHealth() * STAGGER_SHARE ? STAGGER : HURT;
+	}
+
+	@Override
+	protected List<String> hurtAnimations() {
+		return List.of(HURT, STAGGER);
+	}
+
+	@Override
+	public int deathTicks() {
+		return DEATH_TICKS;
+	}
+
+	/** He burns out as he falls: embers off the body, the crash onto his side at 2 s, a last flare when the body goes. */
+	@Override
+	protected void tickDeath(ServerWorld world, int deathTime) {
+		if (deathTime % 3 == 0) {
+			world.spawnParticles(ParticleTypes.FLAME, getX(), getY() + 1.2, getZ(), 4, 0.5, 0.8, 0.5, 0.02); // TODO own particle (ember)
+			world.spawnParticles(ParticleTypes.LAVA, getX(), getY() + 1.0, getZ(), 1, 0.4, 0.5, 0.4, 0); // TODO own particle (cinder spark)
+		}
+		if (deathTime == 40) {
+			world.playSound(null, getX(), getY(), getZ(), SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.HOSTILE, 1.2f, 0.6f);
+			CombatFx.impact(world, getPos(), 0.9f, 2.5f, 32, CombatFx.EMBER);
+			world.spawnParticles(ParticleTypes.LAVA, getX(), getY() + 0.5, getZ(), 16, 1.2, 0.3, 1.2, 0); // TODO own particle (cinder spark)
+		}
+		if (deathTime == DEATH_TICKS) {
+			world.spawnParticles(ParticleTypes.FLAME, getX(), getY() + 0.6, getZ(), 80, 1.2, 0.5, 1.2, 0.08); // TODO own particle (ember)
+			world.spawnParticles(ParticleTypes.LARGE_SMOKE, getX(), getY() + 0.8, getZ(), 30, 1.0, 0.6, 1.0, 0.02);
+			world.spawnParticles(ParticleTypes.ASH, getX(), getY() + 0.5, getZ(), 40, 1.5, 0.5, 1.5, 0.04); // TODO own particle (ash flake)
+		}
+	}
+
 	/** P0: on the wall, untouchable. */
 	public boolean isOnWall() {
 		return phase() == 0;
@@ -206,7 +245,11 @@ public class SmolderingLordEntity extends ReachBoss {
 		} else if (phase == 2) {
 			playAnimation(SHATTER);
 			world.playSound(null, getX(), getY(), getZ(), ReachBossSounds.SMOLDERING_LORD_SHATTER, SoundCategory.HOSTILE, 2.0f, 1.0f);
-			world.spawnParticles(ParticleTypes.LAVA, getX(), getY() + 2, getZ(), 30, 0.5, 0.8, 0.5, 0);
+			world.spawnParticles(ParticleTypes.LAVA, getX(), getY() + 2, getZ(), 30, 0.5, 0.8, 0.5, 0); // TODO own particle (cinder spark)
+			world.spawnParticles(ParticleTypes.FLAME, getX(), getY() + 2, getZ(), 60, 0.8, 1.0, 0.8, 0.1); // TODO own particle (ember)
+			world.spawnParticles(ParticleTypes.LARGE_SMOKE, getX(), getY() + 2.2, getZ(), 20, 0.6, 0.8, 0.6, 0.03);
+			// The plates burst off him (misc.shatter flings the armor bone at 0.4 s).
+			CombatFx.impact(world, getPos().add(0, 1.5, 0), 0.9f, 3.0f, 36, CombatFx.EMBER);
 			getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(4);
 			getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).setBaseValue(0.32);
 			moveCooldown = PHASE_PAUSE;
@@ -347,6 +390,8 @@ public class SmolderingLordEntity extends ReachBoss {
 				Vec3d at = target.getPos();
 				fight.world().playSound(null, at.x, at.y, at.z, ReachBossSounds.SMOLDERING_LORD_MORTAR_IMPACT, SoundCategory.HOSTILE, 1.5f, 1.0f);
 				fight.world().spawnParticles(ParticleTypes.EXPLOSION, at.x, at.y + 0.3, at.z, 2, 1, 0.1, 1, 0);
+				fight.world().spawnParticles(ParticleTypes.LAVA, at.x, at.y + 0.3, at.z, 10, 1.5, 0.2, 1.5, 0); // TODO own particle (cinder spark)
+				CombatFx.impact(fight.world(), at, 0.6f, 3.0f, 24, CombatFx.EMBER);
 				for (PlayerEntity hit : Telegraph.playersIn(this, ring)) {
 					hit.damage(BossHits.source(this, DamageTypes.IN_FIRE), MORTAR_DAMAGE);
 					hit.setOnFireFor(3);
@@ -369,8 +414,15 @@ public class SmolderingLordEntity extends ReachBoss {
 			player.damage(BossHits.source(this, DamageTypes.IN_FIRE), FLAME_LINE_DAMAGE);
 			player.setOnFireFor(3);
 		});
-		Telegraph.windup(this, FLAME_LINE_WINDUP, null, null, ParticleTypes.FLAME, 0, () -> fight.addHazard(new AreaHazard(line, 60, 10,
-				BossHits.source(this, DamageTypes.IN_FIRE), TRAIL_DAMAGE, ParticleTypes.FLAME, player -> player.setOnFireFor(2))));
+		Vec3d lineStart = start;
+		Telegraph.windup(this, FLAME_LINE_WINDUP, null, null, ParticleTypes.FLAME, 0, () -> {
+			fight.addHazard(new AreaHazard(line, 60, 10, BossHits.source(this, DamageTypes.IN_FIRE), TRAIL_DAMAGE, ParticleTypes.FLAME,
+					player -> player.setOnFireFor(2)));
+			// The blade comes down on the wall's foot and the fire runs out along the line.
+			CombatFx.flash(fight.world(), lineStart, 2.0f, CombatFx.EMBER);
+			CombatFx.shake(fight.world(), lineStart, 0.4f, CombatFx.shakeTicks(0.4f), 36);
+			fight.world().spawnParticles(ParticleTypes.LAVA, lineStart.x, lineStart.y + 0.3, lineStart.z, 12, 0.8, 0.2, 0.8, 0); // TODO own particle (cinder spark)
+		});
 	}
 
 	// --- Greatsword (P1, P2) ---
@@ -436,6 +488,12 @@ public class SmolderingLordEntity extends ReachBoss {
 				fight.addHazard(new AreaHazard(line, 80, 10, BossHits.source(this, DamageTypes.IN_FIRE), TRAIL_DAMAGE,
 						ParticleTypes.FLAME, player -> player.setOnFireFor(2)));
 			}
+			if (getWorld() instanceof ServerWorld world) {
+				// He launches: the blade's point drags a flash along the line and the ground kicks under him.
+				CombatFx.flash(world, getPos().add(facing.multiply(1.5)).add(0, 0.8, 0), 1.5f, CombatFx.EMBER);
+				CombatFx.shake(world, getPos(), 0.5f, CombatFx.shakeTicks(0.5f), 24);
+				world.spawnParticles(ParticleTypes.FLAME, getX(), getY() + 0.3, getZ(), 30, 0.6, 0.2, 0.6, 0.06); // TODO own particle (ember)
+			}
 		});
 	}
 
@@ -448,6 +506,11 @@ public class SmolderingLordEntity extends ReachBoss {
 			return;
 		}
 		playAnimation(HAZARD);
+		if (getWorld() instanceof ServerWorld world) {
+			// The curse called down: the courtyard trembles, embers stream up off him.
+			CombatFx.shake(world, getPos(), 0.4f, 30, 48);
+			world.spawnParticles(ParticleTypes.FLAME, getX(), getY() + 2.5, getZ(), 40, 0.8, 0.8, 0.8, 0.1); // TODO own particle (ember)
+		}
 		switch (which) {
 			case 0 -> Telegraph.windup(this, STORM_WINDUP, null, ReachBossSounds.SMOLDERING_LORD_STORM, ParticleTypes.ASH, 6,
 					() -> fight.addHazard(new AshStormHazard(this, STORM_TICKS, 2)));

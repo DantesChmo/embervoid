@@ -45,4 +45,5 @@ Nobody answers questions tonight: decisions are recorded here as they are made.
 
 | Boss | Cubes | Bones | Seen offline | Not seen |
 |---|---|---|---|---|
+| Smoldering Lord | 105 | 28 | sheets and poses: fist-sized ember sockets and a jaw under the melted crown, layered plate with pauldrons and tassets, the three-segment cape and tatters, swing windups, the slam overhead, the death on one knee against the planted sword then on his side | the halo layer (EmberHaloLayer: glowmask drawn again, scaled, translucent), particles, the armor flung away in game |
 | Ash Colossus | 108 | 26 | front/side/back/dusk sheets, key poses and trail sheet: chamfered mass, fists with fingers, chains swinging, kneel-then-topple death, fist/boulder/smash windups readable, stagger lunge | the core's shimmer layer, particles, the plates shed in game, the hurt controller under a move |
