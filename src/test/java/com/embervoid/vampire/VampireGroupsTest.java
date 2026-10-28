@@ -37,4 +37,30 @@ class VampireGroupsTest {
 	void heightCounts() {
 		assertEquals(2, VampireGroups.cluster(List.of(new double[]{0, -50, 0}, new double[]{0, 100, 0}), 64).size());
 	}
+
+	@Test
+	void distanceIsMeasuredInThreeDimensions() {
+		// 40 across and 40 up: 56.6 apart.
+		assertEquals(1, VampireGroups.cluster(List.of(new double[]{0, 0, 0}, new double[]{40, 40, 0}), 57).size());
+		assertEquals(2, VampireGroups.cluster(List.of(new double[]{0, 0, 0}, new double[]{40, 40, 0}), 56).size());
+	}
+
+	@Test
+	void chainJoinsGroupsSeenAsSeparateFirst() {
+		// 0 and 2 start apart; 3 links them only at the end.
+		assertEquals(List.of(List.of(0, 1, 2, 3)),
+				VampireGroups.cluster(List.of(at(0, 0), at(30, 0), at(200, 0), at(115, 0)), 90));
+	}
+
+	@Test
+	void everyPlayerIsInExactlyOneGroup() {
+		java.util.Random random = new java.util.Random(7);
+		List<double[]> positions = new java.util.ArrayList<>();
+		for (int i = 0; i < 40; i++) {
+			positions.add(at(random.nextInt(600), random.nextInt(600)));
+		}
+		List<List<Integer>> groups = VampireGroups.cluster(positions, 64);
+		List<Integer> all = groups.stream().flatMap(List::stream).sorted().toList();
+		assertEquals(java.util.stream.IntStream.range(0, 40).boxed().toList(), all);
+	}
 }
