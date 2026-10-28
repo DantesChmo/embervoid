@@ -2,7 +2,7 @@ package com.embervoid.vampire;
 
 import com.embervoid.Embervoid;
 import com.embervoid.boss.BossMusic;
-import com.embervoid.boss.EmberHeartItem;
+import com.embervoid.boss.BossNames;
 import com.embervoid.mob.MobLevels;
 import com.embervoid.progress.ProgressManager;
 import com.embervoid.realm.RealmDefinition;
@@ -157,7 +157,7 @@ public final class VampireFight {
 	}
 
 	private static Text bossName() {
-		return Text.translatable(EmberHeartItem.bossKey(BOSS_ID));
+		return Text.translatable(BossNames.translationKey(BOSS_ID));
 	}
 
 	private static ServerBossBar bar(VampireState state) {

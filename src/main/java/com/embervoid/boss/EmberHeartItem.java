@@ -33,16 +33,16 @@ public class EmberHeartItem extends Item {
 		return stack.getNbt() == null ? null : Identifier.tryParse(stack.getNbt().getString(BOSS));
 	}
 
-	/** Translation key of a boss's name: {@code boss.<namespace>.<path with dots>}. */
+	/** Translation key of a boss's name ({@link BossNames#translationKey}). */
 	public static String bossKey(Identifier bossId) {
-		return "boss." + bossId.getNamespace() + "." + bossId.getPath().replace('/', '.');
+		return BossNames.translationKey(bossId);
 	}
 
 	@Override
 	public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
 		Identifier boss = getBoss(stack);
 		if (boss != null) {
-			tooltip.add(Text.translatable("embervoid.ember_heart.boss", Text.translatable(bossKey(boss))).formatted(Formatting.GRAY));
+			tooltip.add(Text.translatable("embervoid.ember_heart.boss", Text.translatable(BossNames.translationKey(boss))).formatted(Formatting.GRAY));
 		}
 	}
 }

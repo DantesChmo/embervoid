@@ -140,7 +140,7 @@ public class BossFight {
 	}
 
 	private Text bossName() {
-		return Text.translatable(EmberHeartItem.bossKey(spec.bossId()));
+		return Text.translatable(BossNames.translationKey(spec.bossId()));
 	}
 
 	private Text barName() {
