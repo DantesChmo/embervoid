@@ -65,9 +65,9 @@ public class SmolderingLordEntity extends ReachBoss {
 	/** His own theme, {@link ReachBossSounds#SMOLDERING_LORD_MUSIC}. */
 	public static final Identifier MUSIC = ReachBossSounds.SMOLDERING_LORD_MUSIC.getId();
 	public static final double LANDING_RADIUS = 6;
-	public static final float SHATTERED_DAMAGE = 1.25f;
-	public static final float DARK_DAMAGE = 0.5f;
-	public static final int LIT_LEVEL = 8;
+	public static final float SHATTERED_DAMAGE = LordRules.SHATTERED_DAMAGE;
+	public static final float DARK_DAMAGE = LordRules.DARK_DAMAGE;
+	public static final int LIT_LEVEL = LordRules.LIT_LEVEL;
 	/** Ticks between two zone hazards in P2 (the first comes sooner). */
 	public static final int HAZARD_INTERVAL = 500;
 	public static final int FOG_TICKS = 400;
@@ -84,10 +84,10 @@ public class SmolderingLordEntity extends ReachBoss {
 	public static final int DESCEND_WINDUP = 30;
 	public static final int STORM_WINDUP = 30;
 	/** Ticks until the brain picks the next move after one, close and at range, in P1 and in P2 (faster). */
-	public static final int COMBO_COOLDOWN = 30;
-	public static final int COMBO_COOLDOWN_P2 = 22;
-	public static final int LUNGE_COOLDOWN = 40;
-	public static final int LUNGE_COOLDOWN_P2 = 30;
+	public static final int COMBO_COOLDOWN = LordRules.COMBO_COOLDOWN;
+	public static final int COMBO_COOLDOWN_P2 = LordRules.COMBO_COOLDOWN_P2;
+	public static final int LUNGE_COOLDOWN = LordRules.LUNGE_COOLDOWN;
+	public static final int LUNGE_COOLDOWN_P2 = LordRules.LUNGE_COOLDOWN_P2;
 	/** The pause after landing and after the armor shatters. */
 	public static final int PHASE_PAUSE = 30;
 	/** Ticks between two attacks from the wall (P0). */
@@ -117,7 +117,7 @@ public class SmolderingLordEntity extends ReachBoss {
 	private int wallAttackTimer = WALL_ATTACK_INTERVAL;
 	private boolean descending;
 	private int hazardTimer = HAZARD_INTERVAL / 2;
-	private int nextHazard;
+	private LordRules.Hazard nextHazard = LordRules.Hazard.ASH_STORM;
 	private int fogTicks;
 	private int darkTicks;
 
@@ -143,7 +143,7 @@ public class SmolderingLordEntity extends ReachBoss {
 	/** With the armor gone a heavy hit staggers him (visual only); any other hit is a flinch. */
 	@Override
 	protected String hurtAnimation(DamageSource source, float amount) {
-		return isArmorShattered() && amount >= getMaxHealth() * STAGGER_SHARE ? STAGGER : HURT;
+		return isArmorShattered() && BossRules.staggers(amount, getMaxHealth(), STAGGER_SHARE) ? STAGGER : HURT;
 	}
 
 	@Override
@@ -177,11 +177,11 @@ public class SmolderingLordEntity extends ReachBoss {
 
 	/** P0: on the wall, untouchable. */
 	public boolean isOnWall() {
-		return phase() == 0;
+		return LordRules.onWall(phase());
 	}
 
 	public boolean isArmorShattered() {
-		return phase() >= 2;
+		return LordRules.armorShattered(phase());
 	}
 
 	public boolean isDark() {
@@ -343,8 +343,8 @@ public class SmolderingLordEntity extends ReachBoss {
 		}
 		if (isArmorShattered() && --hazardTimer <= 0 && !Telegraph.isWindingUp(this)) {
 			hazardTimer = HAZARD_INTERVAL;
-			startZoneHazard(nextHazard);
-			nextHazard = (nextHazard + 1) % 3;
+			startZoneHazard(nextHazard.ordinal());
+			nextHazard = nextHazard.next();
 		}
 	}
 
@@ -360,16 +360,15 @@ public class SmolderingLordEntity extends ReachBoss {
 
 	@Override
 	protected int chooseMove(LivingEntity target, double squaredDistance) {
-		boolean fast = isArmorShattered();
-		if (squaredDistance <= 5 * 5) {
-			comboSwing(target, 1);
-			return fast ? COMBO_COOLDOWN_P2 : COMBO_COOLDOWN;
+		LordRules.Move move = LordRules.pick(squaredDistance);
+		if (move == null) {
+			return -1;
 		}
-		if (squaredDistance <= 14 * 14) {
-			lunge(target);
-			return fast ? LUNGE_COOLDOWN_P2 : LUNGE_COOLDOWN;
+		switch (move) {
+			case COMBO -> comboSwing(target, 1);
+			case LUNGE -> lunge(target);
 		}
-		return -1;
+		return LordRules.cooldown(move, isArmorShattered());
 	}
 
 	// --- Wall moves (P0) ---
@@ -512,15 +511,15 @@ public class SmolderingLordEntity extends ReachBoss {
 			CombatFx.shake(world, getPos(), 0.4f, 30, 48);
 			world.spawnParticles(EmberParticles.EMBER, getX(), getY() + 2.5, getZ(), 40, 0.8, 0.8, 0.8, 0.1);
 		}
-		switch (which) {
-			case 0 -> Telegraph.windup(this, STORM_WINDUP, null, ReachBossSounds.SMOLDERING_LORD_STORM, ParticleTypes.ASH, 6,
+		switch (LordRules.Hazard.of(which)) {
+			case ASH_STORM -> Telegraph.windup(this, STORM_WINDUP, null, ReachBossSounds.SMOLDERING_LORD_STORM, ParticleTypes.ASH, 6,
 					() -> fight.addHazard(new AshStormHazard(this, STORM_TICKS, 2)));
-			case 1 -> {
+			case FOG -> {
 				playSound(ReachBossSounds.SMOLDERING_LORD_FOG, 2.0f, 1.0f);
 				fogTicks = FOG_TICKS;
 				fight.setFog(FOG_DENSITY, FOG_COLOR);
 			}
-			default -> {
+			case DARKNESS -> {
 				playSound(ReachBossSounds.SMOLDERING_LORD_DARKNESS, 2.0f, 1.0f);
 				darkTicks = DARK_TICKS;
 				for (ServerPlayerEntity player : fight.fighters()) {
@@ -533,21 +532,16 @@ public class SmolderingLordEntity extends ReachBoss {
 	/** Whether he stands in block light ≥ {@value #LIT_LEVEL} (the darkness hazard halves damage outside it). */
 	public boolean isLit() {
 		BlockPos feet = getBlockPos();
-		return Math.max(getWorld().getLightLevel(LightType.BLOCK, feet), getWorld().getLightLevel(LightType.BLOCK, feet.up(2))) >= LIT_LEVEL;
+		return BossRules.lit(getWorld().getLightLevel(LightType.BLOCK, feet), getWorld().getLightLevel(LightType.BLOCK, feet.up(2)), LIT_LEVEL);
 	}
 
 	@Override
 	public boolean damage(DamageSource source, float amount) {
 		if (!getWorld().isClient && !source.isOf(DamageTypes.GENERIC_KILL) && !source.isOf(DamageTypes.OUT_OF_WORLD)) {
-			if (isOnWall() || descending) {
+			if (!LordRules.touchable(phase(), descending)) {
 				return false; // up on the wall he cannot be touched
 			}
-			if (isArmorShattered()) {
-				amount *= SHATTERED_DAMAGE;
-			}
-			if (isDark() && !isLit()) {
-				amount *= DARK_DAMAGE;
-			}
+			amount = LordRules.damageTaken(amount, isArmorShattered(), isDark() && !isLit());
 		}
 		return super.damage(source, amount);
 	}

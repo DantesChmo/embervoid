@@ -136,7 +136,7 @@ public class GrievingTreeEntity extends ReachBoss {
 
 	@Override
 	protected String hurtAnimation(DamageSource source, float amount) {
-		return amount >= getMaxHealth() * STAGGER_SHARE ? STAGGER : HURT;
+		return BossRules.staggers(amount, getMaxHealth(), STAGGER_SHARE) ? STAGGER : HURT;
 	}
 
 	@Override

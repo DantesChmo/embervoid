@@ -65,11 +65,11 @@ import java.util.List;
  */
 public class CryptKeeperEntity extends ReachBoss {
 	/** Block light where it stands at or above which it takes full damage in P2 and P3. */
-	public static final int LIT_LEVEL = 8;
+	public static final int LIT_LEVEL = KeeperRules.LIT_LEVEL;
 	/** A player carrying a lit lantern this close lights it up. */
 	public static final double LANTERN_REACH = 4;
 	/** Damage taken in the dark (P2, P3). */
-	public static final float DARK_DAMAGE = 0.5f;
+	public static final float DARK_DAMAGE = KeeperRules.DARK_DAMAGE;
 	/** Windup of each move in ticks (the balance model reads them, PLAN 18.1); the combo's hits follow each other. */
 	public static final int SWING_1_WINDUP = 14;
 	public static final int SWING_2_WINDUP = 10;
@@ -81,10 +81,10 @@ public class CryptKeeperEntity extends ReachBoss {
 	 * Ticks until the brain picks the next move after one, close and at range, in P1 and from P2 on (faster). Close it
 	 * presses on (PLAN 18.4: 35 / 25 left too many openings for the diamond sword and the Scythe to share a band).
 	 */
-	public static final int CLOSE_COOLDOWN = 28;
-	public static final int CLOSE_COOLDOWN_LATE = 22;
-	public static final int RANGED_COOLDOWN = 40;
-	public static final int RANGED_COOLDOWN_LATE = 30;
+	public static final int CLOSE_COOLDOWN = KeeperRules.CLOSE_COOLDOWN;
+	public static final int CLOSE_COOLDOWN_LATE = KeeperRules.CLOSE_COOLDOWN_LATE;
+	public static final int RANGED_COOLDOWN = KeeperRules.RANGED_COOLDOWN;
+	public static final int RANGED_COOLDOWN_LATE = KeeperRules.RANGED_COOLDOWN_LATE;
 	/** The pause after a phase change. */
 	public static final int PHASE_PAUSE = 30;
 	/** Ticks between two waves of moths while a brazier burns. */
@@ -107,7 +107,7 @@ public class CryptKeeperEntity extends ReachBoss {
 	private static final float THRUST_DAMAGE = 7;
 	private static final float LANTERN_DAMAGE = 5;
 	private static final float FIRE_POOL_DAMAGE = 2;
-	private static final double SWING_RANGE = 4.8;
+	private static final double SWING_RANGE = KeeperRules.SWING_RANGE;
 	private static final double SWEEP_RADIUS = 5;
 	private static final double FIRE_POOL_RADIUS = 2.5;
 
@@ -146,13 +146,13 @@ public class CryptKeeperEntity extends ReachBoss {
 
 	/** Whether it still carries its lantern (P1); the model hides the lantern after it shatters. */
 	public boolean hasLantern() {
-		return phase() == 0;
+		return KeeperRules.hasLantern(phase());
 	}
 
 	/** In the dark phases a hit that lands on it in the light staggers it (visual only); any other hit is a flinch. */
 	@Override
 	protected String hurtAnimation(DamageSource source, float amount) {
-		return phase() > 0 && isLit() ? STAGGER : HURT;
+		return KeeperRules.late(phase()) && isLit() ? STAGGER : HURT;
 	}
 
 	@Override
@@ -243,7 +243,7 @@ public class CryptKeeperEntity extends ReachBoss {
 	@Override
 	protected void tickBoss() {
 		BossFight fight = fight();
-		if (fight == null || phase() == 0) {
+		if (fight == null || !KeeperRules.late(phase())) {
 			return;
 		}
 		if (age % 40 == 0) {
@@ -256,25 +256,19 @@ public class CryptKeeperEntity extends ReachBoss {
 
 	@Override
 	protected int chooseMove(LivingEntity target, double squaredDistance) {
-		boolean late = phase() > 0;
-		if (squaredDistance <= SWING_RANGE * SWING_RANGE) {
-			int crowd = Telegraph.playersIn(this, TelegraphShape.ring(getPos(), SWEEP_RADIUS)).size();
-			if (crowd >= 2 || random.nextInt(3) == 0) {
-				sweep();
-			} else {
-				comboSwing(target, 1);
-			}
-			return late ? CLOSE_COOLDOWN_LATE : CLOSE_COOLDOWN;
+		KeeperRules.Move move = KeeperRules.pick(squaredDistance, phase(),
+				() -> Telegraph.playersIn(this, TelegraphShape.ring(getPos(), SWEEP_RADIUS)).size(),
+				() -> random.nextInt(3) == 0);
+		if (move == null) {
+			return -1;
 		}
-		if (squaredDistance <= 16 * 16) {
-			if (late) {
-				thrust(target);
-			} else {
-				lanternThrow(target);
-			}
-			return late ? RANGED_COOLDOWN_LATE : RANGED_COOLDOWN;
+		switch (move) {
+			case SWEEP -> sweep();
+			case COMBO -> comboSwing(target, 1);
+			case THRUST -> thrust(target);
+			case LANTERN_THROW -> lanternThrow(target);
 		}
-		return -1;
+		return KeeperRules.cooldown(move, phase());
 	}
 
 	/** One of the three combo hits: 1 and 2 are cone swings, 3 the unblockable overhead. */
@@ -397,7 +391,7 @@ public class CryptKeeperEntity extends ReachBoss {
 	public boolean isLit() {
 		World world = getWorld();
 		BlockPos feet = getBlockPos();
-		if (Math.max(world.getLightLevel(LightType.BLOCK, feet), world.getLightLevel(LightType.BLOCK, feet.up(2))) >= LIT_LEVEL) {
+		if (BossRules.lit(world.getLightLevel(LightType.BLOCK, feet), world.getLightLevel(LightType.BLOCK, feet.up(2)), LIT_LEVEL)) {
 			return true;
 		}
 		return !world.getEntitiesByClass(PlayerEntity.class, getBoundingBox().expand(LANTERN_REACH),
@@ -406,9 +400,9 @@ public class CryptKeeperEntity extends ReachBoss {
 
 	@Override
 	public boolean damage(DamageSource source, float amount) {
-		if (!getWorld().isClient && phase() > 0 && !isLit() && !source.isOf(DamageTypes.GENERIC_KILL)
+		if (!getWorld().isClient && KeeperRules.late(phase()) && !source.isOf(DamageTypes.GENERIC_KILL)
 				&& !source.isOf(DamageTypes.OUT_OF_WORLD)) {
-			amount *= DARK_DAMAGE;
+			amount *= KeeperRules.damageFactor(phase(), isLit());
 		}
 		return super.damage(source, amount);
 	}
