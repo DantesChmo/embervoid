@@ -585,7 +585,8 @@ def exercise_player(rcon, run, expect, expect_eventually):
             if before is None or after is None or before - after != cost[0]:
                 FAILED_EXPECTATIONS.append(f"Leveling: the level-up took the wrong XP ({log_line})")
             expect("Leveling max health", f"attribute {name} minecraft:generic.max_health get", r"is 30\.5|is 30\.50")
-        run("Maiden gone", "kill @e[type=embervoid:ashen_maiden]")
+        # Only the Maiden summoned beside the bot: a bare selector reaches every dimension and kills the hub's own.
+        run("Maiden gone", f"execute at {name} run kill @e[type=embervoid:ashen_maiden,distance=..8]")
 
         # Death -> Ash Remnant -> recovery by right-clicking it.
         run("Remnant XP", f"xp set {name} 0 levels")

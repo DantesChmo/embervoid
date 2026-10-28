@@ -14,6 +14,9 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.HuskEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
+import net.minecraft.entity.passive.WolfEntity;
+import net.minecraft.scoreboard.Scoreboard;
+import net.minecraft.scoreboard.Team;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.test.GameTest;
@@ -164,6 +167,31 @@ public final class WardensScourgeTests implements FabricGameTest {
 					+ (player.getMainHandStack().getDamage() - wear));
 		}, player);
 		TestPlayers.complete(context, player);
+	}
+
+	@GameTest(templateName = EMPTY_STRUCTURE)
+	public void lashSparesTheWieldersPetAndTeammate(TestContext context) {
+		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
+		ServerPlayerEntity teammate = TestPlayers.create(context, 2, 5);
+		GearTests.withPlayers(context, () -> {
+			Scoreboard scoreboard = context.getWorld().getScoreboard();
+			Team team = scoreboard.addTeam("scourge_test_" + player.getUuid().toString().substring(0, 8));
+			team.setFriendlyFireAllowed(false);
+			scoreboard.addPlayerToTeam(player.getEntityName(), team);
+			scoreboard.addPlayerToTeam(teammate.getEntityName(), team);
+			context.setBlockState(2, 0, 4, Blocks.STONE);
+			WolfEntity wolf = context.spawnEntity(EntityType.WOLF, 2, 1, 4);
+			wolf.setAiDisabled(true);
+			wolf.setOwner(player);
+			HuskEntity husk = GearTests.husk(context, 2, 6);
+			ready(player);
+			GearReach.onSwing(player, Hand.MAIN_HAND);
+			context.assertTrue(hurt(husk), "the husk behind the pet and the teammate was not hit");
+			context.assertFalse(hurt(wolf), "the lash hit the wielder's own wolf");
+			context.assertFalse(hurt(teammate), "the lash hit a teammate");
+			scoreboard.removeTeam(team);
+		}, player, teammate);
+		TestPlayers.complete(context, player, teammate);
 	}
 
 	/** The Scourge in hand, the attack fully charged (test players never tick). */
