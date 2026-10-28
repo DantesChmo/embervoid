@@ -53,7 +53,7 @@ public final class SpecialAbilities {
 				formatNumber(ability.staminaCost()), formatNumber(ability.cooldownTicks() / 20.0f)).formatted(Formatting.GRAY));
 	}
 
-	private static String formatNumber(float value) {
+	static String formatNumber(float value) {
 		return value == (int) value ? Integer.toString((int) value) : Float.toString(value);
 	}
 

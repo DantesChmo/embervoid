@@ -62,7 +62,7 @@ public final class RingEffects {
 	 */
 	public static float ignoredFallDistance(LivingEntity entity) {
 		if (entity instanceof PlayerEntity player && wears(player, ReliquaryItems.RING_OF_ASH_FEATHERS)) {
-			return Math.max(0, config().featherSafeFall() - 3);
+			return AccessoryNumbers.ignoredFallDistance(config().featherSafeFall());
 		}
 		return 0;
 	}
@@ -91,7 +91,7 @@ public final class RingEffects {
 	/** Delver's Ring: mining speed multiplier on realm ores, as Haste of {@code delverHasteLevel}. */
 	public static float miningMultiplier(PlayerEntity player, BlockState state) {
 		if (state.isIn(REALM_ORES) && wears(player, ReliquaryItems.DELVERS_RING)) {
-			return 1 + 0.2f * config().delverHasteLevel();
+			return AccessoryNumbers.hasteMiningMultiplier(config().delverHasteLevel());
 		}
 		return 1;
 	}

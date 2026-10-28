@@ -46,8 +46,7 @@ public class ArtifactItem extends Item {
 
 	/** Adds this artifact's points to {@code bonus}, indexed by {@link Stat#ordinal()}. */
 	public void addPoints(int[] bonus) {
-		int value = amount.getAsInt();
-		stats.forEach(stat -> bonus[stat.ordinal()] += value);
+		AccessoryNumbers.addPoints(bonus, stats, amount.getAsInt());
 	}
 
 	@Override

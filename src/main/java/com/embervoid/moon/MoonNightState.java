@@ -55,7 +55,7 @@ public final class MoonNightState extends PersistentState {
 		return Collections.unmodifiableSet(holds);
 	}
 
-	private static MoonNightState fromNbt(NbtCompound nbt) {
+	static MoonNightState fromNbt(NbtCompound nbt) {
 		MoonNightState state = new MoonNightState();
 		state.night = MoonNight.byOrdinal(nbt.getInt("Night"));
 		state.nightDay = nbt.getLong("NightDay");

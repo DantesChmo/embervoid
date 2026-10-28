@@ -1,6 +1,8 @@
 package com.embervoid.player;
 
 import com.embervoid.Embervoid;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
@@ -14,6 +16,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 /** Stores {@link PlayerData} on players and syncs it to the owning client. */
@@ -21,11 +24,19 @@ public final class PlayerDataManager {
 	/** S2C: the full {@link PlayerData} of the receiving player. */
 	public static final Identifier SYNC_PACKET = Embervoid.id("player_data");
 
+	private static final Codec<PlayerData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+			PlayerData.FIELDS_CODEC.forGetter(data -> data),
+			FlaskKeeper.Kept.CODEC.listOf().optionalFieldOf("kept_on_death", List.of()).forGetter(data -> List.copyOf(data.keptOnDeath))
+	).apply(instance, (data, kept) -> {
+		data.keptOnDeath.addAll(kept);
+		return data;
+	}));
+
 	// Persistent (saved in player NBT) and copied on death; dimension changes keep the same player entity,
 	// and the End exit portal respawns the player, which copies attachments as well.
 	@SuppressWarnings("UnstableApiUsage")
 	public static final AttachmentType<PlayerData> PLAYER_DATA = AttachmentRegistry.<PlayerData>builder()
-			.persistent(PlayerData.CODEC)
+			.persistent(CODEC)
 			.initializer(PlayerData::createDefault)
 			.copyOnDeath()
 			.buildAndRegister(Embervoid.id("player_data"));

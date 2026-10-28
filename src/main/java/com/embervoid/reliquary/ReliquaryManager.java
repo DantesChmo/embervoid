@@ -104,13 +104,7 @@ public final class ReliquaryManager {
 
 	/** The current slots, kind after kind (config counts). */
 	public static List<SlotRef> slots() {
-		List<SlotRef> slots = new ArrayList<>();
-		for (SlotKind kind : SlotKinds.ALL) {
-			for (int i = 0; i < kind.count(); i++) {
-				slots.add(new SlotRef(kind, i));
-			}
-		}
-		return slots;
+		return ReliquarySlots.slots(SlotKinds.ALL, SlotKind::count);
 	}
 
 	/**
@@ -118,16 +112,27 @@ public final class ReliquaryManager {
 	 * holding the same item (each accessory counts once, so two of a kind are not worth wearing).
 	 */
 	public static boolean canEquip(PlayerEntity player, SlotKind kind, int slot, ItemStack stack) {
-		if (!kind.accepts(stack) || slot < 0 || slot >= kind.count() || stack.getCount() != 1) {
-			return false;
-		}
-		Reliquary reliquary = get(player);
-		for (SlotRef ref : slots()) {
-			if ((ref.kind() != kind || ref.slot() != slot) && reliquary.get(ref.kind(), ref.slot()).isOf(stack.getItem())) {
-				return false;
+		return kind.accepts(stack) && stack.getCount() == 1
+				&& ReliquarySlots.canTake(store(get(player)), slots(), kind, slot, kind.count(), held -> held.isOf(stack.getItem()));
+	}
+
+	private static ReliquarySlots.Store<ItemStack> store(Reliquary reliquary) {
+		return new ReliquarySlots.Store<>() {
+			@Override
+			public Iterable<String> kindNames() {
+				return reliquary.kindNames();
 			}
-		}
-		return true;
+
+			@Override
+			public int size(String kind) {
+				return reliquary.size(kind);
+			}
+
+			@Override
+			public ItemStack get(String kind, int slot) {
+				return reliquary.get(kind, slot);
+			}
+		};
 	}
 
 	/**
@@ -160,18 +165,7 @@ public final class ReliquaryManager {
 
 	/** Stacks outside the current slots: in kinds that no longer exist or slots past the current count. */
 	private static List<ItemStack> leftovers(Reliquary reliquary) {
-		List<ItemStack> leftovers = new ArrayList<>();
-		for (String name : reliquary.kindNames()) {
-			SlotKind kind = SlotKinds.byName(name);
-			int from = kind == null ? 0 : kind.count();
-			for (int i = from; i < reliquary.size(name); i++) {
-				ItemStack stack = reliquary.get(name, i);
-				if (!stack.isEmpty()) {
-					leftovers.add(stack);
-				}
-			}
-		}
-		return leftovers;
+		return ReliquarySlots.leftovers(store(reliquary), SlotKinds.ALL, SlotKind::count, ItemStack::isEmpty);
 	}
 
 	/**

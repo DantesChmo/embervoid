@@ -10,13 +10,47 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.Vec3d;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ParticleEffectsTest {
+	private static TintedParticleEffect tintedFromCommand(String arguments) throws CommandSyntaxException {
+		StringReader reader = new StringReader(arguments);
+		TintedParticleEffect effect = TintedParticleEffect.FACTORY.read(null, reader);
+		assertFalse(reader.canRead(), "left unread: '" + reader.getRemaining() + "'");
+		return effect;
+	}
+
+	@Test
+	void tintedEffectReadsTheDocumentedHexColourFromACommand() throws CommandSyntaxException {
+		TintedParticleEffect effect = tintedFromCommand(" 3 0xFF7A2A");
+		assertEquals(3, effect.size());
+		assertEquals(0xFF7A2A, effect.color());
+	}
+
+	@Test
+	void tintedEffectReadsHexInEitherCase() throws CommandSyntaxException {
+		assertEquals(0xABCDEF, tintedFromCommand(" 1 0XabcDEF").color());
+	}
+
+	@Test
+	void tintedEffectStillReadsADecimalColour() throws CommandSyntaxException {
+		// 0x00FF00 is 65280.
+		TintedParticleEffect effect = tintedFromCommand(" 1.5 65280");
+		assertEquals(1.5f, effect.size());
+		assertEquals(0x00FF00, effect.color());
+	}
+
+	@Test
+	void tintedEffectRefusesAColourThatIsNoNumber() {
+		assertThrows(CommandSyntaxException.class, () -> TintedParticleEffect.FACTORY.read(null, new StringReader(" 3 orange")));
+		assertThrows(CommandSyntaxException.class, () -> TintedParticleEffect.FACTORY.read(null, new StringReader(" 3 0xGG0000")));
+		assertThrows(CommandSyntaxException.class, () -> TintedParticleEffect.FACTORY.read(null, new StringReader(" 3")));
+	}
+
 	@Test
 	void tintedEffectSurvivesThePacket() {
 		TintedParticleEffect effect = new TintedParticleEffect(null, 3.5f, CombatFx.EMBER);
@@ -32,16 +66,6 @@ class ParticleEffectsTest {
 		TintedParticleEffect effect = new TintedParticleEffect(null, 0.25f, CombatFx.BLOOD);
 		NbtElement nbt = codec.encodeStart(NbtOps.INSTANCE, effect).getOrThrow(false, s -> {});
 		assertEquals(effect, codec.parse(NbtOps.INSTANCE, nbt).getOrThrow(false, s -> {}));
-	}
-
-	@Disabled("bug: the command reader takes only decimal colours, the documented 0xFF7A2A reads as 0 and leaves xFF7A2A unread")
-	@Test
-	void tintedEffectReadsTheDocumentedHexColourFromACommand() throws CommandSyntaxException {
-		StringReader command = new StringReader(" 3 0xFF7A2A");
-		TintedParticleEffect effect = TintedParticleEffect.FACTORY.read(null, command);
-		assertEquals(0xFF7A2A, effect.color());
-		assertEquals(3f, effect.size());
-		assertEquals(0, command.getRemainingLength());
 	}
 
 	@Test

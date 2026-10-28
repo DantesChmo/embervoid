@@ -29,7 +29,7 @@ public record TintedParticleEffect(ParticleType<TintedParticleEffect> type, floa
 			reader.expect(' ');
 			float size = reader.readFloat();
 			reader.expect(' ');
-			int color = reader.readInt();
+			int color = readColor(reader);
 			return new TintedParticleEffect(type, size, color);
 		}
 
@@ -38,6 +38,24 @@ public record TintedParticleEffect(ParticleType<TintedParticleEffect> type, floa
 			return new TintedParticleEffect(type, buf.readFloat(), buf.readInt());
 		}
 	};
+
+	/** A colour as {@code 0xRRGGBB} (any case) or as a decimal int. */
+	static int readColor(StringReader reader) throws CommandSyntaxException {
+		int start = reader.getCursor();
+		String token = reader.readUnquotedString();
+		if (token.isEmpty()) {
+			throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerExpectedInt().createWithContext(reader);
+		}
+		try {
+			if (token.length() > 2 && token.charAt(0) == '0' && (token.charAt(1) == 'x' || token.charAt(1) == 'X')) {
+				return Integer.parseUnsignedInt(token.substring(2), 16);
+			}
+			return Integer.parseInt(token);
+		} catch (NumberFormatException e) {
+			reader.setCursor(start);
+			throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerInvalidInt().createWithContext(reader, token);
+		}
+	}
 
 	@Override
 	public ParticleType<?> getType() {
