@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 /**
- * A lantern hanging from the Grieving Tree's branches (DESIGN §4.5, PLAN 12.5). It follows its tree at a fixed angle,
+ * A lantern hanging from the Grieving Tree's branches (DESIGN §4.5). It follows its tree at a fixed angle,
  * distance and height. Any projectile breaks it; a melee hit only while its branch is lowered after a branch sweep.
  * A broken lantern stuns the tree ({@link GrievingTreeEntity#onLanternBroken}). Not saved: a tree that is gone takes
  * its lanterns with it.

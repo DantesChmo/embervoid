@@ -18,10 +18,10 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 
 /**
- * Ash of Rematch (DESIGN §4.5, §10.11 as recommended, PLAN 12.7): used on the arena shrine of a boss the player has
+ * Ash of Rematch (DESIGN §4.5, §10.11 as recommended): used on the arena shrine of a boss the player has
  * beaten, it primes the arena; the next to step inside within a minute summons the boss again. A rematch gives the
  * boss's loot and XP, never its soul or Flask Shard (a first kill in it is still a first kill for whoever had not beaten
- * it). The item itself is track reach-gear's ({@code embervoid:ash_of_rematch}); its use lives here.
+ * it). The item itself is {@code GearItems.ASH_OF_REMATCH}; its use lives here.
  */
 public final class AshOfRematch {
 	static void register() {

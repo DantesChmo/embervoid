@@ -3,7 +3,7 @@ package com.embervoid.reach.boss;
 import com.embervoid.registry.ModSounds;
 import net.minecraft.sound.SoundEvent;
 
-/** Sound events of the Realm 1 bosses and the Ash of Rematch (R40.3a): vanilla files remapped in sounds.json. */
+/** Sound events of the Realm 1 bosses and the Ash of Rematch: vanilla files remapped in sounds.json. */
 public final class ReachBossSounds {
 	public static final SoundEvent ASH_COLOSSUS_AMBIENT = ModSounds.register("entity.ash_colossus.ambient");
 	public static final SoundEvent ASH_COLOSSUS_HURT = ModSounds.register("entity.ash_colossus.hurt");
@@ -60,7 +60,7 @@ public final class ReachBossSounds {
 
 	public static final SoundEvent ASH_OF_REMATCH_USE = ModSounds.register("item.ash_of_rematch.use");
 
-	/** Boss music (R40.3b): the shared zone-boss theme and the Smoldering Lord's (CC BY 4.0 tracks, CREDITS.md). */
+	/** Boss music: the shared zone-boss theme and the Smoldering Lord's (CC BY 4.0 tracks, CREDITS.md). */
 	public static final SoundEvent ZONE_BOSS_MUSIC = ModSounds.register("music.zone_boss");
 	public static final SoundEvent SMOLDERING_LORD_MUSIC = ModSounds.register("music.smoldering_lord");
 

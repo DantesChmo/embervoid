@@ -7,7 +7,7 @@ import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 
-/** The Ashen Reach bosses under their fixed ids (PLAN "0.4.0"). Hitboxes are their final sizes. */
+/** The Ashen Reach bosses under their fixed ids. Hitboxes are their final sizes. */
 public final class ReachBossEntities {
 	public static final EntityType<CryptKeeperEntity> CRYPT_KEEPER = ModEntities.register("crypt_keeper",
 			FabricEntityTypeBuilder.<CryptKeeperEntity>create(SpawnGroup.MONSTER, CryptKeeperEntity::new)

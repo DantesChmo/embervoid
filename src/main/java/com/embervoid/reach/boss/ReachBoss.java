@@ -40,18 +40,18 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.List;
 
 /**
- * Shared base of the Ashen Reach bosses (DESIGN §4.5, PLAN 12.3–12.5, 13.4): an {@link ArenaBoss} run by its
+ * Shared base of the Ashen Reach bosses (DESIGN §4.5): an {@link ArenaBoss} run by its
  * {@link BossFight}, GeckoLib animations, a synced phase for the client, and a simple brain — walk to the target,
  * pick a move when the cooldown is over, stand still while a move winds up ({@link Telegraph}). Moves hit the players
  * standing in the {@link TelegraphShape} they marked.
  *
- * <p>Controllers: {@code movement} (walk/idle), {@link #HURT_CONTROLLER} (the flinch, PLAN 19.3) and {@link #ACTION}
+ * <p>Controllers: {@code movement} (walk/idle), {@link #HURT_CONTROLLER} (the flinch) and {@link #ACTION}
  * (one-shot move animations from {@link #actionAnimations}; {@link #playAnimation} triggers them, as {@link Telegraph}
  * does at a windup's start). Later controllers win on the bones they animate, so a move's animation beats a flinch.
  *
- * <p>Hurt, death and stagger (PLAN 19.3, 19.4): a hit outside a windup plays {@link #HURT} (or {@link #STAGGER} where
+ * <p>Hurt, death and stagger: a hit outside a windup plays {@link #HURT} (or {@link #STAGGER} where
  * {@link #hurtAnimation} says so), never over a windup; {@link #DEATH} plays on death and the body stays
- * {@link #deathTicks} ticks (the fight has ended and credited the fighters at once, as before) before it goes.
+ * {@link #deathTicks} ticks (the fight has already ended and credited the fighters) before it goes.
  */
 public abstract class ReachBoss extends HostileEntity implements ArenaBoss, GeoEntity {
 	/** The controller of one-shot move animations. */
@@ -209,8 +209,6 @@ public abstract class ReachBoss extends HostileEntity implements ArenaBoss, GeoE
 	 */
 	protected abstract int chooseMove(LivingEntity target, double squaredDistance);
 
-	// --- Move helpers ---
-
 	/** Turns the boss to face a point at once (moves aim where it faces at the start of their windup). */
 	protected void face(Vec3d point) {
 		double dx = point.x - getX();
@@ -257,8 +255,6 @@ public abstract class ReachBoss extends HostileEntity implements ArenaBoss, GeoE
 		void hit(PlayerEntity player);
 	}
 
-	// --- Sounds ---
-
 	/** The boss's footsteps ({@link ReachBossSounds}), or null for the block's own step sound. */
 	@Nullable
 	protected SoundEvent stepSound() {
@@ -280,8 +276,6 @@ public abstract class ReachBoss extends HostileEntity implements ArenaBoss, GeoE
 	protected float getSoundVolume() {
 		return 2.0f;
 	}
-
-	// --- Entity ---
 
 	@Override
 	public boolean damage(DamageSource source, float amount) {
@@ -359,8 +353,6 @@ public abstract class ReachBoss extends HostileEntity implements ArenaBoss, GeoE
 		super.readCustomDataFromNbt(nbt);
 		dataTracker.set(PHASE, nbt.getByte("Phase"));
 	}
-
-	// --- Animation ---
 
 	/** Model bones shown only at times (a lantern, an exposed core); the renderer asks {@link #showsBone} each frame. */
 	public List<String> toggledBones() {
