@@ -63,24 +63,22 @@ public class HealingFlaskItem extends Item {
 
 	/** Charge cap for this player: base charges plus upgrades, never above {@code flask.maxCharges}. */
 	public static int maxCharges(PlayerEntity player) {
-		EmbervoidConfig.Flask config = EmbervoidConfig.get().flask();
-		return Math.min(config.baseCharges() + PlayerDataManager.get(player).flaskChargeUpgrades, config.maxCharges());
+		return FlaskNumbers.maxCharges(EmbervoidConfig.get().flask(), PlayerDataManager.get(player).flaskChargeUpgrades);
 	}
 
 	/** Charges left (on a client: as last synced). */
 	public static int charges(PlayerEntity player) {
-		return MathHelper.clamp(PlayerDataManager.get(player).flaskCharges, 0, maxCharges(player));
+		return FlaskNumbers.charges(PlayerDataManager.get(player).flaskCharges, maxCharges(player));
 	}
 
 	/** Health restored by one full sip, in half-hearts. */
 	public static float healAmount(PlayerEntity player) {
-		PlayerData data = PlayerDataManager.get(player);
-		float base = EmbervoidConfig.get().flask().healAmount() + data.flaskHealUpgrades * HEAL_PER_UPGRADE;
 		double multiplier = healMultiplier.applyAsDouble(player);
 		for (ToDoubleFunction<PlayerEntity> extra : EXTRA_HEAL_MULTIPLIERS) {
 			multiplier *= extra.applyAsDouble(player);
 		}
-		return (float) (base * multiplier);
+		return FlaskNumbers.healAmount(EmbervoidConfig.get().flask(), PlayerDataManager.get(player).flaskHealUpgrades,
+				HEAL_PER_UPGRADE, multiplier);
 	}
 
 	/** Fills the player's charges to their cap (resting, respawning). */
