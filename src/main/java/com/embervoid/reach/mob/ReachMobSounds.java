@@ -3,7 +3,7 @@ package com.embervoid.reach.mob;
 import com.embervoid.registry.ModSounds;
 import net.minecraft.sound.SoundEvent;
 
-/** Sound events of the Realm 1 mobs (R40.3a): vanilla files remapped in assets/embervoid/sounds.json. */
+/** Sound events of the Realm 1 mobs: vanilla files remapped in assets/embervoid/sounds.json. */
 public final class ReachMobSounds {
 	public static final SoundEvent CINDER_HUSK_AMBIENT = ModSounds.register("entity.cinder_husk.ambient");
 	public static final SoundEvent CINDER_HUSK_HURT = ModSounds.register("entity.cinder_husk.hurt");

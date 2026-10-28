@@ -12,7 +12,7 @@ public final class SentinelShield {
 		LOWERED, GUARD, OPEN
 	}
 
-	/** The stance after one tick in {@code stance}; {@code openTicks} is what is left of an open shield. */
+	/** The stance after one tick in {@code stance}; {@code openTicksLeft} is what is left of an open shield. */
 	public static Stance next(Stance stance, int openTicksLeft, boolean hasTarget) {
 		if (stance == Stance.OPEN) {
 			return openTicksLeft <= 0 ? Stance.LOWERED : Stance.OPEN;

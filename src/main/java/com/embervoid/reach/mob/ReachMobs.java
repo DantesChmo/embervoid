@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * Realm 1 mobs (DESIGN §4.5, PLAN 10): entity types under the fixed ids, attributes, spawn eggs and natural spawns.
+ * Realm 1 mobs (DESIGN §4.5): entity types under the fixed ids, attributes, spawn eggs and natural spawns.
  *
  * <p>Only fodder, ranged mobs and the rare Ashen Carrion spawn naturally (Cinder Hounds in the Burning City), and only in their own biome
  * ({@link ReachMobConfig#spawns}); tanks and elites come from structures (placed, {@link ReachMob#PLACED_TAG}).
@@ -42,7 +42,7 @@ public final class ReachMobs {
 	public static final RegistryKey<Biome> FIELDS = zoneBiome("ashen_reach_zone_a");
 	public static final RegistryKey<Biome> WOODS = zoneBiome("ashen_reach_zone_b");
 	public static final RegistryKey<Biome> NECROPOLIS = zoneBiome("ashen_reach_zone_c");
-	/** The final zone's sector: the Burning City and the Smoldering Citadel (PLAN 21.3). */
+	/** The final zone's sector: the Burning City and the Smoldering Citadel. */
 	public static final RegistryKey<Biome> CITADEL = zoneBiome("ashen_reach_citadel");
 	/** Natural spawns need block light at or below this. */
 	public static final int MAX_BLOCK_LIGHT = SpawnRules.MAX_BLOCK_LIGHT;
@@ -112,7 +112,7 @@ public final class ReachMobs {
 		naturalSpawn(RESTLESS_BONES, NECROPOLIS, ReachMobs::canSpawnInRealm);
 		naturalSpawn(CRYPT_MOTH, NECROPOLIS, ReachMobs::canSpawnUnderCover);
 		naturalSpawn(CINDER_HOUND, CITADEL, ReachMobs::canSpawnInRealm);
-		// The Scarecrow's Mask (track reach-gear) hides its wearer from buried Ash Stalkers.
+		// The Scarecrow's Mask hides its wearer from buried Ash Stalkers.
 		AshStalkerEntity.addAmbushImmunity(GearArmor::hiddenFromAmbush);
 
 		// Placed only, but spawners and commands still check a rule.

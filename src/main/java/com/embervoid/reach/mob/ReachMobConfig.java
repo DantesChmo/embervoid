@@ -9,7 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * The {@code reachMobs} config section: Realm 1 mobs (DESIGN §4.5, PLAN 10). Base levels outside the realm live in
+ * The {@code reachMobs} config section: Realm 1 mobs (DESIGN §4.5). Base levels outside the realm live in
  * {@code mobs.levels.baseLevels} like every other mob; inside it the zone bands decide.
  *
  * @param spawns natural spawn entries by mob id path (e.g. {@code cinder_husk}); applied at startup, weight 0 = none
