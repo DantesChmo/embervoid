@@ -4,6 +4,13 @@
 
 - **Added:** German, French and Simplified Chinese translations of the whole mod (items, mobs, tooltips, messages,
   subtitles).
+- **Fixed:** a Huntsman's Crossbow bolt set above 32 damage in the config dealt one point more than set; it now deals
+  exactly the configured damage at full speed, and less as drag slows it.
+- **Fixed:** a boss from another mod sharing a path with an Embervoid boss (`othermod:x` and `embervoid:x`) shared its
+  arena fog; each boss's fog now keeps its own namespace.
+- **Fixed:** `/particle embervoid:shockwave 3 0xFF7A2A` drew a black ring: colours in the `0x…` form are read now,
+  decimal ones as before.
+- **Fixed:** the Grieving Tree's lanterns hung again one tick early after its stun; it is exactly 2 s now.
 
 ## 0.5.3 — 2026-10-24
 
