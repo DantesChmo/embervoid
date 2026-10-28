@@ -18,7 +18,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 
 /**
- * Level display (PLAN 3.7): keeps the levels the server sends for tracked entities, finds the leveled entity under
+ * Level display: keeps the levels the server sends for tracked entities, finds the leveled entity under
  * the crosshair (up to {@link #LOOK_RANGE} blocks, stopped by blocks), and builds the "Name Lv. N" label that
  * {@code EntityRendererMobLevelMixin} draws above it. Mobs that already show a name tag get the level appended.
  */

@@ -46,7 +46,7 @@ import java.util.EnumSet;
  * Small cave flyer below y=0 (DESIGN §3.2, bestiary in plans/track-mobs.md). It dives at players in the dark, sets
  * them on fire and lights fires around them, and flees from light: a torch is the counter.
  *
- * <p>Animations (PLAN 19.3, {@link MobAnimations}): {@code misc.hurt} is a jolt and a flare; on death it gutters out
+ * <p>Animations ({@link MobAnimations}): {@code misc.hurt} is a jolt and a flare; on death it gutters out
  * ({@code misc.death}, the shell shrinking, the core dropping and flickering) over {@link #DEATH_TICKS} ticks, embers
  * streaming off it, and goes in a last burst. Embers drift off it as it flies.
  */
@@ -258,7 +258,6 @@ public class EmberWispEntity extends HostileEntity implements GeoEntity {
 		}
 	}
 
-	/** How long the body stays after death for its death animation, in ticks. */
 	public int deathTicks() {
 		return DEATH_TICKS;
 	}

@@ -1,2 +1,2 @@
-/** Entities: regular enemies (entity.mob) and bosses (entity.boss). */
+/** Entities: the Ash Remnant and the regular enemies (entity.mob). */
 package com.embervoid.entity;

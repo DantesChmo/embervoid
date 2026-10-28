@@ -105,7 +105,6 @@ public class AshRemnantEntity extends Entity {
 		return remnant;
 	}
 
-	/** What {@link #retireCurrent} did. */
 	public enum Retired {
 		/** The player had no current remnant. */
 		NONE,

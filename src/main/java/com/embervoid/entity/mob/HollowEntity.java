@@ -64,7 +64,7 @@ import java.util.UUID;
  * the target is still in reach. Between attacks it may raise its guard, which blocks most melee damage and deflects
  * projectiles from the front. An axe hit breaks the guard and staggers it. Hits from behind are never blocked.
  *
- * <p>Animations (PLAN 19.3, {@link MobAnimations}): {@code misc.hurt} on a hit between swings, never over a wind-up
+ * <p>Animations ({@link MobAnimations}): {@code misc.hurt} on a hit between swings, never over a wind-up
  * (the tell stays readable) and not while the guard is up; {@code misc.stagger} held on the stance controller while
  * the broken guard's stagger lasts; on death the body drops to its knees and over ({@code misc.death}) and stays
  * {@link #DEATH_TICKS} ticks.
@@ -267,7 +267,6 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 		}
 	}
 
-	/** How long the body stays after death for its death animation, in ticks. */
 	public int deathTicks() {
 		return DEATH_TICKS;
 	}
