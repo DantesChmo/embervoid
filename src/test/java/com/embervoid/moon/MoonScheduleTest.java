@@ -58,4 +58,53 @@ class MoonScheduleTest {
 		assertEquals(28, MoonSchedule.nextEventDay(25, 3));
 		assertEquals(48, MoonSchedule.nextEventDay(29, 3));
 	}
+
+	@Test
+	void nextEventDayOnAnEventDayIsThatDay() {
+		assertEquals(24, MoonSchedule.nextEventDay(24, 3));
+		assertEquals(28, MoonSchedule.nextEventDay(28, 3));
+	}
+
+	@Test
+	void nextEventDayFromBeforeDayZeroStartsAtZero() {
+		assertEquals(24, MoonSchedule.nextEventDay(-100, 3));
+	}
+
+	@Test
+	void nextEventDayIsAlwaysFoundAndAlwaysAnEvent() {
+		for (int interval = 1; interval <= 12; interval++) {
+			for (long from = 0; from < 400; from += 7) {
+				long next = MoonSchedule.nextEventDay(from, interval);
+				assertTrue(next >= from, "interval " + interval + " from " + from);
+				assertTrue(MoonSchedule.nightOf(next, interval).isEvent(), "interval " + interval + " from " + from);
+				for (long day = from; day < next; day++) {
+					assertFalse(MoonSchedule.nightOf(day, interval).isEvent(), "skipped day " + day);
+				}
+			}
+		}
+	}
+
+	@Test
+	void nonPositiveIntervalOrNegativeDayHasNoEvents() {
+		assertEquals(MoonNight.NONE, MoonSchedule.nightOf(24, 0));
+		assertEquals(MoonNight.NONE, MoonSchedule.nightOf(24, -3));
+		assertEquals(MoonNight.NONE, MoonSchedule.nightOf(-24, 3));
+	}
+
+	@Test
+	void timeInDayWrapsNegativeTimesIntoTheDay() {
+		assertEquals(0, MoonSchedule.timeInDay(0));
+		assertEquals(23_999, MoonSchedule.timeInDay(-1));
+		assertEquals(13_000, MoonSchedule.timeInDay(5 * MoonSchedule.DAY_TICKS + 13_000));
+		assertTrue(MoonSchedule.isNight(-2_000));
+		assertEquals(-2, MoonSchedule.day(-MoonSchedule.DAY_TICKS - 1));
+	}
+
+	@Test
+	void dawnEndsTheNightOfItsOwnDay() {
+		long dawn = MoonSchedule.dawnOf(24);
+		assertEquals(24, MoonSchedule.day(dawn));
+		assertTrue(MoonSchedule.isNight(dawn - 1));
+		assertFalse(MoonSchedule.isNight(dawn));
+	}
 }
