@@ -40,7 +40,7 @@ public final class ClearedSanctums extends PersistentState {
 		return arenas.size();
 	}
 
-	private static ClearedSanctums fromNbt(NbtCompound nbt) {
+	static ClearedSanctums fromNbt(NbtCompound nbt) {
 		ClearedSanctums state = new ClearedSanctums();
 		if (nbt.contains("Arenas", NbtElement.LONG_ARRAY_TYPE)) {
 			for (long arena : nbt.getLongArray("Arenas")) {

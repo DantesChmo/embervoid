@@ -97,7 +97,7 @@ public final class VampireState extends PersistentState {
 		return fightWorld;
 	}
 
-	private static VampireState fromNbt(NbtCompound nbt) {
+	static VampireState fromNbt(NbtCompound nbt) {
 		VampireState state = new VampireState();
 		state.nightId = nbt.getInt("NightId");
 		try {

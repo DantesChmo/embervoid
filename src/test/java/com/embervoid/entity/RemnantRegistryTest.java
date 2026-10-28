@@ -69,4 +69,21 @@ class RemnantRegistryTest {
 		assertEquals(FIRST, owners.getUuid(ALICE.toString()));
 		assertEquals(SECOND, owners.getUuid(BOB.toString()));
 	}
+
+	@Test
+	void aSavedRegistryLoadsBackTheSameRemnants() {
+		RemnantRegistry registry = new RemnantRegistry();
+		registry.setRemnant(ALICE, FIRST);
+		registry.setRemnant(BOB, SECOND);
+		RemnantRegistry loaded = RemnantRegistry.fromNbt(registry.writeNbt(new NbtCompound()));
+		assertEquals(FIRST, loaded.getRemnant(ALICE));
+		assertEquals(SECOND, loaded.getRemnant(BOB));
+		assertFalse(loaded.isDirty());
+	}
+
+	@Test
+	void aWorldWithoutSavedRemnantsLoadsEmpty() {
+		RemnantRegistry loaded = RemnantRegistry.fromNbt(new NbtCompound());
+		assertNull(loaded.getRemnant(ALICE));
+	}
 }

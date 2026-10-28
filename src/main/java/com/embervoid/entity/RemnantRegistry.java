@@ -39,7 +39,7 @@ public final class RemnantRegistry extends PersistentState {
 		}
 	}
 
-	private static RemnantRegistry fromNbt(NbtCompound nbt) {
+	static RemnantRegistry fromNbt(NbtCompound nbt) {
 		RemnantRegistry registry = new RemnantRegistry();
 		NbtCompound owners = nbt.getCompound("Remnants");
 		for (String owner : owners.getKeys()) {
