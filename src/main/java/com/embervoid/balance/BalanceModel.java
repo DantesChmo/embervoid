@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The Realm 1 balance model (R40.1a): the player expected at each stage of a playthrough and what Realm 1's mobs and
+ * The Realm 1 balance model: the player expected at each stage of a playthrough and what Realm 1's mobs and
  * bosses do to them, on the real formulas — {@link StatCurve} and {@link DerivedStats} for stats,
  * {@link StatsConfig.Leveling} for level cost, {@link MobLevelRules} for mob levels and difficulty,
  * {@link BossScaling} for multiplayer, vanilla's {@link DamageUtil} for armor, {@link WeaponRules} for Kindling —
@@ -46,8 +46,6 @@ public final class BalanceModel {
 	public static final BossConfig BOSS = BossConfig.SECTION.defaults();
 	public static final GearConfig GEAR = GearConfig.SECTION.defaults();
 
-	// --- Gear ----------------------------------------------------------------------------------------------------
-
 	/**
 	 * A full armor set.
 	 *
@@ -56,13 +54,13 @@ public final class BalanceModel {
 	public record Armor(String name, double armor, double toughness, int smolderingPieces) {}
 
 	public static final Armor NO_ARMOR = new Armor("no armor", 0, 0, 0);
-	/** Leather (1/3/2/1): the early overworld kit (PLAN L2). */
+	/** Leather (1/3/2/1): the early overworld kit. */
 	public static final Armor LEATHER = new Armor("leather", 7, 0, 0);
 	public static final Armor IRON = new Armor("iron", 15, 0, 0);
 	public static final Armor DIAMOND = new Armor("diamond", 20, 8, 0);
 	/** Necropolis Warden (3/8/6/3, toughness 2 per piece): diamond's numbers. */
 	public static final Armor WARDEN = new Armor("Necropolis Warden", 20, 8, 0);
-	/** Smoldering Plate (netherite since 0.5.0: 3/8/6/3, toughness 3 per piece; −8 % fire per piece). */
+	/** Smoldering Plate (3/8/6/3, toughness 3 per piece): netherite's numbers; −8 % fire per piece. */
 	public static final Armor SMOLDERING = new Armor("Smoldering Plate", 20, 12, 4);
 
 	/**
@@ -81,20 +79,18 @@ public final class BalanceModel {
 	public static final Weapon NETHERITE_SWORD_SHARP_V = new Weapon("netherite sword, Sharpness V", 11, 1.6, WeaponScaling.Scaling.DEXTERITY, 0);
 	public static final Weapon DIAMOND_AXE = new Weapon("diamond axe", 9, 1.0, WeaponScaling.Scaling.STRENGTH, 0);
 	/**
-	 * {@code reach.gear.GearWeapons}, DESIGN §6.1's numbers (PLAN 17.3): Scythe 12 at 1.1 (STR 0.6 / DEX 0.4), Scourge 10
+	 * {@code reach.gear.GearWeapons}, DESIGN §6.1's numbers: Scythe 12 at 1.1 (STR 0.6 / DEX 0.4), Scourge 10
 	 * at 1.0 (DEX 1), Rapier 7 at 2.2 (DEX 0.7, the ember part KIN).
 	 */
 	public static final Weapon ASHEN_SCYTHE = new Weapon("Ashen Scythe", 12, 1.1, new WeaponScaling.Scaling(0.6f, 0.4f), 0);
 	public static final Weapon WARDENS_SCOURGE = new Weapon("Warden's Scourge", 10, 1.0, WeaponScaling.Scaling.DEXTERITY, 0);
 	public static final Weapon ROYAL_ASH_RAPIER = new Weapon("Royal Ash Rapier", 7, 2.2, new WeaponScaling.Scaling(0, 0.7f), 0.3f);
-	/** {@code sanctum.gear.SanctumWeapons} (PLAN L1): 6.5 damage, speed 1.6, DEX 1; Wide Cleave. */
+	/** {@code sanctum.gear.SanctumWeapons}: 6.5 damage, speed 1.6, DEX 1; Wide Cleave. */
 	public static final Weapon SANCTUM_LONGSWORD = new Weapon("Sanctum Longsword", 6.5, 1.6, WeaponScaling.Scaling.DEXTERITY, 0);
 	/** 8 damage, speed 0.9, STR 1; Ground Slam. */
 	public static final Weapon ASHBEARERS_MACE = new Weapon("Ashbearer's Mace", 8, 0.9, WeaponScaling.Scaling.STRENGTH, 0);
 	public static final List<Weapon> REALM_MELEE = List.of(ASHEN_SCYTHE, WARDENS_SCOURGE, ROYAL_ASH_RAPIER);
 	public static final List<Weapon> SANCTUM_MELEE = List.of(SANCTUM_LONGSWORD, ASHBEARERS_MACE);
-
-	// --- The player ----------------------------------------------------------------------------------------------
 
 	/**
 	 * Where a typical melee character puts its points, repeating: VIT, DEX, VIT, DEX, END, VIT, DEX, RES (a sword
@@ -113,7 +109,6 @@ public final class BalanceModel {
 		return stats;
 	}
 
-	/** A character: level, stats, gear and flask charges. */
 	public record Player(int level, int[] stats, Armor armor, Weapon weapon, int flaskCharges) {
 		public static Player of(int level, Armor armor, Weapon weapon, int flaskCharges) {
 			return new Player(level, statsAt(level), armor, weapon, flaskCharges);
@@ -146,8 +141,6 @@ public final class BalanceModel {
 					+ ", RES " + stat(Stat.RESILIENCE) + "), " + armor.name() + ", " + weapon.name();
 		}
 	}
-
-	// --- Damage both ways ----------------------------------------------------------------------------------------
 
 	/**
 	 * Damage one hit of a level-{@code mobLevel} mob does to {@code player}: difficulty factor and level multiplier
@@ -209,7 +202,6 @@ public final class BalanceModel {
 		return perHit <= 0 ? Integer.MAX_VALUE : (int) Math.ceil(health / perHit - 1e-6);
 	}
 
-	/** One mob at one level against one player. */
 	public record Fight(Mob mob, int level, Player player, double mobHealth, double playerHit, int hitsToKillMob,
 			double mobHit, int hitsToKillPlayer, double secondsToKill, double damageTaken) {
 		/** Damage taken while trading hits until the mob dies, as a share of the player's max health. */
@@ -240,8 +232,6 @@ public final class BalanceModel {
 		return new Fight(mob, level, player, health, perHit, hits, taken, hitsToKill(player.maxHealth(), taken),
 				ticks / 20, landed * taken);
 	}
-
-	// --- Bosses --------------------------------------------------------------------------------------------------
 
 	/**
 	 * A boss at its level against {@code fighters} players like {@code player}. Hits to kill count both phases: the
@@ -281,8 +271,6 @@ public final class BalanceModel {
 				Math.max(1, level - BOSS.addLevelOffset()), moves);
 	}
 
-	// --- Moon nights ---------------------------------------------------------------------------------------------
-
 	/**
 	 * Damage a player takes clearing a wave of {@code count} mobs that all attack at once, killing them one after the
 	 * other, trading hits ({@code missChance}: share of the player's hits that pass through, the Ghost's).
@@ -313,10 +301,8 @@ public final class BalanceModel {
 	/** The reference the boss targets are written against: full unenchanted diamond, no stat effects, Normal. */
 	public static final Player DIAMOND_REFERENCE = new Player(1, statsAt(1), DIAMOND, DIAMOND_SWORD, FLASK.baseCharges());
 
-	// --- Progression ---------------------------------------------------------------------------------------------
-
 	/**
-	 * What "a normal playthrough" means in numbers (R40.1a). Every value is an assumption of the model, written up in
+	 * What "a normal playthrough" means in numbers. Every value is an assumption of the model, written up in
 	 * {@code docs/balance-0.4.0.md}.
 	 *
 	 * @param sanctumLevel        character level on the first step into the realm (overworld XP spent at the Maiden)
@@ -330,7 +316,6 @@ public final class BalanceModel {
 		public static final Playthrough NORMAL = new Playthrough(10, 6, 1, 25, 20);
 	}
 
-	/** XP of a zone by where it comes from. */
 	public record ZoneXp(Zone zone, double placed, double natural, double boss) {
 		public double total() {
 			return placed + natural + boss;

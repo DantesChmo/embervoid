@@ -18,7 +18,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * The 0.5.0 targets (DESIGN §5.5, §6.1) as lists of misses, on the game's numbers as they are: shared by {@link
+ * The fight-length targets (DESIGN §5.5, §6.1) as lists of misses, on the game's numbers as they are: shared by {@link
  * FightLengthTargetsTest}, which fails on any, and {@link FightLengthReport}, which lists them in {@code
  * docs/balance-0.5.0.md}. Each miss says by how much.
  */
@@ -37,7 +37,7 @@ final class FightTargets {
 		return "Lv " + player.level() + " " + player.armor().name() + ", " + player.weapon().name();
 	}
 
-	/** Which rows a check looks at: the whole game, or Realm 1 alone (its zones, the Citadel; PLAN 18.4). */
+	/** Which rows a check looks at: the whole game, or Realm 1 alone (its zones, the Citadel). */
 	enum Scope {
 		ALL, REALM_ONE;
 
@@ -100,7 +100,7 @@ final class FightTargets {
 		return misses;
 	}
 
-	/** The creeper's blast is kept as it is (PLAN D13: the harder overworld; a level 10 player survives it). */
+	/** The creeper's blast is kept as it is (the harder overworld; a level 10 player survives it). */
 	static final String CREEPER_KEPT = "minecraft:creeper";
 
 	/**

@@ -27,7 +27,7 @@ import static com.embervoid.balance.FightTargets.who;
 
 /**
  * Renders the fight-length model's tables as Markdown for {@code docs/balance-0.5.0.md} ({@link BalanceReportTest}
- * writes them to {@code build/balance/fight-length.md}), ending with every miss of the 0.5.0 targets.
+ * writes them to {@code build/balance/fight-length.md}), ending with every miss of the {@link FightTargets}.
  */
 final class FightLengthReport {
 	private final StringBuilder out = new StringBuilder();

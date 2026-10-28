@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * The overworld's hostiles as data for the overworld stage of the balance model (PLAN L2): vanilla numbers (1.20.1)
+ * The overworld's hostiles as data for the overworld stage of the balance model: vanilla numbers (1.20.1)
  * and the Embervoid overworld mobs (DESIGN §3.2). Base levels are not here: they come from the {@code mobs.levels}
  * config defaults. The {@code BalanceFightTests} GameTest checks the Embervoid mobs and the vanilla zombie, skeleton
  * and creeper against the live entities.
@@ -50,7 +50,7 @@ public final class OverworldData {
 		return new Hit(name, base, HitKind.PHYSICAL, interval);
 	}
 
-	/** Vanilla's numbers, times the type's {@code healthScale} / {@code damageScale} from the config defaults (PLAN 18.3). */
+	/** Vanilla's numbers, times the type's {@code healthScale} / {@code damageScale} from the config defaults. */
 	private static Mob mob(String id, String name, Role role, double health, double armor, double attack, int xp, Hit... hits) {
 		double hp = BalanceModel.LEVELS.healthScale(id);
 		double dmg = BalanceModel.LEVELS.damageScale(id);

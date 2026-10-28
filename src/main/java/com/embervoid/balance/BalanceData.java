@@ -19,15 +19,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The base numbers of Realm 1 (and the moon nights) that live in entity code, as data for {@link BalanceModel}
- * (R40.1a). Public constants of the entity classes are read directly (compile-time constants, so nothing is loaded);
+ * The base numbers of Realm 1 (and the moon nights) that live in entity code, as data for {@link BalanceModel}.
+ * Public constants of the entity classes are read directly (compile-time constants, so nothing is loaded);
  * the rest (attributes in {@code createAttributes}, private move damages, XP) is written here and checked against
  * the live entities by the {@code BalanceFightTests} GameTest, so a change on either side fails the build.
  *
  * <p>Everything else the model needs (stat curve, level cost, mob levels, difficulty, boss scaling, armor) comes from
  * the real formula classes in {@link BalanceModel}.
  *
- * <p>For the fight-length model ({@link FightLength}, PLAN 18.1) each boss also has a {@link Cadence}: its moves'
+ * <p>For the fight-length model ({@link FightLength}) each boss also has a {@link Cadence}: its moves'
  * wind-ups and the brain's cooldowns, read from the entity classes' public constants (the {@code BalanceFightTests}
  * GameTest runs the moves and checks the wind-ups), its phases and its downtime.
  */
@@ -57,7 +57,6 @@ public final class BalanceData {
 		public static final List<Zone> OPEN = List.of(FIELDS, WOODS, NECROPOLIS);
 	}
 
-	/** How a hit reaches the player. */
 	public enum HitKind {
 		/** Melee or a thrown thing: difficulty, mob level, armor. */
 		PHYSICAL,
@@ -76,7 +75,6 @@ public final class BalanceData {
 	 *
 	 * @param name     what the move is called in the write-up
 	 * @param base     damage before difficulty and level (what the code passes to {@code damage})
-	 * @param kind     how it reaches the player
 	 * @param interval ticks between two of these hits when the mob keeps attacking (0 = not repeated, e.g. a phase move)
 	 * @param hazard   damage over time or from the arena (a pool, a trail, the storm): outside the hit classes
 	 */
@@ -95,7 +93,6 @@ public final class BalanceData {
 	 * @param health       max health at level 1; extra lives (a bone pile) are in {@code extraHealth}
 	 * @param extraHealth  health to beat after the first death at level 1 (Restless Bones' pile: a share of its max
 	 *                     health, so it scales with level like it)
-	 * @param armor        armor points
 	 * @param attack       {@code generic.attack_damage} (checked against the entity)
 	 * @param xp           base XP
 	 * @param placedOnly   only placed in structures (tanks, elites, the Marksman)
@@ -195,9 +192,9 @@ public final class BalanceData {
 	public static final List<Boss> ZONE_BOSSES = List.of(ASH_COLOSSUS, GRIEVING_TREE, CRYPT_KEEPER);
 	public static final List<Boss> BOSSES = List.of(ASH_COLOSSUS, GRIEVING_TREE, CRYPT_KEEPER, SMOLDERING_LORD);
 
-	// --- Moon nights (DESIGN §3.3) -------------------------------------------------------------------------------
+	// Moon nights (DESIGN §3.3).
 
-	/** Ashen Zombie: 11 HP, 4 dmg, armor 2, 20 XP. Ghost: 36 HP, 5.5 dmg, 40 XP (twice the zombie). Retuned in PLAN 18.3. */
+	/** Ashen Zombie: 11 HP, 4 dmg, armor 2, 20 XP. Ghost: 36 HP, 5.5 dmg, 40 XP (twice the zombie). */
 	public static final Mob ASHEN_ZOMBIE = new Mob("ashen_zombie", "Ashen Zombie", null, Role.FODDER, 11, 0, 2, 4, 20, false,
 			List.of(melee("swing", 4, 20)));
 	public static final Mob GHOST = new Mob("ghost", "Ghost", null, Role.FLYER, 36, 0, 0, 5.5, 40, false,
@@ -208,7 +205,7 @@ public final class BalanceData {
 					melee("leap", 5.5, 0),
 					melee("blood nova (heals 25 %)", 7.5, 0)));
 
-	// --- Fight length (PLAN 18.1, DESIGN §5.5) --------------------------------------------------------------------
+	// Fight length (DESIGN §5.5).
 
 	/** What the player gets before a move lands (DESIGN §5.5 wind-up rule), weakest first. */
 	public enum Tell {
@@ -284,7 +281,6 @@ public final class BalanceData {
 	 *
 	 * @param from   boss health fraction where it starts (the next phase's is where it ends; a phase that starts where
 	 *               the next does, the Lord on the wall, costs no health)
-	 * @param armor  the boss's armor in it
 	 * @param factor damage the boss takes from a clean hit in it (a flank: neither the Colossus's front nor its back)
 	 * @param pause  fixed ticks at its start in which the boss cannot be hit (a phase animation, the Lord on the wall)
 	 */
@@ -330,7 +326,7 @@ public final class BalanceData {
 	}
 
 	/**
-	 * The Fallen Sister, the Ruined Sanctum's boss (DESIGN §2, PLAN 16.3), built to the §5.5 targets for a level 1
+	 * The Fallen Sister, the Ruined Sanctum's boss (DESIGN §2), built to the §5.5 targets for a level 1
 	 * player in iron with an iron sword: level 10 in the band 8–12, HP for about 30 clean hits, damage by move class.
 	 */
 	public static final Boss FALLEN_SISTER = new Boss("fallen_sister", "Fallen Sister", null, SanctumBossArena.LEVEL,
@@ -376,7 +372,7 @@ public final class BalanceData {
 	 * Grieving Tree. Rooted (P1) it never walks; the branch it lowers after each sweep holds a lantern a melee hit can
 	 * break, so each sweep breaks a lantern, and the last lantern of the set buys a stun ({@value
 	 * GrievingTreeEntity#STUN_TICKS} ticks at ×{@value GrievingTreeEntity#STUNNED_DAMAGE}). Otherwise the bark turns every
-	 * hit (×{@value GrievingTreeEntity#TRUNK_DAMAGE}, PLAN 18.4), so the stuns are its only openings.
+	 * hit (×{@value GrievingTreeEntity#TRUNK_DAMAGE}), so the stuns are its only openings.
 	 */
 	public static final Cadence GRIEVING_TREE_CADENCE = new Cadence(GRIEVING_TREE, true, List.of(
 			new Timing("branch sweep", GrievingTreeEntity.SWEEP_WINDUP, Size.BIGGEST, Tell.SHAPE),
@@ -462,7 +458,7 @@ public final class BalanceData {
 	}
 
 	/**
-	 * Vampire boss: a melee chaser whose claws are drawn back with a tell and leave it open after (PLAN 18.3), with the
+	 * Vampire boss: a melee chaser whose claws are drawn back with a tell and leave it open after, with the
 	 * nova on its own cooldown from P1 on and its leap and mist step only when the player is away. One shared boss, not
 	 * scaled by the number of players.
 	 */
@@ -535,8 +531,6 @@ public final class BalanceData {
 	public static Cadence cadenceOf(Boss boss) {
 		return CADENCES.stream().filter(c -> c.boss() == boss).findFirst().orElseThrow(() -> new IllegalArgumentException(boss.id()));
 	}
-
-	// --- Where the XP comes from (R40.1a "a normal playthrough") ------------------------------------------------
 
 	/**
 	 * Placed enemies per minor structure (counted from the datagen templates) and its weight in the zone's structure

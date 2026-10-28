@@ -26,9 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The fight-length model of 0.5.0 (PLAN 18.1, DESIGN §5.5): turns {@link BalanceModel}'s hits to kill into seconds of
+ * The fight-length model (DESIGN §5.5): turns {@link BalanceModel}'s hits to kill into seconds of
  * a fight with dodging, from each boss's move cadence in {@link BalanceData} (wind-ups, the brain's cooldowns, phases,
- * hazards, adds), and puts the 0.5.0 targets' stages in one place: the expected player and reference weapon of every
+ * hazards, adds), and puts the targets' stages in one place: the expected player and reference weapon of every
  * boss and mob stage of the game, and every boss move as a share of that player's health. Pure, like the model.
  *
  * <p>A fight is a loop of {@link Beat}s per phase. A fighter swings at full charge whenever the boss is open: during a
@@ -47,8 +47,6 @@ public final class FightLength {
 	public static final double MAX_SECONDS = 150;
 	public static final int MIN_HITS = 20;
 	public static final int MAX_HITS = 35;
-
-	// --- Openings ------------------------------------------------------------------------------------------------
 
 	/** Ticks of one {@code beat} in which a fighter can swing at the boss ({@code targeted}: the move is aimed at them). */
 	public static double openTicks(Beat beat, boolean targeted) {
@@ -74,8 +72,6 @@ public final class FightLength {
 		return factor <= 0 ? 0 : openTicks(beat, targeted);
 	}
 
-	// --- Fight length --------------------------------------------------------------------------------------------
-
 	/**
 	 * One phase of a fight.
 	 *
@@ -100,12 +96,11 @@ public final class FightLength {
 			return ticks() / 20;
 		}
 
-		/** Clean hits each fighter lands on the boss. */
 		public double hitsEach() {
 			return phases.stream().mapToDouble(PhaseLength::hitsEach).sum();
 		}
 
-		/** Seconds of each fighter's own swinging: the 0.4.0 model's "seconds". */
+		/** Seconds of each fighter's own swinging, as {@link BalanceModel} counts a boss fight's seconds. */
 		public double hittingSeconds() {
 			return phases.stream().mapToDouble(PhaseLength::hittingTicks).sum() / 20;
 		}
@@ -184,9 +179,8 @@ public final class FightLength {
 		return new Length(cadence, player, fighters, total, phases, addTicks);
 	}
 
-	// --- Stages (DESIGN §5.5 reference players and weapons) -------------------------------------------------------
+	// Stages: the DESIGN §5.5 reference players and weapons.
 
-	/** A boss fight of the 0.5.0 targets: who fights it, with what. */
 	public record BossStage(String name, Cadence cadence, Player player) {}
 
 	/**
@@ -201,7 +195,6 @@ public final class FightLength {
 		};
 	}
 
-	/** The melee uniques of the bosses beaten before {@code stage}. */
 	public static List<Weapon> uniquesBefore(Stage stage) {
 		List<Weapon> weapons = new ArrayList<>();
 		for (Zone zone : stage.before()) {
@@ -222,7 +215,7 @@ public final class FightLength {
 	/** The blood new moon player: the Sanctum-level player, level 10 in iron with an iron sword (the boss is at least 15). */
 	public static final Player MOON_PLAYER = Player.of(BalanceModel.Playthrough.NORMAL.sanctumLevel(), BalanceModel.IRON,
 			BalanceModel.IRON_SWORD, BalanceModel.FLASK.baseCharges());
-	/** A full moon wave's player near spawn: level 5 in iron with an iron sword (the 0.4.0 moon target's). */
+	/** A full moon wave's player near spawn: level 5 in iron with an iron sword (the moon target's in docs/balance-0.4.0.md). */
 	public static final Player FULL_MOON_PLAYER = Player.of(5, BalanceModel.IRON, BalanceModel.IRON_SWORD, BalanceModel.FLASK.baseCharges());
 
 	/**
@@ -262,8 +255,6 @@ public final class FightLength {
 	public static Player weakestPlayer(Cadence cadence, Playthrough run) {
 		return bossStages(run).stream().filter(s -> s.cadence() == cadence).findFirst().orElseThrow().player();
 	}
-
-	// --- Hit sizes -----------------------------------------------------------------------------------------------
 
 	/** §5.5's most a move of each class may take of the expected player's max health. */
 	public static double limit(Size size) {
@@ -308,8 +299,6 @@ public final class FightLength {
 		return shares;
 	}
 
-	// --- Mobs ----------------------------------------------------------------------------------------------------
-
 	/** DESIGN §5.5's hits-to-kill bands, and the fewest hits a mob of the band may need to kill the player. */
 	public enum Band {
 		FODDER(2, 3, 6),
@@ -341,7 +330,6 @@ public final class FightLength {
 		};
 	}
 
-	/** One mob at one level against the stage's expected player. */
 	public record MobStage(String stage, Mob mob, int level, Player player) {
 		public Fight fight() {
 			return BalanceModel.fight(mob, level, player);
@@ -384,8 +372,6 @@ public final class FightLength {
 		}
 		return stages;
 	}
-
-	// --- Weapons -------------------------------------------------------------------------------------------------
 
 	/** An unenchanted netherite sword per second (DESIGN §6.1): 8 at 1.6. */
 	public static final double NETHERITE_PER_SECOND = BalanceModel.NETHERITE_SWORD.damage() * BalanceModel.NETHERITE_SWORD.speed();

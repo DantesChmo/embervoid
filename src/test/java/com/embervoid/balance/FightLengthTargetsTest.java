@@ -9,9 +9,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * The 0.5.0 targets (DESIGN §5.5 fight length and hit sizes, §6.1 weapons) on the game's numbers, one test per target
- * ({@link FightTargets}; docs/balance-0.5.0.md). Green since the retune (PLAN 18.3, 18.4) and part of
- * {@code ./gradlew build}; {@code ./gradlew balanceTargets} runs it alone and lists every miss.
+ * The fight-length targets (DESIGN §5.5 fight length and hit sizes, §6.1 weapons) on the game's numbers, one test per
+ * target ({@link FightTargets}; docs/balance-0.5.0.md). Part of {@code ./gradlew build}; {@code ./gradlew
+ * balanceTargets} runs it alone and lists every miss.
  */
 @Tag("targets-0.5.0")
 class FightLengthTargetsTest {

@@ -16,8 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * The fight-length model itself (PLAN 18.1): its data is whole and its arithmetic sane. Part of the build; the 0.5.0
- * targets it measures are {@link FightLengthTargetsTest}.
+ * The fight-length model itself: its data is whole and its arithmetic sane. Part of the build; the targets it
+ * measures are {@link FightLengthTargetsTest}.
  */
 class FightLengthTest {
 	@Test
