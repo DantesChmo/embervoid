@@ -60,8 +60,18 @@ public final class CurseManager {
 
 	/** Whether a death from {@code source} adds a stack: the attacker (or projectile owner) is a hostile mob. */
 	static boolean countsForCurse(DamageSource source) {
+		return CurseRules.countsForCurse(attackerOf(source));
+	}
+
+	private static CurseRules.Attacker attackerOf(DamageSource source) {
 		Entity attacker = source.getAttacker();
-		return attacker != null && !(attacker instanceof PlayerEntity) && (attacker instanceof Monster || attacker instanceof ArenaBoss);
+		if (attacker == null) {
+			return CurseRules.Attacker.NONE;
+		}
+		if (attacker instanceof PlayerEntity) {
+			return CurseRules.Attacker.PLAYER;
+		}
+		return attacker instanceof Monster || attacker instanceof ArenaBoss ? CurseRules.Attacker.HOSTILE : CurseRules.Attacker.OTHER;
 	}
 
 	/** The player's current stacks (server side). */
@@ -72,7 +82,7 @@ public final class CurseManager {
 		if (server == null || curse == null) {
 			return 0;
 		}
-		return curse.epoch() == MoonNightState.get(server).curseEpoch() ? curse.stacks() : 0;
+		return CurseRules.stacks(curse.stacks(), curse.epoch(), MoonNightState.get(server).curseEpoch());
 	}
 
 	/** Adds a stack and returns the new count. */
