@@ -1,6 +1,7 @@
 package com.embervoid.entity.mob;
 
 import com.embervoid.Embervoid;
+import com.embervoid.entity.Facing;
 import com.embervoid.fx.particle.EmberParticles;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityData;
@@ -295,12 +296,7 @@ public class HollowEntity extends HostileEntity implements GeoEntity {
 		if (from == null) {
 			return false;
 		}
-		Vec3d toSource = from.subtract(getPos()).multiply(1, 0, 1);
-		if (toSource.lengthSquared() < 1.0E-4) {
-			return false;
-		}
-		Vec3d facing = Vec3d.fromPolar(0, bodyYaw);
-		return toSource.normalize().dotProduct(facing) >= GUARD_CONE_COS;
+		return Facing.isInFront(bodyYaw, from.subtract(getPos()), GUARD_CONE_COS);
 	}
 
 	@Override
