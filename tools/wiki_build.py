@@ -110,6 +110,14 @@ def ignored():
         return {line.strip() for line in f if line.strip() and not line.startswith("#")}
 
 
+def config_value(key):
+    with open(os.path.join(WIKI, "_data", "config.json"), encoding="utf-8") as f:
+        value = json.load(f)
+    for part in key.split("."):
+        value = value[part]
+    return value
+
+
 def page_hash(path):
     with open(path, "rb") as f:
         return hashlib.sha256(f.read()).hexdigest()[:12]
@@ -151,6 +159,11 @@ def check_page(page, errors):
             errors.append(f"{where}: {{{{mobs-in}}}} needs a biome")
         elif name in ("config", "item") and not arg:
             errors.append(f"{where}: {{{{{name}}}}} needs an argument")
+        elif name == "config":
+            try:
+                config_value(arg)
+            except (KeyError, TypeError):
+                errors.append(f"{where}: no config key {arg}")
     base = os.path.dirname(os.path.join(WIKI, page.lang, page.rel))
     for target in LINK.findall(page.body):
         if re.match(r"^[a-z]+:", target) or target.startswith("#"):

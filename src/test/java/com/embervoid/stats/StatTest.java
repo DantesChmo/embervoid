@@ -48,8 +48,8 @@ class StatTest {
 	}
 
 	@Test
-	void namesAndLevelUpMessagesAreTranslatedInBothLanguages() throws IOException {
-		for (String lang : List.of("en_us", "ru_ru")) {
+	void namesAndLevelUpMessagesAreTranslatedInEveryLanguage() throws IOException {
+		for (String lang : List.of("en_us", "ru_ru", "de_de", "fr_fr", "zh_cn")) {
 			JsonObject keys = JsonParser.parseString(Files.readString(
 					Path.of("src/main/resources/assets/embervoid/lang/" + lang + ".json"), StandardCharsets.UTF_8)).getAsJsonObject();
 			for (Stat stat : Stat.values()) {

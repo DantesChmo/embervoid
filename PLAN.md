@@ -1092,6 +1092,22 @@ and in mechanics. The hard lock (DESIGN §4.1 "Final zone lock") moves to the se
   failed once in the shared batch (the server's one pending file, a fixed tick): it has its own batch now and waits
   until the remnant shows up. Datagen unchanged, build, all 286 GameTests and the server check green.
 
+## Wiki (docs/wiki.md)
+
+The player wiki on moddedmc.wiki, written in `wiki/` (Markdown) and built by `tools/wiki_build.py`. Five languages:
+en (the original), ru, de, fr, zh.
+
+| ID | Task | Size | Depends on | Status |
+|----|------|------|------------|--------|
+| W1 | **Plan, source tree, build script** (`check`, `build`, 136 stub pages) | M | — | done (2026-10-28) |
+| W2 | **English pages**: guides, places/bosses/mobs, items/blocks | L | W1 | done (2026-10-28): 136 pages, about 38 000 words; `check` clean |
+| W3 | **Glossary and the mod's de_de / fr_fr / zh_cn lang files** | M | — | done (2026-10-28): `wiki/glossary.json` 221 terms; 690 keys each; StatTest, MoonNightTest, SoundTests cover all five languages |
+| W4 | **Stats export** into `wiki/_data/` for `{{stats}}`, `{{set-bonus}}`, `{{mobs-in}}` (they render empty until then); `{{config}}` already reads `wiki/_data/config.json`, copied from the server check's config — the export should write it from the code's defaults | M | W1 | open |
+| W5 | **Translations** of the English pages into ru, de, fr, zh (ru reviewed by the user) | L | W2, W3 | open |
+| W6 | **Publish**: a Modrinth or CurseForge project whose source link is this repo, register on moddedmc.wiki, check the package in its previewer (docs links, `id` on entity pages, 1.20.1 recipe JSON), item renders via WikiToolkit, `check` in CI | M | W2 | open — the platform project waits for the user |
+| W7 | In-game guide book (Lavender) from the guides — optional | M | W2 | open |
+| W8 | **Docs and code disagree** (found writing W2; the wiki follows the code): CORE §4.2 slab stele, §5.1 120° sectors and "Sealed Gate", realm edge numbers, §6 Ember Heart; DESIGN §4.5 weapon table and recipes, Smoldering Plate toughness, Drowned Sabatons, §3.2 Hollow HP, §3.3 Vampire arena loot, §4.2 shrine teleport; javadocs of the Vampire's Blood Leap, the Furnace Golem's slam, the Sanctum Flagstone. Also: the Ember Lodestar and the Ember Heart cannot be obtained in survival; the Resilience description promises poison and wither resistance the code does not give; ru_ru uses «мир» and «обелиск» for realm and has a few other inconsistencies (Ash Stalker, Huntsman, Warden, shrine, % spacing) | M | — | open — the item questions are the user's |
+
 ## Open follow-ups
 
 - **Needs a client** (nobody plays; for whoever plays first): every sound and both boss themes, all script-made models

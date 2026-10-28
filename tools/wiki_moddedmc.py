@@ -11,7 +11,7 @@ import os
 import re
 import shutil
 
-from wiki_build import DIRECTIVE, LANGUAGES, LINK, MOD, ROOT, WIKI, load_lang
+from wiki_build import DIRECTIVE, LANGUAGES, LINK, MOD, ROOT, WIKI, config_value, load_lang
 
 GENERATED = os.path.join(ROOT, "src/main/generated/data", MOD)
 RESOURCES = os.path.join(ROOT, "src/main/resources")
@@ -25,14 +25,14 @@ METADATA = {
     "owners": ["danteschmo"],
 }
 ITEM_KINDS = {"weapon", "armor", "accessory", "soul", "material", "consumable", "tool"}
-COMMENT = re.compile(r"<!--.*?-->\n?", re.S)
+COMMENT = re.compile(r"\s*<!--.*?-->", re.S)
 
 HEADINGS = {
-    "en": {"item": "Item", "count": "Count", "chance": "Chance", "dropped_by": "Dropped by", "found_in": "Found in"},
-    "ru": {"item": "Предмет", "count": "Количество", "chance": "Шанс", "dropped_by": "Выпадает с", "found_in": "Лежит в"},
-    "de": {"item": "Gegenstand", "count": "Anzahl", "chance": "Chance", "dropped_by": "Droppt von", "found_in": "Zu finden in"},
-    "fr": {"item": "Objet", "count": "Quantité", "chance": "Chance", "dropped_by": "Lâché par", "found_in": "Trouvé dans"},
-    "zh": {"item": "物品", "count": "数量", "chance": "概率", "dropped_by": "掉落自", "found_in": "发现于"},
+    "en": {"item": "Item", "count": "Count", "chance": "Chance", "dropped_by": "Dropped by", "found_in": "Found in", "default": "default"},
+    "ru": {"item": "Предмет", "count": "Количество", "chance": "Шанс", "dropped_by": "Выпадает с", "found_in": "Лежит в", "default": "по умолчанию"},
+    "de": {"item": "Gegenstand", "count": "Anzahl", "chance": "Chance", "dropped_by": "Droppt von", "found_in": "Zu finden in", "default": "Standard"},
+    "fr": {"item": "Objet", "count": "Quantité", "chance": "Chance", "dropped_by": "Lâché par", "found_in": "Trouvé dans", "default": "par défaut"},
+    "zh": {"item": "物品", "count": "数量", "chance": "概率", "dropped_by": "掉落自", "found_in": "发现于", "default": "默认"},
 }
 
 
@@ -140,8 +140,19 @@ def directive(name, arg, page, names, recipes, loot, lang):
         return drops_markdown(table, names, words) if table else ""
     if name == "sources":
         return sources_markdown(page.items, loot, names, words)
-    # stats, set-bonus, config, mobs-in come from wiki/_data/ once the stats export exists
+    if name == "config":
+        return config_markdown(arg, words)
+    # stats, set-bonus, mobs-in come from wiki/_data/ once the stats export exists
     return ""
+
+
+def config_markdown(key, words):
+    value = config_value(key)
+    if isinstance(value, dict):
+        rows = "".join(f"\n  - `{k}`: {json.dumps(v)}" for k, v in value.items())
+        return f"- `{key}` — {words['default']}:{rows}"
+    return f"- `{key}` — {words['default']} **{json.dumps(value)}**"
+
 
 
 def drops_table(arg, page, loot):

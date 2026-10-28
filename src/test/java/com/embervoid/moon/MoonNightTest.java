@@ -39,8 +39,8 @@ class MoonNightTest {
 	}
 
 	@Test
-	void everyEventNightHasItsAnnouncementsInBothLanguages() throws IOException {
-		for (String lang : List.of("en_us", "ru_ru")) {
+	void everyEventNightHasItsAnnouncementsInEveryLanguage() throws IOException {
+		for (String lang : List.of("en_us", "ru_ru", "de_de", "fr_fr", "zh_cn")) {
 			JsonObject keys = JsonParser.parseString(Files.readString(
 					Path.of("src/main/resources/assets/embervoid/lang/" + lang + ".json"), StandardCharsets.UTF_8)).getAsJsonObject();
 			for (MoonNight night : MoonNight.values()) {

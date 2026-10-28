@@ -2,9 +2,8 @@
 title: Bone Bricks
 ids: [embervoid:bone_bricks, embervoid:bone_brick_wall, embervoid:bone_pillar]
 kind: block
-status: stub
 ---
 
-{{recipe}}
+The ossuaries and crypts of the [Sunken Necropolis](../../places/sunken-necropolis.md).
 
-<!-- TODO: where the family shows up in the world, one line -->
+{{recipe}}

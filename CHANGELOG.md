@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- **Added:** German, French and Simplified Chinese translations of the whole mod (items, mobs, tooltips, messages,
+  subtitles).
+
 ## 0.5.3 — 2026-10-24
 
 - **Fixed:** the Ashen Scythe's blade floated apart from its snath in the hand, and the Royal Ash Rapier's guard sweeps

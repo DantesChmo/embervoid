@@ -1,17 +1,20 @@
 ---
 id: embervoid:amber_tear
 kind: accessory
-status: stub
 ---
 
 {{stats}}
 
 ## What it does
 
-<!-- TODO: effect, stacking -->
+While worn it adds +3 Kindling <!-- reliquary.artifacts.points -->: more healing from each flask sip and more ember damage (the ash wave, Ash Bombs, the Furnace Heart nova, the Rapier's ember part).
+
+Wear it in an artifact slot of the [Reliquary](../../../guides/mechanics/reliquary.md). The points count in every effect of the stat, but not in your character level, the cost of your next level or the stat cap. You have two artifact slots and cannot wear two of the same artifact; points from two different artifacts on the same stat add up. An artifact goes into your Ash Remnant with the rest of your gear when you die.
 
 ## How to get it
 
 {{recipe}}
 
 {{sources}}
+
+It belongs to the [Royal Woods](../../places/royal-woods.md). It comes only from the treasure chest of the hunting lodge <!-- reliquary.drops.chestArtifact 8 %, one of the zone's two artifacts -->; the Woods have no elite that carries it.

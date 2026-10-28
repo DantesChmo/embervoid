@@ -413,6 +413,19 @@ without creative mode, boss fights take about two minutes, and nothing breaks on
 
 ---
 
+## Wiki
+
+**Status:** In progress (PLAN W1–W7).
+
+- [x] Plan and build script: Markdown in `wiki/`, built for moddedmc.wiki ([docs/wiki.md](docs/wiki.md))
+- [x] English pages: guides and encyclopedia
+- [x] Glossary; the mod in German, French and Chinese
+- [ ] Stats export, so numbers on the wiki come from the code
+- [ ] Translations into ru, de, fr, zh
+- [ ] Published on moddedmc.wiki
+
+---
+
 ## Later (ideas, not committed)
 
 First-round variants and where each discussion stopped: [BACKLOG.md](BACKLOG.md).

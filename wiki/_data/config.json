@@ -1,0 +1,316 @@
+{
+  "remnant": {
+    "mode": "xp_and_items",
+    "secondDeath": "burn_xp"
+  },
+  "stamina": {
+    "max": 100,
+    "regenPerTick": 1.0,
+    "regenDelayTicks": 20
+  },
+  "flask": {
+    "baseCharges": 3,
+    "maxCharges": 8,
+    "healAmount": 8.0,
+    "drinkTicks": 32
+  },
+  "setpieces": {
+    "maxPerChunk": 8,
+    "animate": true
+  },
+  "mobs": {
+    "levels": {
+      "enabled": true,
+      "defaultBaseLevel": 4,
+      "baseLevels": {
+        "embervoid:ash_ghoul": 5,
+        "embervoid:ash_stalker": 15,
+        "embervoid:ashen_carrion": 15,
+        "embervoid:bark_hollow": 18,
+        "embervoid:cinder_hound": 25,
+        "embervoid:cinder_husk": 15,
+        "embervoid:crypt_moth": 21,
+        "embervoid:ember_wisp": 8,
+        "embervoid:furnace_golem": 25,
+        "embervoid:grave_warden": 21,
+        "embervoid:hollow": 15,
+        "embervoid:hollow_sentinel": 21,
+        "embervoid:lantern_hag": 18,
+        "embervoid:restless_bones": 21,
+        "embervoid:smoldering_knight": 25,
+        "embervoid:sparking_marksman": 25,
+        "embervoid:withered_thrall": 18,
+        "minecraft:creeper": 6,
+        "minecraft:drowned": 3,
+        "minecraft:enderman": 12,
+        "minecraft:husk": 3,
+        "minecraft:skeleton": 4,
+        "minecraft:slime": 4,
+        "minecraft:spider": 3,
+        "minecraft:stray": 4,
+        "minecraft:witch": 6,
+        "minecraft:zombie": 3,
+        "minecraft:zombie_villager": 3
+      },
+      "blocksPerLevel": 1000,
+      "maxDistanceBonus": 5,
+      "belowZeroBonus": 3,
+      "dimensionBonus": {
+        "minecraft:the_end": 8,
+        "minecraft:the_nether": 5
+      },
+      "healthPerLevel": 0.06,
+      "damagePerLevel": 0.05,
+      "experiencePerLevel": 0.06,
+      "healthScale": {
+        "minecraft:creeper": 0.85,
+        "minecraft:drowned": 0.75,
+        "minecraft:enderman": 0.8,
+        "minecraft:husk": 0.75,
+        "minecraft:vindicator": 1.3,
+        "minecraft:witch": 0.65,
+        "minecraft:zombie": 0.75,
+        "minecraft:zombie_villager": 0.75
+      },
+      "damageScale": {
+        "minecraft:enderman": 0.65,
+        "minecraft:vindicator": 0.4,
+        "minecraft:witch": 0.5
+      }
+    },
+    "difficulty": {
+      "easy": 1.0,
+      "normal": 1.25,
+      "hard": 1.75
+    }
+  },
+  "nightMobs": {
+    "zombieLevelBonus": 5,
+    "ghostMissChance": 0.15,
+    "maxZombies": 10,
+    "ghostCount": 3,
+    "spawnMinDistance": 16,
+    "spawnMaxDistance": 32
+  },
+  "reachMobs": {
+    "spawns": {
+      "ash_stalker": {
+        "weight": 35,
+        "minGroup": 1,
+        "maxGroup": 1
+      },
+      "ashen_carrion": {
+        "weight": 8,
+        "minGroup": 1,
+        "maxGroup": 1
+      },
+      "cinder_hound": {
+        "weight": 100,
+        "minGroup": 3,
+        "maxGroup": 5
+      },
+      "cinder_husk": {
+        "weight": 100,
+        "minGroup": 2,
+        "maxGroup": 4
+      },
+      "crypt_moth": {
+        "weight": 50,
+        "minGroup": 1,
+        "maxGroup": 3
+      },
+      "lantern_hag": {
+        "weight": 40,
+        "minGroup": 1,
+        "maxGroup": 1
+      },
+      "restless_bones": {
+        "weight": 100,
+        "minGroup": 2,
+        "maxGroup": 3
+      },
+      "withered_thrall": {
+        "weight": 100,
+        "minGroup": 1,
+        "maxGroup": 2
+      }
+    }
+  },
+  "stats": {
+    "vitalityHealth": 1.0,
+    "enduranceStamina": 2.0,
+    "enduranceStaminaRegen": 0.02,
+    "enduranceKnockbackResistance": 0.005,
+    "strengthDamage": 0.02,
+    "dexterityDamage": 0.02,
+    "dexterityAttackSpeed": 0.005,
+    "kindlingFlaskHeal": 0.02,
+    "resilienceToughness": 0.1,
+    "resilienceFireReduction": 0.01,
+    "resilienceFireReductionCap": 0.5,
+    "fortuneLuck": 0.1,
+    "fortuneExtraDrop": 0.005,
+    "fortuneExtraDropCap": 0.25
+  },
+  "leveling": {
+    "costBase": 20.0,
+    "costLinear": 6.0,
+    "costQuadratic": 0.15,
+    "statCap": 99,
+    "levelCap": 0
+  },
+  "boss": {
+    "healthPerExtraFighter": 0.5,
+    "addsPerExtraFighter": 1,
+    "addLevelOffset": 3,
+    "targetSwitchMinSeconds": 8.0,
+    "targetSwitchMaxSeconds": 10.0,
+    "repeatSoulChance": 0.25
+  },
+  "sanctum": {
+    "mapChanceCartographer": 0.25,
+    "mapChanceTemple": 0.1,
+    "mapChanceRuinedPortal": 0.08,
+    "mapChanceShipwreck": 0.25,
+    "mapSearchRadius": 64,
+    "hallGuardChance": 0.6,
+    "hallArcherChance": 0.3
+  },
+  "sanctumGear": {
+    "cleaveRange": 3.0,
+    "cleaveArc": 90.0,
+    "cleaveMultiplier": 1.25,
+    "cleaveStamina": 35.0,
+    "cleaveCooldown": 8,
+    "slamRadius": 3.0,
+    "slamMultiplier": 0.75,
+    "slamKnockback": 0.8,
+    "slamSlownessTicks": 40,
+    "slamSlownessAmplifier": 1,
+    "slamStamina": 45.0,
+    "slamCooldown": 10
+  },
+  "moon": {
+    "enabled": true,
+    "cycleInterval": 3,
+    "fallbackMinutes": 30.0,
+    "fullMoon": {
+      "levelBonus": 3,
+      "followRange": 1.5
+    },
+    "blood": {
+      "vampirism": 0.25
+    }
+  },
+  "vampire": {
+    "provokeMinutes": 5.0,
+    "groupRadius": 64,
+    "groupMin": 1,
+    "groupMax": 3,
+    "bossMinLevel": 15,
+    "bossCapNoRealm": 20,
+    "firstKillShards": 2,
+    "repeatShardChance": 0.5
+  },
+  "gear": {
+    "bleeding": {
+      "durationTicks": 120,
+      "maxLevel": 3,
+      "damagePerLevel": 0.5
+    },
+    "smoldering": {
+      "fireReductionPerPiece": 0.08
+    },
+    "sets": {
+      "reaperSpeed": 0.1,
+      "huntsmanProjectile": 0.15,
+      "wardenKnockbackResist": 0.3,
+      "wardenBlockingReduction": 0.15
+    },
+    "uniques": {
+      "scarecrowDetection": 0.5,
+      "greavesSpeedTicks": 80,
+      "greavesSafeFallDamage": 4.0,
+      "novaHealthFraction": 0.3,
+      "novaRadius": 4.0,
+      "novaDamage": 6.0,
+      "novaCooldownTicks": 1200
+    },
+    "weapons": {
+      "kindlingPerPoint": 0.02,
+      "sweepRadius": 2.5,
+      "sweepShare": 0.75,
+      "sweepStamina": 3.0,
+      "waveLength": 6.0,
+      "waveWidth": 3.0,
+      "waveDamage": 3.0,
+      "harvestRadius": 3.5,
+      "harvestStamina": 40.0,
+      "harvestCooldown": 10,
+      "lashPull": 4.0,
+      "lashStamina": 30.0,
+      "lashCooldown": 8,
+      "lungeDash": 4.0,
+      "lungeStamina": 30.0,
+      "lungeCooldown": 6,
+      "rampPerHit": 0.1,
+      "rampMax": 0.3,
+      "rampWindowTicks": 30,
+      "whipTipBand": 1.5,
+      "whipTipMultiplier": 1.6,
+      "whipTipStunTicks": 10
+    },
+    "crossbow": {
+      "chargeTicks": 32,
+      "boltDamage": 16.0,
+      "punch": 3,
+      "pierce": 2,
+      "openerMultiplier": 1.5
+    },
+    "consumables": {
+      "bombRadius": 2.0,
+      "bombDamage": 4.0,
+      "bombFireSeconds": 3,
+      "resinSeconds": 60,
+      "resinFireSeconds": 4,
+      "balmRegenTicks": 160,
+      "oilMinutes": 10,
+      "whetstoneShare": 0.25,
+      "cinderFuelTicks": 3200,
+      "flaskEmberBonus": 0.15
+    },
+    "loot": {
+      "fodderMaterial": 0.1,
+      "eliteMaterial": 0.5,
+      "fodderSet": 0.03,
+      "eliteSet": 0.15,
+      "fodderUnique": 0.005,
+      "eliteUnique": 0.04,
+      "lootingBonus": 0.01
+    }
+  },
+  "reliquary": {
+    "slots": {
+      "artifact": 2,
+      "ring": 2
+    },
+    "artifacts": {
+      "points": 3,
+      "sealPoints": 1
+    },
+    "rings": {
+      "courierSprintBonus": 0.15,
+      "featherSafeFall": 8.0,
+      "featherMaxFallSpeed": 0.5,
+      "fogStalkerClearing": 2.0,
+      "delverHasteLevel": 1,
+      "embersFireSeconds": 2
+    },
+    "drops": {
+      "chestArtifact": 0.08,
+      "chestRing": 0.05,
+      "eliteArtifact": 0.02,
+      "eliteRing": 0.01
+    }
+  }
+}

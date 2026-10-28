@@ -40,7 +40,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
@@ -52,12 +54,14 @@ public final class SoundTests implements FabricGameTest {
 	/** How close to the entity a sound must have been played. */
 	private static final double NEAR = 0.5;
 
-	/** Registry, sounds.json and both lang files agree; music aside, every event has a subtitle. */
+	/** Registry, sounds.json and every lang file agree; music aside, every event has a subtitle. */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "sounds")
 	public void everySoundEventResolvesAndHasSubtitles(TestContext context) {
 		JsonObject sounds = json("assets/embervoid/sounds.json");
-		JsonObject en = json("assets/embervoid/lang/en_us.json");
-		JsonObject ru = json("assets/embervoid/lang/ru_ru.json");
+		Map<String, JsonObject> langs = new LinkedHashMap<>();
+		for (String lang : List.of("en_us", "ru_ru", "de_de", "fr_fr", "zh_cn")) {
+			langs.put(lang, json("assets/embervoid/lang/" + lang + ".json"));
+		}
 		List<String> problems = new ArrayList<>();
 		Set<String> registered = new HashSet<>();
 		for (Identifier id : Registries.SOUND_EVENT.getIds()) {
@@ -92,9 +96,11 @@ public final class SoundTests implements FabricGameTest {
 			if (subtitle == null) {
 				problems.add(event + ": no subtitle");
 			} else if (subtitle.startsWith("subtitles.embervoid.")) {
-				if (!en.has(subtitle) || !ru.has(subtitle)) {
-					problems.add(event + ": subtitle " + subtitle + " missing in " + (en.has(subtitle) ? "ru_ru" : "en_us"));
-				}
+				langs.forEach((lang, keys) -> {
+					if (!keys.has(subtitle)) {
+						problems.add(event + ": subtitle " + subtitle + " missing in " + lang);
+					}
+				});
 			} else if (!Language.getInstance().hasTranslation(subtitle)) {
 				problems.add(event + ": unknown vanilla subtitle " + subtitle);
 			}
