@@ -29,7 +29,7 @@ import java.util.Random;
 
 /**
  * Builds a structure template ({@code .nbt}, the format structure blocks save) in code. Positions not set are
- * left out of the template, so the world keeps whatever is there. Also used for the boss arenas (track reach-bosses).
+ * left out of the template, so the world keeps whatever is there. Also used for the boss arenas.
  */
 public final class TemplateBuilder {
 	private record Entry(BlockState state, @Nullable NbtCompound nbt) {}
@@ -130,9 +130,9 @@ public final class TemplateBuilder {
 		return this;
 	}
 
-	// --- Masonry (the 0.5.0 art pass, docs/art-direction.md §3) --------------------------------------------------
-	// Mouldings, roofs, arches and floors every template builder shares. States are passed in, so a Sanctum wall and
-	// a Citadel wall use the same shapes in their own materials. Positions outside the template are skipped.
+	// Masonry (docs/art-direction.md §3): mouldings, roofs, arches and floors every template builder shares. States
+	// are passed in, so a Sanctum wall and a Citadel wall use the same shapes in their own materials. Positions
+	// outside the template are skipped.
 
 	/** A stair block: {@code facing} is the side its full-height half stands against; {@code top} hangs it. */
 	public static BlockState stair(BlockState stairs, Direction facing, boolean top) {

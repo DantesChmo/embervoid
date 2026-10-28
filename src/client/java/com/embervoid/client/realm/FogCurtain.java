@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The ember fog curtain along the final zone's borders (DESIGN §4.1, PLAN 21.2): drawn by the client only, only for a
+ * The ember fog curtain along the final zone's borders (DESIGN §4.1): drawn by the client only, only for a
  * player without clearance (the synced progress) and only within {@value #RANGE} blocks of them, fading out with the
  * distance. A volume of ember fog ({@link FogWallDraw}, the arena wall's look) rising from the ground along both
  * border rays and the plaza arc beside the Citadel Gate, a little higher than the player stands, with embers and ash
@@ -40,7 +40,6 @@ public final class FogCurtain {
 	/** Height of the sheet above the ground (or the player, when they stand higher). */
 	private static final double HEIGHT = 10;
 	private static final float MAX_ALPHA = 0.9f;
-	/** The curtain's ember colour (0xRRGGBB). */
 	private static final int COLOR = 0xE04A18;
 	private static final float[] RGB = FogWallDraw.rgb(COLOR);
 	/** Embers and ash per tick along the borders within half the range. */

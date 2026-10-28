@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The final zone as a region (DESIGN §4.1 "Final zone lock", PLAN 21.2): the final sector's angle beyond the landing
+ * The final zone as a region (DESIGN §4.1 "Final zone lock"): the final sector's angle beyond the landing
  * plaza, at any height and out past the realm radius. Pure math around the landing at 0, 0; {@link FinalZoneLock} keeps
  * players without clearance out of it, the border wall and the fog curtain stand on its two borders.
  *

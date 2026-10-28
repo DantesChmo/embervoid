@@ -29,7 +29,6 @@ import java.util.Map;
  * odd flare of light. A wall fades in when its fight starts and out when it ends (or the packets stop).
  */
 public final class ArenaWallClient {
-	/** Segments around the ring. */
 	private static final int SEGMENTS = 72;
 	/** Ticks a wall takes to fade in or out. */
 	private static final int FADE_TICKS = 25;

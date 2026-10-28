@@ -8,7 +8,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 
-/** Special hits for boss moves. */
 public final class BossHits {
 	/**
 	 * An unblockable hit that breaks the shield (DESIGN §4.5, Crypt Keeper's overhead): a blocking player's shield goes

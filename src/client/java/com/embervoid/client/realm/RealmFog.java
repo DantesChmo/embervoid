@@ -5,8 +5,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 
 /**
- * Fog API (PLAN 9.1), client side: push a fog override by source id, the strongest wins, the shown fog eases between
- * them. Used by the zone fog ({@code ZoneFog}), boss arena fog (track reach-bosses, through its own S2C packet) and
+ * Fog API, client side: push a fog override by source id, the strongest wins, the shown fog eases between
+ * them. Used by the zone fog ({@code ZoneFog}), boss arena fog (through its own S2C packet) and
  * the Ring of the Fog Stalker ({@link #setClearing}). Applied by {@code RealmFogMixin} to terrain fog in the open
  * air only (not under water, lava or powder snow); blindness and darkness still win, the fog is never further than
  * vanilla's.

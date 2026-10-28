@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * The overworld targets of PLAN L2 (docs/balance-overworld.md "Targets") on the model. Every check collects all its
+ * The overworld targets (docs/balance-overworld.md "Targets") on the model. Every check collects all its
  * misses before failing.
  */
 class OverworldTargetsTest {

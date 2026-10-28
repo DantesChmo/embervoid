@@ -18,7 +18,7 @@ public final class Realms {
 			RegistryKey.of(RegistryKeys.WORLD, Embervoid.id("ashen_reach")),
 			List.of(Embervoid.id("ashen_reach/zone_a"), Embervoid.id("ashen_reach/zone_b"), Embervoid.id("ashen_reach/zone_c")),
 			Embervoid.id("ashen_reach/final"),
-			// DESIGN §4.1 (0.5.0): three open zones of 100° from 120° on, then the final zone's 60° sector, centred on +Z
+			// DESIGN §4.1: three open zones of 100° from 120° on, then the final zone's 60° sector, centred on +Z
 			// (south), where the Citadel Gate faces. Same as dimension/ashen_reach.json and its noise settings.
 			RealmLayout.Sectors.degrees(120, 3, 60),
 			// DESIGN §5.4: zones 15–25 with a band each, final zone 25–30. Zone bosses sit at the top of their band.
@@ -29,7 +29,6 @@ public final class Realms {
 
 	public static final List<RealmDefinition> ALL = List.of(ASHEN_REACH);
 
-	/** The realm whose dimension the world is, or null outside realms. */
 	@Nullable
 	public static RealmDefinition byWorld(RegistryKey<World> key) {
 		for (RealmDefinition realm : ALL) {

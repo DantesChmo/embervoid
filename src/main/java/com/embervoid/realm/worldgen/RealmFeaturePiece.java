@@ -38,20 +38,18 @@ import java.util.List;
  * the positions it exposes ({@link #center}, {@link #shrinePos}) stay the contract for the rest of the realm code.
  */
 public class RealmFeaturePiece extends StructurePiece {
-	/** The landing plaza's paved radius (PLAN 9.6); its broken wall stands on the rim. */
+	/** The landing plaza's paved radius; its broken wall stands on the rim. */
 	public static final int LANDING_RADIUS = 21;
 	/** The old inner landing disc, polished stone around the shrine. */
 	private static final int LANDING_INNER = 9;
-	/** Air cleared above the floor. */
 	private static final int HEADROOM = 14;
 	/** Deepest a floor column is extended down to reach the ground. */
 	private static final int MAX_FOUNDATION = 24;
 	/** How far from the landing centre the return obelisk stands (opposite the Citadel Gate). */
 	public static final int OBELISK_DISTANCE = 6;
-	/** The Citadel Gate's fog wall: this many blocks either side of its middle, this high (PLAN 21.2). */
+	/** The Citadel Gate's fog wall: this many blocks either side of its middle. */
 	public static final int GATE_HALF_WIDTH = 5;
 	public static final int GATE_HEIGHT = 4;
-	/** How far outside the fog wall an arena's shrine stands. */
 	private static final int SHRINE_DISTANCE = FeatureFrame.SHRINE_DISTANCE;
 
 	/** Deepest the ground under an arena site is filled down to. */
@@ -140,7 +138,7 @@ public class RealmFeaturePiece extends StructurePiece {
 	}
 
 	private void generateLanding(StructureWorldAccess world, BlockBox chunkBox) {
-		// The kingdom's crossroads (PLAN 9.6): a brick plaza, the old polished disc around the shrine, a broken low wall
+		// The kingdom's crossroads: a brick plaza, the old polished disc around the shrine, a broken low wall
 		// on the rim with a gap and two lantern posts where each road leaves.
 		disc(world, chunkBox, center, radius, ModBlocks.ASH_BRICKS.getDefaultState(), ModBlocks.ASH_BRICKS.getDefaultState());
 		BlockPos.Mutable pos = new BlockPos.Mutable();
@@ -182,7 +180,7 @@ public class RealmFeaturePiece extends StructurePiece {
 		}
 		put(world, chunkBox, shrinePos(), SanctumBlocks.EMBER_SHRINE.getDefaultState());
 
-		// The Citadel Gate on the rim facing the final zone's sector, across the gate road's exit (PLAN 21.2): its fog
+		// The Citadel Gate on the rim facing the final zone's sector, across the gate road's exit: its fog
 		// wall between two pillars under a lintel. The return obelisk opposite, lanterns on the diagonals.
 		Direction gateSide = gateSide(world.toServerWorld());
 		Direction across = gateSide.rotateYClockwise();
@@ -221,7 +219,7 @@ public class RealmFeaturePiece extends StructurePiece {
 
 	/**
 	 * The side of the landing the Citadel Gate stands on: the horizontal direction nearest the final zone's sector's
-	 * middle line (south for a realm without one, as the Sealed Gate stood).
+	 * middle line (south for a realm without one).
 	 */
 	public static Direction gateSide(ServerWorld world) {
 		RealmDefinition realm = Realms.byWorld(world.getRegistryKey());

@@ -7,7 +7,7 @@ import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 
-/** The Ruined Sanctum's boss and her crying souls (PLAN 16.3). Only her fight summons them: no spawn eggs. */
+/** The Ruined Sanctum's boss and her crying souls. Only her fight summons them: no spawn eggs. */
 public final class SanctumBossEntities {
 	public static final EntityType<FallenSisterEntity> FALLEN_SISTER = ModEntities.register("fallen_sister",
 			FabricEntityTypeBuilder.<FallenSisterEntity>create(SpawnGroup.MONSTER, FallenSisterEntity::new)

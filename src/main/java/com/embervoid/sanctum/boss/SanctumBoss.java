@@ -9,7 +9,7 @@ import net.minecraft.util.Identifier;
 
 import java.util.List;
 
-/** Registers the Ruined Sanctum's boss (PLAN 16.3); the one call from {@code Embervoid.onInitialize}. */
+/** Registers the Ruined Sanctum's boss; the one call from {@code Embervoid.onInitialize}. */
 public final class SanctumBoss {
 	/** What a player's first clear rolls besides the soul and a Flask Shard: Sanctum-tier loot. */
 	public static final Identifier FIRST_CLEAR_LOOT = Embervoid.id("gameplay/fallen_sister_first_clear");

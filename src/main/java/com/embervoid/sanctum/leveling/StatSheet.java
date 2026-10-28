@@ -8,15 +8,12 @@ import java.util.List;
  * Everything the level-up screen shows, built on the server and sent to the client: so the client needs no stat
  * formulas or config of its own.
  *
- * @param level    character level
  * @param cost     XP points the next level costs
- * @param xpPoints XP points the player has
  * @param stats    one row per stat, in display order
  */
 public record StatSheet(int level, int cost, int xpPoints, List<Stat> stats) {
 	/**
 	 * @param id      stat id sent back in level-up requests (e.g. "vitality"); its name is {@code embervoid.stat.<id>}
-	 * @param value   current value
 	 * @param max     cap; no level-up past it
 	 * @param derived what this stat drives now and after one more point (bonus points included)
 	 * @param bonus   points on top of {@code value} that do not count in the level (worn artifacts)

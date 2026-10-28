@@ -15,7 +15,6 @@ import java.util.function.Predicate;
 public final class VampireLevel {
 	/**
 	 * @param playerLevels character levels of the players taking part
-	 * @param minLevel     the lowest level the boss can have
 	 * @param cap          top of the highest unlocked realm's band
 	 */
 	public static int of(Collection<Integer> playerLevels, int minLevel, int cap) {

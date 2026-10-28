@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * The Vampire arena (PLAN 8.12): dimension {@code embervoid:vampire_arena}, a void with red fog (Nether sky effects,
+ * The Vampire arena: dimension {@code embervoid:vampire_arena}, a void with red fog (Nether sky effects,
  * red biome fog) and one small arena at 0,0 built in code.
  *
  * <ul>

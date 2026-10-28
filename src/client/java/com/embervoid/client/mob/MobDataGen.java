@@ -26,7 +26,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
 /**
- * Datagen for the mobs track: entity loot tables and entity type tags. Spawn egg item models are hand-written
+ * Datagen for the mobs: entity loot tables and entity type tags. Spawn egg item models are hand-written
  * resources.
  */
 public final class MobDataGen {

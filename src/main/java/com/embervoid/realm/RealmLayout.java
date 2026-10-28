@@ -10,7 +10,7 @@ import java.util.Random;
  * a zone's boss arena goes. No Minecraft types, so it is unit-tested directly.
  *
  * <p>Angles are radians from +X towards +Z (east towards south), as {@code atan2(z, x)}, normalized to [0, 2π).
- * A realm is cut into angle {@link Sectors}: its open zones, then (since 0.5.0, DESIGN §4.1) the final zone's sector.
+ * A realm is cut into angle {@link Sectors}: its open zones, then (DESIGN §4.1) the final zone's sector.
  */
 public final class RealmLayout {
 	public static final double TAU = Math.PI * 2;
@@ -57,7 +57,6 @@ public final class RealmLayout {
 			return hasFinal() ? openCount + 1 : openCount;
 		}
 
-		/** Angle covered by the open zones. */
 		public double openSpan() {
 			return openCount * openWidth;
 		}
@@ -76,7 +75,6 @@ public final class RealmLayout {
 			return normalize(startAngle + openSpan());
 		}
 
-		/** The final sector's middle line. */
 		public double finalCenter() {
 			return normalize(startAngle + openSpan() + finalWidth / 2);
 		}
@@ -218,7 +216,6 @@ public final class RealmLayout {
 	/**
 	 * Block position (x, z) of a feature placed in one sector, derived from the seed only.
 	 *
-	 * @param sectorStart angle where the sector starts
 	 * @param angleSpread fraction of the sector half-width the feature may stray from the sector center, in [0, 1].
 	 *                    Keep {@code spread · w/2 + footprint} below {@code w/2 − warpRadians} so the feature never
 	 *                    lands across a warped border

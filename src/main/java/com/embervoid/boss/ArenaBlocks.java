@@ -47,7 +47,6 @@ public final class ArenaBlocks {
 		changes.rememberAs(pos, state);
 	}
 
-	/** Whether this fight has changed the block. */
 	public boolean isChanged(BlockPos pos) {
 		return changes.isChanged(pos);
 	}

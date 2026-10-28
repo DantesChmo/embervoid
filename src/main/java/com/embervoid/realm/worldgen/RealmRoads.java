@@ -16,9 +16,8 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
- * The roads of a realm world (PLAN 9.6), from its seed-placed arenas; computed once per world generator. Besides them,
- * the short gate road from the plaza into the final zone's sector (PLAN 21.1), which carries no milestones, posts or
- * outposts.
+ * The roads of a realm world, from its seed-placed arenas; computed once per world generator. Besides them, the short
+ * gate road from the plaza into the final zone's sector, which carries no milestones, posts or outposts.
  */
 public final class RealmRoads {
 	/** Roads leave the landing plaza at this radius. */
@@ -65,11 +64,11 @@ public final class RealmRoads {
 		return RoadLayout.gateRoad(realm.sectors().finalCenter(), PLAZA_RADIUS, GATE_ROAD_END);
 	}
 
-	/** How far beside the gate road's end the first Citadel shrine stands (PLAN 21.3). */
+	/** How far beside the gate road's end the first Citadel shrine stands. */
 	public static final double CITADEL_SHRINE_SIDE = 4;
 
 	/**
-	 * Column (x, z) of the first Citadel shrine, just inside the Citadel Gate beside the gate road's end (PLAN 21.3): the
+	 * Column (x, z) of the first Citadel shrine, just inside the Citadel Gate beside the gate road's end: the
 	 * final zone's respawn until the player rests at another shrine there. Null for a realm without a final sector.
 	 */
 	@Nullable
@@ -103,7 +102,7 @@ public final class RealmRoads {
 
 	/**
 	 * The zone arenas the roads lead to, by boss id. The realm boss's arena in the final sector is left out: only the
-	 * gate road goes there (PLAN 21.3).
+	 * gate road goes there.
 	 */
 	public static List<RealmArenas.Location> arenas(StructurePlacementCalculator calculator) {
 		return RealmArenas.all(calculator).stream()

@@ -35,7 +35,7 @@ public final class Telegraph {
 	/**
 	 * Starts a windup on a server-side entity, marking a ring around it that follows it.
 	 *
-	 * @param ticks     windup length
+	 * @param ticks     windup length in ticks
 	 * @param animation animation to play on an {@link ArenaBoss} caster, or null
 	 * @param radius    radius of the marked area around the caster (0 for none)
 	 * @param attack    runs after the windup if the caster is still alive

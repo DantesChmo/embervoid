@@ -8,8 +8,7 @@ import net.minecraft.util.Identifier;
 import java.util.Optional;
 
 /**
- * Where an arena sits and the ground under it (PLAN 9.4, track reach-world); what stands on it is the arena template
- * (track reach-bosses).
+ * Where an arena sits and the ground under it; what stands on it is the arena template.
  *
  * @param radius       radius of the flat ground, in blocks (at least the fog wall's)
  * @param heightOffset floor height relative to the surrounding ground (the median of the ground at the centre and

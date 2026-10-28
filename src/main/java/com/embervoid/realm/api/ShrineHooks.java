@@ -7,7 +7,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 
 /**
- * Hooks for the Ember Shrine block (owned by the sanctum track). The shrine calls {@link #ALLOW_REST} before a
+ * Hooks for the Ember Shrine block (in the sanctum package). The shrine calls {@link #ALLOW_REST} before a
  * player rests and {@link #RESTED} after; the realm code uses them for realm respawn points and dormant arena shrines
  * (DESIGN §10.8).
  */

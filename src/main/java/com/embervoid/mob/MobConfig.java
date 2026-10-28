@@ -15,7 +15,6 @@ import java.util.Map;
  * {@code dimensionBonus} read the keys listed in the defaults plus any the user adds (other mods' entity ids,
  * other dimensions); any hostile not listed uses {@code defaultBaseLevel}.
  *
- * @param levels     how mob levels are assigned and what they scale
  * @param difficulty damage factors that replace vanilla's Easy/Normal/Hard scaling for mob damage to players
  */
 public record MobConfig(Levels levels, Difficulty difficulty) {
@@ -54,8 +53,8 @@ public record MobConfig(Levels levels, Difficulty difficulty) {
 					1000, 5, 3,
 					Map.of("minecraft:the_nether", 5, "minecraft:the_end", 8),
 					0.06f, 0.05f, 0.06f,
-					// PLAN 18.3: vanilla mobs to the 0.5.0 bands for a level 1 player in iron (DESIGN §5.5); the creeper's
-					// blast stays (PLAN D13).
+					// Vanilla mobs scaled to the DESIGN §5.5 bands for a level 1 player in iron; the creeper's blast is
+					// left as it is (the harder overworld).
 					Map.of("minecraft:zombie", 0.75f, "minecraft:zombie_villager", 0.75f, "minecraft:husk", 0.75f,
 							"minecraft:drowned", 0.75f, "minecraft:creeper", 0.85f, "minecraft:witch", 0.65f,
 							"minecraft:enderman", 0.8f, "minecraft:vindicator", 1.3f),
@@ -67,7 +66,6 @@ public record MobConfig(Levels levels, Difficulty difficulty) {
 	 * @param defaultBaseLevel    base level of any hostile not in {@code baseLevels} (vanilla or modded)
 	 * @param baseLevels          base level by entity type id
 	 * @param blocksPerLevel      horizontal distance from world spawn per +1 level (overworld only)
-	 * @param maxDistanceBonus    cap for the distance bonus
 	 * @param belowZeroBonus      bonus below y=0 (overworld only)
 	 * @param dimensionBonus      flat bonus by dimension id
 	 * @param healthPerLevel      HP = base × (1 + healthPerLevel·(L − 1))

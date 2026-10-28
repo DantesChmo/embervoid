@@ -10,7 +10,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 
 /**
- * What resting at an Ember Shrine does: full health and flasks. The realms track hooks in through {@link ShrineHooks}
+ * What resting at an Ember Shrine does: full health and flasks. Realm code hooks in through {@link ShrineHooks}
  * (dormant arena shrines, realm respawn points).
  */
 final class ShrineRest {

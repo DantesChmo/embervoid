@@ -10,7 +10,6 @@ public final class BossCommands {
 	static void register() {
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(
 				literal("embervoid").requires(source -> source.hasPermissionLevel(2)).then(literal("boss")
-						// /embervoid boss fights: running fights.
 						.then(literal("fights").executes(context -> {
 							int count = 0;
 							for (BossFight fight : ArenaManager.fights()) {

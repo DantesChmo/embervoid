@@ -8,8 +8,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * The Ruined Sanctum's variants (PLAN 16.2), told apart by their start piece: the courtyard ruin (the only one before
- * 0.5.0), the collapsed chapel and the sunken cloister. Each leads through its own stairwell and guarded hall to the
+ * The Ruined Sanctum's variants, told apart by their start piece: the courtyard ruin, the collapsed chapel and the
+ * sunken cloister. Each leads through its own stairwell and guarded hall to the
  * same boss wing.
  */
 public final class SanctumVariants {

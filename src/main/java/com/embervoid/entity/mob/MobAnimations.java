@@ -8,7 +8,7 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 
 /**
- * The hit reaction and death animations of the ordinary mobs (PLAN 19.3), named and wired as {@code ReachBoss} does
+ * The hit reaction and death animations of the ordinary mobs, named and wired as {@code ReachBoss} does
  * it for the bosses: a {@link #HURT_CONTROLLER} between the walk / idle controller and the move controllers (later
  * controllers win on the bones they animate, so a move's animation beats a flinch), and a {@link #DEATH_CONTROLLER}
  * last, holding {@link #DEATH} on its final frame while the body lies there. Each mob keeps its own flinch cooldown
@@ -16,9 +16,7 @@ import software.bernie.geckolib.core.object.PlayState;
  * {@link #tickDeath}; vanilla would remove the body after 20 ticks.
  */
 public final class MobAnimations {
-	/** The controller of the hit reaction (the flinch, the stagger). */
 	public static final String HURT_CONTROLLER = "hurt";
-	/** The controller of the fall on death, held on its last frame. */
 	public static final String DEATH_CONTROLLER = "death";
 	/** A flinch on a hit outside a windup; never cancels one. */
 	public static final String HURT = "misc.hurt";

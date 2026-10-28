@@ -3,7 +3,7 @@ package com.embervoid.entity.mob;
 import com.embervoid.registry.ModSounds;
 import net.minecraft.sound.SoundEvent;
 
-/** Sound events of the overworld mobs (PLAN L3): vanilla files remapped in assets/embervoid/sounds.json. */
+/** Sound events of the overworld mobs: vanilla files remapped in assets/embervoid/sounds.json. */
 public final class MobSounds {
 	public static final SoundEvent ASH_GHOUL_AMBIENT = ModSounds.register("entity.ash_ghoul.ambient");
 	public static final SoundEvent ASH_GHOUL_HURT = ModSounds.register("entity.ash_ghoul.hurt");

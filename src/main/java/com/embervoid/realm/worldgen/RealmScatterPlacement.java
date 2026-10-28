@@ -13,7 +13,7 @@ import net.minecraft.world.gen.chunk.placement.StructurePlacementType;
 import java.util.Optional;
 
 /**
- * Structure placement {@code embervoid:realm_scatter} (PLAN 9.7): random spread like vanilla's (linear), but never on a
+ * Structure placement {@code embervoid:realm_scatter}: random spread like vanilla's (linear), but never on a
  * road ({@link RealmRoads}), an arena site or the landing plaza, so minor structures sit beside the roads, not on them.
  *
  * @param clearance blocks kept free between the start chunk's corner and a road's centre line, an arena site's edge or

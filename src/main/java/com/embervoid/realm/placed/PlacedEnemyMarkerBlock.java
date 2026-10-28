@@ -8,7 +8,7 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
 
 /**
- * Marker block {@code embervoid:placed_enemy} in structure templates (PLAN 9.2): the {@link PlacedEnemyProcessor}
+ * Marker block {@code embervoid:placed_enemy} in structure templates: the {@link PlacedEnemyProcessor}
  * turns it into air and spawns the entity named in its NBT, facing the block's direction. Invisible; never left in
  * the world when the processor runs.
  */

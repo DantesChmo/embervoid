@@ -10,8 +10,6 @@ public final class MobLevelRules {
 	/**
 	 * Level of a naturally spawned mob.
 	 *
-	 * @param base           base level for its type
-	 * @param dimensionBonus flat bonus for its dimension
 	 * @param distance       horizontal distance from world spawn, or 0 where distance does not count
 	 * @param belowZero      whether the below-y=0 bonus applies
 	 */

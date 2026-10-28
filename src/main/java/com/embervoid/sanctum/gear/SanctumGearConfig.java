@@ -4,8 +4,8 @@ import com.embervoid.config.ConfigSection;
 import com.embervoid.config.EmbervoidConfig;
 
 /**
- * {@code sanctumGear.*} in {@code config/embervoid.json}: the Sanctum weapons' special attacks (DESIGN §10.10, PLAN
- * L1). Damage multipliers apply to the weapon's own hit (its attack damage), which then goes through the normal
+ * {@code sanctumGear.*} in {@code config/embervoid.json}: the Sanctum weapons' special attacks (DESIGN §10.10).
+ * Damage multipliers apply to the weapon's own hit (its attack damage), which then goes through the normal
  * {@code damage()} call, so armor, mob levels and STR/DEX scaling still apply.
  *
  * @param cleaveRange           Wide Cleave: reach of the arc, blocks

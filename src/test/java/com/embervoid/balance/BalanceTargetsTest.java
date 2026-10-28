@@ -18,7 +18,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * The balance targets of R40.1 (docs/balance-0.4.0.md "Targets") on the model: a number change that breaks one fails
+ * The balance targets (docs/balance-0.4.0.md "Targets") on the model: a number change that breaks one fails
  * the build. Every check collects all its misses before failing, so one run shows everything that is off.
  */
 class BalanceTargetsTest {
@@ -201,7 +201,7 @@ class BalanceTargetsTest {
 	}
 
 	/**
-	 * DESIGN §6 / §6.1 (0.5.0 ladder): every Realm 1 melee unique beats an unenchanted netherite sword per second, by
+	 * DESIGN §6 / §6.1 (the weapon ladder): every Realm 1 melee unique beats an unenchanted netherite sword per second, by
 	 * at least 20 % in its own use (about 30 % is meant: the Scythe on two enemies, the Scourge at its tip, the Rapier
 	 * ramped) and at least evenly on one target.
 	 */
@@ -211,7 +211,7 @@ class BalanceTargetsTest {
 	}
 
 	/**
-	 * The Sanctum weapons (PLAN L1) for the Sanctum-level player against armor 10: neither beats a realm weapon both
+	 * The Sanctum weapons for the Sanctum-level player against armor 10: neither beats a realm weapon both
 	 * per hit and per second, the realm's best per hit and per second beat each of them, and per second neither beats
 	 * the diamond sword (longsword) or the diamond axe (mace), so they stay between iron and diamond, below the uniques
 	 * above netherite. The weakest realm weapon per hit (the Rapier) pays for that with speed and its ramp, so a plain

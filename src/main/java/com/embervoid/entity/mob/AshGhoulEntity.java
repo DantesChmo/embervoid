@@ -51,9 +51,9 @@ import java.util.Set;
  * rest of the pack nearby joins in. Burns in daylight. On death it bursts into a cloud of ash that blinds whoever
  * stands in it, so killing the first ghoul of a pack blinds you for the next ones.
  *
- * <p>Animations (PLAN 19.3, {@link MobAnimations}): a flinch on a hit with a cooldown, and on death the body collapses
+ * <p>Animations ({@link MobAnimations}): a flinch on a hit with a cooldown, and on death the body collapses
  * ({@code misc.death}) and lies there {@link #DEATH_TICKS} ticks, ash flaking off it, before it goes; the blinding
- * cloud bursts at the moment of death as before.
+ * cloud bursts at the moment of death.
  */
 public class AshGhoulEntity extends HostileEntity implements GeoEntity {
 	/** How far the pack call reaches when a ghoul picks a target. */
@@ -204,7 +204,6 @@ public class AshGhoulEntity extends HostileEntity implements GeoEntity {
 		}
 	}
 
-	/** How long the body stays after death for its death animation, in ticks. */
 	public int deathTicks() {
 		return DEATH_TICKS;
 	}

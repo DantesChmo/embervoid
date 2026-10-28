@@ -11,7 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Expected realm materials from a normal playthrough's route (R40.1c "loot rates sanity"): the chests on the way
+ * Expected realm materials from a normal playthrough's route: the chests on the way
  * (chest loot tables read from the game's files) and the realm loot on the mobs killed ({@code gear.loot} chances,
  * {@code reach.gear.GearLoot} roles), against what the Smoldering Plate and the realm weapons cost.
  */
@@ -123,8 +123,8 @@ final class LootBudget {
 	}
 
 	/**
-	 * What the Smoldering Plate (plus the three zone uniques when {@code zoneWeapons}: each 4 of its zone's material
-	 * since 0.5.0) costs in raw materials, after the Smoldering Ingots and templates found: grave iron (ingots and raw
+	 * What the Smoldering Plate (plus the three zone uniques when {@code zoneWeapons}: each 4 of its zone's material)
+	 * costs in raw materials, after the Smoldering Ingots and templates found: grave iron (ingots and raw
 	 * count the same), cinder, amber, by item.
 	 */
 	static Map<String, Double> need(Map<String, Double> found, boolean zoneWeapons) {

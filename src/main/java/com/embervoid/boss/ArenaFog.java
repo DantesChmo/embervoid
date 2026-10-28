@@ -9,7 +9,7 @@ import net.minecraft.util.Identifier;
 
 /**
  * Arena fog (DESIGN §4.5): the server tells a fighter's client to push or clear a fog layer. The client applies it
- * through the realm fog API (PLAN 9.1) as fog the Ring of the Fog Stalker does not thin out.
+ * through the realm fog API as fog the Ring of the Fog Stalker does not thin out.
  */
 public final class ArenaFog {
 	/** S2C: source id, density (float, 0–1; negative clears the source), colour (int, 0xRRGGBB). */

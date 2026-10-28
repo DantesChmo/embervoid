@@ -34,13 +34,13 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Mob levels (DESIGN §5.4, PLAN 3.5). Every hostile mob gets a level once, the first time it is added to a server
+ * Mob levels (DESIGN §5.4). Every hostile mob gets a level once, the first time it is added to a server
  * world; the level is stored on the entity (a persistent attachment, so it survives restarts and chunk reloads)
  * and drives its max health (a fixed-UUID attribute modifier), the damage it deals (applied when damage is dealt,
  * see {@code LivingEntityMobLevelMixin}) and the XP it drops.
  *
  * <p>"Hostile" means {@link Monster} (vanilla and modded alike), minus the {@link #UNLEVELED} entity type tag (the
- * vanilla bosses by default). Other tracks set levels with {@link #setLevel} (any living entity, e.g. a realm boss)
+ * vanilla bosses by default). Other packages set levels with {@link #setLevel} (any living entity, e.g. a realm boss)
  * or decide them at spawn with a {@link LevelProvider} (e.g. per-zone level bands in a realm dimension).
  *
  * <p>Clients learn levels through {@link #SYNC_PACKET}, sent when a player starts tracking a leveled entity and
@@ -111,7 +111,6 @@ public final class MobLevels {
 		return config.enabled() && level > 0 ? MobLevelRules.damageMultiplier(config, level) * config.damageScale(typeId(attacker)) : 1;
 	}
 
-	/** XP a dying entity drops, scaled by its level. */
 	public static int scaleExperience(LivingEntity entity, int experience) {
 		MobConfig.Levels config = MobConfig.get().levels();
 		int level = getLevel(entity);

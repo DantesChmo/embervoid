@@ -40,11 +40,11 @@ import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 /**
- * The Vampire's boss form (PLAN 8.11). Its fight is {@link VampireFight}, not an arena {@code BossFight}: it implements
+ * The Vampire's boss form. Its fight is {@link VampireFight}, not an arena {@code BossFight}: it implements
  * {@link ArenaBoss} for the phase thresholds and {@link Telegraph}'s animation hook, and does not call {@code
  * ArenaManager.tickBoss} (that would discard it, having no arena).
  *
- * <p>Moves (base values: claws 5, leap 7, nova 7.5, set in R40.1c so that at its lowest level, 15, no hit on a
+ * <p>Moves (base values: claws 5, leap 7, nova 7.5, set so that at its lowest level, 15, no hit on a
  * player in iron goes above heavy; mob levels scale health and every hit):
  * <ul>
  *   <li>Claws: melee.</li>
@@ -57,7 +57,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
  */
 public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEntity {
 	public static final Identifier MUSIC = new Identifier("music.nether.crimson_forest");
-	/** The move controller, the hit-reaction controller under it (PLAN 19.3) and their animations. */
+	/** The move controller, the hit-reaction controller under it and their animations. */
 	public static final String MOVES = "moves";
 	public static final String HURT_CONTROLLER = "hurt";
 	public static final String SWING = "attack.swing";
@@ -76,8 +76,10 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 	public static final float STAGGER_SHARE = 0.12f;
 	private static final DustParticleEffect BLOOD = new DustParticleEffect(new Vector3f(0.6f, 0.02f, 0.05f), 1.6f);
 
-	/** Windups and cooldowns in ticks (the balance model reads them, PLAN 18.1); later phases are faster. */
-	/** The claws: drawn back for {@value} ticks (the tell), then a cooldown of {@link #CLAW_RECOVERY} after the hit (PLAN 18.3). */
+	/**
+	 * Windups and cooldowns in ticks (the balance model reads them); later phases are faster. The claws are drawn back
+	 * for {@value} ticks (the tell), then cool down {@link #CLAW_RECOVERY} after the hit.
+	 */
 	public static final int CLAW_WINDUP = 12;
 	public static final int CLAW_RECOVERY = 20;
 	public static final int LEAP_WINDUP = 20;
@@ -368,7 +370,7 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 			return false;
 		}
 		boolean hurt = super.damage(source, amount);
-		// A flinch between moves, a stagger on a heavy hit; never over a windup (PLAN 19.3).
+		// A flinch between moves, a stagger on a heavy hit; never over a windup.
 		if (hurt && amount > 0 && isAlive() && !getWorld().isClient && !Telegraph.isWindingUp(this) && leapTarget == null
 				&& age - lastHurtAnimation > HURT_COOLDOWN) {
 			lastHurtAnimation = age;

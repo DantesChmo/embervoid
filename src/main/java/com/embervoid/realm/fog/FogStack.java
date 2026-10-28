@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Fog overrides by source id (PLAN 9.1): the strongest pushed layer wins, and the shown fog eases towards it, so
+ * Fog overrides by source id: the strongest pushed layer wins, and the shown fog eases towards it, so
  * walking from one zone into another or a boss arena closing fades instead of snapping. Pure logic, no rendering:
  * the client's {@code RealmFog} feeds it frame times and applies {@link #fogEnd} / {@link #fogStart} / {@link #blendColor}
  * to the vanilla fog.

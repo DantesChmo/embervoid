@@ -14,7 +14,7 @@ import net.minecraft.registry.RegistryWrapper;
 
 import java.util.concurrent.CompletableFuture;
 
-/** Datagen for the Sanctum weapons (PLAN L1): handheld item models and the guard-breaking tag. */
+/** Datagen for the Sanctum weapons: handheld item models and the guard-breaking tag. */
 public final class SanctumGearDataGen {
 	public static void addProviders(FabricDataGenerator.Pack pack) {
 		pack.addProvider(ItemModels::new);

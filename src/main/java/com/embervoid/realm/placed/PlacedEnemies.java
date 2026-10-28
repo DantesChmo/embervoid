@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Placed enemies (PLAN 9.2, DESIGN §4.5 Bestiary): mobs set into structures at worldgen. Persistent, never respawned,
+ * Placed enemies (DESIGN §4.5 Bestiary): mobs set into structures at worldgen. Persistent, never respawned,
  * not reset by shrine rest; their level comes from the zone band like any realm mob ({@code RealmMobLevels}, when the
  * chunk loads).
  *
@@ -38,7 +38,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * was placed by {@link #isPlaced} (the {@link #TAG} command tag).
  */
 public final class PlacedEnemies {
-	/** Command tag on every placed enemy. */
 	public static final String TAG = "embervoid.placed";
 
 	public static final Block MARKER = Registry.register(Registries.BLOCK, Embervoid.id("placed_enemy"),
@@ -53,7 +52,6 @@ public final class PlacedEnemies {
 		// Static fields register the marker and the processor.
 	}
 
-	/** True for a mob spawned by a placed-enemy marker. */
 	public static boolean isPlaced(Entity entity) {
 		return entity.getCommandTags().contains(TAG);
 	}

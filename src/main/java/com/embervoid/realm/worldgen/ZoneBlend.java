@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Density function {@code embervoid:zone_blend} (PLAN 9.4): one terrain shape per zone, picked by the same angle
+ * Density function {@code embervoid:zone_blend}: one terrain shape per zone, picked by the same angle
  * sectors and border warp as the biome source ({@code embervoid:realm_zones}), blended across the borders so a zone's
  * hills fade into the next zone's plain, and a landing shape inside the landing disc. The final zone's sector
- * ({@code final_zone}, {@code final_width} degrees; PLAN 21.1) comes after the open zones, behind straight borders.
+ * ({@code final_zone}, {@code final_width} degrees) comes after the open zones, behind straight borders.
  * The shapes themselves are ordinary JSON density functions.
  *
  * @param warp         the biome source's warp noise (the router's {@code temperature}), roughly in [-1, 1]

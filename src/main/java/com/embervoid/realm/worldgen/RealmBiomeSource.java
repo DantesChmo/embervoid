@@ -100,7 +100,6 @@ public class RealmBiomeSource extends BiomeSource {
 		return RealmLayout.zoneAt(blockX, blockZ, sectors, landingRadius, radius, warp, warpRadians);
 	}
 
-	/** Number of open zones. */
 	public int zoneCount() {
 		return zones.size();
 	}

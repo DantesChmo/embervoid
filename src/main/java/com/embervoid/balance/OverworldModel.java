@@ -11,15 +11,13 @@ import java.util.List;
 import java.util.function.Predicate;
 
 /**
- * The overworld stage of the balance model (PLAN L2): a fresh player from level 1 to the Sanctum against every
+ * The overworld stage of the balance model: a fresh player from level 1 to the Sanctum against every
  * overworld hostile at its level band, on Easy, Normal and Hard, and the XP of a plausible route to the Sanctum
  * against the Realm 1 model's assumption (level 10, {@link BalanceModel.Playthrough#NORMAL}). Same formulas and the
  * same worst honest case as {@link BalanceModel}: trading hits, no crits, no shield, no enchantments.
  */
 public final class OverworldModel {
 	public static final int FULL_MOON_BONUS = MoonConfig.DEFAULT.fullMoon().levelBonus();
-
-	// --- The players ---------------------------------------------------------------------------------------------
 
 	/** Level 1, all stats 10, the first armor and a stone sword. */
 	public static final Player FRESH_LEATHER = Player.of(1, BalanceModel.LEATHER, BalanceModel.STONE_SWORD, BalanceModel.FLASK.baseCharges());
@@ -31,8 +29,6 @@ public final class OverworldModel {
 	public static final List<Player> PLAYERS = List.of(FRESH_LEATHER, FRESH_IRON, SANCTUM_IRON);
 	public static final List<Difficulty> DIFFICULTIES = List.of(Difficulty.EASY, Difficulty.NORMAL, Difficulty.HARD);
 
-	// --- Levels --------------------------------------------------------------------------------------------------
-
 	/** Lowest level a natural spawn of {@code mob} has: its base, +3 if it only spawns below y=0 (DESIGN §5.4). */
 	public static int minLevel(OverworldMob mob) {
 		return mob.baseLevel() + (mob.surface() || !mob.underground() ? 0 : BalanceModel.LEVELS.belowZeroBonus());
@@ -43,8 +39,6 @@ public final class OverworldModel {
 		return mob.baseLevel() + BalanceModel.LEVELS.maxDistanceBonus()
 				+ (mob.underground() ? BalanceModel.LEVELS.belowZeroBonus() : 0);
 	}
-
-	// --- Fights --------------------------------------------------------------------------------------------------
 
 	/** {@link Fight} plus the fire a burning mob leaves (the Ember Wisp's), ignoring armor, reduced by RES. */
 	public record OverworldFight(OverworldMob mob, Fight fight, Difficulty difficulty, double burn) {
@@ -98,8 +92,6 @@ public final class OverworldModel {
 		return BalanceModel.playerHit(player, armor, 1) * 20 / player.attackTicks();
 	}
 
-	// --- XP on the way to the Sanctum ----------------------------------------------------------------------------
-
 	/** Vanilla ore XP, mean of each range: coal 0–2, redstone 1–5, lapis 2–5, diamond 3–7. */
 	public static final double COAL_XP = 1;
 	public static final double REDSTONE_XP = 3;
@@ -119,22 +111,16 @@ public final class OverworldModel {
 	 *
 	 * @param surfaceKills   hostiles killed on the surface at night near spawn (mix by spawn weight × group size)
 	 * @param caveKills      hostiles killed in caves below y=0 (+3 levels)
-	 * @param coalOre        coal ore mined
 	 * @param ironSmelted    iron ingots smelted (full iron armor 24, sword 2, tools)
-	 * @param goldSmelted    gold ingots smelted
-	 * @param redstoneOre    redstone ore mined
-	 * @param lapisOre       lapis ore mined
-	 * @param diamondOre     diamond ore mined
-	 * @param sanctumHollows Hollows guarding the dungeon, killed on the way in (PLAN 16.4: placed dungeons hold 4–5)
+	 * @param sanctumHollows Hollows guarding the dungeon, killed on the way in (placed dungeons hold 4–5)
 	 * @param sanctumArchers skeletons in its side halls
-	 * @param sanctumChests  chests opened (PLAN 16.4: placed dungeons hold 5–7, the storeroom included)
+	 * @param sanctumChests  chests opened (placed dungeons hold 5–7, the storeroom included)
 	 */
 	public record Route(int surfaceKills, int caveKills, int coalOre, int ironSmelted, int goldSmelted, int redstoneOre,
 			int lapisOre, int diamondOre, double sanctumHollows, double sanctumArchers, int sanctumChests) {
 		public static final Route TYPICAL = new Route(30, 20, 40, 30, 4, 6, 4, 2, 4.5, 1, 6);
 	}
 
-	/** XP of one route by where it comes from. */
 	public record RouteXp(double surface, double caves, double mining, double smelting, double sanctum) {
 		public double total() {
 			return surface + caves + mining + smelting + sanctum;
