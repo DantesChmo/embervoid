@@ -51,6 +51,29 @@ public final class WeaponRules {
 		return gapTicks >= 0 && gapTicks <= window;
 	}
 
+	/** The Scythe's sweep: {@code share} of a hit of {@code attackDamage} at {@code charge}. */
+	public static float sweepDamage(double attackDamage, float charge, float share) {
+		return (float) attackDamage * chargeFactor(charge) * share;
+	}
+
+	/** Whether a mob {@code squaredDistance} from the struck one is in a sweep of {@code radius}. */
+	public static boolean inSweep(double squaredDistance, float radius) {
+		return squaredDistance <= radius * radius;
+	}
+
+	/** Stamina a sweep or Harvest gives back for {@code caught} enemies, {@code perEnemy} each (the pool caps it). */
+	public static float staminaRefund(int caught, float perEnemy) {
+		return Math.max(0, caught) * perEnemy;
+	}
+
+	/**
+	 * Whether a mob at horizontal offset ({@code dx}, {@code dz}) from the player is within {@code radius} of them, the
+	 * height left to the search box (Harvest, Ground Slam).
+	 */
+	public static boolean around(double dx, double dz, double radius) {
+		return dx * dx + dz * dz <= radius * radius;
+	}
+
 	/** A vanilla crossbow launches arrows at this speed (blocks per tick); a firework goes slower. */
 	public static final float CROSSBOW_ARROW_SPEED = 3.15f;
 

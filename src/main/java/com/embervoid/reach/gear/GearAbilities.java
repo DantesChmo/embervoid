@@ -168,7 +168,7 @@ public final class GearAbilities {
 	static Iterable<LivingEntity> around(ServerWorld world, ServerPlayerEntity player, double radius) {
 		return world.getEntitiesByClass(LivingEntity.class, player.getBoundingBox().expand(radius, 1, radius),
 				e -> e != player && e.isAlive() && !player.isTeammate(e)
-						&& e.getPos().subtract(player.getPos()).multiply(1, 0, 1).lengthSquared() <= radius * radius);
+						&& WeaponRules.around(e.getX() - player.getX(), e.getZ() - player.getZ(), radius));
 	}
 
 	private GearAbilities() {}

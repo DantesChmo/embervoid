@@ -152,4 +152,36 @@ class WeaponRulesTest {
 		assertEquals(0, WeaponRules.boltHitDamage(0, WeaponRules.CROSSBOW_ARROW_SPEED));
 		assertEquals(0, WeaponRules.boltHitDamage(0, -1));
 	}
+
+	@Test
+	void theScytheSweepsThreeQuartersOfTheHit() {
+		// DESIGN §6.1: a full hit of 12 sweeps for 9.
+		assertEquals(9f, WeaponRules.sweepDamage(12, 1, 0.75f), 1e-5);
+		// A half-charged swing sweeps for its own share of the weaker hit: 12 × 0.4 × 0.75.
+		assertEquals(3.6f, WeaponRules.sweepDamage(12, 0.5f, 0.75f), 1e-5);
+	}
+
+	@Test
+	void theSweepReachesTwoAndAHalfBlocksAroundTheTarget() {
+		assertTrue(WeaponRules.inSweep(2.5 * 2.5, 2.5f));
+		assertTrue(WeaponRules.inSweep(1, 2.5f));
+		assertFalse(WeaponRules.inSweep(2.6 * 2.6, 2.5f));
+	}
+
+	@Test
+	void eachEnemyCaughtGivesThreeStaminaBack() {
+		assertEquals(0f, WeaponRules.staminaRefund(0, 3));
+		assertEquals(3f, WeaponRules.staminaRefund(1, 3));
+		assertEquals(15f, WeaponRules.staminaRefund(5, 3));
+		assertEquals(0f, WeaponRules.staminaRefund(-2, 3));
+	}
+
+	@Test
+	void harvestCatchesEveryoneWithinItsRadiusAllRound() {
+		for (int degrees = 0; degrees < 360; degrees += 45) {
+			double angle = Math.toRadians(degrees);
+			assertTrue(WeaponRules.around(Math.cos(angle) * 3.4, Math.sin(angle) * 3.4, 3.5), degrees + "°");
+			assertFalse(WeaponRules.around(Math.cos(angle) * 3.6, Math.sin(angle) * 3.6, 3.5), degrees + "°");
+		}
+	}
 }

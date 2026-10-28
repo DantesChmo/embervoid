@@ -27,12 +27,11 @@ public class AshenScytheItem extends GearWeaponItem {
 		}
 		GearConfig.Weapons config = GearConfig.get().weapons();
 		float charge = GearReach.lastCharge(player);
-		float sweep = (float) player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE)
-				* WeaponRules.chargeFactor(charge) * config.sweepShare();
+		float sweep = WeaponRules.sweepDamage(player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE), charge, config.sweepShare());
 		float radius = config.sweepRadius();
 		int caught = 0;
 		for (LivingEntity other : world.getEntitiesByClass(LivingEntity.class, target.getBoundingBox().expand(radius, 0.5, radius),
-				e -> e != target && e != player && e.isAlive() && !player.isTeammate(e) && e.squaredDistanceTo(target) <= radius * radius)) {
+				e -> e != target && e != player && e.isAlive() && !player.isTeammate(e) && WeaponRules.inSweep(e.squaredDistanceTo(target), radius))) {
 			if (other.damage(world.getDamageSources().playerAttack(player), sweep)) {
 				caught++;
 				reaped(world, other, 5);
@@ -61,7 +60,7 @@ public class AshenScytheItem extends GearWeaponItem {
 	/** {@code gear.weapons.sweepStamina} back for each of {@code caught} enemies, up to the pool. */
 	static void refundStamina(ServerPlayerEntity player, int caught) {
 		if (caught > 0) {
-			StaminaManager.set(player, StaminaManager.get(player) + caught * GearConfig.get().weapons().sweepStamina());
+			StaminaManager.set(player, StaminaManager.get(player) + WeaponRules.staminaRefund(caught, GearConfig.get().weapons().sweepStamina()));
 		}
 	}
 
