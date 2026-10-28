@@ -43,6 +43,57 @@ class ReliquaryLayoutTest {
 	}
 
 	@Test
+	void aShortColumnIsCentredOnTheFullOne() {
+		List<ReliquaryLayout.Pos> one = ReliquaryLayout.slots(List.of(1));
+		List<ReliquaryLayout.Pos> three = ReliquaryLayout.slots(List.of(3));
+		assertEquals(three.get(1), one.get(0));
+		List<ReliquaryLayout.Pos> two = ReliquaryLayout.slots(List.of(2));
+		assertEquals(2 * three.get(1).y(), two.get(0).y() + two.get(1).y());
+	}
+
+	@Test
+	void columnsGrowOutwardFromTheModel() {
+		List<ReliquaryLayout.Pos> left = ReliquaryLayout.slots(List.of(7, 0));
+		assertEquals(ReliquaryLayout.LEFT_COLUMN_X, left.get(0).x());
+		assertEquals(ReliquaryLayout.LEFT_COLUMN_X - ReliquaryLayout.SLOT, left.get(3).x());
+		assertEquals(ReliquaryLayout.LEFT_COLUMN_X - 2 * ReliquaryLayout.SLOT, left.get(6).x());
+		List<ReliquaryLayout.Pos> right = ReliquaryLayout.slots(List.of(0, 4));
+		assertEquals(ReliquaryLayout.RIGHT_COLUMN_X, right.get(0).x());
+		assertEquals(ReliquaryLayout.RIGHT_COLUMN_X + ReliquaryLayout.SLOT, right.get(3).x());
+	}
+
+	@Test
+	void slotsOfAColumnRunTopToBottom() {
+		List<ReliquaryLayout.Pos> slots = ReliquaryLayout.slots(List.of(3));
+		assertEquals(slots.get(0).y() + ReliquaryLayout.SLOT, slots.get(1).y());
+		assertEquals(slots.get(1).y() + ReliquaryLayout.SLOT, slots.get(2).y());
+		assertEquals(ReliquaryLayout.SLOTS_TOP, slots.get(0).y());
+	}
+
+	@Test
+	void aThirdKindGoesLeftAgainPastTheFirst() {
+		List<ReliquaryLayout.Pos> slots = ReliquaryLayout.slots(List.of(2, 2, 1));
+		ReliquaryLayout.Pos third = slots.get(4);
+		assertEquals(ReliquaryLayout.LEFT_COLUMN_X - ReliquaryLayout.SLOT, third.x());
+	}
+
+	@Test
+	void noSlotsGivesNoPositions() {
+		assertTrue(ReliquaryLayout.slots(List.of()).isEmpty());
+		assertTrue(ReliquaryLayout.slots(List.of(0, 0)).isEmpty());
+	}
+
+	@Test
+	void inventoryRowsAndHotbarDoNotOverlap() {
+		Set<ReliquaryLayout.Pos> seen = new HashSet<>();
+		for (int i = 0; i < 36; i++) {
+			assertTrue(seen.add(ReliquaryLayout.inventorySlot(i)), "slot " + i);
+		}
+		assertTrue(ReliquaryLayout.inventorySlot(26).y() + ReliquaryLayout.SLOT <= ReliquaryLayout.HOTBAR_Y);
+		assertTrue(ReliquaryLayout.HOTBAR_Y + ReliquaryLayout.SLOT <= ReliquaryLayout.HEIGHT);
+	}
+
+	@Test
 	void inventoryMatchesVanillaContainers() {
 		assertEquals(new ReliquaryLayout.Pos(8, 84), ReliquaryLayout.inventorySlot(0));
 		assertEquals(new ReliquaryLayout.Pos(152, 120), ReliquaryLayout.inventorySlot(26));
