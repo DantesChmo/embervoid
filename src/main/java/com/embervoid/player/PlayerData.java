@@ -3,6 +3,7 @@ package com.embervoid.player;
 import com.embervoid.config.EmbervoidConfig;
 import com.embervoid.stats.Stat;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.RegistryKey;
@@ -27,16 +28,19 @@ import java.util.UUID;
  * in their own package instead of adding fields here.
  */
 public final class PlayerData {
-	public static final Codec<PlayerData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+	/**
+	 * Every saved field but the items kept on death, whose codec needs the item registry: {@link PlayerDataManager}
+	 * adds those. Unknown stat ids are dropped and stat values below {@link Stat#MIN} raised to it.
+	 */
+	static final MapCodec<PlayerData> FIELDS_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Codec.FLOAT.fieldOf("stamina").forGetter(data -> data.stamina),
 			Codec.INT.optionalFieldOf("flask_charges").forGetter(data -> Optional.of(data.flaskCharges)),
 			Codec.INT.optionalFieldOf("flask_charge_upgrades", 0).forGetter(data -> data.flaskChargeUpgrades),
 			Codec.INT.optionalFieldOf("flask_heal_upgrades", 0).forGetter(data -> data.flaskHealUpgrades),
 			Codec.BOOL.optionalFieldOf("received_flask", false).forGetter(data -> data.receivedFlask),
 			Uuids.INT_STREAM_CODEC.optionalFieldOf("remnant_id").forGetter(data -> Optional.ofNullable(data.remnantId)),
-			Codec.unboundedMap(Codec.STRING, Codec.INT).optionalFieldOf("stats", Map.of()).forGetter(PlayerData::statsById),
-			FlaskKeeper.Kept.CODEC.listOf().optionalFieldOf("kept_on_death", List.of()).forGetter(data -> List.copyOf(data.keptOnDeath))
-	).apply(instance, (stamina, charges, chargeUpgrades, healUpgrades, receivedFlask, remnantId, stats, kept) -> {
+			Codec.unboundedMap(Codec.STRING, Codec.INT).optionalFieldOf("stats", Map.of()).forGetter(PlayerData::statsById)
+	).apply(instance, (stamina, charges, chargeUpgrades, healUpgrades, receivedFlask, remnantId, stats) -> {
 		PlayerData data = createDefault();
 		data.stamina = stamina;
 		charges.ifPresent(value -> data.flaskCharges = value);
@@ -44,7 +48,6 @@ public final class PlayerData {
 		data.flaskHealUpgrades = healUpgrades;
 		data.receivedFlask = receivedFlask;
 		data.remnantId = remnantId.orElse(null);
-		data.keptOnDeath.addAll(kept);
 		stats.forEach((id, value) -> {
 			Stat stat = Stat.byId(id);
 			if (stat != null) {
