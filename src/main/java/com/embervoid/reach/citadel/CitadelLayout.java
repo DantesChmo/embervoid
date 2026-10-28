@@ -4,6 +4,7 @@ import com.embervoid.Embervoid;
 import net.minecraft.util.Identifier;
 
 import java.util.List;
+import java.util.function.DoubleSupplier;
 
 /**
  * The fixed plan of the Burning City (PLAN 13.1–13.2, DESIGN §4.5 "Smoldering Citadel"): where the city's entry
@@ -183,6 +184,28 @@ public final class CitadelLayout {
 			nearest = Math.min(nearest, terrace.distance(x, z));
 		}
 		return terraceWeight(nearest);
+	}
+
+	/** Most a roughness of ±1 moves the ground in the flat city and on the hill's sides, in density units. */
+	private static final double ROUGH_CITY = 0.15;
+	static final double ROUGH_CLIFF = 0.6;
+
+	/**
+	 * Terrain density at plan column x, z and block {@code y}: positive below the ground, {@code 1 / scale} per block,
+	 * broken up by {@code roughness} (3D noise, roughly in [-1, 1]) away from the terraces, most on the hill's sides.
+	 * The roughness is sampled only where it counts.
+	 *
+	 * @param hills the realm hills noise at the column, roughly in [-1, 1]
+	 */
+	public static double density(double x, double z, int y, double hills, DoubleSupplier roughness, double scale) {
+		double ground = groundHeight(x, z, hills);
+		double density = (ground + 0.5 - y) / scale;
+		double rough = 1 - flatness(x, z);
+		if (rough > 0) {
+			double amount = ROUGH_CITY + (ROUGH_CLIFF - ROUGH_CITY) * cliff(x, z);
+			density += rough * amount * roughness.getAsDouble();
+		}
+		return density;
 	}
 
 	/** How much of a column is the hill's side, 0–1 (rough noise breaks the cliffs up more than the flat city). */

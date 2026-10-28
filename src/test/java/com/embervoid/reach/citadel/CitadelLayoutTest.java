@@ -210,6 +210,61 @@ class CitadelLayoutTest {
 		}
 	}
 
+	@Test
+	void onTheCourtyardTheTerrainIsSolidUpToThePlateauAndAirAbove() {
+		int x = CitadelLayout.COURTYARD_X;
+		int z = CitadelLayout.COURTYARD_Z;
+		int top = (int) CitadelLayout.PLATEAU_Y;
+		for (double hills : HILLS) {
+			assertTrue(CitadelLayout.density(x, z, top, hills, () -> 1, 8) > 0, "the top block");
+			assertTrue(CitadelLayout.density(x, z, top - 20, hills, () -> -1, 8) > 0, "deep down");
+			assertTrue(CitadelLayout.density(x, z, top + 1, hills, () -> 1, 8) < 0, "above the top");
+		}
+	}
+
+	@Test
+	void onATerraceTheDensityIsOneScaleUnitPerBlockAndNoNoise() {
+		int x = CitadelLayout.COURTYARD_X;
+		int z = CitadelLayout.COURTYARD_Z;
+		double scale = 8;
+		for (int y = 40; y < 120; y++) {
+			double step = CitadelLayout.density(x, z, y, 0, () -> {
+				throw new AssertionError("rough noise sampled on a terrace");
+			}, scale) - CitadelLayout.density(x, z, y + 1, 0, () -> 0, scale);
+			assertEquals(1 / scale, step, 1e-9, "at y " + y);
+		}
+	}
+
+	@Test
+	void awayFromTheTerracesRoughnessBreaksTheGroundUpMostOnTheCliff() {
+		// A column on the hill's side (cliff 1) and one in the lower city (cliff 0), both clear of every terrace.
+		double[][] columns = {roughColumn(1), roughColumn(0)};
+		double[] spread = new double[columns.length];
+		for (int i = 0; i < columns.length; i++) {
+			double x = columns[i][0];
+			double z = columns[i][1];
+			int y = (int) CitadelLayout.groundHeight(x, z, 0);
+			double up = CitadelLayout.density(x, z, y, 0, () -> 1, 8);
+			double down = CitadelLayout.density(x, z, y, 0, () -> -1, 8);
+			double none = CitadelLayout.density(x, z, y, 0, () -> 0, 8);
+			assertTrue(up > none && none > down);
+			spread[i] = up - down;
+		}
+		assertTrue(spread[0] > spread[1], "the cliff is no rougher than the city");
+	}
+
+	/** A plan column with no terrace flattening it and the given cliff share. */
+	private static double[] roughColumn(double cliff) {
+		for (int x = -200; x <= 200; x += 4) {
+			for (int z = -400; z <= 0; z += 4) {
+				if (CitadelLayout.flatness(x, z) == 0 && CitadelLayout.cliff(x, z) == cliff) {
+					return new double[]{x, z};
+				}
+			}
+		}
+		throw new AssertionError("no rough column with cliff " + cliff);
+	}
+
 	private static boolean overlaps(int ax0, int az0, int ax1, int az1, int bx0, int bz0, int bx1, int bz1) {
 		return ax0 <= bx1 && bx0 <= ax1 && az0 <= bz1 && bz0 <= az1;
 	}
