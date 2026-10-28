@@ -172,7 +172,7 @@ final class CityBuilder {
 		return this;
 	}
 
-	/** A placed enemy (reach-world's marker) standing at x, y, z. */
+	/** A placed enemy (its marker) standing at x, y, z. */
 	CityBuilder mob(int x, int y, int z, Identifier mob, Direction facing) {
 		t.set(x, y, z, PlacedEnemies.MARKER.getDefaultState().with(PlacedEnemyMarkerBlock.FACING, facing),
 				PlacedEnemies.markerNbt(mob, null, List.of()));

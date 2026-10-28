@@ -15,8 +15,8 @@ import net.minecraft.util.math.Direction;
 import java.util.Random;
 
 /**
- * Drawing helpers for ruined templates (PLAN 9.7–9.8) on top of {@link TemplateBuilder}, with a seeded random, and
- * the zone palettes of the 0.5.0 art pass (docs/art-direction.md §3): every façade is a base course, a wall with
+ * Drawing helpers for ruined templates on top of {@link TemplateBuilder}, with a seeded random, and
+ * the zone palettes (docs/art-direction.md §3): every façade is a base course, a wall with
  * cracks growing upwards and moss at the foot, a trim, a detail, a roof and a blended floor, with the zone's accent
  * on a few spots.
  */
@@ -79,7 +79,6 @@ final class Ruin {
 		return this;
 	}
 
-	/** Fills a box. */
 	Ruin fill(int x0, int y0, int z0, int x1, int y1, int z1, BlockState state) {
 		t.fill(x0, y0, z0, x1, y1, z1, state);
 		return this;

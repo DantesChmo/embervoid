@@ -30,7 +30,7 @@ import java.util.function.Predicate;
 /**
  * GeckoLib renderers for the Ashen Reach bosses: models from {@code tools/reach_boss_art.py}, glowmask layer, an ember
  * halo ({@link EmberHaloLayer}) where a body burns, bones the boss shows only at times ({@link ReachBoss#toggledBones})
- * hidden or shown every frame, and no vanilla death tilt (every boss has its own death animation, PLAN 19.4).
+ * hidden or shown every frame, and no vanilla death tilt (every boss has its own death animation).
  */
 public final class ReachBossClient {
 	public static void register() {

@@ -31,7 +31,7 @@ import static com.embervoid.client.reach.citadel.CityBuilder.stairs;
 import static com.embervoid.sanctum.datagen.TemplateBuilder.stair;
 
 /**
- * The Smoldering Citadel's pieces (PLAN 13.2, DESIGN §4.5): {@code embervoid:ashen_reach/citadel/<name>}, one per
+ * The Smoldering Citadel's pieces (DESIGN §4.5): {@code embervoid:ashen_reach/citadel/<name>}, one per
  * {@link CitadelLayout.Piece}, drawn for the layout's fixed orientation (the route enters each lower-city piece from
  * the south, +Z, and leaves north). Placed Citadel mobs per the bestiary: Sparking Marksmen on the walls and the
  * gatehouse, Furnace Golems in the inner ring, Smoldering Knights in the towers and the keep; Cinder Hounds spawn
@@ -316,7 +316,7 @@ public final class CitadelTemplates {
 		c.floor(9, 22, 15, 27, BLACK_POLISHED, BLACKSTONE, 0.3, BLACK_POLISHED, 0);
 		c.fill(9, 5, 27, 15, 6, 27, GRATE);
 		c.pillar(8, 27, 1, 6).pillar(16, 27, 1, 6).fill(9, 7, 27, 15, 7, 27, GILDED);
-		c.set(12, 7, 27, SetPieces.PORTCULLIS.getDefaultState().with(SetPieceBlock.FACING, Direction.SOUTH)); // the gate's portcullis in the lintel, its gears on the face (PLAN 20.2)
+		c.set(12, 7, 27, SetPieces.PORTCULLIS.getDefaultState().with(SetPieceBlock.FACING, Direction.SOUTH)); // the gate's portcullis in the lintel, its gears on the face
 		c.set(6, 1, 29, BLACK_WALL).set(6, 2, 29, LANTERN).set(18, 1, 29, BLACK_WALL).set(18, 2, 29, LANTERN);
 		// The stair tunnel: one step up per row from z 21 to the plaza, headroom 5, ember cracks in the walls.
 		for (int i = 0; i < plateau; i++) {
@@ -493,7 +493,7 @@ public final class CitadelTemplates {
 		int g0 = (h0 + h1) / 2;
 		c.mob(g0 - 4, 1, 40, GOLEM, intoHall).mob(g0 + 4, 1, 51, GOLEM, intoHall);
 		if (!east) {
-			// The foundry breathes: bellows at the hearth, a winch on a beam over the floor (PLAN 20.2).
+			// The foundry breathes: bellows at the hearth, a winch on a beam over the floor.
 			c.set(15, 1, 42, SetPieces.FORGE_BELLOWS.getDefaultState().with(SetPieceBlock.FACING, Direction.SOUTH));
 			c.set(h0 + 6, 10, 46, smoldering(Direction.Axis.X)).set(h0 + 6, 9, 46, SetPieces.CHAIN_WINCH.getDefaultState().with(SetPieceBlock.FACING, Direction.EAST));
 		}
@@ -598,7 +598,7 @@ public final class CitadelTemplates {
 		c.clear(mid + 4, 1, 7, mid + 4, 2, 8).fill(mid + 4, 3, 7, mid + 4, 3, 8, GRATE);
 		c.fill(mid - 3, 0, 7, mid - 2, 0, 8, MAGMA).set(mid - 3, 1, 8, CAMPFIRE).set(mid + 2, 1, 7, GILDED);
 		c.chest(mid, 1, 7, Direction.SOUTH, GearLootTables.CITADEL_TREASURE);
-		c.set(mid - 1, 1, 8, SetPieces.FORGE_BELLOWS.getDefaultState().with(SetPieceBlock.FACING, Direction.WEST)); // bellows at the treasury's hearth (PLAN 20.2)
+		c.set(mid - 1, 1, 8, SetPieces.FORGE_BELLOWS.getDefaultState().with(SetPieceBlock.FACING, Direction.WEST)); // bellows at the treasury's hearth
 		c.set(mid - 6, 3, 13, SetPieces.GREAT_BRAZIER.getDefaultState()).set(mid + 6, 3, 13, SetPieces.GREAT_BRAZIER.getDefaultState()); // great braziers over the dais fires
 		// Side alcove with a common chest, braziers in the forecourt.
 		c.chest(k0 + 3, 1, 31, Direction.EAST, GearLootTables.CITADEL_COMMON);
@@ -608,9 +608,9 @@ public final class CitadelTemplates {
 		}
 		c.floor(mid - 10, 36, mid + 10, 43, TILES, CRACKED_TILES, 0.3, CRACK, 0.04);
 		for (int x : new int[]{mid - 6, mid + 6}) {
-			c.set(x, 3, 40, SetPieces.GREAT_BRAZIER.getDefaultState()); // over the forecourt fires (PLAN 20.2)
+			c.set(x, 3, 40, SetPieces.GREAT_BRAZIER.getDefaultState()); // over the forecourt fires
 		}
-		// A winch on a beam over the keep's door, its bucket hanging before the wall (PLAN 20.2).
+		// A winch on a beam over the keep's door, its bucket hanging before the wall.
 		c.set(mid, 20, 36, smoldering(Direction.Axis.Z)).set(mid, 21, 36, SetPieces.CHAIN_WINCH.getDefaultState().with(SetPieceBlock.FACING, Direction.SOUTH));
 		c.mob(mid - 7, 1, 20, KNIGHT, Direction.SOUTH).mob(mid + 7, 1, 20, KNIGHT, Direction.SOUTH);
 		return c.build();

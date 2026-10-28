@@ -33,12 +33,12 @@ import java.util.Random;
 import static com.embervoid.registry.ModBlocks.*;
 
 /**
- * The three zone arena templates (PLAN 12.2), built in code from the layouts in {@link ReachArenas}. Coordinates in
+ * The three zone arena templates, built in code from the layouts in {@link ReachArenas}. Coordinates in
  * the helpers are offsets from the arena centre (x east, z south, north = towards the landing); the template is the
- * square of side 2·site + 1 around it, y = 0 the floor. The arena structure (track reach-world) clears the site,
+ * square of side 2·site + 1 around it, y = 0 the floor. The arena structure clears the site,
  * places the template and puts the Ember Shrine on the platform left for it.
  *
- * <p>Set pieces (PLAN 20.2) make the arenas move with the fight through {@code BossFight}'s arena events: the
+ * <p>Set pieces make the arenas move with the fight through {@code BossFight}'s arena events: the
  * Fields' ash mill spins up in the storm and the market scales sway; the grove's cages swing and its gallows wheel
  * turns once the Tree uproots; the ossuary's great bell tolls on {@code raise_dead} and every phase and its sluice
  * grates lift with the flood; the courtyard's portcullis slams at the summon and winds up at the kill, its keep gears
@@ -384,7 +384,7 @@ final class ArenaTemplates {
 				}
 			}
 		}
-		// Unlit braziers on the pedestals (the Crypt Keeper's light, PLAN 12.3), candles on the dais.
+		// Unlit braziers on the pedestals (the Crypt Keeper's light), candles on the dais.
 		for (BlockPos brazier : ReachArenas.braziers()) {
 			c.set(brazier.getX(), brazier.getY(), brazier.getZ(), Blocks.CAMPFIRE.getDefaultState().with(CampfireBlock.LIT, false));
 			// The great iron brazier over it follows the campfire: lit by a player, smothered by the moths.

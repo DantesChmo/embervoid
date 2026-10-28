@@ -16,7 +16,7 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 /**
- * The weapons' big 3D models in a hand (PLAN 17.2, docs/art-direction.md): {@code item/<weapon>_in_hand}, element
+ * The weapons' big 3D models in a hand (docs/art-direction.md): {@code item/<weapon>_in_hand}, element
  * models by {@code tools/weapon_model_art.py}, swapped in by {@code GearItemRendererMixin} for the first- and
  * third-person hands the way vanilla swaps the trident's; the inventory, the ground and item frames keep the icon.
  */
