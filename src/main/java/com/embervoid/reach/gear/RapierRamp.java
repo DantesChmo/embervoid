@@ -7,7 +7,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.Map;
-import java.util.UUID;
 import java.util.WeakHashMap;
 
 /**
@@ -17,9 +16,7 @@ import java.util.WeakHashMap;
  * target starts it over. A hit at less than full charge neither builds nor breaks it. Server side, not saved.
  */
 public final class RapierRamp {
-	private record State(UUID target, int hits, long lastTick) {}
-
-	private static final Map<PlayerEntity, State> STATES = new WeakHashMap<>();
+	private static final Map<PlayerEntity, RampState> STATES = new WeakHashMap<>();
 
 	/** Damage multiplier of the player's next hit on {@code target}. */
 	public static float multiplier(PlayerEntity player, Entity target) {
@@ -29,28 +26,28 @@ public final class RapierRamp {
 
 	/** Full-charge hits in a row the player has on {@code target} that still count. */
 	public static int hitsOn(PlayerEntity player, Entity target) {
-		State state = STATES.get(player);
-		if (state == null || !state.target.equals(target.getUuid())
-				|| !WeaponRules.keepsRamp(player.getWorld().getTime() - state.lastTick, GearConfig.get().weapons().rampWindowTicks())) {
+		RampState state = STATES.get(player);
+		if (state == null) {
 			return 0;
 		}
-		return state.hits;
+		return state.hitsOn(target.getUuid(), player.getWorld().getTime(), GearConfig.get().weapons().rampWindowTicks());
 	}
 
 	/** A landed Rapier hit at {@code charge}: a full one builds the ramp on its target. */
 	static void onHit(PlayerEntity player, Entity target, float charge) {
-		if (!WeaponRules.fullyCharged(charge)) {
-			return;
+		RampState state = RampState.onHit(STATES.get(player), player.getWorld().getTime(), charge, target.getUuid(),
+				GearConfig.get().weapons().rampWindowTicks());
+		if (state != null) {
+			STATES.put(player, state);
 		}
-		STATES.put(player, new State(target.getUuid(), hitsOn(player, target) + 1, player.getWorld().getTime()));
 	}
 
 	/** A miss or a hit taken: the ramp is gone (a puff of soot off the blade says so, if there was one). */
 	public static void reset(PlayerEntity player) {
-		State state = STATES.remove(player);
-		if (state != null && state.hits > 0 && player.getWorld() instanceof ServerWorld world) {
+		RampState state = STATES.remove(player);
+		if (state != null && state.hits() > 0 && player.getWorld() instanceof ServerWorld world) {
 			Vec3d hand = player.getEyePos().add(player.getRotationVector().multiply(0.5)).add(0, -0.35, 0);
-			EmberParticles.spawn(world, EmberParticles.SOOT, hand, 2 + Math.min(state.hits, 4), 0.15, 0.02);
+			EmberParticles.spawn(world, EmberParticles.SOOT, hand, 2 + Math.min(state.hits(), 4), 0.15, 0.02);
 		}
 	}
 
