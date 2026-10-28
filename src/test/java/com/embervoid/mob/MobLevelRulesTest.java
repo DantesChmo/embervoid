@@ -54,6 +54,27 @@ class MobLevelRulesTest {
 	}
 
 	@Test
+	void noDistanceBonusWhenBlocksPerLevelIsZero() {
+		MobConfig.Levels noDistance = new MobConfig.Levels(true, 4, LEVELS.baseLevels(), 0, 5, 3, LEVELS.dimensionBonus(),
+				0.06f, 0.05f, 0.06f, LEVELS.healthScale(), LEVELS.damageScale());
+		assertEquals(3, MobLevelRules.level(noDistance, 3, 0, 1_000_000, false));
+	}
+
+	@Test
+	void levelIsCappedAtTheTop() {
+		assertEquals(MobLevelRules.MAX_LEVEL, MobLevelRules.level(LEVELS, 990, 8, 100_000, true));
+		assertEquals(MobLevelRules.MAX_LEVEL, MobLevelRules.clamp(5000));
+		assertEquals(MobLevelRules.MIN_LEVEL, MobLevelRules.clamp(-5));
+	}
+
+	@Test
+	void experienceRoundsToTheNearestPoint() {
+		// 3 × (1 + 0.06·4) = 3.72
+		assertEquals(4, MobLevelRules.experience(LEVELS, 5, 3));
+		assertEquals(0, MobLevelRules.experience(LEVELS, 50, 0));
+	}
+
+	@Test
 	void difficultyFactorsReplaceVanilla() {
 		// A level-1 zombie hits for 3 on vanilla Normal; on Easy it now hits like vanilla Normal.
 		assertEquals(3.0f, MobLevelRules.difficultyDamage(DIFFICULTY, Difficulty.EASY, 3), 1e-6);
