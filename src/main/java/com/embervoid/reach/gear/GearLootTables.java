@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Chest loot table ids of Ashen Reach (fixed ids). Structures of the other tracks point their chests at
+ * Chest loot table ids of Ashen Reach (fixed ids). Structures in other packages point their chests at
  * these: {@code embervoid:chests/ashen_reach/<zone>_common|_treasure|_arena} and the Citadel's two.
  */
 public final class GearLootTables {

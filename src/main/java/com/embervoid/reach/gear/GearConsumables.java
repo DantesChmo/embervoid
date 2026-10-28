@@ -65,7 +65,7 @@ public final class GearConsumables {
 	}
 
 	/**
-	 * Whether the player carries a lit ember lantern in the offhand (Amber Lantern Oil). Other tracks may treat such a
+	 * Whether the player carries a lit ember lantern in the offhand (Amber Lantern Oil). Other code may treat such a
 	 * player as a light source (the Crypt Keeper's darkness, Crypt Moths).
 	 */
 	public static boolean carriesLitLantern(PlayerEntity player) {
