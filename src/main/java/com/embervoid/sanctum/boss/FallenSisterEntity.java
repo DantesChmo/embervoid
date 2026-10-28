@@ -5,6 +5,7 @@ import com.embervoid.boss.BossFight;
 import com.embervoid.boss.BossHits;
 import com.embervoid.boss.Telegraph;
 import com.embervoid.boss.TelegraphShape;
+import com.embervoid.entity.Facing;
 import com.embervoid.fx.CombatFx;
 import com.embervoid.fx.particle.EmberParticles;
 import com.embervoid.fx.SwingArc;
@@ -104,6 +105,8 @@ public class FallenSisterEntity extends ReachBoss {
 	/** She picks a move with her target this close, and backsteps from a target this close behind her. */
 	private static final double MELEE_RANGE = 4.5;
 	private static final double BEHIND_RANGE = 4;
+	/** About cos 110°: further round than this from where her body faces is behind her. */
+	private static final double BEHIND_COS = -0.34;
 	/** The arena's braziers are campfires within this far beyond the fog wall. */
 	private static final int BRAZIER_MARGIN = 4;
 
@@ -258,8 +261,7 @@ public class FallenSisterEntity extends ReachBoss {
 
 	/** Whether {@code target} stands behind her (more than 110° from where her body faces). */
 	private boolean isBehind(LivingEntity target) {
-		Vec3d facing = Vec3d.fromPolar(0, bodyYaw).multiply(1, 0, 1).normalize();
-		return facing.dotProduct(directionTo(target.getPos())) < -0.34;
+		return Facing.isBehind(bodyYaw, directionTo(target.getPos()), BEHIND_COS);
 	}
 
 	/** One of the two censer arcs: a wide cone in front of her; the first has the longer windup (the chain winding). */
@@ -440,13 +442,8 @@ public class FallenSisterEntity extends ReachBoss {
 		return List.copyOf(braziers);
 	}
 
-	/** How many braziers burn at a health fraction: one more each seventh of her health lost, all of them near the end. */
-	public static int litBraziers(float fraction, int braziers) {
-		return Math.max(0, Math.min(braziers, (int) Math.floor((1 - fraction) * (braziers + 1) + 1e-4)));
-	}
-
 	private void lightBraziers(BossFight fight) {
-		int wanted = litBraziers(getHealth() / getMaxHealth(), braziers.size());
+		int wanted = FallenSisterRules.litBraziers(getHealth() / getMaxHealth(), braziers.size());
 		for (int i = 0; i < wanted; i++) {
 			BlockPos pos = braziers.get(i);
 			BlockState state = fight.world().getBlockState(pos);

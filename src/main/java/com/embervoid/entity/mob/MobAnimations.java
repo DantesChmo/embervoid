@@ -46,7 +46,15 @@ public final class MobAnimations {
 
 	/** Whether a hit may show a flinch now: a real hit on a living mob, server side, outside the cooldown. */
 	public static boolean mayFlinch(LivingEntity mob, boolean hurt, float amount, int lastFlinch) {
-		return hurt && amount > 0 && mob.isAlive() && !mob.getWorld().isClient && mob.age - lastFlinch > HURT_COOLDOWN;
+		return mob.isAlive() && !mob.getWorld().isClient && mayFlinch(hurt, amount, mob.age, lastFlinch);
+	}
+
+	/**
+	 * Whether a hit at mob age {@code age} may show a flinch: it hurt, for some damage, and more than
+	 * {@link #HURT_COOLDOWN} ticks after the flinch at age {@code lastFlinch}.
+	 */
+	public static boolean mayFlinch(boolean hurt, float amount, int age, int lastFlinch) {
+		return hurt && amount > 0 && age - lastFlinch > HURT_COOLDOWN;
 	}
 
 	/**

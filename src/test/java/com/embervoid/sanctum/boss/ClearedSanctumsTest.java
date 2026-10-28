@@ -57,4 +57,23 @@ class ClearedSanctumsTest {
 		Arrays.sort(expected);
 		assertArrayEquals(expected, saved);
 	}
+
+	@Test
+	void aSavedStateLoadsBackTheSameArenas() {
+		ClearedSanctums cleared = new ClearedSanctums();
+		cleared.clear(A);
+		cleared.clear(B);
+		ClearedSanctums loaded = ClearedSanctums.fromNbt(cleared.writeNbt(new NbtCompound()));
+		assertTrue(loaded.isCleared(A));
+		assertTrue(loaded.isCleared(B));
+		assertEquals(2, loaded.size());
+		assertFalse(loaded.clear(A), "a loaded arena stays cleared");
+	}
+
+	@Test
+	void aWorldWithoutSavedArenasLoadsNoneCleared() {
+		ClearedSanctums loaded = ClearedSanctums.fromNbt(new NbtCompound());
+		assertEquals(0, loaded.size());
+		assertFalse(loaded.isCleared(A));
+	}
 }

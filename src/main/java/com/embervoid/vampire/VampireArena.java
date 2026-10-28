@@ -52,11 +52,9 @@ public final class VampireArena {
 	public static final RegistryKey<World> KEY = RegistryKey.of(RegistryKeys.WORLD, Embervoid.id("vampire_arena"));
 	/** Floor level of the arena; the boss forms above its centre. */
 	static final int FLOOR_Y = 64;
-	static final int RADIUS = 22;
+	static final int RADIUS = VampireArenaLayout.RADIUS;
 	/** Players arrive on a ring this far from the centre, facing it. */
 	private static final int ARRIVAL_RADIUS = 13;
-	private static final int PILLARS = 8;
-	private static final int PILLAR_RADIUS = 18;
 	/** Space cleared above the floor on every rebuild. */
 	private static final int CLEAR_HEIGHT = 14;
 	/** Chunks kept loaded while the arena is open: the arena fits in -2..1. */
@@ -131,56 +129,27 @@ public final class VampireArena {
 		BlockPos.Mutable pos = new BlockPos.Mutable();
 		for (int x = -clear; x <= clear; x++) {
 			for (int z = -clear; z <= clear; z++) {
-				double d = Math.sqrt(x * x + z * z);
 				for (int y = FLOOR_Y - 2; y <= FLOOR_Y + CLEAR_HEIGHT; y++) {
 					pos.set(x, y, z);
-					world.setBlockState(pos, blockAt(x, y - FLOOR_Y, z, d), 2);
+					world.setBlockState(pos, blockAt(x, y - FLOOR_Y, z), 2);
 				}
 			}
 		}
 	}
 
-	private static BlockState blockAt(int x, int dy, int z, double d) {
-		if (d > RADIUS + 0.5) {
-			return Blocks.AIR.getDefaultState();
-		}
-		if (dy == -2) {
-			return d > RADIUS - 1.5 ? Blocks.AIR.getDefaultState() : Blocks.BLACKSTONE.getDefaultState();
-		}
-		if (dy == -1) {
-			return Blocks.POLISHED_BLACKSTONE.getDefaultState();
-		}
-		if (dy == 0) {
-			if (d > RADIUS - 1) {
-				return Blocks.POLISHED_BLACKSTONE_BRICKS.getDefaultState();
-			}
-			// Crying obsidian heart first, then the red rings and the cross between them.
-			if (d < 1.5) {
-				return Blocks.CRYING_OBSIDIAN.getDefaultState();
-			}
-			if (Math.abs(d - (RADIUS - 3)) < 0.6 || Math.abs(d - 6) < 0.6 || (d < 6 && (x == 0 || z == 0))) {
-				return Blocks.RED_NETHER_BRICKS.getDefaultState();
-			}
-			return Blocks.POLISHED_BLACKSTONE.getDefaultState();
-		}
-		if (dy == 1 && d > RADIUS - 1) {
+	private static BlockState blockAt(int x, int dy, int z) {
+		return switch (VampireArenaLayout.roleAt(x, dy, z)) {
+			case AIR -> Blocks.AIR.getDefaultState();
+			case UNDERSIDE -> Blocks.BLACKSTONE.getDefaultState();
+			case SUBFLOOR, FLOOR -> Blocks.POLISHED_BLACKSTONE.getDefaultState();
+			case FLOOR_EDGE -> Blocks.POLISHED_BLACKSTONE_BRICKS.getDefaultState();
+			case HEART -> Blocks.CRYING_OBSIDIAN.getDefaultState();
+			case INLAY -> Blocks.RED_NETHER_BRICKS.getDefaultState();
 			// Low rim so nobody walks off by accident; a jump still clears it.
-			return Blocks.POLISHED_BLACKSTONE_BRICK_WALL.getDefaultState();
-		}
-		if (dy >= 1 && dy <= 6 && isPillar(x, z)) {
-			return dy == 6 ? Blocks.SHROOMLIGHT.getDefaultState() : Blocks.CHISELED_POLISHED_BLACKSTONE.getDefaultState();
-		}
-		return Blocks.AIR.getDefaultState();
-	}
-
-	private static boolean isPillar(int x, int z) {
-		for (int i = 0; i < PILLARS; i++) {
-			double angle = Math.PI * 2 * i / PILLARS;
-			if (x == (int) Math.round(Math.cos(angle) * PILLAR_RADIUS) && z == (int) Math.round(Math.sin(angle) * PILLAR_RADIUS)) {
-				return true;
-			}
-		}
-		return false;
+			case RIM -> Blocks.POLISHED_BLACKSTONE_BRICK_WALL.getDefaultState();
+			case PILLAR -> Blocks.CHISELED_POLISHED_BLACKSTONE.getDefaultState();
+			case PILLAR_LIGHT -> Blocks.SHROOMLIGHT.getDefaultState();
+		};
 	}
 
 	/** Everyone and everything goes home; the arena is left empty until the next blood moon. */
@@ -272,9 +241,8 @@ public final class VampireArena {
 		int checked = 0;
 		for (int x = -RADIUS - 2; x <= RADIUS + 2; x++) {
 			for (int z = -RADIUS - 2; z <= RADIUS + 2; z++) {
-				double d = Math.sqrt(x * x + z * z);
 				for (int y = FLOOR_Y - 2; y <= FLOOR_Y + 7; y++) {
-					BlockState expected = blockAt(x, y - FLOOR_Y, z, d);
+					BlockState expected = blockAt(x, y - FLOOR_Y, z);
 					if (!world.getBlockState(pos.set(x, y, z)).isOf(expected.getBlock())) {
 						if (wrong.size() < 5) {
 							wrong.add(pos.toShortString() + " is " + world.getBlockState(pos).getBlock() + ", not " + expected.getBlock());

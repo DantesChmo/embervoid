@@ -15,9 +15,12 @@ public final class ArenaFog {
 	/** S2C: source id, density (float, 0–1; negative clears the source), colour (int, 0xRRGGBB). */
 	public static final Identifier PACKET = Embervoid.id("arena_fog");
 
-	/** Fog source of an arena: {@code embervoid:arena/<boss id path>}. */
+	/**
+	 * Fog source of an arena: {@code <boss namespace>:arena/<boss id path>}, e.g. {@code embervoid:arena/zone_b};
+	 * bosses of other namespaces with the same path get their own source.
+	 */
 	public static Identifier source(Identifier bossId) {
-		return Embervoid.id("arena/" + bossId.getPath());
+		return new Identifier(bossId.getNamespace(), "arena/" + bossId.getPath());
 	}
 
 	public static void push(ServerPlayerEntity player, Identifier source, float density, int color) {

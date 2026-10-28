@@ -140,7 +140,7 @@ public class BossFight {
 	}
 
 	private Text bossName() {
-		return Text.translatable(EmberHeartItem.bossKey(spec.bossId()));
+		return Text.translatable(BossNames.translationKey(spec.bossId()));
 	}
 
 	private Text barName() {
@@ -217,8 +217,7 @@ public class BossFight {
 		EntityType<? extends MobEntity> addType = arenaBoss.scalingAdd();
 		int addCount = addType == null ? 0 : BossScaling.adds(count, config.addsPerExtraFighter());
 		for (int i = 0; i < addCount; i++) {
-			double angle = Math.PI * 2 * i / addCount;
-			spawnAdd(addType, centerPos().add(Math.cos(angle) * 3, 0, Math.sin(angle) * 3));
+			spawnAdd(addType, BossFightRules.ringSpot(centerPos(), i, addCount, 3));
 		}
 	}
 
@@ -269,10 +268,7 @@ public class BossFight {
 
 	/** Horizontal check against the fog wall radius (plus a margin), within the arena's height band. */
 	private boolean isInside(Vec3d pos, double margin) {
-		double dx = pos.x - (center.getX() + 0.5);
-		double dz = pos.z - (center.getZ() + 0.5);
-		return dx * dx + dz * dz <= (spec.radius() + margin) * (spec.radius() + margin)
-				&& pos.y > center.getY() - 3 && pos.y < center.getY() + 20;
+		return BossFightRules.isInside(center, spec.radius(), pos, margin);
 	}
 
 	// --- Fight-bound adds, hazards, fog, phases ---
@@ -412,9 +408,8 @@ public class BossFight {
 		float fraction = boss.getHealth() / boss.getMaxHealth();
 		bar.setPercent(fraction);
 		ArenaBoss arenaBoss = (ArenaBoss) boss;
-		int scripted = arenaBoss.scriptedPhases();
-		float[] thresholds = arenaBoss.phaseThresholds();
-		while (phase >= scripted && phase - scripted < thresholds.length && fraction <= thresholds[phase - scripted]) {
+		int target = BossFightRules.phaseFor(phase, arenaBoss.scriptedPhases(), arenaBoss.phaseThresholds(), fraction);
+		while (phase < target) {
 			phase++;
 			arenaBoss.onPhaseChange(phase);
 			fireArenaEvent(ArenaEvents.PHASE + " " + phase);

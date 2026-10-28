@@ -3,6 +3,7 @@ package com.embervoid.sanctum.boss;
 import com.embervoid.boss.BossFight;
 import com.embervoid.boss.Telegraph;
 import com.embervoid.boss.TelegraphShape;
+import com.embervoid.sanctum.boss.CryingSoulFlight.State;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
@@ -40,9 +41,9 @@ import java.util.UUID;
  * FallenSisterEntity#tickBoss}) and it leaves when she does.
  */
 public class CryingSoulEntity extends HostileEntity implements GeoEntity {
-	public static final int DIVE_WINDUP = 20;
-	public static final int DIVE_TICKS = 8;
-	public static final int DAZED_TICKS = 40;
+	public static final int DIVE_WINDUP = CryingSoulFlight.DIVE_WINDUP;
+	public static final int DIVE_TICKS = CryingSoulFlight.DIVE_TICKS;
+	public static final int DAZED_TICKS = CryingSoulFlight.DAZED_TICKS;
 	/** The circle it flies around her: radius, and height above her feet. */
 	public static final double ORBIT_RADIUS = 2.2;
 	public static final double ORBIT_HEIGHT = 2.6;
@@ -55,8 +56,6 @@ public class CryingSoulEntity extends HostileEntity implements GeoEntity {
 	public static final String DIVE = "attack.dive";
 	public static final String DAZED = "misc.dazed";
 
-	public enum State { CIRCLING, WINDUP, DIVING, DAZED, RETURNING }
-
 	private static final TrackedData<Byte> STATE = DataTracker.registerData(CryingSoulEntity.class, TrackedDataHandlerRegistry.BYTE);
 
 	private final AnimatableInstanceCache animations = GeckoLibUtil.createInstanceCache(this);
@@ -64,10 +63,7 @@ public class CryingSoulEntity extends HostileEntity implements GeoEntity {
 	private UUID sisterUuid;
 	private int index;
 	private int count = 1;
-	private int stateTicks;
-	private Vec3d diveFrom = Vec3d.ZERO;
-	private Vec3d diveTo = Vec3d.ZERO;
-	private boolean struck;
+	private final CryingSoulFlight flight = new CryingSoulFlight();
 
 	public CryingSoulEntity(EntityType<? extends CryingSoulEntity> type, World world) {
 		super(type, world);
@@ -110,9 +106,8 @@ public class CryingSoulEntity extends HostileEntity implements GeoEntity {
 		return State.values()[dataTracker.get(STATE)];
 	}
 
-	private void setState(State state) {
-		dataTracker.set(STATE, (byte) state.ordinal());
-		stateTicks = 0;
+	private void syncState() {
+		dataTracker.set(STATE, (byte) flight.state().ordinal());
 	}
 
 	/** Whether it circles her, ready to be sent. */
@@ -128,15 +123,14 @@ public class CryingSoulEntity extends HostileEntity implements GeoEntity {
 		if (!isCircling() || getWorld().isClient) {
 			return false;
 		}
-		setState(State.WINDUP);
+		flight.startWindup();
+		syncState();
 		Vec3d to = target.getPos().add(0, 0.3, 0);
 		TelegraphShape line = TelegraphShape.line(new Vec3d(getX(), target.getY(), getZ()), target.getPos(), DIVE_HALF_WIDTH);
 		triggerAnim(ACTION, DIVE);
 		Telegraph.windup(this, line, DIVE_WINDUP, null, SanctumBossSounds.CRYING_SOUL_SHRIEK, ParticleTypes.SOUL_FIRE_FLAME, () -> {
-			diveFrom = getPos();
-			diveTo = to;
-			struck = false;
-			setState(State.DIVING);
+			flight.dive(getPos(), to);
+			syncState();
 			playSound(SanctumBossSounds.CRYING_SOUL_DIVE, 1.5f, 1.0f);
 		});
 		return true;
@@ -153,47 +147,40 @@ public class CryingSoulEntity extends HostileEntity implements GeoEntity {
 			discard();
 			return;
 		}
-		stateTicks++;
-		switch (state()) {
-			case CIRCLING -> moveTo(orbitPoint(sister), 0.6);
+		Vec3d orbit = orbitPoint(sister);
+		State acting = flight.tick(getPos().distanceTo(orbit));
+		syncState();
+		switch (acting) {
+			case CIRCLING -> moveTo(orbit, 0.6);
 			case WINDUP -> {
 				// The glowing trail it draws as it rears back.
 				world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME, getX(), getY() + 0.3, getZ(), 2, 0.15, 0.15, 0.15, 0.01);
 				world.spawnParticles(ParticleTypes.END_ROD, getX(), getY() + 0.3, getZ(), 1, 0.1, 0.1, 0.1, 0);
 			}
 			case DIVING -> {
-				float progress = Math.min(1, stateTicks / (float) DIVE_TICKS);
-				Vec3d at = diveFrom.lerp(diveTo, progress);
+				Vec3d at = flight.divePosition();
 				setPosition(at.x, at.y, at.z);
-				face(diveTo.subtract(diveFrom));
+				face(flight.diveDirection());
 				world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME, getX(), getY() + 0.3, getZ(), 3, 0.1, 0.1, 0.1, 0.01);
-				if (!struck) {
+				if (!flight.hasStruck()) {
 					for (PlayerEntity player : world.getEntitiesByClass(PlayerEntity.class, getBoundingBox().expand(0.5),
 							player -> player.isAlive() && !player.isSpectator() && !player.isCreative())) {
 						sister.diveHit(player);
-						struck = true;
+						flight.markStruck();
 						break;
 					}
 				}
-				if (stateTicks >= DIVE_TICKS) {
-					setState(State.DAZED);
-				}
 			}
 			case DAZED -> {
-				setPosition(diveTo.x, diveTo.y + 0.4 + 0.1 * Math.sin(age * 0.3), diveTo.z);
+				Vec3d landed = flight.diveTarget();
+				setPosition(landed.x, landed.y + 0.4 + 0.1 * Math.sin(age * 0.3), landed.z);
 				if (age % 6 == 0) {
 					world.spawnParticles(ParticleTypes.SOUL, getX(), getY() + 0.4, getZ(), 1, 0.2, 0.1, 0.2, 0.01);
 				}
-				if (stateTicks >= DAZED_TICKS) {
-					setState(State.RETURNING);
-				}
 			}
 			case RETURNING -> {
-				Vec3d point = orbitPoint(sister);
-				if (getPos().distanceTo(point) < 0.6) {
-					setState(State.CIRCLING);
-				} else {
-					moveTo(point, RETURN_SPEED);
+				if (flight.state() == State.RETURNING) {
+					moveTo(orbit, RETURN_SPEED);
 				}
 			}
 		}

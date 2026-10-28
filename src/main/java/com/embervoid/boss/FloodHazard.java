@@ -10,8 +10,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -41,7 +39,7 @@ public class FloodHazard implements ArenaHazard {
 			pending = columns(fight, world.getRandom());
 			world.playSound(null, fight.center(), SoundEvents.BLOCK_WATER_AMBIENT, SoundCategory.HOSTILE, 2.0f, 0.6f);
 		}
-		int perTick = (int) Math.ceil((double) pending.size() / Math.max(1, ticks - age));
+		int perTick = FloodPlan.perTick(pending.size(), ticks - age);
 		for (int i = 0; i < perTick && !pending.isEmpty(); i++) {
 			BlockPos pos = pending.remove(pending.size() - 1);
 			BlockState state = world.getBlockState(pos);
@@ -74,38 +72,21 @@ public class FloodHazard implements ArenaHazard {
 		pending.clear();
 	}
 
-	/** Every air block from the floor up to the water surface over solid floor, in random order (so it rises evenly). */
+	/** The flood's water spots in the arena now ({@link FloodPlan#columns}). */
 	private List<BlockPos> columns(BossFight fight, Random random) {
 		ServerWorld world = fight.world();
-		BlockPos center = fight.center();
-		List<BlockPos> result = new ArrayList<>();
-		BlockPos.Mutable pos = new BlockPos.Mutable();
-		for (int dx = -radius; dx <= radius; dx++) {
-			for (int dz = -radius; dz <= radius; dz++) {
-				if (dx * dx + dz * dz > radius * radius) {
-					continue;
-				}
-				pos.set(center.getX() + dx, center.getY(), center.getZ() + dz);
-				BlockState floor = world.getBlockState(pos);
-				if (!floor.isSideSolidFullSquare(world, pos, Direction.UP)) {
-					continue;
-				}
-				for (int y = 1; y <= depth; y++) {
-					BlockPos at = pos.up(y).toImmutable();
-					BlockState state = world.getBlockState(at);
-					if (state.isOf(Blocks.WATER)) {
-						continue;
-					}
-					if (!state.isAir()) {
-						break; // something stands here: raised ground keeps it dry
-					}
-					result.add(at);
-				}
+		FloodPlan.Ground ground = new FloodPlan.Ground() {
+			@Override
+			public boolean isSolidFloor(BlockPos pos) {
+				return world.getBlockState(pos).isSideSolidFullSquare(world, pos, Direction.UP);
 			}
-		}
-		// Shuffle, lowest layer last in the list so it is placed first.
-		Collections.shuffle(result, new java.util.Random(random.nextLong()));
-		result.sort((a, b) -> Integer.compare(b.getY(), a.getY()));
-		return result;
+
+			@Override
+			public FloodPlan.Space space(BlockPos pos) {
+				BlockState state = world.getBlockState(pos);
+				return state.isOf(Blocks.WATER) ? FloodPlan.Space.WATER : state.isAir() ? FloodPlan.Space.AIR : FloodPlan.Space.BLOCKED;
+			}
+		};
+		return FloodPlan.columns(fight.center(), radius, depth, ground, random.nextLong());
 	}
 }
