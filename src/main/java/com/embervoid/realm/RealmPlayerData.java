@@ -14,8 +14,8 @@ import java.util.Map;
 
 /**
  * Per-player realm travel state, server-side only: the last Ember Shrine rested at in each realm dimension (the respawn
- * point there). The way out of a realm is the hub ({@link com.embervoid.hub.HubTravel}); the {@code return_point} of
- * 0.4.x saves is ignored. Progress (bosses, realms) is not here; see {@link com.embervoid.progress.ProgressManager}.
+ * point there). The way out of a realm is the hub ({@link com.embervoid.hub.HubTravel}). Progress (bosses, realms) is
+ * not here; see {@link com.embervoid.progress.ProgressManager}.
  */
 public final class RealmPlayerData {
 	// Unknown keys are skipped, so the old return_point / return_yaw are dropped on load.

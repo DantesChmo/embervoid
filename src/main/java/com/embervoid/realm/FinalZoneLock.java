@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
- * The final zone's lock (DESIGN §4.1 "Final zone lock", PLAN 21.2), on the server and per player: a player without
+ * The final zone's lock (DESIGN §4.1 "Final zone lock"), on the server and per player: a player without
  * clearance (all the realm's zone bosses beaten) whose position enters the {@link FinalZoneRegion} is put back where
  * they last stood outside it, across the border they crossed, with a short message and sound. The check is the
  * region, not the blocks, so a bridge over the border wall or a tunnel under it leads nowhere. On top of that an

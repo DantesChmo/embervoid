@@ -9,7 +9,6 @@ import org.jetbrains.annotations.Nullable;
 
 /** Looks up the realm feature (landing or arena) at a position from the generated structure starts. */
 public final class RealmFeatures {
-	/** A generated realm feature: its definition and its placed piece (center, radius, shrine). */
 	public record Placed(RealmFeatureStructure structure, RealmFeaturePiece piece) {}
 
 	/** The landing or arena whose bounds contain {@code pos}, or null. Only looks at loaded chunks' references. */

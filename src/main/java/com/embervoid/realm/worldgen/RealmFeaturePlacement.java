@@ -23,7 +23,6 @@ import java.util.Optional;
 public class RealmFeaturePlacement extends RandomSpreadStructurePlacement {
 	/**
 	 * @param sectorCount number of sectors when they share the circle evenly (no {@code sector_width})
-	 * @param sector      sector the feature belongs to
 	 * @param startAngle  start of sector 0 in degrees, same as the biome source's {@code start_angle}
 	 * @param sectorWidth width of each sector in degrees, as the biome source's open zones (default
 	 *                    {@code 360 / sector_count})

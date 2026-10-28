@@ -19,7 +19,6 @@ public final class RealmDimensionLifecycle {
 	/** Overworld, nether, end. */
 	public static final int VANILLA_DIMENSION_COUNT = 3;
 
-	/** Ids of the realm dimensions. */
 	public static Set<Identifier> realmDimensions() {
 		return Realms.ALL.stream()
 				.map(realm -> realm.world().getValue())

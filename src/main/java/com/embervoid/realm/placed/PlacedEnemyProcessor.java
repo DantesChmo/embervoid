@@ -14,7 +14,7 @@ import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.WorldView;
 
 /**
- * Processor {@code embervoid:placed_enemies} (PLAN 9.2): replaces each {@code embervoid:placed_enemy} marker with air
+ * Processor {@code embervoid:placed_enemies}: replaces each {@code embervoid:placed_enemy} marker with air
  * and spawns its entity. A template is processed once per chunk it crosses, so the entity is spawned only by the
  * pass whose box holds the marker. Add it to a template's processor list (JSON) or placement data (Java).
  */

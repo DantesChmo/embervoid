@@ -21,7 +21,7 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
 /**
- * The Citadel Gate (DESIGN §4.1, PLAN 21.2): a fog wall on the landing plaza's rim where the gate road leaves for the
+ * The Citadel Gate (DESIGN §4.1): a fog wall on the landing plaza's rim where the gate road leaves for the
  * final zone's sector, drifting ash like a boss arena's fog wall and nothing else to see. It opens for each player on
  * their own: solid to a player the {@link FinalZoneLock} keeps out (and to anything that is not a player), open to one
  * who has beaten all the realm's zone bosses, who walks through it into the sector. The client knows the clearance

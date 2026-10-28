@@ -3,7 +3,7 @@ package com.embervoid.realm;
 import com.embervoid.registry.ModSounds;
 import net.minecraft.sound.SoundEvent;
 
-/** Sound events of realm travel (PLAN L3): vanilla files remapped in assets/embervoid/sounds.json. */
+/** Sound events of realm travel: vanilla files remapped in assets/embervoid/sounds.json. */
 public final class RealmSounds {
 	public static final SoundEvent TRAVEL = ModSounds.register("block.void_obelisk.travel");
 	public static final SoundEvent REFUSE = ModSounds.register("block.void_obelisk.refuse");

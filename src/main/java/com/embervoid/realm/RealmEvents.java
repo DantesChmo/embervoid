@@ -30,9 +30,7 @@ import net.minecraft.world.World;
 
 /** Server-side realm rules: respawn, shrines, the void edge and protected landings/arenas. */
 public final class RealmEvents {
-	/** How far past the realm radius the void starts pushing players back. */
-
-	/** Where a player who died at x, z in world {@code died} comes back, if that is a realm dimension (see above). */
+	/** Where a player who died at x, z in world {@code died} comes back, if that is a realm dimension (see {@link #register}). */
 	public static void respawnAfterDeath(ServerPlayerEntity player, RegistryKey<World> died, double x, double z) {
 		RealmDefinition realm = Realms.byWorld(died);
 		if (realm == null) {
@@ -66,11 +64,13 @@ public final class RealmEvents {
 		RealmTeleports.teleport(player, world, RealmTeleports.standingSpot(world, shrine.toImmutable()), player.getYaw());
 		return true;
 	}
+
+	/** How far past the realm radius the void starts pushing players back. */
 	private static final int VOID_MARGIN = 32;
 
 	public static void register() {
 		// Death in a realm dimension: respawn at the last shrine rested at in that dimension, else its landing. The open
-		// zones and the final zone each count on their own (DESIGN §4.2, PLAN 21.3): a death in the final sector goes to
+		// zones and the final zone each count on their own (DESIGN §4.2): a death in the final sector goes to
 		// the last shrine rested at there, else the first Citadel shrine just inside the gate. The bed spawn stays.
 		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
 			if (!alive) {

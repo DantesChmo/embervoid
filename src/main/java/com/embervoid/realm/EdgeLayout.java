@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Pure layout of a realm's border (PLAN 9.9): a broken wall on a ring just inside the abyss cliffs, towers on it, and
- * bridges that once crossed the abyss, now running out from the cliffs and breaking off (from the open zones only,
- * PLAN 21.1). Also the burnt city wall along the final zone's two borders from the plaza to the abyss (PLAN 21.2), whose
- * gaps the {@link FinalZoneLock} keeps shut. Unit-tested; the edge feature and the border wall feature build it.
+ * Pure layout of a realm's border: a broken wall on a ring just inside the abyss cliffs, towers on it, and bridges
+ * that once crossed the abyss, now running out from the cliffs and breaking off (from the open zones only). Also the
+ * burnt city wall along the final zone's two borders from the plaza to the abyss, whose gaps the {@link FinalZoneLock}
+ * keeps shut. Unit-tested; the edge feature and the border wall feature build it.
  */
 public final class EdgeLayout {
 	/** Wall stretches are this long (blocks of arc); each is whole, low, or fallen. */

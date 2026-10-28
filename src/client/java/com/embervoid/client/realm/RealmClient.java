@@ -24,10 +24,9 @@ public final class RealmClient {
 		EntityRendererRegistry.register(BossEntities.TEST_BOSS, context -> (EntityRenderer) new ZombieEntityRenderer(context));
 		BossMusicClient.register();
 
-		// Realm fog (PLAN 9.1): the zone fog, and nothing carried over to the next server.
+		// Realm fog: the zone fog, and nothing carried over to the next server.
 		ZoneFog.register();
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> client.execute(RealmFog::reset));
-		// The ember fog curtain on the final zone's borders (PLAN 21.2), for players the lock keeps out.
 		FogCurtain.register();
 	}
 

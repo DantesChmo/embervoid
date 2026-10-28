@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Pure layout of a realm's roads (PLAN 9.6, 14.2): one road from the landing plaza's edge to each arena site's edge,
+ * Pure layout of a realm's roads: one road from the landing plaza's edge to each arena site's edge,
  * with a seeded gentle wobble, a milestone every {@value #MILESTONE_SPACING} blocks, a lantern post every
  * {@value #POST_SPACING} blocks on alternating sides and two outposts. No Minecraft types, so it is unit-tested
  * directly; the road feature paints it.
@@ -216,7 +216,6 @@ public final class RoadLayout {
 		return new double[]{(b[0] - a[0]) / length, (b[1] - a[1]) / length};
 	}
 
-	/** Squared distance from (x, z) to the road's polyline. */
 	public static double distanceSquared(Road road, double x, double z) {
 		double best = Double.MAX_VALUE;
 		List<double[]> points = road.points();
@@ -226,7 +225,6 @@ public final class RoadLayout {
 		return best;
 	}
 
-	/** Squared distance from (x, z) to the segment a–b. */
 	public static double segmentDistanceSquared(double[] a, double[] b, double x, double z) {
 		double dx = b[0] - a[0];
 		double dz = b[1] - a[1];

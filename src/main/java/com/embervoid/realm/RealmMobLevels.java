@@ -25,7 +25,6 @@ public final class RealmMobLevels {
 		});
 	}
 
-	/** The level band at a position, or null outside realms. */
 	@Nullable
 	public static RealmDefinition.LevelBand bandAt(ServerWorld world, BlockPos pos) {
 		RealmDefinition realm = Realms.byWorld(world.getRegistryKey());

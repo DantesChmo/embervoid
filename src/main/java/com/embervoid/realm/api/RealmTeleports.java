@@ -115,7 +115,7 @@ public final class RealmTeleports {
 		return true;
 	}
 
-	/** Key of a realm dimension's final-zone shrine: the final zone counts on its own (DESIGN §4.2, PLAN 21.3). */
+	/** Key of a realm dimension's final-zone shrine: the final zone counts on its own (DESIGN §4.2). */
 	public static Identifier finalShrineKey(RegistryKey<World> dimension) {
 		return new Identifier(dimension.getValue().getNamespace(), dimension.getValue().getPath() + "/final");
 	}

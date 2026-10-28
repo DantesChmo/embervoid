@@ -34,7 +34,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 /**
- * Worlds from 0.4.x (PLAN 21.4): their realm dimension was generated with the old layout and the final zone was its own
+ * Worlds from 0.4.x: their realm dimension was generated with the old layout and the final zone was its own
  * depths dimension. On the first start with 0.5.0, before any world loads, the realm and depths folders are cleared so
  * the realm generates again with the four sectors and the Citadel in the final one. Nothing else is touched (never the
  * overworld, the Nether, the End or the hub), and what players had in there is kept:
@@ -49,12 +49,12 @@ import java.util.stream.Stream;
  * </ul>
  *
  * The world's layout number is a small file in the save's root; a world without realm folders yet just gets it. A
- * later layout change (the Citadel pulled in, PLAN 21.6) bumps {@link #CURRENT} and goes the same way.
+ * later layout change (the Citadel pulled in) bumps {@link #CURRENT} and goes the same way.
  */
 public final class RealmLayoutUpgrade {
 	/**
 	 * Realm layout: 2 was 0.5.0 (four sectors, the Citadel in the final one, 480 blocks out), 3 the Citadel pulled in
-	 * to 128 out (PLAN 21.6), so 0.5.0–0.5.2 worlds generate their realm again too. 0.4.x worlds have no number.
+	 * to 128 out, so 0.5.0–0.5.2 worlds generate their realm again too. 0.4.x worlds have no number.
 	 */
 	public static final int CURRENT = 3;
 	public static final String VERSION_FILE = "embervoid_realm_layout.txt";
@@ -73,7 +73,7 @@ public final class RealmLayoutUpgrade {
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> onJoin(handler.getPlayer()));
 	}
 
-	/** Folders of the realm dimensions an upgrade clears (the depths' too, gone since PLAN 21.3). */
+	/** Folders of the realm dimensions an upgrade clears (the old depths dimension's too). */
 	static List<Path> realmFolders(Path root) {
 		List<Path> folders = new ArrayList<>();
 		for (RealmDefinition realm : Realms.ALL) {
