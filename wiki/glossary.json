@@ -42,7 +42,7 @@
 		{"en": "Stele Rift", "ru": "Разлом стелы", "de": "Stelenspalt", "fr": "Faille de stèle", "zh": "石碑裂隙"},
 		{"en": "kindle", "ru": "разжечь", "de": "entfachen", "fr": "embraser", "zh": "点燃", "note": "to light a Cleft Stele or shrine (ru also разгораться for 'kindles')"},
 		{"en": "obelisk", "ru": "обелиск", "de": "Obelisk", "fr": "obélisque", "zh": "方尖碑", "note": "each Void Obelisk in the Ember Sanctum leads to one realm"},
-		{"en": "realm", "ru": "обелиск", "de": "Reich", "fr": "domaine", "zh": "领域", "note": "the world behind an obelisk; the project says «обелиск» in Russian, never «реалм» (ru_ru.json also has «мир» in three realm messages)"},
+		{"en": "realm", "ru": "обелиск", "de": "Reich", "fr": "domaine", "zh": "领域", "note": "the world behind an obelisk; the project says «обелиск» in Russian, never «реалм» (ru_ru.json also has «мир» in three realm messages); as a place, see realm (place)"},
 		{"en": "zone", "ru": "зона", "de": "Zone", "fr": "zone", "zh": "区域", "note": "a part of a realm with its own boss (Ashen Fields, Royal Woods, Sunken Necropolis, Smoldering Citadel); not in ru_ru.json, proposed"},
 		{"en": "guardian", "ru": "страж", "de": "Wächter", "fr": "gardien", "zh": "守护者", "note": "a zone boss"},
 		{"en": "boss", "ru": "босс", "de": "Boss", "fr": "boss", "zh": "首领"},
@@ -230,6 +230,21 @@
 		{"en": "Forge Bellows", "ru": "Кузнечные мехи", "de": "Schmiedeblasebalg", "fr": "Soufflet de forge", "zh": "锻炉风箱", "note": "set piece"},
 		{"en": "Chain Winch", "ru": "Цепная лебёдка", "de": "Kettenwinde", "fr": "Treuil à chaîne", "zh": "链条绞盘", "note": "set piece"},
 		{"en": "Censer", "ru": "Кадило", "de": "Weihrauchfass", "fr": "Encensoir", "zh": "香炉", "note": "set piece block, also the Fallen Sister's weapon"},
-		{"en": "Great Brazier", "ru": "Большая жаровня", "de": "Große Feuerschale", "fr": "Grand brasero", "zh": "巨型火盆", "note": "'Brazier' alone: Жаровня, Feuerschale, Brasero, 火盆"}
+		{"en": "Great Brazier", "ru": "Большая жаровня", "de": "Große Feuerschale", "fr": "Grand brasero", "zh": "巨型火盆", "note": "'Brazier' alone: Жаровня, Feuerschale, Brasero, 火盆"},
+
+		{"en": "hub", "ru": "Святилище Углей", "de": "Glutheiligtum", "fr": "Sanctuaire des Braises", "zh": "余烬圣所", "note": "the hub dimension, called by its in-game name (biome.embervoid.hub); never ru «хаб». Short «Святилище» only where it cannot be read as a Ruined Sanctum (Разорённое Святилище)"},
+		{"en": "Smoldering Plate", "ru": "Тлеющие латы", "de": "Schwelende Rüstung", "fr": "Armure rougeoyante", "zh": "阴燃甲胄", "note": "the Smoldering armor set; ru plural only (Тлеющих лат, Тлеющими латами), not «Тлеющий доспех»; no set name in the lang files (only the pieces), de/fr/zh proposed from the piece names"},
+		{"en": "Reaper's Set", "ru": "комплект жнеца", "de": "Schnitterset", "fr": "ensemble du moissonneur", "zh": "收割者套装", "note": "lowercase in running text; no set name in the lang files (only the pieces), de/fr/zh proposed from the piece names"},
+		{"en": "Huntsman's Set", "ru": "комплект ловчего", "de": "Jägerset", "fr": "ensemble du veneur", "zh": "猎手套装", "note": "lowercase in running text; no set name in the lang files (only the pieces), de/fr/zh proposed from the piece names"},
+		{"en": "Warden's Set", "ru": "комплект стража некрополя", "de": "Kerkermeisterset", "fr": "ensemble du geôlier", "zh": "狱卒套装", "note": "lowercase in running text; no set name in the lang files (only the pieces), de/fr/zh proposed from the piece names"},
+		{"en": "realm (place)", "ru": "мир обелиска", "de": "Reich", "fr": "domaine", "zh": "领域", "note": "a realm as a place you are in (in the realm = в мире обелиска); de/fr/zh as in embervoid.realm.completed. Realm 1 by name: Пепельный предел; realm gear: оружие обелиска / снаряжение обелиска"},
+		{"en": "landing", "ru": "площадка прибытия", "de": "Ankunftsplatz", "fr": "aire d'arrivée", "zh": "抵达平台", "note": "where an obelisk sets you down in a realm (the Crossroads in the Ashen Reach); not a word in the lang files, de/fr/zh proposed"},
+		{"en": "elite mob", "ru": "элитный моб", "de": "Elitegegner", "fr": "monstre d'élite", "zh": "精英怪物", "note": "a zone's strongest placed mob, with better drops; not in the lang files, de/fr/zh proposed (in line with mob level)"},
+		{"en": "placed enemy", "ru": "размещённый враг", "de": "platzierter Gegner", "fr": "ennemi placé", "zh": "放置的敌人", "note": "an enemy set into a structure when it generates rather than spawned; from Placed Enemy Marker (de Gegnerplatzierungsmarker, fr Marqueur d'ennemi placé, zh 敌人放置标记)"},
+		{"en": "treasure chest", "ru": "сундук с сокровищами", "de": "Schatztruhe", "fr": "coffre au trésor", "zh": "宝箱", "note": "a zone's best chest; not in the lang files, de/fr/zh proposed"},
+		{"en": "set pieces", "ru": "механизмы", "de": "Mechanik", "fr": "machinerie", "zh": "机械装置", "note": "moving decorative blocks (mill sails, bells, braziers…); de/fr/zh as in embervoid.setpiece.chunk_full"},
+		{"en": "props", "ru": "декорации", "de": "Requisiten", "fr": "décors", "zh": "装饰物", "note": "still decorative models (grain sacks, coffins…), as opposed to set pieces; not in the lang files, de/fr/zh proposed"},
+		{"en": "boss adds", "ru": "прислужники", "de": "Diener", "fr": "sbires", "zh": "仆从", "note": "the extra mobs a boss brings for each fighter beyond the first; not «помощники»; not in the lang files, de/fr/zh proposed"},
+		{"en": "first-kill reward", "ru": "награда за первую победу", "de": "Belohnung für den ersten Sieg", "fr": "récompense de la première victoire", "zh": "首杀奖励", "note": "boss soul, Flask Shard / Flask Ember and Ember Heart given on a player's first win over a boss; ru says «первая победа», not «первое убийство»; not in the lang files, de/fr/zh proposed"}
 	]
 }

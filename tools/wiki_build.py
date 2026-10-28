@@ -6,6 +6,7 @@
     python3 tools/wiki_build.py hash <page>     the `source:` value for a translation of <page>
 """
 
+import functools
 import hashlib
 import json
 import os
@@ -92,6 +93,7 @@ def load_lang(code):
         return json.load(f)
 
 
+@functools.lru_cache
 def registry():
     """Every id the mod registers that a player can meet, read from the English lang file."""
     ids = set()
@@ -159,6 +161,9 @@ def check_page(page, errors):
             errors.append(f"{where}: {{{{mobs-in}}}} needs a biome")
         elif name in ("config", "item") and not arg:
             errors.append(f"{where}: {{{{{name}}}}} needs an argument")
+        elif name == "item" and not {"item:" + arg.split()[0], "block:" + arg.split()[0]} & registry() \
+                and not arg.startswith("minecraft:"):
+            errors.append(f"{where}: no item {arg.split()[0]}")
         elif name == "config":
             try:
                 config_value(arg)

@@ -28,11 +28,16 @@ ITEM_KINDS = {"weapon", "armor", "accessory", "soul", "material", "consumable", 
 COMMENT = re.compile(r"\s*<!--.*?-->", re.S)
 
 HEADINGS = {
-    "en": {"item": "Item", "count": "Count", "chance": "Chance", "dropped_by": "Dropped by", "found_in": "Found in", "default": "default"},
-    "ru": {"item": "Предмет", "count": "Количество", "chance": "Шанс", "dropped_by": "Выпадает с", "found_in": "Лежит в", "default": "по умолчанию"},
-    "de": {"item": "Gegenstand", "count": "Anzahl", "chance": "Chance", "dropped_by": "Droppt von", "found_in": "Zu finden in", "default": "Standard"},
-    "fr": {"item": "Objet", "count": "Quantité", "chance": "Chance", "dropped_by": "Lâché par", "found_in": "Trouvé dans", "default": "par défaut"},
-    "zh": {"item": "物品", "count": "数量", "chance": "概率", "dropped_by": "掉落自", "found_in": "发现于", "default": "默认"},
+    "en": {"item": "Item", "count": "Count", "chance": "Chance", "dropped_by": "Dropped by", "found_in": "Found in", "default": "default",
+           "chest_common": "chests", "chest_treasure": "treasure chest", "chest_arena": "arena chest", "chest_sanctum_outer_hall": "Ruined Sanctum outer halls"},
+    "ru": {"item": "Предмет", "count": "Количество", "chance": "Шанс", "dropped_by": "Выпадает с", "found_in": "Лежит в", "default": "по умолчанию",
+           "chest_common": "сундуки", "chest_treasure": "сундук с сокровищами", "chest_arena": "сундук арены", "chest_sanctum_outer_hall": "внешние залы Разорённого Святилища"},
+    "de": {"item": "Gegenstand", "count": "Anzahl", "chance": "Chance", "dropped_by": "Droppt von", "found_in": "Zu finden in", "default": "Standard",
+           "chest_common": "Truhen", "chest_treasure": "Schatztruhe", "chest_arena": "Arenatruhe", "chest_sanctum_outer_hall": "Außenhallen des Zerstörten Heiligtums"},
+    "fr": {"item": "Objet", "count": "Quantité", "chance": "Chance", "dropped_by": "Lâché par", "found_in": "Trouvé dans", "default": "par défaut",
+           "chest_common": "coffres", "chest_treasure": "coffre au trésor", "chest_arena": "coffre de l'arène", "chest_sanctum_outer_hall": "salles extérieures du Sanctuaire en ruine"},
+    "zh": {"item": "物品", "count": "数量", "chance": "概率", "dropped_by": "掉落自", "found_in": "发现于", "default": "默认",
+           "chest_common": "箱子", "chest_treasure": "宝藏箱", "chest_arena": "竞技场箱子", "chest_sanctum_outer_hall": "废墟圣所外厅"},
 }
 
 
@@ -134,7 +139,8 @@ def directive(name, arg, page, names, recipes, loot, lang):
     if name == "usage":
         return "\n\n".join(f'<RecipeUsage id="{ident}" />' for ident in page.items)
     if name == "item":
-        return f"[{names.thing(arg)}](@{arg})"
+        ident, _, text = arg.partition(" ")
+        return f"[{text.strip() or names.thing(ident)}](@{ident})"
     if name == "drops":
         table = loot.get(drops_table(arg, page, loot))
         return drops_markdown(table, names, words) if table else ""
@@ -279,7 +285,7 @@ def drops_markdown(table, names, words):
 
 
 def sources_markdown(ids, loot, names, words):
-    mobs, chests = [], []
+    mobs, chests = [], {}
     for key, table in sorted(loot.items()):
         if not any(item in ids for item, _, _ in entries(table)):
             continue
@@ -288,13 +294,28 @@ def sources_markdown(ids, loot, names, words):
             ident = f"{MOD}:{name}"
             mobs.append(f"[{names.get('entity', ident)}](@{ident})")
         elif kind == "chests":
-            chests.append(name.replace("/", ": ").replace("_", " "))
+            place, kind = chest_place(name, names, words)
+            chests.setdefault(place, []).append(kind)
     lines = []
     if mobs:
         lines.append(f"**{words['dropped_by']}:** " + ", ".join(mobs))
     if chests:
-        lines.append(f"**{words['found_in']}:** " + ", ".join(chests))
+        found = [place + (f" ({', '.join(kinds)})" if kinds != [None] else "") for place, kinds in chests.items()]
+        lines.append(f"**{words['found_in']}:** " + "; ".join(found))
     return "\n\n".join(lines)
+
+
+CHEST_ZONES = {"fields": "ashen_reach_zone_a", "woods": "ashen_reach_zone_b", "necropolis": "ashen_reach_zone_c",
+               "citadel": "ashen_reach_citadel"}
+
+
+def chest_place(table, names, words):
+    """ashen_reach/fields_treasure → ("[Ashen Fields](@…)", "treasure chest"); a table outside a realm has no kind."""
+    if "/" not in table:
+        return words["chest_" + table], None
+    zone, _, kind = table.split("/")[1].rpartition("_")
+    biome = f"{MOD}:{CHEST_ZONES[zone]}"
+    return f"[{names.get('biome', biome)}](@{biome})", words["chest_" + kind]
 
 
 def copy_game_data(out, recipes):

@@ -70,6 +70,7 @@ Written on their own line (or inline for `{{item}}`); `build` expands them per t
 | `{{config <key>}}` | the config key's default and range |
 | `{{mobs-in}}` | the mobs that spawn in the page's biome |
 | `{{item embervoid:<id>}}` | inline: icon + localized name, linked to its page |
+| `{{item embervoid:<id> <text>}}` | the same with your own link text, e.g. a declined form: `{{item embervoid:cinder_shard осколков угля}}` |
 
 Numbers that the code knows are never typed by hand: put a directive there. If no directive covers it, write the
 number and add the source (`config key`, class) in an HTML comment next to it so a later export can take it over.
