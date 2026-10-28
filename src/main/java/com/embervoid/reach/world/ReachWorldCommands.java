@@ -36,7 +36,7 @@ public final class ReachWorldCommands {
 							context.getSource().sendFeedback(() -> Text.literal(text.toString()), false);
 							return 1;
 						}))
-						// /embervoid realm border <from> <to>: the final zone's border wall (PLAN 21.2) on both border lines
+						// /embervoid realm border <from> <to>: the final zone's border wall on both border lines
 						// between those distances from the landing, as generated in loaded chunks, against its layout.
 						.then(literal("border").then(argument("from", IntegerArgumentType.integer(0))
 								.then(argument("to", IntegerArgumentType.integer(0)).executes(context -> border(context.getSource(),

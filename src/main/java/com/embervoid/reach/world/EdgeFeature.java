@@ -21,7 +21,7 @@ import net.minecraft.world.gen.feature.util.FeatureContext;
 import java.util.List;
 
 /**
- * Feature {@code embervoid:realm_edge} (PLAN 9.9), once per chunk of a realm's outer zones: the kingdom's border — a
+ * Feature {@code embervoid:realm_edge}, once per chunk of a realm's outer zones: the kingdom's border — a
  * broken wall on a ring {@value #WALL_INSET} blocks inside the realm radius, with towers, all the way round (the final
  * zone's sector too), and {@value #BRIDGES} bridges from the open zones that run out from the cliffs over the abyss
  * and break off ({@link EdgeLayout}).

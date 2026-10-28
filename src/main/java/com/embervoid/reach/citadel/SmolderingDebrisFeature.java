@@ -17,7 +17,7 @@ import net.minecraft.world.gen.feature.util.FeatureContext;
 import java.util.Set;
 
 /**
- * Feature {@code embervoid:smoldering_debris} (PLAN 13.1): what is left of the burnt houses of the lower city: a fallen
+ * Feature {@code embervoid:smoldering_debris}: what is left of the burnt houses of the lower city: a fallen
  * smouldering beam, a charred post still standing, or a heap of brick rubble. Placed on the natural ground only
  * ({@link #NATURAL_GROUND}), so it never lands on the landing or a Citadel piece. Smouldering logs generate only here.
  */

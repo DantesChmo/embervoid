@@ -13,7 +13,7 @@ import net.minecraft.world.gen.feature.util.FeatureContext;
 import java.util.List;
 
 /**
- * Feature {@code embervoid:sinkhole_pool} (PLAN 9.8), once per chunk: if the lowest ground of the chunk lies deep (a
+ * Feature {@code embervoid:sinkhole_pool}, once per chunk: if the lowest ground of the chunk lies deep (a
  * sinkhole bottom), water fills the hollow around it {@value #DEPTH} blocks deep. Only a hollow closed on every side
  * within the chunk and its neighbours is filled, so water never pours over a rim. The chunk holding a hollow's lowest
  * column fills it (a neighbour with the same low point fills the same water). Placed in the Necropolis only: the only

@@ -6,7 +6,7 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 
 /**
- * Sound events of the Realm 1 blocks (R40.3a): vanilla files remapped in sounds.json. The ambient ones are played
+ * Sound events of the Realm 1 blocks: vanilla files remapped in sounds.json. The ambient ones are played
  * client side from {@code randomDisplayTick}; the groups give the straw and the ores their own break sound.
  */
 public final class ReachBlockSounds {

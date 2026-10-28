@@ -8,7 +8,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 
-/** Smoldering log: a beam glowing inside, smoke rising from it, crackling now and then (PLAN 9.5, R40.3a). */
+/** Smoldering log: a beam glowing inside, smoke rising from it, crackling now and then. */
 public class SmolderingLogBlock extends PillarBlock {
 	public SmolderingLogBlock(Settings settings) {
 		super(settings);

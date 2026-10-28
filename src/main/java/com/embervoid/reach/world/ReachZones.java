@@ -18,7 +18,7 @@ public final class ReachZones {
 	/** Sunken Necropolis, zone_c. */
 	public static final RegistryKey<Biome> NECROPOLIS = biome("ashen_reach_zone_c");
 	public static final RegistryKey<Biome> ABYSS = biome("ashen_reach_abyss");
-	/** The final zone's sector of the realm dimension (PLAN 21.1, 21.3): the Burning City and the Smoldering Citadel. */
+	/** The final zone's sector of the realm dimension: the Burning City and the Smoldering Citadel. */
 	public static final RegistryKey<Biome> CITADEL = biome("ashen_reach_citadel");
 
 	/** Fog of a realm biome, or null for biomes without zone fog. */

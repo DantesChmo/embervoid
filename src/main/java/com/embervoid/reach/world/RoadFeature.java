@@ -36,7 +36,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Feature {@code embervoid:realm_roads} (PLAN 9.6, 14.2), run once per chunk: paints the part of each road
+ * Feature {@code embervoid:realm_roads}, run once per chunk: paints the part of each road
  * ({@link RealmRoads}) that crosses the chunk (Kingsroad flagstones in the middle, a solid pale kerb at the edges, so
  * it stands out from every zone's ground), sets the milestones and lantern posts and places the outposts whose centre
  * lies in the chunk. An outpost template is centred on the road with
@@ -89,7 +89,7 @@ public class RoadFeature extends Feature<DefaultFeatureConfig> {
 					}
 					if (d > RealmRoads.HALF_WIDTH * RealmRoads.HALF_WIDTH || underOutpost(outposts, x, z)
 							|| road.arena() == RoadLayout.GATE && Math.hypot(x + 0.5, z + 0.5) < RealmRoads.PLAZA_RADIUS + 0.5) {
-						// The gate road starts behind the Citadel Gate on the plaza rim (PLAN 21.2).
+						// The gate road starts behind the Citadel Gate on the plaza rim.
 						continue;
 					}
 					int y = world.getTopY(Heightmap.Type.WORLD_SURFACE_WG, x, z) - 1;
@@ -135,7 +135,7 @@ public class RoadFeature extends Feature<DefaultFeatureConfig> {
 			}
 		}
 
-		// The first Citadel shrine beside the gate road's end, on a little paved pad (PLAN 21.3).
+		// The first Citadel shrine beside the gate road's end, on a little paved pad.
 		RealmDefinition realm = Realms.byWorld(server.getRegistryKey());
 		int[] shrine = realm == null || RealmRoads.gate(server) == null ? null : RealmRoads.citadelShrine(realm);
 		if (shrine != null && (shrine[0] >> 4) == chunk.x && (shrine[1] >> 4) == chunk.z) {

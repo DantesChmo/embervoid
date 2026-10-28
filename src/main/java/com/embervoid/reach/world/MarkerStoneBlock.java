@@ -11,7 +11,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 
-/** A carved stone that faces the way it was set: road milestones and gravestones (PLAN 9.5). */
+/** A carved stone that faces the way it was set: road milestones and gravestones. */
 public class MarkerStoneBlock extends HorizontalFacingBlock {
 	/** A square post, 10 × 14 × 10 pixels. */
 	static final VoxelShape[] MILESTONE_SHAPE = shapes(3, 13, 14, 3, 13);

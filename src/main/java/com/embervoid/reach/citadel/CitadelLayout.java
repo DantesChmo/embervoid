@@ -7,19 +7,19 @@ import java.util.List;
 import java.util.function.DoubleSupplier;
 
 /**
- * The fixed plan of the Burning City (PLAN 13.1–13.2, DESIGN §4.5 "Smoldering Citadel"): where the city's entry
+ * The fixed plan of the Burning City (DESIGN §4.5 "Smoldering Citadel"): where the city's entry
  * plaza, the Citadel's pieces and the Smoldering Lord's courtyard sit, and the ground height the terrain gives each
  * column. Pure, so the terrain ({@link CitadelTerrain}), the Citadel structure and the tests all read the same numbers.
  *
  * <p>The numbers are in the plan's own frame: the entry plaza at 0, 0 in the lower city, in front of the outskirts;
  * the route runs north (−Z) up to the hill: outskirts → burning street → market → gatehouse in the city
  * wall on the hill's rim → inner ring around the courtyard → keep. The hill is a plateau at {@link #PLATEAU_Y} with
- * steep sides, the city wall on its south rim. In the realm (PLAN 21.3) the plan is turned 180° onto the final
+ * steep sides, the city wall on its south rim. In the realm the plan is turned 180° onto the final
  * sector's middle line (+Z), its origin {@link #ORIGIN_Z} blocks out: {@link #realmX} / {@link #realmZ} and back.
  */
 public final class CitadelLayout {
 	/**
-	 * Realm z of the plan's origin (the entry plaza's near edge) on the final sector's middle line (PLAN 21.3, 21.6):
+	 * Realm z of the plan's origin (the entry plaza's near edge) on the final sector's middle line:
 	 * 80 blocks past the gate road's end at 48, so the outskirts start at 158, about 110 blocks in, the courtyard is at
 	 * 320 and the keep ends at 400. A multiple of 16: the courtyard arena stands on its chunk's corner. The final sector
 	 * is narrow this close in (60°), so the entry plaza is no wider than the outskirts, clear of the border blend.
@@ -31,7 +31,6 @@ public final class CitadelLayout {
 		return -planX;
 	}
 
-	/** Realm z of plan z. */
 	public static double realmZ(double planZ) {
 		return ORIGIN_Z - planZ;
 	}
@@ -41,7 +40,6 @@ public final class CitadelLayout {
 		return -realmX;
 	}
 
-	/** Plan z of realm z. */
 	public static double planZ(double realmZ) {
 		return ORIGIN_Z - realmZ;
 	}
@@ -56,7 +54,7 @@ public final class CitadelLayout {
 	/** Ground of the hill's plateau (top block): the wall, the inner ring, the courtyard and the keep stand on it. */
 	public static final int PLATEAU_Y = 88;
 
-	/** The Smoldering Lord's courtyard (arena site, track reach-bosses builds on it): centre column and radius. */
+	/** The Smoldering Lord's courtyard (the boss arena's site): centre column and radius. */
 	public static final int COURTYARD_X = 0;
 	public static final int COURTYARD_Z = -192;
 	public static final int COURTYARD_RADIUS = 36;
@@ -139,7 +137,7 @@ public final class CitadelLayout {
 
 	private static List<Terrace> terraces() {
 		List<Terrace> result = new java.util.ArrayList<>();
-		// The entry plaza: as wide as the outskirts, so it stays clear of the sector borders' blend (PLAN 21.6).
+		// The entry plaza: as wide as the outskirts, so it stays clear of the sector borders' blend.
 		result.add(new Terrace(PLAZA_MIN_X, PLAZA_MIN_Z, PLAZA_MAX_X, PLAZA_MAX_Z, LANDING_Y));
 		for (Piece piece : PIECES) {
 			if (piece == GATEHOUSE) {
