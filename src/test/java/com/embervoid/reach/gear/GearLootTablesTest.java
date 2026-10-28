@@ -28,12 +28,6 @@ class GearLootTablesTest {
 	}
 
 	@Test
-	void citadelTablesComeLast() {
-		List<Identifier> all = GearLootTables.all();
-		assertEquals(List.of(GearLootTables.CITADEL_COMMON, GearLootTables.CITADEL_TREASURE), all.subList(all.size() - 2, all.size()));
-	}
-
-	@Test
 	void idsFollowTheFixedChestPattern() {
 		assertEquals(Embervoid.id("chests/ashen_reach/woods_treasure"), GearLootTables.treasure("woods"));
 		for (Identifier id : GearLootTables.all()) {

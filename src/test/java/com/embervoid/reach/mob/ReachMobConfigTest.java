@@ -53,17 +53,23 @@ class ReachMobConfigTest {
 	}
 
 	@Test
-	void maxGroupBelowMinGroupFallsBackToAtLeastTheMin() {
-		Spawn kept = parse("{\"cinder_husk\": {\"minGroup\": 3, \"maxGroup\": 1}}").spawns().get("cinder_husk");
-		assertEquals(new Spawn(100, 3, 4), kept);
-		Spawn raised = parse("{\"cinder_husk\": {\"minGroup\": 7, \"maxGroup\": 2}}").spawns().get("cinder_husk");
-		assertEquals(new Spawn(100, 7, 7), raised);
+	void maxGroupBelowMinGroupFallsBackToTheDefaultMaxButNeverBelowTheMin() {
+		Spawn def = ReachMobConfig.DEFAULT.spawns().get("cinder_husk");
+		int min = def.maxGroup() - 1;
+		Spawn kept = parse("{\"cinder_husk\": {\"minGroup\": " + min + ", \"maxGroup\": " + (min - 1) + "}}").spawns().get("cinder_husk");
+		assertEquals(new Spawn(def.weight(), min, def.maxGroup()), kept);
+		int high = def.maxGroup() + 3;
+		Spawn raised = parse("{\"cinder_husk\": {\"minGroup\": " + high + ", \"maxGroup\": 1}}").spawns().get("cinder_husk");
+		assertEquals(new Spawn(def.weight(), high, high), raised);
 	}
 
 	@Test
-	void groupSizesAreCappedAtSixteen() {
+	void outOfRangeGroupSizesAndWeightsAreRejected() {
+		Spawn def = ReachMobConfig.DEFAULT.spawns().get("restless_bones");
 		Spawn spawn = parse("{\"restless_bones\": {\"minGroup\": 17, \"maxGroup\": 40, \"weight\": 1001}}").spawns().get("restless_bones");
-		assertEquals(ReachMobConfig.DEFAULT.spawns().get("restless_bones"), spawn);
+		assertEquals(def, spawn);
+		Spawn negative = parse("{\"restless_bones\": {\"minGroup\": 0, \"weight\": -1}}").spawns().get("restless_bones");
+		assertEquals(def, negative);
 	}
 
 	@Test

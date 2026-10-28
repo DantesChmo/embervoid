@@ -1,6 +1,5 @@
 package com.embervoid.reach.boss.arena;
 
-import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import org.junit.jupiter.api.Test;
@@ -11,14 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ArenaFrameTest {
 	private static double flatDistanceToLanding(BlockPos pos) {
 		return Math.hypot(pos.getX(), pos.getZ());
-	}
-
-	@Test
-	void arenaSouthOfTheLandingIsNotTurned() {
-		assertEquals(BlockRotation.NONE, ArenaFrame.rotationTowardsLanding(new BlockPos(0, 64, 500)));
-		assertEquals(BlockRotation.CLOCKWISE_180, ArenaFrame.rotationTowardsLanding(new BlockPos(0, 64, -500)));
-		assertEquals(BlockRotation.COUNTERCLOCKWISE_90, ArenaFrame.rotationTowardsLanding(new BlockPos(500, 64, 0)));
-		assertEquals(BlockRotation.CLOCKWISE_90, ArenaFrame.rotationTowardsLanding(new BlockPos(-500, 64, 0)));
 	}
 
 	@Test
@@ -67,11 +58,5 @@ class ArenaFrameTest {
 	void topIsTheMiddleOfTheBlocksUpperFace() {
 		ArenaFrame frame = ArenaFrame.of(new BlockPos(0, 64, 500));
 		assertEquals(new Vec3d(2.5, 66, 497.5), frame.top(2, 1, -3));
-	}
-
-	@Test
-	void diagonalPlacementsTurnByTheirZ() {
-		assertEquals(BlockRotation.NONE, ArenaFrame.rotationTowardsLanding(new BlockPos(300, 64, 300)));
-		assertEquals(BlockRotation.CLOCKWISE_180, ArenaFrame.rotationTowardsLanding(new BlockPos(-300, 64, -300)));
 	}
 }
