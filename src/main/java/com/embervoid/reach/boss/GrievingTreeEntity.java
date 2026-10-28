@@ -57,11 +57,11 @@ public class GrievingTreeEntity extends ReachBoss {
 	/** Damage the trunk takes outside a stun: none, the bark turns it (PLAN 18.4). */
 	public static final float TRUNK_DAMAGE = 0;
 	public static final float STUNNED_DAMAGE = 1.75f;
-	public static final int LANTERNS = 7;
-	public static final int P2_LANTERNS = 6;
+	public static final int LANTERNS = LanternSet.LANTERNS;
+	public static final int P2_LANTERNS = LanternSet.P2_LANTERNS;
 	/** The stun the last broken lantern buys: the window to hit the trunk (0.5.3: 2.2 s was too short to use). */
-	public static final int STUN_TICKS = 200;
-	public static final int FOG_LIFT_TICKS = STUN_TICKS;
+	public static final int STUN_TICKS = LanternSet.STUN_TICKS;
+	public static final int FOG_LIFT_TICKS = LanternSet.FOG_LIFT_TICKS;
 	/** Arena fog: grey-green, thicker once it walks. */
 	public static final float FOG_DENSITY = 0.55f;
 	public static final float THICK_FOG_DENSITY = 0.75f;
@@ -82,7 +82,7 @@ public class GrievingTreeEntity extends ReachBoss {
 	/** Ticks between two drops of Withered Thralls. */
 	public static final int THRALL_INTERVAL = 500;
 	/** Ticks after the stun until the whole set of lanterns hangs again at once. */
-	public static final int REHANG_DELAY = 40;
+	public static final int REHANG_DELAY = LanternSet.REHANG_DELAY;
 
 	public static final String ROOT_LINES = "attack.roots";
 	public static final String BRANCH_SWEEP = "attack.branch";
@@ -99,10 +99,8 @@ public class GrievingTreeEntity extends ReachBoss {
 	private static final double SWEEP_RANGE = 8;
 
 	private final List<TreeLanternEntity> lanterns = new ArrayList<>();
-	private int stunTicks;
-	private int fogLiftTicks;
+	private final LanternSet lanternSet = new LanternSet();
 	private int thrallTimer = THRALL_INTERVAL / 2;
-	private int rehangTimer = REHANG_DELAY;
 	private int lanternsBroken;
 
 	public GrievingTreeEntity(EntityType<? extends GrievingTreeEntity> type, World world) {
@@ -201,7 +199,7 @@ public class GrievingTreeEntity extends ReachBoss {
 			return;
 		}
 		if (phase == 0) {
-			hangLanterns(LANTERNS, 7, 5.5);
+			hangLanternSet();
 			fight.setFog(FOG_DENSITY, FOG_COLOR);
 			return;
 		}
@@ -222,9 +220,19 @@ public class GrievingTreeEntity extends ReachBoss {
 			lantern.discard();
 		}
 		lanterns.clear();
-		hangLanterns(P2_LANTERNS, 5.5, 3.5);
+		hangLanternSet();
 		fight.setFog(THICK_FOG_DENSITY, FOG_COLOR);
 		getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).setBaseValue(0.12);
+	}
+
+	/** A full set: high in the crown while rooted, lower on its own branches once it walks. */
+	private void hangLanternSet() {
+		int count = LanternSet.size(isRooted());
+		if (isRooted()) {
+			hangLanterns(count, 7, 5.5);
+		} else {
+			hangLanterns(count, 5.5, 3.5);
+		}
 	}
 
 	private void hangLanterns(int count, double height, double distance) {
@@ -257,16 +265,15 @@ public class GrievingTreeEntity extends ReachBoss {
 	void onLanternBroken(TreeLanternEntity lantern) {
 		lanterns.remove(lantern);
 		lanternsBroken++;
-		if (!lanterns().isEmpty()) {
+		BossFight fight = fight();
+		if (lanternSet.onBroken(lanterns().size(), fight != null) == LanternSet.Break.FLINCH) {
 			getWorld().playSound(null, getX(), getY(), getZ(), ReachBossSounds.GRIEVING_TREE_STUN, SoundCategory.HOSTILE, 1.0f, 1.4f);
 			if (getWorld() instanceof ServerWorld world) {
 				world.spawnParticles(EmberParticles.AMBER_MOTE, lantern.getX(), lantern.getY(), lantern.getZ(), 6, 0.3, 0.2, 0.3, 0);
 			}
 			return;
 		}
-		BossFight fight = fight();
 		Telegraph.cancel(this);
-		stunTicks = STUN_TICKS;
 		dataTracker.set(STUNNED_FLAG, true);
 		playAnimation(STUNNED);
 		getWorld().playSound(null, getX(), getY(), getZ(), ReachBossSounds.GRIEVING_TREE_STUN, SoundCategory.HOSTILE, 2.0f, 1.0f);
@@ -278,13 +285,12 @@ public class GrievingTreeEntity extends ReachBoss {
 			world.spawnParticles(EmberParticles.AMBER_MOTE, getX(), getY() + 5.3, getZ(), 6, 0.3, 0.2, 0.3, 0);
 		}
 		if (fight != null) {
-			fogLiftTicks = FOG_LIFT_TICKS;
 			fight.clearFog();
 		}
 	}
 
 	private void endStun() {
-		stunTicks = 0;
+		lanternSet.endStun();
 		dataTracker.set(STUNNED_FLAG, false);
 	}
 
@@ -294,26 +300,19 @@ public class GrievingTreeEntity extends ReachBoss {
 		if (fight == null) {
 			return;
 		}
-		if (stunTicks > 0 && --stunTicks == 0) {
+		LanternSet.Tick tick = lanternSet.tick(lanterns().size());
+		if (tick.stunEnded()) {
 			endStun();
 		}
-		if (fogLiftTicks > 0 && --fogLiftTicks == 0) {
+		if (tick.fogReturns()) {
 			fight.setFog(isRooted() ? FOG_DENSITY : THICK_FOG_DENSITY, FOG_COLOR);
 		}
 		if (!isStunned() && --thrallTimer <= 0) {
 			thrallTimer = THRALL_INTERVAL;
 			dropThralls();
 		}
-		// All lanterns broken: once the stun is over, the whole set grows back on the branches together.
-		if (!lanterns().isEmpty() || isStunned()) {
-			rehangTimer = REHANG_DELAY;
-		} else if (--rehangTimer <= 0) {
-			rehangTimer = REHANG_DELAY;
-			if (isRooted()) {
-				hangLanterns(LANTERNS, 7, 5.5);
-			} else {
-				hangLanterns(P2_LANTERNS, 5.5, 3.5);
-			}
+		if (tick.rehang()) {
+			hangLanternSet();
 		}
 		if (isRooted()) {
 			// Rooted: it never moves from its spot.
@@ -495,7 +494,7 @@ public class GrievingTreeEntity extends ReachBoss {
 
 	/** Test hook: the stun left, in ticks. */
 	public int stunTicks() {
-		return stunTicks;
+		return lanternSet.stunTicks();
 	}
 
 	@Override
