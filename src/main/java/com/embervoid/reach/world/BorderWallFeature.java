@@ -41,7 +41,7 @@ public class BorderWallFeature extends Feature<DefaultFeatureConfig> {
 
 	/** The border angles of a realm's final zone: its sector's start, then its end. */
 	public static double[] borders(RealmDefinition realm) {
-		return new double[]{realm.sectors().finalStart(), realm.sectors().startAngle()};
+		return ReachWorldRules.borders(realm.sectors());
 	}
 
 	@Override

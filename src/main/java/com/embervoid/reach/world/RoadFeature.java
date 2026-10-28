@@ -153,27 +153,19 @@ public class RoadFeature extends Feature<DefaultFeatureConfig> {
 
 	/** Template id of an outpost: {@code embervoid:ashen_reach/outpost/<kind>_<zone>} by the zone of its road's arena. */
 	public static Identifier outpostId(RoadLayout.Outpost outpost, RealmArenas.Location arena) {
-		String zone = ReachZones.zoneName(arena.spec().bossId());
-		return Embervoid.id("ashen_reach/outpost/" + outpost.kind() + "_" + zone);
+		return ReachWorldRules.outpostId(outpost.kind(), arena.spec().bossId());
 	}
 
 	/** Rotation that turns a template's +Z side along {@code (dirX, dirZ)}, in 90° steps. */
 	public static BlockRotation rotationAlong(double dirX, double dirZ) {
-		if (Math.abs(dirX) > Math.abs(dirZ)) {
-			return dirX > 0 ? BlockRotation.COUNTERCLOCKWISE_90 : BlockRotation.CLOCKWISE_90;
-		}
-		return dirZ > 0 ? BlockRotation.NONE : BlockRotation.CLOCKWISE_180;
+		return ReachWorldRules.rotationAlong(dirX, dirZ);
 	}
 
 	private record Placed(RoadLayout.Outpost outpost, StructureTemplate template) {
 		/** Whether x, z lies on the template's footprint (its paved road stretch included). */
 		boolean covers(int x, int z) {
 			Vec3i size = template.getSize();
-			BlockRotation rotation = rotationAlong(outpost.dirX(), outpost.dirZ());
-			boolean turned = rotation == BlockRotation.CLOCKWISE_90 || rotation == BlockRotation.COUNTERCLOCKWISE_90;
-			int halfX = (turned ? size.getZ() : size.getX()) / 2;
-			int halfZ = (turned ? size.getX() : size.getZ()) / 2;
-			return Math.abs(x - outpost.x()) <= halfX && Math.abs(z - outpost.z()) <= halfZ;
+			return ReachWorldRules.onFootprint(x, z, outpost.x(), outpost.z(), size.getX(), size.getZ(), outpost.dirX(), outpost.dirZ());
 		}
 	}
 
