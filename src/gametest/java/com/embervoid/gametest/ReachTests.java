@@ -117,7 +117,6 @@ final class ReachTests {
 		return track(context, TestPlayers.create(context, x, z));
 	}
 
-	/** Moves a test player to relative (x, y, z). */
 	static void teleport(TestContext context, ServerPlayerEntity player, double x, double y, double z) {
 		Vec3d at = context.getAbsolute(new Vec3d(x, y, z));
 		player.teleport(context.getWorld(), at.x, at.y, at.z, 0, 0);
@@ -138,7 +137,6 @@ final class ReachTests {
 		};
 	}
 
-	/** A connection that drops every packet. */
 	private static final class SilentConnection extends ClientConnection {
 		SilentConnection() {
 			super(NetworkSide.SERVERBOUND);

@@ -23,7 +23,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 /**
- * The whole Realm 1 loop as progress sees it (PLAN 13.5): unlocking Realm 1 (the first hub visit) lights its obelisk; the three zone
+ * The whole Realm 1 loop as progress sees it: unlocking Realm 1 (the first hub visit) lights its obelisk; the three zone
  * bosses open the Citadel Gate; the Smoldering Lord, beaten in the depths, completes the realm (its obelisk kindled)
  * and lights the Realm 2 obelisk, which leads nowhere yet. The framework's test boss stands in for every boss (rewards
  * and completion follow the progress id and the world); each boss's own fight has its own tests.
@@ -31,8 +31,7 @@ import net.minecraft.util.math.BlockPos;
 public final class RealmLoopTests implements FabricGameTest {
 	private static final int RADIUS = 6;
 	private static final Identifier REALM_2 = ProgressManager.nextRealm(ProgressManager.REALM_1);
-	/** A spot in the depths away from the landing, the Citadel and its courtyard. */
-	/** A test floor high over the final sector's middle line, short of the Citadel (PLAN 21.3). */
+	/** A test floor high over the final sector's middle line, short of the Citadel. */
 	private static final BlockPos FINAL_CENTER = new BlockPos(0, 160, 300);
 
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "realm_loop", tickLimit = 1200)

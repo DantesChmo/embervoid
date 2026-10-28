@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Stamina and the special-attack framework on a real survival player (PLAN 2.4–2.6, L5): the debug sweep spends its
+ * Stamina and the special-attack framework on a real survival player: the debug sweep spends its
  * cost, starts its cooldown and pushes what is in its arc; with no stamina it fails and tells the client; creative
  * spends nothing; stamina comes back after the regen delay; every change reaches the owner's client.
  */
@@ -74,7 +74,6 @@ public final class StaminaTests implements FabricGameTest {
 			context.assertTrue(front.getVelocity().horizontalLengthSquared() < 1.0E-4, "a refused sweep pushed the zombie");
 			context.assertTrue(sync.lastFailed(), "the client was not told the spend failed (no HUD flash)");
 
-			// Creative never spends.
 			player.getAbilities().creativeMode = true;
 			StaminaManager.set(player, max);
 			sweep.use(context.getWorld(), player, Hand.MAIN_HAND);

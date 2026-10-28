@@ -43,7 +43,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Moon nights on a real server (PLAN 8.1–8.6). The moon state and the clock are global, so every test has a batch
+ * Moon nights on a real server. The moon state and the clock are global, so every test has a batch
  * of its own (batches run one after another), and each one stops any moon night and restores the clock and the
  * difficulty when it ends, pass or fail.
  */
@@ -173,7 +173,6 @@ public final class MoonTests implements FabricGameTest {
 		ServerPlayerEntity byPlayer = TestPlayers.create(context, 1, 4);
 		ServerPlayerEntity killer = TestPlayers.create(context, 4, 4);
 		restore.players.addAll(List.of(byZombie, byKill, byFall, byPlayer, killer));
-		// Fresh players cannot be hurt for their first 60 ticks (join invulnerability).
 		context.waitAndRun(JOIN_INVULNERABLE_TICKS, () -> guard(context, restore, () -> {
 			ZombieEntity zombie = context.spawnMob(EntityType.ZOMBIE, 7, 1, 4);
 			zombie.setAiDisabled(true);
@@ -333,7 +332,6 @@ public final class MoonTests implements FabricGameTest {
 		}));
 	}
 
-	/** The night is sent to a player who joins during it, respawns, goes to the Nether and comes back. */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "moon_sync_events", tickLimit = 100)
 	public void nightIsSentOnJoinRespawnAndDimensionChange(TestContext context) {
 		MinecraftServer server = context.getWorld().getServer();

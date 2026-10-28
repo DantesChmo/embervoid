@@ -52,7 +52,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The final zone's lock (PLAN 21.2) in the real Ashen Reach, on its 60° border, one way in per test: walking, an ender
+ * The final zone's lock in the real Ashen Reach, on its 60° border, one way in per test: walking, an ender
  * pearl, chorus fruit, elytra, riptide, a boat and a horse, a bridge over the wall and a tunnel under it. Each is
  * stopped for a player without clearance; a cleared player and a creative one pass, and two players with different
  * clearance at one spot inside are told apart. Every test has its own stretch of the border.
@@ -146,7 +146,6 @@ public final class FinalZoneLockTests implements FabricGameTest {
 		}, player));
 	}
 
-	/** Gliding in on elytra: the glide stops and the player is back outside. */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = BATCH, tickLimit = LIMIT)
 	public void elytraGlidingInStops(TestContext context) {
 		Spot spot = new Spot(context, 215);
@@ -310,7 +309,6 @@ public final class FinalZoneLockTests implements FabricGameTest {
 		}, cleared, locked));
 	}
 
-	/** A creative player without clearance passes. */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = BATCH, tickLimit = LIMIT)
 	public void aCreativePlayerPasses(TestContext context) {
 		Spot spot = new Spot(context, 365);
@@ -346,7 +344,7 @@ public final class FinalZoneLockTests implements FabricGameTest {
 	}
 
 	/**
-	 * The burnt city wall stands on both borders as generated (PLAN 21.2): on the border line, every stretch the layout
+	 * The burnt city wall stands on both borders as generated: on the border line, every stretch the layout
 	 * puts up is there, the gaps are open.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = BATCH, tickLimit = LIMIT)

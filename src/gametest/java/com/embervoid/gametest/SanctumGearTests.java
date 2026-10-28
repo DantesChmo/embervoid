@@ -37,7 +37,7 @@ import net.minecraft.util.math.Vec3d;
 import java.util.List;
 
 /**
- * The Sanctum weapons (PLAN L1, DESIGN §10.10): both special attacks through the real right-click (stamina, cooldown,
+ * The Sanctum weapons (DESIGN §10.10): both special attacks through the real right-click (stamina, cooldown,
  * who they hit, damage through {@code damage()}, never through a wall, their own sound), the mace breaking a Hollow's guard, the item
  * numbers and the outer-hall loot.
  */

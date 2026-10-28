@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The set-piece framework (PLAN 20.1): the cap per chunk, triggers changing the synced state, arena events reaching
+ * The set-piece framework: the cap per chunk, triggers changing the synced state, arena events reaching
  * the pieces inside an arena and not those outside, the great brazier following its campfire, and every kind's
  * animation file holding the animations the kind names.
  */

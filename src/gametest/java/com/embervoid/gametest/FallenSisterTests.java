@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
- * The Fallen Sister (PLAN 16.3). The summon rule, the reset and the clearing run in a real Ruined Sanctum placed far
+ * The Fallen Sister. The summon rule, the reset and the clearing run in a real Ruined Sanctum placed far
  * from the other tests (one per test) and registered in its chunks as worldgen does; her moves, phase 2 and the rewards
  * on a stone floor with fights started directly. Joined players are real (non-creative).
  */

@@ -32,7 +32,7 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 /**
- * Worlds from 0.4.x (PLAN 21.4) on a made-up old save in a scratch folder: the realm and depths folders go, the other
+ * Worlds from 0.4.x on a made-up old save in a scratch folder: the realm and depths folders go, the other
  * dimensions stay, a remnant lying in the realm and a player who logged out there are kept for after the start; a world
  * already on the layout is left alone. Then a player's join: moved to the hub, old realm shrines forgotten once.
  */
@@ -84,7 +84,7 @@ public final class RealmLayoutUpgradeTests implements FabricGameTest {
 		context.complete();
 	}
 
-	/** A world from 0.5.0–0.5.2 (layout 2, the Citadel far out; PLAN 21.6) gets its realm generated again too. */
+	/** A world from 0.5.0–0.5.2 (layout 2, the Citadel far out) gets its realm generated again too. */
 	@GameTest(templateName = EMPTY_STRUCTURE)
 	public void worldsOnTheFarCitadelLayoutAreUpgraded(TestContext context) {
 		try {

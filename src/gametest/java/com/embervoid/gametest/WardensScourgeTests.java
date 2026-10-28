@@ -22,8 +22,8 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 
 /**
- * The Warden's Scourge as a whip (PLAN 17.4): a swing hits every mob along the lash and nothing off it, the tip cracks
- * for more, a wall stops the lash, Lash still pulls, and one swing costs one durability. The player stands at (2, 2)
+ * The Warden's Scourge as a whip: a swing hits every mob along the lash and nothing off it, the tip cracks
+ * for more, a wall stops the lash, Lash pulls, and one swing costs one durability. The player stands at (2, 2)
  * looking south (+z), so a mob at (2, z) is z − 2 blocks ahead on the crosshair.
  */
 public final class WardensScourgeTests implements FabricGameTest {
@@ -122,7 +122,7 @@ public final class WardensScourgeTests implements FabricGameTest {
 	}
 
 	/**
-	 * Lash is as it was: 20 stamina, 5 s, pulls a mob 5 blocks away toward the player without hurting it, and the
+	 * Lash: 20 stamina, 5 s, pulls a mob 5 blocks away toward the player without hurting it, and the
 	 * swing packet that follows the cast is no crack.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE)

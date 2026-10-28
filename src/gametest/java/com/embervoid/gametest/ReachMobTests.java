@@ -32,7 +32,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * The Realm 1 mob base (PLAN 10.1): telegraphed moves, the placed state, natural spawns in the zone biomes only,
+ * The Realm 1 mob base: telegraphed moves, the placed state, natural spawns in the zone biomes only,
  * loot tables.
  */
 public final class ReachMobTests implements FabricGameTest {
@@ -57,7 +57,6 @@ public final class ReachMobTests implements FabricGameTest {
 		});
 	}
 
-	/** A cancelled windup never lands; a target that walked out of reach is not hit either. */
 	@GameTest(templateName = EMPTY_STRUCTURE)
 	public void cancelledOrOutOfReachMoveDoesNotLand(TestContext context) {
 		CowEntity near = ReachTests.dummy(context, 2, 3);
@@ -103,7 +102,7 @@ public final class ReachMobTests implements FabricGameTest {
 	}
 
 	/**
-	 * Through track reach-world's placed-enemy spawn (PLAN 9.2), the way structures place them: every Realm 1 mob
+	 * Through the placed-enemy spawn, the way structures place them: every Realm 1 mob
 	 * comes out placed and persistent, and the ones with a placed pose take it (stalker buried, carrion perched, Bark
 	 * Hollow dormant, cage thrall hanging).
 	 */
@@ -166,7 +165,6 @@ public final class ReachMobTests implements FabricGameTest {
 		ReachTests.finish(context);
 	}
 
-	/** Every Realm 1 mob has a non-empty loot table (its basic drops). */
 	@GameTest(templateName = EMPTY_STRUCTURE)
 	public void everyMobHasBasicDrops(TestContext context) {
 		for (EntityType<?> type : List.of(ReachMobs.CINDER_HUSK, ReachMobs.ASH_STALKER, ReachMobs.ASHEN_CARRION,

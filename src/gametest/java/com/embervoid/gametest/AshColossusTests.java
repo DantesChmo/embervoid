@@ -16,7 +16,7 @@ import net.minecraft.util.math.Vec3d;
 import java.util.function.Consumer;
 
 /**
- * Ash Colossus (PLAN 12.4) in the real crater market template (one far spot per test, chunks forced), real joined
+ * Ash Colossus in the real crater market template (one far spot per test, chunks forced), real joined
  * players. Moves are started directly; the brain is held.
  */
 public final class AshColossusTests implements FabricGameTest {
@@ -63,7 +63,6 @@ public final class AshColossusTests implements FabricGameTest {
 		});
 	}
 
-	/** The ash storm hurts and blinds a player it can see; a granary pillar shelters the one behind it. */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "colossus_storm", tickLimit = PlacedFight.LOAD_LIMIT + 400)
 	public void stormHurtsOnlyThoseItSees(TestContext context) {
 		start(context, 1, new int[][]{OPEN, BEHIND_PILLAR}, f -> {
@@ -84,7 +83,6 @@ public final class AshColossusTests implements FabricGameTest {
 		});
 	}
 
-	/** A smashed pillar is gone during the fight and stands again after it. */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "colossus_smash", tickLimit = PlacedFight.LOAD_LIMIT + 400)
 	public void smashedPillarComesBack(TestContext context) {
 		start(context, 2, new int[][]{OPEN}, f -> {
@@ -105,7 +103,6 @@ public final class AshColossusTests implements FabricGameTest {
 		});
 	}
 
-	/** The leap lands on the ring it marked around a far player and hurts them. */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "colossus_leap", tickLimit = PlacedFight.LOAD_LIMIT + 400)
 	public void leapLandsOnTheMarkedRing(TestContext context) {
 		start(context, 3, new int[][]{{0, 0, 14}}, f -> {

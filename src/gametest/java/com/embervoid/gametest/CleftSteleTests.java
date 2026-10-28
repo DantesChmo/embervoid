@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * The Cleft Stele (PLAN 15.3): a Crying Soul used on a built frame kindles it on either axis and is used up; on a broken,
- * wrong or blocked frame it is kept; breaking a stone of a lit stele puts it out. A world has one lit stele
- * (PLAN 15.4), so every test that kindles one has its own batch.
+ * The Cleft Stele: a Crying Soul used on a built frame kindles it on either axis and is used up; on a broken,
+ * wrong or blocked frame it is kept; breaking a stone of a lit stele puts it out. A world has one lit stele,
+ * so every test that kindles one has its own batch.
  */
 public final class CleftSteleTests implements FabricGameTest {
 	private static final List<SteleFrame> KINDLED = new CopyOnWriteArrayList<>();
@@ -75,7 +75,7 @@ public final class CleftSteleTests implements FabricGameTest {
 		context.assertTrue(SoundLog.heard(world, SteleSounds.KINDLE, middle, 2), "no kindle sound");
 		context.assertTrue(KINDLED.contains(frame), "no kindle event for " + frame);
 
-		// A lit stele takes no second soul: the click goes through it to the hub (PLAN 15.4) instead.
+		// A lit stele takes no second soul: the click goes through it to the hub instead.
 		use(player, frame.at(0, 0));
 		context.assertTrue(player.getMainHandStack().getCount() == 1, "a lit stele took another soul");
 		ServerPlayerEntity now = world.getServer().getPlayerManager().getPlayer(player.getUuid());
@@ -128,7 +128,6 @@ public final class CleftSteleTests implements FabricGameTest {
 		use(player, frame.at(1, 0));
 		context.assertTrue(CleftStele.isLit(world, frame), "the stele did not light");
 
-		// The crack cannot be mined.
 		BlockPos crack = frame.at(SteleFrame.CRACK, 1);
 		context.assertTrue(world.getBlockState(crack).calcBlockBreakingDelta(player, world, crack) == 0,
 				"the crack can be mined");

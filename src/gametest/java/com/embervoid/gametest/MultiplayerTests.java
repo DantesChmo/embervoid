@@ -85,7 +85,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Multiplayer (PLAN R40.4a, R30.3): two or three real players joined through the player manager, in the test area and
+ * Multiplayer: two or three real players joined through the player manager, in the test area and
  * in the shared realm dimension. Progress, boss credit and personal loot are per player (DESIGN §4.3); a boss fought
  * by more players scales at summon (§4.5 "Multiplayer"); deaths, syncs and moon waves stay with their own player.
  * Fights, rematches and the moon night are global, so each test has its own batch.
@@ -100,7 +100,7 @@ public final class MultiplayerTests implements FabricGameTest {
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "mp_progress", tickLimit = 400)
 	public void progressAndTheGateArePerPlayer(TestContext context) {
-		// The local config of the test run dir may be older than 0.4.0 (depths closed).
+		// The local config of the test run dir may have the depths closed.
 		BossArena arena = new BossArena(context, "{\"realm\": {\"depthsOpen\": true}}");
 		arena.step(() -> {
 			arena.floor(4, 4, RADIUS + 1);
@@ -145,7 +145,6 @@ public final class MultiplayerTests implements FabricGameTest {
 					+ CitadelGateBlock.remainingZoneBosses(b, Realms.ASHEN_REACH));
 			context.assertTrue(CitadelGateBlock.remainingZoneBosses(c, Realms.ASHEN_REACH) == 3, "C's locks");
 
-			// The gate lets each through on their own (PLAN 21.2, 21.3: no more teleport, they walk in): A, not B or C.
 			context.assertTrue(FinalZoneLock.isCleared(a, Realms.ASHEN_REACH), "the final zone is locked for A");
 			for (ServerPlayerEntity player : List.of(b, c)) {
 				context.assertTrue(!FinalZoneLock.isCleared(player, Realms.ASHEN_REACH),
@@ -441,8 +440,6 @@ public final class MultiplayerTests implements FabricGameTest {
 		}));
 	}
 
-	// --- helpers -----------------------------------------------------------------------------------------------
-
 	/** A step of a moon test: a failure stops the night before the arena cleans up. */
 	private static void moonStep(BossArena arena, Runnable stop, Runnable step) {
 		arena.step(() -> {
@@ -532,7 +529,6 @@ public final class MultiplayerTests implements FabricGameTest {
 		return fight;
 	}
 
-	/** The outsider is not a fighter and is being pushed away from the arena centre. */
 	private static void assertPushedOut(TestContext context, BossFight fight, ServerPlayerEntity outsider, String where) {
 		context.assertTrue(!fight.fighters().contains(outsider), "the outsider became a fighter " + where);
 		Vec3d away = outsider.getPos().subtract(fight.centerPos()).multiply(1, 0, 1).normalize();
@@ -606,7 +602,7 @@ public final class MultiplayerTests implements FabricGameTest {
 	}
 
 	/**
-	 * DESIGN §10.8, PLAN L7: two players at the Fields arena's shrine are both told where it is and whose arena it is;
+	 * DESIGN §10.8: two players at the Fields arena's shrine are both told where it is and whose arena it is;
 	 * it is cold for the one who has not beaten the Ash Colossus and lights for them as soon as they have. Leaving the
 	 * realm empties the list.
 	 */

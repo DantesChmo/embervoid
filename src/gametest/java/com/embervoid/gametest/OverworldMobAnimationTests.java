@@ -19,9 +19,8 @@ import net.minecraft.util.math.BlockPos;
 import java.lang.reflect.Method;
 
 /**
- * The hit and death animations of the overworld mobs (PLAN 19.3, track overworld-mobs): a kill keeps the body for its
- * death animation and then removes it, and a flinch plays once per cooldown. Written and compiled here; the coordinator
- * runs them.
+ * The hit and death animations of the overworld mobs: a kill keeps the body for its death animation and then removes
+ * it, and a flinch plays once per cooldown.
  */
 public final class OverworldMobAnimationTests implements FabricGameTest {
 	/** Killed, the Ghoul bursts into its blinding cloud at once; its body lies there for its death animation, then goes. */
@@ -45,7 +44,6 @@ public final class OverworldMobAnimationTests implements FabricGameTest {
 		});
 	}
 
-	/** A hit shows a flinch; a second inside the cooldown shows none; one after it does. */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "overworld_anim_hurt", tickLimit = 100)
 	public void ghoulFlinchesOncePerCooldown(TestContext context) {
 		floor(context, 2, 2);

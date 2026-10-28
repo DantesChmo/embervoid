@@ -71,7 +71,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * R40.1b: the balance model ({@code com.embervoid.balance}) against the engine. A real survival player with the
+ * The balance model ({@code com.embervoid.balance}) against the engine. A real survival player with the
  * model's stats and gear for a stage takes one hit of every Realm 1 mob and boss move (and the moon-night mobs) at a
  * fixed level and deals one fully charged hit back; health lost on each side must match the model. The first test
  * checks the model's base numbers against the live entity types. Every test is synchronous (one tick), so nothing
@@ -99,8 +99,6 @@ public final class BalanceFightTests implements FabricGameTest {
 	/** Mobs whose main hit is their melee move: its cooldown is the model's interval. */
 	private static final Set<String> MELEE_MOVE_MOBS = Set.of("cinder_husk", "ash_stalker", "withered_thrall", "bark_hollow",
 			"restless_bones", "crypt_moth", "hollow_sentinel", "grave_warden", "cinder_hound", "furnace_golem");
-
-	// --- The model's numbers are the game's -------------------------------------------------------------------
 
 	@GameTest(templateName = EMPTY_STRUCTURE)
 	public void modelNumbersAreTheEntities(TestContext context) {
@@ -151,7 +149,7 @@ public final class BalanceFightTests implements FabricGameTest {
 	}
 
 	/**
-	 * PLAN 18.1: the wind-ups the fight-length model takes from the boss classes are the ones their moves run. Each move
+	 * The wind-ups the fight-length model takes from the boss classes are the ones their moves run. Each move
 	 * is started by hand on a boss with its AI off, and the longest windup it put on {@link Telegraph} is read back.
 	 * (The Lord's wall moves and the Colossus's cinders need a running fight; they use the same constants directly.)
 	 */
@@ -240,7 +238,7 @@ public final class BalanceFightTests implements FabricGameTest {
 	}
 
 	/**
-	 * PLAN L2: the overworld model's base numbers are the live entity types' (vanilla and Embervoid): health, armor,
+	 * The overworld model's base numbers are the live entity types' (vanilla and Embervoid): health, armor,
 	 * attack, XP; the Hollow's and the Ember Wisp's attack intervals; the creeper's explosion power.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE)
@@ -249,7 +247,7 @@ public final class BalanceFightTests implements FabricGameTest {
 		for (OverworldMob mob : OverworldData.MOBS) {
 			EntityType<?> type = Registries.ENTITY_TYPE.get(new Identifier(mob.id()));
 			DefaultAttributeContainer attributes = DefaultAttributeRegistry.get(castLiving(type));
-			// The model holds a vanilla type's numbers times its healthScale / damageScale (PLAN 18.3).
+			// The model holds a vanilla type's numbers times its healthScale / damageScale.
 			same(misses, mob.id() + " health", mob.mob().health(),
 					attributes.getBaseValue(EntityAttributes.GENERIC_MAX_HEALTH) * BalanceModel.LEVELS.healthScale(mob.id()));
 			same(misses, mob.id() + " armor", mob.mob().armor(), attributes.getBaseValue(EntityAttributes.GENERIC_ARMOR));
@@ -274,7 +272,7 @@ public final class BalanceFightTests implements FabricGameTest {
 	}
 
 	/**
-	 * PLAN L2: the overworld mobs at their lowest level on a fresh level 1 player in full iron with an iron sword (and
+	 * The overworld mobs at their lowest level on a fresh level 1 player in full iron with an iron sword (and
 	 * the Hollow also on the Sanctum-level player), one hit each way: Ash Ghoul, Hollow (iron sword), Ember Wisp (the
 	 * touch; its fire is not a hit), zombie, a skeleton's arrow, a creeper's blast at 2 blocks.
 	 */
@@ -355,8 +353,6 @@ public final class BalanceFightTests implements FabricGameTest {
 		TestPlayers.complete(context, player);
 	}
 
-	// --- Hits both ways ---------------------------------------------------------------------------------------
-
 	/** Every open-zone mob at its band's bottom against the player entering that zone first (reference kit). */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "balance_zone_mobs")
 	public void zoneMobsHitAsModelled(TestContext context) {
@@ -380,7 +376,7 @@ public final class BalanceFightTests implements FabricGameTest {
 	}
 
 	/**
-	 * PLAN 18.4: Restless Bones die in the model's hits counting the pile (a share of its levelled max health that
+	 * Restless Bones die in the model's hits counting the pile (a share of its levelled max health that
 	 * takes hits of its own), for the Necropolis player entering it first and third.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "balance_zone_mobs")
@@ -561,8 +557,6 @@ public final class BalanceFightTests implements FabricGameTest {
 		}
 		return 0;
 	}
-
-	// --- Setup ------------------------------------------------------------------------------------------------
 
 	/** A survival player at the model's stats, ready to be hurt (no join invulnerability). */
 	private static ServerPlayerEntity player(TestContext context, int x, int z) {

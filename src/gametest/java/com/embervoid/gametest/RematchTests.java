@@ -35,7 +35,7 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.structure.Structure;
 
 /**
- * Ash of Rematch (PLAN 12.7) at the real Necropolis arena in the realm: its structure is made, attached to its chunks
+ * Ash of Rematch at the real Necropolis arena in the realm: its structure is made, attached to its chunks
  * and placed the way worldgen would (the test world does not generate structures), so the shrine is found as in play.
  */
 public final class RematchTests implements FabricGameTest {

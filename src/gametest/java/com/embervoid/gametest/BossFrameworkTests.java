@@ -29,7 +29,7 @@ import net.minecraft.util.math.Vec3d;
 import java.util.List;
 
 /**
- * Boss framework additions (PLAN 12.1) on a real server: fights started in the test area with the framework's test
+ * Boss framework additions on a real server: fights started in the test area with the framework's test
  * boss (AI off, so only the framework acts), real joined players. Fights are global state, so each test has its own
  * batch.
  */
@@ -98,7 +98,6 @@ public final class BossFrameworkTests implements FabricGameTest {
 			context.assertTrue(lasting.ended, "the reset did not end the hazard");
 			context.expectBlock(Blocks.AIR, water);
 
-			// A kill puts the arena back too.
 			BossFight second = arena.start(BossEntities.TEST_BOSS, 4, 4, RADIUS, 10);
 			MobEntity boss = quiet(second);
 			second.blocks().set(context.getAbsolutePos(water), Blocks.WATER.getDefaultState());

@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Grieving Tree (PLAN 12.5) in the real Royal Grove template (one far spot per test, chunks forced), real joined
+ * Grieving Tree in the real Royal Grove template (one far spot per test, chunks forced), real joined
  * players. Moves are started directly; the brain is held.
  */
 public final class GrievingTreeTests implements FabricGameTest {

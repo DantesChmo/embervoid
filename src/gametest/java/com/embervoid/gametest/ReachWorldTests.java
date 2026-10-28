@@ -76,7 +76,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
-/** Track reach-world (PLAN 9.x): placed enemies, then realm worldgen pieces. */
+/** Placed enemies, then realm worldgen pieces. */
 public final class ReachWorldTests implements FabricGameTest {
 	private static final String CAGE_TAG = "embervoid.placed.cage";
 
@@ -228,7 +228,7 @@ public final class ReachWorldTests implements FabricGameTest {
 		});
 	}
 	/**
-	 * Each arena site (PLAN 9.4) generates solid at its floor height, open to the sky above its contents, with the shrine. The test world does not generate
+	 * Each arena site generates solid at its floor height, open to the sky above its contents, with the shrine. The test world does not generate
 	 * structures by itself, so each arena start is made and placed the way worldgen does, at its real position.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 2400)
@@ -236,7 +236,7 @@ public final class ReachWorldTests implements FabricGameTest {
 		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
 		Registry<Structure> structures = realm.getRegistryManager().get(RegistryKeys.STRUCTURE);
 		ChunkGenerator generator = realm.getChunkManager().getChunkGenerator();
-		// The three zone arenas and, since PLAN 21.3, the Smoldering Lord's courtyard in the final sector.
+		// The three zone arenas and the Smoldering Lord's courtyard in the final sector.
 		List<RealmArenas.Location> arenas = RealmArenas.all(realm);
 		context.assertTrue(arenas.size() == 4, "expected 3 zone arenas and the final one, found " + arenas.size());
 		for (String zone : List.of("a", "b", "c")) {
@@ -282,7 +282,7 @@ public final class ReachWorldTests implements FabricGameTest {
 		}
 		context.complete();
 	}
-	/** Ore drops (PLAN 9.5): counts per DESIGN §4.5, and the pickaxe each ore needs. */
+	/** Ore drops: counts per DESIGN §4.5, and the pickaxe each ore needs. */
 	@GameTest(templateName = EMPTY_STRUCTURE)
 	public void oresDropTheirMaterials(TestContext context) {
 		ServerWorld world = context.getWorld();
@@ -314,7 +314,6 @@ public final class ReachWorldTests implements FabricGameTest {
 				ore + " dropped " + drops + ", expected " + min + "–" + max + " " + item);
 	}
 
-	/** Each zone ore generates in its own zone only (PLAN 9.5). */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 2400)
 	public void zoneOresStayInTheirZone(TestContext context) {
 		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
@@ -345,7 +344,7 @@ public final class ReachWorldTests implements FabricGameTest {
 		}
 		context.complete();
 	}
-	/** Roads (PLAN 9.6, 14.2): paved along the line, a milestone and lit lantern posts beside it, outposts with their chest. */
+	/** Roads: paved along the line, a milestone and lit lantern posts beside it, outposts with their chest. */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 2400)
 	public void roadsArePavedWithMilestonesAndOutposts(TestContext context) {
 		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
@@ -396,7 +395,7 @@ public final class ReachWorldTests implements FabricGameTest {
 		context.complete();
 	}
 
-	/** The crossroads plaza (PLAN 9.6): a gap with lantern posts where each road leaves, the shrine in the middle. */
+	/** The crossroads plaza: a gap with lantern posts where each road leaves, the shrine in the middle. */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 1200)
 	public void landingPlazaOpensOntoTheRoads(TestContext context) {
 		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
@@ -442,7 +441,7 @@ public final class ReachWorldTests implements FabricGameTest {
 		return false;
 	}
 	/**
-	 * Minor structures (PLAN 9.7): each one built at a spot of its zone the way worldgen does, with every placed-enemy
+	 * Minor structures: each one built at a spot of its zone the way worldgen does, with every placed-enemy
 	 * marker turned into air and its chest (if any) pointing at a zone table.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 2400)
@@ -450,7 +449,7 @@ public final class ReachWorldTests implements FabricGameTest {
 		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
 		Registry<Structure> structures = realm.getRegistryManager().get(RegistryKeys.STRUCTURE);
 		ChunkGenerator generator = realm.getChunkManager().getChunkGenerator();
-		// Each zone's middle line (the final sector, with the Citadel, is +Z since PLAN 21.1 / 21.3).
+		// Each zone's middle line (the final sector, with the Citadel, is +Z).
 		RealmLayout.Sectors sectors = Realms.ASHEN_REACH.sectors();
 		Map<String, Double> zoneAngles = Map.of("fields", Math.toDegrees(sectors.openCenter(0)),
 				"woods", Math.toDegrees(sectors.openCenter(1)), "necropolis", Math.toDegrees(sectors.openCenter(2)));
@@ -489,7 +488,7 @@ public final class ReachWorldTests implements FabricGameTest {
 		context.complete();
 	}
 
-	/** Minor structure starts (PLAN 9.7) keep clear of the roads, the arena sites and the plaza. */
+	/** Minor structure starts keep clear of the roads, the arena sites and the plaza. */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 400)
 	public void minorStructuresStayOffRoads(TestContext context) {
 		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
@@ -523,7 +522,7 @@ public final class ReachWorldTests implements FabricGameTest {
 		context.assertTrue(starts >= 150, "only " + starts + " minor structure starts in 1200 blocks around the landing");
 		context.complete();
 	}
-	/** The Necropolis crypt (PLAN 9.8): entrance, junction, halls, and always the lower crypt with the treasure. */
+	/** The Necropolis crypt: entrance, junction, halls, and always the lower crypt with the treasure. */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 2400)
 	public void cryptReachesTheLowerCrypt(TestContext context) {
 		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());
@@ -558,7 +557,7 @@ public final class ReachWorldTests implements FabricGameTest {
 		}
 		context.complete();
 	}
-	/** The world edge (PLAN 9.9): a standing stretch of the border wall and the start of each broken bridge. */
+	/** The world edge: a standing stretch of the border wall and the start of each broken bridge. */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 2400)
 	public void edgeHasWallAndBridges(TestContext context) {
 		ServerWorld realm = context.getWorld().getServer().getWorld(Realms.ASHEN_REACH.world());

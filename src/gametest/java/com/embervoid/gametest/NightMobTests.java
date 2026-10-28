@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Night mobs and full moon waves (PLAN 8.7–8.9) on a real server player. The moon night is global, so every test
+ * Night mobs and full moon waves on a real server player. The moon night is global, so every test
  * that starts one runs in a batch of its own (tests of one batch run at the same time; batches one after another)
  * and stops the night at the end.
  */
@@ -114,7 +114,7 @@ public final class NightMobTests implements FabricGameTest {
 	}
 
 	/**
-	 * A Ghost wave ends when its player dies (R40.1c): the Ghosts vanish and the wave's hold is released, while the
+	 * A Ghost wave ends when its player dies: the Ghosts vanish and the wave's hold is released, while the
 	 * death still adds its curse stack. Another hold keeps the night on, as another player's wave would.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "nightmobs_ghost_death", tickLimit = 100)
@@ -145,7 +145,6 @@ public final class NightMobTests implements FabricGameTest {
 		}).run();
 	}
 
-	/** Stopping the night removes the wave mobs. */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "nightmobs_stop", tickLimit = 60)
 	public void stoppingTheNightRemovesTheWave(TestContext context) {
 		ServerPlayerEntity player = TestPlayers.create(context, 2, 2);
@@ -185,7 +184,6 @@ public final class NightMobTests implements FabricGameTest {
 		}).run();
 	}
 
-	/** A Ghost inside solid blocks takes no suffocation damage. */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "nightmobs_ghost", tickLimit = 80)
 	public void ghostDoesNotSuffocate(TestContext context) {
 		for (int x = 1; x <= 3; x++) {
@@ -282,10 +280,6 @@ public final class NightMobTests implements FabricGameTest {
 	}
 
 	/**
-	 * Runs {@code body}; if an assertion fails, stops the night and removes the player first, so a failed test does
-	 * not leave a full moon (and its wave) running into the next batches.
-	 */
-	/**
 	 * Kills the wave next to its player. Wave mobs spawn 16–32 blocks out, and as the suite grows the test can sit
 	 * where some of those chunks are not entity-ticking: a mob killed there never finishes dying (no removal, no
 	 * wave cleared). Brought next to the player first, they all tick.
@@ -297,6 +291,10 @@ public final class NightMobTests implements FabricGameTest {
 		}
 	}
 
+	/**
+	 * Runs {@code body}; if an assertion fails, stops the night and removes the player first, so a failed test does
+	 * not leave a full moon (and its wave) running into the next batches.
+	 */
 	private static Runnable safe(TestContext context, ServerPlayerEntity player, Runnable body) {
 		return () -> {
 			try {

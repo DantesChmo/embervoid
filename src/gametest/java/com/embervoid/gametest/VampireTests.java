@@ -42,7 +42,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 /**
- * The blood new moon's Vampires, their boss and its arena (PLAN 8.10–8.12) on a real server. The test world has the
+ * The blood new moon's Vampires, their boss and its arena on a real server. The test world has the
  * datapack dimensions ({@code TestServerDimensionsMixin}), so the boss fights in {@code embervoid:vampire_arena} and
  * test players are pulled in and sent back as real ones would be.
  *
@@ -287,7 +287,7 @@ public final class VampireTests implements FabricGameTest {
 		});
 	}
 
-	/** The Blood Leap's landing shakes and flashes for the fighter (PLAN 19.2), not before it comes down. */
+	/** The Blood Leap's landing shakes and flashes for the fighter, not before it comes down. */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "vampire_leap_fx", tickLimit = FORM_LIMIT + 200)
 	public void leapLandingShakes(TestContext context) {
 		Fight fight = new Fight(context, null);

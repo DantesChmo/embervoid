@@ -15,7 +15,7 @@ import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 
 /**
- * Ashen Fields mobs (PLAN 10.2, 10.3): Cinder Husk, Ash Stalker, Ashen Carrion. Tests where a mob reacts to players
+ * Ashen Fields mobs: Cinder Husk, Ash Stalker, Ashen Carrion. Tests where a mob reacts to players
  * or chases a target run in a batch of their own, so no other test's player is around.
  */
 public final class ReachFieldsTests implements FabricGameTest {
@@ -25,7 +25,6 @@ public final class ReachFieldsTests implements FabricGameTest {
 		CowEntity target = ReachTests.dummy(context, 2, 6);
 		CinderHuskEntity husk = ReachTests.mob(context, ReachMobs.CINDER_HUSK, 2, 0, 2);
 		husk.setTarget(target);
-		// Its own batch: no other test's player around to draw it off.
 		int[] windupStart = {-1};
 		for (int tick = 1; tick <= 100; tick++) {
 			int now = tick;
@@ -71,7 +70,6 @@ public final class ReachFieldsTests implements FabricGameTest {
 		}));
 	}
 
-	/** A player wearing the Scarecrow's Mask walks right past a buried Ash Stalker. */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 80, batchId = "reach_stalker_immune")
 	public void scarecrowMaskKeepsTheStalkerBuried(TestContext context) {
 		ServerPlayerEntity player = ReachTests.player(context, 2, 4);

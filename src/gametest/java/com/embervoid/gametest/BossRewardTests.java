@@ -14,7 +14,7 @@ import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 
 /**
- * Souls and Flask Shards (PLAN 12.6): a Realm 1 zone boss's first kill gives its soul and a Flask Shard, personal, no
+ * Souls and Flask Shards: a Realm 1 zone boss's first kill gives its soul and a Flask Shard, personal, no
  * Ember Heart; a repeat kill gives the soul at {@code boss.repeatSoulChance}. The framework's test boss stands in
  * for the boss (the reward follows the progress id).
  */
