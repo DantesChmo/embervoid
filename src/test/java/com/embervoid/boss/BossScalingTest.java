@@ -28,4 +28,30 @@ class BossScalingTest {
 		int mid = BossScaling.switchTicks(8, 10, 0.5);
 		assertTrue(mid > 160 && mid < 200);
 	}
+
+	@Test
+	void switchTimeIsAtLeastOneTick() {
+		assertEquals(1, BossScaling.switchTicks(0, 0, 0.5));
+	}
+
+	@Test
+	void switchTimeGrowsWithTheRoll() {
+		int previous = 0;
+		for (double roll = 0; roll < 1; roll += 0.1) {
+			int ticks = BossScaling.switchTicks(8, 10, roll);
+			assertTrue(ticks >= previous);
+			previous = ticks;
+		}
+	}
+
+	@Test
+	void noExtraHealthOrAddsWhenScalingIsOff() {
+		assertEquals(1.0, BossScaling.healthMultiplier(4, 0), 1e-9);
+		assertEquals(0, BossScaling.adds(4, 0));
+	}
+
+	@Test
+	void addsScaleWithTheirPerFighterCount() {
+		assertEquals(6, BossScaling.adds(4, 2));
+	}
 }
