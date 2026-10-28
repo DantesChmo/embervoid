@@ -51,7 +51,6 @@ import java.util.function.BiConsumer;
  * bosses play their own events for ambient, hurt and their telegraphs. Sounds are read from {@link SoundLog}.
  */
 public final class SoundTests implements FabricGameTest {
-	/** How close to the entity a sound must have been played. */
 	private static final double NEAR = 0.5;
 
 	/** Registry, sounds.json and every lang file agree; music aside, every event has a subtitle. */

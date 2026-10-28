@@ -253,7 +253,7 @@ public final class MinorTemplates {
 				}
 			}
 		}
-		// A hoist over the barn door, its crate swaying.
+		// Over the barn door.
 		r.set(7, 6, 0, SetPieces.GRANARY_HOIST.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH));
 		r.fill(1, 1, 7, 3, 2, 9, STRAW);
 		r.fill(11, 1, 7, 13, 3, 9, STRAW, Ruin.AIR, 0.3);
@@ -363,7 +363,7 @@ public final class MinorTemplates {
 		r.clear(5, 5, 1, 5, 6, 1);
 		r.set(4, 5, 1, log(Direction.Axis.Y)).set(6, 5, 1, log(Direction.Axis.Y)).set(5, 7, 1, stair(COBBLE_BRICK_STAIRS, Direction.SOUTH, true));
 		r.t.soot(5, 8, 1, 2, SOOTY, r.random);
-		r.set(5, 8, 1, SetPieces.GRANARY_HOIST.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH)); // the granary's hoist
+		r.set(5, 8, 1, SetPieces.GRANARY_HOIST.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH));
 		r.mob(4, 1, 3, z.fodder(), Direction.SOUTH).mob(6, 1, 5, z.fodder(), Direction.SOUTH);
 		r.mob(9, 10, 9, z.elite(), Direction.NORTH);
 		return r.build();
@@ -409,7 +409,7 @@ public final class MinorTemplates {
 		r.set(1, 1, 1, FENCE).set(7, 1, 1, FENCE).set(1, 1, 5, FENCE).set(7, 1, 5, FENCE);
 		r.set(1, 2, 5, LANTERN.with(LanternBlock.HANGING, false));
 		r.set(7, 1, 6, Props.BONE_PILE.getDefaultState().with(PropBlock.FACING, Direction.WEST));
-		r.set(5, 6, 3, SetPieces.HANGING_CAGE.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH)); // a gibbet cage swinging from the beam
+		r.set(5, 6, 3, SetPieces.HANGING_CAGE.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH)); // from the beam
 		r.mob(4, 2, 3, z.fodder(), Direction.NORTH).mob(4, 1, 6, z.fodder(), Direction.NORTH);
 		return r.build();
 	}
@@ -587,7 +587,7 @@ public final class MinorTemplates {
 		r.set(5, 7, 9, LANTERN.with(LanternBlock.HANGING, true));
 		r.set(9, 8, 5, LANTERN.with(LanternBlock.HANGING, true));
 		r.set(5, 11, 5, Blocks.MOSS_CARPET.getDefaultState()).set(3, 1, 7, Props.BONE_PILE.getDefaultState());
-		r.set(5, 7, 7, SetPieces.HANGING_CAGE.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH)); // one more cage, swinging
+		r.set(5, 7, 7, SetPieces.HANGING_CAGE.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH));
 		return r.build();
 	}
 
@@ -668,7 +668,7 @@ public final class MinorTemplates {
 		r.set(1, 1, sz - 2, Props.ASH_URNS.getDefaultState().with(StackedPropBlock.COUNT, large ? 3 : 1).with(PropBlock.FACING, Direction.EAST));
 		r.rubbleAlong(0, 0, sx - 1, sz - 1, 1, 2);
 		if (large) {
-			r.set(door, top, 3, SetPieces.GREAT_BELL.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH)); // the tomb's bell under the ceiling
+			r.set(door, top, 3, SetPieces.GREAT_BELL.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH)); // under the ceiling
 		}
 		if (large) {
 			r.mob(door - 1, 1, 2, z.tank(), Direction.NORTH).mob(door + 1, 1, 2, z.tank(), Direction.NORTH);
