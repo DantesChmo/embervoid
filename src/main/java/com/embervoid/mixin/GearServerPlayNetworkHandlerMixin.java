@@ -13,8 +13,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Long weapon reach (track reach-gear): a swing with a whip attacks what it points at, up to 6 blocks. Every swing
- * also plays our weapons' attack animation (PLAN 17.1).
+ * Long weapon reach: a swing with a whip attacks what it points at, up to 6 blocks. Every swing
+ * also plays our weapons' attack animation.
  */
 @Mixin(ServerPlayNetworkHandler.class)
 abstract class GearServerPlayNetworkHandlerMixin {

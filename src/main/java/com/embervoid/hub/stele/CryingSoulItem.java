@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * Crying Soul: what is left of the Fallen Sister (DESIGN §2). Used on a cold Cleft Stele it kindles the stele and is
+ * Crying Soul: what is left of the Fallen Sister. Used on a cold Cleft Stele it kindles the stele and is
  * used up; on anything else, or in a world where steles do not burn ({@link CleftStele#canKindleIn}), nothing happens
  * and it is kept.
  */

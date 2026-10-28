@@ -45,7 +45,6 @@ public final class SetPieceCap {
 		});
 	}
 
-	/** Set pieces in a loaded chunk. */
 	public static List<BlockPos> piecesIn(World world, ChunkPos chunk) {
 		List<BlockPos> pieces = new ArrayList<>();
 		if (!world.isChunkLoaded(chunk.x, chunk.z)) {
@@ -60,7 +59,6 @@ public final class SetPieceCap {
 		return pieces;
 	}
 
-	/** Whether the chunk of {@code pos} already holds the cap. */
 	public static boolean isFull(World world, BlockPos pos) {
 		return piecesIn(world, new ChunkPos(pos)).size() >= SetPieceConfig.get().maxPerChunk();
 	}

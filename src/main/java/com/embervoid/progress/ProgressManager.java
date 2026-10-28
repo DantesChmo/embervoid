@@ -118,7 +118,6 @@ public final class ProgressManager {
 		changed(player, progress);
 	}
 
-	/** Sends the player's progress to their client. */
 	public static void sync(ServerPlayerEntity player) {
 		PacketByteBuf buf = PacketByteBufs.create();
 		get(player).write(buf);

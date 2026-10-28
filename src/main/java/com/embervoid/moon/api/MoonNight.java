@@ -2,7 +2,6 @@ package com.embervoid.moon.api;
 
 import com.embervoid.config.SectionReader;
 
-/** Which moon night is on (DESIGN §3.3). */
 public enum MoonNight {
 	/** An ordinary night, or day. */
 	NONE,

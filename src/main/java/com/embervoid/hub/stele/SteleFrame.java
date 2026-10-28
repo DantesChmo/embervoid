@@ -10,13 +10,13 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /**
- * The shape of a Cleft Stele (DESIGN §2), one of two:
+ * The shape of a Cleft Stele, one of two:
  * <ul>
- *   <li>{@link Shape#CIRCLE}, the ritual circle (0.5.3): a centre stone and four pillars {@link #PILLAR_HEIGHT} tall
+ *   <li>{@link Shape#CIRCLE}, the ritual circle: a centre stone and four pillars {@link #PILLAR_HEIGHT} tall
  *   {@link #RADIUS} blocks out from it on each side, all Cleft Stone, the {@link #COLUMN} blocks over the centre open;
  *   kindled, a column of mist (the rift) rises there. {@link #origin} is the centre stone; {@link #axis} means
  *   nothing.</li>
- *   <li>{@link Shape#SLAB}, the slab of 0.5.0–0.5.2, still kindled and still working where it was built: a flat slab
+ *   <li>{@link Shape#SLAB}, the older slab, still kindled and still working where it was built: a flat slab
  *   {@link #WIDTH} wide and {@link #HEIGHT} tall, two columns of Cleft Stone on each side and the middle column open,
  *   the crack. It stands along X or along Z; {@link #origin} is the bottom block of the leftmost column (the lowest X
  *   or Z of the slab).</li>
@@ -39,13 +39,11 @@ public record SteleFrame(BlockPos origin, Direction.Axis axis, Shape shape) {
 		CIRCLE
 	}
 
-	/** What a block counts as for a frame. */
 	public enum Cell {
 		/** Cleft Stone, cold or kindled. */
 		STONE,
 		/** Free for the passage: air, a replaceable plant, or the crack or rift itself. */
 		OPEN,
-		/** Anything else. */
 		OTHER
 	}
 
@@ -54,7 +52,6 @@ public record SteleFrame(BlockPos origin, Direction.Axis axis, Shape shape) {
 		this(origin, axis, Shape.SLAB);
 	}
 
-	/** A ritual circle around the centre stone {@code centre}. */
 	public static SteleFrame circle(BlockPos centre) {
 		return new SteleFrame(centre, Direction.Axis.X, Shape.CIRCLE);
 	}

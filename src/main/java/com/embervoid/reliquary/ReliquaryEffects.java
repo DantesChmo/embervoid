@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * What worn accessories do outside their own items: artifact stat points through the stat system (not counted in
  * level or level cost), and the Reliquary as a death stash, so accessories go into the Ash Remnant with the inventory
- * and follow its rules (DESIGN §4.5).
+ * and follow its rules.
  */
 final class ReliquaryEffects {
 	static void register() {

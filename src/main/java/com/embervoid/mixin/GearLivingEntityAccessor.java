@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 /**
- * The attack cooldown counter (track reach-gear): the Warden's Scourge attacks every mob on its lash with one swing,
+ * The attack cooldown counter: the Warden's Scourge attacks every mob on its lash with one swing,
  * and each vanilla attack resets the cooldown, so each mob gets the swing's own charge back.
  */
 @Mixin(LivingEntity.class)

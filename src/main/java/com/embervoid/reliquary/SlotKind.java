@@ -8,12 +8,11 @@ import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 
 /**
- * One kind of Reliquary slot (DESIGN §4.5): which items fit it (an item tag) and how many slots of it a player has
+ * One kind of Reliquary slot: which items fit it (an item tag) and how many slots of it a player has
  * (config {@code reliquary.slots.<name>}, default {@code defaultCount}). A later realm adds a kind with one more
  * constant in {@link SlotKinds}; its items go into the kind's tag.
  *
  * @param name         id within the Reliquary, saved with the player (e.g. {@code artifact})
- * @param tagId        id of the item tag of the items that fit
  * @param defaultCount slots of this kind when the config does not say otherwise
  */
 public record SlotKind(String name, Identifier tagId, int defaultCount) {

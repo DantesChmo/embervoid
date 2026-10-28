@@ -3,7 +3,7 @@ package com.embervoid.player;
 import com.embervoid.registry.ModSounds;
 import net.minecraft.sound.SoundEvent;
 
-/** Sound events of the player systems: flask, Ash Remnant, stamina (PLAN L3); vanilla files remapped in assets/embervoid/sounds.json. */
+/** Sound events of the player systems: flask, Ash Remnant, stamina; vanilla files remapped in assets/embervoid/sounds.json. */
 public final class PlayerSounds {
 	public static final SoundEvent FLASK_DRINK = ModSounds.register("item.healing_flask.drink");
 	public static final SoundEvent FLASK_EMPTY = ModSounds.register("item.healing_flask.empty");

@@ -7,7 +7,7 @@ import com.embervoid.mob.MobLevelRules;
 import com.google.gson.JsonObject;
 
 /**
- * The {@code nightMobs} config section: the full moon's own mobs and their waves (DESIGN §3.3, PLAN 8.7–8.9). Kept
+ * The {@code nightMobs} config section: the full moon's own mobs and their waves (DESIGN §3.3). Kept
  * apart from the {@code moon} section, which belongs to the moon-night state; a file holds one section per name.
  *
  * @param zombieLevelBonus levels an Ashen Zombie of a wave gets on top of the spot's level

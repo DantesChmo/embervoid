@@ -7,7 +7,7 @@ import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-/** Which template a placed jigsaw piece was made from (the Sanctum's arena, PLAN 16.1). */
+/** Which template a placed jigsaw piece was made from (the Sanctum's arena). */
 @Mixin(SinglePoolElement.class)
 public interface SinglePoolElementAccessor {
 	@Accessor("location")

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 /**
- * Props of the burnt kingdom (PLAN 20.3): decor with a shape and a hitbox of its own instead of a textured cube.
+ * Props of the burnt kingdom: decor with a shape and a hitbox of its own instead of a textured cube.
  * Models and textures from tools/prop_art.py; blockstates, loot and tags from PropDataGen.
  */
 public final class Props {

@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The Reliquary API: a player's accessory slots (DESIGN §4.5), stored in their own attachment and synced to the
+ * The Reliquary API: a player's accessory slots, stored in their own attachment and synced to the
  * owning client.
  *
  * <p>Read with {@link #get} / {@link #has} on either side (the client holds a synced copy of its own player's
@@ -64,7 +64,6 @@ public final class ReliquaryManager {
 		void onChanged(ServerPlayerEntity player);
 	}
 
-	/** One accessory slot: its kind and index within the kind. */
 	public record SlotRef(SlotKind kind, int slot) {}
 
 	@SuppressWarnings("UnstableApiUsage")
@@ -188,7 +187,6 @@ public final class ReliquaryManager {
 				leftovers.size(), player.getGameProfile().getName());
 	}
 
-	/** Sends the player's Reliquary to their client. */
 	public static void sync(ServerPlayerEntity player) {
 		PacketByteBuf buf = PacketByteBufs.create();
 		get(player).write(buf);
@@ -200,7 +198,6 @@ public final class ReliquaryManager {
 		CHANGED.invoker().onChanged(player);
 	}
 
-	/** Opens the Reliquary screen for the player. */
 	public static void open(ServerPlayerEntity player) {
 		List<SlotRef> slots = slots();
 		player.openHandledScreen(new ExtendedScreenHandlerFactory() {

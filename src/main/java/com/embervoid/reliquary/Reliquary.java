@@ -20,7 +20,6 @@ import java.util.Map;
  * outside the current slots ({@link ReliquaryManager#slots()}) until they are handed back.
  */
 public final class Reliquary {
-	/** One saved stack. */
 	private record Entry(String kind, int slot, ItemStack stack) {
 		static final Codec<Entry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.STRING.fieldOf("kind").forGetter(Entry::kind),
@@ -62,12 +61,10 @@ public final class Reliquary {
 		list.set(slot, stack);
 	}
 
-	/** Whether any slot holds {@code item}. */
 	public boolean contains(Item item) {
 		return stacks.values().stream().flatMap(List::stream).anyMatch(stack -> stack.isOf(item));
 	}
 
-	/** Whether any slot of {@code kind} holds {@code item}. */
 	public boolean contains(SlotKind kind, Item item) {
 		return stacks.getOrDefault(kind.name(), List.of()).stream().anyMatch(stack -> stack.isOf(item));
 	}

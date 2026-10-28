@@ -10,7 +10,7 @@ import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
-/** Enemies and bosses. Attributes go through FabricDefaultAttributeRegistry. */
+/** Attributes go through FabricDefaultAttributeRegistry. */
 public final class ModEntities {
 	public static final EntityType<AshRemnantEntity> ASH_REMNANT = register("ash_remnant",
 			FabricEntityTypeBuilder.<AshRemnantEntity>create(SpawnGroup.MISC, AshRemnantEntity::new)

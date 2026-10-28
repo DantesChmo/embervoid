@@ -18,8 +18,8 @@ import java.util.Set;
  * <p>Realms and bosses are plain ids owned by the realms track (e.g. {@code embervoid:realm_1}). Mutate through
  * {@link ProgressManager} on the server so the change is synced; the getters here are safe on both sides.
  *
- * <p>The {@code attuned} flag of 0.4.x saves is ignored: attunement is gone (PLAN 15.2). A player attuned then has
- * Realm 1 among the unlocked realms anyway.
+ * <p>An {@code attuned} flag in old saves is ignored; a player who had it has Realm 1 among the unlocked realms
+ * anyway.
  */
 public final class PlayerProgress {
 	// Unknown keys are skipped, so the old "attuned" is dropped on load.

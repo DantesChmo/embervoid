@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.function.IntSupplier;
 
 /**
- * An artifact (DESIGN §4.5): worn in a Reliquary artifact slot, it adds stat points that count in every stat effect
+ * An artifact: worn in a Reliquary artifact slot, it adds stat points that count in every stat effect
  * but not in the character level, the level cost or the stat cap ({@link ReliquaryEffects}). Its item id goes into
  * {@code #embervoid:artifacts}.
  */
@@ -28,7 +28,6 @@ public class ArtifactItem extends Item {
 
 	/**
 	 * @param amount points per stat (read from config each time, so a config change applies at once)
-	 * @param stats  the stats it raises
 	 */
 	public ArtifactItem(Settings settings, IntSupplier amount, Stat... stats) {
 		super(settings.maxCount(1));
@@ -36,7 +35,6 @@ public class ArtifactItem extends Item {
 		this.amount = amount;
 	}
 
-	/** Points it gives, by stat. */
 	public Map<Stat, Integer> points() {
 		Map<Stat, Integer> points = new EnumMap<>(Stat.class);
 		int value = amount.getAsInt();

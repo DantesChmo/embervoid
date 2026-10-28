@@ -16,18 +16,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Accessory drops (PLAN 11.13, DESIGN §4.5): an artifact pool and a ring pool, injected with
+ * Accessory drops: an artifact pool and a ring pool, injected with
  * {@link LootTableEvents#MODIFY} into each zone's treasure chest table (artifact 8 %, ring 5 %) and its elite's loot
  * table (2 % / 1 %, player kills only). Each zone drops only its own accessories. Chances in config
  * {@code reliquary.drops}.
  *
- * <p>Table ids are the fixed 0.4.0 contract ids (PLAN "0.4.0"): the chest tables are track reach-gear's, the mob
- * tables track reach-mobs'. A table that does not exist yet is simply not modified. Elites are the bestiary's elite
+ * <p>Table ids are a fixed contract with the reach chest and mob loot tables. A table that does not exist yet is simply not modified. Elites are the bestiary's elite
  * role: Ashen Carrion (Fields), Grave Warden (Necropolis), Smoldering Knight (Citadel); the Woods have none, so its
  * accessories come from the hunting lodge chest only.
  */
 public final class ReliquaryLoot {
-	/** One zone's accessories and where they drop. */
 	public record Zone(String name, List<Item> artifacts, List<Item> rings, @Nullable Identifier elite) {
 		public Identifier treasureChest() {
 			return Embervoid.id("chests/ashen_reach/" + name + "_treasure");

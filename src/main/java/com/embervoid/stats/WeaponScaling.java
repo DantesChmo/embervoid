@@ -44,7 +44,6 @@ public final class WeaponScaling {
 	private static final List<Function<ItemStack, Scaling>> MELEE_RULES = new ArrayList<>();
 	private static final List<Function<ItemStack, Scaling>> RANGED_RULES = new ArrayList<>();
 
-	/** Adds a rule for melee weapons (e.g. Embervoid weapons later). */
 	public static void addMeleeRule(Function<ItemStack, Scaling> rule) {
 		MELEE_RULES.add(rule);
 	}
@@ -54,7 +53,6 @@ public final class WeaponScaling {
 		RANGED_RULES.add(rule);
 	}
 
-	/** Scaling of a weapon swung in melee. */
 	public static Scaling melee(ItemStack stack) {
 		Scaling custom = firstMatch(MELEE_RULES, stack);
 		if (custom != null) {
@@ -72,7 +70,6 @@ public final class WeaponScaling {
 		return Scaling.NONE;
 	}
 
-	/** Scaling of a weapon that fired or threw a projectile. */
 	public static Scaling ranged(ItemStack stack) {
 		Scaling custom = firstMatch(RANGED_RULES, stack);
 		if (custom != null) {

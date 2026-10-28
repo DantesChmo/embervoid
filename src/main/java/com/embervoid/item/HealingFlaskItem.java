@@ -35,7 +35,7 @@ import java.util.function.ToDoubleFunction;
  * stopping early loses the rest. No drinking while sprinting, and a short recovery after each sip.
  */
 public class HealingFlaskItem extends Item {
-	/** Extra health per flask heal upgrade (Flask Shards, later). */
+	/** Extra health per flask heal upgrade, in half-hearts. */
 	public static final float HEAL_PER_UPGRADE = 2.0f;
 
 	private static final int BAR_COLOR = 0xE8833A;

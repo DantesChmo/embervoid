@@ -1,7 +1,7 @@
 package com.embervoid.fx;
 
 /**
- * The pure maths of camera shake (PLAN 19.2): how it fades with distance from its source, how one shake rises and dies
+ * The pure maths of camera shake: how it fades with distance from its source, how one shake rises and dies
  * away, and the wobble itself. The client sums every running shake, caps it and turns it into a camera rotation.
  *
  * <p>Strength is in "slams": 1 is a boss landing next to you, {@value #MAX_DEGREES}° of camera wobble at its peak.

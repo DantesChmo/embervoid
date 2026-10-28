@@ -41,17 +41,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The hub, Ember Sanctum (PLAN 15.1, DESIGN §2): dimension {@code embervoid:hub}, an island in a void under a fixed
- * dusk, shared by every player. It holds the old Sanctum core: the Ashen Maiden, the ring of Void Obelisks (dark, lit
- * or kindled per player, as in the Sanctum) and an Ember Shrine (rest and flask refill; the hub is not a realm, so
- * resting there sets no respawn point). Layout in {@link HubLayout}.
+ * The hub, Ember Sanctum: dimension {@code embervoid:hub}, an island in a void under a fixed dusk, shared by every
+ * player. It holds the Ashen Maiden, the ring of Void Obelisks (dark, lit or kindled per player) and an Ember Shrine
+ * (rest and flask refill; the hub is not a realm, so resting there sets no respawn point). Layout in
+ * {@link HubLayout}.
  *
  * <ul>
  *   <li>The hub structure is placed once per world, when the server first starts with the dimension
  *   ({@link HubState} remembers it); nothing rebuilds it later.</li>
  *   <li>Outside creative nothing can be broken or built in the whole dimension, like in arenas.</li>
  *   <li>Leaving a realm lands here; the way in from the overworld is the world's lit Cleft Stele, the way out the
- *   hub's own ({@code hub.stele.SteleTravel}, PLAN 15.4). Travel in and out: {@link HubTravel}.</li>
+ *   hub's own ({@code hub.stele.SteleTravel}). Travel in and out: {@link HubTravel}.</li>
  * </ul>
  */
 public final class Hub {
@@ -114,7 +114,6 @@ public final class Hub {
 		return true;
 	}
 
-	/** The space the hub template covers. */
 	public static Box area() {
 		BlockPos origin = HubLayout.TEMPLATE_ORIGIN;
 		return new Box(origin, origin.add(HubLayout.TEMPLATE_SIZE_XZ, HubLayout.TEMPLATE_SIZE_Y, HubLayout.TEMPLATE_SIZE_XZ));

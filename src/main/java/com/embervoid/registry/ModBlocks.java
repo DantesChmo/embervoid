@@ -23,7 +23,6 @@ import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
-/** Blocks: dungeon building blocks, bonfire, biome decor. */
 public final class ModBlocks {
 	// Ash stone: dark stone with smouldering veins, the main dungeon material.
 	public static final Block ASH_STONE = register("ash_stone", new Block(AbstractBlock.Settings.copy(Blocks.DEEPSLATE)));
@@ -48,7 +47,7 @@ public final class ModBlocks {
 	public static final Block CRACKED_ASH_BRICKS = register("cracked_ash_bricks", new Block(AbstractBlock.Settings.copy(Blocks.CRACKED_DEEPSLATE_BRICKS)));
 	public static final Block CHISELED_ASH_STONE = register("chiseled_ash_stone", new Block(AbstractBlock.Settings.copy(Blocks.CHISELED_DEEPSLATE)));
 
-	// The wider building palette of the 0.5.0 art pass (docs/art-direction.md §3): floors, trims, details and roofs.
+	// The building palette (docs/art-direction.md §3): floors, trims, details and roofs.
 	public static final Block ASH_TILES = register("ash_tiles", new Block(AbstractBlock.Settings.copy(Blocks.DEEPSLATE_TILES)));
 	public static final Block ASH_TILE_STAIRS = register("ash_tile_stairs", stairs(ASH_TILES));
 	public static final Block ASH_TILE_SLAB = register("ash_tile_slab", new SlabBlock(AbstractBlock.Settings.copy(ASH_TILES)));

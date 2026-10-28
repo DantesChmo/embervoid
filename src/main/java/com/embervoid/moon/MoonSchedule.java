@@ -3,7 +3,7 @@ package com.embervoid.moon;
 import com.embervoid.moon.api.MoonNight;
 
 /**
- * When moon nights happen (DESIGN §3.3), as pure functions of the overworld's time of day.
+ * When moon nights happen, as pure functions of the overworld's time of day.
  *
  * <p>A day starts at sunrise (time of day 0 mod 24000), like vanilla's moon phase: day {@code d} has moon phase
  * {@code d % 8} and its night is that day's evening to the next sunrise. Lunar cycle {@code c = d / 8}. Events come in

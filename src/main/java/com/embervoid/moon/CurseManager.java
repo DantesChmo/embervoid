@@ -19,7 +19,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 /**
- * Curse of the Night (DESIGN §3.3, §10.12, PLAN 8.5). A player's death adds a stack when the killer is a hostile mob
+ * Curse of the Night. A player's death adds a stack when the killer is a hostile mob
  * or the owner of its projectile, anywhere (realms and bosses included). Deaths without an attacking mob (falls,
  * drowning, suffocation, lava, the void) and kills by players add nothing. All stacks reset when a full moon ends.
  *
@@ -27,7 +27,6 @@ import net.minecraft.util.Formatting;
  * that have ended) at the time; stacks from an older epoch count as zero, so offline players reset too.
  */
 public final class CurseManager {
-	/** A player's stacks and the curse epoch they were gathered in. */
 	record Curse(int stacks, long epoch) {
 		static final Codec<Curse> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.INT.fieldOf("stacks").forGetter(Curse::stacks),

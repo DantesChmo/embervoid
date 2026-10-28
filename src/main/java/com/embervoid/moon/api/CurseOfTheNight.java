@@ -4,7 +4,7 @@ import com.embervoid.moon.CurseManager;
 import net.minecraft.entity.player.PlayerEntity;
 
 /**
- * Curse of the Night (DESIGN §3.3, PLAN 8.5): stacks a player gathers by dying to hostile mobs (players, falls,
+ * Curse of the Night: stacks a player gathers by dying to hostile mobs (players, falls,
  * drowning, suffocation, lava and the void do not count); they reset when the full moon ends. Server side.
  */
 public final class CurseOfTheNight {

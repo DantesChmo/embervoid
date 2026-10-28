@@ -13,7 +13,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 /**
- * The hub's own Cleft Stele (PLAN 15.4, DESIGN §2): built lit into the hub template at {@link HubLayout#STELE_CRACK_BOTTOM},
+ * The hub's own Cleft Stele: built lit into the hub template at {@link HubLayout#STELE_CRACK_BOTTOM},
  * the hub's way out ({@link SteleTravel#leaveHub}). Always lit and never the world's stele: nobody can break it, not
  * even in creative, and if a stone goes some other way (a command) it is lit again right after. A hub placed before this
  * stele existed gets it on the next server start.

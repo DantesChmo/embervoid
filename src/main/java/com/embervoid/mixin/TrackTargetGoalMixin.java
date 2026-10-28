@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Full moon: a hostile does not lose a player target that stays within its follow range (PLAN 8.4). */
+/** Full moon: a hostile does not lose a player target that stays within its follow range. */
 @Mixin(TrackTargetGoal.class)
 abstract class TrackTargetGoalMixin {
 	@Shadow

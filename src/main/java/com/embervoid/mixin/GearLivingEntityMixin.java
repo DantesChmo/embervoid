@@ -15,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Realm gear hooks (track reach-gear). */
 @Mixin(LivingEntity.class)
 abstract class GearLivingEntityMixin {
 	// Armor piece and set effects on incoming damage, before armor, enchantments and resistance are applied.

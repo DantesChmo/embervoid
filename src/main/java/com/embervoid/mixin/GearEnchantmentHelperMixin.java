@@ -15,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Realm gear and enchantments (track reach-gear). */
 @Mixin(EnchantmentHelper.class)
 abstract class GearEnchantmentHelperMixin {
 	// Drowned Sabatons: walking in water at full speed, as with Depth Strider III.

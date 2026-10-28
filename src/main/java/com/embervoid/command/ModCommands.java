@@ -35,7 +35,6 @@ public final class ModCommands {
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(
 				literal("embervoid").requires(source -> source.hasPermissionLevel(2))
 						.then(literal("data")
-								// /embervoid data: show the caller's player data as stored on the server.
 								.executes(context -> {
 									ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
 									context.getSource().sendFeedback(
@@ -55,7 +54,6 @@ public final class ModCommands {
 													return 1;
 												}))))
 						.then(literal("stamina")
-								// /embervoid stamina: show current/max.
 								.executes(context -> {
 									ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
 									context.getSource().sendFeedback(() -> Text.literal(
@@ -74,7 +72,6 @@ public final class ModCommands {
 																	+ StaminaManager.get(player) + "/" + StaminaManager.getMax(player)), false);
 													return spent ? 1 : 0;
 												})))
-								// /embervoid stamina set <value>
 								.then(literal("set")
 										.then(argument("value", FloatArgumentType.floatArg(0))
 												.executes(context -> {
@@ -84,7 +81,6 @@ public final class ModCommands {
 															"Stamina: " + StaminaManager.get(player) + "/" + StaminaManager.getMax(player)), false);
 													return 1;
 												}))))
-						// /embervoid stats: stats, level, next level cost and derived values.
 						.then(literal("stats")
 								.executes(context -> {
 									ServerPlayerEntity player = context.getSource().getPlayerOrThrow();

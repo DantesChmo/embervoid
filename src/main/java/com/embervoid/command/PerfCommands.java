@@ -27,7 +27,7 @@ import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
 /**
- * Operator-only measurements under {@code /embervoid perf}, read by {@code tools/server_check.py --perf} (PLAN R40.4b).
+ * Operator-only measurements under {@code /embervoid perf}, read by {@code tools/server_check.py --perf}.
  * Output is not translated on purpose and keeps a fixed shape the tool parses.
  *
  * <ul>

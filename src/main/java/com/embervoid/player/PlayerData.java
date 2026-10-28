@@ -61,13 +61,9 @@ public final class PlayerData {
 	public float stamina;
 	/** Healing Flask charges left; the flask item only shows and spends these (DESIGN §10.6). */
 	public int flaskCharges;
-	/** Extra flask charges from upgrades. */
 	public int flaskChargeUpgrades;
-	/** Extra flask heal from upgrades. */
 	public int flaskHealUpgrades;
-	/** Whether the player got their starting Healing Flask. */
 	public boolean receivedFlask;
-	/** The player's current Ash Remnant, or null if there is none. */
 	@Nullable
 	public UUID remnantId;
 

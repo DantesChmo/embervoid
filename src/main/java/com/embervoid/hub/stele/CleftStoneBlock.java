@@ -16,7 +16,7 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 
 /**
- * Cleft Stone, the stone of a Cleft Stele (PLAN 15.3). Cold as crafted; {@link #KINDLED} once a Crying Soul lights
+ * Cleft Stone, the stone of a Cleft Stele. Cold as crafted; {@link #KINDLED} once a Crying Soul lights
  * its stele, with glowing cracks. Losing a kindled stone puts the whole stele out ({@link CleftStele#putOut}).
  * Right-clicking a kindled stone goes through its stele ({@link SteleTravel#use}).
  */

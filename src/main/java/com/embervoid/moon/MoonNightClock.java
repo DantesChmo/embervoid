@@ -10,16 +10,13 @@ import com.embervoid.moon.api.MoonNights.EndReason;
 final class MoonNightClock {
 	/** What one server tick does to the moon night. */
 	sealed interface Step {
-		/** Nothing changes. */
 		record Idle() implements Step {}
 
-		/** {@code night} starts, for day {@code day}. */
 		record Start(MoonNight night, long day) implements Step {}
 
 		/** The night is held: the clock goes back to {@code timeOfDay}. */
 		record HoldClock(long timeOfDay) implements Step {}
 
-		/** The night ends. */
 		record End(EndReason reason) implements Step {}
 	}
 

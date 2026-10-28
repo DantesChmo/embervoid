@@ -5,8 +5,6 @@ package com.embervoid.stats;
  * and the config only, so the level-up screen can preview "what if this stat were one higher".
  *
  * @param maxHealth             max health, half-hearts (vanilla 20)
- * @param maxStamina            stamina pool
- * @param staminaRegenPerTick   stamina regenerated per tick
  * @param knockbackResistance   added knockback resistance (0–1 scale)
  * @param attackSpeedBonus      attack speed bonus, as a fraction (0.1 = +10%)
  * @param armorToughness        added armor toughness

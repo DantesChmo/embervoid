@@ -28,10 +28,9 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * The Cleft Stele (PLAN 15.3, DESIGN §2): a ritual circle of Cleft Stone, or the slab built before 0.5.3
- * ({@link SteleFrame}), that a Crying Soul kindles. This
- * class kindles it and puts it out; which stele is the world's lit one and where the crack leads is {@link SteleTravel}
- * (PLAN 15.4), which hooks {@link #KINDLED}, {@link #PUT_OUT} and {@link #onEnter}. The hub's own stele: {@link HubStele}.
+ * The Cleft Stele: a ritual circle of Cleft Stone, or the older slab ({@link SteleFrame}), that a Crying Soul
+ * kindles. This class kindles it and puts it out; which stele is the world's lit one and where the crack leads is
+ * {@link SteleTravel}, which hooks {@link #KINDLED}, {@link #PUT_OUT} and {@link #onEnter}. The hub's own stele: {@link HubStele}.
  */
 public final class CleftStele {
 	/** Fired on the server after a stele is kindled; {@code player} is null when no player did it. */
@@ -79,13 +78,12 @@ public final class CleftStele {
 
 	/**
 	 * Whether a stele can be kindled in {@code world}: the overworld, the Nether, the End (any world but the mod's own);
-	 * never in a realm, the hub or an arena (DESIGN §2 "Where"). Works on both sides.
+	 * never in a realm, the hub or an arena. Works on both sides.
 	 */
 	public static boolean canKindleIn(World world) {
 		return HubTravel.isOverworld(world.getRegistryKey());
 	}
 
-	/** What a block counts as for {@link SteleFrame}. */
 	public static SteleFrame.Cell cell(BlockState state) {
 		if (state.isOf(SteleBlocks.CLEFT_STONE)) {
 			return SteleFrame.Cell.STONE;

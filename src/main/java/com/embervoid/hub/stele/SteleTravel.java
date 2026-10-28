@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * The world's lit Cleft Stele and travel through it (PLAN 15.4, DESIGN §2). A world has at most one lit stele besides
+ * The world's lit Cleft Stele and travel through it. A world has at most one lit stele besides
  * the hub's own ({@link SteleState}): kindling another puts the old one out, whoever kindled either, and tells the
  * players who had used the old one; losing a stone of it leaves none. Walking into its crack or right-clicking it takes
  * a player to the hub's landing; the hub's stele ({@link HubStele}) takes them back out to stand in front of it, or,
@@ -48,7 +48,6 @@ public final class SteleTravel {
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> BLOCKED_UNTIL.remove(handler.getPlayer().getUuid()));
 	}
 
-	/** The world's lit stele, or null if there is none. */
 	@Nullable
 	public static SteleState.Lit lit(MinecraftServer server) {
 		return SteleState.get(server).lit();
@@ -101,7 +100,7 @@ public final class SteleTravel {
 	}
 
 	/**
-	 * The hub's way out (DESIGN §2 "Exit"): to stand in front of the world's lit stele; with none (never kindled,
+	 * The hub's way out: to stand in front of the world's lit stele; with none (never kindled,
 	 * broken, or its world gone), {@link HubTravel#sendOut}: the spot the player last left the overworld from, else the
 	 * bed or the world spawn.
 	 */

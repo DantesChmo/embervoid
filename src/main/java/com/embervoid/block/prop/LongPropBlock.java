@@ -37,7 +37,6 @@ public class LongPropBlock extends TwoBlockPropBlock {
 		builder.add(PART);
 	}
 
-	/** Laid away from the player, like a bed. */
 	@Override
 	protected Direction placementFacing(ItemPlacementContext ctx) {
 		return ctx.getHorizontalPlayerFacing();

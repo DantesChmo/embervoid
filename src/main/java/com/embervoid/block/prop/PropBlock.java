@@ -57,7 +57,6 @@ public class PropBlock extends HorizontalFacingBlock implements Prop, Waterlogga
 				.with(WATERLOGGED, ctx.getWorld().getFluidState(ctx.getBlockPos()).getFluid() == Fluids.WATER);
 	}
 
-	/** Facing the player who places it. */
 	protected Direction placementFacing(ItemPlacementContext ctx) {
 		return ctx.getHorizontalPlayerFacing().getOpposite();
 	}

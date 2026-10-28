@@ -9,12 +9,9 @@ import net.minecraft.registry.Registry;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Weapons, armor, materials, consumables. */
 public final class ModItems {
 	/** All mod items in registration order; shown in the creative tab. */
 	public static final List<Item> ALL = new ArrayList<>();
-
-	// public static final Item EMBER_STEEL_INGOT = register("ember_steel_ingot", new Item(new Item.Settings()));
 
 	public static final Item HEALING_FLASK = register("healing_flask", new HealingFlaskItem(new Item.Settings().maxCount(1)));
 

@@ -6,14 +6,12 @@ import com.embervoid.config.SectionReader;
 import com.google.gson.JsonObject;
 
 /**
- * The {@code moon} config section (DESIGN §3.3, §10.12): the moon nights themselves. The night mobs and the Vampire
+ * The {@code moon} config section: the moon nights themselves. The night mobs and the Vampire
  * keep their numbers in their own sections.
  *
  * @param enabled         false: no moon night starts on its own (the debug command still works)
  * @param cycleInterval   events come every this many lunar cycles (8 days each), first in cycle {@code cycleInterval}
  * @param fallbackMinutes a moon night ends after this many real-time minutes even if its goal is not met
- * @param fullMoon        full moon numbers
- * @param blood           blood new moon numbers
  */
 public record MoonConfig(boolean enabled, int cycleInterval, float fallbackMinutes, FullMoon fullMoon, Blood blood) {
 	/**

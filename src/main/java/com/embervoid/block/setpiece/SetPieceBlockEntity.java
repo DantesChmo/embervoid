@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 /**
- * The block entity of every set piece (PLAN 20.1). Holds the mode, the state and small options in NBT, synced to the
+ * The block entity of every set piece. Holds the mode, the state and small options in NBT, synced to the
  * clients through the update packet; the GeckoLib controller on the client picks the loop from them, actions go
  * through GeckoLib's triggered animations. No server ticking: timed states use a scheduled block tick.
  */
@@ -99,8 +99,6 @@ public class SetPieceBlockEntity extends BlockEntity implements GeoBlockEntity {
 		return reactionOverrides != null ? reactionOverrides : kind().reactions();
 	}
 
-	// --- Server-side changes ---
-
 	public void setMode(Mode mode) {
 		if (this.mode != mode) {
 			this.mode = mode;
@@ -153,7 +151,6 @@ public class SetPieceBlockEntity extends BlockEntity implements GeoBlockEntity {
 		triggerAnim(CONTROLLER, action);
 	}
 
-	/** An arena event reached this piece: apply the matching reactions. */
 	public void onArenaEvent(String event) {
 		lastEvent = event;
 		if (kind().followsCampfire() && hasCampfireBelow()) {
@@ -229,8 +226,6 @@ public class SetPieceBlockEntity extends BlockEntity implements GeoBlockEntity {
 		}
 	}
 
-	// --- NBT ---
-
 	@Override
 	protected void writeNbt(NbtCompound nbt) {
 		super.writeNbt(nbt);
@@ -278,8 +273,6 @@ public class SetPieceBlockEntity extends BlockEntity implements GeoBlockEntity {
 		return createNbt();
 	}
 
-	// --- GeckoLib ---
-
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
 		AnimationController<SetPieceBlockEntity> controller = new AnimationController<>(this, CONTROLLER, 4, animation -> {
@@ -305,8 +298,6 @@ public class SetPieceBlockEntity extends BlockEntity implements GeoBlockEntity {
 	public double getTick(Object blockEntity) {
 		return RenderUtils.getCurrentTick() + phase;
 	}
-
-	// --- Client particles ---
 
 	/** Client tick: the kind's puffs (smoke over a lit censer, the bellows' breath). */
 	void clientTick() {

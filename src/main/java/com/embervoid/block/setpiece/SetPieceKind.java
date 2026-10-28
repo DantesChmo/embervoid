@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * What one kind of set piece is (PLAN 20.1): its animations, states, actions, how it reacts to arena events, its
+ * What one kind of set piece is: its animations, states, actions, how it reacts to arena events, its
  * hitbox and how far it renders. The model, animation and texture files sit under
  * {@code geo/block/setpiece/<name>}, {@code animations/block/setpiece/<name>}, {@code textures/block/setpiece/<name>}
  * (written by {@code tools/setpiece_art.py}).
@@ -186,7 +186,6 @@ public final class SetPieceKind {
 		return followsCampfire;
 	}
 
-	/** Whether the kind has an {@code idle} loop. */
 	public boolean hasIdle() {
 		return idle;
 	}
