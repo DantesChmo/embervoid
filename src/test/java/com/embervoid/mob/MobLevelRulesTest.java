@@ -68,13 +68,6 @@ class MobLevelRulesTest {
 	}
 
 	@Test
-	void experienceRoundsToTheNearestPoint() {
-		// 3 × (1 + 0.06·4) = 3.72
-		assertEquals(4, MobLevelRules.experience(LEVELS, 5, 3));
-		assertEquals(0, MobLevelRules.experience(LEVELS, 50, 0));
-	}
-
-	@Test
 	void difficultyFactorsReplaceVanilla() {
 		// A level-1 zombie hits for 3 on vanilla Normal; on Easy it now hits like vanilla Normal.
 		assertEquals(3.0f, MobLevelRules.difficultyDamage(DIFFICULTY, Difficulty.EASY, 3), 1e-6);

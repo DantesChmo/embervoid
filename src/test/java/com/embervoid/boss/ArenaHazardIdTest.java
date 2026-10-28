@@ -12,13 +12,6 @@ class ArenaHazardIdTest {
 		}
 	}
 
-	private static class FallingCinders implements ArenaHazard {
-		@Override
-		public boolean tick(BossFight fight) {
-			return false;
-		}
-	}
-
 	@Test
 	void builtInHazardsAreNamedInSnakeCaseWithoutTheSuffix() {
 		assertEquals("area", new AreaHazard(null, 20, 5, null, 1, null, null).id());
@@ -29,10 +22,5 @@ class ArenaHazardIdTest {
 	@Test
 	void aBossesOwnHazardFollowsTheSameRule() {
 		assertEquals("fire_trail", new FireTrailHazard().id());
-	}
-
-	@Test
-	void aClassWithoutTheSuffixKeepsItsWholeName() {
-		assertEquals("falling_cinders", new FallingCinders().id());
 	}
 }

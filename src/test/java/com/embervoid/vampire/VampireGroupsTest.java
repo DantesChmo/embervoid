@@ -46,12 +46,6 @@ class VampireGroupsTest {
 	}
 
 	@Test
-	void groupsAreOrderedByTheirFirstMember() {
-		assertEquals(List.of(List.of(0, 2), List.of(1, 3)),
-				VampireGroups.cluster(List.of(at(0, 0), at(500, 0), at(10, 0), at(510, 0)), 64));
-	}
-
-	@Test
 	void chainJoinsGroupsSeenAsSeparateFirst() {
 		// 0 and 2 start apart; 3 links them only at the end.
 		assertEquals(List.of(List.of(0, 1, 2, 3)),

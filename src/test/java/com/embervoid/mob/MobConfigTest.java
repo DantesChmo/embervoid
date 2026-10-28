@@ -8,6 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class MobConfigTest {
+	private static final MobConfig.Levels DEFAULT_LEVELS = MobConfig.DEFAULT.levels();
+
 	private static ConfigFile file() {
 		ConfigFile file = new ConfigFile("test.json");
 		file.register(MobConfig.SECTION);
@@ -28,36 +30,38 @@ class MobConfigTest {
 		MobConfig.Levels levels = MobConfig.DEFAULT.levels();
 		assertEquals(1f, levels.healthScale("othermod:beast"));
 		assertEquals(1f, levels.damageScale("othermod:beast"));
-		assertEquals(0.75f, levels.healthScale("minecraft:zombie"));
 	}
 
 	@Test
-	void addedScalesAreReadAndInvalidOnesFallBackToOne() {
-		MobConfig.Levels levels = parse("{\"levels\": {\"healthScale\": {\"othermod:beast\": 2.5, \"othermod:ghost\": 0},"
+	void addedScalesAreReadAlongsideTheBuiltInOnes() {
+		MobConfig.Levels levels = parse("{\"levels\": {\"healthScale\": {\"othermod:beast\": 2.5},"
 				+ " \"damageScale\": {\"minecraft:zombie\": 3}}}").levels();
 		assertEquals(2.5f, levels.healthScale("othermod:beast"));
-		assertEquals(1f, levels.healthScale("othermod:ghost"));
 		assertEquals(3f, levels.damageScale("minecraft:zombie"));
-		assertEquals(0.75f, levels.healthScale("minecraft:zombie"));
+		assertEquals(DEFAULT_LEVELS.healthScale("minecraft:zombie"), levels.healthScale("minecraft:zombie"));
 	}
 
 	@Test
-	void invalidBuiltInEntriesKeepTheirDefaults() {
+	void invalidBuiltInEntriesResetToTheirDefaults() {
 		MobConfig.Levels levels = parse("{\"levels\": {\"baseLevels\": {\"minecraft:zombie\": 0, \"minecraft:creeper\": 2.5},"
-				+ " \"dimensionBonus\": {\"minecraft:the_end\": -2, \"minecraft:the_nether\": 0}}}").levels();
-		assertEquals(3, levels.baseLevels().get("minecraft:zombie"));
-		assertEquals(6, levels.baseLevels().get("minecraft:creeper"));
-		assertEquals(8, levels.dimensionBonus().get("minecraft:the_end"));
-		assertEquals(0, levels.dimensionBonus().get("minecraft:the_nether"));
+				+ " \"dimensionBonus\": {\"minecraft:the_end\": -2}, \"healthScale\": {\"minecraft:witch\": 0}}}").levels();
+		assertEquals(DEFAULT_LEVELS.baseLevels().get("minecraft:zombie"), levels.baseLevels().get("minecraft:zombie"));
+		assertEquals(DEFAULT_LEVELS.baseLevels().get("minecraft:creeper"), levels.baseLevels().get("minecraft:creeper"));
+		assertEquals(DEFAULT_LEVELS.dimensionBonus().get("minecraft:the_end"), levels.dimensionBonus().get("minecraft:the_end"));
+		assertEquals(DEFAULT_LEVELS.healthScale("minecraft:witch"), levels.healthScale("minecraft:witch"));
 	}
 
 	@Test
-	void addedDimensionWithANegativeBonusGetsNone() {
-		assertEquals(0, parse("{\"levels\": {\"dimensionBonus\": {\"othermod:sky\": -3}}}").levels().dimensionBonus().get("othermod:sky"));
+	void invalidAddedEntriesResetToWhatAnUnlistedKeyGets() {
+		MobConfig.Levels levels = parse("{\"levels\": {\"baseLevels\": {\"othermod:beast\": 0},"
+				+ " \"dimensionBonus\": {\"othermod:sky\": -3}, \"healthScale\": {\"othermod:ghost\": 0}}}").levels();
+		assertEquals(DEFAULT_LEVELS.defaultBaseLevel(), levels.baseLevels().get("othermod:beast"));
+		assertEquals(0, levels.dimensionBonus().get("othermod:sky"));
+		assertEquals(1f, levels.healthScale("othermod:ghost"));
 	}
 
 	@Test
-	void difficultyFactorsAreReadAndClamped() {
+	void difficultyFactorsOutsideTheirRangeResetToDefaults() {
 		MobConfig.Difficulty difficulty = parse("{\"difficulty\": {\"easy\": 0.5, \"normal\": 101, \"hard\": -1}}").difficulty();
 		assertEquals(0.5f, difficulty.easy());
 		assertEquals(MobConfig.DEFAULT.difficulty().normal(), difficulty.normal());
