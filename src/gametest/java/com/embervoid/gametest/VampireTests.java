@@ -55,9 +55,7 @@ import java.util.function.Consumer;
  * ({@link Fight#await}) instead of fixed tick counts.
  */
 public final class VampireTests implements FabricGameTest {
-	/** Upper bound for waiting on the transformation and the boss to show up. */
 	private static final int FORM_LIMIT = VampireEntity.TURN_TICKS + 200;
-	/** Upper bound for waiting on the arena to close after a kill. */
 	private static final int CLOSE_LIMIT = VampireFight.CLOSE_TICKS + 200;
 
 	@Nullable

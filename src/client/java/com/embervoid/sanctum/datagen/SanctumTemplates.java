@@ -576,7 +576,7 @@ final class SanctumTemplates {
 		}
 		t.fill(13, 1, 10, 13, 1, 14, DEAD_LOG.getDefaultState().with(PillarBlock.AXIS, Direction.Axis.Z));
 		t.set(sx, 7, 16, Props.IRON_CAGE.getDefaultState().with(HangingPropBlock.HANGING, true));
-		t.set(5, 7, 16, SetPieces.CENSER.getDefaultState()).set(11, 7, 16, SetPieces.CENSER.getDefaultState()); // censers swaying from the beam
+		t.set(5, 7, 16, SetPieces.CENSER.getDefaultState()).set(11, 7, 16, SetPieces.CENSER.getDefaultState()); // from the beam
 
 		// Pews facing the altar; some are gone.
 		BlockState pew = DEAD_STAIRS.getDefaultState().with(StairsBlock.FACING, Direction.NORTH);
