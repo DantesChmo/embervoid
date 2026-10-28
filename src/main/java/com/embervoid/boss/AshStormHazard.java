@@ -18,14 +18,18 @@ import net.minecraft.world.RaycastContext;
  * source's upper body and the player's eyes shelters them. Ash fills the arena while it blows.
  */
 public class AshStormHazard implements ArenaHazard {
+	/** Ticks between two blows of the storm. */
+	public static final int HIT_INTERVAL = 20;
+	/** Ticks between two fills of ash in the air. */
+	public static final int ASH_INTERVAL = 5;
+
 	private final LivingEntity source;
-	private final int ticks;
+	private final HazardClock clock;
 	private final float damage;
-	private int age;
 
 	public AshStormHazard(LivingEntity source, int ticks, float damage) {
 		this.source = source;
-		this.ticks = ticks;
+		this.clock = new HazardClock(ticks);
 		this.damage = damage;
 	}
 
@@ -40,13 +44,13 @@ public class AshStormHazard implements ArenaHazard {
 	@Override
 	public boolean tick(BossFight fight) {
 		ServerWorld world = fight.world();
-		if (age % 5 == 0) {
+		if (clock.every(ASH_INTERVAL)) {
 			double r = fight.spec().radius();
 			Vec3d c = fight.centerPos();
 			world.spawnParticles(ParticleTypes.ASH, c.x, c.y + 4, c.z, 300, r / 2, 3, r / 2, 0);
 			world.spawnParticles(ParticleTypes.WHITE_ASH, c.x, c.y + 4, c.z, 150, r / 2, 3, r / 2, 0);
 		}
-		if (age % 20 == 0 && source.isAlive()) {
+		if (clock.every(HIT_INTERVAL) && source.isAlive()) {
 			for (ServerPlayerEntity player : fight.fighters()) {
 				if (!player.isCreative() && !player.isSpectator() && !isSheltered(source, player)) {
 					player.damage(world.getDamageSources().magic(), damage);
@@ -54,6 +58,6 @@ public class AshStormHazard implements ArenaHazard {
 				}
 			}
 		}
-		return ++age < ticks && source.isAlive();
+		return clock.advance() && source.isAlive();
 	}
 }

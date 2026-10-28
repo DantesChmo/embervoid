@@ -16,14 +16,13 @@ public class AreaHazard implements ArenaHazard {
 	private static final int DRAW_INTERVAL = 4;
 
 	private final TelegraphShape shape;
-	private final int duration;
+	private final HazardClock clock;
 	private final int interval;
 	private final DamageSource source;
 	private final float damage;
 	private final ParticleEffect particle;
 	@Nullable
 	private final Consumer<PlayerEntity> onHit;
-	private int age;
 
 	/**
 	 * @param source damage source of every hit; give it the boss as attacker so its level scales the damage
@@ -32,7 +31,7 @@ public class AreaHazard implements ArenaHazard {
 	public AreaHazard(TelegraphShape shape, int duration, int interval, DamageSource source, float damage, ParticleEffect particle,
 			@Nullable Consumer<PlayerEntity> onHit) {
 		this.shape = shape;
-		this.duration = duration;
+		this.clock = new HazardClock(duration);
 		this.interval = Math.max(1, interval);
 		this.source = source;
 		this.damage = damage;
@@ -47,16 +46,16 @@ public class AreaHazard implements ArenaHazard {
 	@Override
 	public boolean tick(BossFight fight) {
 		ServerWorld world = fight.world();
-		if (age % DRAW_INTERVAL == 0) {
+		if (clock.every(DRAW_INTERVAL)) {
 			shape.draw(world, particle, 1);
 		}
-		if (age % interval == 0) {
+		if (clock.every(interval)) {
 			for (PlayerEntity player : Telegraph.playersIn(world, shape, fight.centerPos())) {
 				if (player.damage(source, damage) && onHit != null) {
 					onHit.accept(player);
 				}
 			}
 		}
-		return ++age < duration;
+		return clock.advance();
 	}
 }
