@@ -45,7 +45,7 @@ public final class ReachMobs {
 	/** The final zone's sector: the Burning City and the Smoldering Citadel (PLAN 21.3). */
 	public static final RegistryKey<Biome> CITADEL = zoneBiome("ashen_reach_citadel");
 	/** Natural spawns need block light at or below this. */
-	public static final int MAX_BLOCK_LIGHT = 7;
+	public static final int MAX_BLOCK_LIGHT = SpawnRules.MAX_BLOCK_LIGHT;
 
 	public static final EntityType<CinderHuskEntity> CINDER_HUSK = register("cinder_husk", CinderHuskEntity::new, 0.6f, 1.95f);
 	public static final EntityType<AshStalkerEntity> ASH_STALKER = register("ash_stalker", AshStalkerEntity::new, 0.6f, 1.6f);
@@ -127,13 +127,14 @@ public final class ReachMobs {
 	public static boolean canSpawnInRealm(EntityType<? extends HostileEntity> type, ServerWorldAccess world, SpawnReason reason,
 			BlockPos pos, Random random) {
 		return HostileEntity.canSpawnIgnoreLightLevel(type, world, reason, pos, random)
-				&& world.getLightLevel(LightType.BLOCK, pos) <= MAX_BLOCK_LIGHT;
+				&& SpawnRules.darkEnough(world.getLightLevel(LightType.BLOCK, pos));
 	}
 
 	/** {@link #canSpawnInRealm} under a roof (crypts, sinkhole overhangs). */
 	public static boolean canSpawnUnderCover(EntityType<? extends HostileEntity> type, ServerWorldAccess world,
 			SpawnReason reason, BlockPos pos, Random random) {
-		return canSpawnInRealm(type, world, reason, pos, random) && (reason != SpawnReason.NATURAL || !world.isSkyVisible(pos));
+		return canSpawnInRealm(type, world, reason, pos, random)
+				&& SpawnRules.underCover(reason == SpawnReason.NATURAL, reason == SpawnReason.NATURAL && world.isSkyVisible(pos));
 	}
 
 	private static <T extends HostileEntity> void naturalSpawn(EntityType<T> type, RegistryKey<Biome> biome,

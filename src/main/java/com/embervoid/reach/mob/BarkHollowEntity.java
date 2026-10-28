@@ -42,13 +42,13 @@ import java.util.List;
  */
 public class BarkHollowEntity extends ReachMob {
 	public static final double WAKE_RANGE = 6;
-	public static final int AWAKEN_TICKS = 20;
+	public static final int AWAKEN_TICKS = Dormancy.AWAKEN_TICKS;
 	public static final int SWEEP_WINDUP = 20;
 	public static final double SWEEP_RANGE = 3;
 	/** cos(60°): the sweep covers 120° in front. */
 	private static final double SWEEP_CONE_COS = 0.5;
 	public static final float WEAK_FACTOR = 1.5f;
-	static final int SETTLE_TICKS = 300;
+	static final int SETTLE_TICKS = Dormancy.SETTLE_TICKS;
 	/** Ticks the body stays for {@code misc.death}: it sways, then topples forward like a felled tree, 2.4 s. */
 	public static final int DEATH_TICKS = 48;
 	/** The tick of {@code misc.death} at which the trunk hits the ground. */
@@ -58,8 +58,7 @@ public class BarkHollowEntity extends ReachMob {
 	private static final byte STATE_AWAKENING = 2;
 	private static final RawAnimation DORMANT = RawAnimation.begin().thenLoop("misc.dormant");
 
-	private int awakenTicks;
-	private int idleTicks;
+	private final Dormancy dormancy = new Dormancy();
 
 	public BarkHollowEntity(EntityType<? extends BarkHollowEntity> type, World world) {
 		super(type, world);
@@ -95,7 +94,7 @@ public class BarkHollowEntity extends ReachMob {
 		setTarget(null);
 		getNavigation().stop();
 		setState(STATE_DORMANT);
-		idleTicks = 0;
+		dormancy.slept();
 	}
 
 	public boolean isDormant() {
@@ -112,7 +111,7 @@ public class BarkHollowEntity extends ReachMob {
 			return;
 		}
 		setState(STATE_AWAKENING);
-		awakenTicks = AWAKEN_TICKS;
+		dormancy.woke();
 		if (waker != null) {
 			setTarget(waker);
 		}
@@ -127,23 +126,19 @@ public class BarkHollowEntity extends ReachMob {
 		if (getWorld().isClient) {
 			return;
 		}
-		if (isDormant()) {
-			PlayerEntity player = getWorld().getClosestPlayer(getX(), getY(), getZ(), WAKE_RANGE,
-					entity -> entity instanceof PlayerEntity p && p.isAlive() && !p.isSpectator() && !p.isCreative());
-			if (player != null) {
-				wake(player);
+		Dormancy.Stage stage = isDormant() ? Dormancy.Stage.DORMANT : isAwakening() ? Dormancy.Stage.AWAKENING : Dormancy.Stage.AWAKE;
+		PlayerEntity[] waker = new PlayerEntity[1];
+		Dormancy.Change change = dormancy.tick(stage,
+				() -> (waker[0] = getWorld().getClosestPlayer(getX(), getY(), getZ(), WAKE_RANGE,
+						entity -> entity instanceof PlayerEntity p && p.isAlive() && !p.isSpectator() && !p.isCreative())) != null,
+				getTarget() != null && getTarget().isAlive(),
+				() -> home() == null || home().isWithinDistance(getPos(), 2));
+		switch (change) {
+			case WAKE -> wake(waker[0]);
+			case AWAKE -> setState(STATE_NONE);
+			case SETTLE -> goDormant();
+			case NONE -> {
 			}
-		} else if (isAwakening()) {
-			if (--awakenTicks <= 0) {
-				setState(STATE_NONE);
-			}
-		} else if (getTarget() == null || !getTarget().isAlive()) {
-			BlockPos home = home();
-			if (++idleTicks >= SETTLE_TICKS && (home == null || home.isWithinDistance(getPos(), 2))) {
-				goDormant();
-			}
-		} else {
-			idleTicks = 0;
 		}
 	}
 

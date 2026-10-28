@@ -63,7 +63,7 @@ public abstract class ReachBoss extends HostileEntity implements ArenaBoss, GeoE
 	public static final String STAGGER = "misc.stagger";
 	public static final String DEATH = "misc.death";
 	/** Ticks between two flinches. */
-	public static final int HURT_COOLDOWN = 10;
+	public static final int HURT_COOLDOWN = BossRules.HURT_COOLDOWN;
 	/** The shared zone-boss theme (Ash Colossus, Grieving Tree, Crypt Keeper), {@link ReachBossSounds#ZONE_BOSS_MUSIC}. */
 	public static final Identifier ZONE_BOSS_MUSIC = ReachBossSounds.ZONE_BOSS_MUSIC.getId();
 
@@ -291,7 +291,7 @@ public abstract class ReachBoss extends HostileEntity implements ArenaBoss, GeoE
 		}
 		boolean hurt = super.damage(source, amount);
 		// A flinch between moves; never over a windup (the tell must stay readable).
-		if (hurt && amount > 0 && isAlive() && !getWorld().isClient && !Telegraph.isWindingUp(this) && age - lastHurtAnimation > HURT_COOLDOWN) {
+		if (!getWorld().isClient && BossRules.flinches(hurt, amount, isAlive(), Telegraph.isWindingUp(this), age, lastHurtAnimation)) {
 			lastHurtAnimation = age;
 			hurtFlinches++;
 			triggerAnim(HURT_CONTROLLER, hurtAnimation(source, amount));

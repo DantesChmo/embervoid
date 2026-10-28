@@ -51,16 +51,43 @@ public final class WeaponRules {
 		return gapTicks >= 0 && gapTicks <= window;
 	}
 
+	/** The Scythe's sweep: {@code share} of a hit of {@code attackDamage} at {@code charge}. */
+	public static float sweepDamage(double attackDamage, float charge, float share) {
+		return (float) attackDamage * chargeFactor(charge) * share;
+	}
+
+	/** Whether a mob {@code squaredDistance} from the struck one is in a sweep of {@code radius}. */
+	public static boolean inSweep(double squaredDistance, float radius) {
+		return squaredDistance <= radius * radius;
+	}
+
+	/** Stamina a sweep or Harvest gives back for {@code caught} enemies, {@code perEnemy} each (the pool caps it). */
+	public static float staminaRefund(int caught, float perEnemy) {
+		return Math.max(0, caught) * perEnemy;
+	}
+
+	/**
+	 * Whether a mob at horizontal offset ({@code dx}, {@code dz}) from the player is within {@code radius} of them, the
+	 * height left to the search box (Harvest, Ground Slam).
+	 */
+	public static boolean around(double dx, double dz, double radius) {
+		return dx * dx + dz * dz <= radius * radius;
+	}
+
 	/** A vanilla crossbow launches arrows at this speed (blocks per tick); a firework goes slower. */
 	public static final float CROSSBOW_ARROW_SPEED = 3.15f;
 
+	/** The launch's random spread puts a fresh bolt's speed anywhere from about this to 3.20. */
+	public static final float SLOWEST_LAUNCH_SPEED = 3.10f;
+
 	/**
-	 * The base damage that makes a bolt deal {@code boltDamage} when it hits at {@code speed}: vanilla deals
-	 * ceil(speed × base), so the base aims half a point low to stay on {@code boltDamage} through the launch's
-	 * small random spread.
+	 * Damage of a bolt that hits at {@code speed} when {@code boltDamage} is its damage at full launch speed: the whole
+	 * damage anywhere in the launch spread, less in proportion once drag has slowed the bolt below it. Replaces
+	 * vanilla's ceil(speed × base), which cannot hold one value through the spread above about 32 damage.
 	 */
-	public static double boltBaseDamage(float boltDamage, float speed) {
-		return Math.max(0, boltDamage - 0.5) / speed;
+	public static int boltHitDamage(float boltDamage, double speed) {
+		double share = Math.min(1, Math.max(0, speed) / SLOWEST_LAUNCH_SPEED);
+		return (int) Math.max(0, Math.round(boltDamage * share));
 	}
 
 	private WeaponRules() {}

@@ -33,7 +33,7 @@ import java.util.List;
 public class HollowSentinelEntity extends ReachMob {
 	public static final int THRUST_WINDUP = 12;
 	public static final int BASH_WINDUP = 15;
-	public static final int OPEN_TICKS = 30;
+	public static final int OPEN_TICKS = SentinelShield.OPEN_TICKS;
 	public static final float BASH_DAMAGE = 6;
 	public static final float THRUST_DAMAGE = 7;
 	/** Bashes only a target this close. */
@@ -124,13 +124,17 @@ public class HollowSentinelEntity extends ReachMob {
 		if (getWorld().isClient) {
 			return;
 		}
-		if (isOpen()) {
-			if (--openTicks <= 0) {
-				setState(STATE_NONE);
-			}
-		} else {
-			setState(getTarget() != null ? STATE_GUARD : STATE_NONE);
+		SentinelShield.Stance stance = isOpen() ? SentinelShield.Stance.OPEN
+				: getState() == STATE_GUARD ? SentinelShield.Stance.GUARD : SentinelShield.Stance.LOWERED;
+		if (stance == SentinelShield.Stance.OPEN) {
+			openTicks--;
 		}
+		SentinelShield.Stance next = SentinelShield.next(stance, openTicks, getTarget() != null);
+		setState(switch (next) {
+			case OPEN -> STATE_OPEN;
+			case GUARD -> STATE_GUARD;
+			case LOWERED -> STATE_NONE;
+		});
 	}
 
 	@Override
@@ -144,20 +148,15 @@ public class HollowSentinelEntity extends ReachMob {
 
 	/** Melee or a projectile from the front half, shield up. */
 	public boolean blocks(DamageSource source) {
-		if (isOpen() || source.isIn(DamageTypeTags.BYPASSES_SHIELD)) {
-			return false;
-		}
 		boolean melee = source.getAttacker() != null && source.getSource() == source.getAttacker()
 				&& !source.isIn(DamageTypeTags.IS_EXPLOSION) && !source.isIn(DamageTypeTags.IS_FIRE);
-		if (!melee && !source.isIn(DamageTypeTags.IS_PROJECTILE)) {
-			return false;
-		}
 		Vec3d from = source.getPosition();
 		if (from == null) {
 			return false;
 		}
-		Vec3d toSource = from.subtract(getPos()).multiply(1, 0, 1);
-		return toSource.lengthSquared() < 1.0E-4 || toSource.normalize().dotProduct(Vec3d.fromPolar(0, bodyYaw)) >= 0;
+		Vec3d facing = Vec3d.fromPolar(0, bodyYaw);
+		return SentinelShield.blocks(isOpen(), source.isIn(DamageTypeTags.BYPASSES_SHIELD),
+				melee || source.isIn(DamageTypeTags.IS_PROJECTILE), from.x - getX(), from.z - getZ(), facing.x, facing.z);
 	}
 
 	/** Hit while the shield hangs open (the bash window), it staggers; a hit it took elsewhere only makes it flinch. */

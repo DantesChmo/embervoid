@@ -57,9 +57,9 @@ import java.util.List;
  * Base damage (Lv 18 on Normal ×2.31): fist 8, leap 9, boulder 7, drag 6, cinders 5. Base HP 105 (~212 at Lv 18; PLAN 18.4).
  */
 public class AshColossusEntity extends ReachBoss {
-	public static final float FRONT_DAMAGE = 0.5f;
-	public static final float BACK_DAMAGE = 1.5f;
-	public static final float CORE_DAMAGE = 2.0f;
+	public static final float FRONT_DAMAGE = ColossusRules.FRONT_DAMAGE;
+	public static final float BACK_DAMAGE = ColossusRules.BACK_DAMAGE;
+	public static final float CORE_DAMAGE = ColossusRules.CORE_DAMAGE;
 	/** Ticks between ash storms, the roar before one, and how long it blows. */
 	public static final int STORM_INTERVAL = 400;
 	public static final int STORM_WINDUP = 30;
@@ -74,14 +74,14 @@ public class AshColossusEntity extends ReachBoss {
 	public static final int SMASH_WINDUP = 20;
 	public static final int CINDER_WINDUP = 30;
 	/** Ticks until the brain picks the next move after one, by kind of move, in P1 and in P2 (faster). */
-	public static final int SMASH_COOLDOWN = 30;
-	public static final int SMASH_COOLDOWN_P2 = 20;
-	public static final int MELEE_COOLDOWN = 32;
-	public static final int MELEE_COOLDOWN_P2 = 22;
-	public static final int RANGED_COOLDOWN = 50;
-	public static final int RANGED_COOLDOWN_P2 = 35;
-	public static final int FAR_COOLDOWN = 60;
-	public static final int FAR_COOLDOWN_P2 = 40;
+	public static final int SMASH_COOLDOWN = ColossusRules.SMASH_COOLDOWN;
+	public static final int SMASH_COOLDOWN_P2 = ColossusRules.SMASH_COOLDOWN_P2;
+	public static final int MELEE_COOLDOWN = ColossusRules.MELEE_COOLDOWN;
+	public static final int MELEE_COOLDOWN_P2 = ColossusRules.MELEE_COOLDOWN_P2;
+	public static final int RANGED_COOLDOWN = ColossusRules.RANGED_COOLDOWN;
+	public static final int RANGED_COOLDOWN_P2 = ColossusRules.RANGED_COOLDOWN_P2;
+	public static final int FAR_COOLDOWN = ColossusRules.FAR_COOLDOWN;
+	public static final int FAR_COOLDOWN_P2 = ColossusRules.FAR_COOLDOWN_P2;
 	/** The pause after shedding its stone (P2 starts). */
 	public static final int SHED_PAUSE = 30;
 	/** Ticks a leap takes from take-off to over its mark. */
@@ -255,36 +255,31 @@ public class AshColossusEntity extends ReachBoss {
 
 	@Override
 	protected int chooseMove(LivingEntity target, double squaredDistance) {
-		boolean fast = coreExposed();
 		BlockPos cover = coverOf(target);
-		if (cover != null && cover.getSquaredDistance(getPos()) <= SMASH_REACH * SMASH_REACH) {
-			smash(cover);
-			return fast ? SMASH_COOLDOWN_P2 : SMASH_COOLDOWN;
+		boolean coverInReach = cover != null && cover.getSquaredDistance(getPos()) <= SMASH_REACH * SMASH_REACH;
+		ColossusRules.Move move = ColossusRules.pick(squaredDistance, cover != null, coverInReach);
+		if (move == null) {
+			return -1;
 		}
-		if (squaredDistance <= 5.5 * 5.5) {
-			if (random.nextInt(3) == 0) {
-				drag(target);
-			} else {
-				fist(target);
+		switch (move) {
+			case SMASH -> smash(cover);
+			case MELEE -> {
+				if (random.nextInt(3) == 0) {
+					drag(target);
+				} else {
+					fist(target);
+				}
 			}
-			return fast ? MELEE_COOLDOWN_P2 : MELEE_COOLDOWN;
-		}
-		if (squaredDistance >= 8 * 8 && squaredDistance <= 22 * 22) {
-			if (random.nextBoolean()) {
-				leap(target);
-			} else {
-				boulder(target);
+			case RANGED -> {
+				if (random.nextBoolean()) {
+					leap(target);
+				} else {
+					boulder(target);
+				}
 			}
-			return fast ? RANGED_COOLDOWN_P2 : RANGED_COOLDOWN;
+			case FAR -> boulder(target);
 		}
-		if (cover != null) {
-			return -1; // walk up to the pillar the target hides behind
-		}
-		if (squaredDistance > 22 * 22) {
-			boulder(target);
-			return fast ? FAR_COOLDOWN_P2 : FAR_COOLDOWN;
-		}
-		return -1;
+		return ColossusRules.cooldown(move, coreExposed());
 	}
 
 	// --- Moves ---
@@ -493,18 +488,8 @@ public class AshColossusEntity extends ReachBoss {
 	/** Damage factor for a hit coming from {@code from}: front, side or back (the core). */
 	public float directionFactor(Vec3d from) {
 		Vec3d facing = Vec3d.fromPolar(0, getYaw());
-		Vec3d toward = new Vec3d(from.x - getX(), 0, from.z - getZ());
-		if (toward.lengthSquared() < 1e-4) {
-			return 1;
-		}
-		double cos = facing.dotProduct(toward.normalize());
-		if (cos >= 0.5) {
-			return FRONT_DAMAGE;
-		}
-		if (cos <= -0.5) {
-			return coreExposed() ? CORE_DAMAGE : BACK_DAMAGE;
-		}
-		return 1;
+		ColossusRules.Zone zone = ColossusRules.zone(facing.x, facing.z, from.x - getX(), from.z - getZ());
+		return ColossusRules.damageFactor(zone, coreExposed());
 	}
 
 	@Override

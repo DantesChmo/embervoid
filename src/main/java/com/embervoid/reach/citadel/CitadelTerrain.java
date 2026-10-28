@@ -24,22 +24,11 @@ public record CitadelTerrain(DensityFunction hills, DensityFunction roughness, d
 	).apply(instance, CitadelTerrain::new));
 	public static final CodecHolder<CitadelTerrain> CODEC = CodecHolder.of(MAP_CODEC);
 
-	/** Most a roughness of ±1 moves the ground in the flat city and on the hill's sides, in density units. */
-	private static final double ROUGH_CITY = 0.15;
-	private static final double ROUGH_CLIFF = 0.6;
-
 	@Override
 	public double sample(NoisePos pos) {
 		double x = CitadelLayout.planX(pos.blockX());
 		double z = CitadelLayout.planZ(pos.blockZ());
-		double ground = CitadelLayout.groundHeight(x, z, hills.sample(pos));
-		double density = (ground + 0.5 - pos.blockY()) / scale;
-		double rough = 1 - CitadelLayout.flatness(x, z);
-		if (rough > 0) {
-			double amount = ROUGH_CITY + (ROUGH_CLIFF - ROUGH_CITY) * CitadelLayout.cliff(x, z);
-			density += rough * amount * roughness.sample(pos);
-		}
-		return density;
+		return CitadelLayout.density(x, z, pos.blockY(), hills.sample(pos), () -> roughness.sample(pos), scale);
 	}
 
 	@Override
@@ -54,12 +43,12 @@ public record CitadelTerrain(DensityFunction hills, DensityFunction roughness, d
 
 	@Override
 	public double minValue() {
-		return -256 / scale - ROUGH_CLIFF;
+		return -256 / scale - CitadelLayout.ROUGH_CLIFF;
 	}
 
 	@Override
 	public double maxValue() {
-		return 256 / scale + ROUGH_CLIFF;
+		return 256 / scale + CitadelLayout.ROUGH_CLIFF;
 	}
 
 	@Override

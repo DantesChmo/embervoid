@@ -52,7 +52,7 @@ public class RealmFeaturePiece extends StructurePiece {
 	public static final int GATE_HALF_WIDTH = 5;
 	public static final int GATE_HEIGHT = 4;
 	/** How far outside the fog wall an arena's shrine stands. */
-	private static final int SHRINE_DISTANCE = 4;
+	private static final int SHRINE_DISTANCE = FeatureFrame.SHRINE_DISTANCE;
 
 	/** Deepest the ground under an arena site is filled down to. */
 	private static final int SITE_FOUNDATION = 64;
@@ -126,10 +126,7 @@ public class RealmFeaturePiece extends StructurePiece {
 	 * the fog wall. Arena templates build the shrine platform there.
 	 */
 	public BlockPos shrinePos() {
-		if (kind == RealmFeatureStructure.Kind.LANDING) {
-			return center.up();
-		}
-		return center.add(new BlockPos(0, 1, -(radius + SHRINE_DISTANCE)).rotate(rotationTowardsLanding()));
+		return FeatureFrame.shrinePos(center, radius, kind == RealmFeatureStructure.Kind.LANDING);
 	}
 
 	@Override
@@ -320,12 +317,7 @@ public class RealmFeaturePiece extends StructurePiece {
 
 	/** Rotation that turns a template's north (−Z) side towards the landing, in 90° steps. */
 	public BlockRotation rotationTowardsLanding() {
-		int dx = -center.getX();
-		int dz = -center.getZ();
-		if (Math.abs(dx) > Math.abs(dz)) {
-			return dx > 0 ? BlockRotation.CLOCKWISE_90 : BlockRotation.COUNTERCLOCKWISE_90;
-		}
-		return dz < 0 ? BlockRotation.NONE : BlockRotation.CLOCKWISE_180;
+		return FeatureFrame.rotationTowardsLanding(center);
 	}
 
 	/** Floor disc with a rim, a foundation down to the ground and cleared air above. */

@@ -36,35 +36,36 @@ public final class GearDamage {
 			return amount;
 		}
 		GearConfig config = GearConfig.get();
-		if (source.isIn(DamageTypeTags.IS_FIRE)) {
-			int pieces = GearArmor.pieces(target, GearArmor.SMOLDERING);
-			if (pieces > 0) {
-				amount *= Math.max(0, 1 - pieces * config.smoldering().fireReductionPerPiece());
-			}
+		boolean fire = source.isIn(DamageTypeTags.IS_FIRE);
+		GearDamageRules.Hit hit = new GearDamageRules.Hit(
+				fire,
+				fire ? GearArmor.pieces(target, GearArmor.SMOLDERING) : 0,
+				source.isIn(DamageTypeTags.IS_PROJECTILE) && source.getAttacker() instanceof LivingEntity shooter
+						&& GearArmor.fullSet(shooter, GearArmor.HUNTSMAN),
+				target.isBlocking() && GearArmor.fullSet(target, GearArmor.WARDEN),
+				attackerMultiplier(target, source, config),
+				HuntsmansCrossbowItem.isOpener(target, source),
+				greavesFall(target, source));
+		return GearDamageRules.incoming(amount, hit, GearDamageRules.Factors.of(config));
+	}
+
+	/** What the attacking player brings to the hit: Kindling, the Rapier's ramp, the whip's tip. */
+	private static float attackerMultiplier(LivingEntity target, DamageSource source, GearConfig config) {
+		if (!(source.getAttacker() instanceof PlayerEntity player)) {
+			return 1;
 		}
-		if (source.isIn(DamageTypeTags.IS_PROJECTILE) && source.getAttacker() instanceof LivingEntity shooter
-				&& GearArmor.fullSet(shooter, GearArmor.HUNTSMAN)) {
-			amount *= 1 + config.sets().huntsmanProjectile();
+		float multiplier = kindling(player, source, config.weapons().kindlingPerPoint());
+		if (source.isOf(DamageTypes.PLAYER_ATTACK) && source.getSource() == player && RapierRamp.holdsRapier(player)) {
+			multiplier *= RapierRamp.multiplier(player, target);
 		}
-		if (target.isBlocking() && GearArmor.fullSet(target, GearArmor.WARDEN)) {
-			amount *= 1 - config.sets().wardenBlockingReduction();
+		if (source.isOf(DamageTypes.PLAYER_ATTACK) && source.getSource() == player && WardensScourgeItem.tipHit(player, target)) {
+			multiplier *= config.weapons().whipTipMultiplier();
 		}
-		if (source.getAttacker() instanceof PlayerEntity player) {
-			amount *= kindling(player, source, config.weapons().kindlingPerPoint());
-			if (source.isOf(DamageTypes.PLAYER_ATTACK) && source.getSource() == player && RapierRamp.holdsRapier(player)) {
-				amount *= RapierRamp.multiplier(player, target);
-			}
-			if (source.isOf(DamageTypes.PLAYER_ATTACK) && source.getSource() == player && WardensScourgeItem.tipHit(player, target)) {
-				amount *= config.weapons().whipTipMultiplier();
-			}
-		}
-		if (HuntsmansCrossbowItem.isOpener(target, source)) {
-			amount *= config.crossbow().openerMultiplier();
-		}
-		if (source.isIn(DamageTypeTags.IS_FALL) && GearArmor.wears(target, GearArmor.HUNTSMAN_GREAVES_ITEM)) {
-			amount = Math.max(0, amount - config.uniques().greavesSafeFallDamage());
-		}
-		return amount;
+		return multiplier;
+	}
+
+	private static boolean greavesFall(LivingEntity target, DamageSource source) {
+		return source.isIn(DamageTypeTags.IS_FALL) && GearArmor.wears(target, GearArmor.HUNTSMAN_GREAVES_ITEM);
 	}
 
 	/**
@@ -92,10 +93,9 @@ public final class GearDamage {
 	 * {@link #modifyIncoming} (the event fires further into {@code damage}).
 	 */
 	static boolean allow(LivingEntity target, DamageSource source, float amount) {
-		if (source.isOf(DamageTypes.ON_FIRE) && GearArmor.fullSet(target, GearArmor.SMOLDERING)) {
-			return false;
-		}
-		return !(source.isIn(DamageTypeTags.IS_FALL) && amount <= 0 && GearArmor.wears(target, GearArmor.HUNTSMAN_GREAVES_ITEM));
+		boolean burningTick = source.isOf(DamageTypes.ON_FIRE);
+		return GearDamageRules.allows(burningTick, burningTick && GearArmor.fullSet(target, GearArmor.SMOLDERING),
+				greavesFall(target, source), amount);
 	}
 
 	static void register() {

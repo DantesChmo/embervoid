@@ -27,7 +27,7 @@ import java.util.List;
  * and break off ({@link EdgeLayout}).
  */
 public class EdgeFeature extends Feature<DefaultFeatureConfig> {
-	public static final int WALL_INSET = 95;
+	public static final int WALL_INSET = ReachWorldRules.WALL_INSET;
 	/** Bridges start where the ground begins to fall towards the cliffs. */
 	public static final int BRIDGE_INSET = 58;
 	public static final int BRIDGES = 6;
@@ -40,7 +40,7 @@ public class EdgeFeature extends Feature<DefaultFeatureConfig> {
 	}
 
 	public static double wallRadius(RealmDefinition realm) {
-		return realm.radius() - WALL_INSET;
+		return ReachWorldRules.wallRadius(realm.radius());
 	}
 
 	public static List<EdgeLayout.Bridge> bridges(ServerWorld world, RealmDefinition realm) {

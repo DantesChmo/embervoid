@@ -618,7 +618,7 @@ public final class GearTests implements FabricGameTest {
 					player.getBoundingBox().expand(4), bolt -> bolt.getOwner() == player);
 			context.assertTrue(bolts.size() == 1, "expected one bolt, got " + bolts.size());
 			PersistentProjectileEntity bolt = bolts.get(0);
-			int hit = (int) Math.ceil(bolt.getVelocity().length() * bolt.getDamage());
+			int hit = HuntsmansCrossbowItem.hitDamage(bolt, 0);
 			context.assertTrue(hit == 16 && !bolt.isCritical(), "bolt hits for " + hit + ", critical " + bolt.isCritical());
 			context.assertTrue(bolt.getPunch() == 3 && bolt.getPierceLevel() == 2,
 					"punch " + bolt.getPunch() + ", pierce " + bolt.getPierceLevel());
