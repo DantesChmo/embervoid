@@ -55,7 +55,7 @@ final class WaveState extends PersistentState {
 		return null;
 	}
 
-	private static WaveState fromNbt(NbtCompound nbt) {
+	static WaveState fromNbt(NbtCompound nbt) {
 		WaveState state = new WaveState();
 		state.night = nbt.getLong("Night");
 		NbtCompound waves = nbt.getCompound("Waves");

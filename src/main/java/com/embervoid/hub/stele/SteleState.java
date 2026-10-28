@@ -15,6 +15,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -30,6 +31,30 @@ public final class SteleState extends PersistentState {
 		/** Whether {@code pos} in {@code world} is one of its stones or its crack. */
 		public boolean contains(RegistryKey<World> world, BlockPos pos) {
 			return world == dimension && (frame.stones().contains(pos) || frame.crack().contains(pos));
+		}
+	}
+
+	/** A lit stele as saved: the dimension by id, since a world key needs the registries. */
+	record Saved(Identifier dimension, SteleFrame frame) {
+		/** Empty for a broken entry: no dimension id, or an axis that is not horizontal. */
+		static Optional<Saved> fromNbt(NbtCompound nbt) {
+			Identifier dimension = Identifier.tryParse(nbt.getString("Dimension"));
+			Direction.Axis axis = Direction.Axis.fromName(nbt.getString("Axis"));
+			// No shape: saved before 0.5.3, when every stele was a slab.
+			SteleFrame.Shape shape = nbt.getString("Shape").equals("circle") ? SteleFrame.Shape.CIRCLE : SteleFrame.Shape.SLAB;
+			if (dimension == null || axis == null || !axis.isHorizontal()) {
+				return Optional.empty();
+			}
+			return Optional.of(new Saved(dimension, new SteleFrame(NbtHelper.toBlockPos(nbt.getCompound("Origin")), axis, shape)));
+		}
+
+		NbtCompound toNbt() {
+			NbtCompound nbt = new NbtCompound();
+			nbt.putString("Dimension", dimension.toString());
+			nbt.put("Origin", NbtHelper.fromBlockPos(frame.origin()));
+			nbt.putString("Axis", frame.axis().asString());
+			nbt.putString("Shape", frame.shape() == SteleFrame.Shape.CIRCLE ? "circle" : "slab");
+			return nbt;
 		}
 	}
 
@@ -62,18 +87,11 @@ public final class SteleState extends PersistentState {
 		}
 	}
 
-	private static SteleState fromNbt(NbtCompound nbt) {
+	static SteleState fromNbt(NbtCompound nbt) {
 		SteleState state = new SteleState();
 		if (nbt.contains("Lit", NbtElement.COMPOUND_TYPE)) {
-			NbtCompound lit = nbt.getCompound("Lit");
-			Identifier dimension = Identifier.tryParse(lit.getString("Dimension"));
-			Direction.Axis axis = Direction.Axis.fromName(lit.getString("Axis"));
-			// No shape: saved before 0.5.3, when every stele was a slab.
-			SteleFrame.Shape shape = lit.getString("Shape").equals("circle") ? SteleFrame.Shape.CIRCLE : SteleFrame.Shape.SLAB;
-			if (dimension != null && axis != null && axis.isHorizontal()) {
-				state.lit = new Lit(RegistryKey.of(RegistryKeys.WORLD, dimension),
-						new SteleFrame(NbtHelper.toBlockPos(lit.getCompound("Origin")), axis, shape));
-			}
+			Saved.fromNbt(nbt.getCompound("Lit")).ifPresent(saved ->
+					state.lit = new Lit(RegistryKey.of(RegistryKeys.WORLD, saved.dimension()), saved.frame()));
 		}
 		for (NbtElement user : nbt.getList("Users", NbtElement.INT_ARRAY_TYPE)) {
 			state.users.add(NbtHelper.toUuid(user));
@@ -84,12 +102,7 @@ public final class SteleState extends PersistentState {
 	@Override
 	public NbtCompound writeNbt(NbtCompound nbt) {
 		if (lit != null) {
-			NbtCompound saved = new NbtCompound();
-			saved.putString("Dimension", lit.dimension().getValue().toString());
-			saved.put("Origin", NbtHelper.fromBlockPos(lit.frame().origin()));
-			saved.putString("Axis", lit.frame().axis().asString());
-			saved.putString("Shape", lit.frame().shape() == SteleFrame.Shape.CIRCLE ? "circle" : "slab");
-			nbt.put("Lit", saved);
+			nbt.put("Lit", new Saved(lit.dimension().getValue(), lit.frame()).toNbt());
 		}
 		NbtList users = new NbtList();
 		for (UUID user : this.users) {
