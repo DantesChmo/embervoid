@@ -10,6 +10,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.Vec3d;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,6 +32,16 @@ class ParticleEffectsTest {
 		TintedParticleEffect effect = new TintedParticleEffect(null, 0.25f, CombatFx.BLOOD);
 		NbtElement nbt = codec.encodeStart(NbtOps.INSTANCE, effect).getOrThrow(false, s -> {});
 		assertEquals(effect, codec.parse(NbtOps.INSTANCE, nbt).getOrThrow(false, s -> {}));
+	}
+
+	@Disabled("bug: the command reader takes only decimal colours, the documented 0xFF7A2A reads as 0 and leaves xFF7A2A unread")
+	@Test
+	void tintedEffectReadsTheDocumentedHexColourFromACommand() throws CommandSyntaxException {
+		StringReader command = new StringReader(" 3 0xFF7A2A");
+		TintedParticleEffect effect = TintedParticleEffect.FACTORY.read(null, command);
+		assertEquals(0xFF7A2A, effect.color());
+		assertEquals(3f, effect.size());
+		assertEquals(0, command.getRemainingLength());
 	}
 
 	@Test
