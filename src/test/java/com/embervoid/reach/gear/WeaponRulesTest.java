@@ -63,4 +63,58 @@ class WeaponRulesTest {
 			assertEquals(16, (int) Math.ceil(speed * base));
 		}
 	}
+
+	@Test
+	void chargeFactorGrowsWithCharge() {
+		float previous = WeaponRules.chargeFactor(0);
+		for (int step = 1; step <= 20; step++) {
+			float factor = WeaponRules.chargeFactor(step / 20f);
+			assertTrue(factor > previous, "at " + step / 20f);
+			previous = factor;
+		}
+	}
+
+	@Test
+	void kindlingBelowTenWeakensTheEmberPartButNeverBelowZero() {
+		assertEquals(0.9f, WeaponRules.kindlingMultiplier(-5, 0.02f, 1), 1e-6);
+		assertEquals(0.97f, WeaponRules.kindlingMultiplier(-5, 0.02f, 0.3f), 1e-6);
+		assertEquals(0, WeaponRules.kindlingMultiplier(-100, 0.02f, 1), 1e-6);
+	}
+
+	@Test
+	void waveEdgesAreInside() {
+		assertTrue(WeaponRules.inWave(0, 0, 6, 3));
+		assertTrue(WeaponRules.inWave(6, 1.5, 6, 3));
+		assertTrue(WeaponRules.inWave(6, -1.5, 6, 3));
+		assertFalse(WeaponRules.inWave(6, -1.51, 6, 3));
+	}
+
+	@Test
+	void noSlideNeedsNoSpeed() {
+		assertEquals(0, WeaponRules.slideSpeed(0), 1e-12);
+		assertEquals(2 * WeaponRules.slideSpeed(3), WeaponRules.slideSpeed(6), 1e-12);
+	}
+
+	@Test
+	void rampIgnoresNegativeHitCountsAndBackwardGaps() {
+		assertEquals(1.0f, WeaponRules.rampMultiplier(-3, 0.1f, 0.3f), 1e-6);
+		assertTrue(WeaponRules.keepsRamp(0, 30));
+		assertFalse(WeaponRules.keepsRamp(-1, 30));
+	}
+
+	@Test
+	void boltDamageHoldsThroughTheSpreadForEveryWholeDamageUpToThirty() {
+		for (int damage = 1; damage <= 30; damage++) {
+			double base = WeaponRules.boltBaseDamage(damage, WeaponRules.CROSSBOW_ARROW_SPEED);
+			for (double speed : new double[]{3.10, 3.15, 3.20}) {
+				assertEquals(damage, (int) Math.ceil(speed * base), damage + " at speed " + speed);
+			}
+		}
+	}
+
+	@Test
+	void boltBaseDamageIsNeverNegative() {
+		assertEquals(0, WeaponRules.boltBaseDamage(0, WeaponRules.CROSSBOW_ARROW_SPEED), 1e-12);
+		assertEquals(0, WeaponRules.boltBaseDamage(0.25f, WeaponRules.CROSSBOW_ARROW_SPEED), 1e-12);
+	}
 }

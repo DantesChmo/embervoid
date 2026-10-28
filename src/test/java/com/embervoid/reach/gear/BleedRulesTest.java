@@ -32,4 +32,27 @@ class BleedRulesTest {
 		assertFalse(BleedRules.damagesAt(59));
 		assertTrue(BleedRules.damagesAt(60));
 	}
+
+	@Test
+	void levelNeverDropsBelowNotBleeding() {
+		assertEquals(0, BleedRules.nextLevel(1, -3, 3));
+		assertEquals(0, BleedRules.nextLevel(0, 0, 3));
+	}
+
+	@Test
+	void noLevelDealsNoDamage() {
+		assertEquals(0f, BleedRules.damagePerTick(0, 0.5f), 1e-6);
+	}
+
+	@Test
+	void ticksExactlyOncePerSecond() {
+		int ticks = 0;
+		for (int age = 0; age < 200; age++) {
+			if (BleedRules.damagesAt(age)) {
+				ticks++;
+			}
+		}
+		assertEquals(10, ticks);
+		assertTrue(BleedRules.damagesAt(0));
+	}
 }
