@@ -27,7 +27,7 @@ public class SmolderingResinItem extends LoreItem {
 		}
 		if (!world.isClient()) {
 			int ticks = GearConfig.get().consumables().resinSeconds() * 20;
-			weapon.getOrCreateNbt().putLong(GearConsumables.RESIN_KEY, world.getTime() + ticks);
+			weapon.getOrCreateNbt().putLong(GearConsumables.RESIN_KEY, ConsumableRules.expiresAt(world.getTime(), ticks));
 			world.playSound(null, user.getX(), user.getY(), user.getZ(), GearSounds.SMOLDERING_RESIN_USE, SoundCategory.PLAYERS, 0.8f, 1.0f);
 			if (!user.getAbilities().creativeMode) {
 				resin.decrement(1);

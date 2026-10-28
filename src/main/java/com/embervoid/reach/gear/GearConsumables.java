@@ -56,12 +56,12 @@ public final class GearConsumables {
 
 	/** Whether the stack's resin still burns at this game time. */
 	public static boolean resinBurning(ItemStack stack, long time) {
-		return stack.getNbt() != null && stack.getNbt().getLong(RESIN_KEY) > time;
+		return stack.getNbt() != null && ConsumableRules.burning(stack.getNbt().getLong(RESIN_KEY), time);
 	}
 
 	/** Whether this is an ember lantern whose oil still burns at this game time. */
 	public static boolean lanternBurning(ItemStack stack, long time) {
-		return stack.isOf(ModBlocks.EMBER_LANTERN.asItem()) && stack.getNbt() != null && stack.getNbt().getLong(OIL_KEY) > time;
+		return stack.isOf(ModBlocks.EMBER_LANTERN.asItem()) && stack.getNbt() != null && ConsumableRules.burning(stack.getNbt().getLong(OIL_KEY), time);
 	}
 
 	/**
