@@ -5,7 +5,6 @@ import com.embervoid.boss.BossMusic;
 import com.embervoid.boss.BossNames;
 import com.embervoid.mob.MobLevels;
 import com.embervoid.progress.ProgressManager;
-import com.embervoid.realm.RealmDefinition;
 import com.embervoid.realm.Realms;
 import com.embervoid.sanctum.SanctumItems;
 import com.embervoid.stats.PlayerStats;
@@ -143,17 +142,8 @@ public final class VampireFight {
 	 * overworld band) if none has.
 	 */
 	static int levelCap(List<ServerPlayerEntity> players) {
-		for (int i = Realms.ALL.size() - 1; i >= 0; i--) {
-			RealmDefinition realm = Realms.ALL.get(i);
-			if (players.stream().anyMatch(p -> ProgressManager.isRealmUnlocked(p, realm.id()))) {
-				int top = Math.max(realm.landingLevels().max(), realm.finalLevels().max());
-				for (RealmDefinition.LevelBand band : realm.zoneLevels()) {
-					top = Math.max(top, band.max());
-				}
-				return top;
-			}
-		}
-		return VampireConfig.get().bossCapNoRealm();
+		return VampireLevel.cap(Realms.ALL, realm -> players.stream().anyMatch(p -> ProgressManager.isRealmUnlocked(p, realm)),
+				VampireConfig.get().bossCapNoRealm());
 	}
 
 	private static Text bossName() {
