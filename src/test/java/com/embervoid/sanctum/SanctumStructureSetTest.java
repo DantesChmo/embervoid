@@ -22,7 +22,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** The Ruined Sanctum's structure set and pools as the game reads them (PLAN 16.2). */
+/** The Ruined Sanctum's structure set and pools as the game reads them. */
 class SanctumStructureSetTest {
 	private static final Path DATA = Path.of("src", "main", "resources", "data", "embervoid");
 	private static final Path STRUCTURES = Path.of("src", "main", "generated", "data", "embervoid", "structures");
@@ -107,7 +107,6 @@ class SanctumStructureSetTest {
 		return STRUCTURES.resolve(location.substring("embervoid:".length()) + ".nbt");
 	}
 
-	/** The pools the jigsaw blocks of a template lead to. */
 	private static List<String> jigsawPools(Path file) throws IOException {
 		List<String> out = new ArrayList<>();
 		try (InputStream in = Files.newInputStream(file)) {

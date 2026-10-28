@@ -118,7 +118,6 @@ class ConfigFileTest {
 		assertEquals(12, levels.baseLevels().get("othermod:beast"));
 		assertEquals(6, levels.baseLevels().get("othermod:broken"));
 		assertEquals(7, levels.dimensionBonus().get("othermod:deep"));
-		// The built-in entries are still there.
 		assertTrue(levels.baseLevels().keySet().containsAll(com.embervoid.mob.MobConfig.DEFAULT.levels().baseLevels().keySet()));
 	}
 

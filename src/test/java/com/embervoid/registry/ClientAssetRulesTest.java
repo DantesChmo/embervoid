@@ -21,9 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Rules the client enforces only when it loads resources, which GameTests and the server check never do. One broken
  * file fails the whole resource reload: the game drops back to no resources at all and every letter on screen is a
- * box (0.5.0). GeckoLib refuses a channel whose 0 keyframe is not its first and draws a channel out of time order
+ * box. GeckoLib refuses a channel whose 0 keyframe is not its first and draws a channel out of time order
  * backwards; vanilla refuses a model element whose from or to leaves -16..32. Two more fail only where they are
- * drawn (0.5.2): a model whose parents end in builtin/generated (item/generated, item/handheld) is baked from its
+ * drawn: a model whose parents end in builtin/generated (item/generated, item/handheld) is baked from its
  * layer textures and its elements dropped, so it draws nothing; GeckoLib crashes the client on a glowmask without a
  * lit pixel.
  */

@@ -16,8 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * A swing's trail follows the clip the player plays (0.5.3: the Scythe's trail alternated sides over a one-way sweep and
- * the Longsword's ran flat under diagonal cuts): every swing clip but the whip's has a trail, and a sweep's trail runs
+ * A swing's trail follows the clip the player plays: every swing clip but the whip's has a trail, and a sweep's trail runs
  * the way the clip moves the right arm (its yaw falling is right to left, the trail's angle falling too).
  */
 class WeaponFxTest {

@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FallenSisterRulesTest {
-	/** The Sanctum arena's braziers (PLAN 16.3). */
+	/** The Sanctum arena's braziers. */
 	private static final int SIX = 6;
 
 	@Test

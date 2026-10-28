@@ -61,7 +61,6 @@ class WhipArcTest {
 		}
 	}
 
-	/** Two blocks to the side of the crosshair is off it all the way. */
 	@Test
 	void twoBlocksAsideIsOffTheLash() {
 		for (double z = 0; z <= REACH; z += 0.1) {

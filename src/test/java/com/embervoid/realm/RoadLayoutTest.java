@@ -113,7 +113,6 @@ class RoadLayoutTest {
 		}
 	}
 
-	/** Whether an outpost stands on the road between two posts. */
 	private static boolean outpostBetween(RoadLayout.Road road, RoadLayout.Outpost outpost, RoadLayout.Post a, RoadLayout.Post b) {
 		for (int k = 0; k < road.points().size(); k++) {
 			double[] p = road.points().get(k);
@@ -147,7 +146,7 @@ class RoadLayoutTest {
 	}
 
 	/**
-	 * The Reach's roads (PLAN 21.1), for its real arena placements over many seeds: no road, milestone, lantern post or
+	 * The Reach's roads, for its real arena placements over many seeds: no road, milestone, lantern post or
 	 * outpost reaches into the final zone's sector; the only road there is the gate road.
 	 */
 	@Test
