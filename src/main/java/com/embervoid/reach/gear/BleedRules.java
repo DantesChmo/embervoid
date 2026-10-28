@@ -10,7 +10,6 @@ public final class BleedRules {
 		return Math.max(0, Math.min(maxLevel, currentLevel + stacks));
 	}
 
-	/** Damage of one Bleeding tick at {@code level}. */
 	public static float damagePerTick(int level, float damagePerLevel) {
 		return level * damagePerLevel * DAMAGE_INTERVAL_TICKS / 20.0f;
 	}

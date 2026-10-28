@@ -18,7 +18,7 @@ public final class GearWeapons {
 
 	/**
 	 * 12 damage, speed 1.1, reach 3.5; every hit sweeps, ash wave on a full charge, stamina back per enemy a sweep or
-	 * Harvest catches; Harvest. STR 0.6 / DEX 0.4. The numbers are DESIGN §6.1's (0.5.0).
+	 * Harvest catches; Harvest. STR 0.6 / DEX 0.4. The numbers are DESIGN §6.1's.
 	 */
 	public static final Item ASHEN_SCYTHE = ModItems.register("ashen_scythe", new AshenScytheItem(settings(),
 			new GearWeaponItem.Spec(12, 1.1f, new WeaponScaling.Scaling(0.6f, 0.4f), 0, 3.5, 0, 0)));
@@ -38,8 +38,8 @@ public final class GearWeapons {
 	public static final List<Item> MELEE = List.of(ASHEN_SCYTHE, WARDENS_SCOURGE, ROYAL_ASH_RAPIER);
 
 	/**
-	 * The sword enchantments the realm melee weapons take on the anvil and the enchanting table (R40.1c): without them
-	 * an enchanted netherite sword out-damaged every realm weapon. Not Sweeping Edge: only swords sweep the vanilla
+	 * The sword enchantments the realm melee weapons take on the anvil and the enchanting table: without them
+	 * an enchanted netherite sword would out-damage every realm weapon. Not Sweeping Edge: only swords sweep the vanilla
 	 * way, and the Scythe has its own sweep.
 	 */
 	public static final Set<Enchantment> SWORD_ENCHANTMENTS = Set.of(Enchantments.SHARPNESS, Enchantments.SMITE,

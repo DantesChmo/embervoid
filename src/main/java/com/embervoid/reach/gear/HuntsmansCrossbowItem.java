@@ -83,7 +83,7 @@ public class HuntsmansCrossbowItem extends CrossbowItem {
 		return item == Items.CROSSBOW && stack.getItem() instanceof HuntsmansCrossbowItem;
 	}
 
-	/** Vanilla loading and shooting, with the player's load and fire animations (PLAN 17.1). */
+	/** Vanilla loading and shooting, with the player's load and fire animations. */
 	@Override
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
 		ItemStack stack = user.getStackInHand(hand);

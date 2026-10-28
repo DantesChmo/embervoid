@@ -84,7 +84,6 @@ public final class GearConsumables {
 		tickLantern(player);
 	}
 
-	/** The other hand's stack. */
 	static ItemStack otherHand(PlayerEntity player, Hand hand) {
 		return player.getStackInHand(hand == Hand.MAIN_HAND ? Hand.OFF_HAND : Hand.MAIN_HAND);
 	}

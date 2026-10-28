@@ -23,7 +23,7 @@ public final class GearArmor {
 	public static final List<EquipmentSlot> SLOTS = List.of(EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET);
 
 	/**
-	 * Netherite's numbers (DESIGN §6, 0.5.0): protection 3/8/6/3, toughness 3 and knockback resistance 0.1 per piece,
+	 * Netherite's numbers (DESIGN §6): protection 3/8/6/3, toughness 3 and knockback resistance 0.1 per piece,
 	 * ~1.15× diamond durability; fire reduction and the set bonus in {@link GearDamage}.
 	 */
 	public static final GearArmorMaterial SMOLDERING = new GearArmorMaterial("smoldering", 38, new int[]{3, 8, 6, 3}, 12,

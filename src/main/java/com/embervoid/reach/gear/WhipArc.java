@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The Warden's Scourge's lash (DESIGN §6.1, PLAN 17.4): where it lies when the tip cracks, and how it gets there on a
+ * The Warden's Scourge's lash (DESIGN §6.1): where it lies when the tip cracks, and how it gets there on a
  * swing. No world access (JUnit-tested); the server hits along it ({@link WardensScourgeItem#crack}), the client lays
  * the drawn lash along it.
  *

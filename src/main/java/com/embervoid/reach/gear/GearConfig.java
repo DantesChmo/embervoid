@@ -6,7 +6,7 @@ import com.embervoid.config.SectionReader;
 import com.google.gson.JsonObject;
 
 /**
- * {@code gear.*} in {@code config/embervoid.json}: Ashen Reach gear (DESIGN §4.5 "Loot", PLAN 11.1–11.8). Numbers are
+ * {@code gear.*} in {@code config/embervoid.json}: Ashen Reach gear (DESIGN §4.5 "Loot"). Numbers are
  * starting values for the balance pass.
  *
  * @param bleeding   the Bleeding status effect

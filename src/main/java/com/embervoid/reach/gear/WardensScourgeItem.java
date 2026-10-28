@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
- * Warden's Scourge (DESIGN §6.1, PLAN 17.4): a whip that hits every enemy along its lash ({@link WhipArc}) out to its
+ * Warden's Scourge (DESIGN §6.1): a whip that hits every enemy along its lash ({@link WhipArc}) out to its
  * reach; the tip, the last {@code gear.weapons.whipTipBand} blocks, cracks for {@code whipTipMultiplier} with its own
  * sound and a flash. Bleeding on every hit; Lash.
  *
@@ -67,7 +67,6 @@ public class WardensScourgeItem extends GearWeaponItem {
 		return player.getMainHandStack().getItem() instanceof WardensScourgeItem;
 	}
 
-	/** This whip's lash. */
 	public WhipArc arc() {
 		return arc(spec().reach());
 	}
