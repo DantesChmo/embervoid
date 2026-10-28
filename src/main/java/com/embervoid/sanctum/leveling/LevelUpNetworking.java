@@ -25,7 +25,6 @@ public final class LevelUpNetworking {
 	public static final Identifier LEVEL_UP = Embervoid.id("level_up");
 	public static final String REFRESH = "";
 
-	/** Opens the level-up screen for a player talking to {@code maiden}. */
 	public static void open(ServerPlayerEntity player, AshenMaidenEntity maiden) {
 		sendSheet(player, maiden, true);
 	}

@@ -3,7 +3,7 @@ package com.embervoid.sanctum.boss;
 import com.embervoid.registry.ModSounds;
 import net.minecraft.sound.SoundEvent;
 
-/** Sound events of the Fallen Sister and her crying souls (PLAN 16.3): vanilla files remapped in sounds.json. */
+/** Sound events of the Fallen Sister and her crying souls: vanilla files remapped in sounds.json. */
 public final class SanctumBossSounds {
 	public static final SoundEvent FALLEN_SISTER_AMBIENT = ModSounds.register("entity.fallen_sister.ambient");
 	public static final SoundEvent FALLEN_SISTER_HURT = ModSounds.register("entity.fallen_sister.hurt");

@@ -19,17 +19,16 @@ import net.minecraft.world.gen.structure.Structure;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The boss wing of a Ruined Sanctum (PLAN 16.1, DESIGN §2), one jigsaw piece behind the gate hall: a shrine room, a
+ * The boss wing of a Ruined Sanctum (DESIGN §2), one jigsaw piece behind the gate hall: a shrine room, a
  * fog wall ({@link FogWallBlock}) and the arena with a cold Cleft Stele at its far end. The stele's stones cannot be
  * mined outside creative while they stand in an arena piece, so every dungeon keeps a stele for its Crying Soul.
- * The Fallen Sister is summoned at the arena's centre ({@code sanctum.boss.SanctumBossArena}, PLAN 16.3).
+ * The Fallen Sister is summoned at the arena's centre ({@code sanctum.boss.SanctumBossArena}).
  */
 public final class SanctumArena {
 	/** The overworld structure; the id stays from the Ember Sanctum so {@code /locate} and old maps still find it. */
 	public static final RegistryKey<Structure> STRUCTURE = RegistryKey.of(RegistryKeys.STRUCTURE, Embervoid.id("ember_sanctum"));
-	/** Template of the boss wing. */
 	public static final Identifier TEMPLATE = Embervoid.id("sanctum/arena");
-	/** Template of the old core (Maiden, obelisks): only Sanctums planned before 0.5.0 still place it. */
+	/** Template of the old core (Maiden, obelisks): no pool leads to it; Sanctums already planned in 0.4.x worlds place it. */
 	public static final Identifier OLD_CORE = Embervoid.id("sanctum/core");
 
 	static void register() {
@@ -60,7 +59,6 @@ public final class SanctumArena {
 		return null;
 	}
 
-	/** Whether a structure piece was placed from the given template. */
 	public static boolean isPiece(StructurePiece piece, Identifier template) {
 		return piece instanceof PoolStructurePiece pool && pool.getPoolElement() instanceof SinglePoolElement single
 				&& ((SinglePoolElementAccessor) single).embervoid$location().left().filter(template::equals).isPresent();

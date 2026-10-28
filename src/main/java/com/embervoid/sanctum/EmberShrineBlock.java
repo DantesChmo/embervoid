@@ -21,7 +21,7 @@ import net.minecraft.world.World;
 import java.util.function.Predicate;
 
 /**
- * Ember Shrine: the rest point of the Sanctum and, later, of realms (DESIGN §4.2). Right-click to rest.
+ * Ember Shrine: the rest point of the Sanctum and of realms (DESIGN §4.2). Right-click to rest.
  * Unbreakable, like every core block.
  */
 public class EmberShrineBlock extends Block {

@@ -26,7 +26,6 @@ public final class CryingSoulFlight {
 		return state;
 	}
 
-	/** Ticks spent in the current state. */
 	public int ticks() {
 		return ticks;
 	}

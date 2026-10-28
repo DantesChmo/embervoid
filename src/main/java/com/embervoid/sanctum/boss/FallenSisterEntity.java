@@ -39,7 +39,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Fallen Sister, the Ruined Sanctum's boss (DESIGN §2, PLAN 16.3): the Ashen Maiden's burnt-out twin, 3 blocks tall,
+ * Fallen Sister, the Ruined Sanctum's boss (DESIGN §2): the Ashen Maiden's burnt-out twin, 3 blocks tall,
  * a censer on a long chain, Lv 10. The gatekeeper of the mod: fought by a level 1 player in iron with an iron sword.
  * Built to DESIGN §5.5 against that player (light moves ≤ 20 % of their health, heavy ≤ 35 %, the spin her biggest;
  * every move behind a marked shape) and to about 20 % uptime: her combos chain close and her recoveries are short.
@@ -59,7 +59,7 @@ import java.util.List;
  */
 public class FallenSisterEntity extends ReachBoss {
 	public static final double BASE_HEALTH = 115;
-	/** Windup of each move in ticks (the balance model reads them, PLAN 18.1); the second arc follows the first. */
+	/** Windup of each move in ticks (the balance model reads them); the second arc follows the first. */
 	public static final int ARC_1_WINDUP = 18;
 	public static final int ARC_2_WINDUP = 12;
 	public static final int SLAM_WINDUP = 24;
@@ -234,8 +234,6 @@ public class FallenSisterEntity extends ReachBoss {
 		return 2.5;
 	}
 
-	// --- Moves ---
-
 	@Override
 	protected int chooseMove(LivingEntity target, double squaredDistance) {
 		if (squaredDistance > MELEE_RANGE * MELEE_RANGE) {
@@ -349,8 +347,6 @@ public class FallenSisterEntity extends ReachBoss {
 		return getPos().add(forward.multiply(0.55)).add(right.multiply(0.3)).add(0, 0.45, 0);
 	}
 
-	// --- Crying souls ---
-
 	private void summonFlock(BossFight fight, int count) {
 		flocks++;
 		flockTimer = FLOCK_INTERVAL;
@@ -421,8 +417,6 @@ public class FallenSisterEntity extends ReachBoss {
 		return flocks;
 	}
 
-	// --- Braziers ---
-
 	/** Every campfire in the arena room, nearest the door first; remembered so a reset puts them out again. */
 	private void findBraziers(BossFight fight) {
 		braziers.clear();
@@ -458,8 +452,6 @@ public class FallenSisterEntity extends ReachBoss {
 		world.playSound(null, pos, SanctumBossSounds.FALLEN_SISTER_BRAZIER, SoundCategory.BLOCKS, 1.0f, 1.0f);
 		world.spawnParticles(ParticleTypes.FLAME, pos.getX() + 0.5, pos.getY() + 0.8, pos.getZ() + 0.5, 10, 0.2, 0.2, 0.2, 0.02);
 	}
-
-	// --- Damage, death ---
 
 	@Override
 	public boolean damage(DamageSource source, float amount) {

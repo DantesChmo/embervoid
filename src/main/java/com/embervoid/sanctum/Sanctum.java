@@ -10,7 +10,7 @@ import net.minecraft.util.Identifier;
 import java.util.Objects;
 
 /**
- * Entry point of the Sanctum (milestone 5; the overworld dungeon, the Ruined Sanctum, since PLAN 16.1): one call from
+ * Entry point of the Sanctum, the overworld dungeon (the Ruined Sanctum): one call from
  * {@code Embervoid.onInitialize}.
  */
 public final class Sanctum {

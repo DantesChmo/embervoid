@@ -20,9 +20,9 @@ import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The summon rule of the Ruined Sanctum's arena (PLAN 16.3, DESIGN §2): a player who steps inside the fog radius of
+ * The summon rule of the Ruined Sanctum's arena (DESIGN §2): a player who steps inside the fog radius of
  * an arena whose Fallen Sister is not beaten yet starts her fight on the boss framework ({@link ArenaManager#start}),
- * at the arena's centre (where 16.1's placeholder marker stood). Each dungeon's boss is beaten once per world, by
+ * at the arena's centre. Each dungeon's boss is beaten once per world, by
  * whoever is in the fight; after that the dungeon stays cleared ({@link ClearedSanctums}) and nobody summons her
  * there again. There is no rematch.
  */
@@ -33,7 +33,7 @@ public final class SanctumBossArena {
 	public static final int LEVEL = 10;
 	/** The fog wall around the arena centre; the room's walls are 9 blocks out. */
 	public static final int RADIUS = 9;
-	/** The arena floor's centre in the boss wing template (16.1: the marker stood one block above it). */
+	/** The arena floor's centre in the boss wing template. */
 	public static final BlockPos TEMPLATE_CENTER = new BlockPos(10, 0, 19);
 	/** How often players are checked for stepping in, in ticks. */
 	private static final int CHECK_INTERVAL = 5;
@@ -90,7 +90,6 @@ public final class SanctumBossArena {
 		return center(pool.getPos(), pool.getRotation());
 	}
 
-	/** The arena floor centre of a boss wing placed at {@code piecePos} turned by {@code rotation}. */
 	public static BlockPos center(BlockPos piecePos, BlockRotation rotation) {
 		return piecePos.add(StructureTemplate.transformAround(TEMPLATE_CENTER, BlockMirror.NONE, rotation, BlockPos.ORIGIN));
 	}
@@ -99,7 +98,6 @@ public final class SanctumBossArena {
 		return ClearedSanctums.get(world).isCleared(center);
 	}
 
-	/** Her death: this dungeon is cleared for good. */
 	static void markCleared(ServerWorld world, BlockPos center) {
 		if (ClearedSanctums.get(world).clear(center)) {
 			Embervoid.LOGGER.info("Ruined Sanctum at {} cleared", center.toShortString());

@@ -37,8 +37,8 @@ import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
 /**
- * {@code /embervoid sanctum survey <radius> [<seed> [<spacing> <separation>]]} (operator, debug; output not translated,
- * PLAN 16.2): plans the Ruined Sanctums around the command's position as worldgen would, on this world's seed or
+ * {@code /embervoid sanctum survey <radius> [<seed> [<spacing> <separation>]]} (operator, debug; output not translated):
+ * plans the Ruined Sanctums around the command's position as worldgen would, on this world's seed or
  * another, with the structure set's spacing or a trial one, without generating a chunk. Reports how many start within
  * the radius, of which variant, the biomes of the spots refused, and how far the land of that circle (where the
  * dungeon's biomes are) is from the nearest one. The server check runs it on two seeds.

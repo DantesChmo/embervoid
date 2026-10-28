@@ -61,12 +61,12 @@ import static com.embervoid.registry.ModBlocks.*;
  * cloister (surface, start) ─down─► descent_cloister ─► cloister_walk ─┘
  *                                                          └─ sides ─► halls pool (corridor / chamber / crypt / storeroom)
  * </pre>
- * Three variants (PLAN 16.2): the start pool picks the surface ruin, and each ruin leads through its own stairwell to
+ * Three variants: the start pool picks the surface ruin, and each ruin leads through its own stairwell to
  * its own guarded hall; all three halls lead on to the same boss wing and side halls, with the same guards and loot.
  * The path to the arena is a fixed chain, so every Sanctum has one; the side halls are random. The arena is one piece
- * with its shrine room, so it is placed in the same step as the side halls, like the core before it, and nothing
- * built later can take its place. The old core (Maiden, obelisks) is still written: Sanctums planned before 0.5.0
- * still place it, but no pool leads to it any more (PLAN 16.1).
+ * with its shrine room, so it is placed in the same step as the side halls and nothing built later can take its
+ * place. The old core (Maiden, obelisks) is still written for Sanctums already planned in 0.4.x worlds; no pool
+ * leads to it.
  * Horizontal connectors sit in the middle of 3x3 doorways at feet level (y = 1).
  */
 final class SanctumTemplates {
@@ -305,8 +305,8 @@ final class SanctumTemplates {
 	}
 
 	/**
-	 * Guarded hall between the descent and the arena, 9x7x23, with loot and two side exits. Its size and blocks stay
-	 * as they were when it led to the core, so a Sanctum planned before 0.5.0 still fits around it.
+	 * Guarded hall between the descent and the arena, 9x7x23, with loot and two side exits. Its size and blocks must
+	 * not change: Sanctums planned in 0.4.x worlds, where it led to the core, still have to fit around it.
 	 */
 	private static TemplateBuilder gateHall() {
 		TemplateBuilder t = new TemplateBuilder(9, 7, 23);
@@ -343,9 +343,9 @@ final class SanctumTemplates {
 	}
 
 	/**
-	 * The core of Sanctums before 0.5.0, 21x11x21: a safe room floored with Sanctum Flagstone (unbreakable,
+	 * The old core of Sanctums planned in 0.4.x worlds, 21x11x21: a safe room floored with Sanctum Flagstone (unbreakable,
 	 * spawn-proof, attunes), the Ember Shrine in the middle, four Void Obelisks in a ring and the Ashen Maiden. No pool
-	 * leads here any more; the template stays for Sanctums half generated in old worlds.
+	 * leads here; the template stays for Sanctums half generated in old worlds.
 	 */
 	private static TemplateBuilder core() {
 		TemplateBuilder t = new TemplateBuilder(21, 11, 21);
@@ -388,12 +388,12 @@ final class SanctumTemplates {
 	}
 
 	/**
-	 * The boss wing, 21x11x30 (PLAN 16.1, DESIGN §2): a 9x7x10 shrine room at the gate hall's door with an Ember
+	 * The boss wing, 21x11x30 (DESIGN §2): a 9x7x10 shrine room at the gate hall's door with an Ember
 	 * Shrine (rest and flasks; overworld shrines set no respawn point), a fog wall in its far doorway, then the boss
 	 * arena where the core was: the core's 21x21 hall, ruined and dim, with unlit braziers along the sides and a cold
 	 * Cleft Stele circle on a dais at the far end ({@link SanctumArena} keeps it from being mined). The Fallen Sister is
-	 * summoned at the arena's centre ({@link SanctumBossArena}, PLAN 16.3). Low candles and one high lantern keep every floor block at block
-	 * light 1 or more, so nothing spawns in the arena.
+	 * summoned at the arena's centre ({@link SanctumBossArena}). Low candles and one high lantern keep every floor
+	 * block at block light 1 or more, so nothing spawns in the arena.
 	 */
 	private static TemplateBuilder arena() {
 		TemplateBuilder t = new TemplateBuilder(21, 11, 30);
@@ -413,7 +413,7 @@ final class SanctumTemplates {
 
 		// The arena: the core's hall without its obelisks and Maiden, its chiseled stone gone but for the door and dais.
 		hall(t, random, 0, 0, 9, 20, 10, 29, true);
-		// The centre, where the Fallen Sister is summoned (PLAN 16.3).
+		// The centre, where the Fallen Sister is summoned.
 		int cx = SanctumBossArena.TEMPLATE_CENTER.getX();
 		int cz = SanctumBossArena.TEMPLATE_CENTER.getZ();
 		for (int x = 1; x <= 19; x++) {
@@ -444,13 +444,13 @@ final class SanctumTemplates {
 		t.fill(8, 1, 9, 8, 3, 9, PILLAR).fill(12, 1, 9, 12, 3, 9, PILLAR).set(8, 4, 9, CARVED).set(12, 4, 9, CARVED)
 				.fill(9, 4, 9, 11, 4, 9, CHISELED).set(10, 5, 9, RUNE);
 
-		// Braziers on pedestals, unlit until the fight (PLAN 16.3 lights them as she weakens).
+		// Braziers on pedestals, unlit until the fight lights them as she weakens.
 		BlockState brazier = Blocks.CAMPFIRE.getDefaultState().with(CampfireBlock.LIT, false);
 		for (int z : new int[]{13, 19, 24}) {
 			t.set(3, 1, z, WALL).set(3, 2, z, brazier.with(CampfireBlock.FACING, Direction.EAST));
 			t.set(17, 1, z, WALL).set(17, 2, z, brazier.with(CampfireBlock.FACING, Direction.WEST));
 		}
-		// Great braziers over the campfires follow them; censers under the cornice light at her phase (PLAN 20.2).
+		// Great braziers over the campfires follow them; censers under the cornice light at her phase.
 		for (int z : new int[]{13, 19, 24}) {
 			t.set(3, 3, z, SetPieces.GREAT_BRAZIER.getDefaultState().with(SetPieceBlock.FACING, Direction.EAST));
 			t.set(17, 3, z, SetPieces.GREAT_BRAZIER.getDefaultState().with(SetPieceBlock.FACING, Direction.WEST));
@@ -487,7 +487,7 @@ final class SanctumTemplates {
 	}
 
 	/**
-	 * Collapsed chapel, 17x13x21 (PLAN 16.2, the second start): a nave along z with its roof fallen in, the walls
+	 * Collapsed chapel, 17x13x21 (the second start): a nave along z with its roof fallen in, the walls
 	 * standing higher towards the apse, two rows of pillars, pews, an altar under two tattered standards at the south end
 	 * and a few graves along both outer walls. The way down is a hole broken through the nave floor, railed like the
 	 * ruin's shaft. Same foundation and ground layer as the ruin, so the structure's start height fits all three.
@@ -576,7 +576,7 @@ final class SanctumTemplates {
 		}
 		t.fill(13, 1, 10, 13, 1, 14, DEAD_LOG.getDefaultState().with(PillarBlock.AXIS, Direction.Axis.Z));
 		t.set(sx, 7, 16, Props.IRON_CAGE.getDefaultState().with(HangingPropBlock.HANGING, true));
-		t.set(5, 7, 16, SetPieces.CENSER.getDefaultState()).set(11, 7, 16, SetPieces.CENSER.getDefaultState()); // censers swaying from the beam (PLAN 20.2)
+		t.set(5, 7, 16, SetPieces.CENSER.getDefaultState()).set(11, 7, 16, SetPieces.CENSER.getDefaultState()); // censers swaying from the beam
 
 		// Pews facing the altar; some are gone.
 		BlockState pew = DEAD_STAIRS.getDefaultState().with(StairsBlock.FACING, Direction.NORTH);
@@ -694,7 +694,7 @@ final class SanctumTemplates {
 	}
 
 	/**
-	 * Sunken cloister, 21x11x21 (PLAN 16.2, the third start): a square court sunk three blocks into the ground, a covered
+	 * Sunken cloister, 21x11x21 (the third start): a square court sunk three blocks into the ground, a covered
 	 * walk around it under a low, partly fallen roof on columns, steps down from the north and the south, graves and a
 	 * dead tree in the court, and a well in its middle that is the way down. Same foundation and ground layer as the
 	 * ruin; the court's floor is the template's bottom layer, where the stairwell joins.
@@ -996,7 +996,7 @@ final class SanctumTemplates {
 		return t;
 	}
 
-	/** Dead-end storeroom, 9x6x11 (PLAN 16.2): sacks, barrels, a broken cart and a weapon rack, a chest, a Hollow spot. */
+	/** Dead-end storeroom, 9x6x11: sacks, barrels, a broken cart and a weapon rack, a chest, a Hollow spot. */
 	private static TemplateBuilder hallStoreroom() {
 		TemplateBuilder t = new TemplateBuilder(9, 6, 11);
 		Random random = new Random(24);

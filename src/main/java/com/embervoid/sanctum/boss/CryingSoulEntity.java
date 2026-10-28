@@ -33,7 +33,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.UUID;
 
 /**
- * A crying soul (DESIGN §2, PLAN 16.3): one of the Fallen Sister's tears, an add of her fight in phase 2. It circles
+ * A crying soul (DESIGN §2): one of the Fallen Sister's tears, an add of her fight in phase 2. It circles
  * her head until she sends it; then it rears back with a shriek while a line of soul fire marks the ground from it to
  * where its target stood ({@value #DIVE_WINDUP} ticks), dives along that line ({@value #DIVE_TICKS} ticks) hitting the
  * first player it touches, hangs dazed near the floor where it landed ({@value #DAZED_TICKS} ticks, the moment to kill
@@ -110,7 +110,6 @@ public class CryingSoulEntity extends HostileEntity implements GeoEntity {
 		dataTracker.set(STATE, (byte) flight.state().ordinal());
 	}
 
-	/** Whether it circles her, ready to be sent. */
 	public boolean isCircling() {
 		return state() == State.CIRCLING;
 	}
@@ -278,8 +277,6 @@ public class CryingSoulEntity extends HostileEntity implements GeoEntity {
 	protected SoundEvent getDeathSound() {
 		return SanctumBossSounds.CRYING_SOUL_DEATH;
 	}
-
-	// --- Animation ---
 
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {

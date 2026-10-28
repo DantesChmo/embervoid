@@ -13,7 +13,7 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
 /**
- * The fog wall in the doorway of a Ruined Sanctum's boss arena (PLAN 16.1): a curtain of drifting ash in the same
+ * The fog wall in the doorway of a Ruined Sanctum's boss arena: a curtain of drifting ash in the same
  * particles as a boss fight's fog wall ({@link com.embervoid.boss.BossFight}), seen as a glowing curtain of rising ember
  * fog (translucent, full bright, its faces against another fog wall block left out so the doorway reads as one sheet).
  * Nothing to hit: no outline and no collision, so players walk through it. Unbreakable, like the core blocks.

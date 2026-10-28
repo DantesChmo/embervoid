@@ -9,7 +9,7 @@ import net.minecraft.util.Rarity;
 import java.util.List;
 
 /**
- * The two Sanctum weapons (DESIGN §10.10, PLAN L1), found in the outer-hall chests: below every realm weapon, so the
+ * The two Sanctum weapons (DESIGN §10.10), found in the outer-hall chests: below every realm weapon, so the
  * special attacks (and END) matter before Realm 1.
  */
 public final class SanctumWeapons {
