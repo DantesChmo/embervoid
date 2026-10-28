@@ -45,16 +45,27 @@ public class HuntsmansCrossbowItem extends CrossbowItem {
 
 	/**
 	 * Makes a freshly made bolt of this crossbow heavier: {@code gear.crossbow.boltDamage} at a crossbow's launch speed
-	 * (with no crit roll on top), Punch III knockback, pierces two more mobs.
+	 * (with no crit roll on top, the hit itself in {@link #hitDamage}), Punch III knockback, pierces two more mobs.
 	 */
 	public static void strengthen(PersistentProjectileEntity bolt) {
 		GearConfig.Crossbow config = GearConfig.get().crossbow();
-		bolt.setDamage(WeaponRules.boltBaseDamage(config.boltDamage(), WeaponRules.CROSSBOW_ARROW_SPEED));
+		bolt.setDamage(config.boltDamage() / WeaponRules.CROSSBOW_ARROW_SPEED);
 		bolt.setCritical(false);
 		bolt.setPunch(Math.max(bolt.getPunch(), config.punch()));
 		bolt.setPierceLevel((byte) Math.min(127, bolt.getPierceLevel() + config.pierce()));
 		bolt.addCommandTag(BOLT_TAG);
 		WeaponFx.trackBolt(bolt);
+	}
+
+	/**
+	 * The damage {@code projectile} deals on hitting an entity, in place of vanilla's {@code vanillaDamage}: a bolt of this
+	 * crossbow deals {@code gear.crossbow.boltDamage} by {@link WeaponRules#boltHitDamage}.
+	 */
+	public static int hitDamage(PersistentProjectileEntity projectile, int vanillaDamage) {
+		if (!projectile.getCommandTags().contains(BOLT_TAG)) {
+			return vanillaDamage;
+		}
+		return WeaponRules.boltHitDamage(GearConfig.get().crossbow().boltDamage(), projectile.getVelocity().length());
 	}
 
 	/** Whether {@code source} is this crossbow's bolt landing on a mob that is not targeting the shooter. */

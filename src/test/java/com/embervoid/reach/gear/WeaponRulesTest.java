@@ -2,7 +2,6 @@ package com.embervoid.reach.gear;
 
 import com.embervoid.config.ConfigSection;
 import com.embervoid.config.EmbervoidConfig;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -60,10 +59,9 @@ class WeaponRulesTest {
 
 	@Test
 	void boltDealsItsDamageAtLaunchSpeed() {
-		double base = WeaponRules.boltBaseDamage(16, WeaponRules.CROSSBOW_ARROW_SPEED);
-		// Vanilla: ceil(speed × base), the speed a little off by the launch's spread.
+		// The speed is a little off 3.15 by the launch's spread.
 		for (double speed : new double[]{3.10, 3.15, 3.20}) {
-			assertEquals(16, (int) Math.ceil(speed * base));
+			assertEquals(16, WeaponRules.boltHitDamage(16, speed));
 		}
 	}
 
@@ -111,14 +109,27 @@ class WeaponRulesTest {
 	}
 
 	@Test
-	@Disabled("bug: boltBaseDamage drifts above ~32, e.g. 40 at speed 3.20 gives 41")
 	void aBoltDealsItsConfiguredDamageThroughTheSpreadOverTheWholeConfigRange() {
 		for (int damage = 1; damage <= maxConfigBoltDamage(); damage++) {
-			double base = WeaponRules.boltBaseDamage(damage, WeaponRules.CROSSBOW_ARROW_SPEED);
 			for (double speed : new double[]{3.10, 3.15, 3.20}) {
-				assertEquals(damage, (int) Math.ceil(speed * base), damage + " at speed " + speed);
+				assertEquals(damage, WeaponRules.boltHitDamage(damage, speed), damage + " at speed " + speed);
 			}
 		}
+	}
+
+	@Test
+	void aSlowedBoltDealsLessAndNeverMoreThanItsDamage() {
+		for (int damage : new int[]{7, 16, 40, 200}) {
+			int previous = 0;
+			for (double speed = 0; speed <= 4; speed += 0.05) {
+				int dealt = WeaponRules.boltHitDamage(damage, speed);
+				assertTrue(dealt >= previous && dealt <= damage, damage + " at speed " + speed + ": " + dealt);
+				previous = dealt;
+			}
+		}
+		// Half the launch speed, about half the damage.
+		assertEquals(8, WeaponRules.boltHitDamage(16, 1.55), 1);
+		assertEquals(0, WeaponRules.boltHitDamage(16, 0));
 	}
 
 	/** The highest whole boltDamage the gear config accepts. */
@@ -137,8 +148,8 @@ class WeaponRulesTest {
 	}
 
 	@Test
-	void boltBaseDamageIsNeverNegative() {
-		assertEquals(0, WeaponRules.boltBaseDamage(0, WeaponRules.CROSSBOW_ARROW_SPEED), 1e-12);
-		assertEquals(0, WeaponRules.boltBaseDamage(0.25f, WeaponRules.CROSSBOW_ARROW_SPEED), 1e-12);
+	void aBoltWithoutDamageDealsNone() {
+		assertEquals(0, WeaponRules.boltHitDamage(0, WeaponRules.CROSSBOW_ARROW_SPEED));
+		assertEquals(0, WeaponRules.boltHitDamage(0, -1));
 	}
 }

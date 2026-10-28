@@ -54,13 +54,17 @@ public final class WeaponRules {
 	/** A vanilla crossbow launches arrows at this speed (blocks per tick); a firework goes slower. */
 	public static final float CROSSBOW_ARROW_SPEED = 3.15f;
 
+	/** The launch's random spread puts a fresh bolt's speed anywhere from about this to 3.20. */
+	public static final float SLOWEST_LAUNCH_SPEED = 3.10f;
+
 	/**
-	 * The base damage that makes a bolt deal {@code boltDamage} when it hits at {@code speed}: vanilla deals
-	 * ceil(speed × base), so the base aims half a point low to stay on {@code boltDamage} through the launch's
-	 * small random spread.
+	 * Damage of a bolt that hits at {@code speed} when {@code boltDamage} is its damage at full launch speed: the whole
+	 * damage anywhere in the launch spread, less in proportion once drag has slowed the bolt below it. Replaces
+	 * vanilla's ceil(speed × base), which cannot hold one value through the spread above about 32 damage.
 	 */
-	public static double boltBaseDamage(float boltDamage, float speed) {
-		return Math.max(0, boltDamage - 0.5) / speed;
+	public static int boltHitDamage(float boltDamage, double speed) {
+		double share = Math.min(1, Math.max(0, speed) / SLOWEST_LAUNCH_SPEED);
+		return (int) Math.max(0, Math.round(boltDamage * share));
 	}
 
 	private WeaponRules() {}
