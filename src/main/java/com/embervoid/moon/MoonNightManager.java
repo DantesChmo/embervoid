@@ -26,35 +26,17 @@ public final class MoonNightManager {
 			return;
 		}
 		MoonNightState state = MoonNightState.get(server);
-		MoonConfig config = MoonConfig.get();
-		long time = overworld.getTimeOfDay();
-		long day = MoonSchedule.day(time);
-
-		if (state.night == MoonNight.NONE) {
-			MoonNight scheduled = MoonSchedule.nightOf(day, config.cycleInterval());
-			if (config.enabled() && scheduled.isEvent() && MoonSchedule.isNight(time) && day != state.lastEndedDay) {
-				start(server, state, scheduled, day);
-			}
-			return;
+		if (state.night != MoonNight.NONE) {
+			state.elapsedTicks++;
+			state.markDirty();
 		}
-
-		state.elapsedTicks++;
-		state.markDirty();
-		if (state.elapsedTicks >= config.fallbackTicks()) {
-			end(server, state, EndReason.TIMEOUT);
-			return;
-		}
-		if (!state.holds.isEmpty()) {
-			// Held: the clock stops just before dawn (also undoing a /time set past it). This runs after the worlds
-			// ticked, so set it two ticks short: the next tick's advance then reaches dawn - 1, never dawn itself.
-			long heldTime = MoonSchedule.dawnOf(state.nightDay) - 2;
-			if (time > heldTime) {
-				overworld.setTimeOfDay(heldTime);
-			}
-			return;
-		}
-		if (day != state.nightDay || !MoonSchedule.isNight(time)) {
-			end(server, state, EndReason.DAWN);
+		MoonNightClock.Step step = MoonNightClock.tick(state, overworld.getTimeOfDay(), MoonConfig.get());
+		if (step instanceof MoonNightClock.Step.Start start) {
+			start(server, state, start.night(), start.day());
+		} else if (step instanceof MoonNightClock.Step.HoldClock hold) {
+			overworld.setTimeOfDay(hold.timeOfDay());
+		} else if (step instanceof MoonNightClock.Step.End end) {
+			end(server, state, end.reason());
 		}
 	}
 
@@ -63,16 +45,7 @@ public final class MoonNightManager {
 	 * lie down a little before dusk, which would skip the night).
 	 */
 	public static boolean sleepBlocked(MinecraftServer server) {
-		MoonNightState state = MoonNightState.get(server);
-		if (state.night.isEvent()) {
-			return true;
-		}
-		MoonConfig config = MoonConfig.get();
-		long time = server.getOverworld().getTimeOfDay();
-		long day = MoonSchedule.day(time);
-		return config.enabled() && day != state.lastEndedDay
-				&& MoonSchedule.nightOf(day, config.cycleInterval()).isEvent()
-				&& MoonSchedule.timeInDay(time) >= MoonSchedule.EVENING;
+		return MoonNightClock.sleepBlocked(MoonNightState.get(server), server.getOverworld().getTimeOfDay(), MoonConfig.get());
 	}
 
 	/** Starts {@code night} now (debug), ending any current one; moves the clock to dusk if it is day. */
