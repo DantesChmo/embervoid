@@ -1,0 +1,4 @@
+# Registry ids that deliberately have no wiki page: spawn eggs (*_spawn_egg) are skipped by the check itself.
+item:embervoid:debug_sweep
+entity:embervoid:test_boss
+block:embervoid:placed_enemy
