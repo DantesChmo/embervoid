@@ -1,6 +1,7 @@
 package com.embervoid.vampire;
 
 import com.embervoid.boss.ArenaBoss;
+import com.embervoid.boss.BossFightRules;
 import com.embervoid.boss.Telegraph;
 import com.embervoid.fx.CombatFx;
 import com.embervoid.fx.particle.EmberParticles;
@@ -315,9 +316,8 @@ public class VampireBossEntity extends HostileEntity implements ArenaBoss, GeoEn
 
 	/** Called by {@link VampireFight} each tick: the next phase starts at its health threshold. */
 	void updatePhase() {
-		float[] thresholds = phaseThresholds();
-		float fraction = getHealth() / getMaxHealth();
-		while (phase < thresholds.length && fraction <= thresholds[phase]) {
+		int target = BossFightRules.phaseFor(phase, 0, phaseThresholds(), getHealth() / getMaxHealth());
+		while (phase < target) {
 			phase++;
 			onPhaseChange(phase);
 		}
