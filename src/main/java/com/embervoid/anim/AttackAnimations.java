@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
- * Player attack animations (PLAN 17.1): the server decides when a player swings or uses a special with one of our
+ * Player attack animations: the server decides when a player swings or uses a special with one of our
  * weapons and tells every client that tracks the player (and the player, for the third-person view), which plays the
  * weapon kind's {@link WeaponKind} clip through playerAnimator. Items not registered here, vanilla weapons among them,
  * keep the vanilla swing. First person plays the clip too, except the crossbow's (AttackAnimationsClient).
@@ -46,7 +46,6 @@ public final class AttackAnimations {
 	private record Playing(long start, int ticks, int swing) {
 	}
 
-	/** Gives {@code item} the animations of {@code kind}. */
 	public static void register(Item item, WeaponKind kind) {
 		KINDS.put(item, kind);
 	}
@@ -56,7 +55,6 @@ public final class AttackAnimations {
 		return KINDS.get(stack.getItem());
 	}
 
-	/** Every registered weapon and its kind. */
 	public static Map<Item, WeaponKind> registered() {
 		return new HashMap<>(KINDS);
 	}
@@ -104,7 +102,6 @@ public final class AttackAnimations {
 		}
 	}
 
-	/** The player shoots a loaded crossbow ({@code stack}). */
 	public static void crossbowFire(ServerPlayerEntity player, ItemStack stack) {
 		if (kindOf(stack) == WeaponKind.CROSSBOW) {
 			play(player, WeaponKind.CROSSBOW_FIRE, WeaponKind.CROSSBOW_FIRE.ticks(), armHolding(player, stack) == Arm.LEFT);
@@ -121,7 +118,6 @@ public final class AttackAnimations {
 		send(player, Math.max(1, ticks), clip, mirrored);
 	}
 
-	/** Sends the packet to everyone tracking {@code player} and to the player. */
 	private static void send(ServerPlayerEntity player, int ticks, @Nullable WeaponKind.Clip clip, boolean mirrored) {
 		PacketByteBuf buf = PacketByteBufs.create();
 		buf.writeVarInt(player.getId());
@@ -136,7 +132,6 @@ public final class AttackAnimations {
 		ServerPlayNetworking.send(player, PACKET, buf);
 	}
 
-	/** The arm that holds {@code stack}: the main arm for the main hand, the other one for the offhand. */
 	public static Arm armHolding(PlayerEntity player, ItemStack stack) {
 		return player.getOffHandStack() == stack && player.getMainHandStack() != stack
 				? player.getMainArm().getOpposite() : player.getMainArm();

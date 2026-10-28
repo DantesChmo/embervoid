@@ -14,7 +14,6 @@ class FacingTest {
 	private static final Vec3d WEST = new Vec3d(-1, 0, 0);
 	/** cos 60°: a cone 120° wide. */
 	private static final double CONE_120 = 0.5;
-	/** cos 110°. */
 	private static final double PAST_110 = Math.cos(Math.toRadians(110));
 
 	@Test

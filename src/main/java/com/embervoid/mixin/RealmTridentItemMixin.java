@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * The final zone's lock (PLAN 21.2): a riptide throw aimed into the final zone by a locked-out player does nothing,
+ * The final zone's lock: a riptide throw aimed into the final zone by a locked-out player does nothing,
  * on the server and on their own client alike (the clearance is synced).
  */
 @Mixin(TridentItem.class)

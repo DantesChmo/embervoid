@@ -63,7 +63,7 @@ public class EmbervoidDataGenerator implements DataGeneratorEntrypoint {
 			new Block[]{ASH_COBBLE_BRICKS, ASH_COBBLE_BRICK_STAIRS, ASH_COBBLE_BRICK_SLAB, ASH_COBBLE_BRICK_WALL},
 			new Block[]{ASH_TILES, ASH_TILE_STAIRS, ASH_TILE_SLAB},
 			new Block[]{SLATE_TILES, SLATE_TILE_STAIRS, SLATE_TILE_SLAB});
-	/** Single blocks of the art pass with a plain cube model. */
+	/** Single blocks with a plain cube model. */
 	static final List<Block> SIMPLE_BLOCKS = List.of(CRACKED_ASH_BRICKS, CHISELED_ASH_STONE, CRACKED_ASH_TILES, SOOTY_ASH_BRICKS,
 			MOSSY_COBBLED_ASH_STONE, CARVED_ASH_STONE, SANCTUM_RUNE_STONE);
 
@@ -255,7 +255,7 @@ public class EmbervoidDataGenerator implements DataGeneratorEntrypoint {
 				}
 			}
 
-			// The art pass's blocks: tiles and cobble bricks from the chain, mossy and sooty by hand, pillars and the
+			// Decorative blocks: tiles and cobble bricks from the chain, mossy and sooty by hand, pillars and the
 			// relief from slabs, slates from deepslate, the rune stone round a Cinder Shard.
 			offerPolishedStoneRecipe(exporter, building, ASH_TILES, POLISHED_ASH_STONE);
 			offerCrackingRecipe(exporter, CRACKED_ASH_TILES, ASH_TILES);

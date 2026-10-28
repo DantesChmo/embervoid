@@ -44,8 +44,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The realm's four sectors (PLAN 21.1): three open zones and the final zone's sector in one dimension, the Citadel Gate
- * on the landing plaza facing that sector with the gate road out to it, and realm respawn as before.
+ * The realm's four sectors: three open zones and the final zone's sector in one dimension, the Citadel Gate
+ * on the landing plaza facing that sector with the gate road out to it, and realm respawn.
  */
 public final class RealmSectorTests implements FabricGameTest {
 
@@ -67,8 +67,8 @@ public final class RealmSectorTests implements FabricGameTest {
 	}
 
 	/**
-	 * In the middle of each sector the zone, the biome, the level band and the zone title all resolve: the open zones as
-	 * before, the final sector to the Citadel biome and the final band (25–30).
+	 * In the middle of each sector the zone, the biome, the level band and the zone title all resolve, the final
+	 * sector to the Citadel biome and the final band (25–30).
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 200)
 	public void zonesAndTheFinalSectorResolve(TestContext context) {
@@ -111,7 +111,7 @@ public final class RealmSectorTests implements FabricGameTest {
 
 	/**
 	 * The landing plaza, built the way worldgen does: the Citadel Gate's fog wall stands on its rim on the side facing
-	 * the final sector (PLAN 21.2), the return obelisk opposite, and the plaza wall opens with two lantern posts onto
+	 * the final sector, the return obelisk opposite, and the plaza wall opens with two lantern posts onto
 	 * the gate road, which is paved from behind the gate out to the sector.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 1200)
@@ -184,7 +184,7 @@ public final class RealmSectorTests implements FabricGameTest {
 	}
 
 	/**
-	 * The final zone counts on its own (DESIGN §4.2, PLAN 21.3): a death in the final sector with no shrine rested at
+	 * The final zone counts on its own (DESIGN §4.2): a death in the final sector with no shrine rested at
 	 * there goes to the first Citadel shrine beside the gate road's end, also when a shrine in an open zone was rested
 	 * at; with one rested at in the sector, to that one.
 	 */

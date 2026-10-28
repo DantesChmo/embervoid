@@ -17,13 +17,13 @@ import net.minecraft.registry.tag.TagKey;
 import java.util.UUID;
 
 /**
- * What the six Realm 1 rings do while worn (PLAN 11.12, DESIGN §4.5). Numbers in config {@code reliquary.rings}.
+ * What the six Realm 1 rings do while worn. Numbers in config {@code reliquary.rings}.
  * Movement is decided by the client for its own player, so the movement rings work on both sides: the client reads
  * its synced Reliquary. Called from {@code ReliquaryLivingEntityMixin}, {@code ReliquaryPlayerEntityMixin}, the
  * client tick ({@code ReliquaryClient}) and the damage event below.
  */
 public final class RingEffects {
-	/** Realm ores (track reach-world, PLAN 9.5): Delver's Ring mines them faster. */
+	/** Realm ores: Delver's Ring mines them faster. */
 	public static final TagKey<Block> REALM_ORES = TagKey.of(RegistryKeys.BLOCK, Embervoid.id("realm_ores"));
 
 	private static final UUID COURIER_SPEED = UUID.fromString("7c1e2a40-5b6d-4f3a-9e21-3d8b0c4f6a11");
@@ -81,7 +81,7 @@ public final class RingEffects {
 	}
 
 	/**
-	 * Ring of the Fog Stalker: how much further out the realm fog starts and ends (the 9.1 fog API's clearing
+	 * Ring of the Fog Stalker: how much further out the realm fog starts and ends (the realm fog API's clearing
 	 * factor; boss arena fog is not clearable, so arenas stay as they are). 1 without the ring.
 	 */
 	public static float fogClearing(PlayerEntity player) {

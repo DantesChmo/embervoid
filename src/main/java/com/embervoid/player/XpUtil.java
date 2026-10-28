@@ -35,7 +35,6 @@ public final class XpUtil {
 		return (int) Math.min(Integer.MAX_VALUE, points);
 	}
 
-	/** Total points of a level and progress-bar state. */
 	public static int totalPoints(int level, float progress) {
 		long total = (long) pointsForLevel(level) + Math.round(progress * pointsToNextLevel(level));
 		return (int) Math.min(Integer.MAX_VALUE, total);
@@ -56,7 +55,6 @@ public final class XpUtil {
 		return new LevelProgress(level, (float) rest / pointsToNextLevel(level));
 	}
 
-	/** The player's exact XP points. */
 	public static int getPoints(PlayerEntity player) {
 		return totalPoints(player.experienceLevel, player.experienceProgress);
 	}

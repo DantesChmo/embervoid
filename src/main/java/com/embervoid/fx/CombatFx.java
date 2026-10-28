@@ -13,7 +13,7 @@ import net.minecraft.util.math.Vec3d;
 import java.util.List;
 
 /**
- * Combat effects (PLAN 19.2), called by boss and weapon code on the server: camera shake, swing trails and hit
+ * Combat effects, called by boss and weapon code on the server: camera shake, swing trails and hit
  * flashes. Each is a packet to the players near enough to see it; the client draws it (camera shake turned down or
  * off in Accessibility, flashes can be turned off there). Nothing here changes the fight.
  *

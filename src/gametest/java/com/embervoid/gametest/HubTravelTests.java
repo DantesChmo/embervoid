@@ -48,7 +48,7 @@ import net.minecraft.world.World;
 import java.util.List;
 
 /**
- * Realm travel through the hub (PLAN 15.2, DESIGN §2): the obelisks lead into realms, the way out of a realm is the
+ * Realm travel through the hub (DESIGN §2): the obelisks lead into realms, the way out of a realm is the
  * hub, the hub's way out (with no lit stele) is the spot the player last left the overworld from, else the bed or the
  * world spawn. Every test touches the one shared hub, so each has its own batch.
  */
@@ -204,7 +204,7 @@ public final class HubTravelTests implements FabricGameTest {
 	}
 
 	/**
-	 * An old world's Sanctum core (PLAN 15.5): the 0.4.x core template placed far off in the test world brings its Ashen
+	 * An old world's Sanctum core: the 0.4.x core template placed far off in the test world brings its Ashen
 	 * Maiden and four obelisks. The Realm 1 obelisk stays dark for a player without Realm 1 and takes one who has it
 	 * into the realm; the return obelisk leads to the hub, and the hub's way out back to where the player stood.
 	 */

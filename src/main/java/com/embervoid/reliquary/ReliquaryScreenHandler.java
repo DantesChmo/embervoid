@@ -31,7 +31,6 @@ public class ReliquaryScreenHandler extends ScreenHandler {
 	public static final ExtendedScreenHandlerType<ReliquaryScreenHandler> TYPE = Registry.register(
 			Registries.SCREEN_HANDLER, Embervoid.id("reliquary"), new ExtendedScreenHandlerType<>(ReliquaryScreenHandler::new));
 
-	/** How many slots of one kind this menu has. */
 	public record KindCount(SlotKind kind, int count) {}
 
 	private final List<KindCount> counts;
@@ -111,7 +110,6 @@ public class ReliquaryScreenHandler extends ScreenHandler {
 		return counts;
 	}
 
-	/** Whether an accessory slot other than {@code except} holds {@code item}. */
 	private boolean holdsElsewhere(Item item, Slot except) {
 		for (int i = 0; i < accessoryCount; i++) {
 			Slot slot = slots.get(i);

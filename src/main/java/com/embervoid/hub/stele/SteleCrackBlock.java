@@ -23,7 +23,7 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
 /**
- * The crack of a lit Cleft Stele (PLAN 15.3): the passage in its middle column, a thin sheet of mist like a nether
+ * The crack of a lit Cleft Stele: the passage in its middle column, a thin sheet of mist like a nether
  * portal's. Walked through, not broken: it goes only when its stele is put out. Walking in is handed to
  * {@link CleftStele#onEnter}; a right click goes through its stele too ({@link SteleTravel#use}).
  */

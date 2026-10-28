@@ -20,7 +20,7 @@ import java.util.OptionalInt;
 import java.util.UUID;
 
 /**
- * Full moon mob modifiers (DESIGN §3.3, PLAN 8.4) for overworld hostiles (mobs that get a level): those that spawn
+ * Full moon mob modifiers for overworld hostiles (mobs that get a level): those that spawn
  * on a full moon get {@code moon.fullMoon.levelBonus} extra levels (kept after the night); while the full moon is on,
  * all loaded ones have their follow range multiplied by {@code moon.fullMoon.followRange} (a transient modifier,
  * removed when the night ends) and do not lose a player target that stays within it ({@code TrackTargetGoalMixin}).

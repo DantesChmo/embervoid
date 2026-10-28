@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 /**
- * The final zone's lock (PLAN 21.2): a chorus fruit never takes a locked-out player into the final zone. A spot inside
+ * The final zone's lock: a chorus fruit never takes a locked-out player into the final zone. A spot inside
  * counts as a failed try, so the fruit tries another one as it does for a spot without room.
  */
 @Mixin(ChorusFruitItem.class)

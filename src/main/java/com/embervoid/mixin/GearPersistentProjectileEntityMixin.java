@@ -6,7 +6,7 @@ import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-/** Huntsman's Crossbow (track reach-gear): its bolts deal their configured damage. */
+/** Huntsman's Crossbow: its bolts deal their configured damage. */
 @Mixin(PersistentProjectileEntity.class)
 abstract class GearPersistentProjectileEntityMixin {
 	// The hit's damage, vanilla's ceil(speed × base), before the crit roll and the damage call.

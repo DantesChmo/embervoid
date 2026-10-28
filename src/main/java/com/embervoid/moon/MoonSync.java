@@ -14,7 +14,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
 /**
- * Tells clients which moon night is on, for the blood-red sky (PLAN 8.3). Sent on join, respawn, dimension change
+ * Tells clients which moon night is on, for the blood-red sky. Sent on join, respawn, dimension change
  * and whenever a night starts or ends; the client decides from its own dimension whether to tint.
  */
 public final class MoonSync {

@@ -12,7 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import software.bernie.geckolib.core.keyframe.event.SoundKeyframeEvent;
 
 /**
- * Client side of the set pieces (PLAN 20.1): the renderer, and the sound keyframes of the animation files played as
+ * Client side of the set pieces: the renderer, and the sound keyframes of the animation files played as
  * vanilla sounds at the piece ({@code creak}, {@code toll}, {@code chain}, {@code slam}, {@code grind}, {@code clink}).
  */
 public final class SetPieceClient {

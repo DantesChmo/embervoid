@@ -62,7 +62,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 /**
- * The Reliquary (PLAN 11.9–11.13) on real server players. The gametest mod tags vanilla stand-ins as accessories
+ * The Reliquary on real server players. The gametest mod tags vanilla stand-ins as accessories
  * ({@code data/embervoid/tags/items}): rabbit foot and heart of the sea as artifacts, gold nugget as a ring.
  */
 public final class ReliquaryTests implements FabricGameTest {
@@ -88,7 +88,6 @@ public final class ReliquaryTests implements FabricGameTest {
 		Reliquary last = connection.reliquaries.get(connection.reliquaries.size() - 1);
 		context.assertTrue(last.get(SlotKinds.ARTIFACT, 0).isOf(ARTIFACT), "sync packet without the artifact: " + last);
 
-		// Saved with the player.
 		NbtCompound nbt = player.writeNbt(new NbtCompound());
 		ServerPlayerEntity loaded = new ServerPlayerEntity(player.getServer(), context.getWorld(),
 				new GameProfile(UUID.randomUUID(), "reliquary-loaded"));
@@ -117,7 +116,6 @@ public final class ReliquaryTests implements FabricGameTest {
 		context.assertTrue(menu.getSlot(artifactSlot).getStack().getCount() == 1, "slot holds "
 				+ menu.getSlot(artifactSlot).getStack());
 		context.assertTrue(menu.getCursorStack().getCount() == 1, "cursor holds " + menu.getCursorStack());
-		// The same artifact again does not fit the second slot; a different one does.
 		context.assertFalse(menu.getSlot(secondArtifactSlot).canInsert(menu.getCursorStack()), "same artifact twice");
 		context.assertTrue(menu.getSlot(secondArtifactSlot).canInsert(new ItemStack(OTHER_ARTIFACT)), "other artifact refused");
 		context.assertFalse(ReliquaryManager.canEquip(player, SlotKinds.ARTIFACT, 1, new ItemStack(ARTIFACT)),
@@ -126,7 +124,6 @@ public final class ReliquaryTests implements FabricGameTest {
 		TestPlayers.complete(context, player);
 	}
 
-	/** Shift-clicking an equipped accessory puts it back into the inventory and empties the slot. */
 	@GameTest(templateName = EMPTY_STRUCTURE)
 	public void menuUnequipsToInventory(TestContext context) {
 		ServerPlayerEntity player = joinPlayer(context, new RecordingConnection());
@@ -224,7 +221,6 @@ public final class ReliquaryTests implements FabricGameTest {
 		TestPlayers.complete(context, respawned);
 	}
 
-	/** Under keepInventory the accessories stay worn through death. */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "reliquary_keep_inventory")
 	public void keepInventoryKeepsAccessories(TestContext context) {
 		GameRules.BooleanRule rule = context.getWorld().getGameRules().get(GameRules.KEEP_INVENTORY);
@@ -270,7 +266,7 @@ public final class ReliquaryTests implements FabricGameTest {
 	}
 
 	/**
-	 * Each artifact (PLAN 11.11) is an artifact-slot item; worn, it raises its stats by the config points (the Seal
+	 * Each artifact is an artifact-slot item; worn, it raises its stats by the config points (the Seal
 	 * every stat by 1) through the stat system: max health and luck follow, the level and level cost do not.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE)
@@ -323,7 +319,6 @@ public final class ReliquaryTests implements FabricGameTest {
 		TestPlayers.complete(context, player);
 	}
 
-	/** Every ring (PLAN 11.12) is a ring-slot item only. */
 	@GameTest(templateName = EMPTY_STRUCTURE)
 	public void ringsFitRingSlotsOnly(TestContext context) {
 		context.assertTrue(ReliquaryItems.RINGS.size() == 6, "expected 6 rings");
@@ -394,7 +389,7 @@ public final class ReliquaryTests implements FabricGameTest {
 
 	/**
 	 * Delver's Ring: Haste I (×1.2) mining realm ores, nothing on other blocks. The gametest mod tags iron ore as a
-	 * realm ore until track reach-world adds the real ones.
+	 * realm ore.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE)
 	public void delversRingHastesRealmOres(TestContext context) {
@@ -440,7 +435,6 @@ public final class ReliquaryTests implements FabricGameTest {
 		TestPlayers.complete(context, player);
 	}
 
-	/** Ring of Embers: the wearer's melee hits set the target on fire; without it they do not. */
 	@GameTest(templateName = EMPTY_STRUCTURE)
 	public void ringOfEmbersIgnites(TestContext context) {
 		ServerPlayerEntity player = joinPlayer(context, new RecordingConnection());
@@ -460,7 +454,7 @@ public final class ReliquaryTests implements FabricGameTest {
 	}
 
 	/**
-	 * Each zone's treasure chest (PLAN 11.13) rolls an artifact at about 8 % and a ring at about 5 %, only of that
+	 * Each zone's treasure chest rolls an artifact at about 8 % and a ring at about 5 %, only of that
 	 * zone's accessories.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE)
@@ -482,9 +476,8 @@ public final class ReliquaryTests implements FabricGameTest {
 	}
 
 	/**
-	 * Elite tables get the zone's accessories at about 2 % / 1 %, from player kills only. The mob tables are track
-	 * reach-mobs'; one that does not exist yet (the Smoldering Knight's, milestone 13) is checked on an empty table
-	 * with the same injection.
+	 * Elite tables get the zone's accessories at about 2 % / 1 %, from player kills only. An elite table that does not
+	 * exist is checked on an empty table with the same injection.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE)
 	public void elitesRollZoneAccessoriesOnPlayerKills(TestContext context) {
@@ -566,8 +559,6 @@ public final class ReliquaryTests implements FabricGameTest {
 		return context.getWorld().getEntitiesByType(ModEntities.ASH_REMNANT,
 				remnant -> player.getUuid().equals(remnant.getOwner()));
 	}
-
-	// --- helpers -----------------------------------------------------------------------------------------------
 
 	/** Menu index of player inventory slot {@code slot} (9–35 main, 0–8 hotbar), after the accessory slots. */
 	static int inventoryIndex(int slot) {

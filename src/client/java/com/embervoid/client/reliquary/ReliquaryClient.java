@@ -102,7 +102,6 @@ public final class ReliquaryClient {
 		}
 	}
 
-	/** Asks the server to open the Reliquary. */
 	public static void requestOpen() {
 		ClientPlayNetworking.send(ReliquaryManager.OPEN_PACKET, PacketByteBufs.empty());
 	}

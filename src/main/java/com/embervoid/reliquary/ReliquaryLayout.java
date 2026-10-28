@@ -22,7 +22,6 @@ public final class ReliquaryLayout {
 	/** Top of the first row of the slot area (item position). */
 	public static final int SLOTS_TOP = 8;
 
-	/** The player model box. */
 	public static final int MODEL_LEFT = 62;
 	public static final int MODEL_TOP = 8;
 	public static final int MODEL_RIGHT = 114;

@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 /**
- * Huntsman's Crossbow (track reach-gear): the first-person view holds, charges and aims a crossbow with both hands
+ * Huntsman's Crossbow: the first-person view holds, charges and aims a crossbow with both hands
  * only for {@code Items.CROSSBOW}; the realm crossbow answers those checks too.
  */
 @Mixin(HeldItemRenderer.class)

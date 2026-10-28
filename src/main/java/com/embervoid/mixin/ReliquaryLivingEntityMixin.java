@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Reliquary rings (PLAN 11.12) on living entities; only players wear rings. See {@link RingEffects}. */
+/** Reliquary rings on living entities; only players wear rings. See {@link RingEffects}. */
 @Mixin(LivingEntity.class)
 abstract class ReliquaryLivingEntityMixin {
 	// Courier's Ring: its speed modifier follows sprinting, on both sides like vanilla's.

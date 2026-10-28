@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** Frame detection of the Cleft Stele (PLAN 15.3) on a map of cells; anything not set is open air. */
+/** Frame detection of the Cleft Stele on a map of cells; anything not set is open air. */
 class SteleFrameTest {
 	private static final BlockPos ORIGIN = new BlockPos(10, 64, -3);
 

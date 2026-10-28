@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The player attack animation sets, one per weapon kind (PLAN 17.1, DESIGN §6.1). Each clip is a playerAnimator file
+ * The player attack animation sets, one per weapon kind (DESIGN §6.1). Each clip is a playerAnimator file
  * {@code assets/embervoid/player_animation/<name>.json} whose {@code name} is the clip's name, keyed {@code ticks}
  * long. A swing is keyed to the weapon's attack cooldown: the blow lands in the first few ticks (the hit is already
  * dealt when the swing packet arrives) and the rest is the recovery until the next full-strength hit. The client
@@ -31,7 +31,6 @@ public enum WeaponKind {
 
 	/** Loading the Huntsman's Crossbow: its charge time (config {@code gear.crossbow.chargeTicks}). */
 	public static final Clip CROSSBOW_LOAD = new Clip("crossbow_load", 32);
-	/** The shot and the recoil. */
 	public static final Clip CROSSBOW_FIRE = new Clip("crossbow_fire", 8);
 
 	private final List<Clip> swings;
@@ -54,7 +53,6 @@ public enum WeaponKind {
 		return special;
 	}
 
-	/** Every clip of the kind. */
 	public List<Clip> clips() {
 		List<Clip> clips = new ArrayList<>(swings);
 		if (special != null) {

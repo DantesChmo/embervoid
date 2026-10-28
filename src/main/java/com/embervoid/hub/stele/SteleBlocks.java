@@ -9,7 +9,6 @@ import net.minecraft.block.MapColor;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.sound.BlockSoundGroup;
 
-/** Blocks of the Cleft Stele (PLAN 15.3). */
 public final class SteleBlocks {
 	/** Crafted like stone bricks; kindled, its cracks glow at full brightness and light the area a little. */
 	public static final Block CLEFT_STONE = ModBlocks.register("cleft_stone", new CleftStoneBlock(
@@ -31,7 +30,7 @@ public final class SteleBlocks {
 					.nonOpaque()
 					.allowsSpawning((state, world, pos, type) -> false)));
 
-	/** The ritual circle's passage (0.5.3): like the crack, a column of mist over the centre stone. */
+	/** The ritual circle's passage: like the crack, a column of mist over the centre stone. */
 	public static final Block STELE_RIFT = ModBlocks.registerWithoutItem("stele_rift", new SteleRiftBlock(
 			AbstractBlock.Settings.create()
 					.mapColor(MapColor.ORANGE)

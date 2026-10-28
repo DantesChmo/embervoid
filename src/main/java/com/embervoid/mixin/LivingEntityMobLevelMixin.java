@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 /**
- * Mob levels at damage time (PLAN 3.5): damage dealt by a leveled attacker is scaled when it reaches its target, so
+ * Mob levels at damage time: damage dealt by a leveled attacker is scaled when it reaches its target, so
  * melee, projectiles, explosions and potions all count (the damage source's attacker is the projectile's owner, the
  * creeper, the witch). Also scales the XP a leveled entity drops.
  */

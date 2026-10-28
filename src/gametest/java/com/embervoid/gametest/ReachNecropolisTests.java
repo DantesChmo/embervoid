@@ -24,7 +24,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameRules;
 
-/** Sunken Necropolis mobs (PLAN 10.6, 10.7): Restless Bones, Crypt Moth, Hollow Sentinel, Grave Warden. */
+/** Sunken Necropolis mobs: Restless Bones, Crypt Moth, Hollow Sentinel, Grave Warden. */
 public final class ReachNecropolisTests implements FabricGameTest {
 	private static RestlessBonesEntity bones(TestContext context, int x, int z) {
 		RestlessBonesEntity bones = ReachTests.still(context, ReachMobs.RESTLESS_BONES, x, 0, z);

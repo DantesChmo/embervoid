@@ -34,7 +34,7 @@ import net.minecraft.util.math.Vec3d;
 
 import java.util.List;
 
-/** The props (PLAN 20.3): placed from their items they face the right way, turn with structures and drop themselves. */
+/** The props: placed from their items they face the right way, turn with structures and drop themselves. */
 public final class PropTests implements FabricGameTest {
 	/** Where props are placed, on the stone floor, with room for a second block on every side. */
 	private static final BlockPos SPOT = new BlockPos(3, 1, 3);

@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Huntsman's Crossbow (track reach-gear): a longer charge and heavier bolts. */
+/** Huntsman's Crossbow: a longer charge and heavier bolts. */
 @Mixin(CrossbowItem.class)
 abstract class GearCrossbowItemMixin {
 	@Inject(method = "getPullTime", at = @At("RETURN"), cancellable = true)

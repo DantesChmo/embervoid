@@ -97,7 +97,6 @@ public final class ConfigFile {
 		return read(json, new SectionReader.Dirty());
 	}
 
-	/** All registered sections of {@code values} as one JSON object. */
 	public synchronized JsonObject toJson(Values values) {
 		JsonObject json = new JsonObject();
 		sections.values().forEach(section -> json.add(section.name(), writeSection(section, values)));

@@ -3,7 +3,6 @@ package com.embervoid.client.fx.particle;
 import com.embervoid.fx.particle.EmberParticles;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 
-/** Registers the factories of the mod's own particles ({@link EmberParticles}). */
 public final class EmberParticlesClient {
 	public static void register() {
 		ParticleFactoryRegistry registry = ParticleFactoryRegistry.getInstance();

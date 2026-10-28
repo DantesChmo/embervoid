@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Player attack animations (PLAN 17.1): the trigger goes out on a swing and on a special with our weapons, to the
+ * Player attack animations: the trigger goes out on a swing and on a special with our weapons, to the
  * player and everyone tracking them and nobody else, and never for vanilla weapons; every weapon is registered with
  * a kind whose swing is as long as its attack cooldown. How the animations look is not checked.
  */
@@ -72,7 +72,6 @@ public final class AttackAnimationTests implements FabricGameTest {
 				expect(context, "the swing after Wide Cleave", self, watcher, outsider, 3, "sword_wide_cleave", 14, false);
 			});
 			arena.after(5 + 7 + 7 + 20, () -> {
-				// A left-handed player: the clip is mirrored.
 				player.setMainArm(Arm.LEFT);
 				hold(player, GearWeapons.ROYAL_ASH_RAPIER);
 				swing(player);

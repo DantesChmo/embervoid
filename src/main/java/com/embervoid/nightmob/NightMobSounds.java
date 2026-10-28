@@ -3,7 +3,7 @@ package com.embervoid.nightmob;
 import com.embervoid.registry.ModSounds;
 import net.minecraft.sound.SoundEvent;
 
-/** Sound events of the full-moon mobs (PLAN L3): vanilla files remapped in assets/embervoid/sounds.json. */
+/** Sound events of the full-moon mobs: vanilla files remapped in assets/embervoid/sounds.json. */
 public final class NightMobSounds {
 	public static final SoundEvent ASHEN_ZOMBIE_AMBIENT = ModSounds.register("entity.ashen_zombie.ambient");
 	public static final SoundEvent ASHEN_ZOMBIE_HURT = ModSounds.register("entity.ashen_zombie.hurt");

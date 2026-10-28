@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 /**
- * Huntsman's Crossbow (track reach-gear): vanilla gives the "hold a loaded crossbow" arm pose only to
+ * Huntsman's Crossbow: vanilla gives the "hold a loaded crossbow" arm pose only to
  * {@code Items.CROSSBOW}; the realm crossbow answers that check too.
  */
 @Mixin(PlayerEntityRenderer.class)

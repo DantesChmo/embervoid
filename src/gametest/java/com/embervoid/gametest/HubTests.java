@@ -32,7 +32,7 @@ import net.minecraft.world.GameMode;
 import java.util.function.BooleanSupplier;
 
 /**
- * The hub dimension (PLAN 15.1) on the test server, which has the datapack dimensions ({@code TestServerDimensionsMixin}).
+ * The hub dimension on the test server, which has the datapack dimensions ({@code TestServerDimensionsMixin}).
  * Every test touches the one shared hub, so each has its own batch (tests of one batch run at the same time).
  */
 public final class HubTests implements FabricGameTest {
@@ -89,7 +89,7 @@ public final class HubTests implements FabricGameTest {
 
 	/**
 	 * Two players in the hub see the same obelisks in their own states (dark, lit, kindled from their own progress).
-	 * Realm 1 lights for both on their first visit (PLAN 15.2); the Realm 2 obelisk refuses the player who has not
+	 * Realm 1 lights for both on their first visit; the Realm 2 obelisk refuses the player who has not
 	 * unlocked it, and the Realm 1 obelisk takes a player into the realm.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "hub_obelisks", tickLimit = 200)

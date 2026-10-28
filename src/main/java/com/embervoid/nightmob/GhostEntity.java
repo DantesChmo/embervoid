@@ -42,7 +42,7 @@ import java.util.EnumSet;
  * Twice an Ashen Zombie's HP and damage; it flies and drifts through blocks like a vex, sees through walls, and
  * {@link NightMobConfig#ghostMissChance} of the hits on it pass through it harmlessly.
  *
- * <p>Animations (PLAN 19.3, {@link MobAnimations}): {@code misc.hurt} on a hit that lands (a flinch and a shiver);
+ * <p>Animations ({@link MobAnimations}): {@code misc.hurt} on a hit that lands (a flinch and a shiver);
  * on death it dissolves ({@code misc.death}: it rises, turns and shrinks away) over {@link #DEATH_TICKS} ticks in cold
  * flame, the souls it was leaving upward at the end. Cold flame licks off it as it drifts.
  */
@@ -50,7 +50,7 @@ public class GhostEntity extends HostileEntity implements GeoEntity {
 	/** Speed factor of the move control: about 4.4 blocks/s chasing (a vex is 1.0, about 11 blocks/s). */
 	private static final double CHASE_SPEED = 0.4;
 	private static final double WANDER_SPEED = 0.2;
-	/** One touch per 2 s (R40.1c: with one a second, three Ghosts out-traded any day-24 player). */
+	/** One touch per 2 s: at one a second, three Ghosts out-traded any day-24 player. */
 	private static final int ATTACK_COOLDOWN_TICKS = 40;
 	/** How long the body stays after death: the length of {@code misc.death} (1.6 s). */
 	public static final int DEATH_TICKS = 32;
@@ -145,7 +145,6 @@ public class GhostEntity extends HostileEntity implements GeoEntity {
 		}
 	}
 
-	/** How long the body stays after death for its death animation, in ticks. */
 	public int deathTicks() {
 		return DEATH_TICKS;
 	}
@@ -271,7 +270,7 @@ public class GhostEntity extends HostileEntity implements GeoEntity {
 		}
 	}
 
-	/** Flies at the target's body and strikes when in reach, once a second. */
+	/** Flies at the target's body and strikes when in reach, once per {@link #ATTACK_COOLDOWN_TICKS}. */
 	static class ChaseGoal extends Goal {
 		private final GhostEntity ghost;
 		private int cooldown;

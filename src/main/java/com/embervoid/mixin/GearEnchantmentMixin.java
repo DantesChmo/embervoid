@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Realm melee weapons take the sword enchantments of GearWeapons on the anvil, like a sword (track reach-gear). */
+/** Realm melee weapons take the sword enchantments of GearWeapons on the anvil, like a sword. */
 @Mixin(Enchantment.class)
 abstract class GearEnchantmentMixin {
 	@Inject(method = "isAcceptableItem", at = @At("HEAD"), cancellable = true)

@@ -21,7 +21,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 
 /**
- * Royal Woods mobs (PLAN 10.4, 10.5): Withered Thrall and its hanging cage, Lantern Hag, Bark Hollow. Tests where a
+ * Royal Woods mobs: Withered Thrall and its hanging cage, Lantern Hag, Bark Hollow. Tests where a
  * mob reacts to players or moves on its own run in a batch of their own.
  */
 public final class ReachWoodsTests implements FabricGameTest {
@@ -58,7 +58,6 @@ public final class ReachWoodsTests implements FabricGameTest {
 		});
 	}
 
-	/** A cage with a trapdoor floor: the thrall opens it and falls through. */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 100, batchId = "reach_thrall_trapdoor")
 	public void cagedThrallOpensTheTrapdoorUnderIt(TestContext context) {
 		context.setBlockState(3, 5, 3, Blocks.SPRUCE_TRAPDOOR);

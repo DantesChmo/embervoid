@@ -160,7 +160,6 @@ final class BossArena {
 		}
 	}
 
-	/** Runs {@code step} after {@code ticks} ticks. */
 	void after(int ticks, Runnable step) {
 		context.waitAndRun(ticks, () -> step(step));
 	}
@@ -248,7 +247,6 @@ final class BossArena {
 			return walls;
 		}
 
-		/** Combat effect packets sent on {@code channel} so far. */
 		int fx(Identifier channel) {
 			return (int) fx.stream().filter(payload -> payload.getChannel().equals(channel)).count();
 		}

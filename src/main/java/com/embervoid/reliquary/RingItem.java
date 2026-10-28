@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * A ring (DESIGN §4.5): worn in a Reliquary ring slot, it has one unique effect ({@link RingEffects}). Its item id
+ * A ring: worn in a Reliquary ring slot, it has one unique effect ({@link RingEffects}). Its item id
  * goes into {@code #embervoid:rings}; the tooltip shows {@code item.embervoid.<id>.desc} (flavour) and
  * {@code .effect}.
  */

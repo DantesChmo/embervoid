@@ -13,7 +13,7 @@ import net.minecraft.world.World;
 import org.joml.Vector3f;
 
 /**
- * Vampirism (DESIGN §3.3, PLAN 8.6): on the blood new moon, an overworld hostile that damages a player heals
+ * Vampirism: on the blood new moon, an overworld hostile that damages a player heals
  * {@code moon.blood.vampirism} of the damage the player actually took, with red particles. Arrows and other
  * projectiles heal their owner. Bosses are left out.
  */

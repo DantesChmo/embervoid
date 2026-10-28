@@ -13,9 +13,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class RealmLayoutTest {
 	private static final double START = Math.toRadians(-90);
 	private static final double WARP = Math.toRadians(20);
-	/** Three open zones of 120° from north, no final sector (the 0.4.x layout). */
+	/** Three open zones of 120° from north, no final sector. */
 	private static final RealmLayout.Sectors EQUAL = RealmLayout.Sectors.equal(3, START);
-	/** The Ashen Reach since 0.5.0, as its data files say. */
+	/** The Ashen Reach as its data files say. */
 	private static final RealmLayout.Sectors REACH = ReachLayoutFiles.sectors();
 
 	@Test

@@ -29,7 +29,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 /**
- * Crypt Keeper (PLAN 12.3) in the real sinkhole ossuary template, placed far from the other tests (one spot per
+ * Crypt Keeper in the real sinkhole ossuary template, placed far from the other tests (one spot per
  * test), with real joined players. The boss's AI is off, so moves are started directly; its phase effects (darkness,
  * moths) run every tick regardless.
  */

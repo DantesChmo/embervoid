@@ -19,7 +19,7 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
 /**
- * The rift of a lit ritual circle ({@link SteleFrame.Shape#CIRCLE}, 0.5.3): a column of mist over the centre stone,
+ * The rift of a lit ritual circle ({@link SteleFrame.Shape#CIRCLE}): a column of mist over the centre stone,
  * the circle's passage the way the crack is a slab's. Walked through, not broken: it goes only when its circle is put
  * out. Walking in is handed to {@link CleftStele#onEnter}; a right click goes through its circle too.
  */

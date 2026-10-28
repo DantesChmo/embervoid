@@ -30,7 +30,6 @@ public final class SoundLog {
 		HEARD.removeIf(h -> h.world() == world && h.pos().isInRange(near, radius));
 	}
 
-	/** Whether {@code sound} was played in {@code world} within {@code radius} of {@code near}. */
 	public static synchronized boolean heard(ServerWorld world, SoundEvent sound, Vec3d near, double radius) {
 		return HEARD.stream().anyMatch(h -> h.world() == world && h.id().equals(sound.getId()) && h.pos().isInRange(near, radius));
 	}

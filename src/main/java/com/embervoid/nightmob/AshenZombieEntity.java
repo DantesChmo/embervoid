@@ -32,7 +32,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
  * zombie that the sun does not burn, so a wave still standing at dawn keeps walking. No natural spawns; the wave
  * sets its level (spot level + {@link NightMobConfig#zombieLevelBonus}).
  *
- * <p>Animations (PLAN 19.3, {@link MobAnimations}): {@code misc.hurt} on a hit, {@code misc.stagger} on one of
+ * <p>Animations ({@link MobAnimations}): {@code misc.hurt} on a hit, {@code misc.stagger} on one of
  * {@link #STAGGER_SHARE} of its health or more (visual only), and on death it topples forward ({@code misc.death}) and
  * lies there {@link #DEATH_TICKS} ticks, ash flaking off it. Ash flakes drift off it as it walks.
  */
@@ -113,7 +113,6 @@ public class AshenZombieEntity extends HostileEntity implements GeoEntity {
 		}
 	}
 
-	/** How long the body stays after death for its death animation, in ticks. */
 	public int deathTicks() {
 		return DEATH_TICKS;
 	}

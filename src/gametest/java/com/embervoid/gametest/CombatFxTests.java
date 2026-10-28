@@ -22,7 +22,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 /**
- * Combat effects (PLAN 19.2): the packets reach the players near enough and nobody else, and the heavy moves wired so
+ * Combat effects: the packets reach the players near enough and nobody else, and the heavy moves wired so
  * far send them when they land (the Ash Colossus leap and arm drag, the Smoldering Lord's landing and greatsword slam;
  * the Vampire boss leap is in {@link VampireTests}). How the effects look is not checked.
  */

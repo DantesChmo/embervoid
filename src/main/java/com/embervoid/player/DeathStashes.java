@@ -29,7 +29,6 @@ public final class DeathStashes {
 		/** Puts {@code stack} back at {@code index} if that place is free and still exists; returns what did not fit. */
 		ItemStack restore(ServerPlayerEntity player, int index, ItemStack stack);
 
-		/** Whether the player has nothing in this stash. */
 		boolean isEmpty(ServerPlayerEntity player);
 	}
 
@@ -47,7 +46,6 @@ public final class DeathStashes {
 		return STASHES.get(id);
 	}
 
-	/** Whether any stash holds an item. */
 	public static boolean anyItems(ServerPlayerEntity player) {
 		for (Stash stash : STASHES.values()) {
 			if (!stash.isEmpty(player)) {

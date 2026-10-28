@@ -20,13 +20,12 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Saved with the overworld: the world's one lit Cleft Stele (PLAN 15.4, DESIGN §2 "One per world") and who has gone
+ * Saved with the overworld: the world's one lit Cleft Stele and who has gone
  * through it. The hub's own stele is never here.
  */
 public final class SteleState extends PersistentState {
 	private static final String ID = "embervoid_stele";
 
-	/** The lit stele: the world it stands in and its frame (position, axis and shape). */
 	public record Lit(RegistryKey<World> dimension, SteleFrame frame) {
 		/** Whether {@code pos} in {@code world} is one of its stones or its crack. */
 		public boolean contains(RegistryKey<World> world, BlockPos pos) {
@@ -40,7 +39,7 @@ public final class SteleState extends PersistentState {
 		static Optional<Saved> fromNbt(NbtCompound nbt) {
 			Identifier dimension = Identifier.tryParse(nbt.getString("Dimension"));
 			Direction.Axis axis = Direction.Axis.fromName(nbt.getString("Axis"));
-			// No shape: saved before 0.5.3, when every stele was a slab.
+			// No shape: an older save, from when every stele was a slab.
 			SteleFrame.Shape shape = nbt.getString("Shape").equals("circle") ? SteleFrame.Shape.CIRCLE : SteleFrame.Shape.SLAB;
 			if (dimension == null || axis == null || !axis.isHorizontal()) {
 				return Optional.empty();

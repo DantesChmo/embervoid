@@ -12,7 +12,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.SpawnEggItem;
 
 /**
- * The full moon's own mobs (DESIGN §3.3, PLAN 8.7–8.9): entity types, attributes, spawn eggs. They have no natural
+ * The full moon's own mobs (DESIGN §3.3): entity types, attributes, spawn eggs. They have no natural
  * spawns; the full moon waves bring them.
  */
 public final class NightMobs {

@@ -49,10 +49,6 @@ public final class EmbervoidConfig {
 		}
 	}
 
-	/**
-	 * @param mode        see {@link RemnantMode}
-	 * @param secondDeath see {@link SecondDeath}
-	 */
 	public record Remnant(RemnantMode mode, SecondDeath secondDeath) {
 		public static final ConfigSection<Remnant> SECTION = register(ConfigSection.of(
 				"remnant", new Remnant(RemnantMode.XP_AND_ITEMS, SecondDeath.BURN_XP),
@@ -148,7 +144,6 @@ public final class EmbervoidConfig {
 		return current;
 	}
 
-	/** A section's value in this config. */
 	public <T> T section(ConfigSection<T> section) {
 		return values.get(section);
 	}
@@ -184,7 +179,6 @@ public final class EmbervoidConfig {
 		current = local;
 	}
 
-	/** Compact JSON for sending the config over the network. */
 	public static String toNetworkString(EmbervoidConfig config) {
 		return FILE.toJson(config.values).toString();
 	}

@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * The world's lit Cleft Stele and travel through it (PLAN 15.4, DESIGN §2): through a lit stele to the hub and back
+ * The world's lit Cleft Stele and travel through it (DESIGN §2): through a lit stele to the hub and back
  * out to stand in front of it, one lit stele per world, the fallback when it is broken, the Nether, no kindling in
  * realms or the hub, the hub's stele unbreakable, two players. The world has one lit stele and one hub, so every test
  * has its own batch.
@@ -59,7 +59,7 @@ public final class SteleTravelTests implements FabricGameTest {
 	private static final int TICKS = 200;
 
 	/**
-	 * The ritual circle (0.5.3), centre stone at relative (3, 1, 3): a soul on a pillar kindles it and fills the rift;
+	 * The ritual circle, centre stone at relative (3, 1, 3): a soul on a pillar kindles it and fills the rift;
 	 * walking into the rift → the hub's landing; after the grace the hub's crack → beside the rift, on the ground just
 	 * north of it (the first side with room), facing north.
 	 */

@@ -21,7 +21,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
- * The Hollow's fight (DESIGN §3.2, PLAN L5; never checked in game): its swing lands only after the wind-up and misses a
+ * The Hollow's fight (DESIGN §3.2): its swing lands only after the wind-up and misses a
  * player who stepped out of reach during it; the raised guard takes front melee down to 20 % and deflects front arrows,
  * hits from behind go through; an axe breaks the guard and staggers it for 60 ticks.
  */
@@ -103,7 +103,6 @@ public final class HollowTests implements FabricGameTest {
 						"guarded front hit took " + (before - hollow.getHealth()) + ", expected " + expected);
 				context.assertTrue(hollow.isGuarding(), "a sword hit dropped the guard");
 
-				// A front arrow is deflected.
 				Vec3d front = hollow.getPos().add(0, 1, 2);
 				ArrowEntity arrow = new ArrowEntity(context.getWorld(), front.x, front.y, front.z);
 				arrow.setOwner(player);
@@ -112,7 +111,6 @@ public final class HollowTests implements FabricGameTest {
 				context.assertTrue(!hurt && hollow.getHealth() == before, "a front arrow got through the guard");
 				arrow.discard();
 
-				// From behind the guard does nothing.
 				face(hollow, 180);
 				hollow.timeUntilRegen = 0;
 				before = hollow.getHealth();
@@ -121,7 +119,6 @@ public final class HollowTests implements FabricGameTest {
 				context.assertTrue(Math.abs(before - hollow.getHealth() - expected) < 0.01f,
 						"hit from behind took " + (before - hollow.getHealth()) + ", expected " + expected);
 
-				// An axe from the front breaks the guard and staggers it.
 				face(hollow, 0);
 				hollow.timeUntilRegen = 0;
 				player.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.IRON_AXE));

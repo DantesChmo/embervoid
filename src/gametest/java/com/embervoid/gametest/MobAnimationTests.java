@@ -9,7 +9,7 @@ import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 
 /**
- * The hit, stagger and death animations of the Realm 1 mobs (PLAN 19.3, on the Cinder Husk for all of
+ * The hit, stagger and death animations of the Realm 1 mobs (on the Cinder Husk for all of
  * {@link ReachMob}): a hit during a windup leaves the windup running and shows no flinch (the tell stays
  * readable), a hit between moves shows one with a cooldown, and a kill keeps the body for its death animation
  * ({@link ReachMob#deathTicks}) and then removes it. The AI is off; moves are started by the test.

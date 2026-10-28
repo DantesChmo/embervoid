@@ -54,7 +54,6 @@ public final class MoonClient {
 		return MathHelper.lerp(tickDelta, lastTint, tint);
 	}
 
-	/** The sky colour, reddened by {@link #tint}. */
 	public static Vec3d tintSky(Vec3d color, float tickDelta) {
 		float t = tint(tickDelta);
 		if (t <= 0) {

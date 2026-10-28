@@ -4,7 +4,7 @@ import com.embervoid.config.ConfigSection;
 import com.embervoid.config.EmbervoidConfig;
 
 /**
- * {@code setpieces.*} in {@code config/embervoid.json}: the moving set pieces (PLAN 20.1).
+ * {@code setpieces.*} in {@code config/embervoid.json}: the moving set pieces.
  *
  * @param maxPerChunk how many set pieces one chunk may hold; the extra ones become air when the chunk comes alive
  * @param animate     whether set pieces move at all (off: rest pose, no smoke); synced to clients

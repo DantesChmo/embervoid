@@ -47,18 +47,16 @@ import java.util.Map;
 
 /**
  * The Ruined Sanctum as worldgen builds it, placed the way {@code /place structure} does, then its contents counted
- * inside the structure's bounding box (PLAN 16.1, the variants 16.2).
+ * inside the structure's bounding box.
  */
 public final class SanctumTests implements FabricGameTest {
 	/** Far from the test grid so the Sanctum never overlaps another test. */
 	private static final BlockPos ORIGIN = new BlockPos(3000, 0, 3000);
-	/** For the flooded Sanctum, away from the first one. */
 	private static final BlockPos FLOODED_ORIGIN = new BlockPos(3000, 0, -3000);
-	/** For the Sanctum whose stele is mined, away from both. */
 	private static final BlockPos MINED_ORIGIN = new BlockPos(-3000, 0, 3000);
 
 	/**
-	 * A fresh dungeon: guards and loot in the outer halls as before; no Maiden, obelisks or Sanctum Flagstone; the
+	 * A fresh dungeon: guards and loot in the outer halls; no Maiden, obelisks or Sanctum Flagstone; the
 	 * boss wing with one Ember Shrine, the fog wall in its doorway and a cold Cleft Stele, and no marker entity.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 200)
@@ -68,7 +66,7 @@ public final class SanctumTests implements FabricGameTest {
 	}
 
 	/**
-	 * Each variant (PLAN 16.2), found among fresh plans and moved to its own spot: its own surface ruin and guarded hall,
+	 * Each variant, found among fresh plans and moved to its own spot: its own surface ruin and guarded hall,
 	 * the same boss wing as {@link #dungeonHasArenaInsteadOfCore} checks, and a player stepping into its arena summons
 	 * the Fallen Sister.
 	 */
@@ -112,7 +110,7 @@ public final class SanctumTests implements FabricGameTest {
 	}
 
 	/**
-	 * A placed dungeon: guards and loot in the outer halls as before; no Maiden, obelisks or Sanctum Flagstone; the
+	 * A placed dungeon: guards and loot in the outer halls; no Maiden, obelisks or Sanctum Flagstone; the
 	 * boss wing with one Ember Shrine, the fog wall in its doorway and a cold Cleft Stele, and no marker entity.
 	 */
 	private static void assertDungeon(TestContext context, StructureStart start) {
@@ -150,7 +148,7 @@ public final class SanctumTests implements FabricGameTest {
 		Box area = Box.from(box).expand(2);
 		int hollows = world.getEntitiesByType(MobEntities.HOLLOW, area, entity -> true).size();
 		int maidens = world.getEntitiesByType(SanctumEntities.ASHEN_MAIDEN, area, entity -> true).size();
-		// 16.1's placeholder spawn marker is gone: she is summoned at the arena centre (PLAN 16.3, FallenSisterTests).
+		// No spawn marker: she is summoned at the arena centre (FallenSisterTests).
 		int markers = world.getEntitiesByType(EntityType.MARKER, area, entity -> true).size();
 		long arenas = start.getChildren().stream().filter(piece -> SanctumArena.isPiece(piece, SanctumArena.TEMPLATE)).count();
 		long cores = start.getChildren().stream().filter(piece -> SanctumArena.isPiece(piece, SanctumArena.OLD_CORE)).count();
@@ -211,7 +209,7 @@ public final class SanctumTests implements FabricGameTest {
 
 	/**
 	 * Starts planned now never lead to the old core, and always reach the arena; the old core's template and pool stay
-	 * loadable for Sanctums planned before 0.5.0 (PLAN 15.5 places one).
+	 * loadable for Sanctums planned before 0.5.0.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 200)
 	public void newStartsNeverUseTheOldCore(TestContext context) {
@@ -235,7 +233,7 @@ public final class SanctumTests implements FabricGameTest {
 	}
 
 	/**
-	 * QA #7f, never checked in game: a stairwell sunk into water (an aquifer, a lake) ends with no water anywhere in its
+	 * A stairwell sunk into water (an aquifer, a lake) ends with no water anywhere in its
 	 * casing or inside it: the casing's gaps keep the world's block, but turn to rock where that block is a fluid.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 200)

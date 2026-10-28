@@ -14,7 +14,7 @@ import net.minecraft.util.math.Vec3d;
 
 import java.util.List;
 
-/** Smoldering Citadel mobs (PLAN 13.3): Cinder Hound, Sparking Marksman, Furnace Golem, Smoldering Knight. */
+/** Smoldering Citadel mobs: Cinder Hound, Sparking Marksman, Furnace Golem, Smoldering Knight. */
 public final class ReachCitadelTests implements FabricGameTest {
 	/** A hound that finds a target howls: idle hounds within 24 take the same target, one 30 blocks off does not. */
 	@GameTest(templateName = EMPTY_STRUCTURE, batchId = "reach_hound_howl")

@@ -10,7 +10,7 @@ import net.minecraft.world.chunk.WorldChunk;
 import java.util.List;
 
 /**
- * Arena events (PLAN 20.1): what a boss fight tells the set pieces around it. {@link BossFight} fires
+ * Arena events: what a boss fight tells the set pieces around it. {@link BossFight} fires
  * {@code summon}, {@code phase <n>}, {@code hazard <id>}, {@code bossHit heavy}, {@code kill} and {@code reset};
  * a boss move that is none of those fires its own word ({@code raise_dead}). Every set piece within the arena radius
  * + {@link #MARGIN} (and {@link #HEIGHT} blocks up or down) answers through its kind's reaction table.

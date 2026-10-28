@@ -10,7 +10,7 @@ import net.minecraft.util.Identifier;
 import java.util.Set;
 
 /**
- * The {@code moon} API (DESIGN §3.3, PLAN 8.1): the current moon night of the overworld, events when one starts and
+ * The {@code moon} API: the current moon night of the overworld, events when one starts and
  * ends, and holds that keep a night going until its goal is met. Server side only.
  *
  * <p>A moon night runs from dusk to dawn. While any {@link #hold} is open it does not end at dawn (time stops just
@@ -19,7 +19,6 @@ import java.util.Set;
  * the night ends, so an owner that keeps its own state across restarts can check {@link #holds} on server start.
  */
 public final class MoonNights {
-	/** Why a moon night ended. */
 	public enum EndReason {
 		/** Dawn came with no hold open. */
 		DAWN,
@@ -78,7 +77,6 @@ public final class MoonNights {
 		return MoonNightManager.release(server, id);
 	}
 
-	/** The open holds of the current night. */
 	public static Set<Identifier> holds(MinecraftServer server) {
 		return MoonNightState.get(server).holds();
 	}

@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 /**
- * Difficulty factors (PLAN 3.6, DESIGN §3.1): difficulty-scaled damage to players (mob attacks, their projectiles
+ * Difficulty factors (DESIGN §3.1): difficulty-scaled damage to players (mob attacks, their projectiles
  * and explosions) uses our factors instead of vanilla's Easy ×0.5+1 / Hard ×1.5. Ours is applied at the start of
  * {@code PlayerEntity.damage}, and vanilla's branch is switched off so the two never stack.
  */

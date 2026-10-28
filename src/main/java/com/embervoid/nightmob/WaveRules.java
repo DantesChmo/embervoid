@@ -10,7 +10,6 @@ final class WaveRules {
 		GHOSTS
 	}
 
-	/** A wave: which mob and how many. */
 	record Wave(Kind kind, int count) {}
 
 	/**

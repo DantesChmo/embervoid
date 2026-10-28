@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** The stamina bar's look (PLAN 2.5, L5): hidden when full, fill in proportion, a short blinking flash after a failure. */
 class StaminaBarTest {
 	private static final int WIDTH = 79;
 	private static final long NO_FAIL = 1000;

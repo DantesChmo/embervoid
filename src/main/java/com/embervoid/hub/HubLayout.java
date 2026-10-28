@@ -8,12 +8,12 @@ import net.minecraft.util.math.Direction;
 import java.util.List;
 
 /**
- * Where everything stands in the hub (PLAN 15.1, DESIGN §2): one island around the origin, its floor at
+ * Where everything stands in the hub: one island around the origin, its floor at
  * {@link #FLOOR_Y}. The hub template ({@code embervoid:hub/ember_sanctum}, built by the client datagen from these
  * numbers) is placed with its corner at {@link #TEMPLATE_ORIGIN}.
  *
  * <pre>
- *            z = -16   the hub's Cleft Stele (5 wide along x, crack at x = 0), task 15.4
+ *            z = -16   the hub's Cleft Stele (5 wide along x, crack at x = 0)
  *            z = -14   landing, facing south
  *   z = -10 ... 10     the open core: flagstone floor, broken walls, a gap in the middle of each side
  *            z = ±5    obelisk ring at x = ±5, the Ember Shrine at the centre, the Maiden at z = 5
@@ -24,7 +24,7 @@ public final class HubLayout {
 	public static final int FLOOR_Y = 64;
 	/** Rough edge of the island: the top layer reaches this far from the origin, give or take two blocks. */
 	public static final int ISLAND_RADIUS = 21;
-	/** The core square spans {@code -CORE_HALF..CORE_HALF} on both axes, walls included (the old 21×21 core). */
+	/** The core square spans {@code -CORE_HALF..CORE_HALF} on both axes, walls included. */
 	public static final int CORE_HALF = 10;
 
 	/** Half the template's width: it spans {@code -TEMPLATE_HALF..TEMPLATE_HALF} on x and z. */
@@ -40,10 +40,9 @@ public final class HubLayout {
 
 	public static final BlockPos SHRINE = new BlockPos(0, FLOOR_Y + 1, 0);
 
-	/** A Void Obelisk of the ring and the realm it leads to. */
 	public record Obelisk(BlockPos pos, Identifier realm) {}
 
-	/** Same realms and order as the old Sanctum core ({@code ProgressManager.REALM_ORDER}). */
+	/** Same realms and order as {@code ProgressManager.REALM_ORDER}. */
 	public static final List<Obelisk> OBELISKS = List.of(
 			new Obelisk(new BlockPos(-5, FLOOR_Y + 1, -5), Embervoid.id("realm_1")),
 			new Obelisk(new BlockPos(5, FLOOR_Y + 1, -5), Embervoid.id("realm_2")),
@@ -55,7 +54,7 @@ public final class HubLayout {
 	public static final float MAIDEN_YAW = 180;
 
 	/**
-	 * The hub's own Cleft Stele (task 15.4, {@code hub.stele.HubStele}): the bottom block of the crack. The stele is
+	 * The hub's own Cleft Stele ({@code hub.stele.HubStele}): the bottom block of the crack. The stele is
 	 * {@link #STELE_WIDTH} wide along {@link #STELE_AXIS}, centred on the crack, and {@link #STELE_HEIGHT} tall from
 	 * here up, built lit into the template on a chiseled pad.
 	 */

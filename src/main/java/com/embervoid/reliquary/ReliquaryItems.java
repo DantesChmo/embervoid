@@ -8,7 +8,7 @@ import net.minecraft.util.Rarity;
 import java.util.List;
 
 /**
- * The Realm 1 artifacts (PLAN 11.11) and rings (PLAN 11.12), DESIGN §4.5. Artifact points come from config
+ * The Realm 1 artifacts and rings. Artifact points come from config
  * ({@code reliquary.artifacts}); ring effects live in {@link RingEffects}.
  */
 public final class ReliquaryItems {

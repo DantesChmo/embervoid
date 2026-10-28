@@ -41,11 +41,11 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Full moon waves (DESIGN §3.3, §10.12; PLAN 8.9). When the full moon starts, every overworld player gets a wave:
+ * Full moon waves (DESIGN §3.3, §10.12). When the full moon starts, every overworld player gets a wave:
  * one Ashen Zombie per Curse of the Night stack (at most {@link NightMobConfig#maxZombies}), or
  * {@link NightMobConfig#ghostCount} Ghosts with no curse, {@code spawnMinDistance}–{@code spawnMaxDistance} blocks
  * away. Each wave holds the night ({@code embervoid:wave/<uuid>}) until all its mobs are gone; a cleared Ghost wave
- * gives its owner a Flask Shard. A Ghost wave ends when its player dies (R40.1c): a lost fight costs that death (and
+ * gives its owner a Flask Shard. A Ghost wave ends when its player dies: a lost fight costs that death (and
  * its curse stack), not a night of them. A player outside the overworld when the night starts gets their wave on
  * arrival while the night is still on. When the night ends, every wave mob left vanishes.
  */
@@ -118,7 +118,6 @@ public final class NightWaves {
 		return wave == null ? Set.of() : Set.copyOf(wave.mobs);
 	}
 
-	/** The hold id of a player's wave. */
 	public static Identifier holdId(UUID player) {
 		return Embervoid.id("wave/" + player);
 	}

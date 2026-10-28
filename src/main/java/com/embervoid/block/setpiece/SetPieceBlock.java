@@ -32,7 +32,7 @@ import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A moving set piece (PLAN 20.1): a block whose look is a GeckoLib model on its {@link SetPieceBlockEntity}. Faces
+ * A moving set piece: a block whose look is a GeckoLib model on its {@link SetPieceBlockEntity}. Faces
  * the player who places it, stands in water, has the hitbox its {@link SetPieceKind} gives it and drops itself.
  * Nothing ticks on the server: an ALWAYS piece loops on the client, a TRIGGERED one changes state through
  * {@link SetPieces#trigger} and a timed state falls back through a scheduled block tick.

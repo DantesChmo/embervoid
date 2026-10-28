@@ -5,7 +5,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 /**
- * The arc a weapon sweeps, for a swing trail (PLAN 19.2), in the swinger's own frame: x to its right, y up, z ahead.
+ * The arc a weapon sweeps, for a swing trail, in the swinger's own frame: x to its right, y up, z ahead.
  * The blade turns about a pivot {@code height} blocks up (the shoulder) from angle {@code from} to {@code to} (0 ahead,
  * 90 to the right); {@code roll} tilts that plane about the forward axis (0 a flat sweep, 90 an overhead chop, where
  * +90 is straight up). The trail is a ribbon from {@link #INNER} of the radius to the tip.

@@ -12,17 +12,14 @@ public final class StatsConfig {
 	 * Per full point above 10.
 	 *
 	 * @param vitalityHealth               max health (half-hearts)
-	 * @param enduranceStamina             max stamina
 	 * @param enduranceStaminaRegen        stamina regen, as a fraction of the configured regen
 	 * @param enduranceKnockbackResistance knockback resistance (vanilla 0–1 scale)
 	 * @param strengthDamage               damage with STR weapons, as a fraction
 	 * @param dexterityDamage              damage with DEX weapons, as a fraction
 	 * @param dexterityAttackSpeed         attack speed, as a fraction
 	 * @param kindlingFlaskHeal            Healing Flask heal, as a fraction
-	 * @param resilienceToughness          armor toughness
 	 * @param resilienceFireReduction      fire damage taken, fraction removed
 	 * @param resilienceFireReductionCap   most fire damage RES can remove (0–1)
-	 * @param fortuneLuck                  luck
 	 * @param fortuneExtraDrop             chance that a mob killed by the player drops its loot a second time
 	 * @param fortuneExtraDropCap          highest extra-drop chance Fortune can give (0–1)
 	 */

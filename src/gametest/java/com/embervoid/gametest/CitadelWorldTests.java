@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The Burning City and the Smoldering Citadel (PLAN 13.1–13.2) in the realm's final sector (PLAN 21.3): the plan's
+ * The Burning City and the Smoldering Citadel in the realm's final sector: the plan's
  * numbers turned into the realm with {@link CitadelLayout#realmX} / {@link CitadelLayout#realmZ}.
  */
 public final class CitadelWorldTests implements FabricGameTest {
@@ -102,7 +102,6 @@ public final class CitadelWorldTests implements FabricGameTest {
 		context.complete();
 	}
 
-	/** Ember cracks and smouldering logs lie in the Burning City, and nowhere in the open zones. */
 	@GameTest(templateName = EMPTY_STRUCTURE, tickLimit = 2400)
 	public void emberCracksAndSmolderingLogsOnlyInTheCity(TestContext context) {
 		ServerWorld realm = realm(context);
@@ -136,7 +135,7 @@ public final class CitadelWorldTests implements FabricGameTest {
 	}
 
 	/**
-	 * The Citadel (PLAN 13.2): one start at its fixed chunk, every piece with its template, built the way worldgen does
+	 * The Citadel: one start at its fixed chunk, every piece with its template, built the way worldgen does
 	 * at its real position. Placed mobs where the bestiary puts them (read from the templates' markers, then spawned with
 	 * no marker left), Citadel chests only, the treasure in the keep, and the route open from the landing to the keep.
 	 */

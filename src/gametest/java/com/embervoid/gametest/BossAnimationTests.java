@@ -13,7 +13,7 @@ import net.minecraft.test.TestContext;
 import java.util.List;
 
 /**
- * The hit, stagger and death animations of the bosses (PLAN 19.3, 19.4): a hit during a windup leaves the windup
+ * The hit, stagger and death animations of the bosses: a hit during a windup leaves the windup
  * running and shows no flinch (the tell stays readable), a hit between moves shows one, and a kill keeps the body for
  * its death animation and then removes it, the fight having ended and credited at once. On a stone floor with fights
  * started directly; the brain is held and the AI off, so moves are started by the test.

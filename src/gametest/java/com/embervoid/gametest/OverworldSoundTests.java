@@ -52,7 +52,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Sounds of the 0.2.0 / 0.3.0 content (PLAN L3): the overworld and moon-night mobs and the Vampire play their own
+ * Sounds of the overworld content: the overworld and moon-night mobs and the Vampire play their own
  * events (read from {@link SoundLog}); the Sanctum, the flask, the Ash Remnant, stamina and obelisk travel play theirs
  * to the player (read from the sound packets the player is sent).
  */
@@ -97,7 +97,6 @@ public final class OverworldSoundTests implements FabricGameTest {
 			ServerPlayerEntity player = arena.join(4, 4, heard);
 			List<String> problems = new ArrayList<>();
 
-			// The shrine and a Flask Shard offered at it.
 			BlockPos shrine = new BlockPos(6, 1, 4);
 			context.setBlockState(shrine, SanctumBlocks.EMBER_SHRINE);
 			context.useBlock(shrine, player);
@@ -106,7 +105,6 @@ public final class OverworldSoundTests implements FabricGameTest {
 			context.useBlock(shrine, player);
 			heard.expect(SanctumSounds.FLASK_SHARD_OFFER, "flask shard offered", problems);
 
-			// The flask: an empty sip, and its drinking sound.
 			PlayerDataManager.get(player).flaskCharges = 0;
 			player.setStackInHand(Hand.MAIN_HAND, new ItemStack(ModItems.HEALING_FLASK));
 			ModItems.HEALING_FLASK.use(context.getWorld(), player, Hand.MAIN_HAND);
@@ -115,7 +113,6 @@ public final class OverworldSoundTests implements FabricGameTest {
 				problems.add("the flask drinks with " + ModItems.HEALING_FLASK.getDrinkSound().getId());
 			}
 
-			// The Sanctum weapons' specials.
 			for (Item weapon : SanctumWeapons.ALL) {
 				player.setStackInHand(Hand.MAIN_HAND, new ItemStack(weapon));
 				weapon.use(context.getWorld(), player, Hand.MAIN_HAND);
@@ -124,7 +121,6 @@ public final class OverworldSoundTests implements FabricGameTest {
 			heard.expect(SanctumGearSounds.GROUND_SLAM, "ground slam", problems);
 			StaminaManager.set(player, StaminaManager.getMax(player));
 
-			// A special attack with and without stamina.
 			Item sweep = Registries.ITEM.get(Embervoid.id("debug_sweep"));
 			player.setStackInHand(Hand.MAIN_HAND, new ItemStack(sweep));
 			sweep.use(context.getWorld(), player, Hand.MAIN_HAND);
@@ -134,12 +130,10 @@ public final class OverworldSoundTests implements FabricGameTest {
 			sweep.use(context.getWorld(), player, Hand.MAIN_HAND);
 			heard.expect(PlayerSounds.STAMINA_EMPTY, "no stamina", problems);
 
-			// The Ashen Maiden turns to a player who talks to her.
 			AshenMaidenEntity maiden = context.spawnMob(SanctumEntities.ASHEN_MAIDEN, 2, 1, 4);
 			maiden.interact(player, Hand.MAIN_HAND);
 			heard.expect(SanctumSounds.MAIDEN_GREET, "maiden greeting", problems);
 
-			// A locked realm refuses; leaving travels.
 			RealmTeleports.enterRealm(player, Embervoid.id("realm_1"), false);
 			heard.expect(RealmSounds.REFUSE, "locked obelisk", problems);
 
@@ -198,7 +192,6 @@ public final class OverworldSoundTests implements FabricGameTest {
 		}
 	}
 
-	/** A connection that records the id of every sound its player is sent. */
 	static final class SoundRecorder extends ClientConnection {
 		final List<Identifier> sounds = new ArrayList<>();
 

@@ -22,9 +22,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 /**
- * Travel in and out of the hub (PLAN 15.2, DESIGN §2). Leaving a realm always lands in the hub
+ * Travel in and out of the hub. Leaving a realm always lands in the hub
  * ({@link RealmTeleports#leaveRealm}); the hub's way out is the world's lit Cleft Stele
- * ({@code hub.stele.SteleTravel}, PLAN 15.4) and, with none, the spot the player last left the overworld from
+ * ({@code hub.stele.SteleTravel}) and, with none, the spot the player last left the overworld from
  * ({@link #lastOverworldExit}), else their bed or the world spawn ({@link #leave}).
  *
  * <p>"The overworld" here is any world that is not the mod's own: the overworld, the Nether, the End and other mods'
@@ -32,7 +32,7 @@ import java.util.Optional;
  * ways into the hub and the realms ({@link #enter}, {@link RealmTeleports#enterRealm}) through {@link #noteDeparture};
  * a vanilla {@code /tp} or {@code /execute in} records nothing.
  *
- * <p>Attunement is gone: Realm 1 unlocks on the player's first arrival in the hub, without a word (its obelisk lights).
+ * <p>Realm 1 unlocks on the player's first arrival in the hub, without a word (its obelisk lights).
  * All methods run on the server thread.
  */
 public final class HubTravel {
@@ -105,7 +105,7 @@ public final class HubTravel {
 	}
 
 	/**
-	 * The hub's way out with no lit stele (DESIGN §2 "Exit"): to the spot the player last left the overworld from;
+	 * The hub's way out with no lit stele: to the spot the player last left the overworld from;
 	 * failing that (never recorded, or its dimension is gone), to their bed or respawn anchor; failing that, to the
 	 * world spawn.
 	 */
@@ -143,7 +143,7 @@ public final class HubTravel {
 		}
 	}
 
-	/** First arrival in the hub: Realm 1 unlocks (what attunement at a Sanctum core used to do). */
+	/** First arrival in the hub: Realm 1 unlocks. */
 	private static void arrived(ServerPlayerEntity player) {
 		ProgressManager.unlockRealm(player, ProgressManager.REALM_1);
 	}

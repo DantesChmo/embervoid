@@ -18,7 +18,6 @@ import java.util.List;
  * player, so quitting on the death screen does not lose them.
  */
 public final class FlaskKeeper {
-	/** One stack kept through death and the inventory slot it came from. */
 	public record Kept(int slot, ItemStack stack) {
 		public static final Codec<Kept> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.INT.fieldOf("slot").forGetter(Kept::slot),

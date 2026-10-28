@@ -52,7 +52,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * The GeckoLib entity models keep what the code relies on when their art is regenerated (tools/overworld_mob_art.py,
  * tools/reach_mob_art.py, tools/reach_boss_art.py, tools/sanctum_boss_art.py): every model has its animation file and
  * texture, every animated bone exists, and the overworld entities and the six bosses have the animations their classes
- * play (the moves, and since PLAN 19.3 / 19.4 the hurt, stagger, death and phase-change animations), the bones their
+ * play (the moves, and the hurt, stagger, death and phase-change animations), the bones their
  * renderers use or toggle and telegraphs at least as long as their windups. A mismatch only shows in game as a frozen
  * or missing part.
  * (Sizes against tools/model_bounds.json: {@code python3 tools/model_preview.py check}.)
@@ -62,7 +62,7 @@ class EntityModelFilesTest {
 
 	/** Animations each entity class plays (DefaultAnimations names and its own RawAnimations). */
 	private static final Map<String, List<String>> ANIMATIONS = Map.ofEntries(
-			// The overworld and moon-night mobs (track overworld-mobs, PLAN 19.3).
+			// The overworld and moon-night mobs.
 			Map.entry("ash_ghoul", List.of("misc.idle", "move.walk", "attack.swing", MobAnimations.HURT, MobAnimations.DEATH)),
 			Map.entry("hollow", List.of("misc.idle", "move.walk", "attack.swing", "attack.block", MobAnimations.HURT, MobAnimations.STAGGER,
 					MobAnimations.DEATH)),
@@ -209,7 +209,7 @@ class EntityModelFilesTest {
 		assertTrue(problems.isEmpty(), String.join("\n", problems));
 	}
 
-	// --- Realm 1 mobs (PLAN 19.3, track mobs): what ReachMob and its subclasses play, toggle and wait for ------------
+	// Realm 1 mobs: what ReachMob and its subclasses play, toggle and wait for.
 
 	/** Animations each Realm 1 mob class plays: its moves and states, and ReachMob's hurt, stagger and death. */
 	private static final Map<String, List<String>> REACH_MOB_ANIMATIONS = Map.ofEntries(

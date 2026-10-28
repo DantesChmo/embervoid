@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Blood new moon: measures the damage a player actually took (after armor and absorption) for vampirism (PLAN 8.6). */
+/** Blood new moon: measures the damage a player actually took (after armor and absorption) for vampirism. */
 @Mixin(PlayerEntity.class)
 abstract class PlayerEntityVampirismMixin {
 	@Unique

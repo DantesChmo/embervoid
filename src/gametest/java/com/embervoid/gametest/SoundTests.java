@@ -47,7 +47,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 /**
- * Sounds (R40.3a): every registered event resolves in sounds.json and has its subtitle in both languages; mobs and
+ * Sounds: every registered event resolves in sounds.json and has its subtitle in both languages; mobs and
  * bosses play their own events for ambient, hurt and their telegraphs. Sounds are read from {@link SoundLog}.
  */
 public final class SoundTests implements FabricGameTest {
@@ -212,7 +212,7 @@ public final class SoundTests implements FabricGameTest {
 		expect(context, tree, ReachBossSounds.GRIEVING_TREE_ROOT_LINES, "tree root lines", problems);
 		tree.branchSweep(target);
 		expect(context, tree, ReachBossSounds.GRIEVING_TREE_BRANCH_SWEEP, "tree branch sweep", problems);
-		// Its bark turns every hit outside a stun (PLAN 18.4); a kill-type hit gets through to its hurt sound.
+		// Its bark turns every hit outside a stun; a kill-type hit gets through to its hurt sound.
 		tree.playAmbientSound();
 		expect(context, tree, ReachBossSounds.GRIEVING_TREE_AMBIENT, "ambient", problems);
 		tree.damage(context.getWorld().getDamageSources().genericKill(), 1);

@@ -67,8 +67,6 @@ public final class EmberParticles {
 		return Registry.register(Registries.PARTICLE_TYPE, Embervoid.id(name), type);
 	}
 
-	// --- Server-side helpers ---
-
 	/** {@code count} particles in a box of half-size {@code spread} around {@code at}, each given a random speed up to {@code speed}. */
 	public static void spawn(ServerWorld world, ParticleEffect effect, Vec3d at, int count, double spread, double speed) {
 		world.spawnParticles(effect, at.x, at.y, at.z, count, spread, spread, spread, speed);

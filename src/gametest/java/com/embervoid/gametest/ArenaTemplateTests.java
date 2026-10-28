@@ -25,7 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * The zone arena templates (PLAN 12.2), placed the way the arena structure places them (centred, rotated so north
+ * The zone arena templates, placed the way the arena structure places them (centred, rotated so north
  * faces the landing) far from the other tests, then checked against the layouts the bosses use at runtime.
  */
 public final class ArenaTemplateTests implements FabricGameTest {

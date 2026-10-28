@@ -6,7 +6,7 @@ import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 
 /**
- * The combat effect options in Accessibility (PLAN 19.2), saved in options.txt next to the vanilla ones: how much the
+ * The combat effect options in Accessibility, saved in options.txt next to the vanilla ones: how much the
  * camera shakes, and whether heavy hits flash.
  */
 public final class CombatFxOptions {

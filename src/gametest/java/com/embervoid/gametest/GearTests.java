@@ -68,12 +68,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
-/** Ashen Reach gear (PLAN milestone 11): recipes, loot tables and item behaviour. */
 public final class GearTests implements FabricGameTest {
 	/** Fresh players cannot be hurt for their first 60 ticks. */
 	static final int JOIN_INVULNERABLE_TICKS = 65;
 
-	/** The fixed chest table ids load (other tracks' structures point at them) and the 11.1 recipes exist. */
+	/** The fixed chest table ids load (other tracks' structures point at them) and the material recipes exist. */
 	@GameTest(templateName = EMPTY_STRUCTURE)
 	public void materialRecipesAndChestTablesLoad(TestContext context) {
 		MinecraftServer server = context.getWorld().getServer();
@@ -158,7 +157,6 @@ public final class GearTests implements FabricGameTest {
 		for (int i = 0; i < 3; i++) {
 			player.equipStack(GearArmor.SLOTS.get(i), new ItemStack(GearArmor.SMOLDERING_PLATE.get(i)));
 		}
-		// Fresh players cannot be hurt for their first 60 ticks (join invulnerability).
 		context.waitAndRun(JOIN_INVULNERABLE_TICKS, () -> withPlayers(context, () -> {
 			player.damage(player.getDamageSources().onFire(), 10);
 			float lost = player.getMaxHealth() - player.getHealth();
@@ -273,13 +271,12 @@ public final class GearTests implements FabricGameTest {
 		}, player));
 	}
 
-	/** Weapon recipes exist and the weapons carry their DESIGN damage and speed. */
 	@GameTest(templateName = EMPTY_STRUCTURE)
 	public void weaponRecipesAndNumbers(TestContext context) {
 		assertRecipe(context, "ashen_scythe", GearWeapons.ASHEN_SCYTHE);
 		assertRecipe(context, "wardens_scourge", GearWeapons.WARDENS_SCOURGE);
 		assertRecipe(context, "royal_ash_rapier", GearWeapons.ROYAL_ASH_RAPIER);
-		// DESIGN §6.1 (0.5.0).
+		// DESIGN §6.1.
 		float[][] numbers = {{12, 1.1f}, {10, 1.0f}, {7, 2.2f}};
 		for (int i = 0; i < GearWeapons.MELEE.size(); i++) {
 			ItemStack stack = new ItemStack(GearWeapons.MELEE.get(i));
@@ -293,7 +290,7 @@ public final class GearTests implements FabricGameTest {
 
 	/**
 	 * DESIGN §6.1: the zone uniques craft from the soul, 4 of the zone's material and the zone part, without a
-	 * Smoldering Ingot (the 0.4.0 recipe no longer works); the Rapier still takes 2 Smoldering Ingots.
+	 * Smoldering Ingot (soul, 2 ingots and the part make nothing); the Rapier still takes 2 Smoldering Ingots.
 	 */
 	@GameTest(templateName = EMPTY_STRUCTURE)
 	public void uniqueRecipesCraftDuringTheRealm(TestContext context) {
@@ -850,7 +847,7 @@ public final class GearTests implements FabricGameTest {
 		context.assertTrue(recipe.getOutput(server.getRegistryManager()).isOf(output), "recipe " + name + " makes the wrong item");
 	}
 	/**
-	 * R40.1c: the realm melee weapons take Sharpness, Smite, Bane of Arthropods, Fire Aspect, Looting and Knockback on
+	 * The realm melee weapons take Sharpness, Smite, Bane of Arthropods, Fire Aspect, Looting and Knockback on
 	 * the anvil ({@code isAcceptableItem}) and the enchanting table (offered at power 30), not Sweeping Edge; Sharpness V
 	 * adds its 3 damage to a hit.
 	 */

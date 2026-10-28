@@ -39,7 +39,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-/** Datagen for the props (PLAN 20.3): blockstates from each state's model and facing, item models, loot, tags. */
+/** Datagen for the props: blockstates from each state's model and facing, item models, loot, tags. */
 public final class PropDataGen {
 	public static void addProviders(FabricDataGenerator.Pack pack) {
 		pack.addProvider(Models::new);

@@ -31,7 +31,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-/** Datagen for the Cleft Stele (PLAN 15.3): models, loot, the Cleft Stone recipe and tool tag. */
+/** Datagen for the Cleft Stele: models, loot, the Cleft Stone recipe and tool tag. */
 public final class SteleDataGen {
 	private static final TextureKey PORTAL = TextureKey.of("portal");
 	/** Vanilla's nether portal sheets, retextured: the crack is the same thin pane. */

@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** The Citadel in the Ashen Reach's final sector (PLAN 21.3, 21.6), against the realm's data files. */
+/** The Citadel in the Ashen Reach's final sector, against the realm's data files. */
 class CitadelPlacementTest {
 	private static final Path STRUCTURE_SETS = Path.of("src", "main", "resources", "data", "embervoid", "worldgen", "structure_set");
 

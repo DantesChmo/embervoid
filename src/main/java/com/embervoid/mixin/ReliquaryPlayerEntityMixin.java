@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Reliquary rings (PLAN 11.12) on players. See {@link RingEffects}. */
+/** Reliquary rings on players. See {@link RingEffects}. */
 @Mixin(PlayerEntity.class)
 abstract class ReliquaryPlayerEntityMixin {
 	// Delver's Ring: Haste on realm ores; both sides compute the breaking speed.

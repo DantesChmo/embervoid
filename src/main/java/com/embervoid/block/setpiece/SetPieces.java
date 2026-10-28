@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * The moving set pieces (PLAN 20.2): blocks with a GeckoLib model that turn, swing, breathe and burn
+ * The moving set pieces: blocks with a GeckoLib model that turn, swing, breathe and burn
  * (models and textures by {@code tools/setpiece_art.py}, datagen in {@code client.setpiece.SetPieceDataGen}).
  * {@link #trigger} is the server API; {@link ArenaEvents} delivers a boss fight's events to the pieces of its arena.
  *
@@ -160,7 +160,6 @@ public final class SetPieces {
 		return world.getBlockEntity(pos) instanceof SetPieceBlockEntity piece ? piece : null;
 	}
 
-	/** Whether the piece's default mode is {@link Mode#ALWAYS}. */
 	public static boolean isAlways(SetPieceBlock block) {
 		return block.kind().defaultMode() == Mode.ALWAYS;
 	}

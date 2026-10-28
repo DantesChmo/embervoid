@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * The attack animation files (PLAN 17.1): every clip a weapon kind names exists, parses as playerAnimator reads it and
+ * The attack animation files: every clip a weapon kind names exists, parses as playerAnimator reads it and
  * is as long as the kind says; a swing is as long as its weapon's attack cooldown. That the registered items have
  * these attack speeds is checked in game ({@code AttackAnimationTests}).
  */

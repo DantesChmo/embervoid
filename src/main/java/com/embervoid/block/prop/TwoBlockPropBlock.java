@@ -28,10 +28,8 @@ public abstract class TwoBlockPropBlock extends PropBlock {
 	/** Whether this is the half the player placed. */
 	public abstract boolean isPrimary(BlockState state);
 
-	/** Where the other half is. */
 	public abstract Direction toPartner(BlockState state);
 
-	/** The other half's state for this half. */
 	public abstract BlockState partner(BlockState state);
 
 	@Override

@@ -1,7 +1,7 @@
 package com.embervoid.player;
 
 /**
- * What the stamina bar shows (PLAN 2.5): whether it is drawn, how much of it is filled and whether its frame flashes
+ * What the stamina bar shows: whether it is drawn, how much of it is filled and whether its frame flashes
  * after a failed spend. Pure logic, no rendering: the client's {@code StaminaHud} draws from it.
  */
 public final class StaminaBar {
@@ -9,7 +9,6 @@ public final class StaminaBar {
 	public static final int FLASH_TICKS = 10;
 
 	/**
-	 * @param visible  drawn at all
 	 * @param filled   filled pixels of the inner width
 	 * @param flashOn  the frame is red this tick (it blinks every 2 ticks while flashing)
 	 */
@@ -17,7 +16,6 @@ public final class StaminaBar {
 
 	/**
 	 * @param current         stamina now (clamped to {@code [0, max]})
-	 * @param max             pool size
 	 * @param ticksSinceFail  world ticks since the last failed spend (negative or large when none)
 	 * @param hideWhenFull    client option {@code staminaBar.hideWhenFull}
 	 * @param innerWidth      pixels between the frame's sides

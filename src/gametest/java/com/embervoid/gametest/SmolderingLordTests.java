@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Smoldering Lord (PLAN 13.4) in the real Citadel courtyard template (one far spot per test, chunks forced), real
+ * Smoldering Lord in the real Citadel courtyard template (one far spot per test, chunks forced), real
  * joined players. Moves are started directly; the brain is held.
  */
 public final class SmolderingLordTests implements FabricGameTest {

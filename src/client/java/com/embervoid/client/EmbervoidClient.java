@@ -46,9 +46,6 @@ public class EmbervoidClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		EmbervoidClientConfig.load();
 
-		// Entity renderers, HUD (boss bar), keybinds.
-
-		// Blocks with see-through pixels.
 		BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getCutout(),
 				ModBlocks.DEAD_DOOR, ModBlocks.DEAD_TRAPDOOR, ModBlocks.EMBER_LANTERN, ReachBlocks.GRAVE_IRON_GRATE);
 		BlockRenderLayerMap.INSTANCE.putBlock(ReachBlocks.EMBER_GLASS, RenderLayer.getTranslucent());
@@ -77,7 +74,7 @@ public class EmbervoidClient implements ClientModInitializer {
 		AttackAnimationsClient.register();
 		PropClient.register();
 		SetPieceClient.register();
-		// Particles and the name label only; a model comes with the art pass.
+		// Particles and the name label only, no model.
 		EntityRendererRegistry.register(ModEntities.ASH_REMNANT, EmptyEntityRenderer::new);
 		FabricModelPredicateProviderRegistry.register(ModItems.HEALING_FLASK, Embervoid.id("empty"),
 				(stack, world, entity, seed) -> ClientPlayerData.get().flaskCharges <= 0 ? 1 : 0);
@@ -89,7 +86,6 @@ public class EmbervoidClient implements ClientModInitializer {
 		});
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> client.execute(EmbervoidConfig::useLocal));
 
-		// /embervoid_client data: show the player data as the client sees it (debug).
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
 				ClientCommandManager.literal("embervoid_client")
 						.then(ClientCommandManager.literal("data").executes(context -> {

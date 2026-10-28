@@ -9,13 +9,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * The {@code reliquary} config section (DESIGN §4.5).
+ * The {@code reliquary} config section.
  *
  * @param slots     slots per {@link SlotKind#name()}; 0 hides a kind. Lowering a count hands the items in the lost
  *                  slots back to the player on their next join
- * @param artifacts stat points the artifacts give
- * @param rings     ring numbers
- * @param drops     accessory drop chances
  */
 public record ReliquaryConfig(Map<String, Integer> slots, Artifacts artifacts, Rings rings, Drops drops) {
 	/**

@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Blood new moon: red fog and clear colour, except under water, lava or powder snow (PLAN 8.3). */
+/** Blood new moon: red fog and clear colour, except under water, lava or powder snow. */
 @Mixin(BackgroundRenderer.class)
 abstract class MoonFogColorMixin {
 	@Shadow
