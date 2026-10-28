@@ -13,8 +13,10 @@ import net.minecraft.structure.PoolStructurePiece;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructureTemplate;
 import net.minecraft.util.BlockMirror;
+import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -35,6 +37,8 @@ public final class SanctumBossArena {
 	public static final BlockPos TEMPLATE_CENTER = new BlockPos(10, 0, 19);
 	/** How often players are checked for stepping in, in ticks. */
 	private static final int CHECK_INTERVAL = 5;
+	/** How far above the arena floor a player still steps in. */
+	private static final int STEP_IN_HEIGHT = 10;
 
 	static void register() {
 		ServerTickEvents.END_WORLD_TICK.register(SanctumBossArena::tick);
@@ -63,20 +67,32 @@ public final class SanctumBossArena {
 			return null;
 		}
 		BlockPos center = center(piece);
-		double dx = player.getX() - (center.getX() + 0.5);
-		double dz = player.getZ() - (center.getZ() + 0.5);
-		double dy = player.getY() - center.getY();
-		if (dx * dx + dz * dz > (RADIUS - 1) * (RADIUS - 1) || dy < 0 || dy > 10
-				|| ArenaManager.fightAt(world, center) != null || isCleared(world, center)) {
+		if (!stepsIn(center, player.getPos()) || ArenaManager.fightAt(world, center) != null || isCleared(world, center)) {
 			return null;
 		}
 		return ArenaManager.start(world, spec(), center);
 	}
 
+	/**
+	 * Whether a player at {@code pos} has stepped into the arena with floor centre {@code center}: within a block of
+	 * the fog wall's radius from the centre column, from the floor up to {@value #STEP_IN_HEIGHT} blocks above it.
+	 */
+	public static boolean stepsIn(BlockPos center, Vec3d pos) {
+		double dx = pos.x - (center.getX() + 0.5);
+		double dz = pos.z - (center.getZ() + 0.5);
+		double dy = pos.y - center.getY();
+		return dx * dx + dz * dz <= (RADIUS - 1) * (RADIUS - 1) && dy >= 0 && dy <= STEP_IN_HEIGHT;
+	}
+
 	/** The arena floor centre of a boss wing piece, wherever and however it was turned. */
 	public static BlockPos center(StructurePiece piece) {
 		PoolStructurePiece pool = (PoolStructurePiece) piece;
-		return pool.getPos().add(StructureTemplate.transformAround(TEMPLATE_CENTER, BlockMirror.NONE, pool.getRotation(), BlockPos.ORIGIN));
+		return center(pool.getPos(), pool.getRotation());
+	}
+
+	/** The arena floor centre of a boss wing placed at {@code piecePos} turned by {@code rotation}. */
+	public static BlockPos center(BlockPos piecePos, BlockRotation rotation) {
+		return piecePos.add(StructureTemplate.transformAround(TEMPLATE_CENTER, BlockMirror.NONE, rotation, BlockPos.ORIGIN));
 	}
 
 	public static boolean isCleared(ServerWorld world, BlockPos center) {
