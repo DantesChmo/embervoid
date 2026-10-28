@@ -112,16 +112,31 @@ public final class WeaponScaling {
 
 	private static Scaling fromTag(Entity projectile) {
 		for (String tag : projectile.getCommandTags()) {
-			if (tag.startsWith(TAG_PREFIX)) {
-				String[] parts = tag.substring(TAG_PREFIX.length()).split(":");
-				try {
-					return new Scaling(Float.parseFloat(parts[0]), Float.parseFloat(parts[1]));
-				} catch (RuntimeException e) {
-					return Scaling.NONE;
-				}
+			Scaling scaling = parseTag(tag);
+			if (scaling != null) {
+				return scaling;
 			}
 		}
 		return Scaling.NONE;
+	}
+
+	/** The command tag a projectile carries for {@code scaling} ({@code embervoid.scaling:<str>:<dex>}). */
+	static String toTag(Scaling scaling) {
+		return String.format(Locale.ROOT, "%s%s:%s", TAG_PREFIX, scaling.strength(), scaling.dexterity());
+	}
+
+	/** The scaling a command tag records; null for a tag of something else, {@link Scaling#NONE} for a broken one. */
+	@Nullable
+	static Scaling parseTag(String tag) {
+		if (!tag.startsWith(TAG_PREFIX)) {
+			return null;
+		}
+		String[] parts = tag.substring(TAG_PREFIX.length()).split(":");
+		try {
+			return new Scaling(Float.parseFloat(parts[0]), Float.parseFloat(parts[1]));
+		} catch (RuntimeException e) {
+			return Scaling.NONE;
+		}
 	}
 
 	/** The weapon a player's new projectile came from: the bow being released, else the held ranged weapon. */
@@ -148,7 +163,7 @@ public final class WeaponScaling {
 			}
 			Scaling scaling = ranged(sourceWeapon(player));
 			if (scaling != Scaling.NONE) {
-				projectile.addCommandTag(String.format(Locale.ROOT, "%s%s:%s", TAG_PREFIX, scaling.strength(), scaling.dexterity()));
+				projectile.addCommandTag(toTag(scaling));
 			}
 		});
 	}
