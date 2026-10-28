@@ -148,7 +148,6 @@ public final class MinorTemplates {
 		return CHARRED_LOG.with(PillarBlock.AXIS, axis);
 	}
 
-	/** A two-block-tall prop standing at (x, y, z). */
 	private static void tall(Ruin r, int x, int y, int z, TallPropBlock block, Direction facing) {
 		BlockState lower = block.getDefaultState().with(PropBlock.FACING, facing);
 		r.set(x, y, z, lower.with(TallPropBlock.HALF, DoubleBlockHalf.LOWER)).set(x, y + 1, z, lower.with(TallPropBlock.HALF, DoubleBlockHalf.UPPER));

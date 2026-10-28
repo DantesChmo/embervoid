@@ -11,11 +11,8 @@ import org.jetbrains.annotations.Nullable;
 /** The Ashen Reach's biomes and what each one looks like beyond its biome JSON (DESIGN §4.5 "Zones and places"). */
 public final class ReachZones {
 	public static final RegistryKey<Biome> LANDING = biome("ashen_reach_landing");
-	/** Ashen Fields, zone_a. */
 	public static final RegistryKey<Biome> FIELDS = biome("ashen_reach_zone_a");
-	/** Royal Woods, zone_b. */
 	public static final RegistryKey<Biome> WOODS = biome("ashen_reach_zone_b");
-	/** Sunken Necropolis, zone_c. */
 	public static final RegistryKey<Biome> NECROPOLIS = biome("ashen_reach_zone_c");
 	public static final RegistryKey<Biome> ABYSS = biome("ashen_reach_abyss");
 	/** The final zone's sector of the realm dimension: the Burning City and the Smoldering Citadel. */

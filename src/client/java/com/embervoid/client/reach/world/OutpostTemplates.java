@@ -219,7 +219,6 @@ public final class OutpostTemplates {
 		return roll < 1 + 2 * t ? p.cracked() : roll == 9 && t < 0.4 ? p.mossy() : BRICKS;
 	}
 
-	/** A small touch of the zone next to the outpost. */
 	private static void accent(TemplateBuilder t, ReachZoneKit zone, int x, int y, int z) {
 		switch (zone.name()) {
 			case "fields" -> {

@@ -251,7 +251,6 @@ public class GrievingTreeEntity extends ReachBoss {
 		lanterns.add(lantern);
 	}
 
-	/** Lanterns still hanging. */
 	public List<TreeLanternEntity> lanterns() {
 		lanterns.removeIf(TreeLanternEntity::isRemoved);
 		return List.copyOf(lanterns);

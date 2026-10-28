@@ -71,7 +71,6 @@ public class SparkingMarksmanEntity extends ReachMob {
 		return null;
 	}
 
-	/** Starts aiming at the current target. */
 	public boolean startAim() {
 		return getTarget() != null && startMove(AIM);
 	}

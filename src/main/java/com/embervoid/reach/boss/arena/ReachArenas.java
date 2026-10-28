@@ -98,7 +98,6 @@ public final class ReachArenas {
 	public static final double RING_WALK_OUTER = 13.5;
 	public static final int CROSS_HALF_WIDTH = 1;
 
-	/** Brazier offsets (on the pedestals). */
 	public static List<BlockPos> braziers() {
 		int d = BRAZIER_OFFSET;
 		return List.of(new BlockPos(d, WALKWAY_TOP + 1, d), new BlockPos(-d, WALKWAY_TOP + 1, d),

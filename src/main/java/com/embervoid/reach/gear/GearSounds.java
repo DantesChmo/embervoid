@@ -9,7 +9,6 @@ public final class GearSounds {
 	public static final SoundEvent ASH_WAVE = ModSounds.register("item.ashen_scythe.ash_wave");
 	/** A soul freed by the Scythe flying into the reaper. */
 	public static final SoundEvent REAP = ModSounds.register("item.ashen_scythe.reap");
-	/** The Rapier's ramp reaching its peak. */
 	public static final SoundEvent RAMP_PEAK = ModSounds.register("item.royal_ash_rapier.ramp_peak");
 	public static final SoundEvent LASH = ModSounds.register("item.wardens_scourge.lash");
 	public static final SoundEvent WHIP_CRACK = ModSounds.register("item.wardens_scourge.crack");

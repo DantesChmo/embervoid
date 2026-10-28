@@ -85,7 +85,6 @@ public class CryptKeeperEntity extends ReachBoss {
 	public static final int CLOSE_COOLDOWN_LATE = KeeperRules.CLOSE_COOLDOWN_LATE;
 	public static final int RANGED_COOLDOWN = KeeperRules.RANGED_COOLDOWN;
 	public static final int RANGED_COOLDOWN_LATE = KeeperRules.RANGED_COOLDOWN_LATE;
-	/** The pause after a phase change. */
 	public static final int PHASE_PAUSE = 30;
 	/** Ticks between two waves of moths while a brazier burns. */
 	public static final int MOTH_INTERVAL = 300;
@@ -113,7 +112,6 @@ public class CryptKeeperEntity extends ReachBoss {
 
 	/** Water: the flood reaches this far from the centre (the sinkhole floor, up to the pit wall). */
 	private static final int FLOOD_MARGIN = 7;
-	/** The most moths at once. */
 	private static final int MAX_MOTHS = 4;
 	/** How close a moth gets to a lit brazier to smother it. */
 	private static final double SMOTHER_DISTANCE = 1.6;
@@ -536,7 +534,6 @@ public class CryptKeeperEntity extends ReachBoss {
 		return risen;
 	}
 
-	/** Test hook: whether any of its arena's braziers burns. */
 	public boolean anyBrazierLit() {
 		return braziers.stream().anyMatch(this::isBurning);
 	}

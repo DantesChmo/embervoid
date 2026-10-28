@@ -196,7 +196,6 @@ public final class ScourgeLashes {
 		effects.draw(RenderLayer.getLightning());
 	}
 
-	/** How a swing lays the lash out. */
 	private enum Swing {
 		/** The crack: over the right shoulder, rolling out onto the hit curve; let go once the tip has overshot. */
 		CRACK(WhipArc.CRACK_WINDUP, 0, 9),

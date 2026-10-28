@@ -91,7 +91,6 @@ public final class ReachBlocks {
 	public static final Block BONE_PILLAR = register("bone_pillar", new PillarBlock(AbstractBlock.Settings.copy(Blocks.BONE_BLOCK)));
 	/** A grille of grave iron: a pane like iron bars. */
 	public static final Block GRAVE_IRON_GRATE = register("grave_iron_grate", new PaneBlock(AbstractBlock.Settings.copy(Blocks.IRON_BARS)));
-	/** Riveted grave-iron floor plates. */
 	public static final Block GRAVE_IRON_PLATE = register("grave_iron_plate", new Block(AbstractBlock.Settings.copy(Blocks.IRON_BLOCK)
 			.mapColor(MapColor.DEEPSLATE_GRAY)));
 	public static final Block RUSTED_BRASS_BLOCK = register("rusted_brass_block", new Block(AbstractBlock.Settings.copy(Blocks.CUT_COPPER)

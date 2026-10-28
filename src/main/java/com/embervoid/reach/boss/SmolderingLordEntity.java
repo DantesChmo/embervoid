@@ -62,7 +62,6 @@ import java.util.List;
  * First kill: his soul and a Flask Ember ({@link ReachBosses}).
  */
 public class SmolderingLordEntity extends ReachBoss {
-	/** His own theme, {@link ReachBossSounds#SMOLDERING_LORD_MUSIC}. */
 	public static final Identifier MUSIC = ReachBossSounds.SMOLDERING_LORD_MUSIC.getId();
 	public static final double LANDING_RADIUS = 6;
 	public static final float SHATTERED_DAMAGE = LordRules.SHATTERED_DAMAGE;

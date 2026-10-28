@@ -63,11 +63,8 @@ import java.util.List;
  * of its fall) before it goes, with no vanilla death tilt (the renderer turns it off).
  */
 public abstract class ReachMob extends HostileEntity implements GeoEntity {
-	/** Command tag of a mob placed by a structure. */
 	public static final String PLACED_TAG = "embervoid.placed";
-	/** The controller of one-shot move animations. */
 	public static final String ACTION = "action";
-	/** The controller of the hit reactions, under the move animations. */
 	public static final String HURT_CONTROLLER = "hurt";
 	/** The flinch on a hit between moves, a heavier stagger, the fall on death. */
 	public static final String HURT = "misc.hurt";
@@ -102,7 +99,6 @@ public abstract class ReachMob extends HostileEntity implements GeoEntity {
 	 * @param windupTicks   ticks from the start of the telegraph until the move lands
 	 * @param cooldownTicks ticks from the start until the next move may start
 	 * @param sound         played at the start of the windup, or null
-	 * @param pitch         of that sound
 	 */
 	public record Move(String animation, int windupTicks, int cooldownTicks, @Nullable SoundEvent sound, float pitch) {}
 
@@ -162,7 +158,6 @@ public abstract class ReachMob extends HostileEntity implements GeoEntity {
 		return isAlive();
 	}
 
-	/** Called when a move's telegraph starts. */
 	protected void onMoveStarted(Move started) {}
 
 	/** Called every tick of a windup but its last, with the ticks left until the move lands. */

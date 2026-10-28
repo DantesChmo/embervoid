@@ -54,7 +54,6 @@ public final class GearConsumables {
 		return item instanceof GearWeaponItem || item instanceof SwordItem || item instanceof AxeItem || item instanceof TridentItem;
 	}
 
-	/** Whether the stack's resin still burns at this game time. */
 	public static boolean resinBurning(ItemStack stack, long time) {
 		return stack.getNbt() != null && ConsumableRules.burning(stack.getNbt().getLong(RESIN_KEY), time);
 	}
@@ -79,7 +78,6 @@ public final class GearConsumables {
 		}
 	}
 
-	/** {@link #tickLantern} for GameTests. */
 	public static void tickLanternForTest(ServerPlayerEntity player) {
 		tickLantern(player);
 	}

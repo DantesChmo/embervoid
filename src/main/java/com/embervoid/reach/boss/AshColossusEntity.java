@@ -465,7 +465,6 @@ public class AshColossusEntity extends ReachBoss {
 		}
 	}
 
-	/** Cinders dropped so far (tests). */
 	public int cindersDropped() {
 		return cindersDropped;
 	}

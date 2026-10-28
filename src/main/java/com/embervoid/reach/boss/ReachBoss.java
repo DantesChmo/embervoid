@@ -54,15 +54,12 @@ import java.util.List;
  * {@link #deathTicks} ticks (the fight has already ended and credited the fighters) before it goes.
  */
 public abstract class ReachBoss extends HostileEntity implements ArenaBoss, GeoEntity {
-	/** The controller of one-shot move animations. */
 	public static final String ACTION = "action";
-	/** The controller of the hit reaction, under the move animations. */
 	public static final String HURT_CONTROLLER = "hurt";
 	/** The flinch on a hit between moves, a heavier stagger, the fall on death. */
 	public static final String HURT = "misc.hurt";
 	public static final String STAGGER = "misc.stagger";
 	public static final String DEATH = "misc.death";
-	/** Ticks between two flinches. */
 	public static final int HURT_COOLDOWN = BossRules.HURT_COOLDOWN;
 	/** The shared zone-boss theme (Ash Colossus, Grieving Tree, Crypt Keeper), {@link ReachBossSounds#ZONE_BOSS_MUSIC}. */
 	public static final Identifier ZONE_BOSS_MUSIC = ReachBossSounds.ZONE_BOSS_MUSIC.getId();
@@ -198,7 +195,6 @@ public abstract class ReachBoss extends HostileEntity implements ArenaBoss, GeoE
 		return false;
 	}
 
-	/** How close the boss walks up to its target. */
 	protected double keepDistance() {
 		return 3;
 	}
@@ -242,7 +238,6 @@ public abstract class ReachBoss extends HostileEntity implements ArenaBoss, GeoE
 	protected void afterStrike(String animation) {
 	}
 
-	/** Pushes a player away from the boss. */
 	protected void knockAway(PlayerEntity player, double strength, double up) {
 		Vec3d away = directionTo(player.getPos());
 		player.addVelocity(away.x * strength, up, away.z * strength);

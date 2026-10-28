@@ -47,7 +47,6 @@ import java.util.WeakHashMap;
  * meets nothing still snaps in the air at the lash's end.
  */
 public class WardensScourgeItem extends GearWeaponItem {
-	/** Pale yellow, the crack's flash. */
 	private static final int CRACK_COLOR = 0xFFE8B0;
 	private static final Map<Double, WhipArc> ARCS = new HashMap<>();
 	/** The mob a crack is attacking with the tip, while that attack is dealt. */

@@ -76,7 +76,6 @@ public final class GearArmor {
 				name, true, false));
 	}
 
-	/** How many pieces of {@code material} the entity wears. */
 	public static int pieces(LivingEntity entity, GearArmorMaterial material) {
 		int count = 0;
 		for (EquipmentSlot slot : SLOTS) {

@@ -206,7 +206,6 @@ final class Ruin {
 		return this;
 	}
 
-	/** A log with its axis. */
 	static BlockState log(BlockState log, Direction.Axis axis) {
 		return log.with(PillarBlock.AXIS, axis);
 	}
