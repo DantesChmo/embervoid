@@ -60,7 +60,6 @@ public class BossFight {
 
 	private final ServerWorld world;
 	private final ArenaSpec spec;
-	/** Arena floor center. */
 	private final BlockPos center;
 	private final ServerBossBar bar;
 	private final Set<UUID> fighters = new LinkedHashSet<>();
@@ -75,7 +74,7 @@ public class BossFight {
 	private int phase;
 	private boolean ended;
 	private int switchIn;
-	/** A boss summoned again with Ash of Rematch (PLAN 12.7): no soul for a repeat kill. */
+	/** A boss summoned again with Ash of Rematch: no soul for a repeat kill. */
 	private boolean rematch;
 	/** Arena fog now shown to the fighters: {density, colour}, or null. */
 	private float @Nullable [] fog;
@@ -180,7 +179,7 @@ public class BossFight {
 	}
 
 	/**
-	 * Tells the arena's set pieces what happened (PLAN 20.1): {@code summon}, {@code phase <n>}, {@code hazard <id>},
+	 * Tells the arena's set pieces what happened: {@code summon}, {@code phase <n>}, {@code hazard <id>},
 	 * {@code bossHit heavy}, {@code kill}, {@code reset}, or a boss's own word. Returns how many pieces heard it.
 	 */
 	public int fireArenaEvent(String event) {
@@ -243,7 +242,6 @@ public class BossFight {
 		}
 	}
 
-	/** The boss entity, or null if it is gone. */
 	@Nullable
 	public MobEntity boss() {
 		return bossUuid != null && world.getEntity(bossUuid) instanceof MobEntity boss ? boss : null;
@@ -266,12 +264,9 @@ public class BossFight {
 		return isInside(pos, margin);
 	}
 
-	/** Horizontal check against the fog wall radius (plus a margin), within the arena's height band. */
 	private boolean isInside(Vec3d pos, double margin) {
 		return BossFightRules.isInside(center, spec.radius(), pos, margin);
 	}
-
-	// --- Fight-bound adds, hazards, fog, phases ---
 
 	/**
 	 * Summons an add for this fight at {@code pos} (or the first free spot above it): persistent, {@link BossConfig#addLevelOffset} levels below the boss,
@@ -524,7 +519,7 @@ public class BossFight {
 	}
 
 	/**
-	 * Every arena leaves an Ember Shrine (milestone 7). Worldgen places it; if it is missing (another structure or
+	 * Every arena leaves an Ember Shrine. Worldgen places it; if it is missing (another structure or
 	 * terrain overwrote it, a player removed it in creative), it is put back now. Returns false if the arena's
 	 * structure is not found, so no shrine can be promised.
 	 */
@@ -606,7 +601,6 @@ public class BossFight {
 				+ ", adds " + adds().size() + ", hazards " + hazards.size();
 	}
 
-	/** Id of the boss this fight is for. */
 	public Identifier bossId() {
 		return spec.bossId();
 	}

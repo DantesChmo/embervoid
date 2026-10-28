@@ -10,8 +10,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Client side of the arena fog ({@link ArenaFog}): pushes the fog the server asks for into the realm fog API
- * (PLAN 9.1, track reach-world) as fog that clearing (Ring of the Fog Stalker) does not thin out.
+ * Client side of the arena fog ({@link ArenaFog}): pushes the fog the server asks for into the realm fog API as
+ * fog that clearing (Ring of the Fog Stalker) does not thin out.
  */
 public final class ArenaFogClient {
 	private static final Set<Identifier> PUSHED = new HashSet<>();

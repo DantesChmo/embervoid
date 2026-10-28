@@ -7,7 +7,6 @@ import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 
-/** Bosses. */
 public final class BossEntities {
 	public static final EntityType<TestBossEntity> TEST_BOSS = ModEntities.register("test_boss",
 			FabricEntityTypeBuilder.<TestBossEntity>create(SpawnGroup.MONSTER, TestBossEntity::new)

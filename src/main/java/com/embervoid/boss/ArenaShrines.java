@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Per-player look of arena shrines (DESIGN §10.8, PLAN L7): a shrine stays dormant for a player who has not beaten
+ * Per-player look of arena shrines (DESIGN §10.8): a shrine stays dormant for a player who has not beaten
  * its arena's boss, and that player's client draws it cold. The server tells each player in a realm which shrines
  * near them belong to which boss; the client decides from its own synced progress, so beating the boss lights the
  * shrine at once. Resting is still refused on the server ({@link ArenaManager}).
@@ -40,7 +40,6 @@ public final class ArenaShrines {
 	private static final double RANGE = 192;
 	private static final int INTERVAL_TICKS = 40;
 
-	/** An arena shrine and the progress id of its boss. */
 	public record Entry(BlockPos shrine, Identifier bossId) {}
 
 	/** What each player was sent last, so a list goes out only when it changes. */

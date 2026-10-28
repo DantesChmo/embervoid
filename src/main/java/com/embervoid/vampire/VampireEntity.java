@@ -37,14 +37,14 @@ import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 /**
- * A Vampire of the blood new moon in its friendly form (DESIGN §3.3, PLAN 8.10). It strolls near where it appeared,
+ * A Vampire of the blood new moon in its friendly form (DESIGN §3.3). It strolls near where it appeared,
  * watches the players and talks when spoken to. It cannot be hurt: the first player hit on any Vampire provokes it
  * instead ({@link VampireNight#provoke}), and it turns into the boss after a short transformation.
  *
  * <p>Its life is owned by {@link VampireNight}: a Vampire that does not belong to the current night (loaded later
  * from an unloaded chunk, after a restart, after the others vanished) disappears on its next tick.
  *
- * <p>Animations (PLAN 19.3, {@link MobAnimations}): the blow that provokes it shows {@code misc.hurt} under the
+ * <p>Animations ({@link MobAnimations}): the blow that provokes it shows {@code misc.hurt} under the
  * transformation; blood drops fall off it while it turns. Only {@code /kill} and the void end it: then
  * {@code misc.death} folds it to the ground and the body stays {@link #DEATH_TICKS} ticks.
  */
@@ -187,7 +187,6 @@ public class VampireEntity extends PathAwareEntity implements GeoEntity {
 		}
 	}
 
-	/** How long the body stays after death for its death animation, in ticks. */
 	public int deathTicks() {
 		return DEATH_TICKS;
 	}

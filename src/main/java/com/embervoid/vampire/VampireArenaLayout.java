@@ -15,10 +15,8 @@ public final class VampireArenaLayout {
 		AIR,
 		/** Under the floor, short of the edge so the disc looks thin from the side. */
 		UNDERSIDE,
-		/** The layer right under the floor. */
 		SUBFLOOR,
 		FLOOR,
-		/** The floor's outer band. */
 		FLOOR_EDGE,
 		/** The crying centre of the floor. */
 		HEART,

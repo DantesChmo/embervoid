@@ -5,13 +5,10 @@ import com.embervoid.config.EmbervoidConfig;
 
 /**
  * {@code vampire.*} in {@code config/embervoid.json}: the Vampires of the blood new moon and their boss (DESIGN §3.3,
- * §10.12, PLAN 8.10–8.12; the PLAN writes these keys as {@code moon.blood.*}).
+ * §10.12).
  *
  * @param provokeMinutes    real-time minutes until the Vampire nearest to a player turns on its own
  * @param groupRadius       players within this many blocks of each other share one Vampire group
- * @param groupMin          fewest Vampires in a group
- * @param groupMax          most Vampires in a group
- * @param bossMinLevel      the boss's lowest level
  * @param bossCapNoRealm    the boss's level cap when no player taking part has unlocked a realm (overworld band top)
  * @param firstKillShards   Flask Shards for a player's first kill (plus a Vampire Fang)
  * @param repeatShardChance chance of one Flask Shard on a repeat kill

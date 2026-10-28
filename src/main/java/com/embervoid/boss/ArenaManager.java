@@ -30,7 +30,7 @@ public final class ArenaManager {
 	private record ArenaKey(RegistryKey<World> world, BlockPos center) {}
 
 	private static final Map<ArenaKey, BossFight> FIGHTS = new HashMap<>();
-	/** Arenas primed for a rematch (Ash of Rematch, PLAN 12.7): game time until which the next visitor summons the boss. */
+	/** Arenas primed for a rematch (Ash of Rematch): game time until which the next visitor summons the boss. */
 	private static final Map<ArenaKey, Long> REMATCHES = new HashMap<>();
 	/** How long a primed rematch waits for someone to step in, in ticks. */
 	public static final int REMATCH_TICKS = 1200;
@@ -126,14 +126,13 @@ public final class ArenaManager {
 	}
 
 	/**
-	 * Primes an arena for a rematch (Ash of Rematch, PLAN 12.7): for {@link #REMATCH_TICKS} the next player to step in
+	 * Primes an arena for a rematch (Ash of Rematch): for {@link #REMATCH_TICKS} the next player to step in
 	 * summons its boss even if everyone has beaten it; that fight {@link BossFight#isRematch is a rematch}.
 	 */
 	public static void primeRematch(ServerWorld world, BlockPos center) {
 		REMATCHES.put(new ArenaKey(world.getRegistryKey(), center.toImmutable()), world.getTime() + REMATCH_TICKS);
 	}
 
-	/** Whether an arena is primed for a rematch now. */
 	public static boolean isRematchPrimed(ServerWorld world, BlockPos center) {
 		Long primed = REMATCHES.get(new ArenaKey(world.getRegistryKey(), center));
 		return primed != null && world.getTime() <= primed;

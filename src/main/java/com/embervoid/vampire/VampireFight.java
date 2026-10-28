@@ -37,7 +37,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * The Vampire boss fight (DESIGN §3.3, §10.12, PLAN 8.11–8.12): a field boss with no fog wall, fought in its own
+ * The Vampire boss fight (DESIGN §3.3, §10.12): a field boss with no fog wall, fought in its own
  * arena dimension ({@link VampireArena}). One fight per server, on the blood new moon only.
  *
  * <ul>
@@ -61,7 +61,7 @@ public final class VampireFight {
 	public static final Identifier BOSS_ID = Embervoid.id("vampire");
 	/** Players this close to the boss take part. */
 	static final double RADIUS = 48;
-	/** With no fighter near for this long (logged out, ran off) the Vampire leaves. */
+	/** With no fighter near for this many ticks (logged out, ran off) the Vampire leaves. */
 	private static final int EMPTY_LIMIT = 600;
 
 	@Nullable

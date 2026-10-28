@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The Vampires of the blood new moon (DESIGN §3.3 and §10.12, PLAN 8.10).
+ * The Vampires of the blood new moon (DESIGN §3.3 and §10.12).
  *
  * <ul>
  *   <li>When the night starts, each group of overworld players (within {@code vampire.groupRadius} of each other,
@@ -41,8 +41,7 @@ import java.util.List;
 public final class VampireNight {
 	/** The night hold the Vampires keep open until the boss is beaten. */
 	public static final Identifier HOLD = Embervoid.id("vampire");
-	/** Ticks per real-time minute. */
-	private static final int MINUTE = 1200;
+	private static final int TICKS_PER_MINUTE = 1200;
 	private static final int SPAWN_MIN_DISTANCE = 6;
 	private static final int SPAWN_MAX_DISTANCE = 14;
 	private static final int SPAWN_ATTEMPTS = 24;
@@ -70,7 +69,7 @@ public final class VampireNight {
 		VampireState state = VampireState.get(server);
 		state.nightId++;
 		state.stage = Stage.GROUPS;
-		state.provokeTicks = Math.round(VampireConfig.get().provokeMinutes() * MINUTE);
+		state.provokeTicks = Math.round(VampireConfig.get().provokeMinutes() * TICKS_PER_MINUTE);
 		state.turning = null;
 		state.markDirty();
 		int spawned = 0;
@@ -196,7 +195,7 @@ public final class VampireNight {
 		}
 		if (nearest == null) {
 			// Nobody left in the overworld to meet one; try again in a minute.
-			state.provokeTicks = MINUTE;
+			state.provokeTicks = TICKS_PER_MINUTE;
 			return;
 		}
 		for (ServerPlayerEntity player : world.getPlayers()) {

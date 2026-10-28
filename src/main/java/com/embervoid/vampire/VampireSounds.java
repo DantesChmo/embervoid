@@ -3,7 +3,7 @@ package com.embervoid.vampire;
 import com.embervoid.registry.ModSounds;
 import net.minecraft.sound.SoundEvent;
 
-/** Sound events of the blood new moon (PLAN L3): vanilla files remapped in assets/embervoid/sounds.json. */
+/** Sound events of the blood new moon: vanilla files remapped in assets/embervoid/sounds.json. */
 public final class VampireSounds {
 	public static final SoundEvent VAMPIRE_TRANSFORM = ModSounds.register("entity.vampire.transform");
 	public static final SoundEvent VAMPIRE_VANISH = ModSounds.register("entity.vampire.vanish");
