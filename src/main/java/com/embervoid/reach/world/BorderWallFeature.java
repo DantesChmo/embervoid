@@ -21,7 +21,7 @@ import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.util.FeatureContext;
 
 /**
- * Feature {@code embervoid:realm_border_wall} (PLAN 21.2), once per chunk near the final zone's borders: a burnt city
+ * Feature {@code embervoid:realm_border_wall}, once per chunk near the final zone's borders: a burnt city
  * wall along both of them from just past the plaza to the abyss ({@link EdgeLayout#borderWallHeight}), three blocks
  * thick on the border line, with towers, crenellations, charred beams and ember-split stones, and gaps where it has
  * fallen. The gaps are no way in: the {@link com.embervoid.realm.FinalZoneLock} holds the region, not the blocks.
@@ -119,7 +119,7 @@ public class BorderWallFeature extends Feature<DefaultFeatureConfig> {
 
 	/**
 	 * Whether the wall stands in the column at x, z: its brickwork within 16 below the top. For checks. Its ember
-	 * cracks and charred beams do not count: the Burning City's ground has them too (PLAN 21.3).
+	 * cracks and charred beams do not count: the Burning City's ground has them too.
 	 */
 	public static boolean standsAt(World world, int x, int z) {
 		int top = world.getTopY(Heightmap.Type.MOTION_BLOCKING, x, z);

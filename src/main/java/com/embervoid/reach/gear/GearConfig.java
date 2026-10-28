@@ -6,13 +6,11 @@ import com.embervoid.config.SectionReader;
 import com.google.gson.JsonObject;
 
 /**
- * {@code gear.*} in {@code config/embervoid.json}: Ashen Reach gear (DESIGN §4.5 "Loot", PLAN 11.1–11.8). Numbers are
+ * {@code gear.*} in {@code config/embervoid.json}: Ashen Reach gear (DESIGN §4.5 "Loot"). Numbers are
  * starting values for the balance pass.
  *
- * @param bleeding   the Bleeding status effect
  * @param smoldering the Smoldering Plate
  * @param sets       the mob-drop set bonuses
- * @param uniques    the unique armor pieces
  * @param weapons    the unique weapons' passives and special attacks (base damage, speed and reach are in code)
  * @param crossbow   Huntsman's Crossbow
  * @param consumables bombs, resin, balm, lantern oil, whetstone, fuel and the Flask Ember

@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Realm loot on the realm's mobs (DESIGN §4.5, PLAN 11.8), injected with {@link LootTableEvents#MODIFY} into the mob
+ * Realm loot on the realm's mobs (DESIGN §4.5), injected with {@link LootTableEvents#MODIFY} into the mob
  * loot tables by their fixed ids: the zone's ore material, a piece of the zone's armor set (player kills) and the
  * zone's unique piece (player kills). Fortune's extra roll covers these pools too. Chances in {@code gear.loot}.
  *

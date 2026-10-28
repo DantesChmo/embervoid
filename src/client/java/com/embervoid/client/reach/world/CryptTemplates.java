@@ -25,12 +25,12 @@ import static com.embervoid.sanctum.datagen.TemplateBuilder.slab;
 import static com.embervoid.sanctum.datagen.TemplateBuilder.stair;
 
 /**
- * The Necropolis crypt (PLAN 9.8): a jigsaw of {@code embervoid:ashen_reach/necropolis/crypt/<piece>}. The entrance
+ * The Necropolis crypt: a jigsaw of {@code embervoid:ashen_reach/necropolis/crypt/<piece>}. The entrance
  * stairwell (start, 9 below the ground) leads to a junction; the junction's side doors open into random halls, its far
  * door into the descent and the lower crypt with the Necropolis treasure. Doors are 3 wide, their jigsaw in the middle
  * at floor + 1; a piece is entered through its {@link #IN} door, the others lead out.
  *
- * <p>Built from the Necropolis palette (0.5.0 art pass): wet crypt stone over a cobble-brick base course, crypt tiles
+ * <p>Built from the Necropolis palette: wet crypt stone over a cobble-brick base course, crypt tiles
  * and ash tiles underfoot, bone-brick trim, carved capitals, grave-iron grilles, blue candles; a ribbed ceiling of
  * hung stairs in every room.
  */

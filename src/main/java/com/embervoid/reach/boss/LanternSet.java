@@ -15,7 +15,6 @@ public final class LanternSet {
 	/** Ticks after the stun until the whole set of lanterns hangs again at once. */
 	public static final int REHANG_DELAY = 40;
 
-	/** What a broken lantern does to the tree. */
 	public enum Break {
 		/** Others still hang: the tree only flinches. */
 		FLINCH,
@@ -23,7 +22,6 @@ public final class LanternSet {
 		STUN
 	}
 
-	/** What changed in one tick. */
 	public record Tick(boolean stunEnded, boolean fogReturns, boolean rehang) {}
 
 	private int stunTicks;
@@ -50,7 +48,6 @@ public final class LanternSet {
 		return Break.STUN;
 	}
 
-	/** One tick with {@code hanging} lanterns on the branches. */
 	public Tick tick(int hanging) {
 		boolean wasStunned = isStunned();
 		boolean stunEnded = stunTicks > 0 && --stunTicks == 0;

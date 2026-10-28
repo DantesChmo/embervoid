@@ -22,7 +22,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Zone names (PLAN 9.3): crossing into another zone of a realm shows its name as a title, like a Souls area name.
+ * Zone names: crossing into another zone of a realm shows its name as a title, like a Souls area name.
  * Keys {@code embervoid.zone.<realm world path>.<landing|zone_a|zone_b|…|final>}; nothing past the abyss edge.
  */
 public final class ZoneTitles {

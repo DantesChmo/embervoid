@@ -117,7 +117,7 @@ public class GraveWardenEntity extends ReachMob {
 			return;
 		}
 		world.playSound(null, getX(), getY(), getZ(), ReachMobSounds.GRAVE_WARDEN_BELL, getSoundCategory(), 3.0f, 1.0f);
-		com.embervoid.block.setpiece.SetPieces.tollBellsNear(world, getBlockPos(), BELL_RANGE); // the chapel's great bell answers (PLAN 20.2)
+		com.embervoid.block.setpiece.SetPieces.tollBellsNear(world, getBlockPos(), BELL_RANGE); // the chapel's great bell answers
 		world.spawnParticles(ParticleTypes.SONIC_BOOM, getX(), getBodyY(0.8), getZ(), 1, 0, 0, 0, 0);
 		// The toll rolls out over the ground as a cold ring, and dust rises off the graves it wakes.
 		EmberParticles.shockwave(world, getPos(), (float) STAGGER_RANGE, 0x9FD4FF);

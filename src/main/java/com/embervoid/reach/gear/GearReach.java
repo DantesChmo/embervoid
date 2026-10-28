@@ -30,7 +30,7 @@ import java.util.WeakHashMap;
  * GearServerPlayNetworkHandlerMixin} hands it here and an entity in reach and in sight gets a normal {@link
  * PlayerEntity#attack}. A swing that already came with a vanilla attack this tick (or the one before, if the packets
  * straddle a tick) is left alone; with the Rapier, a swing that hits nothing at all is a miss and ends its ramp
- * ({@link RapierRamp}). Shorter reach than vanilla's (none since 0.5.0) refuses vanilla attacks beyond it.
+ * ({@link RapierRamp}). Shorter reach than vanilla's refuses vanilla attacks beyond it.
  */
 public final class GearReach {
 	/** Vanilla survival attack reach. */

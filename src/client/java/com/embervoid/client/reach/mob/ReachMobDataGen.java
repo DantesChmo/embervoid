@@ -22,8 +22,8 @@ import java.util.function.BiConsumer;
 
 /**
  * Datagen for the Realm 1 mobs: entity loot tables with the vanilla-flavoured basics (DESIGN §4.5 "Drops"). Realm
- * loot (materials, set and unique pieces, artifacts, rings) is added to these tables by tracks reach-gear and
- * reliquary with {@code LootTableEvents.MODIFY}. Spawn egg item models are hand-written resources.
+ * loot (materials, set and unique pieces, artifacts, rings) is added to these tables by {@code GearLoot} and
+ * the reliquary with {@code LootTableEvents.MODIFY}. Spawn egg item models are hand-written resources.
  */
 public final class ReachMobDataGen {
 	public static void addProviders(FabricDataGenerator.Pack pack) {

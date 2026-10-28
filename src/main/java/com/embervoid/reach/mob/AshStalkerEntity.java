@@ -36,7 +36,7 @@ import java.util.function.Predicate;
  * invulnerable), then it leaps out at that player and fights with a clawing swing. Left alone without a target for
  * {@link #REBURY_TICKS} it digs in again. Natural and placed ones start buried.
  *
- * <p>Players matching an {@link #addAmbushImmunity ambush immunity} (the Scarecrow's Mask, track reach-gear) do not
+ * <p>Players matching an {@link #addAmbushImmunity ambush immunity} (the Scarecrow's Mask) do not
  * set it off.
  */
 public class AshStalkerEntity extends ReachMob {

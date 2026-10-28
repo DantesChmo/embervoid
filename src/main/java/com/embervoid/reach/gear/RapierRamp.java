@@ -18,7 +18,6 @@ import java.util.WeakHashMap;
 public final class RapierRamp {
 	private static final Map<PlayerEntity, RampState> STATES = new WeakHashMap<>();
 
-	/** Damage multiplier of the player's next hit on {@code target}. */
 	public static float multiplier(PlayerEntity player, Entity target) {
 		GearConfig.Weapons config = GearConfig.get().weapons();
 		return WeaponRules.rampMultiplier(hitsOn(player, target), config.rampPerHit(), config.rampMax());

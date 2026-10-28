@@ -8,7 +8,7 @@ import net.minecraft.world.gen.feature.DefaultFeatureConfig;
 import net.minecraft.world.gen.structure.StructureType;
 
 /**
- * Realm 1's final zone, the Burning City with the Smoldering Citadel (PLAN 13.1–13.2, 21.3): its terrain, its debris,
+ * Realm 1's final zone, the Burning City with the Smoldering Citadel: its terrain, its debris,
  * the Citadel structure, all in the final zone's sector of {@code embervoid:ashen_reach}.
  */
 public final class Citadel {

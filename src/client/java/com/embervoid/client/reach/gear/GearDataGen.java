@@ -45,7 +45,7 @@ import java.util.stream.Stream;
 
 import static com.embervoid.reach.gear.GearItems.*;
 
-/** Datagen for the reach-gear track: item models, recipes, Ashen Reach chest loot tables, tags. */
+/** Datagen for the realm gear: item models, recipes, Ashen Reach chest loot tables, tags. */
 public final class GearDataGen {
 	/** Flat items drawn by {@code tools/gear_placeholders.py}. */
 	static final List<Item> FLAT_ITEMS = List.of(CINDER_SHARD, ROYAL_AMBER, RAW_GRAVE_IRON, GRAVE_IRON_INGOT,
@@ -76,7 +76,7 @@ public final class GearDataGen {
 
 		@Override
 		protected void configure(RegistryWrapper.WrapperLookup registries) {
-			// Bloodless: bones, a furnace, bark, ash and stone. Optional entries: the mobs and bosses are other tracks'.
+			// Bloodless: bones, a furnace, bark, ash and stone. Optional entries: the mobs and bosses are registered elsewhere.
 			var immune = getOrCreateTagBuilder(Bleeding.IMMUNE);
 			for (String id : List.of("restless_bones", "furnace_golem", "bark_hollow", "ash_colossus", "grieving_tree")) {
 				immune.addOptional(Embervoid.id(id));
@@ -212,7 +212,7 @@ public final class GearDataGen {
 	/**
 	 * Ashen Reach chests (DESIGN §4.5 "Chests"): common (outposts, farmsteads, barns, kennels, graves), treasure
 	 * (granary vault, hunting lodge, lower crypt, Citadel keep: Smoldering Ingot, templates, set pieces, the zone weapon
-	 * 4 %; track reliquary injects artifacts and rings) and the chest by each arena (a template, an Ash of Rematch and
+	 * 4 %; the reliquary injects artifacts and rings) and the chest by each arena (a template, an Ash of Rematch and
 	 * the zone's consumables).
 	 */
 	private static class ChestLoot extends SimpleFabricLootTableProvider {

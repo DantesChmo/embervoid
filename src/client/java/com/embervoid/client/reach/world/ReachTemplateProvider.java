@@ -24,7 +24,6 @@ public class ReachTemplateProvider implements DataProvider {
 		this.resolver = output.getResolver(DataOutput.OutputType.DATA_PACK, "structures");
 	}
 
-	/** Every template this provider writes, by id. */
 	public static Map<Identifier, TemplateBuilder> all() {
 		Map<Identifier, TemplateBuilder> templates = new LinkedHashMap<>();
 		templates.putAll(OutpostTemplates.all());

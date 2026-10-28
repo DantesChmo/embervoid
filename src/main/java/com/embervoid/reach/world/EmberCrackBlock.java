@@ -8,7 +8,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 
-/** Ember crack: burns whoever stands on it like magma, and spits sparks and crackles (PLAN 9.5, R40.3a). */
+/** Ember crack: burns whoever stands on it like magma, and spits sparks and crackles. */
 public class EmberCrackBlock extends MagmaBlock {
 	public EmberCrackBlock(Settings settings) {
 		super(settings);

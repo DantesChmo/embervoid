@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Layouts of the three Ashen Reach zone arenas (PLAN 12.2, DESIGN §4.5): the numbers both the arena templates
+ * Layouts of the three Ashen Reach zone arenas (DESIGN §4.5): the numbers both the arena templates
  * (datagen, {@code client.reach.boss.datagen.ArenaTemplates}) and the bosses at runtime use. Offsets are from the
  * arena centre, the floor block under the fog wall's centre, before rotation (north = towards the landing); turn
  * them into world positions with {@link ArenaFrame}.
@@ -51,7 +51,7 @@ public final class ReachArenas {
 	/** Sunken Necropolis: a sinkhole with a switchback stair down into a flooded ossuary. */
 	public static final Arena NECROPOLIS = new Arena("necropolis", Embervoid.id("ashen_reach/arena_necropolis"), 32, 40, 20, true);
 
-	/** Smoldering Citadel: the courtyard below the keep wall (PLAN 13.4); the Lord stands on the wall first. */
+	/** Smoldering Citadel: the courtyard below the keep wall; the Lord stands on the wall first. */
 	public static final Arena CITADEL = new Arena("citadel", Embervoid.id("ashen_reach/arena_citadel"), 30, 36, 14, false);
 
 	public static final List<Arena> ALL = List.of(FIELDS, WOODS, NECROPOLIS, CITADEL);
@@ -98,7 +98,6 @@ public final class ReachArenas {
 	public static final double RING_WALK_OUTER = 13.5;
 	public static final int CROSS_HALF_WIDTH = 1;
 
-	/** Brazier offsets (on the pedestals). */
 	public static List<BlockPos> braziers() {
 		int d = BRAZIER_OFFSET;
 		return List.of(new BlockPos(d, WALKWAY_TOP + 1, d), new BlockPos(-d, WALKWAY_TOP + 1, d),
@@ -124,14 +123,14 @@ public final class ReachArenas {
 	// --- Citadel courtyard ---
 
 	/**
-	 * The keep wall across the south of the courtyard (away from the landing; the keep stands behind it, track
-	 * citadel): its inner face, depth (to the template's south edge) and height (the walkway's top block). The inner
+	 * The keep wall across the south of the courtyard (away from the landing; the keep stands behind it):
+	 * its inner face, depth (to the template's south edge) and height (the walkway's top block). The inner
 	 * face stays inside the fog wall so the Lord on it is in the fight.
 	 */
 	public static final int KEEP_WALL_Z = 26;
 	public static final int KEEP_WALL_DEPTH = 11;
 	public static final int KEEP_WALL_HEIGHT = 10;
-	/** The gate tunnel through the keep wall to the keep's door: x −2…2, y 1…6 (agreed with track citadel). */
+	/** The gate tunnel through the keep wall to the keep's door: x −2…2, y 1…6. */
 	public static final int KEEP_GATE_HALF_WIDTH = 2;
 	public static final int KEEP_GATE_HEIGHT = 6;
 

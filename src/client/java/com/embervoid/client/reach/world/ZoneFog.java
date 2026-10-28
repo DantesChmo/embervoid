@@ -8,7 +8,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 
-/** Per-zone fog (PLAN 9.1): the zone of the biome under the camera, pushed as the {@code embervoid:zone} source. */
+/** Per-zone fog: the zone of the biome under the camera, pushed as the {@code embervoid:zone} source. */
 public final class ZoneFog {
 	public static final Identifier SOURCE = Embervoid.id("zone");
 

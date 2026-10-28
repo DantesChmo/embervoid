@@ -36,16 +36,16 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Grieving Tree, boss of the Royal Woods (DESIGN §4.5, PLAN 12.5): the king's oak, ~10 blocks, hanged lanterns in its
+ * Grieving Tree, boss of the Royal Woods (DESIGN §4.5): the king's oak, ~10 blocks, hanged lanterns in its
  * branches, Lv 21, in arena fog. What it teaches: shoot the lanterns, keep orientation in fog.
  *
  * <ul>
  *   <li><b>P1.</b> Rooted in the middle of the grove. Its bark turns every blade and arrow unless it is stunned
- *   (PLAN 18.4: a trunk that took a little was most of the fight's openings). {@value #LANTERNS} lanterns hang in its
+ *   (a trunk that took a little damage would be most of the fight's openings). {@value #LANTERNS} lanterns hang in its
  *   branches ({@link TreeLanternEntity}): a projectile breaks one, and so does a melee hit on the branch it lowers
  *   after a branch sweep. Breaking the last of them stuns it for 10 s (trunk ×{@value #STUNNED_DAMAGE}, no moves) and
- *   lifts the fog as long; once the stun is over, the whole set hangs again at once (0.5.3: before, every lantern
- *   bought its own 2.2 s stun and they grew back one by one). Moves: root lines bursting from the ground at
+ *   lifts the fog as long; once the stun is over, the whole set hangs again at once.
+ *   Moves: root lines bursting from the ground at
  *   the fighters, a branch sweep in front, Withered Thralls dropping from the branches.</li>
  *   <li><b>P2 at 50 %.</b> It uproots and walks slowly; new lanterns hang on its own branches and move with it; the
  *   fog thickens; root cages close around a fighter.</li>
@@ -54,12 +54,12 @@ import java.util.List;
  * Base damage (Lv 21 on Normal ×2.5): root line 7, branch sweep 8, root cage 4. Base HP 190 (~418 at Lv 21).
  */
 public class GrievingTreeEntity extends ReachBoss {
-	/** Damage the trunk takes outside a stun: none, the bark turns it (PLAN 18.4). */
+	/** Damage the trunk takes outside a stun: none, the bark turns it. */
 	public static final float TRUNK_DAMAGE = 0;
 	public static final float STUNNED_DAMAGE = 1.75f;
 	public static final int LANTERNS = LanternSet.LANTERNS;
 	public static final int P2_LANTERNS = LanternSet.P2_LANTERNS;
-	/** The stun the last broken lantern buys: the window to hit the trunk (0.5.3: 2.2 s was too short to use). */
+	/** The stun the last broken lantern buys: the window to hit the trunk. */
 	public static final int STUN_TICKS = LanternSet.STUN_TICKS;
 	public static final int FOG_LIFT_TICKS = LanternSet.FOG_LIFT_TICKS;
 	/** Arena fog: grey-green, thicker once it walks. */
@@ -68,7 +68,7 @@ public class GrievingTreeEntity extends ReachBoss {
 	public static final int FOG_COLOR = 0x3c4640;
 	/** How long a branch stays lowered after a sweep. */
 	public static final int LOWERED_TICKS = 60;
-	/** Windup of each move in ticks (the balance model reads them, PLAN 18.1). */
+	/** Windup of each move in ticks (the balance model reads them). */
 	public static final int ROOT_WINDUP = 26;
 	public static final int SWEEP_WINDUP = 20;
 	public static final int CAGE_WINDUP = 24;
@@ -251,7 +251,6 @@ public class GrievingTreeEntity extends ReachBoss {
 		lanterns.add(lantern);
 	}
 
-	/** Lanterns still hanging. */
 	public List<TreeLanternEntity> lanterns() {
 		lanterns.removeIf(TreeLanternEntity::isRemoved);
 		return List.copyOf(lanterns);
@@ -360,8 +359,6 @@ public class GrievingTreeEntity extends ReachBoss {
 		rootLines();
 		return ROOT_COOLDOWN;
 	}
-
-	// --- Moves ---
 
 	/** The weight of each strike as it lands: the sweep's trail and the ground torn by roots and cages. */
 	@Override

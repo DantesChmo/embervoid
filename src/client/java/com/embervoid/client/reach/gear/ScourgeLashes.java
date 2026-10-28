@@ -46,9 +46,9 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * The Warden's Scourge's lash (PLAN 17.4), drawn on the client for every player holding one: a chain of iron links
+ * The Warden's Scourge's lash, drawn on the client for every player holding one: a chain of iron links
  * from the handle in the hand, a rope simulated in the world (gravity, drag, links kept at their length, resting on
- * the ground). Held, under a block of it hangs from the hand. A swing (the 17.1 clip
+ * the ground). Held, under a block of it hangs from the hand. A swing (the attack-clip
  * packet, so other players' swings too) pays it out and lays it along {@link WhipArc#swing}, the same curve the server
  * hits along, rolling out over the right shoulder until the tip cracks; then the rope is let go, keeps its speed,
  * falls and is coiled back in. Lash flicks it straight out and yanks it back.
@@ -196,7 +196,6 @@ public final class ScourgeLashes {
 		effects.draw(RenderLayer.getLightning());
 	}
 
-	/** How a swing lays the lash out. */
 	private enum Swing {
 		/** The crack: over the right shoulder, rolling out onto the hit curve; let go once the tip has overshot. */
 		CRACK(WhipArc.CRACK_WINDUP, 0, 9),

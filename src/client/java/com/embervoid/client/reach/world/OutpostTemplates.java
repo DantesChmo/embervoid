@@ -27,12 +27,12 @@ import static com.embervoid.sanctum.datagen.TemplateBuilder.slab;
 import static com.embervoid.sanctum.datagen.TemplateBuilder.stair;
 
 /**
- * Road outposts (PLAN 9.6), one per kind and zone: {@code embervoid:ashen_reach/outpost/<toll_gate|watchtower>_<zone>}.
+ * Road outposts, one per kind and zone: {@code embervoid:ashen_reach/outpost/<toll_gate|watchtower>_<zone>}.
  * The road runs the whole length of each template along +Z (north = the landing side), centred on its middle column
  * (the road feature centres the template on the road); y = 0 is the ground. Placed fodder and ranged mobs of the zone,
  * a common chest.
  *
- * <p>0.5.0 art pass: the towers are cobble-brick base courses under weathered ash brick with pillar quoins, a string
+ * <p>The towers are cobble-brick base courses under weathered ash brick with pillar quoins, a string
  * course, a cornice and the zone's accent (brass, amber, bone); the watchtower has a slate hood over its platform.
  */
 public final class OutpostTemplates {
@@ -90,7 +90,7 @@ public final class OutpostTemplates {
 		t.set(7, 4, 4, stair(BRICK_STAIRS, Direction.EAST, true));
 		// The barrier: a grate and fence pieces across half the road.
 		t.set(3, 1, 4, GRATE);
-		// A great brazier burning on the broken tower, the toll gate's signal fire (PLAN 20.2).
+		// A great brazier burning on the broken tower, the toll gate's signal fire.
 		NbtCompound signal = new NbtCompound();
 		signal.putString("State", "lit");
 		t.set(8, 4, 3, BRICKS);
@@ -175,7 +175,7 @@ public final class OutpostTemplates {
 		return t;
 	}
 
-	/** The paved road through the template, as the road feature paves it (PLAN 14.2): flagstones, a kerb, air above. */
+	/** The paved road through the template, as the road feature paves it: flagstones, a kerb, air above. */
 	private static void road(TemplateBuilder t, int x0, int x1, int length) {
 		for (int x = x0; x <= x1; x++) {
 			for (int z = 0; z < length; z++) {
@@ -219,7 +219,6 @@ public final class OutpostTemplates {
 		return roll < 1 + 2 * t ? p.cracked() : roll == 9 && t < 0.4 ? p.mossy() : BRICKS;
 	}
 
-	/** A small touch of the zone next to the outpost. */
 	private static void accent(TemplateBuilder t, ReachZoneKit zone, int x, int y, int z) {
 		switch (zone.name()) {
 			case "fields" -> {

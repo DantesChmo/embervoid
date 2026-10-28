@@ -19,7 +19,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
 /**
- * Client side of the reach-gear track: the Huntsman's Crossbow model states (as vanilla's crossbow has them), the
+ * Client side of the realm gear: the Huntsman's Crossbow model states (as vanilla's crossbow has them), the
  * Warden's Scourge's handle model and lash ({@link ScourgeLashes}), the Ash Bomb renderer, the Flask Ember sync and the
  * "resin / oil burning" tooltip lines.
  */

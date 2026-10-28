@@ -7,7 +7,7 @@ import net.minecraft.util.dynamic.CodecHolder;
 import net.minecraft.world.gen.densityfunction.DensityFunction;
 
 /**
- * Density function {@code embervoid:citadel_terrain} (PLAN 13.1, 21.3): the Burning City's ground from
+ * Density function {@code embervoid:citadel_terrain}: the Burning City's ground from
  * {@link CitadelLayout#groundHeight}: the lower city around the entry plaza, the hill's plateau with the Citadel, flat
  * terraces under its pieces and the courtyard. Positive below the ground, {@code 1 / scale} per block. Sampled at
  * realm columns, turned into the plan's frame ({@link CitadelLayout#planX}); the realm's final zone shape.

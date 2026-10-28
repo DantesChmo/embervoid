@@ -36,7 +36,6 @@ public class HollowSentinelEntity extends ReachMob {
 	public static final int OPEN_TICKS = SentinelShield.OPEN_TICKS;
 	public static final float BASH_DAMAGE = 6;
 	public static final float THRUST_DAMAGE = 7;
-	/** Bashes only a target this close. */
 	public static final double BASH_RANGE = 2.5;
 	/** Ticks the body stays for {@code misc.death}: to a knee on the spear, then over onto its shield side, 2.2 s. */
 	public static final int DEATH_TICKS = 44;
@@ -78,7 +77,6 @@ public class HollowSentinelEntity extends ReachMob {
 		return target != null && distanceTo(target) - target.getWidth() / 2 <= BASH_RANGE && random.nextBoolean() ? BASH : THRUST;
 	}
 
-	/** Plants the shield for a bash at the current target. */
 	public boolean startBash() {
 		return getTarget() != null && startMove(BASH);
 	}

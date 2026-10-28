@@ -16,7 +16,7 @@ import net.minecraft.world.ServerWorldAccess;
 /**
  * One piece of the Citadel ({@link CitadelLayout.Piece}): its template turned 180° with the plan
  * ({@link CitadelLayout#realmX}), so its pivot goes to the box's far corner, with placed enemies spawned from their
- * markers (reach-world's {@link PlacedEnemyProcessor}).
+ * markers ({@link PlacedEnemyProcessor}).
  */
 public class CitadelPiece extends SimpleStructurePiece {
 	public CitadelPiece(StructureTemplateManager manager, CitadelLayout.Piece piece) {
@@ -35,7 +35,6 @@ public class CitadelPiece extends SimpleStructurePiece {
 				.addProcessor(PlacedEnemyProcessor.INSTANCE);
 	}
 
-	/** Template id of the piece. */
 	public Identifier templateId() {
 		return getId();
 	}

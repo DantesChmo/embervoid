@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
-/** Pure flood fill of a hollow in a grid of ground heights (PLAN 9.8 sinkhole pools); unit-tested. */
+/** Pure flood fill of a hollow in a grid of ground heights (sinkhole pools); unit-tested. */
 public final class Hollows {
 	/**
 	 * Columns connected to (x, z) whose ground is below {@code level}; null when the hollow reaches the edge of the

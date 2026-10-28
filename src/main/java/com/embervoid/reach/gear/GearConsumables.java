@@ -54,7 +54,6 @@ public final class GearConsumables {
 		return item instanceof GearWeaponItem || item instanceof SwordItem || item instanceof AxeItem || item instanceof TridentItem;
 	}
 
-	/** Whether the stack's resin still burns at this game time. */
 	public static boolean resinBurning(ItemStack stack, long time) {
 		return stack.getNbt() != null && ConsumableRules.burning(stack.getNbt().getLong(RESIN_KEY), time);
 	}
@@ -65,7 +64,7 @@ public final class GearConsumables {
 	}
 
 	/**
-	 * Whether the player carries a lit ember lantern in the offhand (Amber Lantern Oil). Other tracks may treat such a
+	 * Whether the player carries a lit ember lantern in the offhand (Amber Lantern Oil). Other code may treat such a
 	 * player as a light source (the Crypt Keeper's darkness, Crypt Moths).
 	 */
 	public static boolean carriesLitLantern(PlayerEntity player) {
@@ -79,12 +78,10 @@ public final class GearConsumables {
 		}
 	}
 
-	/** {@link #tickLantern} for GameTests. */
 	public static void tickLanternForTest(ServerPlayerEntity player) {
 		tickLantern(player);
 	}
 
-	/** The other hand's stack. */
 	static ItemStack otherHand(PlayerEntity player, Hand hand) {
 		return player.getStackInHand(hand == Hand.MAIN_HAND ? Hand.OFF_HAND : Hand.MAIN_HAND);
 	}

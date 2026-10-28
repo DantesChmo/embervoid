@@ -38,7 +38,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.List;
 
 /**
- * Shared base of the Realm 1 mobs (DESIGN §4.5, PLAN 10.1): telegraphed moves, the "placed" state and the
+ * Shared base of the Realm 1 mobs (DESIGN §4.5): telegraphed moves, the "placed" state and the
  * GeckoLib controllers.
  *
  * <p><b>Moves.</b> Every attack is a {@link Move}: {@link #startMove} triggers its animation and sound (the
@@ -46,7 +46,7 @@ import java.util.List;
  * {@link #cancelMove} stops it first (stagger, death). The windup is ticked in {@link #tick}, so it also runs with
  * the AI off (GameTests drive moves directly). The cooldown starts with the move, windup included.
  *
- * <p><b>Placed.</b> Structures place tanks, elites and caged mobs at worldgen (PLAN 9.2). An entity that comes with
+ * <p><b>Placed.</b> Structures place tanks, elites and caged mobs at worldgen. An entity that comes with
  * the command tag {@link #PLACED_TAG} (or is marked with {@link #markPlaced}) is persistent and guards its spot: it
  * wanders and returns within {@link #homeRadius} of it once it has no target. Subclasses react in
  * {@link #onPlaced}.
@@ -57,17 +57,14 @@ import java.util.List;
  * controller {@link #ACTION} holds the one-shot move animations listed by {@link #actionAnimations}. Later
  * controllers win on the bones they animate, so a move's animation beats a flinch.
  *
- * <p><b>Hurt, death and stagger</b> (PLAN 19.3, the same names and approach as {@code ReachBoss}): a damaging hit
+ * <p><b>Hurt, death and stagger</b> (the same names and approach as {@code ReachBoss}): a damaging hit
  * outside a windup plays {@link #HURT} (or {@link #STAGGER} where {@link #hurtAnimation} says so), never over a windup
  * (the tell stays readable); {@link #DEATH} plays on death and the body stays {@link #deathTicks} ticks (the length
  * of its fall) before it goes, with no vanilla death tilt (the renderer turns it off).
  */
 public abstract class ReachMob extends HostileEntity implements GeoEntity {
-	/** Command tag of a mob placed by a structure. */
 	public static final String PLACED_TAG = "embervoid.placed";
-	/** The controller of one-shot move animations. */
 	public static final String ACTION = "action";
-	/** The controller of the hit reactions, under the move animations. */
 	public static final String HURT_CONTROLLER = "hurt";
 	/** The flinch on a hit between moves, a heavier stagger, the fall on death. */
 	public static final String HURT = "misc.hurt";
@@ -102,7 +99,6 @@ public abstract class ReachMob extends HostileEntity implements GeoEntity {
 	 * @param windupTicks   ticks from the start of the telegraph until the move lands
 	 * @param cooldownTicks ticks from the start until the next move may start
 	 * @param sound         played at the start of the windup, or null
-	 * @param pitch         of that sound
 	 */
 	public record Move(String animation, int windupTicks, int cooldownTicks, @Nullable SoundEvent sound, float pitch) {}
 
@@ -141,8 +137,6 @@ public abstract class ReachMob extends HostileEntity implements GeoEntity {
 	@Nullable
 	public abstract Move meleeMove();
 
-	// --- Moves ---------------------------------------------------------------------------------------------------
-
 	/** Starts a move's telegraph if no move is running and the cooldown is over (server side). */
 	public boolean startMove(Move next) {
 		if (getWorld().isClient || move != null || moveCooldown > 0 || !canStartMove(next)) {
@@ -164,7 +158,6 @@ public abstract class ReachMob extends HostileEntity implements GeoEntity {
 		return isAlive();
 	}
 
-	/** Called when a move's telegraph starts. */
 	protected void onMoveStarted(Move started) {}
 
 	/** Called every tick of a windup but its last, with the ticks left until the move lands. */
@@ -251,8 +244,6 @@ public abstract class ReachMob extends HostileEntity implements GeoEntity {
 		}
 	}
 
-	// --- Hurt and death ------------------------------------------------------------------------------------------
-
 	@Override
 	public boolean damage(DamageSource source, float amount) {
 		boolean hurt = super.damage(source, amount);
@@ -326,8 +317,6 @@ public abstract class ReachMob extends HostileEntity implements GeoEntity {
 		}
 	}
 
-	// --- Sounds --------------------------------------------------------------------------------------------------
-
 	/** The mob's footsteps ({@link ReachMobSounds}), or null for the block's own step sound. */
 	@Nullable
 	protected SoundEvent stepSound() {
@@ -348,8 +337,6 @@ public abstract class ReachMob extends HostileEntity implements GeoEntity {
 	protected float stepVolume() {
 		return 0.15f;
 	}
-
-	// --- Placed --------------------------------------------------------------------------------------------------
 
 	/** Whether a structure placed this mob (it never despawns and guards its spot). */
 	public boolean isPlaced() {
@@ -401,8 +388,6 @@ public abstract class ReachMob extends HostileEntity implements GeoEntity {
 			setPositionTarget(home, homeRadius());
 		}
 	}
-
-	// --- Animation -----------------------------------------------------------------------------------------------
 
 	/** Synced state byte for the looping state animation (buried, dormant, bone pile, ...). */
 	public byte getState() {

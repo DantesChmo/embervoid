@@ -17,7 +17,7 @@ import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
  * GeckoLib renderers for the Realm 1 mobs. Assets follow GeckoLib's default layout (see {@code MobRenderers});
  * models come from {@code tools/reach_mob_art.py}. Bones a mob shows only at times
  * ({@link ReachMob#toggledBones}) are hidden or shown every frame. No vanilla death tilt: every mob has its own death
- * animation (PLAN 19.3), held while the body lies there.
+ * animation, held while the body lies there.
  */
 public final class ReachMobClient {
 	public static void register() {

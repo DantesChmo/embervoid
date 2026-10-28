@@ -12,7 +12,6 @@ public final class ReachWorldRules {
 	/** The edge wall stands on a ring this far inside the realm radius. */
 	public static final int WALL_INSET = 95;
 
-	/** Radius of the edge wall in a realm of {@code realmRadius}. */
 	public static double wallRadius(int realmRadius) {
 		return realmRadius - WALL_INSET;
 	}

@@ -40,7 +40,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * Ash Colossus, boss of the Ashen Fields (DESIGN §4.5, PLAN 12.4): 4.5 blocks of fused stone and ash with an ember
+ * Ash Colossus, boss of the Ashen Fields (DESIGN §4.5): 4.5 blocks of fused stone and ash with an ember
  * core in its back, Lv 18. What it teaches: use cover, strike the back.
  *
  * <ul>
@@ -54,7 +54,7 @@ import java.util.List;
  *
  * Damage taken by where it comes from: front (±60° of its facing) ×{@value #FRONT_DAMAGE}, back (beyond ±120°)
  * ×{@value #BACK_DAMAGE} with the core covered (P1), ×{@value #CORE_DAMAGE} with it exposed (P2), sides ×1.
- * Base damage (Lv 18 on Normal ×2.31): fist 8, leap 9, boulder 7, drag 6, cinders 5. Base HP 105 (~212 at Lv 18; PLAN 18.4).
+ * Base damage (Lv 18 on Normal ×2.31): fist 8, leap 9, boulder 7, drag 6, cinders 5. Base HP 105 (~212 at Lv 18).
  */
 public class AshColossusEntity extends ReachBoss {
 	public static final float FRONT_DAMAGE = ColossusRules.FRONT_DAMAGE;
@@ -66,7 +66,7 @@ public class AshColossusEntity extends ReachBoss {
 	public static final int STORM_TICKS = 120;
 	/** Ash storm damage per second to a player it can see (magic, not scaled by level). */
 	public static final float STORM_DAMAGE = 2;
-	/** Windup of each move in ticks (the balance model reads them, PLAN 18.1). */
+	/** Windup of each move in ticks (the balance model reads them). */
 	public static final int FIST_WINDUP = 18;
 	public static final int DRAG_WINDUP = 16;
 	public static final int LEAP_WINDUP = 22;
@@ -223,8 +223,6 @@ public class AshColossusEntity extends ReachBoss {
 		getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).setBaseValue(0.26);
 	}
 
-	// --- Brain ---
-
 	@Override
 	protected void tickBoss() {
 		BossFight fight = fight();
@@ -281,8 +279,6 @@ public class AshColossusEntity extends ReachBoss {
 		}
 		return ColossusRules.cooldown(move, coreExposed());
 	}
-
-	// --- Moves ---
 
 	public void fist(LivingEntity target) {
 		face(target.getPos());
@@ -469,12 +465,9 @@ public class AshColossusEntity extends ReachBoss {
 		}
 	}
 
-	/** Cinders dropped so far (tests). */
 	public int cindersDropped() {
 		return cindersDropped;
 	}
-
-	// --- Damage by direction ---
 
 	@Override
 	public boolean damage(DamageSource source, float amount) {

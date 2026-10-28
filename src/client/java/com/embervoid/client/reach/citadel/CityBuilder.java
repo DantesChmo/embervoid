@@ -125,7 +125,6 @@ final class CityBuilder {
 		return this;
 	}
 
-	/** A stair block climbing towards {@code facing}. */
 	static BlockState stairs(BlockState stairs, Direction facing) {
 		return stairs.with(StairsBlock.FACING, facing);
 	}
@@ -172,7 +171,6 @@ final class CityBuilder {
 		return this;
 	}
 
-	/** A placed enemy (reach-world's marker) standing at x, y, z. */
 	CityBuilder mob(int x, int y, int z, Identifier mob, Direction facing) {
 		t.set(x, y, z, PlacedEnemies.MARKER.getDefaultState().with(PlacedEnemyMarkerBlock.FACING, facing),
 				PlacedEnemies.markerNbt(mob, null, List.of()));

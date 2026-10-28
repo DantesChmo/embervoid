@@ -41,7 +41,6 @@ public class FireFlaskEntity extends ThrownItemEntity {
 		return Items.SPLASH_POTION;
 	}
 
-	/** Whether it has broken and is now a fire patch. */
 	public boolean isPatch() {
 		return patchTicks >= 0;
 	}

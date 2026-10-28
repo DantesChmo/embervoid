@@ -11,7 +11,7 @@ import java.util.Map;
  * holds the biome keys.
  */
 public final class ZoneLooks {
-	/** Zone fog (PLAN 9.1): Fields grey-ochre, Woods dense grey-green, Necropolis blue-grey; dusk-dark colours. */
+	/** Zone fog: Fields grey-ochre, Woods dense grey-green, Necropolis blue-grey; dusk-dark colours. */
 	private static final Map<Identifier, FogStack.Layer> FOG = Map.of(
 			biome("ashen_reach_landing"), new FogStack.Layer(0.30f, 0x4E4636, true),
 			biome("ashen_reach_zone_a"), new FogStack.Layer(0.35f, 0x4E4636, true),

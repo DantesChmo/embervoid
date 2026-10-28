@@ -45,7 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Crypt Keeper, boss of the Sunken Necropolis (DESIGN §4.5, PLAN 12.3): 4 blocks tall, halberd and lantern, Lv 24.
+ * Crypt Keeper, boss of the Sunken Necropolis (DESIGN §4.5): 4 blocks tall, halberd and lantern, Lv 24.
  * What it teaches: light — braziers against darkness and moths.
  *
  * <ul>
@@ -60,7 +60,7 @@ import java.util.List;
  * </ul>
  *
  * Base damage per move (level 24 and Normal scale it ×2.69): swings 5, thrust 7, sweep 7, overhead 10, lantern 5 +
- * a fire pool of 2 per second. Base HP 102 (~243 at Lv 24; PLAN 18.4). Every block it changes (water, braziers) comes back when
+ * a fire pool of 2 per second. Base HP 102 (~243 at Lv 24). Every block it changes (water, braziers) comes back when
  * the fight ends.
  */
 public class CryptKeeperEntity extends ReachBoss {
@@ -70,7 +70,7 @@ public class CryptKeeperEntity extends ReachBoss {
 	public static final double LANTERN_REACH = 4;
 	/** Damage taken in the dark (P2, P3). */
 	public static final float DARK_DAMAGE = KeeperRules.DARK_DAMAGE;
-	/** Windup of each move in ticks (the balance model reads them, PLAN 18.1); the combo's hits follow each other. */
+	/** Windup of each move in ticks (the balance model reads them); the combo's hits follow each other. */
 	public static final int SWING_1_WINDUP = 14;
 	public static final int SWING_2_WINDUP = 10;
 	public static final int OVERHEAD_WINDUP = 22;
@@ -79,13 +79,12 @@ public class CryptKeeperEntity extends ReachBoss {
 	public static final int THRUST_WINDUP = 18;
 	/**
 	 * Ticks until the brain picks the next move after one, close and at range, in P1 and from P2 on (faster). Close it
-	 * presses on (PLAN 18.4: 35 / 25 left too many openings for the diamond sword and the Scythe to share a band).
+	 * presses on (longer cooldowns leave too many openings for the diamond sword and the Scythe to share a band).
 	 */
 	public static final int CLOSE_COOLDOWN = KeeperRules.CLOSE_COOLDOWN;
 	public static final int CLOSE_COOLDOWN_LATE = KeeperRules.CLOSE_COOLDOWN_LATE;
 	public static final int RANGED_COOLDOWN = KeeperRules.RANGED_COOLDOWN;
 	public static final int RANGED_COOLDOWN_LATE = KeeperRules.RANGED_COOLDOWN_LATE;
-	/** The pause after a phase change. */
 	public static final int PHASE_PAUSE = 30;
 	/** Ticks between two waves of moths while a brazier burns. */
 	public static final int MOTH_INTERVAL = 300;
@@ -113,7 +112,6 @@ public class CryptKeeperEntity extends ReachBoss {
 
 	/** Water: the flood reaches this far from the centre (the sinkhole floor, up to the pit wall). */
 	private static final int FLOOD_MARGIN = 7;
-	/** The most moths at once. */
 	private static final int MAX_MOTHS = 4;
 	/** How close a moth gets to a lit brazier to smother it. */
 	private static final double SMOTHER_DISTANCE = 1.6;
@@ -252,8 +250,6 @@ public class CryptKeeperEntity extends ReachBoss {
 		tickMoths(fight);
 	}
 
-	// --- Moves ---
-
 	@Override
 	protected int chooseMove(LivingEntity target, double squaredDistance) {
 		KeeperRules.Move move = KeeperRules.pick(squaredDistance, phase(),
@@ -381,8 +377,6 @@ public class CryptKeeperEntity extends ReachBoss {
 		});
 	}
 
-	// --- Light, moths, the dead ---
-
 	/**
 	 * Whether it stands in light: block light ≥ {@value #LIT_LEVEL} where it stands (lit braziers, a torch, lava), or
 	 * a player within {@value #LANTERN_REACH} blocks carrying an Ember Lantern lit with Amber Lantern Oil (DESIGN §4.5:
@@ -492,7 +486,7 @@ public class CryptKeeperEntity extends ReachBoss {
 
 	/** P3: Restless Bones rise from the flooded floor, one more per fighter beyond the first. */
 	private void raiseDead(BossFight fight) {
-		fight.fireArenaEvent("raise_dead"); // the ossuary's bell tolls (PLAN 20.2 arena events)
+		fight.fireArenaEvent("raise_dead"); // the ossuary's bell tolls
 		int count = RISEN_BONES + Math.max(0, fight.fighters().size() - 1);
 		for (int i = 0; i < count; i++) {
 			double angle = Math.PI * 2 * i / count + random.nextDouble() * 0.5;
@@ -540,7 +534,6 @@ public class CryptKeeperEntity extends ReachBoss {
 		return risen;
 	}
 
-	/** Test hook: whether any of its arena's braziers burns. */
 	public boolean anyBrazierLit() {
 		return braziers.stream().anyMatch(this::isBurning);
 	}

@@ -38,14 +38,14 @@ import static com.embervoid.sanctum.datagen.TemplateBuilder.slab;
 import static com.embervoid.sanctum.datagen.TemplateBuilder.stair;
 
 /**
- * Minor structures (PLAN 9.7, DESIGN §4.5 "Zones and places"): {@code embervoid:ashen_reach/<zone>/<name>}, each a
+ * Minor structures (DESIGN §4.5 "Zones and places"): {@code embervoid:ashen_reach/<zone>/<name>}, each a
  * single-piece jigsaw structure in its zone. y = 0 is the ground layer (except where a structure starts lower, see
  * {@link #START_DEPTH}); placed zone mobs and chests at the zone's table ids: treasure in the Fields granary vault and
  * the Woods hunting lodge.
  *
  * <p>Built to docs/art-direction.md §3 from the zone palettes in {@link Ruin}: a base course, walls that crack
  * upwards and go mossy at the foot, trim piers, a detail block, a roof of stairs, a blended floor, rubble where a
- * wall fell, soot over every fire, the zone's accent on a few spots. Footprints, markers and chests are as before.
+ * wall fell, soot over every fire, the zone's accent on a few spots.
  */
 public final class MinorTemplates {
 	/** Structures whose ground layer is not y = 0: the depth their template reaches below the ground. */
@@ -148,7 +148,6 @@ public final class MinorTemplates {
 		return CHARRED_LOG.with(PillarBlock.AXIS, axis);
 	}
 
-	/** A two-block-tall prop standing at (x, y, z). */
 	private static void tall(Ruin r, int x, int y, int z, TallPropBlock block, Direction facing) {
 		BlockState lower = block.getDefaultState().with(PropBlock.FACING, facing);
 		r.set(x, y, z, lower.with(TallPropBlock.HALF, DoubleBlockHalf.LOWER)).set(x, y + 1, z, lower.with(TallPropBlock.HALF, DoubleBlockHalf.UPPER));
@@ -254,7 +253,7 @@ public final class MinorTemplates {
 				}
 			}
 		}
-		// A hoist over the barn door, its crate swaying (PLAN 20.2).
+		// A hoist over the barn door, its crate swaying.
 		r.set(7, 6, 0, SetPieces.GRANARY_HOIST.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH));
 		r.fill(1, 1, 7, 3, 2, 9, STRAW);
 		r.fill(11, 1, 7, 13, 3, 9, STRAW, Ruin.AIR, 0.3);
@@ -271,8 +270,7 @@ public final class MinorTemplates {
 	}
 
 	/**
-	 * The windmill's stone base and the bare frame of its sails; a carrion perched on the platform. The turning sails
-	 * are track V-C's set piece; the sail frame here is what stands until then.
+	 * The windmill's stone base, its platform and the turning sail wheel; a carrion perched on the platform.
 	 */
 	static TemplateBuilder windmill(ReachZoneKit z) {
 		Ruin r = new Ruin("windmill", 9, 18, 9);
@@ -301,7 +299,7 @@ public final class MinorTemplates {
 		r.fill(4, 4, 0, 4, 16, 0, FENCE);
 		r.fill(0, 10, 0, 8, 10, 0, FENCE);
 		r.set(4, 10, 0, BRASS);
-		// The sail wheel (PLAN 20.2): the fence frame goes, the turning wheel hangs on the axle's end.
+		// The sail wheel: the fence frame goes, the turning wheel hangs on the axle's end.
 		r.clear(4, 4, 0, 4, 16, 0).clear(0, 10, 0, 8, 10, 0);
 		r.set(4, 9, 0, SetPieces.WINDMILL_SAILS.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH));
 		r.chest(3, 1, 5, Direction.EAST, z.commonChest());
@@ -365,7 +363,7 @@ public final class MinorTemplates {
 		r.clear(5, 5, 1, 5, 6, 1);
 		r.set(4, 5, 1, log(Direction.Axis.Y)).set(6, 5, 1, log(Direction.Axis.Y)).set(5, 7, 1, stair(COBBLE_BRICK_STAIRS, Direction.SOUTH, true));
 		r.t.soot(5, 8, 1, 2, SOOTY, r.random);
-		r.set(5, 8, 1, SetPieces.GRANARY_HOIST.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH)); // the granary's hoist (PLAN 20.2)
+		r.set(5, 8, 1, SetPieces.GRANARY_HOIST.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH)); // the granary's hoist
 		r.mob(4, 1, 3, z.fodder(), Direction.SOUTH).mob(6, 1, 5, z.fodder(), Direction.SOUTH);
 		r.mob(9, 10, 9, z.elite(), Direction.NORTH);
 		return r.build();
@@ -411,7 +409,7 @@ public final class MinorTemplates {
 		r.set(1, 1, 1, FENCE).set(7, 1, 1, FENCE).set(1, 1, 5, FENCE).set(7, 1, 5, FENCE);
 		r.set(1, 2, 5, LANTERN.with(LanternBlock.HANGING, false));
 		r.set(7, 1, 6, Props.BONE_PILE.getDefaultState().with(PropBlock.FACING, Direction.WEST));
-		r.set(5, 6, 3, SetPieces.HANGING_CAGE.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH)); // a gibbet cage swinging from the beam (PLAN 20.2)
+		r.set(5, 6, 3, SetPieces.HANGING_CAGE.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH)); // a gibbet cage swinging from the beam
 		r.mob(4, 2, 3, z.fodder(), Direction.NORTH).mob(4, 1, 6, z.fodder(), Direction.NORTH);
 		return r.build();
 	}
@@ -589,7 +587,7 @@ public final class MinorTemplates {
 		r.set(5, 7, 9, LANTERN.with(LanternBlock.HANGING, true));
 		r.set(9, 8, 5, LANTERN.with(LanternBlock.HANGING, true));
 		r.set(5, 11, 5, Blocks.MOSS_CARPET.getDefaultState()).set(3, 1, 7, Props.BONE_PILE.getDefaultState());
-		r.set(5, 7, 7, SetPieces.HANGING_CAGE.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH)); // one more cage, swinging (PLAN 20.2)
+		r.set(5, 7, 7, SetPieces.HANGING_CAGE.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH)); // one more cage, swinging
 		return r.build();
 	}
 
@@ -670,7 +668,7 @@ public final class MinorTemplates {
 		r.set(1, 1, sz - 2, Props.ASH_URNS.getDefaultState().with(StackedPropBlock.COUNT, large ? 3 : 1).with(PropBlock.FACING, Direction.EAST));
 		r.rubbleAlong(0, 0, sx - 1, sz - 1, 1, 2);
 		if (large) {
-			r.set(door, top, 3, SetPieces.GREAT_BELL.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH)); // the tomb's bell under the ceiling (PLAN 20.2)
+			r.set(door, top, 3, SetPieces.GREAT_BELL.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH)); // the tomb's bell under the ceiling
 		}
 		if (large) {
 			r.mob(door - 1, 1, 2, z.tank(), Direction.NORTH).mob(door + 1, 1, 2, z.tank(), Direction.NORTH);
@@ -740,7 +738,7 @@ public final class MinorTemplates {
 		tall(r, 3, 1, 14, Props.TATTERED_STANDARD, Direction.NORTH);
 		tall(r, 7, 1, 14, Props.TATTERED_STANDARD, Direction.NORTH);
 		r.set(2, 1, 2, Props.BONE_PILE.getDefaultState().with(PropBlock.FACING, Direction.EAST));
-		// The great bell on a beam across the nave (PLAN 20.2): a slow sway, a toll when a Grave Warden rings below it.
+		// The great bell on a beam across the nave: a slow sway, a toll when a Grave Warden rings below it.
 		r.fill(1, 9, 8, 9, 9, 8, LOG.with(PillarBlock.AXIS, Direction.Axis.X));
 		r.set(5, 8, 8, SetPieces.GREAT_BELL.getDefaultState().with(SetPieceBlock.FACING, Direction.NORTH));
 		r.chest(8, 1, 14, Direction.WEST, z.commonChest());

@@ -27,9 +27,9 @@ import net.minecraft.util.math.intprovider.UniformIntProvider;
 
 import java.util.List;
 
-/** Realm 1 blocks and ores (PLAN 9.5, DESIGN §4.5): the Ashen Reach's own decoration and its three zone ores. */
+/** Realm 1 blocks and ores (DESIGN §4.5): the Ashen Reach's own decoration and its three zone ores. */
 public final class ReachBlocks {
-	/** The three realm ores (Delver's Ring, track reliquary). */
+	/** The three realm ores (for the Delver's Ring). */
 	public static final TagKey<Block> REALM_ORES = TagKey.of(RegistryKeys.BLOCK, Embervoid.id("realm_ores"));
 
 	/** Ashen Fields: scorched bales in the furrows and on scarecrows. */
@@ -38,10 +38,10 @@ public final class ReachBlocks {
 	/** Road milestone: a knee-high carved post every ~50 blocks. */
 	public static final Block MILESTONE = register("milestone", new MarkerStoneBlock(AbstractBlock.Settings.copy(ModBlocks.ASH_BRICKS)
 			.nonOpaque(), MarkerStoneBlock.MILESTONE_SHAPE));
-	/** Realm roads (PLAN 14.2): warm sandstone flags down the middle, lighter than every zone's ground. */
+	/** Realm roads: warm sandstone flags down the middle, lighter than every zone's ground. */
 	public static final Block KINGSROAD_FLAGSTONES = register("kingsroad_flagstones", new Block(AbstractBlock.Settings.copy(ModBlocks.ASH_BRICKS)
 			.mapColor(MapColor.TERRACOTTA_YELLOW)));
-	/** Realm roads (PLAN 14.2): the pale kerb along both edges. */
+	/** Realm roads: the pale kerb along both edges. */
 	public static final Block KINGSROAD_KERB = register("kingsroad_kerb", new Block(AbstractBlock.Settings.copy(ModBlocks.ASH_BRICKS)
 			.mapColor(MapColor.OFF_WHITE)));
 	/** Sunken Necropolis: a thin headstone. */
@@ -67,7 +67,7 @@ public final class ReachBlocks {
 	public static final Block GRAVE_IRON_ORE = register("grave_iron_ore", new ExperienceDroppingBlock(AbstractBlock.Settings.copy(Blocks.DIAMOND_ORE)
 			.mapColor(MapColor.BLACK).sounds(ReachBlockSounds.GRAVE_IRON_ORE), ConstantIntProvider.create(0)));
 
-	// The zones' accent materials of the 0.5.0 art pass (docs/art-direction.md §3): Citadel gilt, ember glass and
+	// The zones' accent materials (docs/art-direction.md §3): Citadel gilt, ember glass and
 	// charred wood; Fields thatch and brass; Necropolis bone, grave iron and crypt tiles; Woods amber.
 	/** Citadel trim: polished ash stone with a gold inlay. */
 	public static final Block GILDED_ASH_STONE = register("gilded_ash_stone", new Block(AbstractBlock.Settings.copy(ModBlocks.POLISHED_ASH_STONE)
@@ -91,7 +91,6 @@ public final class ReachBlocks {
 	public static final Block BONE_PILLAR = register("bone_pillar", new PillarBlock(AbstractBlock.Settings.copy(Blocks.BONE_BLOCK)));
 	/** A grille of grave iron: a pane like iron bars. */
 	public static final Block GRAVE_IRON_GRATE = register("grave_iron_grate", new PaneBlock(AbstractBlock.Settings.copy(Blocks.IRON_BARS)));
-	/** Riveted grave-iron floor plates. */
 	public static final Block GRAVE_IRON_PLATE = register("grave_iron_plate", new Block(AbstractBlock.Settings.copy(Blocks.IRON_BLOCK)
 			.mapColor(MapColor.DEEPSLATE_GRAY)));
 	public static final Block RUSTED_BRASS_BLOCK = register("rusted_brass_block", new Block(AbstractBlock.Settings.copy(Blocks.CUT_COPPER)

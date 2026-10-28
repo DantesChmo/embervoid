@@ -21,7 +21,7 @@ import java.util.function.BiConsumer;
 
 /**
  * Datagen for the Ashen Reach bosses: arena templates and the bosses' own loot tables (every kill: zone materials;
- * the soul and Flask Shard of a first kill are personal loot handed out by the fight, PLAN 12.6).
+ * the soul and Flask Shard of a first kill are personal loot handed out by the fight).
  */
 public final class ReachBossDataGen {
 	public static void addProviders(FabricDataGenerator.Pack pack) {

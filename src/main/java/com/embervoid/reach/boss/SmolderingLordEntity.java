@@ -43,7 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Smoldering Lord, the realm boss of the Ashen Reach (DESIGN §4.5, PLAN 13.4): the greedy king, 3.5 blocks, a
+ * Smoldering Lord, the realm boss of the Ashen Reach (DESIGN §4.5): the greedy king, 3.5 blocks, a
  * greatsword, Lv 30, in the courtyard below the keep wall. The exam: it replays the three arena hazards.
  *
  * <ul>
@@ -57,12 +57,11 @@ import java.util.List;
  * </ul>
  *
  * Base damage (Lv 30 on Normal ×3.06): swings 5, slam 10, lunge 8 + trail 2 per 0.5 s, mortar 8, flame line 8,
- * landing 8 (R40.1c: ordinary hits heavy, the slam unblockable against full diamond; PLAN 18.4: the combo's swings
+ * landing 8 (ordinary hits heavy, the slam unblockable against full diamond; the combo's swings
  * light, a fifth of the depths player's health). Base HP 100 (~274 at Lv 30).
  * First kill: his soul and a Flask Ember ({@link ReachBosses}).
  */
 public class SmolderingLordEntity extends ReachBoss {
-	/** His own theme, {@link ReachBossSounds#SMOLDERING_LORD_MUSIC}. */
 	public static final Identifier MUSIC = ReachBossSounds.SMOLDERING_LORD_MUSIC.getId();
 	public static final double LANDING_RADIUS = 6;
 	public static final float SHATTERED_DAMAGE = LordRules.SHATTERED_DAMAGE;
@@ -74,7 +73,7 @@ public class SmolderingLordEntity extends ReachBoss {
 	public static final int DARK_TICKS = 300;
 	public static final float FOG_DENSITY = 0.8f;
 	public static final int FOG_COLOR = 0x402418;
-	/** Windup of each move in ticks (the balance model reads them, PLAN 18.1); the combo's hits follow each other. */
+	/** Windup of each move in ticks (the balance model reads them); the combo's hits follow each other. */
 	public static final int SWING_1_WINDUP = 14;
 	public static final int SWING_2_WINDUP = 10;
 	public static final int SLAM_WINDUP = 20;
@@ -301,8 +300,6 @@ public class SmolderingLordEntity extends ReachBoss {
 		});
 	}
 
-	// --- Brain ---
-
 	@Override
 	protected void tickBoss() {
 		BossFight fight = fight();
@@ -371,8 +368,6 @@ public class SmolderingLordEntity extends ReachBoss {
 		return LordRules.cooldown(move, isArmorShattered());
 	}
 
-	// --- Wall moves (P0) ---
-
 	/** Mortar rings: a ring at each of up to two fighters, falling after a long flight. */
 	public void mortar() {
 		BossFight fight = fight();
@@ -424,8 +419,6 @@ public class SmolderingLordEntity extends ReachBoss {
 			fight.world().spawnParticles(EmberParticles.CINDER_SPARK, lineStart.x, lineStart.y + 0.3, lineStart.z, 12, 0.8, 0.2, 0.8, 0);
 		});
 	}
-
-	// --- Greatsword (P1, P2) ---
 
 	/** Combo: 1 and 2 are cone swings, 3 a slam in front of him that breaks a raised shield. */
 	public void comboSwing(LivingEntity target, int hit) {
@@ -496,8 +489,6 @@ public class SmolderingLordEntity extends ReachBoss {
 			}
 		});
 	}
-
-	// --- Zone hazards (P2) ---
 
 	/** One of the three arena hazards: 0 ash storm, 1 fog, 2 darkness. */
 	public void startZoneHazard(int which) {

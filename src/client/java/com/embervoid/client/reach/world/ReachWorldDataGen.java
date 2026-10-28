@@ -49,7 +49,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-/** Datagen for the Ashen Reach blocks and ores (PLAN 9.5): models, loot, tags. */
+/** Datagen for the Ashen Reach blocks and ores: models, loot, tags. */
 public final class ReachWorldDataGen {
 	public static void addProviders(FabricDataGenerator.Pack pack) {
 		pack.addProvider(Models::new);
@@ -204,7 +204,7 @@ public final class ReachWorldDataGen {
 		}
 	}
 
-	/** Recipes of the art pass's zone blocks: from their zone's materials and the ash stone chain. */
+	/** Recipes of the zone accent blocks: from their zone's materials and the ash stone chain. */
 	private static class Recipes extends FabricRecipeProvider {
 		Recipes(FabricDataOutput output) {
 			super(output);

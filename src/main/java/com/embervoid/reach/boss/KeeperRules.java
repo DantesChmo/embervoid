@@ -21,9 +21,7 @@ public final class KeeperRules {
 	public static final int SWEEP_CROWD = 2;
 
 	public enum Move {
-		/** The halberd combo. */
 		COMBO,
-		/** A ring around it. */
 		SWEEP,
 		/** P1: a lantern thrown at the target. */
 		LANTERN_THROW,
