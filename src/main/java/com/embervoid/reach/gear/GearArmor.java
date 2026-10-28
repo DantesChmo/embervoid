@@ -96,7 +96,7 @@ public final class GearArmor {
 		return piece instanceof ArmorItem armor && entity.getEquippedStack(armor.getSlotType()).isOf(piece);
 	}
 
-	/** Scarecrow's Mask: Ash Stalkers do not ambush its wearer (DESIGN §4.5); checked by track reach-mobs. */
+	/** Scarecrow's Mask: Ash Stalkers do not ambush its wearer (DESIGN §4.5); checked by {@code AshStalkerEntity}. */
 	public static boolean hiddenFromAmbush(LivingEntity entity) {
 		return wears(entity, SCARECROW_MASK);
 	}

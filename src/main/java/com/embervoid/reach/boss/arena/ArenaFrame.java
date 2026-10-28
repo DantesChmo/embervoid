@@ -6,7 +6,7 @@ import net.minecraft.util.math.Vec3d;
 
 /**
  * Where an arena template stands in the world: its centre (the floor block under the fog wall's centre) and the
- * rotation that turns its north (−Z) side towards the landing at 0, 0 (track reach-world places it that way). Turns
+ * rotation that turns its north (−Z) side towards the landing at 0, 0 (the arena placement turns it that way). Turns
  * the layout offsets of {@link ReachArenas} into world positions.
  */
 public record ArenaFrame(BlockPos center, BlockRotation rotation) {
