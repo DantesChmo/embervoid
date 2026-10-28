@@ -74,7 +74,7 @@ public class BorderWallFeature extends Feature<DefaultFeatureConfig> {
 		BlockPos.Mutable pos = new BlockPos.Mutable();
 		for (int x = chunk.getStartX(); x <= chunk.getEndX(); x++) {
 			for (int z = chunk.getStartZ(); z <= chunk.getEndZ(); z++) {
-				double[] at = EdgeLayout.borderCoordinates(angle, x + 0.5, z + 0.5);
+				double[] at = EdgeLayout.borderColumn(angle, x, z);
 				if (at[0] < FROM || at[0] > radius) {
 					continue;
 				}

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EdgeLayoutTest {
@@ -98,5 +99,15 @@ class EdgeLayoutTest {
 		at = EdgeLayout.borderCoordinates(a, Math.cos(a) * 500 - Math.sin(a) * 1.5, Math.sin(a) * 500 + Math.cos(a) * 1.5);
 		assertEquals(500, at[0], 1e-9);
 		assertEquals(1.5, at[1], 1e-9);
+	}
+
+	@Test
+	void theColumnThatSplitTheCheckFromTheWallIsPastTheTower() {
+		// 162 281 lies on the 60° border; the ray at 324.5 falls in it, but its centre is 325.04 out, past the tower
+		// that ends at 5 blocks past 320.
+		double along = EdgeLayout.borderColumn(Math.toRadians(60), 162, 281)[0];
+		assertEquals(325.04, along, 0.01);
+		assertTrue(EdgeLayout.isBorderTower(324.5));
+		assertFalse(EdgeLayout.isBorderTower(along));
 	}
 }

@@ -1,15 +1,20 @@
 package com.embervoid.reach.world;
 
 import com.embervoid.realm.EdgeLayout;
+import com.embervoid.registry.ModBlocks;
 import com.embervoid.realm.RealmDefinition;
 import com.embervoid.realm.Realms;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.minecraft.block.BlockState;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.Heightmap;
 
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
@@ -57,14 +62,19 @@ public final class ReachWorldCommands {
 			int standing = 0;
 			int gaps = 0;
 			int notLoaded = 0;
+			StringBuilder missing = new StringBuilder();
 			for (int along = Math.max(from, (int) Math.ceil(BorderWallFeature.FROM)); along <= to; along++) {
 				int x = MathHelper.floor(Math.cos(borders[border]) * (along + 0.5));
 				int z = MathHelper.floor(Math.sin(borders[border]) * (along + 0.5));
 				if (!world.isChunkLoaded(ChunkSectionPos.getSectionCoord(x), ChunkSectionPos.getSectionCoord(z))) {
 					notLoaded++;
-				} else if (EdgeLayout.borderWallHeight(world.getSeed(), border, along + 0.5) > 0 || EdgeLayout.isBorderTower(along + 0.5)) {
+				} else if (wallExpected(world.getSeed(), border, EdgeLayout.borderColumn(borders[border], x, z)[0])) {
 					expected++;
-					standing += BorderWallFeature.standsAt(world, x, z) ? 1 : 0;
+					if (BorderWallFeature.standsAt(world, x, z)) {
+						standing++;
+					} else if (missing.length() < 400) {
+						missing.append(describeColumn(world, x, z, along));
+					}
 				} else {
 					gaps++;
 				}
@@ -74,9 +84,29 @@ public final class ReachWorldCommands {
 			}
 			text.append(String.format("border %.0f°: wall %d of %d, %d gap columns, %d not loaded", Math.toDegrees(borders[border]),
 					standing, expected, gaps, notLoaded));
+			text.append(missing);
 		}
 		source.sendFeedback(() -> Text.literal(text.toString()), false);
 		return 1;
+	}
+
+	private static boolean wallExpected(long seed, int border, double along) {
+		return EdgeLayout.borderWallHeight(seed, border, along) > 0 || EdgeLayout.isBorderTower(along);
+	}
+
+	private static String describeColumn(ServerWorld world, int x, int z, int along) {
+		int top = world.getTopY(Heightmap.Type.MOTION_BLOCKING, x, z);
+		int brick = Integer.MIN_VALUE;
+		for (int y = top; y > world.getBottomY(); y--) {
+			BlockState state = world.getBlockState(new BlockPos(x, y, z));
+			if (state.isOf(ModBlocks.ASH_BRICKS) || state.isOf(ModBlocks.CRACKED_ASH_BRICKS) || state.isOf(ModBlocks.ASH_BRICK_WALL)) {
+				brick = y;
+				break;
+			}
+		}
+		return String.format("%nmissing at %d %d (along %d): top %d %s, highest brick %s", x, z, along, top,
+				Registries.BLOCK.getId(world.getBlockState(new BlockPos(x, top - 1, z)).getBlock()),
+				brick == Integer.MIN_VALUE ? "none" : String.valueOf(brick));
 	}
 
 	private ReachWorldCommands() {}

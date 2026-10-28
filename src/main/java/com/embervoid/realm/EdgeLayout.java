@@ -116,5 +116,10 @@ public final class EdgeLayout {
 		return new double[]{x * dirX + z * dirZ, -x * dirZ + z * dirX};
 	}
 
+	/** {@link #borderCoordinates} of the block column at x, z, taken at its centre: the wall is laid out per column. */
+	public static double[] borderColumn(double angle, int x, int z) {
+		return borderCoordinates(angle, x + 0.5, z + 0.5);
+	}
+
 	private EdgeLayout() {}
 }
