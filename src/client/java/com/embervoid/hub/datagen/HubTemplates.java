@@ -28,7 +28,7 @@ import java.util.Random;
 import static com.embervoid.registry.ModBlocks.*;
 
 /**
- * The hub's one template (PLAN 15.1): a floating island of ash rock with the old Sanctum core on top, open to the dusk
+ * The hub's one template: a floating island of ash rock with the old Sanctum core on top, open to the dusk
  * sky. Built from {@link HubLayout}; x and z below are world coordinates, y is relative to the floor.
  *
  * <ul>
@@ -36,7 +36,7 @@ import static com.embervoid.registry.ModBlocks.*;
  *   side, chiseled pillars where the old room had them, ember lanterns on the corners and beside the gaps.</li>
  *   <li>The Ember Shrine in the middle, four Void Obelisks in a ring, the Ashen Maiden south of the shrine.</li>
  *   <li>North of the core a paved path to the landing and a chiseled pad with the hub's own Cleft Stele, built lit,
- *   between two lantern posts (task 15.4).</li>
+ *   between two lantern posts.</li>
  *   <li>The underside tapers from {@value HubLayout#DEPTH} blocks of rock in the middle to one at the edge.</li>
  * </ul>
  */
@@ -118,7 +118,7 @@ final class HubTemplates {
 		for (int[] p : new int[][]{{-core, -core}, {core, -core}, {-core, core}, {core, core}}) {
 			pillar(t, p[0], p[1], 6, true);
 		}
-		// Lit censers over the four gaps into the core, on beams between the gap pillars (PLAN 20.2).
+		// Lit censers over the four gaps into the core, on beams between the gap pillars.
 		NbtCompound lit = new NbtCompound();
 		lit.putString("State", "lit");
 		for (int[] gap : new int[][]{{0, -core}, {0, core}, {-core, 0}, {core, 0}}) {

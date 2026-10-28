@@ -26,7 +26,7 @@ public final class NightMobClient {
 					new GeoEntityRenderer<>(context, new DefaultedEntityGeoModel<>(Embervoid.id("ashen_zombie"), true)) {
 						@Override
 						protected float getDeathMaxRotation(AshenZombieEntity zombie) {
-							return 0; // its own death animation (PLAN 19.3)
+							return 0; // its own death animation
 						}
 					};
 			renderer.addRenderLayer(new AutoGlowingGeoLayer<>(renderer));
@@ -52,7 +52,7 @@ public final class NightMobClient {
 
 			@Override
 			protected float getDeathMaxRotation(GhostEntity ghost) {
-				return 0; // its own dissolve (PLAN 19.3)
+				return 0; // its own dissolve
 			}
 		};
 		renderer.addRenderLayer(new AutoGlowingGeoLayer<>(renderer));

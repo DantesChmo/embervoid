@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Blood new moon: red sky (PLAN 8.3). */
+/** Blood new moon: red sky. */
 @Mixin(ClientWorld.class)
 abstract class MoonSkyColorMixin {
 	@Inject(method = "getSkyColor", at = @At("RETURN"), cancellable = true)

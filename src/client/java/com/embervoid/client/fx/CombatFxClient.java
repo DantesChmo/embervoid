@@ -10,7 +10,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.util.math.Vec3d;
 
 /**
- * Client side of the combat effects ({@link CombatFx}, PLAN 19.2): receives the packets and runs camera shake
+ * Client side of the combat effects ({@link CombatFx}): receives the packets and runs camera shake
  * ({@link CameraShake}, applied by the camera mixin), swing trails ({@link SwingTrails}) and hit flashes
  * ({@link HitFlashes}). Time is counted in client ticks that stop while the game is paused.
  */

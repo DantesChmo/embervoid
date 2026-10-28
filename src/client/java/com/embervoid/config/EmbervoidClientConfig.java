@@ -13,7 +13,6 @@ import java.util.Objects;
 public final class EmbervoidClientConfig {
 	private static final ConfigFile FILE = new ConfigFile(Embervoid.MOD_ID + "-client.json");
 
-	/** @param hideWhenFull hide the stamina bar while stamina is full */
 	public record StaminaBar(boolean hideWhenFull) {
 		public static final ConfigSection<StaminaBar> SECTION = register(ConfigSection.of(
 				"staminaBar", new StaminaBar(true),

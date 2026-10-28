@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Client side of the player attack animations ({@link AttackAnimations}, PLAN 17.1): every player gets a layer of ours
+ * Client side of the player attack animations ({@link AttackAnimations}): every player gets a layer of ours
  * in their playerAnimator stack, and a packet puts a clip on it, stretched to the ticks the server sent (the
  * weapon's attack cooldown) and mirrored for a weapon in the left arm. It fades in from the pose before (vanilla or
  * the previous swing) so swings in a row blend. First person plays it as well (the third-person arms and weapon
@@ -48,7 +48,7 @@ public final class AttackAnimationsClient {
 	private static final Set<Identifier> MISSING = new HashSet<>();
 	/**
 	 * Clips whose first play this session was logged, with what playerAnimator does with it a few ticks in: the player
-	 * attack animations have never been seen in game (0.5.3), and a log line is the only window into a client here.
+	 * attack animations have never been seen in game, and a log line is the only window into a client here.
 	 */
 	private static final Set<Identifier> REPORTED = new HashSet<>();
 	private static final List<Runnable> REPORTS = new ArrayList<>();

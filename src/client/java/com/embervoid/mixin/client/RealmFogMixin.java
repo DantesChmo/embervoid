@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Realm fog overrides (PLAN 9.1, {@link RealmFog}): fog colour and terrain fog distance in the open air. */
+/** Realm fog overrides ({@link RealmFog}): fog colour and terrain fog distance in the open air. */
 @Mixin(BackgroundRenderer.class)
 abstract class RealmFogMixin {
 	@Shadow

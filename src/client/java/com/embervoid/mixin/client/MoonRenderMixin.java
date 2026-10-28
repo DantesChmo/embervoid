@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Blood new moon: the moon is drawn red (PLAN 8.3). The stars after it set their own colour. */
+/** Blood new moon: the moon is drawn red. The stars after it set their own colour. */
 @Mixin(WorldRenderer.class)
 abstract class MoonRenderMixin {
 	// Ordinal 1 is the moon texture (0 is the sun).

@@ -15,7 +15,6 @@ import net.minecraft.util.math.MathHelper;
  * it animates (frames over its life, or a random frame that twinkles).
  */
 public class DriftParticle extends SpriteBillboardParticle {
-	/** How a kind moves and looks. */
 	public enum Kind {
 		/** Rises on the heat, sways, flickers; burns through its frames to a cinder. */
 		EMBER(0.10f, 0.16f, -0.012f, 0.94f, 24, 46, true, true, 0.012f, true),
@@ -45,7 +44,6 @@ public class DriftParticle extends SpriteBillboardParticle {
 		/** Frames follow the age (else a random frame, twinkling for two-frame kinds). */
 		final boolean framesByAge;
 		final float sway;
-		/** Dies on touching the ground. */
 		final boolean diesOnGround;
 
 		Kind(float minScale, float maxScale, float gravity, float drag, int minAge, int maxAge, boolean glows,

@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * The weapons' in-hand models (PLAN 17.2, 17.4): in a hand each is drawn as its big 3D model ({@link InHandModels}),
+ * The weapons' in-hand models: in a hand each is drawn as its big 3D model ({@link InHandModels}),
  * the way vanilla swaps the trident's and the spyglass's models (the icon stays for the GUI, the ground and item
  * frames), and the Scourge's lash ({@link ScourgeLashes}) learns where its handle is drawn and whose hand it is in.
  */
