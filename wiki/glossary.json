@@ -245,6 +245,12 @@
 		{"en": "set pieces", "ru": "механизмы", "de": "Mechanik", "fr": "machinerie", "zh": "机械装置", "note": "moving decorative blocks (mill sails, bells, braziers…); de/fr/zh as in embervoid.setpiece.chunk_full"},
 		{"en": "props", "ru": "декорации", "de": "Requisiten", "fr": "décors", "zh": "装饰物", "note": "still decorative models (grain sacks, coffins…), as opposed to set pieces; not in the lang files, de/fr/zh proposed"},
 		{"en": "boss adds", "ru": "прислужники", "de": "Diener", "fr": "sbires", "zh": "仆从", "note": "the extra mobs a boss brings for each fighter beyond the first; not «помощники»; not in the lang files, de/fr/zh proposed"},
-		{"en": "first-kill reward", "ru": "награда за первую победу", "de": "Belohnung für den ersten Sieg", "fr": "récompense de la première victoire", "zh": "首杀奖励", "note": "boss soul, Flask Shard / Flask Ember and Ember Heart given on a player's first win over a boss; ru says «первая победа», not «первое убийство»; not in the lang files, de/fr/zh proposed"}
+		{"en": "first-kill reward", "ru": "награда за первую победу", "de": "Belohnung für den ersten Sieg", "fr": "récompense de la première victoire", "zh": "首杀奖励", "note": "boss soul, Flask Shard / Flask Ember and Ember Heart given on a player's first win over a boss; ru says «первая победа», not «первое убийство»; not in the lang files, de/fr/zh proposed"},
+		{"en": "Burning City", "ru": "Горящий город", "de": "Brennende Stadt", "fr": "cité en flammes", "zh": "燃烧之城", "note": "the city of the Smoldering Citadel; a description, lower-case in prose; added with the de/fr/zh wiki"},
+		{"en": "Royal Grove", "ru": "Королевская роща", "de": "Königlicher Hain", "fr": "Bosquet royal", "zh": "王家林苑", "note": "the grove at the heart of the Royal Woods; added with the de/fr/zh wiki"},
+		{"en": "outpost", "ru": "аванпост", "de": "Außenposten", "fr": "avant-poste", "zh": "哨站", "note": "small fortified posts along the roads; added with the de/fr/zh wiki"},
+		{"en": "toll gate", "ru": "застава", "de": "Mauthaus", "fr": "péage", "zh": "收费关卡", "note": "the gatehouse across a road; added with the de/fr/zh wiki"},
+		{"en": "watchtower", "ru": "дозорная башня", "de": "Wachturm", "fr": "tour de guet", "zh": "瞭望塔", "note": "added with the de/fr/zh wiki"},
+		{"en": "ossuary", "ru": "оссуарий", "de": "Beinhaus", "fr": "ossuaire", "zh": "藏骨堂", "note": "bone vaults of the Sunken Necropolis; added with the de/fr/zh wiki"}
 	]
 }
