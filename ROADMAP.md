@@ -421,7 +421,7 @@ without creative mode, boss fights take about two minutes, and nothing breaks on
 - [x] English pages: guides and encyclopedia
 - [x] Glossary; the mod in German, French and Chinese
 - [ ] Stats export, so numbers on the wiki come from the code
-- [ ] Translations into ru, de, fr, zh
+- [x] Translations into ru, de, fr, zh
 - [ ] Published on moddedmc.wiki
 
 ---
